@@ -6,10 +6,8 @@
       <el-button class="el-button--primary" @click="removeAll">清空所有实体</el-button>
       <el-button class="el-button--primary" @click="removePoint">删除障碍区域</el-button>
       <el-button class="el-button--primary" @click="removePolyline">删除路径规划</el-button>
-      <el-button class="el-button--primary" @click="emergencyResourceInformation">应急资源信息</el-button>
     </el-form>
-    <RouterPanel :visible="popupVisible" :position="popupPosition" :popupData="popupData" @wsSendPoint="wsSendPoint"/>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -42,22 +40,10 @@ export default {
     return {
       pos: [],
       areas: [],
-      //-----------弹窗部分-------------------
-      selectedEntityHighDiy: null,
-      popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
-      popupVisible: false, // 弹窗的显示与隐藏，传值给子组件
-      popupData: {}, // 弹窗内容，传值给子组件
     }
   },
   mounted() {
     this.init();
-    this.entitiesClickPonpHandler()
-    // this.watchTerrainProviderChanged();
-    cesiumPlot.init(window.viewer, this.websock, this.$store)
-    console.log(" this.$router.currentRoute11111111:", this.$router.currentRoute)
-    this.initPlot(this.id)
-    this.initWebsocket()
-    //---------------------------
   },
   methods:{
     init() {
@@ -84,15 +70,7 @@ export default {
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务';
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务';
     },
-    initPlot(){
-      getDisasterReserves().then(res=>{
-        let data = res
-        console.log("data",data)
-        let pointArr = data.filter(e => e.longitude !== null)
-        // console.log("pointArr",pointArr)
-        //画点
-        this.drawPoint(pointArr)
-      })
+    initPlot() {
     },
     drawPoint(pointArr) {
       pointArr.forEach(element => {
@@ -128,66 +106,6 @@ export default {
           return; // 跳过坐标超出范围的实体
         }
 
-        // 如果不存在相同ID的实体，则添加新的实体
-        try {
-          window.viewer.entities.add({
-            id: element.id,
-            position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-            billboard: {
-              image: disasterReliefMaterialReserve, // 使用导入的图标路径
-              width: 50,
-              height: 50,
-              eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-              color: Cesium.Color.WHITE.withAlpha(1), // 颜色
-              scale: 0.8, // 缩放比例
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
-              depthTest: false, // 禁止深度测试
-              disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
-            },
-            properties: {
-              county: element.county,
-              storagePointsCount: element.storagePointsCount,
-              totalKitsCount: element.totalKitsCount,
-              disasterTentsCount: element.disasterTentsCount,
-              cottonBlanketsCount: element.cottonBlanketsCount,
-              otherBlanketsCount: element.otherBlanketsCount,
-              cottonClothesCount: element.cottonClothesCount,
-              cottonCoatsCount: element.cottonCoatsCount,
-              otherClothesCount: element.otherClothesCount,
-              woolBlanketsCount: element.woolBlanketsCount,
-              foldingBedsCount: element.foldingBedsCount,
-              bunkBedsCount: element.bunkBedsCount,
-              stripedClothBundlesCount: element.stripedClothBundlesCount,
-              moistureMatsCount: element.moistureMatsCount,
-              generatorsCount: element.otherBlanketsCount,
-              lightingFixturesCount: element.lightingFixturesCount,
-              lightingKitsCount: element.lightingKitsCount,
-              flashlightsCount: element.flashlightsCount,
-              raincoatsCount: element.raincoatsCount,
-              rainBootsCount: element.rainBootsCount,
-              otherSuppliesCount: element.otherSuppliesCount,
-              address: element.address,
-              lon: element.longitude,
-              lat: element.latitude,
-              contactPerson: element.contactPerson,
-              contactPhone: element.contactPhone,
-              insertTime: element.insertTime,
-              id: element.id
-            }
-          });
-        } catch (error) {
-          console.error(`Error adding entity with id ${element.id}:`, error);
-        }
-      });
-    },
-    initWebsocket() {
-      this.websock = initWebSocket()
-      this.websock.id = this.id
-    },
-    // ws发送数据（只有点的是在这里）
-    wsSendPoint(data) {
-      this.websock.send(data)
-    },
     /** 计算两个坐标的距离，单位米 **/
     Distance(lng1, lat1, lng2, lat2) {
       //采用Haversine formula算法，高德地图的js计算代码，比较简洁 https://www.cnblogs.com/ggz19/p/7551088.html
@@ -368,10 +286,6 @@ export default {
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     },
-    emergencyResourceInformation(){
-      // 调用 initPlot 方法
-      this.initPlot();
-    },
     isTerrainLoaded() {
       let terrainProvider = window.viewer.terrainProvider;
       if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
@@ -386,149 +300,6 @@ export default {
       // console.log("地形未加载")
       return false;
     },
-    watchTerrainProviderChanged() {
-      let that = this
-      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-        this.popupVisible = false // 地形改变时关闭弹窗
-        let tzs = []
-        if(that.modelName === 1){
-          tzs[0] = 9
-          tzs[1] = -567
-        }else {
-          tzs[0] = 15
-          tzs[1] = -557
-        }
-        if(that.isTerrainLoaded()){
-          that.changeHeight(tzs[0])
-          that.tz = tzs[0]
-          that.find()
-        }else {
-          that.changeHeight(tzs[1])
-          that.tz = tzs[1]
-          that.find()
-        }
-      });
-    },
-
-    entitiesClickPonpHandler() {
-      let that = this
-      window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-        // 1-1 获取点击点的信息（包括）
-        let pickedEntity = window.viewer.scene.pick(click.position);
-        window.selectedEntity = pickedEntity?.id
-        // 2-1 判断点击物体是否为点实体（billboard）
-        if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
-          // const cesiumPosition = that.selectedEntity.position.getValue(
-          //     window.viewer.clock.currentTime
-          // );
-          //
-          // 2-2 获取点击点的经纬度
-          let ray = viewer.camera.getPickRay(click.position)
-          let position = viewer.scene.globe.pick(ray, viewer.scene)
-          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
-          let cartographic = Cesium.Cartographic.fromCartesian(position);
-          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-
-          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
-          let height = 0
-          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
-          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
-          if (this.isTerrainLoaded()) {
-            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
-            let l = Cesium.Cartographic.fromCartesian(position)
-            let lon = Cesium.Math.toDegrees(l.longitude)
-            let lat = Cesium.Math.toDegrees(l.latitude)
-            let hei = l.height
-            let height
-            // 将笛卡尔坐标转换为地理坐标角度
-            let cartographic = Cesium.Cartographic.fromCartesian(position);
-            // 将地理坐标角度换为弧度
-            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
-            // 将经纬度和高度生成新的笛卡尔坐标
-            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
-            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
-          }
-          // 2-5 更新弹窗位置
-          // that.selectedEntity = window.selectedEntity
-          that.popupData = {
-            county: window.selectedEntity.properties.county.getValue(),
-            storagePointsCount: window.selectedEntity.properties.storagePointsCount.getValue(),
-            totalKitsCount: window.selectedEntity.properties.totalKitsCount.getValue(),
-            disasterTentsCount: window.selectedEntity.properties.disasterTentsCount.getValue(),
-            cottonBlanketsCount: window.selectedEntity.properties.cottonBlanketsCount.getValue(),
-            otherBlanketsCount: window.selectedEntity.properties.otherBlanketsCount.getValue(),
-            cottonClothesCount: window.selectedEntity.properties.cottonClothesCount.getValue(),
-            cottonCoatsCount: window.selectedEntity.properties.cottonCoatsCount.getValue(),
-            otherClothesCount: window.selectedEntity.properties.otherClothesCount.getValue(),
-            woolBlanketsCount: window.selectedEntity.properties.woolBlanketsCount.getValue(),
-            foldingBedsCount: window.selectedEntity.properties.foldingBedsCount.getValue(),
-            bunkBedsCount: window.selectedEntity.properties.bunkBedsCount.getValue(),
-            stripedClothBundlesCount: window.selectedEntity.properties.stripedClothBundlesCount.getValue(),
-            moistureMatsCount: window.selectedEntity.properties.moistureMatsCount.getValue(),
-            generatorsCount: window.selectedEntity.properties.generatorsCount.getValue(),
-            lightingFixturesCount: window.selectedEntity.properties.lightingFixturesCount.getValue(),
-            lightingKitsCount: window.selectedEntity.properties.lightingKitsCount.getValue(),
-            flashlightsCount: window.selectedEntity.properties.flashlightsCount.getValue(),
-            raincoatsCount: window.selectedEntity.properties.raincoatsCount.getValue(),
-            rainBootsCount: window.selectedEntity.properties.rainBootsCount.getValue(),
-            otherSuppliesCount: window.selectedEntity.properties.otherSuppliesCount.getValue(),
-            address: window.selectedEntity.properties.address.getValue(),
-            lon: window.selectedEntity.properties.lon.getValue(),
-            lat: window.selectedEntity.properties.lat.getValue(),
-            contactPerson: window.selectedEntity.properties.contactPerson.getValue(),
-            contactPhone: window.selectedEntity.properties.contactPhone.getValue(),
-            insertTime: window.selectedEntity.properties.insertTime.getValue(),
-            id: window.selectedEntity.properties.id.getValue(),
-          };
-          this.popupVisible = true; // 显示弹窗
-          this.updatePopupPosition(); // 更新弹窗的位置
-
-        } else {
-          this.popupVisible = false; // 隐藏弹窗
-        }
-        // 3-1 选中面时触发
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
-          that.showPolygon = true
-          // that.polygonPosition = window.selectedEntity
-        } else {
-          this.showPolygon = false
-        }
-        // 4-1选中线时触发
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined) {
-          let status = cesiumPlot.drawPolylineStatus()
-          if (status === 0) {
-            that.showPolyline = true
-            // that.polylinePosition = window.selectedEntity
-          }
-        } else {
-          this.showPolyline = false
-        }
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
-
-      // 必须有这个，拖动地图弹窗位置才会跟着移动
-      window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-        if (that.popupVisible && window.selectedEntity) {
-          that.updatePopupPosition(); // 更新弹窗的位置
-        }
-      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    },
-
-    //--------------------弹窗----------------------
-    // 判断是否有高程
-    // 更新弹窗的位置
-    updatePopupPosition() {
-      // 笛卡尔3转笛卡尔2（屏幕坐标）
-      const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, this.selectedEntityHighDiy)
-      if (canvasPosition) {
-        this.popupPosition = {
-          x: canvasPosition.x,//+ 20,
-          y: canvasPosition.y //- 60 // 假设弹窗应该在图标上方 50px 的位置
-        };
-      }
-    },
   }
 }
 </script>
@@ -538,6 +309,7 @@ export default {
   display: none !important;
 }
 .route-tool-container {
+.tool-container {
   position: absolute;
   padding: 15px;
   border-radius: 5px;
