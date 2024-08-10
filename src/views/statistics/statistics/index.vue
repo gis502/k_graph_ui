@@ -123,7 +123,7 @@ const total = ref()
 
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.fileId === newFlag);
+  const selectedFile = files.value.find(file => file.fileFlag === newFlag);
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
