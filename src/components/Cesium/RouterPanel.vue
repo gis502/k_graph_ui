@@ -100,6 +100,28 @@ export default {
           hosesMeters: '水带（米）',
           fireTrucks: '消防水车',
           otherSupplies: '其他',
+          // 雅安应急队伍表
+          uniqueId: '唯一标识',
+          organization: '组织机构',
+          levelName: '级别名称',
+          teamTypeName: '队伍类型名称',
+          totalPersonnel: '总人数',
+          establishmentDate: '成立日期',
+          mainResponsibilities: '主要职责',
+          expertiseDescription: '专业描述',
+          emergencyContactMethod: '应急联系方式',
+          estimatedPreparationTime: '预估准备时间',
+          assemblyDepartureLocation: '集合出发地点',
+          selfTransportation: '自备交通工具',
+          longitude: '经度',
+          latitude: '纬度',
+          personInCharge: '负责人',
+          personInChargePhone: '负责人电话',
+          confidentialityLevel: '保密级别',
+          modifiedBy: '修改人',
+          qualificationLevel: '资质级别',
+          dataSource: '数据来源',
+          notes: '备注'
       },
     }
   },
@@ -121,7 +143,7 @@ export default {
         // 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
-          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'id') {
+          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'id'&& key !== 'uniqueId') {
             const translatedKey = this.keyMappings[key] || key;
             translatedData[translatedKey] = rawPopupData[key];
           }
@@ -165,7 +187,7 @@ export default {
 .videoMonitorWin {
   position: absolute;
   height: 50vh;
-  width: 700px;
+  width: 789px;
   padding: 20px;
   z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);

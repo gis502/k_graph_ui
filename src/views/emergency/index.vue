@@ -18,6 +18,7 @@ import cesiumPlot from '@/cesium/plot/cesiumPlot.js'
 import {getEmergency} from "@/api/system/emergency.js";
 import disasterReservesLogo from '@/assets/images/disasterReservesLogo.jpg';
 import disasterSuppliesLogo from '@/assets/images/disasterSuppliesLogo.png';
+import emergencyTeamLogo from '@/assets/images/emergencyTeamLogo.png';
 
 
 export default {
@@ -65,10 +66,12 @@ export default {
       getEmergency().then(res => {
         let disasterReserves = res.disasterReserves; // 提取 disasterReserves 列表
         let disasterSupplies = res.disasterSupplies; // 提取 disasterSupplies 列表
+        let emergencyTeam = res.emergencyTeam; // 提取 emergencyTeam 列表
         console.log('获取到的res', res);
 
         console.log("救灾物资储备", disasterReserves);
         console.log("抢险救援装备", disasterSupplies);
+        console.log("雅安应急队伍", emergencyTeam);
 
         // 对 disasterReserves 进行处理
         if (Array.isArray(disasterReserves)) {
@@ -87,6 +90,16 @@ export default {
         } else {
           console.error("救灾用品数据格式不正确", disasterSupplies);
         }
+
+        // 对 emergencyTeam 进行处理
+        if (Array.isArray(emergencyTeam)) {
+          let pointArr = emergencyTeam.filter(e => e.longitude !== null);
+          // 画点
+          this.drawPointEmergencyTeam(pointArr);
+        } else {
+          console.error("雅安应急队伍数据格式不正确", emergencyTeam);
+        }
+
       });
     },
 
@@ -250,6 +263,72 @@ export default {
             lat: element.latitude,
             contactPerson: element.contactPerson,
             contactPhone: element.contactPhone
+          }
+        });
+      });
+    },
+    drawPointEmergencyTeam(pointArr) {
+      pointArr.forEach(element => {
+        // 检查是否已存在具有相同ID的实体
+        let existingEntity = window.viewer.entities.getById(element.id);
+        if (existingEntity) {
+          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          return; // 跳过这个实体
+        }
+
+        // 检查经度、纬度和高度是否为有效数值
+        let longitude = Number(element.longitude);
+        let latitude = Number(element.latitude);
+        if (isNaN(longitude) || isNaN(latitude)) {
+          console.error(`id为${element.id}的实体的坐标无效`, { longitude, latitude });
+          return; // 跳过无效坐标的实体
+        }
+        // 检查经度和纬度是否在合理范围内
+        if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+          console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          return; // 跳过坐标超出范围的实体
+        }
+
+        // 如果不存在相同ID的实体，则准备新的实体
+        window.viewer.entities.add({
+          id: element.id,
+          position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+          billboard: {
+            image: emergencyTeamLogo, // 使用导入的图标路径
+            width: 40, // 导入图标的宽度
+            height: 40, // 导入图标的长度
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+            color: Cesium.Color.WHITE.withAlpha(1), // 颜色
+            scale: 0.8, // 缩放比例
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
+            depthTest: false, // 禁止深度测试
+            disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
+          },
+          properties: {
+            tableName: "雅安应急队伍",
+            id: element.id,
+            uniqueId: element.uniqueId,
+            organization: element.organization,
+            levelName: element.levelName,
+            teamTypeName: element.teamTypeName,
+            address: element.address,
+            totalPersonnel: element.totalPersonnel,
+            establishmentDate: element.establishmentDate,
+            mainResponsibilities: element.mainResponsibilities,
+            expertiseDescription: element.expertiseDescription,
+            emergencyContactMethod: element.emergencyContactMethod,
+            estimatedPreparationTime: element.estimatedPreparationTime,
+            assemblyDepartureLocation: element.assemblyDepartureLocation,
+            selfTransportation: element.selfTransportation,
+            longitude: element.longitude,
+            latitude: element.latitude,
+            personInCharge: element.personInCharge,
+            personInChargePhone: element.personInChargePhone,
+            confidentialityLevel: element.confidentialityLevel,
+            modifiedBy: element.modifiedBy,
+            qualificationLevel: element.qualificationLevel,
+            dataSource: element.dataSource,
+            notes: element.notes
           }
         });
       });
