@@ -83,15 +83,15 @@ export default {
       // console.log(this.Responsecontent)
     },
     personnel_casualties_update(currentTime){
-      console.log("personnel_casualties_update",this.Responsecontent)
-      console.log(currentTime)
+      // console.log("personnel_casualties_update",this.Responsecontent)
+      // console.log(currentTime)
       const activities = this.Responsecontent.filter((activity) => {
         return (
             new Date(activity[0]) <= currentTime
         );
       });
       if(activities.length>=1){
-        console.log("activities",activities)
+        // console.log("activities",activities)
         activities.sort((a, b) => {
           if (a[0] < b[0]) return -1;
           if (a[0] > b[0]) return 1;

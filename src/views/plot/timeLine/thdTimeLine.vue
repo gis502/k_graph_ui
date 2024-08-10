@@ -53,20 +53,6 @@
 
 <!--    两侧组件-->
 
-<!--新闻-->
-<!--    <timeLineNewsCard class="news" width="35rem">-->
-<!--      <div>-->
-<!--        <h2 class="sub-title">-->
-<!--          最新事件:-->
-<!--&lt;!&ndash;          <span class="m-time">{{ speakers.time }}</span>&ndash;&gt;-->
-<!--        </h2>-->
-<!--      </div>-->
-<!--    </timeLineNewsCard>-->
-<!--新闻 end-->
-
-
-
-
       <timeLineEmergencyResponse
           :currentTime="currentTime"
       />
@@ -85,31 +71,22 @@
       <news></news>
     </div>
 
-
     <!--      缩略图-->
     <div>
       <mini-map></mini-map>
     </div>
 
+<!--    <div class="tmp"> </div>-->
 
-<!--    <div class="news">-->
-<!--      <timeLineNews/>-->
-<!--    </div>-->
+    <timeLineLegend></timeLineLegend>
 
-<!--    <div class="smallmap">-->
-<!--      <timeLineSmallMap/>-->
-<!--    </div>-->
 <!--    两侧组件 end-->
     <!--报告产出按钮-->
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
     <!--报告产出按钮 end-->
-
-
   </div>
-
-
 </template>
 
 <script>
@@ -123,13 +100,13 @@ import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 
-// import timeLineNews from "@/components/TimeLine/timeLineNews.vue"
 import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
 import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
 import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
 
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
+import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 
 //报告产出
 import jsPDF from "jspdf";
@@ -140,12 +117,12 @@ import html2canvas from "html2canvas";
 export default {
   components: {
     TimeLinePanel,
-    // timeLineNews,
     News,
     MiniMap,
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
-    timeLineRescueTeam
+    timeLineRescueTeam,
+    timeLineLegend
   },
   data: function () {
     return {
@@ -207,6 +184,7 @@ export default {
       dragStartX: 0,
 
       smallViewer:null,
+      // isShowLegent:true,
     };
   },
   created() {
@@ -435,8 +413,8 @@ export default {
         ),
         billboard: {
           image: centerstar,
-          width: 50,
-          height: 50,
+          width: 40,
+          height: 40,
         },
         label: {
           text: this.centerPoint.position,
@@ -694,6 +672,10 @@ export default {
     //时间轴end-------------
 
 
+
+
+
+
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
     entitiesClickPonpHandler() {
       let that = this
@@ -783,21 +765,26 @@ export default {
       }
     },
 
+    //图例 展开收起
+    // ChangeLegendShow(){
+    //   this.isShowLegent=!this.isShowLegent
+    // },
+
 
 //截图
-//     takeScreenshot() {
-//       html2canvas(this.$refs.box).then((canvas) => {
-//         // 创建一个临时链接元素
-//         const link = document.createElement('a');
-//         link.download = 'screenshot.png';
-//         link.href = canvas.toDataURL('image/png');
-//         // 将链接添加到 DOM 并单击它以下载图像
-//         document.body.appendChild(link);
-//         link.click();
-//         document.body.removeChild(link);
-//         // console.log(this.$el.textContent); // I'm text inside the component.
-//       });
-//     },
+    takeScreenshot() {
+      // html2canvas(this.$refs.box).then((canvas) => {
+      //   // 创建一个临时链接元素
+      //   const link = document.createElement('a');
+      //   link.download = 'screenshot.png';
+      //   link.href = canvas.toDataURL('image/png');
+      //   // 将链接添加到 DOM 并单击它以下载图像
+      //   document.body.appendChild(link);
+      //   link.click();
+      //   document.body.removeChild(link);
+      //   // console.log(this.$el.textContent); // I'm text inside the component.
+      // });
+    },
 
 
     //-地震列表-------------------------------------
@@ -1083,28 +1070,16 @@ export default {
 
 
 
-.news {
+.tmp {
   position: absolute;
-  top: 6%;
-  width: 21%;
-  height: 45%;
+  top: 0%;
+  width: 100%;
+  height: 100%;
   padding: 10px;
   border-radius: 5px;
-  right: 1%;
+  right: 0%;
   z-index: 1;
-  background-color: rgba(40, 40, 40, 0.7);
-}
-
-.smallmap {
-  position: absolute;
-  top: 55%;
-  width: 21%;
-  height: 40%;
-  padding: 10px;
-  border-radius: 5px;
-  right: 1%;
-  z-index: 20;
-  background-color: rgba(40, 40, 40, 0.7);
+  background-color: rgba(40, 40, 40, 0.3);
 }
 
 
@@ -1118,5 +1093,20 @@ export default {
 
 }
 
+.legend_button {
+  position: absolute;
+  bottom: 6%;
+  width: 12%;
+  height: 5%;
+  padding: 10px;
+  border-radius: 5px;
+  right: 1%;
+  z-index: 1;
+  background-color: rgba(40, 40, 40, 0.7);
+}
+.legend_button p{
+  color: #FFFFFF;
+  margin:0;
+}
 
 </style>
