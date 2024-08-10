@@ -4,6 +4,38 @@
 <!--    写功能按钮部分-->
 <!--    </el-form>-->
     <RouterPanel :visible="popupVisible" :position="popupPosition" :popupData="popupData" />
+      <div id="supplies">
+          <el-form class="eqTable">
+              <div style="margin-bottom: 10px;">
+                  <el-input v-model="inputRadius" placeholder="请输入搜查范围/km"
+                            style="width: 170px;margin-right: 5px;" clearable>
+                  </el-input>
+                  <el-button class="el-button--primary" @click="searchSupply">查找物资</el-button>
+                  <el-button class="el-button--primary" @click="addDisasterPoint">添加受灾点</el-button>
+                  <el-button class="el-button--primary" @click="showAllSupplyPoints">显示所有物资点</el-button>
+              </div>
+
+              <el-table :data="showSuppliesList" style="width: 100%;margin-bottom: 5px;text-align: center" :stripe="true"
+                        :header-cell-style="tableHeaderColor" :cell-style="tableColor"
+                        :row-style="{height: '40px'}"
+                        @row-click="showSupplyPoint"
+              >
+                  <el-table-column prop="county" label="区域" width="100"></el-table-column>
+                  <el-table-column prop="address" label="地址" width="200"></el-table-column>
+                  <el-table-column prop="contactPerson" label="联系人" width="100"></el-table-column>
+                  <el-table-column prop="contactPhone" label="联系电话"></el-table-column>
+
+              </el-table>
+              <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage"
+                      :page-size="pageSize"
+                      layout="total, prev, pager, next, jumper"
+                      :total="total">
+              </el-pagination>
+          </el-form>
+      </div>
   </div>
 </template>
 
@@ -27,8 +59,33 @@ export default {
   name: "index",
   data() {
     return {
+      viewer: null,
       pos: [],
       areas: [],
+
+      // 资源快速匹配
+      showSuppliesList: [],
+      selectedSuppliesList: [],
+      showIcon: [],
+      total: 0,
+      pageSize: 5,
+      currentPage: 1,
+      addSupplyPointCurrently:{
+          lng: 0,
+          lat: 0,
+          count: 0,
+          position: "",
+          type: "",
+          tel: ""
+      },
+      inputRadius: "",
+      canMarkPoint: false,
+      DialogFormVisible: false,
+      affectedPoints: [
+          { lng: 103.0058, lat: 29.9794, position: 'a'}
+      ],
+      suppliesList: [],
+
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -44,6 +101,7 @@ export default {
   },
   methods: {
     init() {
+      let that = this
       let viewer = initCesium(Cesium);
       viewer._cesiumWidget._creditContainer.style.display = 'none'; // 隐藏版权信息
       window.viewer = viewer;
@@ -60,21 +118,47 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索';
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务';
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务';
+
+
+      this.clickCount += 1;
+
+      const ellipsoid = viewer.scene.globe.ellipsoid;
+      const canvas = viewer.scene.canvas;
+      const handler = new Cesium.ScreenSpaceEventHandler(canvas);
+
+      handler.setInputAction((movement) => {
+          const cartesian = viewer.camera.pickEllipsoid(movement.position, ellipsoid);
+          if (cartesian) {
+              const cartographic = ellipsoid.cartesianToCartographic(cartesian);
+              this.addSupplyPointCurrently.lat = Cesium.Math.toDegrees(cartographic.latitude).toFixed(5);
+              this.addSupplyPointCurrently.lng = Cesium.Math.toDegrees(cartographic.longitude).toFixed(5);
+
+              if(this.canMarkPoint){
+                  this.DialogFormVisible = true
+                  this.drawSite(this.addSupplyPointCurrently.lat, this.addSupplyPointCurrently.lng,
+                      this.clickCount, Cesium.Color.RED);
+                  this.canMarkPoint = false
+              }
+          }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
     initPlot() {
       getEmergency().then(res => {
         let disasterReserves = res.disasterReserves; // 提取 disasterReserves 列表
         let disasterSupplies = res.disasterSupplies; // 提取 disasterSupplies 列表
         console.log('获取到的res', res);
-
-        console.log("救灾物资储备", disasterReserves);
-        console.log("抢险救援装备", disasterSupplies);
+          // this.suppliesList = disasterReserves.concat(disasterSupplies)
+          // this.showIcon = disasterReserves.concat(disasterSupplies)
+          // this.fetSupplyPoints()
+        // console.log("this.suppliesList--", this.suppliesList.length);
+        // console.log("this.showIcon--", this.showIcon.length);
 
         // 对 disasterReserves 进行处理
         if (Array.isArray(disasterReserves)) {
           let pointArr = disasterReserves.filter(e => e.longitude !== null);
           // 画点
           this.drawPointReserves(pointArr);
+            this.suppliesList.push(pointArr)
         } else {
           console.error("灾备物资数据格式不正确", disasterReserves);
         }
@@ -84,9 +168,11 @@ export default {
           let pointArr = disasterSupplies.filter(e => e.longitude !== null);
           // 画点
           this.drawPointSupplies(pointArr);
+            this.suppliesList.push(pointArr)
         } else {
           console.error("救灾用品数据格式不正确", disasterSupplies);
         }
+          this.fetSupplyPoints()
       });
     },
 
@@ -158,6 +244,7 @@ export default {
             insertTime: element.insertTime
           }
         });
+          element.type = "reserves"
       });
     },
     drawPointSupplies(pointArr) {
@@ -177,10 +264,10 @@ export default {
           return; // 跳过无效坐标的实体
         }
         // 检查经度和纬度是否在合理范围内
-        if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
-          return; // 跳过坐标超出范围的实体
-        }
+        // if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+        //   console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+        //   return; // 跳过坐标超出范围的实体
+        // }
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
@@ -252,6 +339,7 @@ export default {
             contactPhone: element.contactPhone
           }
         });
+          element.type = "supplies"
       });
     },
     isTerrainLoaded() {
@@ -376,6 +464,193 @@ export default {
         };
       }
     },
+
+      //-----------附近资源快速匹配----------
+      // 绘制点
+      drawSite(lat, lng, id, color) {
+          const point = {
+              id: id,
+              position: Cesium.Cartesian3.fromDegrees(parseFloat(lng), parseFloat(lat)),
+          };
+          this.affectedPoints.push(point);
+
+          if (this.viewer) {
+              this.viewer.entities.add({
+                  position: point.position,
+                  point: {
+                      pixelSize: 10,
+                      color: color,
+                  },
+              });
+          }
+      },
+
+      fetSupplyPoints(){
+          this.selectedSuppliesList = this.suppliesList[0].concat(this.suppliesList[1])
+          this.total = this.selectedSuppliesList.length
+          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
+          console.log("this.showSuppliesList-",this.showSuppliesList)
+      },
+
+      showSupplyPoint(row){
+          console.log("点击了：",row)
+          this.showIcon = []
+          this.showIcon.push(row)
+          this.removePoints(this.suppliesList[0])
+          this.removePoints(this.suppliesList[1])
+          this.removePoints(this.showIcon)
+          // this.drawPoint(this.showIcon)
+          if(this.showIcon.type === 'reserves'){
+              this.drawPointReserves(this.showIcon)
+          }else{
+              this.drawPointSupplies(this.showIcon)
+          }
+          console.log("this.showIcon--", this.showIcon.length);
+      },
+
+      removePoints(entityArr) {
+          entityArr.forEach(entity => {
+              console.log("-----",entity.id)
+              let id = entity.id;
+              let existingEntity = window.viewer.entities.getById(id);
+              if (existingEntity) {
+                  window.viewer.entities.removeById(id);
+              } else {
+              }
+          });
+      },
+      // removePoints() {
+      //     if (window.viewer && window.viewer.entities) {
+      //         window.viewer.entities.removeAll();
+      //     } else {
+      //         console.error('Viewer or entities collection is not initialized');
+      //     }
+      // },
+
+
+      showAllSupplyPoints(){
+        let that = this
+          that.showIcon = []
+          that.showIcon = this.suppliesList
+          viewer.entities.values.forEach(entity => {
+              if (entity.ellipse) {
+                  viewer.entities.remove(entity);
+              }
+          });
+          this.removePoints(that.showIcon)
+          console.log("this.showIcon==", that.showIcon.length);
+          // this.drawPoint(this.suppliesList)
+          if(that.suppliesList[0].type === 'reserves'){
+              this.drawPointReserves(that.suppliesList[0])
+              this.drawPointReserves(that.suppliesList[1])
+          }else{
+              this.drawPointSupplies(that.suppliesList[0])
+              this.drawPointSupplies(that.suppliesList[1])
+          }
+
+      },
+
+      searchSupply(){
+          if(!isNaN(parseFloat(this.inputRadius))){
+              let longitude = parseFloat(this.addSupplyPointCurrently.lng);
+              let latitude = parseFloat(this.addSupplyPointCurrently.lat);
+              const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
+              this.selectedSuppliesList = [];
+              this.suppliesList.forEach((point, index) => {
+                  const pointLongitude = parseFloat(point.longitude);
+                  const pointLatitude = parseFloat(point.latitude);
+                  const initialPoint = Cesium.Cartesian3.fromDegrees(pointLongitude, pointLatitude);
+                  const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000; // 距离以公里为单位
+                  if (distance < this.inputRadius) {
+                      this.selectedSuppliesList.push(point);
+                  }
+              });
+              this.total = this.selectedSuppliesList.length
+              this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
+              this.removePoints(this.showIcon)
+              this.showIcon = this.selectedSuppliesList
+              this.drawPointSupplies(this.showIcon)
+              this.selectPoints()
+          }
+      },
+      // 查询指定范围内的物资点
+      selectPoints() {
+          if (!isNaN(parseFloat(this.inputRadius))) {
+              // 确保 inputRadius 为数字类型  画圆的单位为m
+              const radius = parseFloat(this.inputRadius) * 1000;
+              // 将经纬度转换为 Cartesian3 类型
+              const position = Cesium.Cartesian3.fromDegrees(
+                  parseFloat(this.addSupplyPointCurrently.lng),
+                  parseFloat(this.addSupplyPointCurrently.lat)
+              );
+              this.viewer.entities.values.forEach(entity => {
+                  if (entity.ellipse) {
+                      this.viewer.entities.remove(entity);
+                  }
+              });
+              this.viewer.entities.add({
+                  position: position,
+                  ellipse: {
+                      semiMajorAxis: radius,
+                      semiMinorAxis: radius,
+                      material: Cesium.Color.GREEN.withAlpha(0.5),
+                  },
+              });
+          }
+      },
+      // 添加物资点
+      addDisasterPoint(){
+          this.canMarkPoint = true
+      },
+      getPageArr(arr){
+          let newArr = []
+          let start = (this.currentPage - 1) * this.pageSize
+          let end = this.currentPage * this.pageSize
+          if (end > this.total) {
+              end = this.total
+          }
+          for (; start < end; start++) {
+              newArr.push(arr[start])
+          }
+          return newArr
+      },
+      handleSizeChange(val) {
+          this.pageSize = val
+          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
+      },
+      handleCurrentChange(val) {
+          this.currentPage = val
+          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
+      },
+      tableHeaderColor() {
+          return {
+              'border-color': '#293038',
+              'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+              'color': '#fff',
+              'padding': '0',
+              'text-align': 'center',
+          }
+      },
+      // 修改table header的背景色
+      tableColor({row, column, rowIndex, columnIndex}) {
+          if (rowIndex % 2 == 1) {
+              return {
+                  'border-color': '#313a44',
+                  'background-color': '#313a44',
+                  'color': '#fff',
+                  'padding': '0',
+                  'text-align': 'center'
+              }
+          } else {
+              return {
+                  'border-color': '#304156',
+                  'background-color': '#304156',
+                  'color': '#fff',
+                  'padding': '0',
+                  'text-align': 'center'
+              }
+          }
+      },
   }
 }
 </script>
@@ -396,6 +671,18 @@ export default {
   margin: 0;
   padding: 0;
   overflow: hidden;
+}
+#supplies{
+    position: absolute;
+    padding: 15px;
+    border-radius: 5px;
+    /*width: 500px;*/
+    /*height: 200px;*/
+    top: 10px;
+    left: 10px;
+    width: 36rem;
+    z-index: 10; /* 更高的层级 */
+    background-color: rgba(40, 40, 40, 0.7);
 }
 </style>
 

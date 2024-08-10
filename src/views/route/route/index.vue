@@ -114,7 +114,6 @@ export default {
   },
   methods: {
     init() {
-      console.log(" this.$router.currentRoute:2222222", this.$router.currentRoute)
       let viewer = initCesium(Cesium);
       viewer._cesiumWidget._creditContainer.style.display = 'none'; // 隐藏版权信息
       window.viewer = viewer;
