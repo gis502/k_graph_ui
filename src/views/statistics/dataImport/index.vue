@@ -20,7 +20,6 @@
         <el-button size='large' type='primary' @click="downloadForm" plain icon="Document">
           下载模板
         </el-button>
-
         <el-dialog title="请选择表名"
                    v-model="formDialogVisible"
                    width="50%"
@@ -69,20 +68,20 @@
           <!--          更新数据：{{ updateCount }}-->
         </div>
       </div>
+      <div class="grid-content">
+        <el-progress
+            :text-color="progressColor"
+            :percentage='percent'
+            :text-inside='true'
+            :stroke-width='20'
+        ></el-progress>
+      </div>
       <div class="dataContainer">
-        <div class="grid-content">
-          <el-progress
-              :text-color="progressColor"
-              :percentage='percent'
-              :text-inside='true'
-              :stroke-width='20'
-          ></el-progress>
-        </div>
         <div class="tableStyle">
           <el-table
-              :data="this.tableData"
+              :data="paginatedTableData"
               width="100%"
-              height="700"
+              height="575px"
               ref="table"
               fit
               :disable="true"
@@ -91,10 +90,16 @@
               element-loading-text="Loading"
               highlight-current-row
               stripe
-              :row-style="{ height: '6.7vh' }"
+              :row-style="{ height: '6.5vh' }"
               :cell-style="{ padding: '0px', borderColor: '#C0C0C0' }"
               :header-cell-style="{ borderColor: '#C0C0C0', background: 'rgba(252,218,5,0.22)' }"
           >
+            <el-table-column
+                label="序号"
+                width="100"
+                align="center"
+                :formatter="typeIndex"
+            />
             <el-table-column
                 align='center'
                 prop='operName'
@@ -131,64 +136,66 @@
                 :formatter='formatMessageUpdate'
             >
             </el-table-column>
-            <!--            <el-table-column-->
-            <!--              label='操作'-->
-            <!--              align='center'-->
-            <!--            >-->
-            <!--              <template v-slot="scope">-->
-            <!--                <el-button-->
-            <!--                  size="mini"-->
-            <!--                  type="success"-->
-            <!--                  @click="getDetail(scope.row.message)"-->
-            <!--                >详情-->
-            <!--                </el-button-->
-            <!--                >-->
-            <!--              </template>-->
-            <!--            </el-table-column>-->
+            <el-table-column
+                label='操作'
+                align='center'
+            >
+              <template v-slot="scope">
+                <el-button
+                    size='small'
+                    type='primary'
+                    @click=""
+                >详情
+                </el-button
+                >
+              </template>
+            </el-table-column>
           </el-table>
-          <div class="paging-block">
-            <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="totalCount"
-            ></el-pagination>
-          </div>
-
-          <!--          <el-dialog-->
-          <!--            title="详情"-->
-          <!--            :visible.sync="dialogVisible"-->
-          <!--            width="50%">-->
-          <!--            <el-table-->
-          <!--              :data="messageData"-->
-          <!--              style="width: 100%"-->
-          <!--              height="400"-->
-          <!--              ref="table"-->
-          <!--            >-->
-          <!--              <el-table-column-->
-          <!--                prop="id"-->
-          <!--                label="编号"-->
-          <!--                align='center'>-->
-          <!--              </el-table-column>-->
-          <!--              <el-table-column-->
-          <!--                prop="message"-->
-          <!--                label="信息"-->
-          <!--                align='center'>-->
-          <!--              </el-table-column>-->
-          <!--              <el-table-column-->
-          <!--                prop="isSuccess"-->
-          <!--                align='center'-->
-          <!--                label="是否成功">-->
-          <!--              </el-table-column>-->
-          <!--            </el-table>-->
-          <!--            <span slot="footer" class="dialog-footer">-->
-          <!--    <el-button @click="dialogVisible = false">取 消</el-button>-->
-          <!--    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
-          <!--  </span>-->
-          <!--          </el-dialog>-->
+          <el-dialog
+              title="详情"
+              :visible.sync="dialogVisible"
+              width="50%">
+            <el-table
+                :data="messageData"
+                style="width: 100%"
+                height="400"
+                ref="table"
+            >
+              <el-table-column
+                  prop="id"
+                  label="编号"
+                  align='center'>
+              </el-table-column>
+              <el-table-column
+                  prop="message"
+                  label="信息"
+                  align='center'>
+              </el-table-column>
+              <el-table-column
+                  prop="isSuccess"
+                  align='center'
+                  label="是否成功">
+              </el-table-column>
+            </el-table>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            </span>
+          </el-dialog>
         </div>
+
       </div>
+    </div>
+    <div class="paging-block">
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="pageSizes"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total">
+      </el-pagination>
     </div>
   </div>
 </template>
@@ -201,6 +208,7 @@ import {getToken} from "@/utils/auth";
 import useUserStore from "@/store/modules/user.js";
 import {getExcelUploadByTime, getField} from "@/api/system/excel.js";
 import {ElMessage} from "element-plus";
+import {ref} from "vue";
 
 
 export default {
@@ -248,8 +256,6 @@ export default {
       tableData: [],
       messageData: [],
       percent: 0,
-      pageSize: 10,
-      currentPage: 1,
       dialogVisible: false,
       progressColor: '#001ce1',
       inputValue: '',
@@ -257,17 +263,31 @@ export default {
       addCount: 0,
       timeValue: '今日',
       updateCount: 0,
-      totalCount: 0,
       isLoading: false,
       isLoadingMask: false,
       uploadedFile: null,
+      total: 0,
+      pageSize: 10,
+      pageSizes: [10, 20, 30, 40],
+      currentPage: 1,
     }
   },
   mounted() {
     this.getTableName()
     this.getExcelUploadByTimeButton()
   },
+  computed: {
+    // 计算当前页的数据
+    paginatedTableData() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.tableData.slice(startIndex, endIndex);
+    }
+  },
   methods: {
+    typeIndex(row, column, cellValue, index) {
+      return (this.currentPage - 1) * this.pageSize + index + 1;
+    },
     searchDataButton(event) {
       event.stopPropagation(); // 阻止事件传播
       this.inputValueParams = this.inputValue.trim()
@@ -277,15 +297,14 @@ export default {
 
     handleSizeChange(val) {
       this.pageSize = val
+      this.currentPage = 1;// 重置到第一页
     },
     handleCurrentChange(val) {
       this.currentPage = val
     },
     //添加数据数量
     formatMessageAdd(row, column, cellValue) {
-
       if (JSON.parse(cellValue).msg === "操作成功") {
-        console.log("length:", JSON.parse(cellValue).data.length)
         const length = JSON.parse(cellValue).data.length;
         return length;
       } else {
@@ -294,7 +313,6 @@ export default {
     },
     //更新数据数量
     formatMessageUpdate(row, column, cellValue) {
-      // console.log("formatMessageUpdate:",JSON.parse(cellValue))
       if (JSON.parse(cellValue).msg === "操作成功") {
         return JSON.parse(cellValue).msg;
       } else {
@@ -307,6 +325,7 @@ export default {
         "time": this.timeValue
       }).then((res) => {
         this.tableData = res.data
+        this.total=res.data.length
         this.addCount = res.data.reduce((total, log) => {
           const data = JSON.parse(log.jsonResult);
           if (data.msg === "操作成功") {
@@ -345,12 +364,10 @@ export default {
     //查询user对应上的表
     getTableName() {
       getField().then(res => {
-        console.log(res.data)
         this.files = res.data
         if (res.data === null) {
           ElMessage.error("该用户无导表权限")
         }
-        //
         this.tableNameOptions = this.files.map(file => ({
           label: file.fileName,
           value: file.fileName
@@ -424,7 +441,6 @@ export default {
           message: '附件格式错误，请重新上传！'
         })
       }
-      console.log(this.tableNameOptions)
       if (!validTableNames.includes(fileNameWithoutExtension)) {
         // 检查文件名是否在允许的表名列表中
         this.$message({
@@ -444,10 +460,8 @@ export default {
           alert('该浏览器不支持')
         }
         this.websocket.socket.onmessage = (event) => {
-          console.log(event.data)
           if (Number.parseInt(event.data)) {
             this.percent = Number.parseInt(event.data)
-            console.log(this.percent)
           }
         }
       }
@@ -482,10 +496,20 @@ export default {
     }
   },
 
+
 }
 </script>
 
 <style scoped>
+/*分页*/
+.paging-block {
+  width: 40%;
+  margin: 0 auto;
+  text-align: center;
+  line-height: 40px;
+}
+
+/*日志*/
 .grid-content {
   padding: 9px;
   min-height: 36px;
@@ -497,13 +521,12 @@ export default {
   margin: 10px;
   border-radius: 5px;
   background-color: rgba(255, 255, 255, 0.54);
-  height: 100%;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.91);
+  padding-bottom: 5px;
 }
 
 
 .dataBox {
-  max-height: 100vh;
   background-color: rgba(255, 255, 255, 0.73);
 }
 
@@ -516,9 +539,9 @@ export default {
 }
 
 .dataContainer {
-  max-height: 100vh;
   background-color: #ffffff;
   max-width: 100%;
+  overflow-y: auto;
   border-radius: 5px;
 }
 
@@ -531,12 +554,12 @@ export default {
 }
 
 /*table样式*/
-/*.tableStyle{*/
-/*  min-height: calc(100vh - 196px - 50px);*/
-/*  max-height: calc(100vh - 196px - 50px);*/
-/*  position: relative;*/
-/*  max-width: 100%;*/
-/*}*/
+.tableStyle {
+  height: 70vh;
+  position: relative;
+  max-width: 100%;
+  margin-bottom: 20px;
+}
 
 
 </style>

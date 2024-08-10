@@ -10,14 +10,16 @@
       />
       <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>
     </div>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" class="button" @click="clearSelection()">清空选择</el-button>
+        <el-button type="warning" plain icon="Delete" class="button" @click="clearSelection()">清空选择</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="Delete" class="button" @click="clearSelection()">删除记录</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-select
@@ -35,13 +37,14 @@
         </el-select>
       </el-col>
     </el-row>
-
     <el-table
-        v-fit-columns
         ref="multipleTableRef"
         :data="tableData"
-        class="table"
+        height="485px"
+        class="table tableMove"
+        fit
         :row-key="getRowKey"
+        :row-style="{ height: '5.2vh' }"
         @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
@@ -51,15 +54,14 @@
           align="center"
           :formatter="typeIndex"
       />
-
       <el-table-column
           v-for="col in columns"
           :key="col.prop"
           :prop="col.prop"
           :label="col.label"
           :align="col.align"
-
-
+          :min-width="'250px'"
+      />
       />
     </el-table>
     <el-pagination
@@ -123,7 +125,7 @@ const total = ref()
 
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.fileId === newFlag);
+  const selectedFile = files.value.find(file => file.id=== newFlag);
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
@@ -185,23 +187,21 @@ const generateFieldData = () => {
 const getTableField = () => {
   getField().then(res => {
     files.value = res.data
+    console.log(res.data)
     if (files.value.length == 0) {
       ElMessage.error("改用户无导表权限")
     }
-
     options.value = files.value.map(file => ({
       label: file.fileName,
-      value: file.fileId
+      value: file.id
     }));
-
-    flag.value = files.value[0].fileId; // 默认选择第一个表
+    flag.value = files.value[0].id; // 默认选择第一个表
     const fileColumn = JSON.parse(files.value[0].fileColumn);
     const map = new Map(Object.entries(fileColumn));
     field.value = Array.from(map.keys())
     name.value = Array.from(map.values())
     data.value = generateData();
     columns.value = generateColumnConfig();
-
   })
 }
 
@@ -295,6 +295,9 @@ const clearSelection = () => {
 
 ::v-deep .el-input__inner {
   font-size: 16px;
+}
+.tableMove{
+  overflow-y: auto;
 }
 
 </style>

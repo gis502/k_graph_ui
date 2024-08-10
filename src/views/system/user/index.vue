@@ -283,9 +283,9 @@
                  <el-select v-model="form.fileIds" multiple placeholder="请选择">
                    <el-option
                        v-for="item in excelOptions"
-                       :key="item.fileId"
+                       :key="item.id"
                        :label="item.fileName"
-                       :value="item.fileId"
+                       :value="item.id"
                        :disabled="item.status == 1"
                    ></el-option>
                  </el-select>
@@ -622,7 +622,7 @@ function handleUpdate(row) {
     excelOptions.value = response.fileIds;
     form.value.postIds = response.postIds;
     form.value.roleIds = response.roleIds;
-    form.value.fileIds = response.userFileIds.map(item => item.fileId);
+    form.value.fileIds = response.userFileIds.map(item => item.id);
     open.value = true;
     title.value = "修改用户";
     form.password = "";
