@@ -76,9 +76,10 @@
       />
 
 
-    <div class="rescue_team">
-      <timeLineRescueTeam/>
-    </div>
+      <timeLineRescueTeam
+        :currentTime="currentTime"
+      />
+
 
     <div class="news">
       <timeLineNews/>
@@ -114,6 +115,7 @@ import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import timeLineNews from "@/components/TimeLine/timeLineNews.vue"
 import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
 import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
+import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
 
 //报告产出
 import jsPDF from "jspdf";
@@ -126,7 +128,8 @@ export default {
     TimeLinePanel,
     timeLineNews,
     timeLineEmergencyResponse,
-    timeLinePersonnelCasualties
+    timeLinePersonnelCasualties,
+    timeLineRescueTeam
   },
   data: function () {
     return {
@@ -193,18 +196,16 @@ export default {
     this.eqid = this.$route.params.eqid
   },
   mounted() {
-    // this.init()
+    this.init()
     this.getEqInfo(this.eqid)
-    this.initTimerLine()
+    // this.initTimerLine()
     // ---------------------------------------------------
     // 生成实体点击事件的handler
-    // this.entitiesClickPonpHandler()
-    // this.watchTerrainProviderChanged()
+    this.entitiesClickPonpHandler()
+    this.watchTerrainProviderChanged()
 
   },
-  // destroyed() {
-  //   // this.websock.close()
-  // },
+
   methods: {
     // 初始化控件等
     init() {
@@ -247,10 +248,10 @@ export default {
         this.eqmonth = this.eqstartTime.getMonth() + 1
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        this.eqendTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
+        this.eqendTime = new Date(this.eqstartTime.getTime() +( (7 * 24+5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
-        // this.updateMapandVariablebeforInit()
+        this.updateMapandVariablebeforInit()
 
       })
     },
@@ -448,22 +449,29 @@ export default {
       //时间轴开始
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      }, 160);
+      // }, 160);
+      }, 50);
     },
     updateCurrentTime() {
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
-      let tmp = 100.0 / 672.0  //进度条每次前进
+      // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
+      // let tmp = 100.0 / 672.0  //进度条每次前进
+
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076  //共前进2016次，每次5分钟，
+      let tmp = 100.0 / 2076.0  //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.stopTimer();
+        // this.initTimerLine();
         this.isTimerRunning = false
+
       } else {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
-        // this.updatePlot()
+        // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        this.updatePlot()
       }
     },
     updatePlot() {
@@ -542,8 +550,10 @@ export default {
       const clickedPosition = event.clientX - timeRulerRect.left;
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672); // Assuming 672 is the total number of steps
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
+      // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672); // Assuming 672 is the total number of steps
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076); // Assuming 672 is the total number of steps
+      // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       //点击前运行状态
       this.updatePlot();
     },
@@ -566,8 +576,10 @@ export default {
       const clickedPosition = Math.max(timeRulerRect.left, Math.min(event.clientX, timeRulerRect.right)) - timeRulerRect.left;
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
       this.currentTimePosition = newPosition;
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672);
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
+      // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672);
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076);
+      // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
     },
     stopDrag() {
@@ -888,8 +900,8 @@ export default {
 
 .bottom {
   height: 6%;
-  width: 60%;
-  left: 12%;
+  width: 46%;
+  left: 25%;
   bottom: 14%;
   position: absolute;
   z-index: 99;
@@ -937,8 +949,8 @@ export default {
 }
 
 .play {
-  width: 3%;
-  hight: 3%;
+  width: 5%;
+  hight: 5%;
   position: absolute;
   //top:50%;
   left: 2%;
@@ -953,46 +965,35 @@ export default {
 .current-time-info {
   position: absolute;
   bottom: 3%;
-  width: 20%;
+  width: 30%;
   left: 8%;
 }
 
 .end-time-info {
   position: absolute;
   bottom: 3%;
-  width: 20%;
+  width: 30%;
   right: 0%;
 }
 
 .timelabel {
-  //color: #ffffff;
-  color: #000000;
+  color: #ffffff;
+  //color: #000000;
 }
 
 
 
 
-.rescue_team{
-  position: absolute;
-  top: 0%;
-  width: 100%;  /* 调整宽度 */
-  height: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  left: 0%;
-  z-index: 10; /* 提高层级 */
-  background-color: rgba(40, 40, 40, 0.4);
-}
 
 .news {
   position: absolute;
   top: 6%;
   width: 21%;
-  height: 40%;
+  height: 45%;
   padding: 10px;
   border-radius: 5px;
   right: 1%;
-  z-index: 20;
+  z-index: 1;
   background-color: rgba(40, 40, 40, 0.7);
 }
 

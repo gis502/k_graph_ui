@@ -11,9 +11,12 @@
       <p class="emergency_response_department"><span>{{this.activity.department}}</span> </p>
       <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_state">{{this.activity.state}}</span></p>
 
-      <div class="emergency_response_title-underline"></div>
-      <p class="time_text"> 数据更新时间</p>
-      <p class="time"> {{this.activity.time}}</p>
+      <div class="emergency_response_time_div">
+        <div class="emergency_response_title-underline"></div>
+        <p class="time_text"> 数据更新时间</p>
+        <p class="time"> {{this.activity.time}}</p>
+      </div>
+
     </div>
 
     <div v-show="!emergency_response_isExpanded">
@@ -28,11 +31,11 @@
 
 
 <script>
-import Response from "@/assets/json/TimeLine/EmergencyResponse";
+import EmergencyResponse from "@/assets/json/TimeLine/EmergencyResponse";
 export default {
   data() {
     return {
-      Responsecontent:'',
+      EmergencyResponseResponsecontent:'',
       activity:{
         ResponseName: '',
         state: '',
@@ -55,14 +58,15 @@ export default {
   },
   methods: {
     init() {
-      this.Responsecontent = [...Response]
+      this.EmergencyResponseResponsecontent = [...EmergencyResponse]
     },
     updateEmergencyResponse(currentTime){
-      const activities = this.Responsecontent.filter((activity) => {
+      const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
         return (
-            new Date(activity[0]) <= currentTime
-        );
+                 new Date(activity[0]) <= currentTime
+            );
       });
+      console.log("EmergencyResponse",activities )
       if(activities.length>=1){
         activities.sort((a, b) => {
           if (a[0] < b[0]) return -1;
@@ -109,7 +113,7 @@ export default {
 
 .emergency_response_expand_button{
   position: absolute;
-  width: 12%; /* 调整宽度 */
+  width: 10%; /* 调整宽度 */
   //height: 25%;
   padding: 10px;
   border-radius: 5px;
@@ -119,7 +123,7 @@ export default {
 }
 .emergency_response_notexpand_button{
   position: absolute;
-  width: 3%; /* 调整宽度 */
+  width: 2.5%; /* 调整宽度 */
   //height: 6%;
   padding: 10px;
   border-radius: 5px;
@@ -157,7 +161,13 @@ export default {
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
-}c
+}
+.emergency_response_time_div{
+  position: absolute;
+  width: 94%;
+  height: 10%;
+  bottom:16%;
+}
 
 .time_text{
   margin: 1px;

@@ -21,21 +21,23 @@
         </li>
         <li >
           <p>
-            <span>{{this.activity.miss}} </span> 个
+            <span>{{this.activity.miss}} </span> 人
           </p>
           <p>失联人数</p>
         </li>
         <li>
           <p>
-            <span> {{this.activity.injure}} </span> 个
+            <span> {{this.activity.injure}} </span> 人
           </p>
           <p>受伤人数 </p>
         </li>
       </ul>
 
-      <div class="title-underline"></div>
-      <p class="time_text"> 数据更新时间</p>
-      <p class="time"> {{this.activity.time}}</p>
+      <div class="personnel_casualties_time_div">
+        <div class="title-underline"></div>
+        <p class="time_text"> 数据更新时间</p>
+        <p class="time"> {{this.activity.time}}</p>
+      </div>
     </div>
 
     <div v-show="!personnel_casualties_isExpanded">
@@ -132,7 +134,7 @@ export default {
 
 .personnel_casualties_expand_button {
   position: absolute;
-  width: 12%; /* 调整宽度 */
+  width: 10%; /* 调整宽度 */
   //height: 25%;
   padding: 10px;
   border-radius: 5px;
@@ -143,7 +145,7 @@ export default {
 
 .personnel_casualties_notexpand_button {
   position: absolute;
-  width: 3%; /* 调整宽度 */
+  width: 2.5%; /* 调整宽度 */
   padding: 10px;
   border-radius: 5px;
   top: 28%;
@@ -188,7 +190,12 @@ export default {
   margin-right: 5px;
   color: #c0383b;
 }
-
+.personnel_casualties_time_div{
+  position: absolute;
+  width: 94%;
+  height: 20%;
+  bottom:10%;
+}
 .time_text{
   margin: 1px;
   font-size: 0.9rem;
