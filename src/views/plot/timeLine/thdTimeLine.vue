@@ -80,14 +80,25 @@
         :currentTime="currentTime"
       />
 
-
-    <div class="news">
-      <timeLineNews/>
+    <!--      新闻-->
+    <div>
+      <news></news>
     </div>
 
-    <div class="smallmap">
-      <timeLineSmallMap/>
+
+    <!--      缩略图-->
+    <div>
+      <mini-map></mini-map>
     </div>
+
+
+<!--    <div class="news">-->
+<!--      <timeLineNews/>-->
+<!--    </div>-->
+
+<!--    <div class="smallmap">-->
+<!--      <timeLineSmallMap/>-->
+<!--    </div>-->
 <!--    两侧组件 end-->
     <!--报告产出按钮-->
     <div class="button-container">
@@ -112,10 +123,13 @@ import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 
-import timeLineNews from "@/components/TimeLine/timeLineNews.vue"
+// import timeLineNews from "@/components/TimeLine/timeLineNews.vue"
 import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
 import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
 import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
+
+import MiniMap from "@/components/TimeLine/miniMap.vue";
+import News from "@/components/TimeLine/news.vue";
 
 //报告产出
 import jsPDF from "jspdf";
@@ -126,7 +140,9 @@ import html2canvas from "html2canvas";
 export default {
   components: {
     TimeLinePanel,
-    timeLineNews,
+    // timeLineNews,
+    News,
+    MiniMap,
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
     timeLineRescueTeam
@@ -190,6 +206,7 @@ export default {
       isDragging: false,
       dragStartX: 0,
 
+      smallViewer:null,
     };
   },
   created() {
@@ -232,6 +249,58 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+
+
+
+
+
+      // 创建缩略图视图器实例
+      let that = this
+      let smallMapContainer = document.getElementById('smallMapContainer');
+      that.smallViewer = new Cesium.Viewer(smallMapContainer, {
+        // 隐藏所有控件
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        timeline: false,
+        navigationHelpButton: false,
+        animation: false,
+        infoBox: false,
+        fullscreenButton: false,
+        showRenderState: false,
+        selectionIndicator: false,
+        baseLayerPicker: false,
+        selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
+        selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
+      });
+      // 隐藏缩略图视图器的版权信息
+      that.smallViewer._cesiumWidget._creditContainer.style.display = 'none';
+
+      // 同步主视图器的相机到缩略图视图器
+      function syncCamera() {
+        const camera1 = viewer.scene.camera;
+        const camera2 = that.smallViewer.scene.camera;
+
+        camera2.setView({
+          destination: camera1.positionWC,
+          orientation: {
+            heading: camera1.heading,
+            pitch: camera1.pitch,
+            roll: camera1.roll
+          }
+        });
+      }
+
+      // 监听主视图器的相机变化
+      viewer.scene.camera.changed.addEventListener(syncCamera);
+
+      // 每帧渲染时同步缩略图视图
+      viewer.scene.postRender.addEventListener(function() {
+        that.smallViewer.scene.requestRender(); // 确保缩略图更新
+      });
+
+      // 初始同步
+      syncCamera();
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid){
@@ -382,6 +451,35 @@ export default {
         id: this.centerPoint.plotid,
         plottype: "震中",
       });
+
+
+      let that = this
+      that.smallViewer.entities.removeAll();
+      that.smallViewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
+        ),
+        billboard: {
+          image: centerstar,
+          width: 30,
+          height: 30,
+        },
+        label: {
+          text: this.centerPoint.position,
+          show: true,
+          font: '10px sans-serif',
+          fillColor:Cesium.Color.RED,        //字体颜色
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          outlineWidth: 2,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -16),
+        },
+        id:this.centerPoint.plotid,
+        plottype:"震中",
+      });
+
 
       //获取渲染点
       this.getPlotwithStartandEndTime(this.eqid)

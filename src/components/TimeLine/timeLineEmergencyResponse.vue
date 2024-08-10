@@ -105,7 +105,7 @@ export default {
 
 .title{
   margin: 0.9px;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
