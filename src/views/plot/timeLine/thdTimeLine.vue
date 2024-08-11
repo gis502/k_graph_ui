@@ -1298,7 +1298,7 @@ export default {
 
 .timelabel {
   color: #ffffff;
-  //color: #000000;
+
 }
 
 
@@ -1339,9 +1339,11 @@ export default {
   z-index: 1;
   background-color: rgba(40, 40, 40, 0.7);
 }
-.legend_button p{
+
+.legend_button p {
   color: #FFFFFF;
-  margin:0;
+  margin: 0;
+}
 .detailedNews{
     width: 300px;
     height: 350px;
@@ -1361,7 +1363,6 @@ export default {
     /*padding: 1rem 0 1rem !important;*/
     color: #ffffff;
     letter-spacing: 0;
-    text-align: justify;
     text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
     /*border-bottom: 0.1rem solid #ffffff;*/
     margin: 0;
@@ -1404,7 +1405,6 @@ export default {
   z-index: 20;
   bottom: 10%;
   left: 1%;
-
 }
 
 </style>
