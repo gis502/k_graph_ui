@@ -138,6 +138,7 @@ export default {
                   this.DialogFormVisible = true
                   this.drawSite(this.addSupplyPointCurrently.lat, this.addSupplyPointCurrently.lng,
                       this.clickCount, Cesium.Color.RED);
+                  console.log("已添加标注点")
                   this.canMarkPoint = false
               }
           }
@@ -154,13 +155,15 @@ export default {
           // this.fetSupplyPoints()
         // console.log("this.suppliesList--", this.suppliesList.length);
         // console.log("this.showIcon--", this.showIcon.length);
+          this.suppliesList.push(disasterReserves)
+          this.suppliesList.push(disasterSupplies)
+          this.suppliesList.push(emergencyTeam)
 
         // 对 disasterReserves 进行处理
         if (Array.isArray(disasterReserves)) {
           let pointArr = disasterReserves.filter(e => e.longitude !== null);
           // 画点
           this.drawPointReserves(pointArr);
-            this.suppliesList.push(pointArr)
         } else {
           console.error("灾备物资数据格式不正确", disasterReserves);
         }
@@ -170,7 +173,6 @@ export default {
           let pointArr = disasterSupplies.filter(e => e.longitude !== null);
           // 画点
           this.drawPointSupplies(pointArr);
-            this.suppliesList.push(pointArr)
         } else {
           console.error("救灾用品数据格式不正确", disasterSupplies);
         }
@@ -206,9 +208,11 @@ export default {
         }
         // 检查经度和纬度是否在合理范围内
         if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
           return; // 跳过坐标超出范围的实体
         }
+
+          element.type = "reserves"
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
@@ -256,7 +260,6 @@ export default {
             insertTime: element.insertTime
           }
         });
-          element.type = "reserves"
       });
     },
     drawPointSupplies(pointArr) {
@@ -277,9 +280,11 @@ export default {
         }
         // 检查经度和纬度是否在合理范围内
         if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
           return; // 跳过坐标超出范围的实体
         }
+
+          element.type = "supplies"
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
@@ -351,7 +356,6 @@ export default {
             contactPhone: element.contactPhone
           }
         });
-          element.type = "supplies"
       });
     },
     drawPointEmergencyTeam(pointArr) {
@@ -359,7 +363,7 @@ export default {
         // 检查是否已存在具有相同ID的实体
         let existingEntity = window.viewer.entities.getById(element.id);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          // console.warn(`id为${element.id}的实体已存在。跳过此实体`);
           return; // 跳过这个实体
         }
 
@@ -372,9 +376,11 @@ export default {
         }
         // 检查经度和纬度是否在合理范围内
         if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
           return; // 跳过坐标超出范围的实体
         }
+
+          element.type = "emergencyTeam"
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
@@ -546,14 +552,14 @@ export default {
       //-----------附近资源快速匹配----------
       // 绘制点
       drawSite(lat, lng, id, color) {
-          const point = {
+
+          let point = {
               id: id,
               position: Cesium.Cartesian3.fromDegrees(parseFloat(lng), parseFloat(lat)),
           };
           this.affectedPoints.push(point);
-
-          if (this.viewer) {
-              this.viewer.entities.add({
+          if (viewer) {
+              viewer.entities.add({
                   position: point.position,
                   point: {
                       pixelSize: 10,
@@ -564,32 +570,36 @@ export default {
       },
 
       fetSupplyPoints(){
+          console.log("------------",this.suppliesList)
           this.selectedSuppliesList = this.suppliesList[0].concat(this.suppliesList[1])
+          this.selectedSuppliesList = this.selectedSuppliesList.concat(this.suppliesList[2])
+          this.showIcon = this.selectedSuppliesList
           this.total = this.selectedSuppliesList.length
           this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
           console.log("this.showSuppliesList-",this.showSuppliesList)
       },
 
       showSupplyPoint(row){
-          console.log("点击了：",row)
+          console.log("点击了：",row.type)
           this.showIcon = []
           this.showIcon.push(row)
           this.removePoints(this.suppliesList[0])
           this.removePoints(this.suppliesList[1])
-          this.removePoints(this.showIcon)
-          // this.drawPoint(this.showIcon)
-          if(this.showIcon.type === 'reserves'){
+          this.removePoints(this.suppliesList[2])
+          if(this.showIcon[0].type === 'reserves'){
               this.drawPointReserves(this.showIcon)
-          }else{
+          }else if(this.showIcon[0].type === 'supplies'){
               this.drawPointSupplies(this.showIcon)
+          }else{
+              this.drawPointEmergencyTeam(this.showIcon)
           }
-          console.log("this.showIcon--", this.showIcon.length);
       },
 
       removePoints(entityArr) {
           entityArr.forEach(entity => {
-              console.log("-----",entity.id)
+              // console.log("-----",entity.id)
               let id = entity.id;
+
               let existingEntity = window.viewer.entities.getById(id);
               if (existingEntity) {
                   window.viewer.entities.removeById(id);
@@ -597,57 +607,64 @@ export default {
               }
           });
       },
-      // removePoints() {
-      //     if (window.viewer && window.viewer.entities) {
-      //         window.viewer.entities.removeAll();
-      //     } else {
-      //         console.error('Viewer or entities collection is not initialized');
-      //     }
-      // },
-
-
       showAllSupplyPoints(){
         let that = this
-          that.showIcon = []
-          that.showIcon = this.suppliesList
           viewer.entities.values.forEach(entity => {
               if (entity.ellipse) {
                   viewer.entities.remove(entity);
               }
           });
           this.removePoints(that.showIcon)
-          console.log("this.showIcon==", that.showIcon.length);
           // this.drawPoint(this.suppliesList)
-          if(that.suppliesList[0].type === 'reserves'){
-              this.drawPointReserves(that.suppliesList[0])
-              this.drawPointReserves(that.suppliesList[1])
-          }else{
-              this.drawPointSupplies(that.suppliesList[0])
-              this.drawPointSupplies(that.suppliesList[1])
-          }
+          // if(that.suppliesList[0].type === 'reserves'){
+          //
+          // }else{
+          //     this.drawPointSupplies(that.suppliesList[0])
+          //     this.drawPointSupplies(that.suppliesList[1])
+          // }
+          this.drawPointReserves(that.suppliesList[0])
+          this.drawPointSupplies(that.suppliesList[1])
+          this.drawPointEmergencyTeam(that.suppliesList[2])
 
       },
 
       searchSupply(){
           if(!isNaN(parseFloat(this.inputRadius))){
+              console.log(111)
               let longitude = parseFloat(this.addSupplyPointCurrently.lng);
               let latitude = parseFloat(this.addSupplyPointCurrently.lat);
               const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
               this.selectedSuppliesList = [];
-              this.suppliesList.forEach((point, index) => {
-                  const pointLongitude = parseFloat(point.longitude);
-                  const pointLatitude = parseFloat(point.latitude);
-                  const initialPoint = Cesium.Cartesian3.fromDegrees(pointLongitude, pointLatitude);
-                  const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000; // 距离以公里为单位
-                  if (distance < this.inputRadius) {
-                      this.selectedSuppliesList.push(point);
-                  }
+              this.suppliesList.forEach((arr, index) => {
+                  arr.forEach((point) => {
+                      const pointLongitude = parseFloat(point.longitude);
+                      const pointLatitude = parseFloat(point.latitude);
+                      const initialPoint = Cesium.Cartesian3.fromDegrees(pointLongitude, pointLatitude);
+                      const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000; // 距离以公里为单位
+                      if (distance < this.inputRadius) {
+                          this.selectedSuppliesList.push(point);
+                      }
+                  })
+
               });
               this.total = this.selectedSuppliesList.length
               this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
               this.removePoints(this.showIcon)
+              this.showIcon = []
               this.showIcon = this.selectedSuppliesList
-              this.drawPointSupplies(this.showIcon)
+              this.showIcon.forEach((item) => {
+                  let arr = []
+                  if(item.type === 'reserves'){
+                      arr.push(item)
+                      this.drawPointReserves(arr)
+                  }else if(item.type === 'supplies'){
+                      arr.push(item)
+                      this.drawPointSupplies(arr)
+                  }else{
+                      arr.push(item)
+                      this.drawPointEmergencyTeam(arr)
+                  }
+              })
               this.selectPoints()
           }
       },
@@ -661,12 +678,12 @@ export default {
                   parseFloat(this.addSupplyPointCurrently.lng),
                   parseFloat(this.addSupplyPointCurrently.lat)
               );
-              this.viewer.entities.values.forEach(entity => {
+              viewer.entities.values.forEach(entity => {
                   if (entity.ellipse) {
-                      this.viewer.entities.remove(entity);
+                      viewer.entities.remove(entity);
                   }
               });
-              this.viewer.entities.add({
+              viewer.entities.add({
                   position: position,
                   ellipse: {
                       semiMajorAxis: radius,

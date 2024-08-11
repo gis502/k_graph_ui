@@ -105,3 +105,22 @@ export function updataPlotInfo(data){
     data: data
   })
 }
+
+export function getLastPlotInfoofCurrentTime(plotid, currentTime){
+  return request({
+    url: '/system/ploy/getLastPlotInfoofCurrentTime' ,
+    method: 'post',
+    params: {
+      plotid: plotid,
+      currentTime: currentTime
+    }
+  })
+}
+
+export function getPlotwithStartandEndTime(data){
+  return request({
+    url: '/system/ploy/getplotswithtime' ,
+    method: 'post',
+    params:data
+  })
+}
