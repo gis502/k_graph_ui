@@ -214,6 +214,7 @@ export default class Polyline {
       pointPosArr:this.positions,
       plotid: this.initId
     })
+    console.log("干嘛？",data)
     this.drawEntity = this.viewer.entities.add({
       id: this.initId,
       polyline: {

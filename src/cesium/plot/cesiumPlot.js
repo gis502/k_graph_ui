@@ -112,12 +112,12 @@ let cesiumPlot= {
   //-----------------------------------------------------------------
 
   //------------------------------面---------------------------------
-  drawActivatePolygon(type,img,eqid) {
+  drawActivatePolygon(type,img,eqid,info) {
     let name = type
     if(type==="崩塌"||type==="滑坡"||type==="泥石流"||type==="地面塌陷"){
       type = "标绘面"
     }
-    this.polygon.activate(name,type,img,eqid)
+    this.polygon.activate(name,type,img,eqid,info)
   },
   deletePolygon(polygon){
     this.polygon.deletePolygon(polygon)

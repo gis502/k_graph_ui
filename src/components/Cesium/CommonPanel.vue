@@ -251,6 +251,7 @@ export default {
       deep: true,
       handler() {
         this.popupPanelData = this.popupData
+        console.log("干嘛？",this.popupPanelData)
         this.plotInfoActivities = []
         // 必须把生成对应标绘的html模板代码（下面的for循环），写在watch的popupData中，不能写在visible中。
         // 在执行顺序上，visible比popupData快。导致在判断this.popupPanelData.plottype === plotType[item].name时，
@@ -262,6 +263,9 @@ export default {
             this.getPlotInfo(this.popupPanelData.plotid)
           } else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
+              // console.log(this.popupPanelData[0], 987)
+              this.getPlotInfo(this.popupPanelData[0].plotid)
+            }else {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotid)
             }
@@ -375,6 +379,7 @@ export default {
     getPlotInfo(plotid) {
       let that = this
       getPlotInfos({plotid}).then(res => {
+        console.log("res",res)
         for (let i = 0; i < res.length; i++) {
           // 这个item一定要写在for循环里面，否则使用push(item)会造成整个plotInfoActivities都是最后一个item
           // 因为push到plotInfoActivities里的是item的地址。（浅拷贝）
@@ -385,6 +390,7 @@ export default {
             id: null,
             aditStatus: true,
           }
+
           item.starttime = that.timestampToTime(res[i].starttime)
           if (res[i].endtime === null) {
             item.endtime = ""
@@ -396,7 +402,9 @@ export default {
           that.plotInfoActivities.push(item)
         }
         that.plotInfoNew = that.plotInfoActivities[0]
+        console.log("new",that.plotInfoNew)
       })
+
     },
     // 删除标注
     deletePoint() {
