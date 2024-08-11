@@ -9,12 +9,6 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-        <!--        图例-->
-        <!--      <div class="legend">-->
-        <!--        <img src="../../assets/images/TimeLine/legend.png" style="width: 23%;height: 23%">-->
-        <!--      </div>-->
-        <!--        图例 end-->
-        <!--          面板信息-->
         <TimeLinePanel
             :visible="popupVisible"
             :position="popupPosition"
@@ -230,9 +224,6 @@ export default {
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
 
 
-
-
-
       // 创建缩略图视图器实例
       let that = this
       let smallMapContainer = document.getElementById('smallMapContainer');
@@ -439,6 +430,9 @@ export default {
           if (!item.endtime) {
             item.endtime = new Date(this.eqendTime.getTime() + 5000);
           }
+          if (!item.starttime) {
+            item.starttime = this.eqstartTime;
+          }
           this.plotisshow[item.plotid] = 0
         })
         //开启时间轴
@@ -491,11 +485,11 @@ export default {
       //   });
       // }
       // 时间轴开始
-      // this.intervalId = setInterval(() => {
-      //   this.updateCurrentTime();
-      // // }, 160);
-      // }, 50);
-      this.updateCurrentTime();
+      this.intervalId = setInterval(() => {
+        this.updateCurrentTime();
+      // }, 160);
+      }, 50);
+      // this.updateCurrentTime();
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
@@ -567,9 +561,48 @@ export default {
       });
       // console.log("polylineArr",polylineArr)
 
+      // 面
+      let polygonArrtmp = this.plots.filter(e => e.drawtype === 'polygon')
+      let polygonId = this.distinguishPolylineId(polygonArrtmp)
+      let polygonArr = []  // id, 开始时间, 结束时间
+      polygonId.forEach(onlyDrawIdItem => {
+        let positionsArr = [];
+        let polygontmp = {};
+        polygonArrtmp.forEach(polygonElement => {
+          if (polygonElement.plotid === onlyDrawIdItem) {
+            positionsArr.push(
+                parseFloat(polygonElement.longitude),
+                parseFloat(polygonElement.latitude),
+                // parseFloat(polylineElement.height)
+            );
+            // 检查 polylineArr 中是否已存在该 plotid 的数据
+            let existingpolygon = polygonArr.find(p => p.plotid === polygonElement.plotid);
+            if (existingpolygon) {
+              // 更新已存在的数据
+              // existingPolyline.endtime = polylineElement.endtime;
+              existingpolygon.positionsArr=positionsArr;
+            } else {
+              // 创建新的数据对象并添加到 polylineArr
+              polygontmp = {
+                plotid: polygonElement.plotid,
+                drawtype: "polygon",
+                endtime: polygonElement.endtime,
+                starttime: polygonElement.starttime,
+                plottype: polygonElement.plottype,
+                img: polygonElement.img,
+                positionsArr: positionsArr,
+                angle:polygonElement.angle,
+              };
+              polygonArr.push(polygontmp);
+            }
+          }
+        });
+      });
+      // console.log("polygonArr",polygonArr)
 
 
 
+      //渲染
       pointArr.forEach(item => {
         const currentDate = new Date(this.currentTime);
         const startDate = new Date(item.starttime);
@@ -618,8 +651,8 @@ export default {
           viewer.entities.removeById(item.plotid)
         }
       });
-
       polylineArr.forEach(item => {
+        // that.drawPolyline(item)
         const currentDate = new Date(this.currentTime);
         const startDate = new Date(item.starttime);
         const endDate = new Date(item.endtime);
@@ -638,30 +671,28 @@ export default {
         }
 
       })
-
-
-
-      // 处理多边形数据
-      let polygonArr = this.plots.filter(e => e.drawtype === 'polygon');
-      console.log('polygonArr', polygonArr)
-      let polygonMap = {};
-
       polygonArr.forEach(item => {
-        if (!polygonMap[item.plotid]) {
-          polygonMap[item.plotid] = [];
+        // console.log(item)
+        // that.getDrawPolygon(item);
+
+        const currentDate = new Date(this.currentTime);
+        const startDate = new Date(item.starttime);
+        const endDate = new Date(item.endtime);
+        // console.log("line",item.plotid,startDate,endDate,currentDate)
+
+
+        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
+          this.plotisshow[item.plotid] = 1
+          this.getDrawPolygon(item)
         }
-        polygonMap[item.plotid].push(item);
-      });
-      // console.log('index.polygonMap', polygonMap)
-      Object.keys(polygonMap).forEach(plotid => {
-        let polygonData = polygonMap[plotid];
-        if (polygonData.length === 4) { // 确保有四个点
-          that.getDrawPolygon(polygonData);
-          console.log("polygonData 数据库数据",polygonData)
-        } else {
-          console.warn(`多边形 ${plotid} 数据点数量不正确`);
+        //消失
+        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
+          this.plotisshow[item.plotid] = 0
+          // console.log(item.plotid,"end")
+          viewer.entities.removeById(item.plotid)
         }
-      });
+      })
+
 
     },
     //时间轴停止
@@ -732,14 +763,12 @@ export default {
     },
     //时间轴end-------------
 
-    // drawPoint(pointInfo) {
-    //   cesiumPlot.drawPoint(pointInfo)
-    // },
     drawPolyline(line) {
         let material = this.getMaterial(line.plottype,line.img)
         // 1-6 画线
         window.viewer.entities.add({
           id: line.plotid,
+          plottype: line.plottype,
           polyline: {
             status:1,
             // positions: positionsArr,
@@ -826,79 +855,20 @@ export default {
     },
 
 
-    getDrawPolygon(polygonArr){
-      // this.polygon.getDrawPolygon(polygonArr)
-      // let onlyDrawId = this.distinguishPolygonId(polygonArr)
-      // // 1-2根据drawid来画面
-      // onlyDrawId.forEach(onlyDrawIdItem => {
-      //   // 1-3 把数据库同一drawid的点数据放入此数组
-      //   let polygon = []
-      //   polygonArr.forEach(polygonElement => {
-      //     if (polygonElement.drawid === onlyDrawIdItem) {
-      //       polygon.push(polygonElement)
-      //     }
-      //   })
-      //   // 1-4 pointLinePoints用来存构成面的点实体
-      //   // let pointLinePoints = []
-      //   // for (let i = 0; i < polygon.length; i++) {
-      //   //   let p = window.viewer.entities.add({
-      //   //     show: false,
-      //   //     position: new Cesium.Cartesian3(polygon[i].longitude, polygon[i].latitude, polygon[i].height),
-      //   //     id: polygon[i].drawid + 'Point' + (i + 1),
-      //   //     point: {
-      //   //       color: Cesium.Color.SKYBLUE,
-      //   //       pixelSize: 10,
-      //   //       outlineColor: Cesium.Color.YELLOW,
-      //   //       outlineWidth: 3,
-      //   //       disableDepthTestDistance: Number.POSITIVE_INFINITY,
-      //   //       heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      //   //     },
-      //   //   });
-      //   //   pointLinePoints.push(p)
-      //   // }
-      //   // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
-      //   let positionsArr = []
-      //   polygon.forEach(e => {
-      //     positionsArr.push(new Cesium.Cartesian3(e.longitude, e.latitude, e.height))
-      //   })
-
-        let positionsArr = [
-          102.94630883733651,30.3717576597342,
-          102.94588174690476,30.37079394136039,
-          102.94477517194106,30.371166553427924,
-          102.94520223963691,30.37213027004829,
-        ];
-        // 1-6 画面
-        // window.viewer.entities.add({
-        //   // id: onlyDrawIdItem,
-        //   polygon: {
-        //     hierarchy: positionsArr,
-        //     material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(.2),
-        //     clampToGround: true,
-        //   },
-        //   properties: {
-        //     // pointPosition: positionsArr,
-        //     // linePoint: pointLinePoints,
-        //   }
-        // })
-
-      viewer.entities.add({
-        name: "polygon",
-        polygon: {
-          show: true,
-          hierarchy: Cesium.Cartesian3.fromDegreesArray([
-            90.94630883733651,40.3717576597342,
-            113.94588174690476,40.37079394136039,
-            113.00, 30.0,
-            90.0, 30.0,
-          ]),
-          height: 0,
-          material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(.2),
-          outline: true,
-          outlineColor: Cesium.Color.BLACK,
-        }
-      })
-      // })
+    getDrawPolygon(polygon){
+      // console.log("polygon111111111",polygon)
+        viewer.entities.add({
+          id: polygon.plotid,
+          plottype: polygon.plottype,
+          polygon: {
+            show: true,
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
+            height: 0,
+            material: polygon.img,
+            stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
+            clampToGround: true,
+          }
+        })
     },
 
 
@@ -906,7 +876,7 @@ export default {
     entitiesClickPonpHandler() {
       let that = this
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-        console.log(click)
+        // console.log(click)
         // 1-1 获取点击点的信息（包括）
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
@@ -914,6 +884,7 @@ export default {
         // 2-1 判断点击物体是否为点实体（billboard）
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
+          console.log("window.selectedEntity",window.selectedEntity)
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
