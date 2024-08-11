@@ -98,6 +98,11 @@
           @drawPoint="drawPoint"
           @clearMarkDialogForm="resetPolyline"
       />
+      <addPolygonDialog
+          :popupVisiblePolygon="popupVisiblePolygon"
+          :defaultValue="defaultInputValue"
+          @confirm="handlePopupConfirm"
+      />
       <commonPanel
           :visible="popupVisible"
           :position="popupPosition"
@@ -120,12 +125,14 @@ import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
 import addPolylineDialog from "@/components/Cesium/addPolylineDialog.vue"
+import addPolygonDialog from '@/components/Cesium/addPolygonDialog'
 import commonPanel from "@/components/Cesium/CommonPanel";
 import {useCesiumStore} from '@/store/modules/cesium.js'
+import {getCurrentInstance, onMounted} from 'vue'
 
 export default {
   components: {
-    addMarkCollectionDialog, commonPanel,addPolylineDialog,//CesiumDraw
+    addMarkCollectionDialog, commonPanel,addPolygonDialog,addPolylineDialog//CesiumDraw
   },
   data: function () {
     return {
@@ -217,8 +224,17 @@ export default {
       tableData: [],
       //----------------------------------
       eqid: '',
-      title:''
+      title:'',
+      popupVisiblePolygon: false,
+      defaultInputValue: '',
+      clickEvent: null // 用于存储点击事件对象
     };
+  },
+  setup(props,ctx) {
+    onMounted(()=>{
+      window.showPopup= instance.proxy.showPopup
+    })
+    const instance = getCurrentInstance()
   },
   mounted() {
     // 初始化地图
@@ -291,6 +307,27 @@ export default {
         })
         let polylineArr = data.filter(e => e.drawtype === 'polyline')
         cesiumPlot.getDrawPolyline(polylineArr)
+        // 处理多边形数据
+        let polygonArr = data.filter(e => e.drawtype === 'polygon');
+        // console.log('index.polygonArr', polygonArr)
+        let polygonMap = {};
+
+        polygonArr.forEach(item => {
+          if (!polygonMap[item.plotid]) {
+            polygonMap[item.plotid] = [];
+          }
+          polygonMap[item.plotid].push(item);
+        });
+        // console.log('index.polygonMap', polygonMap)
+        Object.keys(polygonMap).forEach(plotid => {
+          let polygonData = polygonMap[plotid];
+          if (polygonData.length === 4) { // 确保有四个点
+            that.getDrawPolygonInfo(polygonData);
+            // console.log("数据库数据",polygonData)
+          } else {
+            console.warn(`多边形 ${plotid} 数据点数量不正确`);
+          }
+        });
       })
     },
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
@@ -546,7 +583,6 @@ export default {
             'text-align': 'center'
           }
         }
-
       }
     },
     //数组切片
@@ -593,8 +629,6 @@ export default {
       if (item.plotType === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.plotType === '线图层') {
-
-
         new Promise((resolve, reject) => {
           this.drawPolyline(item,resolve)
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
@@ -627,8 +661,7 @@ export default {
           this.openPolylinePop(item.name,situationPlotData)
         })
       } else {
-        this.drawPolygon(item)
-      }
+        this.drawPolygon(item)      }
     },
 
     //--------------点------------------------
@@ -726,19 +759,31 @@ export default {
     },
 
     //------------面-------------
-
     drawPolygon(info) {
       console.log(info, "面")
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid)
+    },
+    //获取数据库数据绘制面
+    getDrawPolygonInfo(info) {
+      console.log(info, "面")
+      cesiumPlot.getDrawPolygon(info)
     },
     // 画面
     drawP() {
-      cesiumPlot.drawActivatePolygon()
+      cesiumPlot.drawActivatePolygon("量算面积")
     },
     // 删除面
     deletePolygon() {
       let polygon = window.selectedEntity//this.polygonPosition
       cesiumPlot.deletePolygon(polygon)
       this.showPolygon = false
+    },
+    showPopup() {
+      this.popupVisiblePolygon = true;
+    },
+    // 处理弹窗确认
+    handlePopupConfirm() {
+      this.popupVisiblePolygon = false;
     },
 
     //------------------------------------------------------------------------------
