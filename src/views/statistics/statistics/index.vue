@@ -125,7 +125,7 @@ const total = ref()
 
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.id=== newFlag);
+  const selectedFile = files.value.find(file => file.fileFlag=== newFlag);
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
@@ -156,6 +156,7 @@ const getYaanCasualtiesList = async () => {
     flag: flag.value
   }).then(res => {
     tableData.value = res.data.records
+    console.log(res.data.records)
     total.value = res.data.total
   })
 
@@ -193,9 +194,9 @@ const getTableField = () => {
     }
     options.value = files.value.map(file => ({
       label: file.fileName,
-      value: file.id
+      value: file.fileFlag
     }));
-    flag.value = files.value[1].id; // 默认选择第一个表
+    flag.value = files.value[0].fileFlag; // 默认选择第一个表
     const fileColumn = JSON.parse(files.value[0].fileColumn);
     const map = new Map(Object.entries(fileColumn));
     field.value = Array.from(map.keys())
