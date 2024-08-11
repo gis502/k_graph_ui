@@ -39,8 +39,8 @@
           <el-select v-model="value.value" placeholder="请选择" size="large">
             <el-option
                 v-for="item in value.content"
-                :label="item.lable"
-                :value="item.lable"/>
+                :label="item.label"
+                :value="item.label"/>
           </el-select>
         </el-form-item>
       </template>
@@ -82,6 +82,7 @@ export default {
         // 2-2 获取pinia中数据
         // this.form = cesiumStore.getPointInfo1()
         this.form = cesiumStore.getPolyilneInfo()
+        console.log(this.form)
         // 2-3 生成对应类型的dialog
         for (let item in plotType) {
           if (this.form.plottype === plotType[item].name) {
@@ -163,7 +164,8 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     guid() {

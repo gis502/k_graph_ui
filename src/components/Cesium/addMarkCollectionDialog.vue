@@ -52,8 +52,11 @@
           <el-select v-model="value.value" placeholder="请选择" size="large">
             <el-option
                 v-for="item in value.content"
-                :label="item.lable"
-                :value="item.lable"/>
+                :label="item.label"
+                :value="item.label"/>
+            <template>
+              {{item}}
+            </template>
           </el-select>
         </el-form-item>
       </template>
@@ -102,6 +105,7 @@ export default {
             break;
           }
         }
+        console.log(this.typeInfo)
       }
     },
   },
@@ -161,7 +165,7 @@ export default {
       // 组装 plot
       assemblyData.plot.eqid = data1.eqid
       assemblyData.plot.plotid = data1.plotid
-      assemblyData.plot.time = Date.now() // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
+      assemblyData.plot.time = this.timestampToTime(Date.now()) // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
       assemblyData.plot.plottype = data1.plottype
       assemblyData.plot.drawtype = "point" // 点线面后面再判断，先写点，别忘了改！！！！
       assemblyData.plot.latitude = data1.latitude
@@ -193,7 +197,8 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     guid() {
