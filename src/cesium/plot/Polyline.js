@@ -17,39 +17,27 @@ export default class Polyline {
     this.typeName = null
     this.img = null
     this.eqid = null
+    this.resolve = null
+    this.timestampArr = []
   }
 
   //激活
-  activate(material,typeName,img,eqid,obj) {
-    console.log(this.ws)
+  activate(material,typeName,img,eqid,resolve) {
+    this.resolve = resolve
     this.eqid = eqid
     this.img = img
     this.typeName = typeName
     this.material = material
     this.status = 1
-    if(obj === undefined){
-      this.positions = [];
-      this.tempPositions = [];
-      this.deactivate();
-      this.clear();
-      // 创建Date对象
-      let currentDate = new Date();
-      // 获取当前时间的时间戳作为ID
-      this.initId = currentDate.getTime() + "polyline";
-      this.registerEvents(); //注册鼠标事件
-    }else{
-      this.ws.send(JSON.stringify({
-        type: "polyline",
-        operate: "add",
-        data: {
-          id: obj.id,
-          type: obj.type,
-          positions: obj.position,
-          img: obj.img,
-          eqid: obj.eqid
-        }
-      }))
-    }
+    this.positions = [];
+    this.tempPositions = [];
+    this.deactivate();
+    this.clear();
+    // 创建Date对象
+    let currentDate = new Date();
+    // 获取当前时间的时间戳作为ID
+    this.initId = this.guid();
+    this.registerEvents(); //注册鼠标事件
   }
 
   //禁用
@@ -91,6 +79,9 @@ export default class Polyline {
       that.positions.push(position);
       let p = that.createPoint(position)
       that.pointLinePoint.push(p)
+      // 生成线上每个点的生成时间，用于situationplot中的time
+      let timestampe = new Date().getTime()
+      that.timestampArr.push(timestampe)
       if (that.positions.length === 1) {
         that.generatePolyline();
       }
@@ -102,6 +93,9 @@ export default class Polyline {
   }
 
   rightClickEvent() {
+    window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
+      return false;
+    }
     let that = this
     this.handler.setInputAction(e => {
       if (!that.drawEntity) {
@@ -143,23 +137,30 @@ export default class Polyline {
     if(that.typeName==="地裂缝"||that.typeName==="可用供水管网"||that.typeName==="不可用供水管网"){
       img = this.img
     }
-    // console.log(this.ws)
-    this.ws.send(JSON.stringify({
-      type: "polyline",
-      operate: "add",
-      data: {
-        id: that.initId,
-        type:that.typeName,
-        positions: that.positions,
-        img: img,
-        eqid: that.eqid
-      }
-    }))
+    let data = {
+      timestampArr:this.timestampArr,
+      pointPosArr:this.positions,
+      plotid: this.initId
+    }
+    this.resolve(data)
+    // this.ws.send(JSON.stringify({
+    //   type: "polyline",
+    //   operate: "add",
+    //   data: {
+    //     id: that.initId,
+    //     type:that.typeName,
+    //     positions: that.positions,
+    //     img: img,
+    //     eqid: that.eqid
+    //   }
+    // }))
     this.status = 0
     this.pointLinePoint = []
     this.drawEntity.remove = () => {
       this.viewer.entities.remove(this.drawEntity);
     }
+
+    this.timestampArr = []
     this.deactivate();
   }
 
@@ -169,7 +170,7 @@ export default class Polyline {
     return this.viewer.entities.add({
       show: false,
       position: position,
-      id: that.initId + "point" + that.index,
+      id: that.guid(),
       point: {
         pixelSize: 1,
         color: Cesium.Color.RED,
@@ -183,8 +184,36 @@ export default class Polyline {
     });
   }
 
+  noNo(data){
+    let situationPlotData = []// situationplot表中的线数据
+    for(let i=0;i<data.pointPosArr.length;i++){
+      let cartographic = Cesium.Cartographic.fromCartesian(data.pointPosArr[i]);
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      let height = Cesium.Math.toDegrees(cartographic.height);
+      let plotItem = {
+        // eqid: that.eqid,
+        plotid:data.plotid,
+        // time: data.timestampArr[i],
+        // plottype: item.name,
+        drawtype: "polyline",
+        // img:item.img,
+        // latitude,
+        // longitude,
+        // height,
+      }
+      situationPlotData.push(plotItem)
+    }
+    return situationPlotData
+  }
+
   generatePolyline() {
     let that = this
+    let data = this.noNo({
+      timestampArr:this.timestampArr,
+      pointPosArr:this.positions,
+      plotid: this.initId
+    })
     this.drawEntity = this.viewer.entities.add({
       id: this.initId,
       polyline: {
@@ -243,6 +272,7 @@ export default class Polyline {
       },
       properties: {
         pointPosition: that.pointLinePoint,
+        data
       }
     })
   }
@@ -287,54 +317,55 @@ export default class Polyline {
     let onlyDrawId = this.distinguishPolylineId(polylineArr)
     // 1-2根据drawid来画线
     onlyDrawId.forEach(onlyDrawIdItem => {
-          // 1-3 把数据库同一drawid的点数据放入此数组
-          let line = []
-          polylineArr.forEach(polylineElement => {
-            if (polylineElement.drawid === onlyDrawIdItem) {
-              line.push(polylineElement)
-            }
-          })
-          // 1-4 pointLinePoints用来存构成线的点实体
-          let pointLinePoints = []
-          for (let i = 0; i < line.length; i++) {
-            let p = window.viewer.entities.add({
-              show: false,
-              position: new Cesium.Cartesian3(line[i].longitude, line[i].latitude, line[i].height),
-              id: line[i].drawid + 'point' + (i + 1),
-              point: {
-                pixelSize: 0,
-                color: Cesium.Color.RED,
-                outlineWidth: 2,
-                outlineColor: Cesium.Color.DARKRED,
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-                depthTest: false,//禁止深度测试但是没有下面那句有用
-                disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-              },
-            });
-            pointLinePoints.push(p)
+        // 1-3 把数据库同一drawid的点数据放入此数组
+        let line = []
+        polylineArr.forEach(polylineElement => {
+          if (polylineElement.plotid === onlyDrawIdItem) {
+            line.push(polylineElement)
           }
-          // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
-          let positionsArr = []
-          line.forEach(e => {
-            positionsArr.push(new Cesium.Cartesian3(e.longitude, e.latitude, e.height))
-          })
-          let material = getmaterial(line[0].pointtype,line[0].img)
-          // 1-6 画线
-          window.viewer.entities.add({
-            id: onlyDrawIdItem,
-            polyline: {
-              positions: positionsArr,
-              width: 5,
-              material: material,
-              // material: Cesium.Color.YELLOW,
-              depthFailMaterial: Cesium.Color.YELLOW,
-              clampToGround: true,
+        })
+        // 1-4 pointLinePoints用来存构成线的点实体
+        let pointLinePoints = []
+        for (let i = 0; i < line.length; i++) {
+          let p = window.viewer.entities.add({
+            show: false,
+            position: new Cesium.Cartesian3(line[i].longitude, line[i].latitude, line[i].height),
+            id: line[i].plotid + 'point' + (i + 1),
+            point: {
+              pixelSize: 0,
+              color: Cesium.Color.RED,
+              outlineWidth: 2,
+              outlineColor: Cesium.Color.DARKRED,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+              depthTest: false,//禁止深度测试但是没有下面那句有用
+              disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
             },
-            properties: {
-              pointPosition: pointLinePoints,
-            }
-          })
+          });
+          pointLinePoints.push(p)
         }
+        // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
+        let positionsArr = []
+        line.forEach(e => {
+          // 线的positions需要数组里的点都是Cartesian3类型
+          positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e.longitude), parseFloat(e.latitude), parseFloat(e.height)))
+        })
+        let material = getmaterial(line[0].plottype,line[0].img)
+        // 1-6 画线
+        window.viewer.entities.add({
+          id: onlyDrawIdItem,
+          polyline: {
+            positions: positionsArr,
+            width: 5,
+            material: material,
+            // material: Cesium.Color.YELLOW,
+            // depthFailMaterial: Cesium.Color.YELLOW,
+            clampToGround: true,
+          },
+          properties: {
+            data: line,
+          }
+        })
+      }
     )
   }
 
@@ -342,11 +373,17 @@ export default class Polyline {
   distinguishPolylineId(polylineArr) {
     let PolylineIdArr = []
     polylineArr.forEach(element => {
-      if (!PolylineIdArr.includes(element.drawid)) {
-        PolylineIdArr.push(element.drawid)
+      if (!PolylineIdArr.includes(element.plotid)) {
+        PolylineIdArr.push(element.plotid)
       }
     })
     return PolylineIdArr
   }
-
+  guid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      let r = Math.random() * 16 | 0,
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
 }

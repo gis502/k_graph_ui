@@ -200,7 +200,12 @@ export default {
               id: null,
               aditStatus: true,
             }
-            item.starttime = that.timestampToTime(res[i].starttime)
+            if(res[i].endtime === null){
+              item.starttime = ""
+            }else{
+              item.starttime = that.timestampToTime(res[i].starttime)
+            }
+
             if(res[i].endtime === null){
               item.endtime = ""
             }else{
@@ -210,7 +215,7 @@ export default {
             item.id = res[i].id
             that.plotInfoActivities.push(item)
           }
-          // console.log(that.plotInfoActivities)
+          console.log(that.plotInfoActivities)
           this.getActivitiesByTime(this.currentTime)
         })
       }

@@ -50,6 +50,14 @@ export function insertPlotAndInfo(data){
   })
 }
 
+export function insertPlotsAndInfo(data){
+  return request({
+    url: '/system/ploy/insertplotsandinfo',
+    method: 'post',
+    data: data
+  })
+}
+
 export function getPlot(query) {
   return request({
     url: '/system/ploy/getplot',
