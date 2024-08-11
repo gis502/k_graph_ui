@@ -177,6 +177,8 @@ export default class Polygon {
 
   rightClickSendEvent(polygonInfo) {
     let info = polygonInfo;
+    let startTime = this.timestampToTime(info.secondaryDisasterLandslideDebrisFlow.initialDisposalStartDate.value)
+    let endTime = this.timestampToTime(info.secondaryDisasterLandslideDebrisFlow.initialDisposalActualEndDate.value)
     // 将多边形顶点转换为经纬度
     let uuid = this.guid();
     let posArr = [];
@@ -193,8 +195,8 @@ export default class Polygon {
       plots: [],
       plotinfo: {
         plotid: uuid,
-        starttime: null,
-        endtime: null,
+        starttime: startTime,
+        endtime: endTime,
         info: info,
         id: this.guid()
       }
@@ -904,7 +906,7 @@ export default class Polygon {
     }
 
     // 更新显示的实体个数
-    document.getElementById("ispointIcon").innerHTML = count;
+    // document.getElementById("ispointIcon").innerHTML = count;
 
     // 更新类中的实体个数属性
     this.entityCount = count;
