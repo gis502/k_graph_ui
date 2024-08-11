@@ -340,6 +340,7 @@ export default {
         if(window.selectedEntity === undefined){
           this.popupVisible = false
           this.popupData = {}
+
         }
         // 2-1 判断点击物体是否为点实体（billboard）
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
@@ -428,6 +429,7 @@ export default {
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          console.log("end11",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity
@@ -470,6 +472,7 @@ export default {
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          console.log("end",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -795,7 +798,7 @@ export default {
     //------------面-------------
     drawPolygon(info) {
       console.log(info, "面")
-      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid)
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,info)
     },
     //获取数据库数据绘制面
     getDrawPolygonInfo(info) {
