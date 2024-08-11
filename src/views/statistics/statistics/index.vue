@@ -10,14 +10,16 @@
       />
       <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>
     </div>
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" class="button" @click="clearSelection()">清空选择</el-button>
+        <el-button type="warning" plain icon="Delete" class="button" @click="clearSelection()">清空选择</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain icon="Delete" class="button" @click="clearSelection()">删除记录</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-select
@@ -35,23 +37,31 @@
         </el-select>
       </el-col>
     </el-row>
-
     <el-table
         ref="multipleTableRef"
         :data="tableData"
-        class="table"
+        height="485px"
+        class="table tableMove"
+        fit
         :row-key="getRowKey"
+        :row-style="{ height: '5.2vh' }"
         @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
-      <el-table-column prop="id" label="序号" width="50" align="center"/>
+      <el-table-column
+          label="序号"
+          width="50"
+          align="center"
+          :formatter="typeIndex"
+      />
       <el-table-column
           v-for="col in columns"
           :key="col.prop"
           :prop="col.prop"
           :label="col.label"
           :align="col.align"
-          :width="col.width"
+          :min-width="'250px'"
+      />
       />
     </el-table>
     <el-pagination
@@ -93,7 +103,7 @@
 <script setup>
 import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
-import {exportExcel, getField, getYaanCasualties} from "@/api/system/statistics.js";
+import {exportExcel, getField, getData} from "@/api/system/excel.js";
 import {Search} from "@element-plus/icons-vue";
 
 const dialogVisible = ref(false)
@@ -104,7 +114,6 @@ const requestParams = ref("")
 
 onMounted(() => {
   getTableField()
-  //getYaanCasualtiesList()
 })
 const options = ref([]);
 const tableData = ref([])
@@ -113,9 +122,10 @@ const files = ref([])//存储当前用户的导表信息
 const name = ref([])
 const columns = ref([]); // 用于存储表格列配置
 const total = ref()
+
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.fileId === newFlag);
+  const selectedFile = files.value.find(file => file.fileFlag=== newFlag);
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
@@ -127,7 +137,6 @@ watch(flag, (newFlag) => {
   // 清空选择
   clearSelection();
   value.value = [];
-  console.log("flag变化了打印files:", files.value, flag.value)
   getYaanCasualtiesList();
 
 });
@@ -140,26 +149,33 @@ function handleQuery() {
 
 // 请求数据
 const getYaanCasualtiesList = async () => {
- await getYaanCasualties({
+  await getData({
     currentPage: currentPage.value,
     pageSize: pageSize.value,
     requestParams: requestParams.value,
     flag: flag.value
   }).then(res => {
     tableData.value = res.data.records
+    console.log(res.data.records)
     total.value = res.data.total
-    console.log("请求数据:", tableData.value)
   })
 
 }
+
+/**自增序号**/
+const typeIndex = (row, column, cellValue, index) => {
+  return index + 1 + (currentPage.value - 1) * pageSize.value;
+};
+
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => ({
     prop: fieldName,
     label: name.value[index],
     align: "center",
-    width: index < 2 ? "200" : undefined // Example: setting width for the first two columns
+    width: null // Example: setting width for the first two columns
   }));
 };
+
 const generateFieldData = () => {
   return field.value.map((fieldName, index) => ({
     value: fieldName,    // `value` should match field identifier
@@ -172,24 +188,21 @@ const generateFieldData = () => {
 const getTableField = () => {
   getField().then(res => {
     files.value = res.data
-    if (files.value.length ==0) {
-      ElMessage.error("改用户无导表权限")
+    console.log(res.data)
+    if (files.value.length == 0) {
+      ElMessage.error("该用户无导表权限")
     }
-
     options.value = files.value.map(file => ({
       label: file.fileName,
-      value: file.fileId
+      value: file.fileFlag
     }));
-
-    flag.value = files.value[0].fileId; // 默认选择第一个表
+    flag.value = files.value[0].fileFlag; // 默认选择第一个表
     const fileColumn = JSON.parse(files.value[0].fileColumn);
     const map = new Map(Object.entries(fileColumn));
     field.value = Array.from(map.keys())
     name.value = Array.from(map.values())
     data.value = generateData();
     columns.value = generateColumnConfig();
-    console.log("表格字段:", columns.value)
-
   })
 }
 
@@ -207,7 +220,6 @@ const handleSizeChange = (val) => {
 const handleCurrentChange = async (val) => {
   currentPage.value = val
   await getYaanCasualtiesList()
-  console.log("当前页数据", tableData.value)
 }
 
 const generateData = _ => {
@@ -285,5 +297,9 @@ const clearSelection = () => {
 ::v-deep .el-input__inner {
   font-size: 16px;
 }
+.tableMove{
+  overflow-y: auto;
+}
+
 </style>
 

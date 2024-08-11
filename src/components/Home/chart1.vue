@@ -2,102 +2,113 @@
   <div ref="chart1" class="chart1"></div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, watch } from 'vue';
 import * as echarts from 'echarts';
-export default {
-  name: "chart1",
-  mounted() {
-    this.initChart()
-  },
-  methods:{
-    initChart(){
-      let chart1 = this.$refs.chart1
-      let myChart = echarts.init(chart1);
-      let option = {
-        title: {
-          // text: 'Stacked Line'
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          textStyle:{
-            color: '#fff'
-          },
-          data: ['Email', 'Union Ads', 'Video Ads', 'Direct', 'Search Engine']
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '20%',
-          containLabel: true
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          axisLabel: {
-            show: true,
-            textStyle: {
-              color: '#fff'
-            }
-          },
-          data: ['Mon1', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            show: true,
-            textStyle: {
-              fontSize: '13',
-              color: '#fff'
-            }
-          },
-        },
-        series: [
-          {
-            name: 'Email',
-            type: 'line',
-            stack: 'Total',
-            data: [120, 132, 101, 134, 90, 230, 210]
-          },
-          {
-            name: 'Union Ads',
-            type: 'line',
-            stack: 'Total',
-            data: [220, 182, 191, 234, 290, 330, 310]
-          },
-          {
-            name: 'Video Ads',
-            type: 'line',
-            stack: 'Total',
-            data: [150, 232, 201, 154, 190, 330, 410]
-          },
-          {
-            name: 'Direct',
-            type: 'line',
-            stack: 'Total',
-            data: [320, 332, 301, 334, 390, 330, 320]
-          },
-          {
-            name: 'Search Engine',
-            type: 'line',
-            stack: 'Total',
-            data: [820, 932, 901, 934, 1290, 1330, 1320]
-          }
-        ]
-      };
-      myChart.setOption(option)
+
+const chart1 = ref(null);
+const props = defineProps(['eqData']);
+
+const categorizeData = (data) => {
+  const categories = {
+    '<3': 0,
+    '3-4.5': 0,
+    '4.5-6': 0,
+    '≥6': 0
+  };
+
+  data.forEach(item => {
+    const magnitude = parseFloat(item.magnitude);
+    if (magnitude < 3) {
+      categories['<3'] += 1;
+    } else if (magnitude >= 3 && magnitude <= 4.5) {
+      categories['3-4.5'] += 1;
+    } else if (magnitude > 4.5 && magnitude < 6) {
+      categories['4.5-6'] += 1;
+    } else if (magnitude >= 6) {
+      categories['≥6'] += 1;
     }
-  }
-}
+  });
+
+  return Object.values(categories);
+};
+
+const initChart = () => {
+  const myChart = echarts.init(chart1.value);
+  const data = categorizeData(props.eqData);
+
+  const option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    grid: {
+      left: '3%',
+      top: '5%',
+      right: '4%',
+      bottom: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      axisLabel: {
+        show: true,
+        textStyle: {
+          color: '#fff',
+          fontSize: 16, // Increase font size
+        },
+        interval: 0,
+      },
+      data: ['3级以下', '3 - 4.5级', '4.5 - 6级', '6级以上']
+    },
+    yAxis: {
+      type: 'value',
+      nameTextStyle: {
+        color: '#fff',
+        fontSize: 16, // Increase font size
+      },
+      axisLabel: {
+        show: true,
+        textStyle: {
+          fontSize: 15, // Increase font size
+          color: '#fff'
+        }
+      },
+    },
+    series: [
+      {
+        name: '地震次数',
+        data: data,
+        type: 'bar',
+        itemStyle: {
+          color: (params) => {
+            const colors = ['#2889ff', '#ffeb2f', '#ffa500', '#f81919'];
+            return colors[params.dataIndex];
+          }
+        },
+        label: {
+          show: true,
+          position: 'top',
+          color: '#fff',
+          fontSize: 16, // Increase font size for labels
+        }
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+};
+
+onMounted(() => {
+  initChart();
+});
+
+watch(() => props.eqData, (newData) => {
+  initChart();  // Reinitialize chart when data changes
+}, {deep: true});
 </script>
 
 <style scoped>
-.chart1{
-  /*height: calc(30vh - 30px);*/
-  /*border-radius: 10px;*/
-  /*background: rgba(4, 16, 51, 0.4);*/
-  /*margin: 10px;*/
+.chart1 {
   width: 100%;
   height: 100%;
 }
