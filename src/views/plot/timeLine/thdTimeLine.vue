@@ -434,7 +434,7 @@ export default {
     getPlotwithStartandEndTime(eqid) {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
         this.plots = res
-        // console.log(res)
+        console.log(res)
         res.forEach(item => {
           if (!item.endtime) {
             item.endtime = new Date(this.eqendTime.getTime() + 5000);
@@ -491,11 +491,11 @@ export default {
       //   });
       // }
       // 时间轴开始
-      this.intervalId = setInterval(() => {
-        this.updateCurrentTime();
-      // }, 160);
-      }, 50);
-      // this.updateCurrentTime();
+      // this.intervalId = setInterval(() => {
+      //   this.updateCurrentTime();
+      // // }, 160);
+      // }, 50);
+      this.updateCurrentTime();
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
@@ -520,7 +520,7 @@ export default {
       }
     },
     updatePlot() {
-      console.log(this.plots)
+      // console.log(this.plots)
       let that=this
       //一个点线面一条数据
       //点
@@ -642,26 +642,26 @@ export default {
 
 
       // 处理多边形数据
-      // let polygonArr = this.plots.filter(e => e.drawtype === 'polygon');
-      // console.log('polygonArr', polygonArr)
-      // let polygonMap = {};
-      //
-      // polygonArr.forEach(item => {
-      //   if (!polygonMap[item.plotid]) {
-      //     polygonMap[item.plotid] = [];
-      //   }
-      //   polygonMap[item.plotid].push(item);
-      // });
-      // // console.log('index.polygonMap', polygonMap)
-      // Object.keys(polygonMap).forEach(plotid => {
-      //   let polygonData = polygonMap[plotid];
-      //   if (polygonData.length === 4) { // 确保有四个点
-      //     // that.getDrawPolygonInfo(polygonData);
-      //     // console.log("数据库数据",polygonData)
-      //   } else {
-      //     console.warn(`多边形 ${plotid} 数据点数量不正确`);
-      //   }
-      // });
+      let polygonArr = this.plots.filter(e => e.drawtype === 'polygon');
+      console.log('polygonArr', polygonArr)
+      let polygonMap = {};
+
+      polygonArr.forEach(item => {
+        if (!polygonMap[item.plotid]) {
+          polygonMap[item.plotid] = [];
+        }
+        polygonMap[item.plotid].push(item);
+      });
+      // console.log('index.polygonMap', polygonMap)
+      Object.keys(polygonMap).forEach(plotid => {
+        let polygonData = polygonMap[plotid];
+        if (polygonData.length === 4) { // 确保有四个点
+          that.getDrawPolygon(polygonData);
+          console.log("polygonData 数据库数据",polygonData)
+        } else {
+          console.warn(`多边形 ${plotid} 数据点数量不正确`);
+        }
+      });
 
     },
     //时间轴停止
@@ -736,51 +736,6 @@ export default {
     //   cesiumPlot.drawPoint(pointInfo)
     // },
     drawPolyline(line) {
-
-      // 1-1 根据线的drawid记录有多少条线
-      // let onlyDrawId = this.distinguishPolylineId(polylineArr)
-      // // // 1-2根据drawid来画线
-      // onlyDrawId.forEach(onlyDrawIdItem => {
-      //   //每一个线
-      //
-      //   // 1-3 把数据库同一drawid的点数据放入此数组
-      //   let line = []
-      //   polylineArr.forEach(polylineElement => {
-      //     if (polylineElement.plotid === onlyDrawIdItem) {
-      //       line.push(polylineElement)
-      //     }
-      //   })
-      //
-      //   // 1-4 pointLinePoints用来存构成线的点实体
-      //   // let pointLinePoints = []
-      //   // for (let i = 0; i < line.length; i++) {
-      //   //   let p = window.viewer.entities.add({
-      //   //     show: false,
-      //   //     position: new Cesium.Cartesian3(line[i].longitude, line[i].latitude, line[i].height),
-      //   //     id: line[i].plotid + 'point' + (i + 1),
-      //   //     point: {
-      //   //       pixelSize: 0,
-      //   //       color: Cesium.Color.RED,
-      //   //       outlineWidth: 2,
-      //   //       outlineColor: Cesium.Color.DARKRED,
-      //   //       heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-      //   //       depthTest: false,//禁止深度测试但是没有下面那句有用
-      //   //       disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-      //   //     },
-      //   //   });
-      //   //   pointLinePoints.push(p)
-      //   // }
-      //
-      //   // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
-      //   let positionsArr = [];
-      //   line.forEach(e => {
-      //     positionsArr.push(
-      //         parseFloat(e.longitude),
-      //         parseFloat(e.latitude),
-      //         parseFloat(e.height)
-      //     );
-      //   });
-
         let material = this.getMaterial(line.plottype,line.img)
         // 1-6 画线
         window.viewer.entities.add({
@@ -799,9 +754,7 @@ export default {
             // pointPosition: pointLinePoints,
           }
         })
-      // })
     },
-
     distinguishPolylineId(polylineArr) {
       let PolylineIdArr = []
       polylineArr.forEach(element => {
@@ -872,6 +825,81 @@ export default {
       }
     },
 
+
+    getDrawPolygon(polygonArr){
+      // this.polygon.getDrawPolygon(polygonArr)
+      // let onlyDrawId = this.distinguishPolygonId(polygonArr)
+      // // 1-2根据drawid来画面
+      // onlyDrawId.forEach(onlyDrawIdItem => {
+      //   // 1-3 把数据库同一drawid的点数据放入此数组
+      //   let polygon = []
+      //   polygonArr.forEach(polygonElement => {
+      //     if (polygonElement.drawid === onlyDrawIdItem) {
+      //       polygon.push(polygonElement)
+      //     }
+      //   })
+      //   // 1-4 pointLinePoints用来存构成面的点实体
+      //   // let pointLinePoints = []
+      //   // for (let i = 0; i < polygon.length; i++) {
+      //   //   let p = window.viewer.entities.add({
+      //   //     show: false,
+      //   //     position: new Cesium.Cartesian3(polygon[i].longitude, polygon[i].latitude, polygon[i].height),
+      //   //     id: polygon[i].drawid + 'Point' + (i + 1),
+      //   //     point: {
+      //   //       color: Cesium.Color.SKYBLUE,
+      //   //       pixelSize: 10,
+      //   //       outlineColor: Cesium.Color.YELLOW,
+      //   //       outlineWidth: 3,
+      //   //       disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      //   //       heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      //   //     },
+      //   //   });
+      //   //   pointLinePoints.push(p)
+      //   // }
+      //   // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
+      //   let positionsArr = []
+      //   polygon.forEach(e => {
+      //     positionsArr.push(new Cesium.Cartesian3(e.longitude, e.latitude, e.height))
+      //   })
+
+        let positionsArr = [
+          102.94630883733651,30.3717576597342,
+          102.94588174690476,30.37079394136039,
+          102.94477517194106,30.371166553427924,
+          102.94520223963691,30.37213027004829,
+        ];
+        // 1-6 画面
+        // window.viewer.entities.add({
+        //   // id: onlyDrawIdItem,
+        //   polygon: {
+        //     hierarchy: positionsArr,
+        //     material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(.2),
+        //     clampToGround: true,
+        //   },
+        //   properties: {
+        //     // pointPosition: positionsArr,
+        //     // linePoint: pointLinePoints,
+        //   }
+        // })
+
+      viewer.entities.add({
+        name: "polygon",
+        polygon: {
+          show: true,
+          hierarchy: Cesium.Cartesian3.fromDegreesArray([
+            90.94630883733651,40.3717576597342,
+            113.94588174690476,40.37079394136039,
+            113.00, 30.0,
+            90.0, 30.0,
+          ]),
+          height: 0,
+          material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(.2),
+          outline: true,
+          outlineColor: Cesium.Color.BLACK,
+        }
+      })
+      // })
+    },
 
 
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
