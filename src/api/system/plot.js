@@ -113,3 +113,14 @@ export function getPlotwithStartandEndTime(data){
     params:data
   })
 }
+
+export function getLastPlotInfoofCurrentTime(plotid, currentTime){
+  return request({
+    url: '/system/ploy/getLastPlotInfoofCurrentTime' ,
+    method: 'post',
+    params: {
+      plotid: plotid,
+      currentTime: currentTime
+    }
+  })
+}
