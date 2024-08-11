@@ -120,7 +120,6 @@ export default {
         // console.log("findTime",this.findTime)
 
         if (this.visiblePanel) {
-          console.log("this.popupPanelData.plotid",this.popupPanelData.plotid)
 
           // if(this.popupPanelData.plotid=="center"){
           //   let item = {
@@ -190,7 +189,6 @@ export default {
       else{
         // this.plotInfoActivities = []
         getPlotInfos({plotid}).then(res => {
-          console.log("getPlotInfos res111",res)
           this.plotInfoActivities = []
           for (let i = 0; i < res.length; i++) {
             // 这个item一定要写在for循环里面，否则使用push(item)会造成整个plotInfoActivities都是最后一个item
@@ -217,7 +215,7 @@ export default {
             item.id = res[i].id
             that.plotInfoActivities.push(item)
           }
-          console.log("plotInfoActivities",that.plotInfoActivities)
+          console.log(that.plotInfoActivities)
           this.getActivitiesByTime(this.currentTime)
         })
       }

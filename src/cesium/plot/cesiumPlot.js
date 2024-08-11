@@ -36,9 +36,9 @@ let cesiumPlot= {
   //----------------------------------------------------------------
 
   //------------------------------线---------------------------------
-  drawActivatePolyline(type,img,eqid,resolve) {
+  drawActivatePolyline(type,img,eqid,obj) {
     let material = this.getMaterial(type,img)
-    this.polyline.activate(material,type,img,eqid,resolve)
+    this.polyline.activate(material,type,img,eqid,obj)
   },
   deletePolyline(polyline){
     this.polyline.deletePolyline(polyline)
@@ -132,7 +132,5 @@ let cesiumPlot= {
     this.polygon.rightClickSendEvent(polygonInfo)
   }
   //----------------------------------------------------------------
-
-
 }
 export default cesiumPlot;

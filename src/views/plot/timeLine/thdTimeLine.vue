@@ -62,15 +62,41 @@
 
     <!--      新闻-->
     <div>
-      <news></news>
+      <news
+              :currentTime="currentTime"
+              @ifShowDialog="ifShowDialog"
+              @detailedNews="detailedNews"
+      ></news>
     </div>
+      <div
+              class="detailedNews"
+              v-show="showDetailedNewsDialog"
+      >
+          <div class="close-button" @click="hideDetailedNews">
+              &times; <!-- 叉号字符 -->
+          </div>
+          <div>
+              <h2 class="news-title">新闻事件</h2>
+          </div>
+          <div class="news-main">
+              <div class="news-time">
+                  {{ showingNewsContent.time }}
+              </div>
+              <div class="news-content">
+                  {{ showingNewsContent.content }}
+              </div>
+              <div v-if="showingNewsContent.img" class="news-img">
+                  <img :src="showingNewsContent.img" alt="新闻图片" />
+              </div>
+          </div>
+      </div>
+
 
     <!--      缩略图-->
     <div>
       <mini-map></mini-map>
     </div>
 
-<!--    <div class="tmp"> </div>-->
 
     <timeLineLegend></timeLineLegend>
 
@@ -156,6 +182,14 @@ export default {
         plottype: '震中'
       },
 
+        // 新闻组件
+        showingNewsContent: {
+            id: '',
+            time: '',
+            content: '',
+            img: '',
+        },
+        showDetailedNewsDialog: false,
 
       //时间轴时间
       eqstartTime: '',
@@ -178,7 +212,6 @@ export default {
       dragStartX: 0,
 
       smallViewer:null,
-      // isShowLegent:true,
     };
   },
   created() {
@@ -187,9 +220,7 @@ export default {
   mounted() {
     this.init()
     this.getEqInfo(this.eqid)
-    // this.getPlotwithStartandEndTime()
     // this.initTimerLine()
-    // cesiumPlot.init(window.viewer,null,null)
     // ---------------------------------------------------
     // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
@@ -440,6 +471,18 @@ export default {
       })
     },
 
+      detailedNews(val){
+          console.log("-----",val)
+        this.showingNewsContent = val
+      },
+      ifShowDialog(val){
+          console.log("showDetailedNewsDialog-----",val)
+        this.showDetailedNewsDialog = val
+      },
+      hideDetailedNews(){
+          this.showDetailedNewsDialog = false
+      },
+
     //时间轴操作
     initTimerLine() {
       this.isTimerRunning = true
@@ -489,7 +532,6 @@ export default {
         this.updateCurrentTime();
       // }, 160);
       }, 50);
-      // this.updateCurrentTime();
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
@@ -876,15 +918,13 @@ export default {
     entitiesClickPonpHandler() {
       let that = this
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-        // console.log(click)
         // 1-1 获取点击点的信息（包括）
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
-
         // 2-1 判断点击物体是否为点实体（billboard）
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
-          console.log("window.selectedEntity",window.selectedEntity)
+          // console.log("window.selectedEntity",window.selectedEntity)
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -915,13 +955,13 @@ export default {
             // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
           }
           // 2-5 更新弹窗位置
-
+          // that.selectedEntity = window.selectedEntity
           that.popupData = {
             plotid: window.selectedEntity.id,
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-
+          // that.currentTime=
           this.popupVisible = true; // 显示弹窗
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
@@ -964,7 +1004,6 @@ export default {
         };
       }
     },
-
 
 
 //截图
@@ -1303,6 +1342,69 @@ export default {
 .legend_button p{
   color: #FFFFFF;
   margin:0;
+.detailedNews{
+    width: 300px;
+    height: 350px;
+    position: absolute;
+    padding: 0 5px 5px;
+    border-radius: 5px;
+    top: 80px;
+    right: 270px;
+    z-index: 100; /* 更高的层级 */
+    background-color: rgba(40, 40, 40, 0.7);
+    color: white;
+}
+.news-title {
+    font-family: myFirstFont;
+    font-size: 1.2rem;
+    line-height: 1.9rem;
+    /*padding: 1rem 0 1rem !important;*/
+    color: #ffffff;
+    letter-spacing: 0;
+    text-align: justify;
+    text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
+    /*border-bottom: 0.1rem solid #ffffff;*/
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+}
+.close-button {
+    position: absolute; /* Position the button absolutely */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    cursor: pointer; /* Change cursor to pointer */
+    font-size: 24px; /* Adjust font size */
+    color: #ffffff; /* Optional: Set color */
+}
+
+.news-main{
+    padding-left: 5px;
+    padding-right: 5px;
+    max-height: 295px;
+    overflow-y: auto;
+}
+.news-time{
+    font-size: .9rem;
+    line-height: 1.5rem;
+}
+.news-content{
+    font-size: .9rem;
+    line-height: 1.3rem;
+}
+.news-img {
+    padding-top: 5px;
+    text-align: center;
+}
+.news-img img {
+    display: inline-block;
+}
+
+.button-container {
+  position: absolute;
+  z-index: 20;
+  bottom: 10%;
+  left: 1%;
+
 }
 
 </style>

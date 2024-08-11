@@ -112,8 +112,6 @@ export default {
 
         this.activity.gohour = String(this.activity.gotime.getHours()).padStart(2, '0');
         this.activity.gominute = String(this.activity.gotime.getMinutes()).padStart(2, '0');
-
-
       }
 
     },
