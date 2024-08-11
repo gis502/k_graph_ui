@@ -2,17 +2,26 @@
   <div class="contentsBox">
     <div class="dataBox">
       <div class="dataManage" style="height: auto">
+        <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">上传Excel文件
+        </el-button>
         <el-upload
             name="file"
+            ref="fileUpload"
             class="upload-demo"
             :action="uploadUrl"
             :multiple="false"
             :show-file-list="false"
             :on-success="handleSuccess"
             :before-upload="beforeAvatarUpload"
+            @change="handleFileChange"
             :headers="this.headers">
-          <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload">上传Excel文件
-          </el-button>
+          <!-- 隐藏的文件选择按钮 -->
+          <input
+              type="file"
+              ref="fileInput"
+              style="display: none;"
+              @change="handleFileChange"
+          />
         </el-upload>
         <el-button size='large' type='primary' style="margin: 10px;"
                    @click="downExcel($event)" plain icon="Download">下载上传Excel文件
@@ -20,13 +29,39 @@
         <el-button size='large' type='primary' @click="downloadForm" plain icon="Document">
           下载模板
         </el-button>
+        <!-- 上传文件弹框-->
+        <el-dialog title="请选择地震"
+                   v-model="importDialogVisible"
+                   width="35%"
+                   center>
+          <el-form :model="form1" ref="form" label-width="100px">
+            <el-form-item label="地震列表" prop="tableName1">
+              <el-select v-model="form1.tableName1" placeholder="请选择地震列表" style="width: 30vw" filterable>
+                <el-option
+                    v-for="item in tableNameOptions1"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <div class="dialog-footer1">
+            <el-button @click="importDialogVisible=false">取 消</el-button>
+            <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+            <el-button type="primary" plain @click="confirmUpload">确定</el-button>
+          </div>
+
+        </el-dialog>
+        <!-- 下载模板弹框-->
         <el-dialog title="请选择表名"
                    v-model="formDialogVisible"
-                   width="50%"
-                   center>
-          <el-form :model="form" ref="form" label-width="100px">
+                   width="35%"
+                   center
+                   @close="resetFileInput">
+          <el-form :model="form" ref="form" label-width="100px" style="margin-left:30px">
             <el-form-item label="表名" prop="tableName">
-              <el-select v-model="form.tableName" placeholder="请选择表名" style="width: 18vw">
+              <el-select v-model="form.tableName" placeholder="请选择表名" style="width: 18vw" filterable>
                 <el-option
                     v-for="item in tableNameOptions"
                     :key="item.value"
@@ -38,7 +73,7 @@
           </el-form>
           <div class="dialog-footer">
             <el-button @click="formDialogVisible=false">取 消</el-button>
-            <el-button type="primary" @click="downloadFile($event)">确定</el-button>
+            <el-button type="primary"  plain @click="downloadFile($event)">确定</el-button>
           </div>
 
         </el-dialog>
@@ -209,6 +244,7 @@ import useUserStore from "@/store/modules/user.js";
 import {getExcelUploadByTime, getField} from "@/api/system/excel.js";
 import {ElMessage} from "element-plus";
 import {ref} from "vue";
+import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 
 
 export default {
@@ -221,6 +257,7 @@ export default {
     const uploadUrl = ref(``);
     const websocket = ref(null);
     const formDialogVisible = ref(false)
+
     return {
       name,
       uploadUrl,
@@ -237,8 +274,13 @@ export default {
       form: {
         tableName: ''
       },
+      form1: {
+        tableName1: ''
+      },
       files: [],//导表文件列表
+      eqlists: [],//地震文件列表
       tableNameOptions: [],
+      tableNameOptions1: [],
       timeOptions: [
         {
           value: '今日',
@@ -256,6 +298,7 @@ export default {
       tableData: [],
       messageData: [],
       percent: 0,
+      importDialogVisible: false,
       dialogVisible: false,
       progressColor: '#001ce1',
       inputValue: '',
@@ -275,6 +318,7 @@ export default {
   mounted() {
     this.getTableName()
     this.getExcelUploadByTimeButton()
+    this.getEarthquake()
   },
   computed: {
     // 计算当前页的数据
@@ -285,6 +329,32 @@ export default {
     }
   },
   methods: {
+    openUpload() {
+      this.importDialogVisible = true;
+    },
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
+      }
+    },
+    confirmUpload() {
+      this.importDialogVisible = false;
+      if (this.selectedFile) {
+        const fileUpload = this.$refs.fileUpload;
+        fileUpload.uploadFiles = [this.selectedFile]; // 将文件添加到 el-upload 组件
+        fileUpload.submit(); // 提交文件上传
+      }else {
+        this.triggerFileInput();// 如果没有文件，触发文件选择
+      }
+    },
+    resetFileInput() {
+      this.selectedFile = null;
+      this.$refs.fileInput.value = ''; // 重置文件输入框
+    },
     typeIndex(row, column, cellValue, index) {
       return (this.currentPage - 1) * this.pageSize + index + 1;
     },
@@ -323,10 +393,10 @@ export default {
     getExcelUploadByTimeButton() {
       getExcelUploadByTime({
         "time": this.timeValue,
-        "requestParams":this.inputValueParams
+        "requestParams": this.inputValueParams
       }).then((res) => {
         this.tableData = res.data
-        this.total=res.data.length
+        this.total = res.data.length
         this.addCount = res.data.reduce((total, log) => {
           const data = JSON.parse(log.jsonResult);
           if (data.msg === "操作成功") {
@@ -361,6 +431,21 @@ export default {
     //显示表单
     downloadForm() {
       this.formDialogVisible = true
+    },
+
+    //获取地震列表
+    getEarthquake() {
+      getExcelUploadEarthquake().then(res => {
+        this.eqlists = res
+        if (res.data === null) {
+          ElMessage.error("地震列表无数据")
+        }
+        this.tableNameOptions1 = this.eqlists.map(file => ({
+          label: file,
+          value: file
+        }))
+        this.form1.tableName1 = this.tableNameOptions1[0].label
+      })
     },
     //查询user对应上的表
     getTableName() {
@@ -551,7 +636,14 @@ export default {
   justify-content: left;
   gap: 10px; /* 按钮间距 */
   margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
-  margin-left: 100px;
+  margin-left: 160px;
+}
+.dialog-footer1 {
+  display: flex;
+  justify-content: left;
+  gap: 10px; /* 按钮间距 */
+  margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
+  margin-left: 150px;
 }
 
 /*table样式*/

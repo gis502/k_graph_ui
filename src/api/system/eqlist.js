@@ -23,6 +23,12 @@ export function getAllEq(query) {
     method: 'get',
   })
 }
+export function getExcelUploadEarthquake() {
+  return request({
+    url: '/system/getExcelUploadEarthquake',
+    method: 'get',
+  })
+}
 // 改
 export function updataEq(data) {
   return request({
