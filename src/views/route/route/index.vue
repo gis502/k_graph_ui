@@ -11,31 +11,19 @@
 </template>
 
 <script>
-
 import * as Cesium from 'cesium'
 // import 'cesium/Source/Widgets/widgets.css'
 import CesiumNavigation from "cesium-navigation-es6";
-import {initCesium} from '@/cesium/tool/initCesium.js'
+import { initCesium } from '@/cesium/tool/initCesium.js'
 // import geojsonmap from '@/assets/geoJson/map.json'
 // import geojsonmap from '@/assets/geoJson/YaanRoadGeoJson.json'
 import start from '@/assets/start.svg'
 import end from '@/assets/end.svg'
 import {Entity} from "cesium";
-import RouterPanel from '@/components/Cesium/RouterPanel.vue'
-import cesiumPlot from '@/cesium/plot/cesiumPlot.js'
-import { initWebSocket } from '@/cesium/WS.js'
-import {getDisasterReserves} from "../../../api/system/emergency.js";
-import disasterReliefMaterialReserve from '@/assets/images/disasterReliefMaterialReserve.png';
 import {getWay} from "@/api/system/routeplan.js";
-import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog.vue";
-import commonPanel from "@/components/Cesium/CommonPanel.vue";
-
 
 export default {
-  name: "index",
-  components: {
-    RouterPanel,
-  },
+  name:'index',
   data() {
     return {
       pos: [],
@@ -45,7 +33,7 @@ export default {
   mounted() {
     this.init();
   },
-  methods:{
+  methods: {
     init() {
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
@@ -65,78 +53,42 @@ export default {
       options.zoomInTooltip = "放大";
       options.zoomOutTooltip = "缩小";
       //新版必须new  CesiumNavigation ,可以查看作者github
-      window.navigation = new CesiumNavigation(viewer, options);
-      document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索';
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务';
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务';
+      window.navigation = new CesiumNavigation(viewer, options)
+      document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
+      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
+      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
     },
-    initPlot() {
-    },
-    drawPoint(pointArr) {
-      pointArr.forEach(element => {
-            // 检查是否已存在具有相同ID的实体
-            let existingEntity = window.viewer.entities.getById(element.id);
-            if (existingEntity) {
-              console.warn(`Entity with id ${element.id} already exists. Skipping this entity.`);
-              return; // 跳过这个实体
-            }
-
-            // 检查经度、纬度和高度是否为有效数值
-            let longitude = Number(element.longitude);
-            let latitude = Number(element.latitude);
-
-            if (isNaN(longitude) || isNaN(latitude)) {
-              console.error(`Invalid coordinates for entity with id ${element.id}:`, { longitude, latitude});
-              return; // 跳过无效坐标的实体
-            }
-      // 添加路网
-      // viewer.dataSources.add(
-      //   Cesium.GeoJsonDataSource.load(
-      //     geojsonmap,
-      //     {
-      //       stroke: Cesium.Color.RED,   // 边框颜色
-      //       // fill: Cesium.Color.RED.withAlpha(0.5),  // 填充颜色
-      //       strokeWidth: 3, // 边框宽度
-      //     })
-      // );
-
-        // 检查经度和纬度是否在合理范围内
-        if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`Coordinates out of range for entity with id ${element.id}:`, { longitude, latitude });
-          return; // 跳过坐标超出范围的实体
-        }
-
     /** 计算两个坐标的距离，单位米 **/
     Distance(lng1, lat1, lng2, lat2) {
       //采用Haversine formula算法，高德地图的js计算代码，比较简洁 https://www.cnblogs.com/ggz19/p/7551088.html
-      let d=Math.PI/180;
-      let f=lat1*d, h=lat2*d;
-      let i=lng2*d - lng1*d;
-      let e=(1 - Math.cos(h - f) + (1 - Math.cos(i)) * Math.cos(f) * Math.cos(h)) / 2;
+      let d = Math.PI / 180;
+      let f = lat1 * d, h = lat2 * d;
+      let i = lng2 * d - lng1 * d;
+      let e = (1 - Math.cos(h - f) + (1 - Math.cos(i)) * Math.cos(f) * Math.cos(h)) / 2;
       return 2 * 6378137 * Math.asin(Math.sqrt(e));
     },
     /** 以坐标点为中心，简单粗略的创建一个指定半径的圆，半径单位米，pointCount为构建圆的坐标点数（比如24个点，点越多越圆，最少3个点），返回构成圆的坐标点数组 **/
-    CreateSimpleCircle(lng, lat, radius, pointCount){
+    CreateSimpleCircle(lng, lat, radius, pointCount) {
       //球面坐标不会算，转换成三角坐标简单点，经度代表值大约：0.01≈1km 0.1≈10km 1≈100km 10≈1000km
-      let km=radius/1000;
-      let a=km<5?0.01 :km<50?0.1 :km<500?1 :10;
-      let b=this.Distance(lng, lat, lng+a, lat);
-      let c=this.Distance(lng, lat, lng, lat+a);
-      let rb=radius/b*a;
-      let rc=radius/c*a;
-      let arr=[];
-      let n=0,step=360.0/pointCount,N=360-step/2; //注意浮点数±0.000000001的差异
-      for(let i=0;n<N;i++,n+=step){
-        let x=lng+rb*Math.cos(n*Math.PI/180);
-        let y=lat+rc*Math.sin(n*Math.PI/180);
-        arr[i]=[x, y];
+      let km = radius / 1000;
+      let a = km < 5 ? 0.01 : km < 50 ? 0.1 : km < 500 ? 1 : 10;
+      let b = this.Distance(lng, lat, lng + a, lat);
+      let c = this.Distance(lng, lat, lng, lat + a);
+      let rb = radius / b * a;
+      let rc = radius / c * a;
+      let arr = [];
+      let n = 0, step = 360.0 / pointCount, N = 360 - step / 2; //注意浮点数±0.000000001的差异
+      for (let i = 0; n < N; i++, n += step) {
+        let x = lng + rb * Math.cos(n * Math.PI / 180);
+        let y = lat + rc * Math.sin(n * Math.PI / 180);
+        arr[i] = [x, y];
       }
       arr.push([arr[0][0], arr[0][1]]); //闭环
       return arr;
     },
-    route(){
+    route() {
       let handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas)
-      let that =this
+      let that = this
       let propertiesId = []
       handler.setInputAction((event) => {
 
@@ -147,28 +99,28 @@ export default {
         let cartographic = Cesium.Cartographic.fromCartesian(position)//把笛卡尔坐标转换成制图实例，单位是弧度
         let lon = Cesium.Math.toDegrees(cartographic.longitude) //把弧度转换成度
         let lat = Cesium.Math.toDegrees((cartographic.latitude))
-        that.pos.push([lon,lat])
+        that.pos.push([lon, lat])
         let billBoardId = Date.now()
-        if(that.pos.length===1){
-          that.billboardD(position,start,billBoardId)
+        if (that.pos.length === 1) {
+          that.billboardD(position, start, billBoardId)
           propertiesId.push(billBoardId)
-        }else {
-          that.billboardD(position,end,billBoardId)
+        } else {
+          that.billboardD(position, end, billBoardId)
           propertiesId.push(billBoardId)
         }
-        if(that.pos.length===2){
-          getWay({pathWay:that.pos, hardAreas:that.areas}).then(res=>{
-            that.polylineD(res.path,propertiesId)
+        if (that.pos.length === 2) {
+          getWay({pathWay: that.pos, hardAreas: that.areas}).then(res => {
+            that.polylineD(res.path, propertiesId)
             that.pos = []
           })
           handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     },
-    polylineD(data,propertiesId){
+    polylineD(data, propertiesId) {
       let arr = []
-      for(let i=0;i<data.length;i++){
-        let c3 = Cesium.Cartesian3.fromDegrees(data[i][0],data[i][1])
+      for (let i = 0; i < data.length; i++) {
+        let c3 = Cesium.Cartesian3.fromDegrees(data[i][0], data[i][1])
         // let cartographic = Cesium.Cartographic.fromDegrees(data[i][0],data[i][1])
         // let cartesian3 = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic)
         arr.push(c3)
@@ -185,27 +137,26 @@ export default {
         }
       })
     },
-    polygonD(positions,id){
+    polygonD(positions, id) {
       let arr = []
-      for(let i=0;i<positions.length;i++){
-        let a = Cesium.Cartesian3.fromDegrees(positions[i][0],positions[i][1])
+      for (let i = 0; i < positions.length; i++) {
+        let a = Cesium.Cartesian3.fromDegrees(positions[i][0], positions[i][1])
         arr.push(a)
       }
       let polygon = new Entity({
-        id:id  ,
+        id: id,
         polygon: {
           hierarchy: arr,
           material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(.2),
           clampToGround: true,
         },
-        properties: {
-        }
+        properties: {}
       })
       viewer.entities.add(polygon)
     },
-    pointD(position,id){
+    pointD(position, id) {
       return viewer.entities.add({
-        id:id,
+        id: id,
         position: position,
         point: {
           pixelSize: 20,
@@ -216,9 +167,9 @@ export default {
         },
       })
     },
-    billboardD(position,img,billBoardId){
+    billboardD(position, img, billBoardId) {
       viewer.entities.add({
-        id:billBoardId,
+        id: billBoardId,
         position: position,
         billboard: {
           image: img,
@@ -231,7 +182,7 @@ export default {
         },
       })
     },
-    addArea(){
+    addArea() {
       let handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas)
       let that = this
       handler.setInputAction((event) => {
@@ -242,19 +193,19 @@ export default {
         let cartographic = Cesium.Cartographic.fromCartesian(position)//把笛卡尔坐标转换成制图实例，单位是弧度
         let lon = Cesium.Math.toDegrees(cartographic.longitude) //把弧度转换成度
         let lat = Cesium.Math.toDegrees((cartographic.latitude))
-        let ar = that.CreateSimpleCircle(lon,lat,50,24)
-        that.areas.push({"area":ar,"name":'area_'+Date.now()})
-        let id = 'area_'+Date.now()
-        that.pointD(position,id)
-        that.polygonD(ar,id+'a')
+        let ar = that.CreateSimpleCircle(lon, lat, 50, 24)
+        that.areas.push({"area": ar, "name": 'area_' + Date.now()})
+        let id = 'area_' + Date.now()
+        that.pointD(position, id)
+        that.polygonD(ar, id + 'a')
         handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     },
-    removeAll(){
+    removeAll() {
       viewer.entities.removeAll();
       this.areas = []
     },
-    removePoint(){
+    removePoint() {
       let handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas)
       let that = this
       handler.setInputAction(async (click) => {
@@ -263,53 +214,35 @@ export default {
         let entity = pickedEntity?.id
         if (Cesium.defined(pickedEntity) && entity._point !== undefined) {
           let id = entity.id
-          that.areas = that.areas.filter(area=>area.name !== id)
+          that.areas = that.areas.filter(area => area.name !== id)
           viewer.entities.remove(entity)
-          viewer.entities.removeById(id+'a')
+          viewer.entities.removeById(id + 'a')
           handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     },
-    removePolyline(){
+    removePolyline() {
       let handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas)
       handler.setInputAction(async (click) => {
         let pickedEntity = window.viewer.scene.pick(click.position);
         let entity = window.selectedEntity = pickedEntity?.id
         if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined) {
           let propertiesId = entity.properties.propertiesId._value
-          for(let i=0;i<propertiesId.length;i++){
-            console.log(propertiesId[i],propertiesId[i]+"")
-            viewer.entities.removeById(propertiesId[i]+"")
+          for (let i = 0; i < propertiesId.length; i++) {
+            console.log(propertiesId[i], propertiesId[i] + "")
+            viewer.entities.removeById(propertiesId[i] + "")
           }
           viewer.entities.remove(entity)
           handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     },
-    isTerrainLoaded() {
-      let terrainProvider = window.viewer.terrainProvider;
-      if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-        // console.log("地形未加载")
-        return false;
-      } else if (Cesium.defined(terrainProvider)) {
-        // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
-        // 则表示已经设置了其他地形提供者
-        // console.log("地形已加载")
-        return true;
-      }
-      // console.log("地形未加载")
-      return false;
-    },
   }
 }
 </script>
 
 <style scoped>
-.cesium-viewer-navigationContainer {
-  display: none !important;
-}
 .route-tool-container {
-.tool-container {
   position: absolute;
   padding: 15px;
   border-radius: 5px;
@@ -320,46 +253,12 @@ export default {
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
+
 #cesiumContainer {
   height: calc(100vh - 50px);
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
-}
-
-.eqListfade-enter-active, .eqListfade-leave-active {
-  transition: opacity .5s;
-}
-
-.eqListfade-enter, .eqListfade-leave-to {
-  opacity: 0;
-}
-
-.button-container {
-  position: absolute;
-  padding: 15px;
-  border-radius: 5px;
-  top: 10px;
-  left: 10px;
-  z-index: 10; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-}
-
-.latlon-legend {
-  pointer-events: auto;
-  position: absolute;
-  border-radius: 15px;
-  padding-left: 5px;
-  padding-right: 5px;
-  bottom: 30px;
-  height: 30px;
-  width: 125px;
-  box-sizing: content-box;
-}
-
-.modelAdj {
-  color: white;
-  margin-bottom: 15px;
 }
 </style>

@@ -391,7 +391,7 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
 }
 #cesiumContainer {
-  height: 100%;
+  height: calc(100vh - 50px);
   width: 100%;
   margin: 0;
   padding: 0;
