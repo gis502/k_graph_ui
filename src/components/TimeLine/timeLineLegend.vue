@@ -41,9 +41,7 @@ export default {
       let that = this
       getPlotIcon().then(res => {
         that.getPicData = res
-        console.log(that.getPicData)
-        // that.total = res.length
-
+        // console.log(that.getPicData)
       })
     }
   }

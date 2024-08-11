@@ -48,7 +48,7 @@ export default {
   methods:{
     async fetchData() {
       this.newsData = this.newsData.filter((item,index) => index < 5)
-      console.log("----",this.newsData[0].publish_time)
+      // console.log("----",this.newsData[0].publish_time)
     },
   }
 }

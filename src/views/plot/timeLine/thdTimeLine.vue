@@ -193,18 +193,19 @@ export default {
   mounted() {
     this.init()
     this.getEqInfo(this.eqid)
+    // this.getPlotwithStartandEndTime()
     // this.initTimerLine()
+    // cesiumPlot.init(window.viewer,null,null)
     // ---------------------------------------------------
     // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
-
   },
 
   methods: {
     // 初始化控件等
     init() {
-      console.log(this.eqid)
+      // console.log(this.eqid)
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
       window.viewer = viewer
@@ -212,13 +213,13 @@ export default {
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
       // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
       // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
-      options.enableCompass = true
+      options.enableCompass = false
       // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
-      options.enableZoomControls = true
+      options.enableZoomControls = false
       // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
-      options.enableDistanceLegend = true
+      options.enableDistanceLegend = false
       // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
-      options.enableCompassOuterRing = true
+      options.enableCompassOuterRing = false
       options.resetTooltip = "重置视图";
       options.zoomInTooltip = "放大";
       options.zoomOutTooltip = "缩小";
@@ -302,40 +303,7 @@ export default {
 
       })
     },
-    // 获取地震列表、以及最新地震的eqid、并渲染已有的标绘
-    // getEq() {
-    //   // console.log(this.eqid)
-    //   let that = this
-    //   getAllEq().then(res => {
-    //     let data = []
-    //     for (let i = 0; i < res.length; i++) {
-    //       let item = res[i]
-    //       item.time = that.timestampToTime(res[i].time)
-    //       data.push(item)
-    //     }
-    //     that.getEqData = data
-    //     that.total = res.length
-    //     that.tableData = that.getPageArr()
-    //     //当前地震
-    //     that.eqid = that.tableData[0].eqid
-    //     //震中标绘点
-    //     this.centerPoint = that.tableData[0]
-    //     this.centerPoint.plotid = "center"
-    //     this.centerPoint.starttime = new Date(that.tableData[0].time)
-    //     this.centerPoint.endtime = new Date(that.tableData[0].time + (7 * 24 * 60 * 60 * 1000 + 1000));
-    //
-    //     //变量初始化
-    //     this.eqstartTime = this.centerPoint.starttime
-    //     this.eqyear = this.eqstartTime.getFullYear()
-    //     this.eqmonth = this.eqstartTime.getMonth() + 1
-    //     this.eqday = this.eqstartTime.getDate()
-    //     // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-    //     this.eqendTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
-    //     this.currentTime = this.eqstartTime
-    //
-    //     this.updateMapandVariablebeforInit()
-    //   })
-    // },
+
     timestampToTime(timestamp) {
       let DateObj = new Date(timestamp)
       // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
@@ -466,7 +434,7 @@ export default {
     getPlotwithStartandEndTime(eqid) {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
         this.plots = res
-        console.log(res)
+        // console.log(res)
         res.forEach(item => {
           if (!item.endtime) {
             item.endtime = new Date(this.eqendTime.getTime() + 5000);
@@ -522,11 +490,12 @@ export default {
       //     plottype:"震中",
       //   });
       // }
-      //时间轴开始
+      // 时间轴开始
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
       // }, 160);
       }, 50);
+      // this.updateCurrentTime();
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
@@ -551,9 +520,56 @@ export default {
       }
     },
     updatePlot() {
-      //添加
+      console.log(this.plots)
+      let that=this
+      //一个点线面一条数据
+      //点
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
       // console.log(pointArr)
+
+      //线
+      let polylineArrtmp = this.plots.filter(e => e.drawtype === 'polyline')
+      let polylineId = this.distinguishPolylineId(polylineArrtmp)
+      let polylineArr = []  // id, 开始时间, 结束时间
+      polylineId.forEach(onlyDrawIdItem => {
+        let positionsArr = [];
+        let polylinetmp = {};
+
+        polylineArrtmp.forEach(polylineElement => {
+          if (polylineElement.plotid === onlyDrawIdItem) {
+            positionsArr.push(
+                parseFloat(polylineElement.longitude),
+                parseFloat(polylineElement.latitude),
+                parseFloat(polylineElement.height)
+            );
+
+            // 检查 polylineArr 中是否已存在该 plotid 的数据
+            let existingPolyline = polylineArr.find(p => p.plotid === polylineElement.plotid);
+            if (existingPolyline) {
+              // 更新已存在的数据
+              // existingPolyline.endtime = polylineElement.endtime;
+              existingPolyline.positionsArr=positionsArr;
+            } else {
+              // 创建新的数据对象并添加到 polylineArr
+              polylinetmp = {
+                plotid: polylineElement.plotid,
+                drawtype: "polyline",
+                endtime: polylineElement.endtime,
+                starttime: polylineElement.starttime,
+                plottype: polylineElement.plottype,
+                img: polylineElement.img,
+                positionsArr: positionsArr,
+              };
+              polylineArr.push(polylinetmp);
+            }
+          }
+        });
+      });
+      // console.log("polylineArr",polylineArr)
+
+
+
+
       pointArr.forEach(item => {
         const currentDate = new Date(this.currentTime);
         const startDate = new Date(item.starttime);
@@ -602,6 +618,51 @@ export default {
           viewer.entities.removeById(item.plotid)
         }
       });
+
+      polylineArr.forEach(item => {
+        const currentDate = new Date(this.currentTime);
+        const startDate = new Date(item.starttime);
+        const endDate = new Date(item.endtime);
+        // console.log("line",item.plotid,startDate,endDate,currentDate)
+
+
+        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
+          this.plotisshow[item.plotid] = 1
+          this.drawPolyline(item)
+        }
+          //消失
+        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
+          this.plotisshow[item.plotid] = 0
+          // console.log(item.plotid,"end")
+          viewer.entities.removeById(item.plotid)
+        }
+
+      })
+
+
+
+      // 处理多边形数据
+      // let polygonArr = this.plots.filter(e => e.drawtype === 'polygon');
+      // console.log('polygonArr', polygonArr)
+      // let polygonMap = {};
+      //
+      // polygonArr.forEach(item => {
+      //   if (!polygonMap[item.plotid]) {
+      //     polygonMap[item.plotid] = [];
+      //   }
+      //   polygonMap[item.plotid].push(item);
+      // });
+      // // console.log('index.polygonMap', polygonMap)
+      // Object.keys(polygonMap).forEach(plotid => {
+      //   let polygonData = polygonMap[plotid];
+      //   if (polygonData.length === 4) { // 确保有四个点
+      //     // that.getDrawPolygonInfo(polygonData);
+      //     // console.log("数据库数据",polygonData)
+      //   } else {
+      //     console.warn(`多边形 ${plotid} 数据点数量不正确`);
+      //   }
+      // });
+
     },
     //时间轴停止
     stopTimer() {
@@ -671,8 +732,145 @@ export default {
     },
     //时间轴end-------------
 
+    // drawPoint(pointInfo) {
+    //   cesiumPlot.drawPoint(pointInfo)
+    // },
+    drawPolyline(line) {
 
+      // 1-1 根据线的drawid记录有多少条线
+      // let onlyDrawId = this.distinguishPolylineId(polylineArr)
+      // // // 1-2根据drawid来画线
+      // onlyDrawId.forEach(onlyDrawIdItem => {
+      //   //每一个线
+      //
+      //   // 1-3 把数据库同一drawid的点数据放入此数组
+      //   let line = []
+      //   polylineArr.forEach(polylineElement => {
+      //     if (polylineElement.plotid === onlyDrawIdItem) {
+      //       line.push(polylineElement)
+      //     }
+      //   })
+      //
+      //   // 1-4 pointLinePoints用来存构成线的点实体
+      //   // let pointLinePoints = []
+      //   // for (let i = 0; i < line.length; i++) {
+      //   //   let p = window.viewer.entities.add({
+      //   //     show: false,
+      //   //     position: new Cesium.Cartesian3(line[i].longitude, line[i].latitude, line[i].height),
+      //   //     id: line[i].plotid + 'point' + (i + 1),
+      //   //     point: {
+      //   //       pixelSize: 0,
+      //   //       color: Cesium.Color.RED,
+      //   //       outlineWidth: 2,
+      //   //       outlineColor: Cesium.Color.DARKRED,
+      //   //       heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+      //   //       depthTest: false,//禁止深度测试但是没有下面那句有用
+      //   //       disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
+      //   //     },
+      //   //   });
+      //   //   pointLinePoints.push(p)
+      //   // }
+      //
+      //   // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
+      //   let positionsArr = [];
+      //   line.forEach(e => {
+      //     positionsArr.push(
+      //         parseFloat(e.longitude),
+      //         parseFloat(e.latitude),
+      //         parseFloat(e.height)
+      //     );
+      //   });
 
+        let material = this.getMaterial(line.plottype,line.img)
+        // 1-6 画线
+        window.viewer.entities.add({
+          id: line.plotid,
+          polyline: {
+            status:1,
+            // positions: positionsArr,
+            positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
+            width: 5,
+            material: material,
+            // material: Cesium.Color.YELLOW,
+            depthFailMaterial: Cesium.Color.YELLOW,
+            clampToGround: true,
+          },
+          properties: {
+            // pointPosition: pointLinePoints,
+          }
+        })
+      // })
+    },
+
+    distinguishPolylineId(polylineArr) {
+      let PolylineIdArr = []
+      polylineArr.forEach(element => {
+        if (!PolylineIdArr.includes(element.plotid)) {
+          PolylineIdArr.push(element.plotid)
+        }
+      })
+      return PolylineIdArr
+    },
+    // 选择当前线的material
+    getMaterial(type,img) {
+      if(type==="量算"){
+        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
+          color: Cesium.Color.CYAN,
+          dashPattern: parseInt("110000001111", 1),
+        })
+        return NORMALLINE
+      }
+      if(type==="地裂缝"||type==="可用供水管网"||type==="不可用供水管网"){
+        let PICTURELINE = new Cesium.ImageMaterialProperty({
+          image: img,
+          repeat: new Cesium.Cartesian2(3, 1),
+        })
+        return PICTURELINE
+      }
+      if(type==="可通行公路"||type==="限制通行公路"||type==="不可通行公路"){
+        let color = null
+        if(type==="可通行公路"){
+          color = Cesium.Color.fromBytes(158,202,181)
+        }else if(type==="限制通行公路"){
+          color = Cesium.Color.fromBytes(206,184,157)
+        }else{
+          color = Cesium.Color.fromBytes(199,151,149)
+        }
+        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
+          color: color,
+          dashPattern: parseInt("110000001111", 1),
+        })
+        return NORMALLINE
+      }
+      if(type==="可通行铁路"||type==="不可通行铁路"){
+        let gapColor
+        if(type==="可通行铁路"){
+          gapColor = Cesium.Color.BLACK
+        }else {
+          gapColor = Cesium.Color.RED
+        }
+        let DASHLINE= new Cesium.PolylineDashMaterialProperty({
+          color: Cesium.Color.WHITE,
+          gapColor: gapColor,
+          dashLength: 100
+        })
+        return DASHLINE
+      }
+      if(type==="可用输电线路"||type==="不可用输电线路"){
+        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
+          color: Cesium.Color.CYAN,
+          dashPattern: parseInt("110000001111", 1),
+        })
+        return NORMALLINE
+      }
+      if(type==="可用输气管线"||type==="不可用输气管线"){
+        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
+          color: Cesium.Color.CYAN,
+          dashPattern: parseInt("110000001111", 1),
+        })
+        return NORMALLINE
+      }
+    },
 
 
 
@@ -680,11 +878,14 @@ export default {
     entitiesClickPonpHandler() {
       let that = this
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+        console.log(click)
         // 1-1 获取点击点的信息（包括）
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
+
         // 2-1 判断点击物体是否为点实体（billboard）
-        if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
+        // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
+        if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -715,35 +916,35 @@ export default {
             // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
           }
           // 2-5 更新弹窗位置
-          // that.selectedEntity = window.selectedEntity
+
           that.popupData = {
             plotid: window.selectedEntity.id,
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          // that.currentTime=
+
           this.popupVisible = true; // 显示弹窗
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
         }
         // 3-1 选中面时触发
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
-          that.showPolygon = true
-          // that.polygonPosition = window.selectedEntity
-        } else {
-          this.showPolygon = false
-        }
-        // 4-1选中线时触发
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined) {
-          let status = cesiumPlot.drawPolylineStatus()
-          if (status === 0) {
-            that.showPolyline = true
-            // that.polylinePosition = window.selectedEntity
-          }
-        } else {
-          this.showPolyline = false
-        }
+        // if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
+        //   that.showPolygon = true
+        //   // that.polygonPosition = window.selectedEntity
+        // } else {
+        //   this.showPolygon = false
+        // }
+        // // 4-1选中线时触发
+        // if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined) {
+        //   let status = cesiumPlot.drawPolylineStatus()
+        //   if (status === 0) {
+        //     that.showPolyline = true
+        //     // that.polylinePosition = window.selectedEntity
+        //   }
+        // } else {
+        //   this.showPolyline = false
+        // }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
 
       // 必须有这个，拖动地图弹窗位置才会跟着移动
@@ -765,10 +966,6 @@ export default {
       }
     },
 
-    //图例 展开收起
-    // ChangeLegendShow(){
-    //   this.isShowLegent=!this.isShowLegent
-    // },
 
 
 //截图

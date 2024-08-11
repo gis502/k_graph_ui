@@ -26,6 +26,7 @@ let cesiumPlot= {
   },
 
   drawPoint(pointInfo){
+    console.log("?",pointInfo)
     this.point.drawPoint(pointInfo)
   },
 
