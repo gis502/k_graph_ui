@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { parseStrEmpty } from "@/utils/ruoyi";
+
 
 export function getPloy(query) {
   return request({
@@ -95,24 +95,5 @@ export function updataPlotInfo(data){
     url: '/system/ploy/updataplotinfo',
     method: 'post',
     data: data
-  })
-}
-
-export function getPlotwithStartandEndTime(data){
-  return request({
-    url: '/system/ploy/getplotswithtime' ,
-    method: 'post',
-    params:data
-  })
-}
-
-export function getLastPlotInfoofCurrentTime(plotid, currentTime){
-  return request({
-    url: '/system/ploy/getLastPlotInfoofCurrentTime' ,
-    method: 'post',
-    params: {
-      plotid: plotid,
-      currentTime: currentTime
-    }
   })
 }
