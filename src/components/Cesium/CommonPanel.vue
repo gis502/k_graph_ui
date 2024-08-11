@@ -18,8 +18,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.starttime).match('-')
-                    ? plotInfoNew.starttime
-                    : (plotInfoNew.starttime !== null ? plotInfoNew.starttime : "")
+                    ? this.timestampToTime(plotInfoNew.starttime)
+                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime) : "")
               }}
             </el-text>
             <el-date-picker
@@ -41,8 +41,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.endtime).match('-')
-                    ? plotInfoNew.endtime
-                    : (plotInfoNew.endtime !== "" ? plotInfoNew.endtime : "")
+                    ? this.timestampToTime(plotInfoNew.endtime)
+                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime) : "")
               }}
             </el-text>
             <el-date-picker
@@ -75,8 +75,8 @@
             <el-select v-if="!plotInfoNew.aditStatus" v-model="value.value" placeholder="" size="large">
               <el-option
                   v-for="item in value.content"
-                  :label="item.lable"
-                  :value="item.lable"/>
+                  :label="item.label"
+                  :value="item.label"/>
             </el-select>
           </el-descriptions-item>
         </template>
@@ -186,8 +186,8 @@
       <!--                        <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">-->
       <!--                          <el-option-->
       <!--                              v-for="item in value.content"-->
-      <!--                              :label="item.lable"-->
-      <!--                              :value="item.lable"/>-->
+      <!--                              :label="item.label"-->
+      <!--                              :value="item.label"/>-->
       <!--                        </el-select>-->
       <!--                      </el-descriptions-item>-->
       <!--                    </template>-->
@@ -396,7 +396,6 @@ export default {
           that.plotInfoActivities.push(item)
         }
         that.plotInfoNew = that.plotInfoActivities[0]
-        // console.log(that.plotInfoNew, 9876)
       })
     },
     // 删除标注
