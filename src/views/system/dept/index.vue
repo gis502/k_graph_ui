@@ -50,22 +50,22 @@
     </el-row>
 
     <el-table
-        v-fit-columns
         v-if="refreshTable"
         v-loading="loading"
         :data="deptList"
         row-key="deptId"
         :default-expand-all="isExpandAll"
+        :expand-row-keys="firstLevelKeys"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <el-table-column prop="deptName" label="部门名称" width="260"></el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="200"></el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
+      <el-table-column prop="deptName" label="应急工作组名称" width="300"></el-table-column>
+      <!--         <el-table-column prop="orderNum"  align="center" label="排序" width="200"></el-table-column>-->
+      <el-table-column prop="status" align="center" label="状态" width="200">
         <template #default="scope">
           <dict-tag :options="sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="200">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="400">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -78,7 +78,7 @@
           <el-button link type="primary" icon="Plus" @click="handleAdd(scope.row)" v-hasPermi="['system:dept:add']">
             新增
           </el-button>
-          <el-button v-if="scope.row.parentId != 0" link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+          <el-button v-if="scope.row.parentId !== 0" link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                      v-hasPermi="['system:dept:remove']">删除
           </el-button>
         </template>
@@ -162,7 +162,8 @@ const loading = ref(true);
 const showSearch = ref(true);
 const title = ref("");
 const deptOptions = ref([]);
-const isExpandAll = ref(true);
+const isExpandAll = ref(false);
+const firstLevelKeys = ref([]);
 const refreshTable = ref(true);
 
 const data = reactive({
@@ -187,6 +188,9 @@ function getList() {
   loading.value = true;
   listDept(queryParams.value).then(response => {
     deptList.value = proxy.handleTree(response.data, "deptId");
+
+    firstLevelKeys.value = [String(response.data[0]?.deptId), String(response.data[1]?.deptId)]
+
     loading.value = false;
   });
 }
@@ -229,7 +233,7 @@ function handleAdd(row) {
   listDept().then(response => {
     deptOptions.value = proxy.handleTree(response.data, "deptId");
   });
-  if (row != undefined) {
+  if (row !== undefined) {
     form.value.parentId = row.deptId;
   }
   open.value = true;
@@ -262,7 +266,7 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["deptRef"].validate(valid => {
     if (valid) {
-      if (form.value.deptId != undefined) {
+      if (form.value.deptId !== undefined) {
         updateDept(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
