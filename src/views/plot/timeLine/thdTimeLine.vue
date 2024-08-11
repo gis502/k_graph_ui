@@ -53,20 +53,6 @@
 
 <!--    两侧组件-->
 
-<!--新闻-->
-<!--    <timeLineNewsCard class="news" width="35rem">-->
-<!--      <div>-->
-<!--        <h2 class="sub-title">-->
-<!--          最新事件:-->
-<!--&lt;!&ndash;          <span class="m-time">{{ speakers.time }}</span>&ndash;&gt;-->
-<!--        </h2>-->
-<!--      </div>-->
-<!--    </timeLineNewsCard>-->
-<!--新闻 end-->
-
-
-
-
       <timeLineEmergencyResponse
           :currentTime="currentTime"
       />
@@ -82,14 +68,43 @@
 
     <!--      新闻-->
     <div>
-      <news></news>
+      <news
+              :currentTime="currentTime"
+              @ifShowDialog="ifShowDialog"
+              @detailedNews="detailedNews"
+      ></news>
     </div>
+      <div
+              class="detailedNews"
+              v-show="showDetailedNewsDialog"
+      >
+          <div class="close-button" @click="hideDetailedNews">
+              &times; <!-- 叉号字符 -->
+          </div>
+          <div>
+              <h2 class="news-title">新闻事件</h2>
+          </div>
+          <div class="news-main">
+              <div class="news-time">
+                  {{ showingNewsContent.time }}
+              </div>
+              <div class="news-content">
+                  {{ showingNewsContent.content }}
+              </div>
+              <div v-if="showingNewsContent.img" class="news-img">
+                  <img :src="showingNewsContent.img" alt="新闻图片" />
+              </div>
+          </div>
+      </div>
 
 
-    <!--      缩略图-->
+
+      <!--      缩略图-->
     <div>
       <mini-map></mini-map>
     </div>
+
+
 
 
 <!--    <div class="news">-->
@@ -185,6 +200,14 @@ export default {
         plottype: '震中'
       },
 
+        // 新闻组件
+        showingNewsContent: {
+            id: '',
+            time: '',
+            content: '',
+            img: '',
+        },
+        showDetailedNewsDialog: false,
 
       //时间轴时间
       eqstartTime: '',
@@ -499,6 +522,18 @@ export default {
         this.initTimerLine();
       })
     },
+
+      detailedNews(val){
+          console.log("-----",val)
+        this.showingNewsContent = val
+      },
+      ifShowDialog(val){
+          console.log("showDetailedNewsDialog-----",val)
+        this.showDetailedNewsDialog = val
+      },
+      hideDetailedNews(){
+          this.showDetailedNewsDialog = false
+      },
 
     //时间轴操作
     initTimerLine() {
@@ -1106,9 +1141,62 @@ export default {
   z-index: 20;
   background-color: rgba(40, 40, 40, 0.7);
 }
+.detailedNews{
+    width: 300px;
+    height: 350px;
+    position: absolute;
+    padding: 0 5px 5px;
+    border-radius: 5px;
+    top: 80px;
+    right: 270px;
+    z-index: 100; /* 更高的层级 */
+    background-color: rgba(40, 40, 40, 0.7);
+    color: white;
+}
+.news-title {
+    font-family: myFirstFont;
+    font-size: 1.2rem;
+    line-height: 1.9rem;
+    /*padding: 1rem 0 1rem !important;*/
+    color: #ffffff;
+    letter-spacing: 0;
+    text-align: justify;
+    text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
+    /*border-bottom: 0.1rem solid #ffffff;*/
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+}
+.close-button {
+    position: absolute; /* Position the button absolutely */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+    cursor: pointer; /* Change cursor to pointer */
+    font-size: 24px; /* Adjust font size */
+    color: #ffffff; /* Optional: Set color */
+}
 
-
-
+.news-main{
+    padding-left: 5px;
+    padding-right: 5px;
+    max-height: 295px;
+    overflow-y: auto;
+}
+.news-time{
+    font-size: .9rem;
+    line-height: 1.5rem;
+}
+.news-content{
+    font-size: .9rem;
+    line-height: 1.3rem;
+}
+.news-img {
+    padding-top: 5px;
+    text-align: center;
+}
+.news-img img {
+    display: inline-block;
+}
 
 .button-container {
   position: absolute;

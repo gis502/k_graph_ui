@@ -210,7 +210,7 @@ export default {
             item.id = res[i].id
             that.plotInfoActivities.push(item)
           }
-          console.log(that.plotInfoActivities)
+          // console.log(that.plotInfoActivities)
           this.getActivitiesByTime(this.currentTime)
         })
       }
@@ -218,9 +218,9 @@ export default {
     },
     getActivitiesByTime(currentTime) {
       // 根据当前时间过滤出对应的活动
-      console.log(currentTime)
+      // console.log(currentTime)
       const activities = this.plotInfoActivities.filter((activity) => {
-        console.log(new Date(activity.starttime),currentTime)
+        // console.log(new Date(activity.starttime),currentTime)
         return (
             new Date(activity.starttime) <= currentTime
         );

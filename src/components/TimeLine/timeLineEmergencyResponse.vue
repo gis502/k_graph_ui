@@ -66,7 +66,7 @@ export default {
                  new Date(activity[0]) <= currentTime
             );
       });
-      console.log("EmergencyResponse",activities )
+      // console.log("EmergencyResponse",activities )
       if(activities.length>=1){
         activities.sort((a, b) => {
           if (a[0] < b[0]) return -1;
