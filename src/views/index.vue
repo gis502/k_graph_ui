@@ -8,22 +8,19 @@
         <span id="time">{{ nowTime }}</span>
       </div>
     </div>
-
     <div class="content">
       <div class="content-con">
         <div class="left-body">
           <div class="left-top public-bg">
-            <div class="public-title">最新地震新闻</div>
-            <div class="top-body">
-              <newInfo/>
-            </div>
+            <div class="public-title">最新地震</div>
+            <newInfo/>
           </div>
           <div class="left-con public-bg">
-            <div class="public-title">图表</div>
+            <div class="public-title">受灾人员统计</div>
             <chart3/>
           </div>
           <div class="left-bottom public-bg">
-            <div class="public-title">图表</div>
+            <div class="public-title">余震情况统计(次)</div>
             <chart2/>
           </div>
         </div>
@@ -34,16 +31,12 @@
 
         <div class="right-body">
           <div class="right-top public-bg">
-            <div class="public-title">列表</div>
-            <eqTable :eqData="tableData" />
+            <div class="public-title">地震列表</div>
+            <eqTable :eqData="tableData"/>
           </div>
-          <!--          <div class="right-con public-bg">-->
-          <!--            <div class="public-title">图表</div>-->
-
-          <!--          </div>-->
           <div class="right-bottom public-bg">
-            <div class="public-title">图表</div>
-            <chart1/>
+            <div class="public-title">历史地震统计(次)</div>
+            <chart1  :eqData="tableData"/>
           </div>
         </div>
       </div>
@@ -65,12 +58,12 @@ export default {
   data() {
     return {
       nowTime: null,
-      tableData:[],
+      tableData: [],
     }
   },
-  mounted(){
+  mounted() {
     setInterval(() => {
-      this.nowTime = this.nowTime()
+      this.nowTime = this.now_time()
     }, 500);
     this.getEq()
 
@@ -89,7 +82,7 @@ export default {
     //   let route = this.$router.resolve({path: '/thd'}).href
     //   window.open(route, '_blank');
     // },
-    nowTime() {
+    now_time() {
       let myDate = new Date();
       let myYear = myDate.getFullYear() //获取完整的年份(4位,1970-????)
       let myMonth = myDate.getMonth() + 1 //获取当前月份(0-11,0代表1月)
@@ -99,7 +92,7 @@ export default {
       let myMinute = myDate.getMinutes() //获取当前分钟数(0-59)
       let mySecond = myDate.getSeconds() //获取当前秒数(0-59)
       let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-      let nowTime = myYear + '年' + this.fillZero(myMonth) + '月' + this.fillZero(myToday) + '日' + this.fillZero(myHour) + ':' + this.fillZero(myMinute) + ':' + this.fillZero(mySecond) +  week[myDay]
+      let nowTime = myYear + '年' + this.fillZero(myMonth) + '月' + this.fillZero(myToday) + '日' + this.fillZero(myHour) + ':' + this.fillZero(myMinute) + ':' + this.fillZero(mySecond) + week[myDay]
       return nowTime
     },
     fillZero(str) {
@@ -131,7 +124,7 @@ export default {
 }
 
 .public-title {
-  width: calc(100% - 20px);
+  width: calc(100% - 30px);
   height: 30px;
   position: relative;
   top: 0;
@@ -139,7 +132,7 @@ export default {
   color: white;
   padding-left: 16px;
   line-height: 30px;
-  font-size: 13px;
+  font-size: 17px;
 }
 
 .public-title:before {
@@ -163,7 +156,7 @@ export default {
 }
 
 .header {
-  height: 70px;
+  height: 55px;
   width: 100%;
   /*    border: 1px solid red;*/
 }
@@ -172,7 +165,6 @@ export default {
   width: 50%;
   float: left;
   line-height: 70px;
-
 }
 
 .header .header-left span {
@@ -215,12 +207,12 @@ export default {
 
 .left-body .left-top {
   width: 100%;
-  height: 27%;
+  height: 30%;
 }
 
 .left-body .left-top .top-body {
   width: 100%;
-  height: calc(100% - 30px);
+  height: calc(100% - 25px);
 }
 
 .left-body .left-top .top-body .top-left {
@@ -244,9 +236,6 @@ export default {
   margin-top: 30px;
   display: inline-block;
   color: #2aa4f1;
-
-  /*    height: 80px;
-      line-height: 80px;*/
 }
 
 .top-left-title span b {
@@ -270,11 +259,6 @@ export default {
   margin-top: 1.6%;
 }
 
-.title-nav {
-  width: 100%;
-  height: calc(100% - 30px);
-}
-
 .left-body .left-bottom {
   width: 100%;
   height: 32%;
@@ -286,7 +270,6 @@ export default {
   height: 100%;
   margin: 0 0.3%;
   float: left;
-  /*border: 1px solid red;*/
 }
 
 .center-body .map {
@@ -303,7 +286,7 @@ export default {
 
 .right-body .right-top {
   width: 100%;
-  height: 58%;
+  height: 60%;
 }
 
 .title-nav .top5-ul {
@@ -337,12 +320,6 @@ export default {
 .title-nav .top5-ul ul li span:nth-child(1) {
   color: #EB6841;
   font-style: oblique;
-  /*width: 10%;*/
-  /*#20a8fe
-          #EB6841
-          #3FB8AF
-          #FE4365
-          #FC9D9A*/
   display: inline-block;
   text-align: center;
   font-size: 20px;
@@ -352,11 +329,8 @@ export default {
   width: 10%;
   display: inline-block;
   text-align: center;
-
   height: 30px;
   line-height: 30px;
-  /*    height: 100%;*/
-  /*line-height: 100%;*/
   vertical-align: center;
   border-radius: 5px;
   color: #ffffff;
@@ -383,7 +357,6 @@ export default {
 }
 
 .title-nav .top5-ul ul li span:nth-child(5) {
-  /*width: 20%;*/
   display: inline-block;
   text-align: center;
 }
@@ -393,15 +366,11 @@ export default {
   text-align: center;
 }
 
-.right-body .right-con {
-  width: 100%;
-  height: 25%;
-  margin-top: 2%;
-}
-
 .right-body .right-bottom {
   width: 100%;
-  height: 39%;
+  height: 41%;
   margin-top: 2%;
 }
 </style>
+<script setup lang="ts">
+</script>

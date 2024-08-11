@@ -1,146 +1,137 @@
 <template>
-  <div class="eqtable">
-      <el-table
+  <div class="table">
+    <el-table
         :data="tableData"
-        style="width: 100%;margin-bottom: 5px"
+        style="width: 100%; margin-bottom: 5px;"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         @row-click="go">
-        <el-table-column
+      <el-table-column
           prop="position"
-          label="位置">
-        </el-table-column>
-        <el-table-column
-          prop="time"
+          label="位置"
+          min-width="150px"
+          show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column
           label="发震时间"
-          width="100">
-        </el-table-column>
-        <el-table-column
+          align="center"
+          min-width="160px"
+          show-overflow-tooltip>
+        <template v-slot="scope">
+          <span>{{ formatTime(scope.row.time) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
           prop="magnitude"
-          label="震级"
-          width="50">
-        </el-table-column>
-        <el-table-column
-          prop="longitude"
-          label="经度"
-          width="65">
-        </el-table-column>
-        <el-table-column
-          prop="latitude"
-          label="纬度"
-          width="65">
-        </el-table-column>
-        <el-table-column
+          align="center"
+          label="震级">
+      </el-table-column>
+      <el-table-column
           prop="depth"
+          align="center"
           label="深度"
-          width="50">
-        </el-table-column>
-      </el-table>
-    <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-size="pageSize"
-      layout="total, prev, pager, next, jumper"
-      :total="total">
-    </el-pagination>
+          show-overflow-tooltip>
+      </el-table-column>
+    </el-table>
+    <div class="pagination-wrapper">
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          pager-count="3"
+          :total="total"
+          layout="total, prev, pager, next, jumper"
+          class="custom-pagination">
+      </el-pagination>
     </div>
+  </div>
 </template>
 
-<script>
-export default {
-  name: "eqtable",
-  data() {
-    return {
-      total: 0,
-      pageSize: 4,
-      currentPage: 1,
-      getEqData:[],
-      tableData: []
-    }
-  },
-  props:['eqData'],
-  watch:{
-    eqData(){
-      this.getEqData = this.eqData
-      this.total = this.eqData.length
-      this.tableData = this.getPageArr()
-    }
-  },
-  methods:{
-    go(row, column, cell, event){
-      let route = this.$router.resolve({path: '/thd',query:{eqid:row.eqid}}).href
-      window.open(route, '_blank');
-    },
-    tableHeaderColor(){
-      return {
-        'border-color': '#293038',
-        'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
-        'color': '#fff',
-        'padding': '0',
-        'text-align': 'center',
-      }
-    },
-    // 修改table header的背景色
-    tableColor({ row, column, rowIndex, columnIndex }) {
-      if (rowIndex%2==1) {
-        return {'border-color':'#313a44','background-color': '#313a44','color': '#fff','padding': '0','text-align':'center'}
-      }else{
-        return {'border-color':'#304156','background-color': '#304156','color': '#fff','padding': '0','text-align':'center'}
-      }
-    },
-    // 对数据库获取到的标绘图片数组切片
-    getPageArr() {
-      let arr = []
-      let start = (this.currentPage - 1) * this.pageSize
-      let end = this.currentPage * this.pageSize
-      if (end > this.total) {
-        end = this.total
-      }
-      for (; start < end; start++) {
-        arr.push(this.getEqData[start])
-      }
-      return arr
-    },
-    //`每页 ${val} 条`
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.tableData = this.getPageArr()
-      // console.log(`每页 ${val} 条`);
-    },
-    // `当前页: ${val}`
-    handleCurrentChange(val) {
-      this.currentPage = val
-      this.tableData = this.getPageArr()
-      // console.log(`当前页: ${val}`);
-    },
-  }
-}
+<script setup>
+import {ref, watch} from 'vue';
+import {useRouter} from 'vue-router';
+
+const props = defineProps(['eqData']);
+
+const total = ref(0);
+const pageSize = ref(7);
+const currentPage = ref(1);
+const getEqData = ref([]);
+const tableData = ref([]);
+
+const router = useRouter();
+
+watch(() => props.eqData, () => {
+  getEqData.value = props.eqData;
+  total.value = props.eqData.length;
+  tableData.value = getPageArr();
+});
+
+const go = (row) => {
+  const route = router.resolve({path: '/thd', query: {eqid: row.eqid}}).href;
+  window.open(route, '_blank');
+};
+
+const tableHeaderColor = () => ({
+  'border-color': '#293038',
+  'background-color': '#293038 !important',
+  'color': '#fff',
+  'text-align': 'center',
+});
+
+const tableColor = ({rowIndex}) => {
+  const backgroundColor = rowIndex % 2 === 1 ? '#313a44' : '#304156';
+  return {
+    'border-color': backgroundColor,
+    'background-color': backgroundColor,
+    'height': '30px',
+    'color': '#fff',
+    'padding': '0',
+  };
+};
+
+const getPageArr = () => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = Math.min(currentPage.value * pageSize.value, total.value);
+  return getEqData.value.slice(start, end);
+};
+
+const handleSizeChange = (val) => {
+  pageSize.value = val;
+  tableData.value = getPageArr();
+};
+
+const handleCurrentChange = (val) => {
+  currentPage.value = val;
+  tableData.value = getPageArr();
+};
+
+const formatTime = (time) => time ? time.replace('T', ' ') : '';
 </script>
 
 <style scoped>
-.eqtable{
+.table {
   text-align: center;
-  /*height: calc(30vh - 35px);*/
-  /*border-radius: 10px;*/
-  /*background: rgba(4, 16, 51, 0.4);*/
-  /*margin: 10px;*/
 }
-.el-table::before, .el-table--group::after, .el-table--border::after{
-  background-color: #304156!important;
+
+/*表格页面样式*/
+:deep(.el-table__inner-wrapper::before) {
+  width: 0
 }
-/*::v-deep .el-table th.gutter{*/
-/*  display: none;*/
-/*  width:0*/
-/*}*/
-/*::v-deep.el-table colgroup col[name='gutter']{*/
-/*  display: none;*/
-/*  width: 0;*/
-/*}*/
-/*::v-deep .el-table__body{*/
-/*  width: 100% !important;*/
-/*}*/
-/*::v-deep .el-table--scrollable-y .el-table__body-wrapper {*/
-/*  overflow-y: hidden;*/
-/*}*/
+
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.custom-pagination >>> .el-pagination__total,
+.custom-pagination >>> .el-pagination__jump,
+.custom-pagination >>> .el-pagination__right-wrapper {
+  color: white;
+  font-size: 15px;
+}
+
+
 </style>

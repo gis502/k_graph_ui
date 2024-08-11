@@ -115,7 +115,7 @@ const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.fileId === newFlag);
+  const selectedFile = files.value.find(file => file.id === newFlag);
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
@@ -178,10 +178,10 @@ const getTableField = () => {
 
     options.value = files.value.map(file => ({
       label: file.fileName,
-      value: file.fileId
+      value: file.id
     }));
 
-    flag.value = files.value[0].fileId; // 默认选择第一个表
+    flag.value = files.value[0].id; // 默认选择第一个表
     const fileColumn = JSON.parse(files.value[0].fileColumn);
     const map = new Map(Object.entries(fileColumn));
     field.value = Array.from(map.keys())

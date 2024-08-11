@@ -1,10 +1,5 @@
 <template>
   <div class="newIn">
-<!--    <el-col>-->
-<!--      <div class="eqtitle">-->
-<!--        最新地震-->
-<!--      </div>-->
-<!--    </el-col>-->
     <el-col>
       <div class="eqName">
         {{ eqName }}
@@ -43,13 +38,13 @@ export default {
   name: "newInfo",
   data() {
     return {
-      eqName: '四川德阳市绵竹市3.0级地震',
-      position:'四川德阳市绵竹市',
-      time:'2024-05-15 08:49:10',
-      magnitude:'3.0',
-      longitude:'104.05',
-      latitude:'31.55',
-      depth:'13'
+      eqName: '四川泸州市泸县3级地震',
+      position:'四川泸州市泸县',
+      time:'2024-08-02 00:18:02',
+      magnitude:'3',
+      longitude:'105.56',
+      latitude:'29.24',
+      depth:'8'
     }
   }
 }
@@ -58,27 +53,16 @@ export default {
 <style scoped>
 .newIn{
   color: #fff;
-  /*height: calc(40vh - 35px);*/
-  /*background: rgba(4, 16, 51, 0.4);*/
-  /*border-radius: 10px;*/
   width: 100%;
   height: 100%;
-  /*margin: 10px;*/
+
 }
 .newColCommon{
-  /*margin-top: 10px;*/
   padding-left: 10px;
 }
-/*.eqtitle{*/
-/*  margin-top: 10px;*/
-/*  font-size: 20px;*/
-/*  border-left-width: 5px;*/
-/*  border-left-style: solid;*/
-/*  border-left-color: rgb(86 253 237);*/
-/*  padding-left: 10px;*/
-/*}*/
+
 .eqName{
-  text-align: center;
-  /*margin-top: 10px;*/
+  margin-left: 10px;
+  font-size: 18px;
 }
 </style>
