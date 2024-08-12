@@ -48,7 +48,7 @@
         position: absolute;
         padding: 5px;
         border-radius: 5px;
-        bottom: 110px;
+        top: 390px;
         right: 10px;
         z-index: 100; /* 更高的层级 */
         background-color: rgba(40, 40, 40, 0.7);
