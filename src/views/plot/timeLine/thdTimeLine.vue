@@ -112,10 +112,10 @@ import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 
 //报告产出
-import jsPDF from "jspdf";
-import "../../../api/SimHei-normal.js";
-import html2canvas from "html2canvas";
-import NewsDialog from "@/components/TimeLine/newsDialog.vue";
+// import jsPDF from "jspdf";
+// import "@/api/SimHei-normal.js";
+// import html2canvas from "html2canvas";
+// import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
 
 export default {
