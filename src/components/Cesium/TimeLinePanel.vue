@@ -1,77 +1,90 @@
 <template>
   <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
-<!--    <div v-if="!showStatus">-->
-      <div class="header-div">
-        <span>{{ popupPanelData.plotname}}标绘信息</span>
-      </div>
-
-      <el-scrollbar height="400px">
-          <el-timeline-item>
-            <div>
-                  <el-descriptions :column="2" size="default " border>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          开始时间
-                        </div>
-                      </template>
-                      <div>
-                        <el-text v-if="activity.aditStatus" size="large">{{
-                            ("" + activity.starttime).match('-')
-                                ? activity.starttime
-                                : (activity.starttime !== null ? activity.starttime : "")
-                          }}</el-text>
-
-                      </div>
-                    </el-descriptions-item>
-                    <el-descriptions-item>
-                      <template #label>
-                        <div class="cell-item">
-                          结束时间
-                        </div>
-                      </template>
-                      <div>
-                        <el-text v-if="activity.aditStatus" size="large">{{
-                            ("" + activity.endtime).match('-')
-                                ? activity.endtime
-                                : (activity.endtime !== "" ? activity.endtime : "")
-                          }}</el-text>
-
-                      </div>
-                    </el-descriptions-item>
-                  </el-descriptions>
-
-                  <el-descriptions :column="2" size="default " border>
-                    <template v-for="(value,key,index) in activity.info">
-                      <el-descriptions-item v-if="value.type ==='text'">
-                        <template #label>
-                          <div class="cell-item">
-                            {{ value.name }}
-                          </div>
-                        </template>
-                        <el-text v-if="activity.aditStatus" size="large" >{{ value.value }}</el-text>
-                        <el-input v-if="!activity.aditStatus" v-model="value.value" autocomplete="off" size="large"/>
-                      </el-descriptions-item>
-                      <el-descriptions-item v-if="value.type ==='select'">
-                        <template #label>
-                          <div class="cell-item">
-                            {{ value.name }}
-                          </div>
-                        </template>
-                        <el-text v-if="activity.aditStatus" size="large">{{ value.value }}</el-text>
-                        <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">
-                          <el-option
-                              v-for="item in value.content"
-                              :label="item.lable"
-                              :value="item.lable"/>
-                        </el-select>
-                      </el-descriptions-item>
-                    </template>
-                  </el-descriptions>
-                </div>
-          </el-timeline-item>
-      </el-scrollbar>
+    <!--    <div v-if="!showStatus">-->
+    <div class="header-div">
+      <span>{{ popupPanelData.plotname}}标绘信息</span>
     </div>
+
+    <!-- 使用el-scrollbar组件创建一个滚动区域 -->
+    <el-scrollbar>
+      <!-- 创建一个事件时间线项 -->
+      <el-timeline-item>
+        <!-- 创建另一个分为两列的描述列表，动态绑定活动信息 -->
+        <el-descriptions :column="2" size="default " border>
+
+          <!-- 创建一个描述项，用于显示活动的开始时间 -->
+          <el-descriptions-item>
+            <!-- 定义描述项的标签内容 -->
+            <template #label>
+              <div class="cell-item">
+                开始时间
+              </div>
+            </template>
+            <!-- 根据活动状态显示开始时间 -->
+            <div>
+              <el-text v-if="activity.aditStatus" size="large">{{
+                  ("" + activity.starttime).match('-')
+                      ? activity.starttime
+                      : (activity.starttime !== null ? activity.starttime : "")
+                }}</el-text>
+            </div>
+          </el-descriptions-item>
+
+          <!-- 创建一个描述项，用于显示活动的结束时间 -->
+          <el-descriptions-item >
+            <!-- 定义描述项的标签内容 -->
+            <template #label>
+              <div class="cell-item">
+                结束时间
+              </div>
+            </template>
+            <!-- 根据活动状态显示结束时间 -->
+            <div>
+              <el-text v-if="activity.aditStatus" size="large">{{
+                  ("" + activity.endtime).match('-')
+                      ? activity.endtime
+                      : (activity.endtime !== "" ? activity.endtime : "")
+                }}</el-text>
+            </div>
+          </el-descriptions-item>
+
+          <!-- 使用v-for遍历活动的额外信息，并根据类型显示不同的输入/展示方式 -->
+          <template v-for="(value,key,index) in activity.info">
+            <!-- 如果活动信息类型为文本，则显示文本输入/展示 -->
+            <el-descriptions-item v-if="value.type ==='text'">
+              <!-- 定义描述项的标签内容 -->
+              <template #label>
+                <div class="cell-item">
+                  {{ value.name }}
+                </div>
+              </template>
+              <!-- 根据活动状态显示或编辑文本信息 -->
+              <el-text v-if="activity.aditStatus" size="large" >{{ value.value }}</el-text>
+              <el-input v-if="!activity.aditStatus" v-model="value.value" autocomplete="off" size="large"/>
+            </el-descriptions-item>
+            <!-- 如果活动信息类型为选择框，则显示选择框输入/展示 -->
+            <el-descriptions-item v-if="value.type ==='select'">
+              <!-- 定义描述项的标签内容 -->
+              <template #label>
+                <div class="cell-item">
+                  {{ value.name }}
+                </div>
+              </template>
+              <!-- 根据活动状态显示或编辑选择框信息 -->
+              <el-text v-if="activity.aditStatus" size="large">{{ value.value }}</el-text>
+              <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">
+                <!-- 动态生成选择项 -->
+                <el-option
+                    v-for="item in value.content"
+                    :label="item.lable"
+                    :value="item.lable"/>
+              </el-select>
+            </el-descriptions-item>
+          </template>
+        </el-descriptions>
+      </el-timeline-item>
+    </el-scrollbar>
+  </div>
 </template>
 <script>
 import {plotType} from '@/cesium/plot/plotType.js'
@@ -266,79 +279,53 @@ export default {
 </script>
 <style>
 .cell-item {
-  /*width: 50px;*/
+  width: 80px;
+  padding: 0px !important;
+  justify-content: center; /* 水平居中 */
+  font-weight: bold;
   text-align: center;
 }
 
-.collapseFooter {
-  float: right;
-  margin: 10px;
+.el-descriptions__label.el-descriptions__cell.is-bordered-label {
+  font-weight: bold;
+  justify-content: center;
+  display: flex;
 }
 
-.el-input {
-  --el-input-width: 100px !important;
+/*控制弹窗右边距为0*/
+.el-timeline-item__wrapper {
+  padding-left: 0px;
 }
 
-.el-select {
-  /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
-  --el-select-width: 100px !important;
-}
+/*.el-input {*/
+/*  --el-input-width: 100px !important;*/
+/*}*/
+
+/*.el-select {*/
+/*  !* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 *!*/
+/*  --el-select-width: 100px !important;*/
+/*}*/
 
 .header-div {
-  color: white;
+  font-size: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.box-card {
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+  font-weight: bold;       /* 文字加粗 */
+  color: white;
   margin-bottom: 5px;
 }
 
 .videoMonitorWin {
   position: absolute;
-  width: 800px;
   padding: 20px;
   z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
 }
-
-.ponpTitle {
-  font-size: 23px;
-  text-align: center;
-  color: white;
-  margin-bottom: 10px;
+/*弹框整体宽度*/
+.el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
+  padding: 8px 5px;
+  width: 180px;
 }
-
-.ponpTable {
-  text-align: center;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.ponpTable td {
-  padding: 10px;
-}
-
-.info-item :nth-child(1) {
-  width: 15%;
-  border-color: #293966;
-  border-top-style: solid;
-  border-top-width: 2px;
-  background-color: #293966;
-  margin-bottom: 2px;
-  align-content: center;
-}
-
-.info-item :nth-child(2) {
-  width: 60%;
-  border-color: #4d5469;
-  border-top-style: solid;
-  border-top-width: 2px;
-  background-color: #4d5469;
-  margin-bottom: 2px;
-}
-
 </style>
