@@ -2,9 +2,10 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 100%; margin-bottom: 5px;"
+        style="width: 100%; margin-bottom: 5px;height: 340px"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
+        :row-style="{ height: '37.5px' }"
         @row-click="go">
       <el-table-column
           prop="position"
@@ -24,11 +25,13 @@
       <el-table-column
           prop="magnitude"
           align="center"
+          min-width="50px"
           label="震级">
       </el-table-column>
       <el-table-column
           prop="depth"
           align="center"
+          min-width="50px"
           label="深度"
           show-overflow-tooltip>
       </el-table-column>
@@ -55,7 +58,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(7);
+const pageSize = ref(8);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
