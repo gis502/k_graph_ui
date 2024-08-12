@@ -372,7 +372,7 @@ export default {
           roll: 0.0
         }
       });
-      //加载中心点
+      //加载   中心点
       viewer.entities.add({
         // properties: {
         //   type: "震中",
