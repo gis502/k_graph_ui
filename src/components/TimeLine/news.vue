@@ -111,7 +111,7 @@
                 }
             },
             showDetailedNews(row){
-                console.log("row---",row)
+                // console.log("row---",row)
                 this.showingNews = row
                 // this.DialogFormVisible = true
                 let bool = true
