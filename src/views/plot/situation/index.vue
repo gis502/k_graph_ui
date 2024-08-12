@@ -424,12 +424,10 @@ export default {
             that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
             // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
           }
-          // console.log(window.selectedEntity,123)
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
-          console.log("end11",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity

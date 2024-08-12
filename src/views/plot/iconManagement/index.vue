@@ -372,4 +372,8 @@ export default {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
 </style>

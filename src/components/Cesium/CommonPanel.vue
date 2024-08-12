@@ -251,7 +251,6 @@ export default {
       deep: true,
       handler() {
         this.popupPanelData = this.popupData
-        console.log("干嘛？",this.popupPanelData)
         this.plotInfoActivities = []
         // 必须把生成对应标绘的html模板代码（下面的for循环），写在watch的popupData中，不能写在visible中。
         // 在执行顺序上，visible比popupData快。导致在判断this.popupPanelData.plottype === plotType[item].name时，
@@ -322,6 +321,7 @@ export default {
     // 删除标绘点
     deletePlot() {
       let plotid
+
       if(this.popupPanelData.drawtype==='point'){
         plotid = this.popupPanelData.plotid
       }else {
@@ -329,12 +329,13 @@ export default {
           plotid = this.popupPanelData[0].plotid
           // console.log(this.popupPanelData,123)
         }else {
-
+          plotid = this.popupPanelData[0].plotid
         }
       }
-      // console.log(this.popupPanelData,1234)
+      console.log(this.popupPanelData,1234)
       deletePlotAndInfo({plotid}).then(res => {
         window.viewer.entities.removeById(plotid)
+        console.log(window.viewer.entities)
         this.$emit('closePlotPop')
       })
     },
@@ -379,7 +380,6 @@ export default {
     getPlotInfo(plotid) {
       let that = this
       getPlotInfos({plotid}).then(res => {
-        console.log("res",res)
         for (let i = 0; i < res.length; i++) {
           // 这个item一定要写在for循环里面，否则使用push(item)会造成整个plotInfoActivities都是最后一个item
           // 因为push到plotInfoActivities里的是item的地址。（浅拷贝）
@@ -402,7 +402,6 @@ export default {
           that.plotInfoActivities.push(item)
         }
         that.plotInfoNew = that.plotInfoActivities[0]
-        console.log("new",that.plotInfoNew)
       })
 
     },

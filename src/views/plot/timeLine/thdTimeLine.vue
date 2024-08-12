@@ -1217,6 +1217,7 @@ export default {
   position: absolute;
   z-index: 99;
 }
+
 .time-ruler {
   position: relative;
   width: 90%;
