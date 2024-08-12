@@ -154,6 +154,7 @@ export default {
     },
     // 画点
     drawPoint(pointInfo) {
+
       cesiumPlot.drawPoint(pointInfo)
     },
     // ------------------------------

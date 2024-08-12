@@ -176,7 +176,6 @@ getCookie();
   text-align: center;
   color: #707070;
 }
-
 .login-form {
   border-radius: 6px;
   background: #ffffff;

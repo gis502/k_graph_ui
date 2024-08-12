@@ -46,6 +46,7 @@ export default class Point {
   }
   // 画点
   drawPoint(data) {
+    console.log("end")
     window.viewer.entities.add({
       id: data.plotid,
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),

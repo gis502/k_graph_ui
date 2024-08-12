@@ -5,9 +5,14 @@
         <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
       </el-col>
     </el-row>
-    <el-table :data="tableData">
-      <el-table-column prop="position" label="位置" width="300"></el-table-column>
-      <el-table-column prop="time" label="发震时间"></el-table-column>
+    <el-table :data="tableData":header-cell-style="tableHeaderColor" :cell-style="tableColor">
+      <el-table-column label="序号" width="60">
+        <template #default="{ row, column, $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="time" label="发震时间" width="200"></el-table-column>
+      <el-table-column prop="position" label="位置" width="300" ></el-table-column>
       <el-table-column prop="magnitude" label="震级"></el-table-column>
       <el-table-column prop="longitude" label="经度"></el-table-column>
       <el-table-column prop="latitude" label="纬度"></el-table-column>
@@ -21,13 +26,13 @@
     </el-table>
 
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="pageSizes"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
@@ -40,7 +45,7 @@
       <el-row :gutter="10">
         <el-col :span="6">发震时间：</el-col>
         <el-col :span="18">
-<!--          <el-input v-model="dialogContent.time" placeholder="请输入内容"></el-input>-->
+          <!--          <el-input v-model="dialogContent.time" placeholder="请输入内容"></el-input>-->
           <el-date-picker
               v-model="dialogContent.time"
               type="datetime"
@@ -92,8 +97,8 @@ export default {
       getEqData: [],
       tableData: [],
       total: 0,
-      pageSize: 10,
-      pageSizes: [5, 10, 20, 40],
+      pageSize: 11,
+      pageSizes: [11, 20, 40],
       currentPage: 1,
       //--------------------------------------
       dialogShow: false,
@@ -116,17 +121,15 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
-        console.log("请求数据:", res)
         that.getEqData = res
         that.total = res.length
         let data = []
-        for(let i=0;i<res.length;i++){
+        for (let i = 0; i < res.length; i++) {
           let item = res[i]
           item.time = that.timestampToTime(item.time)
           data.push(item)
         }
-        that.tableData = data
-        console.log("请求数据:", that.tableData)
+        that.tableData = this.getPageArr()
       })
     },
     // 删除单条地震
@@ -158,7 +161,7 @@ export default {
           this.clearDialogContent()
         })
       } else {
-        updataEq(this.dialogContent).then(res=>{
+        updataEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false
           this.clearDialogContent()
@@ -201,6 +204,39 @@ export default {
       this.tableData = this.getPageArr()
       // console.log(`当前页: ${val}`);
     },
+    // 修改table的header的样式
+    tableHeaderColor() {
+      return {
+        // 'border-color': '#293038',
+        // 'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+        // 'color': '#fff',
+        // 'padding': '0',
+        'text-align': 'center',
+        'font-size': '14px'
+      }
+    },
+    // 修改table 中每行的样式
+    tableColor({row, column, rowIndex, columnIndex}) {
+      if (rowIndex % 2 == 1) {
+        return {
+          // 'border-color': '#313a44',
+          // 'background-color': '#313a44',
+          // 'color': '#fff',
+          // 'padding': '0',
+          'text-align': 'center',
+          'font-size': '14px'
+        }
+      } else {
+        return {
+          // 'border-color': '#304156',
+          // 'background-color': '#304156',
+          // 'color': '#fff',
+          // 'padding': '0',
+          'text-align': 'center',
+          'font-size': '14px'
+        }
+      }
+    },
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
@@ -222,7 +258,6 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-      console.log(year, month, day, hh, mm, ss)
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
@@ -231,5 +266,8 @@ export default {
 </script>
 
 <style scoped>
-
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
 </style>

@@ -7,16 +7,34 @@
     </el-row>
 
     <el-table :data="tableData">
-      <el-table-column prop="type" label="类型" width="180" align="center"></el-table-column>
-      <el-table-column prop="img" label="符号" width="150" align="center">
+      <el-table-column label="序号" width="50" align="center">
+        <template #default="{ row, column, $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="type" label="类型" width="200" align="center"></el-table-column>
+      <el-table-column prop="img" label="符号" width="120" align="center">
         <template #default="scope">
           <img width="50px" height="50px" :src="scope.row.img" alt="图片不正确">
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="名称" width="120" align="center"></el-table-column>
+      <el-table-column prop="name" label="名称" width="200" align="center"></el-table-column>
       <el-table-column prop="plotType" label="标会类型" width="120" align="center"></el-table-column>
-      <el-table-column prop="describe" label="说明"></el-table-column>
-      <el-table-column label="操作" align="center">
+      <el-table-column prop="describe" label="说明" align="center">
+        <template #default="scope">
+          <el-popover placement="top" :width="300" trigger="hover">
+            <div>{{ scope.row.describe }}</div>
+            <template #reference>
+              <div v-if="scope.row.describe != null">
+                <span class="myNote">
+                  {{ scope.row.describe }}
+                </span>
+              </div>
+            </template>
+          </el-popover>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="200">
         <template #default="scope">
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleOpen('修改',scope.row)">修改</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
@@ -25,13 +43,13 @@
     </el-table>
 
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="pageSizes"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false" :before-close="handleClose">
@@ -41,14 +59,14 @@
           <!--          <el-input v-model="dialogContent.type" placeholder="请输入内容"></el-input>-->
           <el-select v-model="dialogContent.type" placeholder="请选择">
             <el-option-group
-              v-for="group in typeArr"
-              :key="group.label"
-              :label="group.label">
+                v-for="group in typeArr"
+                :key="group.label"
+                :label="group.label">
               <el-option
-                v-for="item in group.options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
+                  v-for="item in group.options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
               </el-option>
             </el-option-group>
           </el-select>
@@ -59,10 +77,10 @@
         <el-col :span="18">
           <el-select v-model="dialogContent.plotType" placeholder="请选择">
             <el-option
-              v-for="item in plotTypeArr"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+                v-for="item in plotTypeArr"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
             </el-option>
           </el-select>
         </el-col>
@@ -83,22 +101,24 @@
         <el-col :span="6">符号：</el-col>
         <el-col :span="18">
           <el-upload
-            action="#"
-            :on-change='uploadOnChange'
-            list-type="picture-card"
-            :auto-upload="false"
-            :file-list="fileList"
-            :limit="1">
-            <el-icon><Plus /></el-icon>
+              action="#"
+              :on-change='uploadOnChange'
+              list-type="picture-card"
+              :auto-upload="false"
+              :file-list="fileList"
+              :limit="1">
+            <el-icon>
+              <Plus/>
+            </el-icon>
             <template #file="{ file }">
-<!--              <div slot="file" slot-scope="{file}">-->
-                <img class="el-upload-list__item-thumbnail" :src="file.url">
-                <span class="el-upload-list__item-actions">
+              <!--              <div slot="file" slot-scope="{file}">-->
+              <img class="el-upload-list__item-thumbnail" :src="file.url">
+              <span class="el-upload-list__item-actions">
                   <span class="el-upload-list__item-delete" @click="deleteUnloadPic">
-                    <el-icon><Delete /></el-icon>
+                    <el-icon><Delete/></el-icon>
                   </span>
                 </span>
-<!--              </div>-->
+              <!--              </div>-->
             </template>
           </el-upload>
         </el-col>
@@ -121,8 +141,8 @@ export default {
       getPicData: [],
       tableData: [],
       total: 0,
-      pageSize: 5,
-      pageSizes: [5, 10, 20, 40],
+      pageSize: 7,
+      pageSizes: [7, 20, 30, 40],
       currentPage: 1,
       //-----------弹出对话框-------------
       dialogShow: false,
@@ -150,6 +170,19 @@ export default {
         },
       ],
       typeArr: [
+        {
+          label: '现场救援类',
+          options: [
+            {
+              value: 'I类（救援力量类）',
+              label: 'I类（救援力量类）'
+            },
+            {
+              value: 'II类（救援行动类）',
+              label: 'II类（救援行动类）'
+            },
+          ]
+        },
         {
           label: '次生灾害类',
           options: [
@@ -258,7 +291,7 @@ export default {
         this.dialogTitle = title
         this.dialogContent = {...row}
         this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
-        console.log(this.dialogShow,this.dialogTitle,this.dialogContent)
+        console.log(this.dialogShow, this.dialogTitle, this.dialogContent)
       }
       this.dialogShow = !this.dialogShow
     },
@@ -332,5 +365,15 @@ export default {
 </script>
 
 <style scoped>
-
+.myNote {
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
 </style>
