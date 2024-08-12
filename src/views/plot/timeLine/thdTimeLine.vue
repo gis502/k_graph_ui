@@ -9,11 +9,16 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
+<!--        <TimeLinePanel-->
+<!--            :visible="popupVisible"-->
+<!--            :position="popupPosition"-->
+<!--            :popupData="popupData"-->
+<!--            :currentTime="currentTime"-->
+<!--        />-->
         <TimeLinePanel
             :visible="popupVisible"
             :position="popupPosition"
             :popupData="popupData"
-            :currentTime="currentTime"
         />
       </div>
     </div>
@@ -363,7 +368,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
-            150000),
+            15000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -910,6 +915,11 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
         // 2-1 判断点击物体是否为点实体（billboard）
+        if(window.selectedEntity === undefined){
+          this.popupVisible = false
+          this.popupData = {}
+        }
+        console.log("window.selectedEntity",window.selectedEntity)
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
           // console.log("window.selectedEntity",window.selectedEntity)
@@ -944,14 +954,23 @@ export default {
           }
           // 2-5 更新弹窗位置
           // that.selectedEntity = window.selectedEntity
+
+
+
+          // that.currentTime=
+          // this.popupVisible = true; // 显示弹窗
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
           that.popupData = {
             plotid: window.selectedEntity.id,
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          // that.currentTime=
-          this.popupVisible = true; // 显示弹窗
+          // this.popupData = {}
+          // this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          console.log("popupData thd timeline",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
+          // this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
         }
