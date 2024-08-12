@@ -530,8 +530,8 @@ export default {
       // 时间轴开始
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      // }, 160);
-      }, 50);
+      }, 100);
+      // }, 50);
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
