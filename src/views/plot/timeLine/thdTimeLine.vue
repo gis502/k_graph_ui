@@ -73,7 +73,7 @@
         <news-dialog
                 :showDetailedNewsDialog="showDetailedNewsDialog"
                 :showingNewsContent="showingNewsContent"
-                :hideNewsDialog="hideNewsDialog"
+                @hideNewsDialog="hideNewsDialog"
         ></news-dialog>
     </div>
     <!--      缩略图-->
@@ -128,7 +128,7 @@ export default {
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
     timeLineLegend,
-      newsDialog
+    newsDialog
   },
   data: function () {
     return {
@@ -458,7 +458,7 @@ export default {
     },
 
       detailedNews(val){
-          console.log("detailedNews-----",val)
+          // console.log("detailedNews-----",val)
         this.showingNewsContent = val
 
       },
@@ -466,11 +466,8 @@ export default {
           // console.log("ifShowDialog-----",val)
         this.showDetailedNewsDialog = val
       },
-      // hideDetailedNews(){
-      //     this.showDetailedNewsDialog = false
-      // },
       hideNewsDialog(val){
-          console.log("showDetailedNewsDialog-----",val)
+          // console.log("showDetailedNewsDialog-----",val)
           this.showDetailedNewsDialog = val
       },
 
