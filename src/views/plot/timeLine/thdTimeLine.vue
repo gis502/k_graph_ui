@@ -633,7 +633,7 @@ export default {
           }
         });
       });
-      // console.log("polygonArr",polygonArr)
+      console.log("polygonArr",polygonArr)
 
 
 
@@ -897,7 +897,10 @@ export default {
         plottype: polygon.plottype,
         polygon: {
           show: true,
-          hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
+          hierarchy: Cesium.Cartesian3.fromDegreesArray(
+              polygon.positionsArr
+              // [102.75549772564291, 30.693705126222397, 102.7524041663634, 30.69723905590233, 102.75642876498236, 30.699985385670818, 102.75952217967988, 30.696450781867114]
+          ),
           height: 0,
           material: polygon.img,
           stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),

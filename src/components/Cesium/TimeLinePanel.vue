@@ -170,7 +170,7 @@ export default {
         // this.plotInfoActivities.push(item)
         // console.log("plotInfoActivities",this.plotInfoActivities)
         // this.getActivitiesByTime(this.currentTime)
-        this.activity=item
+        this.plotInfoNew=item
       }
       else {
         getPlotInfos({plotid}).then(res => {
