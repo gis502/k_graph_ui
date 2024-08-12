@@ -5,8 +5,8 @@
                 最新事件:
                 <span class="title-time">{{ currentEvent }}</span>
                 <span class="icon" @click="hideNews">
-                <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
-            </span>
+                    <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
+                </span>
             </h2>
 
             <div class="sub-main">
@@ -83,13 +83,13 @@
                 this.showRightButton = true
                 this.showLeftButton = false
             },
-            updateNews(currentTime) {
-                const activities = this.newsData.filter((activity) => {
+            async updateNews(currentTime) {
+                const activities = await this.newsData.filter((activity) => {
                     return (
                         new Date(activity.publish_time) <= currentTime
                     );
                 });
-                if (activities.length > 1) {
+                if (activities.length > 0) {
                     let tmp = activities[activities.length - 1];
                     let activity = {
                         id: tmp.id,
@@ -101,11 +101,15 @@
                     if (this.showNews.length === 0) {
                         this.showNews.unshift(activity)
                     } else {
-                        if (this.showNews[0].id !== activity.id) {
-                            this.showNews.unshift(activity)
-                            if (this.showNews.length > 5) {
-                                this.showNews.splice(-1, 1)
+                        let flag = true
+                        this.showNews.forEach((item) => {
+                            if (item.id === activity.id) {
+                                flag = false
                             }
+                        })
+                        if(flag){
+                            this.showNews.unshift(activity)
+                            // console.log("this.showNews----",this.showNews)
                         }
                     }
                 }
@@ -216,34 +220,25 @@
         line-height: 1.4; /* 行高，调整以适应你的字体 */
         height: 2.8em; /* 高度设置为两行的高度 */
     }
-    .detailedNews{
-        width: 300px;
-        height: 350px;
-        position: absolute;
-        padding: 0 5px 5px;
-        border-radius: 5px;
-        top: 80px;
-        right: 300px;
-        z-index: 100; /* 更高的层级 */
-        background-color: rgba(40, 40, 40, 0.7);
-        color: white;
-    }
     .showNewsButton{
         position: absolute;
         padding: 4px;
-        border-radius: 5px;
+        border-radius: 2px;
         top: 80px;
         right: 10px;
         z-index: 100; /* 更高的层级 */
         background-color: rgba(40, 40, 40, 0.7);
         color: white;
+        width: 20px;
+        height: 20px;
+        display: flex;
+    }
+    .showNewsButton img{
         max-width: 20px; /* 设置图片最大宽度 */
         max-height: 20px; /* 设置图片最大高度 */
         width: auto; /* 自动调整宽度以保持比例 */
         height: auto; /* 自动调整高度以保持比例 */
-    }
-    .detailedNews img{
-        max-width: 10px; /* 设置图片最大宽度 */
-        max-height: 10px; /* 设置图片最大高度 */
+        justify-content: center;
+        align-content: center;
     }
 </style>

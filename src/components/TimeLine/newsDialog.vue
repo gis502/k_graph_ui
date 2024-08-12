@@ -42,10 +42,10 @@
         // ],
         watch: {
             showingNewsContent(newValue) {
-                console.log("showingNewsContent changed:", newValue);
+                // console.log("showingNewsContent changed:", newValue);
             },
             showDetailedNewsDialog(newValue) {
-                console.log("showDetailedNewsDialog changed:", newValue);
+                // console.log("showDetailedNewsDialog changed:", newValue);
                 this.ifShowDialog = this.showDetailedNewsDialog
             }
         },
@@ -67,8 +67,7 @@
         methods:{
             hideDetailedNews(){
                 this.ifShowDialog = false
-                let bool = false
-                this.$emit('hideNewsDialog', bool);
+                this.$emit('hideNewsDialog', this.ifShowDialog);
             },
         }
     }
