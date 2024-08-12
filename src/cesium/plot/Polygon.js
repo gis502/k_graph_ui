@@ -43,10 +43,11 @@ export default class Polygon {
     this.diffEntityWithMouse = []// 记录选中实体与鼠标位置信息的差异
     //===========下面是下面的属性用于将面整体拖拽与点拖拽转换的逻辑===========
     this.selectPoint = null;
-
+    this.polygonInfo=[];
   }
 
-  activate(name, type, img, eqid) {
+  activate(name, type, img, eqid,info) {
+
     this.name = name;//记录类型
     this.eqid = eqid
     let currentDate = new Date();
@@ -158,7 +159,7 @@ export default class Polygon {
       if (this.type === "标绘面"){
         //这里加个这个判定是因为，如果不这样，量算面积，右键完再右键，会调用这个往后端传数据的方法
         // 右键后显示输入详细信息的弹窗
-        this.handler.setInputAction((event) => this.showDetailInputPopup(event), Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        this.handler.setInputAction((event) => this.showDetailInputPopup(event), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
       }
       // else {
       //   let area = this.area(this.positions);
@@ -173,10 +174,15 @@ export default class Polygon {
   showDetailInputPopup(event) {
     window.showPopup()
 // 阻止默认的右键菜单
+    window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
+      return false;
+    }
   }
 
   rightClickSendEvent(polygonInfo) {
     let info = polygonInfo;
+    let startTime = this.timestampToTime(info.initialDisposalStartDate.value)
+    let endTime = this.timestampToTime(info.initialDisposalActualEndDate.value)
     // 将多边形顶点转换为经纬度
     let uuid = this.guid();
     let posArr = [];
@@ -193,8 +199,8 @@ export default class Polygon {
       plots: [],
       plotinfo: {
         plotid: uuid,
-        starttime: null,
-        endtime: null,
+        starttime: startTime,
+        endtime: endTime,
         info: info,
         id: this.guid()
       }
@@ -215,7 +221,7 @@ export default class Polygon {
         angle: this.angle
       });
     });
-
+    this.polygonInfo=assemblyData
     // 清除事件处理器和点实体
     this.vertexHandlers.forEach((handler) => {
       handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
@@ -229,7 +235,6 @@ export default class Polygon {
 
     // 移除右键点击事件处理器
     this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
     // 批量插入所有数据
     insertPlotAndInfo(assemblyData)
         .then((res) => {
@@ -391,6 +396,7 @@ export default class Polygon {
   getDrawActivatePolygon(polygonArr) {
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
+    // console.log("onlyPlotid",onlyPlotid)
     // 1-2根据Plotid来画面
     onlyPlotid.forEach(onlyPlotidItem => {
       // 1-3 把数据库同一Plotid的点数据放入此数组
@@ -403,7 +409,7 @@ export default class Polygon {
 
       // 1-4 pointLinePoints用来存构成面的点实体
       let pointLinePoints = []
-      // console.log("交换后:", polygon);
+
       for (let i = 0; i < polygon.length; i++) {``
         // 转换为Cartesian3坐标
         let cartographic = Cesium.Cartographic.fromDegrees(
@@ -441,6 +447,7 @@ export default class Polygon {
           properties: {
             pointPosition: this.positions,
             linePoint: this.polygonPointEntity,
+            data:polygon //弹出框
           }
         });
 
@@ -613,6 +620,7 @@ export default class Polygon {
   }
 
   addPoint(position) {
+    console.log("position",position)
     this.positions.push(position);
     let point = this.drawPoint(position);
     this.polygonPointEntity.push(point);
@@ -624,6 +632,37 @@ export default class Polygon {
 
   //画出面实体
   drawPolygon() {
+    let uuid = this.guid();
+    let posArr = [];
+    this.positions.forEach((item, index) => {
+      let cartographicPosition = Cesium.Cartographic.fromCartesian(item);
+      posArr[index] = {
+        lat: Cesium.Math.toDegrees(cartographicPosition.latitude),
+        lon: Cesium.Math.toDegrees(cartographicPosition.longitude),
+        height: cartographicPosition.height
+      };
+    });
+
+    let assemblyData = {
+      plots: [],
+    };
+
+    // 组装 plot 数据
+    posArr.forEach((pos, index) => {
+      assemblyData.plots.push({
+        eqid: this.eqid,
+        plotid: uuid,  // 整个多边形共用一个UUID
+        time: this.initId,
+        plottype: this.name,
+        drawtype: "polygon",
+        latitude: pos.lat,
+        longitude: pos.lon,
+        height: pos.height,
+        img: this.img,
+        angle: this.angle
+      });
+    });
+    console.log("assemblyData",assemblyData)
     if (this.polygonEntity) {
       //这里是如果面实体存在，那么就不重新创建实体，只是修改实体，防止浪费资源
       this.polygonEntity.polygon.hierarchy = new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(this.positions), false);
@@ -650,7 +689,9 @@ export default class Polygon {
         properties: {
           pointPosition: this.positions,
           linePoint: this.polygonPointEntity,
+          data:assemblyData.plots
         }
+
       });
 
     }
@@ -904,7 +945,7 @@ export default class Polygon {
     }
 
     // 更新显示的实体个数
-    document.getElementById("ispointIcon").innerHTML = count;
+    // document.getElementById("ispointIcon").innerHTML = count;
 
     // 更新类中的实体个数属性
     this.entityCount = count;

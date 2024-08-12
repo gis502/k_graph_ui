@@ -18,8 +18,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.starttime).match('-')
-                    ? plotInfoNew.starttime
-                    : (plotInfoNew.starttime !== null ? plotInfoNew.starttime : "")
+                    ? this.timestampToTime(plotInfoNew.starttime)
+                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime) : "")
               }}
             </el-text>
             <el-date-picker
@@ -41,8 +41,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.endtime).match('-')
-                    ? plotInfoNew.endtime
-                    : (plotInfoNew.endtime !== "" ? plotInfoNew.endtime : "")
+                    ? this.timestampToTime(plotInfoNew.endtime)
+                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime) : "")
               }}
             </el-text>
             <el-date-picker
@@ -75,8 +75,8 @@
             <el-select v-if="!plotInfoNew.aditStatus" v-model="value.value" placeholder="" size="large">
               <el-option
                   v-for="item in value.content"
-                  :label="item.lable"
-                  :value="item.lable"/>
+                  :label="item.label"
+                  :value="item.label"/>
             </el-select>
           </el-descriptions-item>
         </template>
@@ -186,8 +186,8 @@
       <!--                        <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">-->
       <!--                          <el-option-->
       <!--                              v-for="item in value.content"-->
-      <!--                              :label="item.lable"-->
-      <!--                              :value="item.lable"/>-->
+      <!--                              :label="item.label"-->
+      <!--                              :value="item.label"/>-->
       <!--                        </el-select>-->
       <!--                      </el-descriptions-item>-->
       <!--                    </template>-->
@@ -264,6 +264,9 @@ export default {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotid)
+            }else {
+              // console.log(this.popupPanelData[0], 987)
+              this.getPlotInfo(this.popupPanelData[0].plotid)
             }
           }
         }
@@ -318,6 +321,7 @@ export default {
     // 删除标绘点
     deletePlot() {
       let plotid
+
       if(this.popupPanelData.drawtype==='point'){
         plotid = this.popupPanelData.plotid
       }else {
@@ -325,12 +329,13 @@ export default {
           plotid = this.popupPanelData[0].plotid
           // console.log(this.popupPanelData,123)
         }else {
-
+          plotid = this.popupPanelData[0].plotid
         }
       }
-      // console.log(this.popupPanelData,1234)
+      console.log(this.popupPanelData,1234)
       deletePlotAndInfo({plotid}).then(res => {
         window.viewer.entities.removeById(plotid)
+        console.log(window.viewer.entities)
         this.$emit('closePlotPop')
       })
     },
@@ -385,6 +390,7 @@ export default {
             id: null,
             aditStatus: true,
           }
+
           item.starttime = that.timestampToTime(res[i].starttime)
           if (res[i].endtime === null) {
             item.endtime = ""
@@ -396,8 +402,8 @@ export default {
           that.plotInfoActivities.push(item)
         }
         that.plotInfoNew = that.plotInfoActivities[0]
-        // console.log(that.plotInfoNew, 9876)
       })
+
     },
     // 删除标注
     deletePoint() {

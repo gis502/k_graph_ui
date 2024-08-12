@@ -68,30 +68,14 @@
               @detailedNews="detailedNews"
       ></news>
     </div>
-      <div
-              class="detailedNews"
-              v-show="showDetailedNewsDialog"
-      >
-          <div class="close-button" @click="hideDetailedNews">
-              &times; <!-- 叉号字符 -->
-          </div>
-          <div>
-              <h2 class="news-title">新闻事件</h2>
-          </div>
-          <div class="news-main">
-              <div class="news-time">
-                  {{ showingNewsContent.time }}
-              </div>
-              <div class="news-content">
-                  {{ showingNewsContent.content }}
-              </div>
-              <div v-if="showingNewsContent.img" class="news-img">
-                  <img :src="showingNewsContent.img" alt="新闻图片" />
-              </div>
-          </div>
-      </div>
-
-
+      <!--      新闻弹框-->
+    <div>
+        <news-dialog
+                :showDetailedNewsDialog="showDetailedNewsDialog"
+                :showingNewsContent="showingNewsContent"
+                :hideNewsDialog="hideNewsDialog"
+        ></news-dialog>
+    </div>
     <!--      缩略图-->
     <div>
       <mini-map></mini-map>
@@ -119,11 +103,10 @@ import cesiumPlot from '@/cesium/plot/cesiumPlot'
 
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-
+import newsDialog from "@/components/TimeLine/newsDialog.vue";
 import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
 import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
 import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
-
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
@@ -132,17 +115,20 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 import jsPDF from "jspdf";
 import "../../../api/SimHei-normal.js";
 import html2canvas from "html2canvas";
+import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
 
 export default {
   components: {
+      // NewsDialog,
     TimeLinePanel,
     News,
     MiniMap,
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
-    timeLineLegend
+    timeLineLegend,
+      newsDialog
   },
   data: function () {
     return {
@@ -472,15 +458,20 @@ export default {
     },
 
       detailedNews(val){
-          console.log("-----",val)
+          console.log("detailedNews-----",val)
         this.showingNewsContent = val
+
       },
       ifShowDialog(val){
-          console.log("showDetailedNewsDialog-----",val)
+          // console.log("ifShowDialog-----",val)
         this.showDetailedNewsDialog = val
       },
-      hideDetailedNews(){
-          this.showDetailedNewsDialog = false
+      // hideDetailedNews(){
+      //     this.showDetailedNewsDialog = false
+      // },
+      hideNewsDialog(val){
+          console.log("showDetailedNewsDialog-----",val)
+          this.showDetailedNewsDialog = val
       },
 
     //时间轴操作
@@ -1226,6 +1217,7 @@ export default {
   position: absolute;
   z-index: 99;
 }
+
 .time-ruler {
   position: relative;
   width: 90%;

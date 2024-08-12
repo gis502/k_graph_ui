@@ -34,7 +34,7 @@
                />
             </el-select>
          </el-form-item>
-         <el-form-item label="创建时间" style="width: 308px">
+         <el-form-item label="创建时间" style="width: 388px">
             <el-date-picker
                v-model="dateRange"
                value-format="YYYY-MM-DD"
@@ -137,6 +137,7 @@
          v-model:page="queryParams.pageNum"
          v-model:limit="queryParams.pageSize"
          @pagination="getList"
+         style="margin:0 auto;width: 300px"
       />
 
       <!-- 添加或修改角色配置对话框 -->

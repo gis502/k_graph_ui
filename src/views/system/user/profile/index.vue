@@ -17,6 +17,10 @@
                         <svg-icon icon-class="user" />用户名称
                         <div class="pull-right">{{ state.user.userName }}</div>
                      </li>
+                    <li class="list-group-item">
+                      <svg-icon icon-class="user" />联系人
+                      <div class="pull-right">{{ state.user.nickName }}</div>
+                    </li>
                      <li class="list-group-item">
                         <svg-icon icon-class="phone" />手机号码
                         <div class="pull-right">{{ state.user.phonenumber }}</div>
@@ -26,8 +30,8 @@
                         <div class="pull-right">{{ state.user.email }}</div>
                      </li>
                      <li class="list-group-item">
-                        <svg-icon icon-class="tree" />所属部门
-                        <div class="pull-right" v-if="state.user.dept">{{ state.user.dept.deptName }} / {{ state.postGroup }}</div>
+                        <svg-icon icon-class="tree" />隶属工作组
+                        <div class="pull-right" v-if="state.user.dept">{{ state.user.dept.deptName }}</div>
                      </li>
                      <li class="list-group-item">
                         <svg-icon icon-class="peoples" />所属角色
@@ -77,6 +81,7 @@ const state = reactive({
 
 function getUser() {
   getUserProfile().then(response => {
+    console.log(response)
     state.user = response.data;
     state.roleGroup = response.roleGroup;
     state.postGroup = response.postGroup;
