@@ -11,7 +11,8 @@ const useUserStore = defineStore(
       name: '',
       avatar: '',
       roles: [],
-      permissions: []
+      permissions: [],
+      deptName: ''
     }),
     actions: {
       // 登录
@@ -34,6 +35,7 @@ const useUserStore = defineStore(
       getInfo() {
         return new Promise((resolve, reject) => {
           getInfo().then(res => {
+            console.log(res)
             const user = res.user
             const avatar = (user.avatar == "" || user.avatar == null) ? defAva : import.meta.env.VITE_APP_BASE_API + user.avatar;
 
@@ -43,9 +45,11 @@ const useUserStore = defineStore(
             } else {
               this.roles = ['ROLE_DEFAULT']
             }
+            this.roles = user.roles
             this.id = user.userId
             this.name = user.userName
             this.avatar = avatar
+            this.deptName = user.dept.deptName
             resolve(res)
           }).catch(error => {
             reject(error)

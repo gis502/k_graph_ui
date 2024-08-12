@@ -250,13 +250,13 @@
           </el-col>
           <el-col :span="11">
             <el-form-item label="角色" prop="roleIds">
-              <el-select v-model="form.roleIds" multiple placeholder="请选择">
+              <el-select v-model="form.roleIds" placeholder="请选择">
                 <el-option
                     v-for="item in roleOptions"
                     :key="item.roleId"
                     :label="item.roleName"
                     :value="item.roleId"
-                    :disabled="item.status == 1"
+                    :disabled="item.status === 1"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -269,18 +269,18 @@
               <el-input v-model="form.nickName" placeholder="请输入联系人" maxlength="30"/>
             </el-form-item>
           </el-col>
-<!--          <el-col :span="11">-->
-<!--            <el-form-item label="性别">-->
-<!--              <el-select v-model="form.sex" placeholder="请选择">-->
-<!--                <el-option-->
-<!--                    v-for="dict in sys_user_sex"-->
-<!--                    :key="dict.value"-->
-<!--                    :label="dict.label"-->
-<!--                    :value="dict.value"-->
-<!--                ></el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </el-col>-->
+          <!--          <el-col :span="11">-->
+          <!--            <el-form-item label="性别">-->
+          <!--              <el-select v-model="form.sex" placeholder="请选择">-->
+          <!--                <el-option-->
+          <!--                    v-for="dict in sys_user_sex"-->
+          <!--                    :key="dict.value"-->
+          <!--                    :label="dict.label"-->
+          <!--                    :value="dict.value"-->
+          <!--                ></el-option>-->
+          <!--              </el-select>-->
+          <!--            </el-form-item>-->
+          <!--          </el-col>-->
           <el-col :span="11">
             <el-form-item label="手机号码" prop="phonenumber">
               <el-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11"/>
@@ -377,7 +377,8 @@
 </template>
 
 <script setup name="User">
-import {getToken} from "@/utils/auth";
+import
+{getToken} from "@/utils/auth";
 import {
   addUser,
   changeUserStatus,
@@ -472,6 +473,10 @@ const data = reactive({
 });
 
 const {queryParams, form, rules} = toRefs(data);
+
+function log() {
+  console.log(form)
+}
 
 /** 通过条件过滤节点  */
 const filterNode = (value, data) => {
@@ -684,7 +689,7 @@ function handleUpdate(row) {
     roleOptions.value = response.roles;
     excelOptions.value = response.fileIds;
     form.value.postIds = response.postIds;
-    form.value.roleIds = response.roleIds;
+    form.value.roleIds = response?.roleIds[0];
     form.value.fileIds = response.userFileIds.map(item => item.id);
     open.value = true;
     title.value = "修改用户";
@@ -694,7 +699,8 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  console.log(form.value)
+  // 若依框架存储为数组格式
+  form.value.roleIds = [form.value.roleIds]
   proxy.$refs["userRef"].validate(valid => {
     if (valid) {
       if (form.value.userId !== undefined) {
