@@ -459,6 +459,7 @@ export default {
 }
 </script>
 
+
 <style scoped>
 .tool-container {
   position: absolute;
