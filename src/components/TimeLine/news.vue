@@ -68,6 +68,7 @@
         watch: {
             currentTime(newVal) {
                 this.updateNews(newVal)
+                console.log("2222222222222222",newVal)
             },
         },
         methods:{
@@ -84,6 +85,7 @@
                 this.showLeftButton = false
             },
             async updateNews(currentTime) {
+
                 const activities = await this.newsData.filter((activity) => {
                     return (
                         new Date(activity.publish_time) <= currentTime

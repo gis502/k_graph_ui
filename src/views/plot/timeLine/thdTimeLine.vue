@@ -114,6 +114,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import jsPDF from "jspdf";
 import "../../../api/SimHei-normal.js";
+import fileUrl from "@/assets/icons/TimeLine/四川省雅安市芦山县6.1级地震态势报告.pdf"
 import html2canvas from "html2canvas";
 import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
@@ -1007,6 +1008,10 @@ export default {
       //   document.body.removeChild(link);
       //   // console.log(this.$el.textContent); // I'm text inside the component.
       // });
+        const link = document.createElement('a');
+        link.href = fileUrl
+        link.download = '四川省雅安市芦山县6.1级地震态势报告.pdf';
+        link.click();
     },
 
 
