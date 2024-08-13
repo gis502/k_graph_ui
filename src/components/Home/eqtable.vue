@@ -2,7 +2,7 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 100%; margin-bottom: 5px;height: 340px"
+        style="width: 100%; margin-bottom: 5px;height: 17vw"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         :row-style="{ height: '37.5px' }"
@@ -10,7 +10,7 @@
       <el-table-column
           prop="position"
           label="位置"
-          min-width="150px"
+          min-width="140px"
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
@@ -25,15 +25,21 @@
       <el-table-column
           prop="magnitude"
           align="center"
-          min-width="50px"
+          min-width="56px"
           label="震级">
+        <template #default="scope">
+          {{ Number(scope.row.magnitude).toFixed(2) }}
+        </template>
       </el-table-column>
       <el-table-column
           prop="depth"
           align="center"
-          min-width="50px"
+          min-width="56px"
           label="深度"
           show-overflow-tooltip>
+        <template #default="scope">
+          {{ Number(scope.row.magnitude).toFixed(2) }}
+        </template>
       </el-table-column>
     </el-table>
     <div class="pagination-wrapper">
@@ -58,7 +64,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(8);
+const pageSize = ref(6);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
@@ -66,8 +72,9 @@ const tableData = ref([]);
 const router = useRouter();
 
 watch(() => props.eqData, () => {
-  getEqData.value = props.eqData;
-  total.value = props.eqData.length;
+  let list = props.eqData.filter(item => item.magnitude >= 3)
+  getEqData.value = list;
+  total.value = list.length;
   tableData.value = getPageArr();
 });
 
@@ -88,7 +95,6 @@ const tableColor = ({rowIndex}) => {
   return {
     'border-color': backgroundColor,
     'background-color': backgroundColor,
-    'height': '30px',
     'color': '#fff',
     'padding': '0',
   };
@@ -121,6 +127,14 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 /*表格页面样式*/
 :deep(.el-table__inner-wrapper::before) {
   width: 0
+}
+
+:deep(.el-table) {
+  --el-table-bg-color : ''
+}
+
+:deep(.el-pagination){
+  --el-pagination-item-gap : 6px;
 }
 
 

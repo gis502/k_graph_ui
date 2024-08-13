@@ -146,6 +146,8 @@
          v-model:page="queryParams.pageNum"
          v-model:limit="queryParams.pageSize"
          @pagination="getList"
+         :pageSizes="[8, 20, 50, 100]"
+         style="margin:15px auto;width: 550px"
       />
 
       <!-- 操作日志详细 -->
@@ -219,7 +221,7 @@ const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 8,
     operIp: undefined,
     title: undefined,
     operName: undefined,
