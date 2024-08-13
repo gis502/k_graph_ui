@@ -115,9 +115,9 @@ export default {
 <style>
 .personnel_casualties {
   position: absolute;
-  top: 28%;
-  width: 25%;
-  height: 23%;
+  top: 31%;
+  width: 22%;
+  height: 20%;
   padding: 10px;
   border-radius: 5px;
   left: 1%;
@@ -161,11 +161,12 @@ export default {
 }
 
 .total-list {
-  height: 30%;
+  height: 36%;
   list-style-type: none;
   padding: 0;
   display: flex;
   justify-content: center;
+  align-items: center;
   color: #fff; /* 设置文字颜色为白色 */
 }
 
@@ -208,6 +209,6 @@ export default {
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
+  color: #ffeb00;
 }
 </style>

@@ -9,11 +9,16 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
+<!--        <TimeLinePanel-->
+<!--            :visible="popupVisible"-->
+<!--            :position="popupPosition"-->
+<!--            :popupData="popupData"-->
+<!--            :currentTime="currentTime"-->
+<!--        />-->
         <TimeLinePanel
             :visible="popupVisible"
             :position="popupPosition"
             :popupData="popupData"
-            :currentTime="currentTime"
         />
       </div>
     </div>
@@ -45,36 +50,36 @@
     </div>
     <!-- 进度条 end-->
 
-<!--    两侧组件-->
+    <!--    两侧组件-->
 
-      <timeLineEmergencyResponse
-          :currentTime="currentTime"
-      />
-
-      <timeLinePersonnelCasualties
-          :currentTime="currentTime"
-      />
-
-
-      <timeLineRescueTeam
+    <timeLineEmergencyResponse
         :currentTime="currentTime"
-      />
+    />
+
+    <timeLinePersonnelCasualties
+        :currentTime="currentTime"
+    />
+
+
+    <timeLineRescueTeam
+        :currentTime="currentTime"
+    />
 
     <!--      新闻-->
     <div>
       <news
-              :currentTime="currentTime"
-              @ifShowDialog="ifShowDialog"
-              @detailedNews="detailedNews"
+          :currentTime="currentTime"
+          @ifShowDialog="ifShowDialog"
+          @detailedNews="detailedNews"
       ></news>
     </div>
-      <!--      新闻弹框-->
+    <!--      新闻弹框-->
     <div>
-        <news-dialog
-                :showDetailedNewsDialog="showDetailedNewsDialog"
-                :showingNewsContent="showingNewsContent"
-                :hideNewsDialog="hideNewsDialog"
-        ></news-dialog>
+      <news-dialog
+          :showDetailedNewsDialog="showDetailedNewsDialog"
+          :showingNewsContent="showingNewsContent"
+          @hideNewsDialog="hideNewsDialog"
+      ></news-dialog>
     </div>
     <!--      缩略图-->
     <div>
@@ -84,7 +89,7 @@
 
     <timeLineLegend></timeLineLegend>
 
-<!--    两侧组件 end-->
+    <!--    两侧组件 end-->
     <!--报告产出按钮-->
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
@@ -120,7 +125,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 
 export default {
   components: {
-      // NewsDialog,
+    // NewsDialog,
     TimeLinePanel,
     News,
     MiniMap,
@@ -128,7 +133,7 @@ export default {
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
     timeLineLegend,
-      newsDialog
+    newsDialog
   },
   data: function () {
     return {
@@ -168,14 +173,14 @@ export default {
         plottype: '震中'
       },
 
-        // 新闻组件
-        showingNewsContent: {
-            id: '',
-            time: '',
-            content: '',
-            img: '',
-        },
-        showDetailedNewsDialog: false,
+      // 新闻组件
+      showingNewsContent: {
+        id: '',
+        time: '',
+        content: '',
+        img: '',
+      },
+      showDetailedNewsDialog: false,
 
       //时间轴时间
       eqstartTime: '',
@@ -228,7 +233,7 @@ export default {
       // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
       options.enableZoomControls = false
       // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
-      options.enableDistanceLegend = false
+      options.enableDistanceLegend = true
       // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
       options.enableCompassOuterRing = false
       options.resetTooltip = "重置视图";
@@ -363,7 +368,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
-            150000),
+            15000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -372,7 +377,7 @@ export default {
           roll: 0.0
         }
       });
-      //加载中心点
+      //加载   中心点
       viewer.entities.add({
         // properties: {
         //   type: "震中",
@@ -457,22 +462,19 @@ export default {
       })
     },
 
-      detailedNews(val){
-          console.log("detailedNews-----",val)
-        this.showingNewsContent = val
+    detailedNews(val){
+      // console.log("detailedNews-----",val)
+      this.showingNewsContent = val
 
-      },
-      ifShowDialog(val){
-          // console.log("ifShowDialog-----",val)
-        this.showDetailedNewsDialog = val
-      },
-      // hideDetailedNews(){
-      //     this.showDetailedNewsDialog = false
-      // },
-      hideNewsDialog(val){
-          console.log("showDetailedNewsDialog-----",val)
-          this.showDetailedNewsDialog = val
-      },
+    },
+    ifShowDialog(val){
+      // console.log("ifShowDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
+    hideNewsDialog(val){
+      // console.log("showDetailedNewsDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
 
     //时间轴操作
     initTimerLine() {
@@ -521,8 +523,8 @@ export default {
       // 时间轴开始
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      // }, 160);
-      }, 50);
+      }, 100);
+      // }, 50);
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
@@ -631,7 +633,7 @@ export default {
           }
         });
       });
-      // console.log("polygonArr",polygonArr)
+      console.log("polygonArr",polygonArr)
 
 
 
@@ -696,7 +698,7 @@ export default {
           this.plotisshow[item.plotid] = 1
           this.drawPolyline(item)
         }
-          //消失
+        //消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
           this.plotisshow[item.plotid] = 0
           // console.log(item.plotid,"end")
@@ -797,25 +799,25 @@ export default {
     //时间轴end-------------
 
     drawPolyline(line) {
-        let material = this.getMaterial(line.plottype,line.img)
-        // 1-6 画线
-        window.viewer.entities.add({
-          id: line.plotid,
-          plottype: line.plottype,
-          polyline: {
-            status:1,
-            // positions: positionsArr,
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
-            width: 5,
-            material: material,
-            // material: Cesium.Color.YELLOW,
-            depthFailMaterial: Cesium.Color.YELLOW,
-            clampToGround: true,
-          },
-          properties: {
-            // pointPosition: pointLinePoints,
-          }
-        })
+      let material = this.getMaterial(line.plottype,line.img)
+      // 1-6 画线
+      window.viewer.entities.add({
+        id: line.plotid,
+        plottype: line.plottype,
+        polyline: {
+          status:1,
+          // positions: positionsArr,
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
+          width: 5,
+          material: material,
+          // material: Cesium.Color.YELLOW,
+          depthFailMaterial: Cesium.Color.YELLOW,
+          clampToGround: true,
+        },
+        properties: {
+          // pointPosition: pointLinePoints,
+        }
+      })
     },
     distinguishPolylineId(polylineArr) {
       let PolylineIdArr = []
@@ -890,18 +892,21 @@ export default {
 
     getDrawPolygon(polygon){
       // console.log("polygon111111111",polygon)
-        viewer.entities.add({
-          id: polygon.plotid,
-          plottype: polygon.plottype,
-          polygon: {
-            show: true,
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
-            height: 0,
-            material: polygon.img,
-            stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
-            clampToGround: true,
-          }
-        })
+      viewer.entities.add({
+        id: polygon.plotid,
+        plottype: polygon.plottype,
+        polygon: {
+          show: true,
+          hierarchy: Cesium.Cartesian3.fromDegreesArray(
+              polygon.positionsArr
+              // [102.75549772564291, 30.693705126222397, 102.7524041663634, 30.69723905590233, 102.75642876498236, 30.699985385670818, 102.75952217967988, 30.696450781867114]
+          ),
+          height: 0,
+          material: polygon.img,
+          stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
+          clampToGround: true,
+        }
+      })
     },
 
 
@@ -913,6 +918,11 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
         // 2-1 判断点击物体是否为点实体（billboard）
+        if(window.selectedEntity === undefined){
+          this.popupVisible = false
+          this.popupData = {}
+        }
+        console.log("window.selectedEntity",window.selectedEntity)
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
           // console.log("window.selectedEntity",window.selectedEntity)
@@ -947,14 +957,23 @@ export default {
           }
           // 2-5 更新弹窗位置
           // that.selectedEntity = window.selectedEntity
+
+
+
+          // that.currentTime=
+          // this.popupVisible = true; // 显示弹窗
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
           that.popupData = {
             plotid: window.selectedEntity.id,
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          // that.currentTime=
-          this.popupVisible = true; // 显示弹窗
+          // this.popupData = {}
+          // this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          console.log("popupData thd timeline",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
+          // this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
         }
@@ -1170,26 +1189,17 @@ export default {
 .eqtitle {
   background-color: #0d325f;
   width: 100%;
-  height: 10%;
+  height: 33px;
+  display: flex;
+  align-items: center;     /* 垂直居中 */
+  font-weight: bold;       /* 文字加粗 */
 }
-
 .eqtitle-text_eqname {
   color: white;
-  font-size: 18px;
+  font-size: 1.2rem;
   font-weight: bold;
   margin-left: 30px;
   margin-right: 60%;
-}
-
-.eqTable {
-  width: 500px;
-  position: absolute;
-  padding: 10px;
-  border-radius: 5px;
-  top: 30px;
-  left: 10px;
-  z-index: 10; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
 }
 
 #box {
@@ -1201,77 +1211,11 @@ export default {
 }
 
 #cesiumContainer {
-  height: 100%;
+  height: calc(100vh - 118px);
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
-}
-
-
-.bottom {
-  height: 6%;
-  width: 46%;
-  left: 25%;
-  bottom: 14%;
-  position: absolute;
-  z-index: 99;
-}
-
-.time-ruler {
-  position: relative;
-  width: 90%;
-  height: 100%;
-  //background-color: #0d325f;
-  //height: 30px;
-  left: 8%;
-
-}
-
-.time-ruler-line {
-  position: absolute;
-  top: 30%;
-  left: 0;
-  width: 100%;
-  height: 20%;
-  //height: 10px;
-  background-color: #ccc;
-  transform: translateY(-50%);
-}
-
-.time-progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background-color: #196cd2;
-  transition: none;
-}
-
-.time-slider {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #fff;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-}
-
-.play {
-  width: 5%;
-  hight: 5%;
-  position: absolute;
-  //top:50%;
-  left: 2%;
-}
-
-.play-icon,
-.pause-icon {
-  width: 100%;
-  height: 100%;
 }
 
 .current-time-info {
@@ -1290,12 +1234,85 @@ export default {
 
 .timelabel {
   color: #ffffff;
+}
+/*·························································*/
+.bottom {
+  height: 8%;
+  width: 50%;
+  left: 27%;
+  bottom: 5%;
+  position: absolute;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
+.play {
+  width: 4%;
+  height: 100%;
+  margin-left: 1%;
+  display: flex;
+  align-items: center;
+}
+
+.play-icon,
+.pause-icon {
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+}
+
+#speedSelect {
+  left: -103px;
+  position: relative;
+  padding: 5px;
+  font-size: 14px;
 }
 
 
+.time-ruler {
+  position: relative;
+  width: 81%;
+  height: 8px;
+  left: -11%;
+  background-color: #ddd;
+  border-radius: 4px;
+  margin: 0 1%;
+  cursor: pointer;
+}
 
+.time-ruler-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
 
+.time-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #196cd2;
+  border-radius: 4px;
+  /*transition: width 0.1s ease;*/
+}
+
+.time-slider {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid #196cd2;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  /*transition: left 0.1s ease;*/
+}
 
 .tmp {
   position: absolute;
@@ -1309,94 +1326,11 @@ export default {
   background-color: rgba(40, 40, 40, 0.3);
 }
 
-
-
-
 .button-container {
   position: absolute;
   z-index: 20;
-  bottom: 10%;
-  left: 1%;
-
-}
-
-.legend_button {
-  position: absolute;
-  bottom: 6%;
-  width: 12%;
-  height: 5%;
-  padding: 10px;
-  border-radius: 5px;
-  right: 1%;
-  z-index: 1;
-  background-color: rgba(40, 40, 40, 0.7);
-}
-
-.legend_button p {
-  color: #FFFFFF;
-  margin: 0;
-}
-.detailedNews{
-    width: 300px;
-    height: 350px;
-    position: absolute;
-    padding: 0 5px 5px;
-    border-radius: 5px;
-    top: 80px;
-    right: 270px;
-    z-index: 100; /* 更高的层级 */
-    background-color: rgba(40, 40, 40, 0.7);
-    color: white;
-}
-.news-title {
-    font-family: myFirstFont;
-    font-size: 1.2rem;
-    line-height: 1.9rem;
-    /*padding: 1rem 0 1rem !important;*/
-    color: #ffffff;
-    letter-spacing: 0;
-    text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
-    /*border-bottom: 0.1rem solid #ffffff;*/
-    margin: 0;
-    padding-top: 5px;
-    text-align: center;
-}
-.close-button {
-    position: absolute; /* Position the button absolutely */
-    top: 10px; /* Distance from the top */
-    right: 10px; /* Distance from the right */
-    cursor: pointer; /* Change cursor to pointer */
-    font-size: 24px; /* Adjust font size */
-    color: #ffffff; /* Optional: Set color */
-}
-
-.news-main{
-    padding-left: 5px;
-    padding-right: 5px;
-    max-height: 295px;
-    overflow-y: auto;
-}
-.news-time{
-    font-size: .9rem;
-    line-height: 1.5rem;
-}
-.news-content{
-    font-size: .9rem;
-    line-height: 1.3rem;
-}
-.news-img {
-    padding-top: 5px;
-    text-align: center;
-}
-.news-img img {
-    display: inline-block;
-}
-
-.button-container {
-  position: absolute;
-  z-index: 20;
-  bottom: 10%;
-  left: 1%;
+  top: 4.3%;
+  right: 5%;
 }
 
 </style>

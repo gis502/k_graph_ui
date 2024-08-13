@@ -63,8 +63,8 @@ export default {
     updateEmergencyResponse(currentTime){
       const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
         return (
-                 new Date(activity[0]) <= currentTime
-            );
+            new Date(activity[0]) <= currentTime
+        );
       });
       // console.log("EmergencyResponse",activities )
       if(activities.length>=1){
@@ -92,11 +92,11 @@ export default {
 <style>
 .emergency_response {
   position: absolute;
-  width: 25%; /* 调整宽度 */
+  width: 22%; /* 调整宽度 */
   height: 22%;
   padding: 10px;
   border-radius: 5px;
-  top: 5%;
+  top:7%;
   left: 1%;
   z-index: 20; /* 提高层级 */
   background-color: rgba(40, 40, 40, 0.7);
@@ -181,6 +181,6 @@ export default {
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
+  color: #ffeb00;
 }
 </style>
