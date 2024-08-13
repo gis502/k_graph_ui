@@ -2,16 +2,16 @@
   <el-dialog class="dialogDiv" v-model="DialogFormVisible" title="添加标注信息" width="800"
              :close-on-click-modal="false" :destroy-on-close="true" :show-close="false">
     <el-form :model="this.form" :inline="true">
-      <el-form-item label="标注类型" :label-width="100">
+      <el-form-item label="标注类型" :label-width="120">
         <el-input placeholder="请输入内容" v-model="form.type" :disabled="true" size="large"/>
       </el-form-item>
-      <el-form-item label="经度" :label-width="100">
+      <el-form-item label="经度" :label-width="120">
         <el-input v-model="form.lon" autocomplete="off" size="large"/>
       </el-form-item>
-      <el-form-item label="纬度" :label-width="100">
+      <el-form-item label="纬度" :label-width="120">
         <el-input v-model="form.lat" autocomplete="off" size="large"/>
       </el-form-item>
-      <el-form-item label="开始时间" :label-width="100">
+      <el-form-item label="开始时间" :label-width="120">
         <div class="formTime">
           <el-date-picker
               v-model="starttime"
@@ -22,7 +22,7 @@
           </el-date-picker>
         </div>
       </el-form-item>
-      <el-form-item label="结束时间" :label-width="100">
+      <el-form-item label="结束时间" :label-width="120">
         <div class="formTime">
           <el-date-picker
               v-model="endtime"
@@ -43,13 +43,13 @@
       <!--  v-if 比 v-for 的优先级更高，这意味着 v-if 的条件将无法访问到 v-for 作用域内定义的变量别名。    -->
       <!--  在外先包装一层 <template> 再在其上使用 v-for 可以解决这个问题-->
       <template v-for="(value,key,index) in typeInfo">
-        <el-form-item v-if="value.type ==='text'" :label="value.name" :label-width="100">
+        <el-form-item v-if="value.type ==='text'" :label="value.name" :label-width="120">
           <el-input v-model="value.value" autocomplete="off" size="large"/>
         </el-form-item>
       </template>
       <template v-for="(value,key) in typeInfo">
-        <el-form-item v-if="value.type ==='select'" :label="value.name">
-          <el-select v-model="value.value" placeholder="请选择" size="large">
+        <el-form-item v-if="value.type ==='select'" :label="value.name" :label-width="120">
+          <el-select v-model="value.value" placeholder="请选择" size="large" style="width: 220px">
             <el-option
                 v-for="item in value.content"
                 :label="item.label"

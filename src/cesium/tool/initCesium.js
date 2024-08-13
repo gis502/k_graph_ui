@@ -74,7 +74,7 @@ export function initCesium(Cesium) {
     viewer.camera.setView({
         // Cesium的坐标是以地心为原点，一向指向南美洲，一向指向亚洲，一向指向北极州
         // fromDegrees()方法，将经纬度和高程转换为世界坐标
-        destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500),
+        destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 600),
         orientation: {
             // 指向
             heading: 6.283185307179581,

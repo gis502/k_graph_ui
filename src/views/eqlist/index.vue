@@ -97,8 +97,8 @@ export default {
       getEqData: [],
       tableData: [],
       total: 0,
-      pageSize: 11,
-      pageSizes: [11, 20, 40],
+      pageSize: 10,
+      pageSizes: [10, 20, 40],
       currentPage: 1,
       //--------------------------------------
       dialogShow: false,
@@ -121,12 +121,16 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
-        that.getEqData = res
-        that.total = res.length
+        let resData = res.filter(item=>item.magnitude>=3)
+        that.getEqData = resData
+        that.total = resData.length
         let data = []
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
           item.time = that.timestampToTime(item.time)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
         that.tableData = this.getPageArr()
@@ -212,7 +216,7 @@ export default {
         // 'color': '#fff',
         // 'padding': '0',
         'text-align': 'center',
-        'font-size': '14px'
+        'font-size': '16px'
       }
     },
     // 修改table 中每行的样式
@@ -222,9 +226,10 @@ export default {
           // 'border-color': '#313a44',
           // 'background-color': '#313a44',
           // 'color': '#fff',
-          // 'padding': '0',
+          'padding-top': '10px',
+          'padding-bottom': '10px',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '16px',
         }
       } else {
         return {
@@ -232,8 +237,10 @@ export default {
           // 'background-color': '#304156',
           // 'color': '#fff',
           // 'padding': '0',
+          'padding-top': '10px',
+          'padding-bottom': '10px',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '16px'
         }
       }
     },
