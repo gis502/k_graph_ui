@@ -71,21 +71,19 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+        let resData = res.filter(item=>item.magnitude>=5)
+        that.getEqData = resData
+        that.total = resData.length
         let data = []
-        // console.log(res)
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.time = that.timestampToTime(res[i].time)
-          if (parseFloat(item.magnitude) >= 5) { // Only keep items with magnitude >= 5
-            data.push(item);
-          }
+          item.time = that.timestampToTime(item.time)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
         }
-        this.getEqData = data
-        console.log(data)
-        // console.log(that.getEqData)
-        this.total = data.length
-        this.tableData = that.getPageArr()
-
+        that.tableData = this.getPageArr()
       })
     },
     timestampToTime(timestamp) {

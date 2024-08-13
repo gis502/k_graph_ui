@@ -63,6 +63,7 @@
           :label="col.label"
           :align="col.align"
           :width="col.width"
+          :formatter="col.label === '震级' ? formatMagnitude : undefined"
       />
       />
     </el-table>
@@ -175,6 +176,13 @@ const getYaanCasualtiesList = async () => {
 /**自增序号**/
 const typeIndex = (row, column, cellValue, index) => {
   return index + 1 + (currentPage.value - 1) * pageSize.value;
+};
+
+const formatMagnitude = (row, column, cellValue) => {
+  if (column.label === '震级') {
+    return cellValue.includes('.') ? cellValue : cellValue + '.0';
+  }
+  return cellValue;
 };
 
 const generateColumnConfig = () => {
