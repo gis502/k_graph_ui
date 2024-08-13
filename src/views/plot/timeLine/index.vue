@@ -1,11 +1,12 @@
 <template>
   <div class="app-container">
     <el-table :data="tableData"
+              height="650px"
               @row-click="go"
               :stripe="true"
               :header-cell-style="{ borderColor: '#C0C0C0', background: 'rgba(252,218,5,0.22)' }"
               :cell-style="{ padding: '0px', borderColor: 'rgba(252,218,5,0.22)' }"
-              :row-style="{ height: '6vh' }"
+              :row-style="{ height: '7.5vh' }"
     >
       <el-table-column type="index" label="序号" width="80" header-align="center" align="center"  :formatter="typeIndex"></el-table-column>
       <el-table-column prop="position" label="位置" width="300"></el-table-column>
