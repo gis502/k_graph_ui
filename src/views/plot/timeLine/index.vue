@@ -121,6 +121,7 @@ export default {
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
+      this.currentPage = 1;
       this.tableData = this.getPageArr()
       // console.log(`每页 ${val} 条`);
     },
