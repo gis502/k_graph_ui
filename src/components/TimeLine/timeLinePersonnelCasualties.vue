@@ -116,7 +116,7 @@ export default {
 .personnel_casualties {
   position: absolute;
   top: 31%;
-  width: 22%;
+  width: 23%;
   height: 20%;
   padding: 10px;
   border-radius: 5px;
@@ -162,6 +162,7 @@ export default {
 
 .total-list {
   height: 36%;
+  //width:100%;
   list-style-type: none;
   padding: 0;
   display: flex;
@@ -172,7 +173,7 @@ export default {
 
 .total-list li {
   text-align: center;
-  margin: 0 20px;
+  margin: 0 17px;
 }
 
 .total-list li p {

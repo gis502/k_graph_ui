@@ -363,7 +363,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
-            150000),
+            8000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -516,6 +516,9 @@ export default {
       //   });
       // }
       // 时间轴开始
+      // this.currentTime = new Date(this.eqstartTime.getTime() + 48*60 * 60 * 1000);
+      // this.updatePlot()
+
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
       }, 100);
@@ -1006,21 +1009,21 @@ export default {
 
 //截图
     takeScreenshot() {
-      // html2canvas(this.$refs.box).then((canvas) => {
-      //   // 创建一个临时链接元素
-      //   const link = document.createElement('a');
-      //   link.download = 'screenshot.png';
-      //   link.href = canvas.toDataURL('image/png');
-      //   // 将链接添加到 DOM 并单击它以下载图像
-      //   document.body.appendChild(link);
-      //   link.click();
-      //   document.body.removeChild(link);
-      //   // console.log(this.$el.textContent); // I'm text inside the component.
-      // });
+      html2canvas(this.$refs.box).then((canvas) => {
+        // 创建一个临时链接元素
         const link = document.createElement('a');
-        link.href = fileUrl
-        link.download = '四川省雅安市芦山县6.1级地震态势报告.pdf';
+        link.download = 'screenshot.png';
+        link.href = canvas.toDataURL('image/png');
+        // 将链接添加到 DOM 并单击它以下载图像
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+        // console.log(this.$el.textContent); // I'm text inside the component.
+      });
+      //   const link = document.createElement('a');
+      //   link.href = fileUrl
+      //   link.download = '四川省雅安市芦山县6.1级地震态势报告.pdf';
+      //   link.click();
     },
 
 
@@ -1322,8 +1325,8 @@ export default {
 .button-container {
   position: absolute;
   z-index: 20;
-  top: 4.3%;
-  right: 5%;
+  top: 6.3%;
+  right: 7%;
 }
 
 </style>

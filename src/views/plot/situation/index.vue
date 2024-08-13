@@ -986,28 +986,8 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
 }
 
-.button-container {
-  width: 500px;
-  position: absolute;
-  padding: 10px;
-  border-radius: 5px;
-  top: 10px;
-  left: 10px;
-  z-index: 10; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-}
 
-.latlon-legend {
-  pointer-events: auto;
-  position: absolute;
-  border-radius: 15px;
-  padding-left: 5px;
-  padding-right: 5px;
-  bottom: 30px;
-  height: 30px;
-  width: 125px;
-  box-sizing: content-box;
-}
+
 
 .modelAdj {
   color: white;
