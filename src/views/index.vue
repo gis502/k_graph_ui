@@ -266,7 +266,7 @@ export default {
 }
 
 .center-body {
-  width: 46%;
+  width: 45%;
   height: 100%;
   margin: 0 0.3%;
   float: left;
@@ -278,7 +278,7 @@ export default {
 }
 
 .right-body {
-  width: 30%;
+  width: 31%;
   height: 100%;
   float: right;
   margin: 0 0.3%;

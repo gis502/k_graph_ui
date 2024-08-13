@@ -25,15 +25,21 @@
       <el-table-column
           prop="magnitude"
           align="center"
-          min-width="50px"
+          min-width="56px"
           label="震级">
+        <template #default="scope">
+          {{ Number(scope.row.magnitude).toFixed(2) }}
+        </template>
       </el-table-column>
       <el-table-column
           prop="depth"
           align="center"
-          min-width="50px"
+          min-width="56px"
           label="深度"
           show-overflow-tooltip>
+        <template #default="scope">
+          {{ Number(scope.row.magnitude).toFixed(2) }}
+        </template>
       </el-table-column>
     </el-table>
     <div class="pagination-wrapper">
@@ -66,8 +72,9 @@ const tableData = ref([]);
 const router = useRouter();
 
 watch(() => props.eqData, () => {
-  getEqData.value = props.eqData;
-  total.value = props.eqData.length;
+  let list = props.eqData.filter(item => item.magnitude >= 3)
+  getEqData.value = list;
+  total.value = list.length;
   tableData.value = getPageArr();
 });
 
@@ -120,6 +127,14 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 /*表格页面样式*/
 :deep(.el-table__inner-wrapper::before) {
   width: 0
+}
+
+:deep(.el-table) {
+  --el-table-bg-color : ''
+}
+
+:deep(.el-pagination){
+  --el-pagination-item-gap : 6px;
 }
 
 

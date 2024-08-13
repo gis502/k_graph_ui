@@ -35,7 +35,7 @@ const initChart = () => {
     series: [
       {
         type: 'pie',
-        radius: ['35%', '60%'],  // Adjust inner and outer radius
+        radius: ['40%', '70%'],  // Adjust inner and outer radius
         center: ['50%', '50%'],  // Center the pie chart
         data: [
           { value: 0, name: '受伤人数', itemStyle: { color: 'rgba(248,25,25,0.7)' } },
