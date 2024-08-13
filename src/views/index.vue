@@ -16,11 +16,11 @@
             <newInfo/>
           </div>
           <div class="left-con public-bg">
-            <div class="public-title">受灾人员统计</div>
+            <div class="public-title">最新地震受灾人员统计</div>
             <chart3/>
           </div>
           <div class="left-bottom public-bg">
-            <div class="public-title">余震情况统计(次)</div>
+            <div class="public-title">最新地震余震情况统计(次)</div>
             <chart2/>
           </div>
         </div>
@@ -266,7 +266,7 @@ export default {
 }
 
 .center-body {
-  width: 44%;
+  width: 45%;
   height: 100%;
   margin: 0 0.3%;
   float: left;
@@ -278,7 +278,7 @@ export default {
 }
 
 .right-body {
-  width: 32%;
+  width: 31%;
   height: 100%;
   float: right;
   margin: 0 0.3%;
