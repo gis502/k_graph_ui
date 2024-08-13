@@ -12,8 +12,8 @@
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="position" label="位置" width="300"></el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="position" label="位置" width="300" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
       <el-table-column prop="longitude" label="经度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度" header-align="center" align="center"></el-table-column>

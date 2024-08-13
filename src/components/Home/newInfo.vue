@@ -17,7 +17,7 @@
     </el-col>
     <el-col>
       <div class="magnitude newColCommon">
-        地震震级：{{ magnitude }}
+        地震震级：{{ Number(magnitude).toFixed(1)}}
       </div>
     </el-col>
     <el-col>
