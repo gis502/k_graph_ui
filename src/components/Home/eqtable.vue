@@ -28,7 +28,7 @@
           min-width="56px"
           label="震级">
         <template #default="scope">
-          {{ Number(scope.row.magnitude).toFixed(2) }}
+          {{ Number(scope.row.magnitude).toFixed(1) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -38,7 +38,7 @@
           label="深度"
           show-overflow-tooltip>
         <template #default="scope">
-          {{ Number(scope.row.magnitude).toFixed(2) }}
+          {{scope.row.depth}}
         </template>
       </el-table-column>
     </el-table>
@@ -84,7 +84,9 @@ const go = (row) => {
 };
 
 const tableHeaderColor = () => ({
-  'border-color': '#293038',
+  'border-width':'1px',
+  'border-style':'solid',
+  'border-color': '#555555',
   'background-color': '#293038 !important',
   'color': '#fff',
   'text-align': 'center',
@@ -93,7 +95,10 @@ const tableHeaderColor = () => ({
 const tableColor = ({rowIndex}) => {
   const backgroundColor = rowIndex % 2 === 1 ? '#313a44' : '#304156';
   return {
-    'border-color': backgroundColor,
+    'border-width':'1px',
+    'border-style':'solid',
+    'border-color': '#555555',
+    // 'border-color': backgroundColor,
     'background-color': backgroundColor,
     'color': '#fff',
     'padding': '0',

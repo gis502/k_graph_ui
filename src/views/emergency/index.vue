@@ -19,8 +19,7 @@
               <el-table v-if="tableVisible" :data="showSuppliesList" style="width: 100%;margin-bottom: 5px;text-align: center" :stripe="true"
                         :header-cell-style="tableHeaderColor" :cell-style="tableColor"
                         :row-style="{height: '40px'}"
-                        @row-click="showSupplyPoint"
-              >
+                        @row-click="showSupplyPoint">
                   <el-table-column prop="county" label="区域" width="200" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="address" label="地址" width="320" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="contactPerson" label="联系人" width="100"></el-table-column>
@@ -77,7 +76,7 @@ export default {
       selectedSuppliesList: [],
       showIcon: [],
       tableVisible: true, // 显示表格
-      toolValue: "隐藏工具",
+      toolValue: "隐藏表格",
       showSupply:"显示所有物资点",
       total: 0,
       pageSize: 5,
@@ -108,7 +107,6 @@ export default {
   mounted() {
     this.init();
     this.entitiesClickPonpHandler()
-    this.watchTerrainProviderChanged();
     this.initPlot(this.id)
   },
   methods: {
@@ -119,7 +117,7 @@ export default {
     },
     toggleTable(){
       this.tableVisible= !this.tableVisible
-      this.toolValue= this.tableVisible ? "隐藏工具" : "显示工具"
+      this.toolValue= this.tableVisible ? "隐藏表格" : "显示表格"
     },
     init() {
       let that = this
@@ -460,29 +458,6 @@ export default {
       // console.log("地形未加载")
       return false;
     },
-    watchTerrainProviderChanged() {
-      let that = this
-      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-        this.popupVisible = false // 地形改变时关闭弹窗
-        let tzs = []
-        if(that.modelName === 1){
-          tzs[0] = 9
-          tzs[1] = -567
-        }else {
-          tzs[0] = 15
-          tzs[1] = -557
-        }
-        if(that.isTerrainLoaded()){
-          that.changeHeight(tzs[0])
-          that.tz = tzs[0]
-          that.find()
-        }else {
-          that.changeHeight(tzs[1])
-          that.tz = tzs[1]
-          that.find()
-        }
-      });
-    },
     entitiesClickPonpHandler() {
       let that = this;
       // 处理点击事件
@@ -811,7 +786,9 @@ export default {
 .pagination1 ::v-deep .el-pagination__jump {
   color: white; /* 设置“共多少条”和“前往 页”部分的颜色为白色 */
 }
-
+/deep/ .el-table--fit .el-table__inner-wrapper:before {
+  width: 0%;
+}
 
 </style>
 
