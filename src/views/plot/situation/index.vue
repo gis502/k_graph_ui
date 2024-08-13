@@ -6,7 +6,7 @@
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor" @row-click="plotAdj">
-          <el-table-column label="序号" width="50">
+          <el-table-column label="序号" width="55">
             <template #default="{ row, column, $index }">
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
             </template>
@@ -26,7 +26,7 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column prop="magnitude" label="震级" width="50"/>
+          <el-table-column prop="magnitude" label="震级" width="55"/>
           <!--        <el-table-column prop="longitude" label="经度" width="70"></el-table-column>-->
           <!--        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>-->
           <!--        <el-table-column prop="depth" label="深度" width="50"></el-table-column>-->
@@ -577,7 +577,9 @@ export default {
     // 修改table header的背景色
     tableHeaderColor() {
       return {
-        'border-color': '#293038',
+        'border-width':'1px',
+        'border-style':'solid',
+        'border-color': '#555555',
         'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
         'color': '#fff',
         'padding': '0',
@@ -594,33 +596,35 @@ export default {
     tableColor({row, column, rowIndex, columnIndex}) {
       if (rowIndex % 2 === 1) {
           return {
-
-            'border-color': '#313a44',
+            'border-width':'1px',
+            'border-style':'solid',
+            'border-color': '#555555',
             'background-color': '#313a44',
             'color': '#fff',
             'padding': '10',
             'text-align': 'center',
-            'border-left-color': '#323843',
-            'border-left-width': '1px',
-            'border-left-style': 'solid',
-            'border-right-color': '#323843',
-            'border-right-width': '1px',
-            'border-right-style': 'solid',
+            // 'border-left-color': '#323843',
+            // 'border-left-width': '1px',
+            // 'border-left-style': 'solid',
+            // 'border-right-color': '#323843',
+            // 'border-right-width': '1px',
+            // 'border-right-style': 'solid',
           }
       } else {
           return {
-
-            'border-color': '#304156',
+            'border-width':'1px',
+            'border-style':'solid',
+            'border-color': '#555555',
             'background-color': '#304156',
             'color': '#fff',
             'padding': '10',
             'text-align': 'center',
-            'border-left-color': '#323843',
-            'border-left-width': '1px',
-            'border-left-style': 'solid',
-            'border-right-color': '#323843',
-            'border-right-width': '1px',
-            'border-right-style': 'solid',
+            // 'border-left-color': '#323843',
+            // 'border-left-width': '1px',
+            // 'border-left-style': 'solid',
+            // 'border-right-color': '#323843',
+            // 'border-right-width': '1px',
+            // 'border-right-style': 'solid',
           }
       }
     },

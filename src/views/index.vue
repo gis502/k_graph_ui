@@ -286,7 +286,7 @@ export default {
 
 .right-body .right-top {
   width: 100%;
-  height: 60%;
+  height: 56%;
 }
 
 .title-nav .top5-ul {
@@ -368,8 +368,8 @@ export default {
 
 .right-body .right-bottom {
   width: 100%;
-  height: 41%;
-  margin-top: 2%;
+  height: 45%;
+  margin-top: 1%;
 }
 </style>
 <script setup lang="ts">

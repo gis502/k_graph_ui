@@ -2,7 +2,7 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 100%; margin-bottom: 5px;height: 17vw"
+        style="width: 100%; margin-bottom: 5px;height: 18vw"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         :row-style="{ height: '37.5px' }"
@@ -141,6 +141,7 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 .pagination-wrapper {
   display: flex;
   justify-content: center;
+  margin-top: -5px;
 }
 
 .custom-pagination >>> .el-pagination__total,
