@@ -6,7 +6,7 @@
       </el-col>
     </el-row>
 
-    <el-table :data="tableData" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
       <el-table-column label="序号" width="60" align="center">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
