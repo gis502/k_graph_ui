@@ -76,13 +76,13 @@ export default {
 <style scoped>
 .detailedNews{
   width: 300px;
-  height: 350px;
+  height: 45%;
   position: absolute;
   padding: 0 5px 5px;
   border-radius: 5px;
-  top: 80px;
-  right: 270px;
-  z-index: 100; /* 更高的层级 */
+  top:10%;
+  right: 24%;
+  z-index: 30; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
   color: white;
 }
@@ -110,7 +110,7 @@ export default {
 .news-main{
   padding-left: 5px;
   padding-right: 5px;
-  max-height: 295px;
+  max-height: 87%;
   overflow-y: auto;
 }
 .news-time{

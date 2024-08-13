@@ -113,7 +113,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import jsPDF from "jspdf";
 import "../../../api/SimHei-normal.js";
-import fileUrl from "@/assets/icons/TimeLine/四川省雅安市芦山县6.1级地震态势报告.pdf"
+import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import html2canvas from "html2canvas";
 import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
@@ -1009,21 +1009,21 @@ export default {
 
 //截图
     takeScreenshot() {
-      html2canvas(this.$refs.box).then((canvas) => {
-        // 创建一个临时链接元素
-        const link = document.createElement('a');
-        link.download = 'screenshot.png';
-        link.href = canvas.toDataURL('image/png');
-        // 将链接添加到 DOM 并单击它以下载图像
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        // console.log(this.$el.textContent); // I'm text inside the component.
-      });
+      // html2canvas(this.$refs.box).then((canvas) => {
+      //   // 创建一个临时链接元素
       //   const link = document.createElement('a');
-      //   link.href = fileUrl
-      //   link.download = '四川省雅安市芦山县6.1级地震态势报告.pdf';
+      //   link.download = 'screenshot.png';
+      //   link.href = canvas.toDataURL('image/png');
+      //   // 将链接添加到 DOM 并单击它以下载图像
+      //   document.body.appendChild(link);
       //   link.click();
+      //   document.body.removeChild(link);
+      //   // console.log(this.$el.textContent); // I'm text inside the component.
+      // });
+        const link = document.createElement('a');
+        link.href = fileUrl
+        link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
+        link.click();
     },
 
 
@@ -1207,7 +1207,7 @@ export default {
 }
 
 #cesiumContainer {
-  height: calc(100vh - 118px);
+  height: calc(100vh - 50px)!important;
   width: 100%;
   margin: 0;
   padding: 0;

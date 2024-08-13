@@ -43,12 +43,12 @@ export default {
 
 <style scoped>
 .small-map {
-  width: 18%;
-  height: 30%;
+  width: 23%;
+  height: 34%;
   position: absolute;
   padding: 5px;
   border-radius: 5px;
-  top: 55%;
+  top: 56%;
   right: 1%;
   z-index: 100; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);

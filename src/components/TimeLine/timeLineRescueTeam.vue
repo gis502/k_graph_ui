@@ -10,21 +10,36 @@
 
       <div class="title-underline"></div>
 
-      <p class="rescue_team_p">
-        <!--        <span v-if="this.activity.gotime">{{this.activity.gotime}}</span>-->
-        <span v-if="this.activity.gotime">{{this.activity.goyear}}年{{this.activity.gomonth}}月{{this.activity.goday}}日</span>
-        <span v-if="this.activity.gohour">{{this.activity.gohour}}:{{this.activity.gominute}}</span>
-        <span v-if="this.activity.gotime">，</span>
-        <span  v-if="this.activity.team">{{this.activity.team}}</span>
-        <span v-if="this.activity.personnum">{{this.activity.personnum}}人 </span>
-        <span v-if="this.activity.destination">前往{{this.activity.destination}}</span>
-        <!--        <span>。</span>-->
-      </p>
+      <div class="sub-main">
+        <ul class="sub-ul">
+          <li
+              :class="[i === 0 || i === 1 ? 'high' : '']"
+              v-for="item in showRescueTeam"
+          >
+
+            <div class="sub-content">
+              <p class="rescue_team_p">
+                <span v-if="item.gotime && item.gotime!==''">{{item.goyear}}年{{item.gomonth}}月{{item.goday}}日</span>
+                <span v-if="item.gohour">{{item.gohour}}:{{item.gominute}}</span>
+                <span v-if="item.gotime">，</span>
+                <span v-if="item.team">{{item.team}}</span>
+                <span v-if="item.personnum">{{item.personnum}}人 </span>
+                <span v-if="item.destination">前往{{item.destination}}</span>
+                <div v-if="item.gotime || item.team || item.personnum || item.destination" class="p-underline"></div>
+              </p>
+
+            </div>
+          </li>
+        </ul>
+      </div>
+
+
+
 
       <div class="rescue_team_time_div">
         <div class="title-underline_low"></div>
         <p class="time_text"> 数据更新时间</p>
-        <p class="time">{{this.activity.recordtime}}</p>
+        <p class="time">{{this.recordtime}}</p>
       </div>
 
     </div>
@@ -46,25 +61,9 @@ export default {
   data() {
     return {
       Responsecontent:'',
-      activity:{
-        recordtime: '',
-        gotime:'',
-        goyear: '',
-        gomonth: '',
-        goday: '',
-        gohour:'',
-        gominute:'',
-
-
-        // gotime: '',
-        team: '',
-        personnum: '',
-        destination: '',
-      },
+      showRescueTeam:[],
       rescue_team_isExpanded:'true',
-
-
-
+      recordtime: '',
     }
   },
   props: [
@@ -80,39 +79,56 @@ export default {
   },
   methods: {
     init() {
-      this.Responsecontent = [...timeLineRescueTeam]
-      // console.log(this.Responsecontent)
+      this.Responsecontent = [...timeLineRescueTeam].sort((a, b) => {
+        if (a[0] < b[0]) return -1;
+        if (a[0] > b[0]) return 1;
+        return 0;
+      });
+      console.log("this.Responsecontent",this.Responsecontent)
     },
+
     rescue_team_update(currentTime){
+      this.showRescueTeam=[]
       // console.log("rescue_team_update",this.Responsecontent)
       // console.log(currentTime)
       const activities = this.Responsecontent.filter((activity) => {
         return (
             new Date(activity[0]) <= currentTime
+            // new Date(activity[0]) <= currentTime && new Date(activity[0]) > new Date(currentTime.getTime()-5*60*1000)
         );
       });
-      if(activities.length>=1){
-        // console.log("activities",activities)
-        activities.sort((a, b) => {
-          if (a[0] < b[0]) return -1;
-          if (a[0] > b[0]) return 1;
-          return 0;
-        });
-        let tmp=activities[activities.length-1]
 
-        this.activity.recordtime=tmp[0]
-        this.activity.gotime=new Date(tmp[1])
-        this.activity.team=tmp[2]
-        this.activity.personnum=tmp[3]
-        this.activity.destination=tmp[4]
 
-        this.activity.goyear = this.activity.gotime.getFullYear()
-        this.activity.gomonth = this.activity.gotime.getMonth() + 1
-        this.activity.goday = this.activity.gotime.getDate()
+      if(activities.length>0){
+        console.log("activities",activities)
+        this.recordtime=activities[activities.length-1][0]
+        activities.forEach((item) => {
+          let activity={
+            recordtime: item[0],
+            gotime:'',
+            goyear: '',
+            gomonth: '',
+            goday: '',
+            gohour:'',
+            gominute:'',
+            team: item[2],
+            personnum: item[3],
+            destination: item[4],
+          }
 
-        this.activity.gohour = String(this.activity.gotime.getHours()).padStart(2, '0');
-        this.activity.gominute = String(this.activity.gotime.getMinutes()).padStart(2, '0');
+          if(item[1]){
+            activity.gotime=new Date(item[1])
+            activity.goyear = activity.gotime.getFullYear()
+            activity.gomonth = activity.gotime.getMonth() + 1
+            activity.goday = activity.gotime.getDate()
+            activity.gohour = String(new Date(item[1]).getHours()).padStart(2, '0');
+            activity.gominute = String(new Date(item[1]).getMinutes()).padStart(2, '0');
+          }
+          this.showRescueTeam.unshift(activity)
+        })
+        console.log(this.showRescueTeam)
       }
+
 
     },
     rescue_team_toggleExpand() {
@@ -127,7 +143,7 @@ export default {
 
 .rescue_team{
   position: absolute;
-  top: 53%;
+  top: 55%;
   width: 23%;  /* 调整宽度 */
   height: 30%;
   padding: 10px;
@@ -172,6 +188,12 @@ export default {
   background-color: #FFFFFF;
   margin-top: 0px;
 }
+.p-underline {
+  width: 100%;
+  height: 0.5px;
+  background-color: rgba(223, 225, 229, 0.42);
+  margin-top: 0px;
+}
 
 .rescue_team_time_div{
   position: absolute;
@@ -208,4 +230,69 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffeb00;
 }
+
+
+.sub-title {
+  font-family: myFirstFont;
+  font-size: 1.1rem;
+  line-height: 1.8rem;
+  /*padding: 1rem 0 1rem !important;*/
+  color: #ffffff;
+  letter-spacing: 0;
+  text-align: justify;
+  text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
+  border-bottom: 0.1rem solid #ffffff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+
+.icon {
+  margin-right: 10px;
+}
+
+.icon img {
+  max-width: 12px; /* 设置图片最大宽度 */
+  max-height: 12px; /* 设置图片最大高度 */
+  width: auto; /* 自动调整宽度以保持比例 */
+  height: auto; /* 自动调整高度以保持比例 */
+
+}
+
+.sub-main {
+  margin-top: 0px;
+  max-height: 65%;
+  overflow-y: auto;
+  padding: 0px;
+}
+
+.sub-ul {
+  padding: 0;
+  margin: 0;
+  font-size: .9rem;
+  line-height: 1rem;
+  overflow-y: auto; /* 当内容超出时显示垂直滚动条 */
+  list-style-type: none; /* 去除列表项默认的项目符号 */
+}
+
+.sub-ul li {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  margin-bottom: 0; /* Optional: Add some space between items */
+  /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
+  padding: 0; /* Optional: Add padding for better spacing */
+}
+
+.sub-content {
+  padding: 0;
+  margin: 0;
+  line-height: 2rem;
+  font-size: .6rem;
+  flex: 1;
+}
+
 </style>
