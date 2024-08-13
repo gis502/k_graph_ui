@@ -2,7 +2,7 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 100%; margin-bottom: 5px;height: 340px"
+        style="width: 100%; margin-bottom: 5px;height: 17vw"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         :row-style="{ height: '37.5px' }"
@@ -10,7 +10,7 @@
       <el-table-column
           prop="position"
           label="位置"
-          min-width="150px"
+          min-width="140px"
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
@@ -58,7 +58,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(8);
+const pageSize = ref(6);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
@@ -88,7 +88,6 @@ const tableColor = ({rowIndex}) => {
   return {
     'border-color': backgroundColor,
     'background-color': backgroundColor,
-    'height': '30px',
     'color': '#fff',
     'padding': '0',
   };
