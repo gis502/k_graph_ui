@@ -127,7 +127,7 @@
           v-model:page="queryParams.pageNum"
           v-model:limit="queryParams.pageSize"
           @pagination="getList"
-          :pageSizes="[8, 20, 50, 100]"
+          :pageSizes="[10, 20, 50, 100]"
           style="margin:30px auto;width: 550px"
       />
   </div>
@@ -153,7 +153,7 @@ const defaultSort = ref({prop: "loginTime", order: "descending"});
 // 查询参数
 const queryParams = ref({
   pageNum: 1,
-  pageSize: 8,
+  pageSize: 10,
   ipaddr: undefined,
   userName: undefined,
   status: undefined,
