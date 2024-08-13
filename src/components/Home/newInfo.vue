@@ -6,7 +6,7 @@
       </div>
     </el-col>
     <el-col>
-      <div class="time newColCommon">
+      <div class="newColCommon">
         发震时间：{{ time }}
       </div>
     </el-col>

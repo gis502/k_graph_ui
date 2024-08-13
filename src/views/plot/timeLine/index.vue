@@ -1,14 +1,17 @@
 <template>
   <div class="app-container">
     <el-table :data="tableData"
-              height="650px"
+              height="600px"
               @row-click="go"
               :stripe="true"
-              :header-cell-style="{ borderColor: '#C0C0C0', background: 'rgba(252,218,5,0.22)' }"
-              :cell-style="{ padding: '0px', borderColor: 'rgba(252,218,5,0.22)' }"
-              :row-style="{ height: '7.5vh' }"
-    >
-      <el-table-column type="index" label="序号" width="80" header-align="center" align="center"  :formatter="typeIndex"></el-table-column>
+              :header-cell-style="{  }"
+              :cell-style="{ }"
+              :row-style="{ height: '7.4vh' }">
+      <el-table-column label="序号" width="60">
+        <template #default="{ row, column, $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
       <el-table-column prop="position" label="位置" width="300"></el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
