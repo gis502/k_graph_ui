@@ -43,13 +43,13 @@ export default {
 
 <style scoped>
 .small-map {
-  width: 150px;
-  height: 150px;
+  width: 18%;
+  height: 30%;
   position: absolute;
   padding: 5px;
   border-radius: 5px;
-  top: 390px;
-  right: 10px;
+  top: 55%;
+  right: 1%;
   z-index: 100; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
@@ -62,7 +62,7 @@ export default {
 
 .sub-title {
   font-family: myFirstFont;
-  font-size: .8rem;
+  font-size: 1.1rem;
   line-height: 1.4rem;
   /*padding: 1rem 0 1rem !important;*/
   color: #ffffff;
@@ -82,8 +82,8 @@ export default {
 }
 
 .icon img {
-  max-width: 10px; /* 设置图片最大宽度 */
-  max-height: 10px; /* 设置图片最大高度 */
+  max-width: 12px; /* 设置图片最大宽度 */
+  max-height: 12px; /* 设置图片最大高度 */
   width: auto; /* 自动调整宽度以保持比例 */
   height: auto; /* 自动调整高度以保持比例 */
 }

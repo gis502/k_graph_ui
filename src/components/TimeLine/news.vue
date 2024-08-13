@@ -2,7 +2,7 @@
   <div>
     <div id="news" v-show="showRightButton">
       <h2 class="sub-title">
-        最新事件:
+        最新新闻:
         <span class="title-time">{{ currentEvent }}</span>
         <span class="icon" @click="hideNews">
                     <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
@@ -128,21 +128,21 @@ export default {
 
 <style scoped>
 #news {
-  width: 15%;
-  height: 300px;
+  width: 18%;
+  height: 45%;
   position: absolute;
   padding: 0 5px 5px;
   border-radius: 5px;
-  top: 80px;
-  right: 10px;
-  z-index: 100; /* 更高的层级 */
+  top: 10%;
+  right: 1%;
+  z-index: 30; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
   color: white;
 }
 
 .sub-title {
   font-family: myFirstFont;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1.8rem;
   /*padding: 1rem 0 1rem !important;*/
   color: #ffffff;
@@ -158,7 +158,10 @@ export default {
 }
 
 .title-time {
-  font-size: .7rem;
+  font-size: 0.9rem;
+  font-weight: normal;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffeb00;
   line-height: 1.8rem;
 }
 
@@ -167,24 +170,25 @@ export default {
 }
 
 .icon img {
-  max-width: 10px; /* 设置图片最大宽度 */
-  max-height: 10px; /* 设置图片最大高度 */
+  max-width: 12px; /* 设置图片最大宽度 */
+  max-height: 12px; /* 设置图片最大高度 */
   width: auto; /* 自动调整宽度以保持比例 */
   height: auto; /* 自动调整高度以保持比例 */
+
 }
 
 .sub-main {
-  margin-top: 5px;
-  max-height: 260px;
+  margin-top: 0px;
+  max-height: 90%;
   overflow-y: auto;
-  padding: 5px;
+  padding: 0px;
 }
 
 .sub-ul {
   padding: 0;
   margin: 0;
   font-size: .9rem;
-  line-height: 1.8rem;
+  line-height: 1rem;
   overflow-y: auto; /* 当内容超出时显示垂直滚动条 */
   list-style-type: none; /* 去除列表项默认的项目符号 */
 }
@@ -192,29 +196,29 @@ export default {
 .sub-ul li {
   display: flex;
   align-items: center; /* Center items vertically */
-  margin-bottom: 10px; /* Optional: Add some space between items */
+  margin-bottom: 0; /* Optional: Add some space between items */
   /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
-  padding: 10px; /* Optional: Add padding for better spacing */
+  padding: 0; /* Optional: Add padding for better spacing */
 }
 
 .sub-content {
   padding: 0;
   margin: 0;
-  line-height: .9rem;
-  font-size: .7rem;
+  line-height: .4rem;
+  font-size: .6rem;
   flex: 1;
 }
 
 .news-img {
-  padding-top: 5px;
-  padding-left: 0;
+  padding-top: 0px;
+  padding-left: 2px;
   margin-right: 5px;
   text-align: center;
 }
 
 .news-img img {
-  max-width: 60px; /* 设置图片最大宽度 */
-  max-height: 60px; /* 设置图片最大高度 */
+  max-width: 30px; /* 设置图片最大宽度 */
+  max-height: 30px; /* 设置图片最大高度 */
   width: auto; /* 自动调整宽度以保持比例 */
   height: auto; /* 自动调整高度以保持比例 */
 }
@@ -230,8 +234,9 @@ export default {
   -webkit-box-orient: vertical;
   overflow: hidden; /* 隐藏超出部分 */
   text-overflow: ellipsis; /* 超出部分用省略号表示 */
-  line-height: 1.4; /* 行高，调整以适应你的字体 */
-  height: 2.8em; /* 高度设置为两行的高度 */
+  line-height: 1.1; /* 行高，调整以适应你的字体 */
+  height: 2.1em; /* 高度设置为两行的高度 */
+  left:10%
 }
 
 .showNewsButton {

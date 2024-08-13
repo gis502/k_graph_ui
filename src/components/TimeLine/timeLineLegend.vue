@@ -56,10 +56,10 @@ export default {
 
 <style scoped>
 .timeLineLegend {
-  width: 10%;
+  width: 18%;
   height: 5%;
-  right: 0%;
-  bottom: 5%;
+  right: 1%;
+  bottom: 8%;
   padding: 12px;
   position: absolute;
   background-color: #565656;
