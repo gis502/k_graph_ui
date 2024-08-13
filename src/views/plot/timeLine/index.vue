@@ -3,9 +3,11 @@
     <el-table :data="tableData"
               @row-click="go"
               :stripe="true"
-              :cell-style="tableColor"
+              :header-cell-style="{ borderColor: '#C0C0C0', background: 'rgba(252,218,5,0.22)' }"
+              :cell-style="{ padding: '0px', borderColor: 'rgba(252,218,5,0.22)' }"
+              :row-style="{ height: '6vh' }"
     >
-      <el-table-column type="index" label="序号" width="80" header-align="center" align="center"></el-table-column>
+      <el-table-column type="index" label="序号" width="80" header-align="center" align="center"  :formatter="typeIndex"></el-table-column>
       <el-table-column prop="position" label="位置" width="300"></el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
@@ -62,6 +64,9 @@ export default {
     this.getEq()
   },
   methods: {
+    typeIndex(row, column, cellValue, index) {
+      return (this.currentPage - 1) * this.pageSize + index + 1;
+    },
     getEq() {
       let that = this
       getAllEq().then(res => {
@@ -70,12 +75,16 @@ export default {
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
           item.time = that.timestampToTime(res[i].time)
-          data.push(item)
+          if (parseFloat(item.magnitude) >= 5) { // Only keep items with magnitude >= 5
+            data.push(item);
+          }
         }
-        that.getEqData = data
+        this.getEqData = data
+        console.log(data)
         // console.log(that.getEqData)
-        that.total = res.length
-        that.tableData = that.getPageArr()
+        this.total = data.length
+        this.tableData = that.getPageArr()
+
       })
     },
     timestampToTime(timestamp) {

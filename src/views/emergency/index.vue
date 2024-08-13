@@ -1,20 +1,20 @@
 <template>
   <div id="cesiumContainer">
-    <!--    <el-form class="tool-container">-->
-    <!--    写功能按钮部分-->
-    <!--    </el-form>-->
-    <RouterPanel :visible="popupVisible" :position="popupPosition" :popupData="popupData"/>
-    <div id="supplies">
-      <el-form class="eqTable">
-        <div style="margin-bottom: 10px;">
-          <el-input v-model="inputRadius" placeholder="请输入搜查范围/km"
-                    style="width: 170px;margin-right: 5px;" clearable>
-          </el-input>
-          <el-button class="el-button--primary" @click="searchSupply">查找物资</el-button>
-          <el-button class="el-button--primary" @click="addDisasterPoint">添加受灾点</el-button>
-          <el-button class="el-button--primary" @click="showAllSupplyPoints">{{ showSupply }}</el-button>
-          <el-button class="el-button--primary" @click="toggleTable">{{ toolValue }}</el-button>
-        </div>
+<!--    <el-form class="tool-container">-->
+<!--    写功能按钮部分-->
+<!--    </el-form>-->
+    <RouterPanel :visible="popupVisible" :position="popupPosition" :popupData="popupData" />
+      <div id="supplies"  :class="{ 'collapsed': !tableVisible }" >
+          <el-form class="eqTable">
+              <div style="margin-bottom: 10px;">
+                  <el-input v-model="inputRadius" placeholder="请输入搜查范围/km"
+                            style="width: 170px;margin-right: 5px;" clearable>
+                  </el-input>
+                  <el-button class="el-button--primary" @click="searchSupply">查找物资</el-button>
+                  <el-button class="el-button--primary" @click="addDisasterPoint">添加受灾点</el-button>
+                  <el-button class="el-button--primary" @click="showAllSupplyPoints">{{showSupply}}</el-button>
+                  <el-button class="el-button--primary" @click="toggleTable">{{toolValue}}</el-button>
+              </div>
 
         <el-table v-if="tableVisible" :data="showSuppliesList" style="width: 100%;margin-bottom: 5px;text-align: center"
                   :stripe="true"
@@ -77,8 +77,9 @@ export default {
       selectedSuppliesList: [],
       showIcon: [],
       tableVisible: true, // 显示表格
-      toolValue: "隐藏表格",
-      showSupply: "显示所有物资点",
+      isCollapsed: false, // 控制是否收缩
+      toolValue: "隐藏数据列表",
+      showSupply:"显示所有物资点",
       total: 0,
       pageSize: 5,
       currentPage: 1,
@@ -116,9 +117,9 @@ export default {
       this.showSuppliesList = this.showSuppliesList.slice().sort((a, b) => b.disasterTentsCount - a.disasterTentsCount);
 
     },
-    toggleTable() {
-      this.tableVisible = !this.tableVisible
-      this.toolValue = this.tableVisible ? "隐藏表格" : "显示表格"
+    toggleTable(){
+      this.tableVisible= !this.tableVisible
+      this.toolValue= this.tableVisible ? "隐藏数据列表" : "显示数据列表"
     },
     init() {
       let that = this
@@ -773,18 +774,21 @@ export default {
   padding: 0;
   overflow: hidden;
 }
-
-#supplies {
-  position: absolute;
-  padding: 15px;
-  border-radius: 5px;
-  /*width: 500px;*/
-  /*height: 200px;*/
-  top: 10px;
-  left: 10px;
-  width: 80vw;
-  z-index: 10; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
+#supplies{
+    position: absolute;
+    padding: 15px;
+    border-radius: 5px;
+    /*width: 500px;*/
+    /*height: 200px;*/
+    top: 10px;
+    left: 10px;
+    width: 80vw;
+    z-index: 10; /* 更高的层级 */
+    background-color: rgba(40, 40, 40,0.7);
+    transition: width 0.3s; /* 平滑过渡效果 */
+}
+#supplies.collapsed {
+  width: 45vw; /* 收缩时的宽度 */
 }
 
 .pagination1 {
