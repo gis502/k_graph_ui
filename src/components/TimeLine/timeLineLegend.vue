@@ -56,7 +56,7 @@ export default {
 
 <style scoped>
 .timeLineLegend {
-  width: 23%;
+  width: 25%;
   height: 5%;
   left: 1%;
   bottom: 9%;

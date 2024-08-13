@@ -144,7 +144,7 @@ export default {
 .rescue_team{
   position: absolute;
   top: 55%;
-  width: 23%;  /* 调整宽度 */
+  width: 25%;  /* 调整宽度 */
   height: 30%;
   padding: 10px;
   border-radius: 5px;
