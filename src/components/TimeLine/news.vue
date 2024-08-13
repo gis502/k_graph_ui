@@ -100,7 +100,8 @@ export default {
         this.currentEvent = activity.time
         if (this.showNews.length === 0) {
           this.showNews.unshift(activity)
-        } else {
+        }
+        else {
           let flag = true
           this.showNews.forEach((item) => {
             if (item.id === activity.id) {
@@ -128,7 +129,7 @@ export default {
 
 <style scoped>
 #news {
-  width: 18%;
+  width: 23%;
   height: 45%;
   position: absolute;
   padding: 0 5px 5px;
