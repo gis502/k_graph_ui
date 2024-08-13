@@ -12,27 +12,35 @@
                   </el-input>
                   <el-button class="el-button--primary" @click="searchSupply">查找物资</el-button>
                   <el-button class="el-button--primary" @click="addDisasterPoint">添加受灾点</el-button>
-                  <el-button class="el-button--primary" @click="showAllSupplyPoints">显示所有物资点</el-button>
+                  <el-button class="el-button--primary" @click="showAllSupplyPoints">{{showSupply}}</el-button>
+                  <el-button class="el-button--primary" @click="toggleTable">{{toolValue}}</el-button>
               </div>
 
-              <el-table :data="showSuppliesList" style="width: 100%;margin-bottom: 5px;text-align: center" :stripe="true"
+              <el-table v-if="tableVisible" :data="showSuppliesList" style="width: 100%;margin-bottom: 5px;text-align: center" :stripe="true"
                         :header-cell-style="tableHeaderColor" :cell-style="tableColor"
                         :row-style="{height: '40px'}"
                         @row-click="showSupplyPoint"
               >
-                  <el-table-column prop="county" label="区域" width="100"></el-table-column>
-                  <el-table-column prop="address" label="地址" width="200"></el-table-column>
+                  <el-table-column prop="county" label="区域" width="200" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="address" label="地址" width="320" show-overflow-tooltip></el-table-column>
                   <el-table-column prop="contactPerson" label="联系人" width="100"></el-table-column>
                   <el-table-column prop="contactPhone" label="联系电话"></el-table-column>
+                <el-table-column prop="disasterTentsCount" label="帐篷总数量" width="100"></el-table-column>
+                <el-table-column prop="raincoatsCount" label="雨衣总数量" width="100"></el-table-column>
+                <el-table-column prop="rainBootsCount" label="雨鞋总数量" width="100"></el-table-column>
+                <el-table-column prop="flashlightsCount" label="手电筒总数量" width="130"></el-table-column>
 
               </el-table>
               <el-pagination
+                      v-if="tableVisible"
                       @size-change="handleSizeChange"
                       @current-change="handleCurrentChange"
                       :current-page="currentPage"
                       :page-size="pageSize"
                       layout="total, prev, pager, next, jumper"
-                      :total="total">
+                      :total="total"
+                      class="pagination1"
+              >
               </el-pagination>
           </el-form>
       </div>
@@ -68,6 +76,9 @@ export default {
       showSuppliesList: [],
       selectedSuppliesList: [],
       showIcon: [],
+      tableVisible: true, // 显示表格
+      toolValue: "隐藏工具",
+      showSupply:"显示所有物资点",
       total: 0,
       pageSize: 5,
       currentPage: 1,
@@ -101,6 +112,15 @@ export default {
     this.initPlot(this.id)
   },
   methods: {
+    sortedSuppliesList() {
+      // 按照 disasterTentsCount 排序
+      this.showSuppliesList = this.showSuppliesList.slice().sort((a, b) => b.disasterTentsCount - a.disasterTentsCount);
+
+    },
+    toggleTable(){
+      this.tableVisible= !this.tableVisible
+      this.toolValue= this.tableVisible ? "隐藏工具" : "显示工具"
+    },
     init() {
       let that = this
       let viewer = initCesium(Cesium);
@@ -576,6 +596,8 @@ export default {
           this.showIcon = this.selectedSuppliesList
           this.total = this.selectedSuppliesList.length
           this.showSuppliesList = this.getPageArr(this.selectedSuppliesList)
+        // 在数据更新后进行排序
+        //  this.sortedSuppliesList();
           console.log("this.showSuppliesList-",this.showSuppliesList)
       },
 
@@ -776,9 +798,20 @@ export default {
     /*height: 200px;*/
     top: 10px;
     left: 10px;
-    width: 36rem;
+    width: 80vw;
     z-index: 10; /* 更高的层级 */
     background-color: rgba(40, 40, 40, 0.7);
 }
+.pagination1{
+  width: 40%;
+  margin: 0 auto;
+  color: white;
+}
+.pagination1 ::v-deep .el-pagination__total,
+.pagination1 ::v-deep .el-pagination__jump {
+  color: white; /* 设置“共多少条”和“前往 页”部分的颜色为白色 */
+}
+
+
 </style>
 
