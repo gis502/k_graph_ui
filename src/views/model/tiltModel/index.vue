@@ -32,15 +32,15 @@
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
           </el-table-column>
-          <el-table-column prop="path" label="模型路径" width="80">
+<!--          <el-table-column prop="path" label="模型路径" width="80">-->
             <!--          <template #default="scope">-->
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
-          </el-table-column>
+<!--          </el-table-column>-->
           <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
-          <el-table-column prop="tz" label="模型高度" width="80"></el-table-column>
+          <el-table-column prop="tz" label="模型高度"></el-table-column>
           <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
-          <el-table-column prop="tze" label="模型高度（三维）" width="80"></el-table-column>
+          <el-table-column prop="tze" label="模型高度（三维）"></el-table-column>
           <el-table-column label="操作" width="80" align="center">
             <!--          <template #default="scope">-->
             <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
@@ -966,14 +966,14 @@ function updataMCommit() {
   padding: 10px;
   border-radius: 5px;
   width: 525px;
-  top: 400px;
+  top: 265px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
 .button-container {
-  height: 330px;
+  height: 195px;
   width: 525px;
   position: absolute;
   padding: 10px;

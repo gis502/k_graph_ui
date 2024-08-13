@@ -6,19 +6,19 @@
       </el-col>
     </el-row>
 
-    <el-table :data="tableData">
-      <el-table-column label="序号" width="50" align="center">
+    <el-table :data="tableData" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+      <el-table-column label="序号" width="60" align="center">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="type" label="类型" width="200" align="center"></el-table-column>
-      <el-table-column prop="img" label="符号" width="120" align="center">
+      <el-table-column prop="type" label="类型" width="240" align="center"></el-table-column>
+      <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
-          <img width="50px" height="50px" :src="scope.row.img" alt="图片不正确">
+          <img width="30px" height="30px" :src="scope.row.img" alt="图片不正确">
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="名称" width="200" align="center"></el-table-column>
+      <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
       <el-table-column prop="plotType" label="标会类型" width="120" align="center"></el-table-column>
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
@@ -141,8 +141,8 @@ export default {
       getPicData: [],
       tableData: [],
       total: 0,
-      pageSize: 7,
-      pageSizes: [7, 20, 30, 40],
+      pageSize: 10,
+      pageSizes: [10, 20, 30, 40],
       currentPage: 1,
       //-----------弹出对话框-------------
       dialogShow: false,
@@ -350,7 +350,6 @@ export default {
       // console.log(`当前页: ${val}`);
     },
 
-
     handleClose(done) {
       // this.$confirm('确认关闭？')
       //   .then(_ => {
@@ -359,6 +358,57 @@ export default {
       //   .catch(_ => {});
     },
 
+    // 修改table header的背景色
+    tableHeaderColor() {
+      return {
+        'font-size':'16px',
+        // 'border-color': '#293038',
+        // 'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+        // 'color': '#fff',
+        // 'padding': '0',
+        // 'text-align': 'center',
+        // 'border-left-color': '#323843',
+        // 'border-left-width': '1px',
+        // 'border-left-style': 'solid',
+        // 'border-right-color': '#323843',
+        // 'border-right-width': '1px',
+        // 'border-right-style': 'solid',
+      }
+    },
+    // 修改table的背景色
+    tableColor({row, column, rowIndex, columnIndex}) {
+      if (rowIndex % 2 === 1) {
+        return {
+          'font-size':'16px',
+          // 'border-color': '#313a44',
+          // 'background-color': '#313a44',
+          // 'color': '#fff',
+          // 'padding': '10',
+          // 'text-align': 'center',
+          // 'border-left-color': '#323843',
+          // 'border-left-width': '1px',
+          // 'border-left-style': 'solid',
+          // 'border-right-color': '#323843',
+          // 'border-right-width': '1px',
+          // 'border-right-style': 'solid',
+        }
+      } else {
+        return {
+          'font-size':'16px',
+          // 'border-color': '#304156',
+          // 'background-color': '#304156',
+          // 'color': '#fff',
+          // 'padding': '10',
+          // 'text-align': 'center',
+          // 'border-left-color': '#323843',
+          // 'border-left-width': '1px',
+          // 'border-left-style': 'solid',
+          // 'border-right-color': '#323843',
+          // 'border-right-width': '1px',
+          // 'border-right-style': 'solid',
+        }
+      }
+    },
 
   },
 }

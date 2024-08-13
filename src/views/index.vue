@@ -16,11 +16,11 @@
             <newInfo/>
           </div>
           <div class="left-con public-bg">
-            <div class="public-title">受灾人员统计</div>
+            <div class="public-title">最新地震受灾人员统计</div>
             <chart3/>
           </div>
           <div class="left-bottom public-bg">
-            <div class="public-title">余震情况统计(次)</div>
+            <div class="public-title">最新地震余震情况统计(次)</div>
             <chart2/>
           </div>
         </div>

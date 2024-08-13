@@ -12,7 +12,6 @@
             </template>
           </el-table-column>
           <el-table-column prop="time" label="发震时间" width="160"/>
-          <el-table-column prop="magnitude" label="震级" width="50"/>
           <el-table-column prop="position" label="位置">
             <template #default="scope">
               <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.position.length>=14">
@@ -27,6 +26,7 @@
               </el-popover>
             </template>
           </el-table-column>
+          <el-table-column prop="magnitude" label="震级" width="50"/>
           <!--        <el-table-column prop="longitude" label="经度" width="70"></el-table-column>-->
           <!--        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>-->
           <!--        <el-table-column prop="depth" label="深度" width="50"></el-table-column>-->
@@ -218,7 +218,7 @@ export default {
       plotTreeClassification: [],
       //----------------------------------
       total: 0,
-      pageSize: 7,
+      pageSize: 5,
       currentPage: 1,
       getEqData: [],
       tableData: [],
@@ -540,14 +540,18 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+        let resData = res.filter(item=>item.magnitude>=5)
         let data = []
-        for(let i=0;i<res.length;i++){
-          let item = res[i]
-          item.time = that.timestampToTime(res[i].time)
+        for(let i=0;i<resData.length;i++){
+          let item = resData[i]
+          item.time = that.timestampToTime(resData[i].time)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
         that.getEqData = data
-        that.total = res.length
+        that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
         that.title = that.tableData[0].time + that.tableData[0].position + that.tableData[0].magnitude
@@ -578,46 +582,46 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
+        // 'border-left-color': '#323843',
+        // 'border-left-width': '1px',
+        // 'border-left-style': 'solid',
+        // 'border-right-color': '#323843',
+        // 'border-right-width': '1px',
+        // 'border-right-style': 'solid',
       }
     },
     // 修改table的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
       if (rowIndex % 2 === 1) {
-        if(columnIndex===3){
           return {
-            'border-color': '#313a44',
-            'background-color': '#313a44',
-            'color': '#fff',
-            'padding': '10',
-            'text-align': 'left'
-          }
-        }else{
-          return {
+
             'border-color': '#313a44',
             'background-color': '#313a44',
             'color': '#fff',
             'padding': '10',
             'text-align': 'center',
+            'border-left-color': '#323843',
+            'border-left-width': '1px',
+            'border-left-style': 'solid',
+            'border-right-color': '#323843',
+            'border-right-width': '1px',
+            'border-right-style': 'solid',
           }
-        }
       } else {
-        if(columnIndex===3){
           return {
+
             'border-color': '#304156',
             'background-color': '#304156',
             'color': '#fff',
             'padding': '10',
-            'text-align': 'left'
+            'text-align': 'center',
+            'border-left-color': '#323843',
+            'border-left-width': '1px',
+            'border-left-style': 'solid',
+            'border-right-color': '#323843',
+            'border-right-width': '1px',
+            'border-right-style': 'solid',
           }
-        }else{
-          return {
-            'border-color': '#304156',
-            'background-color': '#304156',
-            'color': '#fff',
-            'padding': '10',
-            'text-align': 'center'
-          }
-        }
       }
     },
     //数组切片
@@ -954,7 +958,7 @@ export default {
 
 .situation_eqTable {
   width: 510px;
-  height: 375px;
+  height: 310px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
@@ -968,7 +972,7 @@ export default {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 410px;
+  top: 345px;
   left: 10px;
   width: 510px;
   z-index: 10;
@@ -1014,6 +1018,8 @@ export default {
   margin-bottom: 5px;
 }
 
+
+
 /* 修改element内置css不生效，则需要加上/deep/ */
 /* 分页组件调整 */
 .el-pagination {
@@ -1033,5 +1039,8 @@ export default {
 }
 /deep/ .el-tree-node:focus > .el-tree-node__content {
   background-color: rgb(56, 79, 105) !important;
+}
+/deep/.el-table--fit .el-table__inner-wrapper:before {
+  width: 0% !important;
 }
 </style>

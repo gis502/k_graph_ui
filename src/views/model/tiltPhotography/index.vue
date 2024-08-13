@@ -6,10 +6,12 @@
       </el-col>
     </el-row>
     <el-table :data="tableData" class="table-center">
-      <el-table-column prop="modelName" label="模型名称" width="300" align="center"></el-table-column>
+      <el-table-column prop="eqid" label="序号" width="60" align="center"></el-table-column>
+      <el-table-column prop="modelName" label="模型名称" width="200" align="center"></el-table-column>
+      <el-table-column prop="size" label="模型大小（GB）" width="150" align="center"></el-table-column>
       <el-table-column prop="addTime" label="添加时间" align="center"></el-table-column>
-      <el-table-column prop="modelPath" label="模型路径" align="center"></el-table-column>
-      <el-table-column prop="modelHeight" label="模型高度" align="center"></el-table-column>
+      <el-table-column prop="modelPath" label="模型路径" width="250" align="center"></el-table-column>
+      <el-table-column prop="modelHeight" label="模型中心高度" align="center"></el-table-column>
       <el-table-column prop="rotationAngle" label="旋转角度" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template v-slot="scope">
@@ -74,17 +76,22 @@ export default {
   data() {
     return {
       tableData: [
-        { eqid: 1, modelName: '7.37平方公里模型', addTime: '2023-08-19 15:31:19', modelPath: 1, modelHeight: -557, rotationAngle: 0},
-        { eqid: 2, modelName: '0.4平方公里模型', addTime: '2023-07-23 17:19:09', modelPath: 2, modelHeight: -556 , rotationAngle: 0},
-        { eqid: 3, modelName: 'model1', addTime: '2023-08-10 17:02:57', modelPath: '/model1', modelHeight: 0, rotationAngle: 0},
-        { eqid: 4, modelName: 'model2', addTime: '2023-08-18 09:30:20', modelPath: '/model2', modelHeight: 0, rotationAngle: 0},
-        { eqid: 5, modelName: 'model3', addTime: '2023-08-13 13:40:11', modelPath: '/model3', modelHeight: 0, rotationAngle: 0},
-        { eqid: 6, modelName: 'model4', addTime: '2023-08-14 07:12:38', modelPath: '/model4', modelHeight: 0, rotationAngle: 0},
+        { eqid: 1, modelName: '7.37平方公里模型',size:"2.6", addTime: '2023-08-19 15:31:19', modelPath: '/geoserver/yaan/wms/1', modelHeight: 557, rotationAngle: 0},
+        { eqid: 2, modelName: '0.4平方公里模型', size:"0.6",addTime: '2023-07-23 17:19:09', modelPath: '/geoserver/yaan/wms/2', modelHeight: 556 , rotationAngle: 0},
+        // { eqid: 3, modelName: 'model1', addTime: '2023-08-10 17:02:57', modelPath: '/model1', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 4, modelName: 'model2', addTime: '2023-08-18 09:30:20', modelPath: '/model2', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 5, modelName: 'model3', addTime: '2023-08-13 13:40:11', modelPath: '/model3', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 6, modelName: 'model4', addTime: '2023-08-14 07:12:38', modelPath: '/model4', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 7, modelName: 'model5', addTime: '2023-08-14 07:12:38', modelPath: '/model5', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 8, modelName: 'model6', addTime: '2023-08-14 07:12:38', modelPath: '/model6', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 9, modelName: 'model7', addTime: '2023-08-14 07:12:38', modelPath: '/model7', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 10, modelName: 'model8', addTime: '2023-08-14 07:12:38', modelPath: '/model8', modelHeight: 0, rotationAngle: 0},
+        // { eqid: 11, modelName: 'model9', addTime: '2023-08-14 07:12:38', modelPath: '/model9', modelHeight: 0, rotationAngle: 0},
         // 继续添加更多静态数据...
       ],
-      total: 6, // 根据静态数据的数量设置总数
-      pageSize: 10,
-      pageSizes: [5, 10, 20, 40],
+      total: 11, // 根据静态数据的数量设置总数
+      pageSize: 11,
+      pageSizes: [11, 20, 40],
       currentPage: 1,
       //--------------------------------------
       dialogShow: false,
@@ -174,6 +181,10 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
 }
 </style>
 
