@@ -11,14 +11,14 @@
       <div class="title-underline"></div>
 
       <p class="rescue_team_p">
-<!--        <span v-if="this.activity.gotime">{{this.activity.gotime}}</span>-->
+        <!--        <span v-if="this.activity.gotime">{{this.activity.gotime}}</span>-->
         <span v-if="this.activity.gotime">{{this.activity.goyear}}年{{this.activity.gomonth}}月{{this.activity.goday}}日</span>
         <span v-if="this.activity.gohour">{{this.activity.gohour}}:{{this.activity.gominute}}</span>
         <span v-if="this.activity.gotime">，</span>
         <span  v-if="this.activity.team">{{this.activity.team}}</span>
         <span v-if="this.activity.personnum">{{this.activity.personnum}}人 </span>
         <span v-if="this.activity.destination">前往{{this.activity.destination}}</span>
-<!--        <span>。</span>-->
+        <!--        <span>。</span>-->
       </p>
 
       <div class="rescue_team_time_div">
@@ -127,8 +127,8 @@ export default {
 
 .rescue_team{
   position: absolute;
-  top: 52%;
-  width: 25%;  /* 调整宽度 */
+  top: 53%;
+  width: 22%;  /* 调整宽度 */
   height: 30%;
   padding: 10px;
   border-radius: 5px;
@@ -188,9 +188,8 @@ export default {
 
 .rescue_team_p{
   margin-top: 1em;
-  text-indent: 2em;
   margin: 1px;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
@@ -207,6 +206,6 @@ export default {
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
+  color: #ffeb00;
 }
 </style>
