@@ -38,13 +38,14 @@
       </el-col>
     </el-row>
     <el-table
+        table-layout="fixed"
         ref="multipleTableRef"
         :data="tableData"
-        height="485px"
+        height="555px"
         class="table tableMove"
         fit
         :row-key="getRowKey"
-        :row-style="{ height: '5.2vh' }"
+        :row-style="{ height: '6vh' }"
         @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
@@ -60,7 +61,7 @@
           :prop="col.prop"
           :label="col.label"
           :align="col.align"
-          :min-width="'250px'"
+          :width="getColumnWidth(col.label)"
       />
       />
     </el-table>
@@ -123,6 +124,7 @@ const name = ref([])
 const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 
+
 /** 监听 */
 watch(flag, (newFlag) => {
   const selectedFile = files.value.find(file => file.fileFlag=== newFlag);
@@ -168,13 +170,19 @@ const typeIndex = (row, column, cellValue, index) => {
 };
 
 const generateColumnConfig = () => {
-  return field.value.map((fieldName, index) => ({
-    prop: fieldName,
-    label: name.value[index],
-    align: "center",
-    width: null // Example: setting width for the first two columns
-  }));
+  return field.value.map((fieldName, index) => {
+    const label = name.value[index];
+    console.log(label)
+    return {
+      prop: fieldName,
+      label: label,
+      align: "center",
+      width: null // 如果列是“地震名称”，则设定宽度为 600px
+    };
+  });
 };
+
+
 
 const generateFieldData = () => {
   return field.value.map((fieldName, index) => ({
@@ -234,6 +242,14 @@ const generateData = _ => {
   }
   return data
 }
+
+const getColumnWidth = (prop) => {
+  const specialColumns = ['地震名称', '地震时间', '统计截止时间'];
+  if (specialColumns.includes(prop)) {
+    return 250;
+  }
+  return null;
+};
 
 const data = ref(generateData())
 let value = ref([])
