@@ -9,12 +9,6 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-<!--        <TimeLinePanel-->
-<!--            :visible="popupVisible"-->
-<!--            :position="popupPosition"-->
-<!--            :popupData="popupData"-->
-<!--            :currentTime="currentTime"-->
-<!--        />-->
         <TimeLinePanel
             :visible="popupVisible"
             :position="popupPosition"
@@ -50,36 +44,36 @@
     </div>
     <!-- 进度条 end-->
 
-    <!--    两侧组件-->
+<!--    两侧组件-->
 
-    <timeLineEmergencyResponse
+      <timeLineEmergencyResponse
+          :currentTime="currentTime"
+      />
+
+      <timeLinePersonnelCasualties
+          :currentTime="currentTime"
+      />
+
+
+      <timeLineRescueTeam
         :currentTime="currentTime"
-    />
-
-    <timeLinePersonnelCasualties
-        :currentTime="currentTime"
-    />
-
-
-    <timeLineRescueTeam
-        :currentTime="currentTime"
-    />
+      />
 
     <!--      新闻-->
     <div>
       <news
-          :currentTime="currentTime"
-          @ifShowDialog="ifShowDialog"
-          @detailedNews="detailedNews"
+              :currentTime="currentTime"
+              @ifShowDialog="ifShowDialog"
+              @detailedNews="detailedNews"
       ></news>
     </div>
-    <!--      新闻弹框-->
+      <!--      新闻弹框-->
     <div>
-      <news-dialog
-          :showDetailedNewsDialog="showDetailedNewsDialog"
-          :showingNewsContent="showingNewsContent"
-          @hideNewsDialog="hideNewsDialog"
-      ></news-dialog>
+        <news-dialog
+                :showDetailedNewsDialog="showDetailedNewsDialog"
+                :showingNewsContent="showingNewsContent"
+                @hideNewsDialog="hideNewsDialog"
+        ></news-dialog>
     </div>
     <!--      缩略图-->
     <div>
@@ -89,7 +83,7 @@
 
     <timeLineLegend></timeLineLegend>
 
-    <!--    两侧组件 end-->
+<!--    两侧组件 end-->
     <!--报告产出按钮-->
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
@@ -117,15 +111,16 @@ import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 
 //报告产出
-// import jsPDF from "jspdf";
-// import "@/api/SimHei-normal.js";
-// import html2canvas from "html2canvas";
-// import NewsDialog from "@/components/TimeLine/newsDialog.vue";
+import jsPDF from "jspdf";
+import "../../../api/SimHei-normal.js";
+import fileUrl from "@/assets/icons/TimeLine/四川省雅安市芦山县6.1级地震态势报告.pdf"
+import html2canvas from "html2canvas";
+import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
 
 export default {
   components: {
-    // NewsDialog,
+      // NewsDialog,
     TimeLinePanel,
     News,
     MiniMap,
@@ -173,14 +168,14 @@ export default {
         plottype: '震中'
       },
 
-      // 新闻组件
-      showingNewsContent: {
-        id: '',
-        time: '',
-        content: '',
-        img: '',
-      },
-      showDetailedNewsDialog: false,
+        // 新闻组件
+        showingNewsContent: {
+            id: '',
+            time: '',
+            content: '',
+            img: '',
+        },
+        showDetailedNewsDialog: false,
 
       //时间轴时间
       eqstartTime: '',
@@ -368,7 +363,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
-            15000),
+            8000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -377,7 +372,7 @@ export default {
           roll: 0.0
         }
       });
-      //加载   中心点
+      //加载中心点
       viewer.entities.add({
         // properties: {
         //   type: "震中",
@@ -462,19 +457,19 @@ export default {
       })
     },
 
-    detailedNews(val){
-      // console.log("detailedNews-----",val)
-      this.showingNewsContent = val
+      detailedNews(val){
+          // console.log("detailedNews-----",val)
+        this.showingNewsContent = val
 
-    },
-    ifShowDialog(val){
-      // console.log("ifShowDialog-----",val)
-      this.showDetailedNewsDialog = val
-    },
-    hideNewsDialog(val){
-      // console.log("showDetailedNewsDialog-----",val)
-      this.showDetailedNewsDialog = val
-    },
+      },
+      ifShowDialog(val){
+          // console.log("ifShowDialog-----",val)
+        this.showDetailedNewsDialog = val
+      },
+      hideNewsDialog(val){
+          // console.log("showDetailedNewsDialog-----",val)
+          this.showDetailedNewsDialog = val
+      },
 
     //时间轴操作
     initTimerLine() {
@@ -521,10 +516,12 @@ export default {
       //   });
       // }
       // 时间轴开始
+      // this.currentTime = new Date(this.eqstartTime.getTime() + 48*60 * 60 * 1000);
+      // this.updatePlot()
+
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
       }, 100);
-      // }, 50);
     },
     updateCurrentTime() {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
@@ -633,7 +630,7 @@ export default {
           }
         });
       });
-      console.log("polygonArr",polygonArr)
+      // console.log("polygonArr",polygonArr)
 
 
 
@@ -698,7 +695,7 @@ export default {
           this.plotisshow[item.plotid] = 1
           this.drawPolyline(item)
         }
-        //消失
+          //消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
           this.plotisshow[item.plotid] = 0
           // console.log(item.plotid,"end")
@@ -799,25 +796,25 @@ export default {
     //时间轴end-------------
 
     drawPolyline(line) {
-      let material = this.getMaterial(line.plottype,line.img)
-      // 1-6 画线
-      window.viewer.entities.add({
-        id: line.plotid,
-        plottype: line.plottype,
-        polyline: {
-          status:1,
-          // positions: positionsArr,
-          positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
-          width: 5,
-          material: material,
-          // material: Cesium.Color.YELLOW,
-          depthFailMaterial: Cesium.Color.YELLOW,
-          clampToGround: true,
-        },
-        properties: {
-          // pointPosition: pointLinePoints,
-        }
-      })
+        let material = this.getMaterial(line.plottype,line.img)
+        // 1-6 画线
+        window.viewer.entities.add({
+          id: line.plotid,
+          plottype: line.plottype,
+          polyline: {
+            status:1,
+            // positions: positionsArr,
+            positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
+            width: 5,
+            material: material,
+            // material: Cesium.Color.YELLOW,
+            depthFailMaterial: Cesium.Color.YELLOW,
+            clampToGround: true,
+          },
+          properties: {
+            // pointPosition: pointLinePoints,
+          }
+        })
     },
     distinguishPolylineId(polylineArr) {
       let PolylineIdArr = []
@@ -892,21 +889,18 @@ export default {
 
     getDrawPolygon(polygon){
       // console.log("polygon111111111",polygon)
-      viewer.entities.add({
-        id: polygon.plotid,
-        plottype: polygon.plottype,
-        polygon: {
-          show: true,
-          hierarchy: Cesium.Cartesian3.fromDegreesArray(
-              polygon.positionsArr
-              // [102.75549772564291, 30.693705126222397, 102.7524041663634, 30.69723905590233, 102.75642876498236, 30.699985385670818, 102.75952217967988, 30.696450781867114]
-          ),
-          height: 0,
-          material: polygon.img,
-          stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
-          clampToGround: true,
-        }
-      })
+        viewer.entities.add({
+          id: polygon.plotid,
+          plottype: polygon.plottype,
+          polygon: {
+            show: true,
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
+            height: 0,
+            material: polygon.img,
+            stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
+            clampToGround: true,
+          }
+        })
     },
 
 
@@ -969,11 +963,8 @@ export default {
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          // this.popupData = {}
-          // this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
           console.log("popupData thd timeline",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
-          // this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
         }
@@ -1018,17 +1009,21 @@ export default {
 
 //截图
     takeScreenshot() {
-      // html2canvas(this.$refs.box).then((canvas) => {
-      //   // 创建一个临时链接元素
+      html2canvas(this.$refs.box).then((canvas) => {
+        // 创建一个临时链接元素
+        const link = document.createElement('a');
+        link.download = 'screenshot.png';
+        link.href = canvas.toDataURL('image/png');
+        // 将链接添加到 DOM 并单击它以下载图像
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        // console.log(this.$el.textContent); // I'm text inside the component.
+      });
       //   const link = document.createElement('a');
-      //   link.download = 'screenshot.png';
-      //   link.href = canvas.toDataURL('image/png');
-      //   // 将链接添加到 DOM 并单击它以下载图像
-      //   document.body.appendChild(link);
+      //   link.href = fileUrl
+      //   link.download = '四川省雅安市芦山县6.1级地震态势报告.pdf';
       //   link.click();
-      //   document.body.removeChild(link);
-      //   // console.log(this.$el.textContent); // I'm text inside the component.
-      // });
     },
 
 
@@ -1194,9 +1189,10 @@ export default {
   align-items: center;     /* 垂直居中 */
   font-weight: bold;       /* 文字加粗 */
 }
+
 .eqtitle-text_eqname {
   color: white;
-  font-size: 1.2rem;
+  font-size: 18px;
   font-weight: bold;
   margin-left: 30px;
   margin-right: 60%;
@@ -1329,8 +1325,8 @@ export default {
 .button-container {
   position: absolute;
   z-index: 20;
-  top: 4.3%;
-  right: 5%;
+  top: 6.3%;
+  right: 7%;
 }
 
 </style>

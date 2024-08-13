@@ -18,7 +18,7 @@
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.starttime).match('-')
                     ? this.timestampToTime(plotInfoNew.starttime)
-                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime) : "")
+                    : (plotInfoNew.starttime !==  ""  ? this.timestampToTime(plotInfoNew.starttime) : "")
               }}
             </el-text>
             <el-date-picker

@@ -21,7 +21,7 @@
 
     <div v-show="!emergency_response_isExpanded">
       <div class="emergency_response_notexpand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%;width: 100%">
+        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 20px;max-width: 20px">
       </div>
     </div>
   </div>
@@ -92,7 +92,7 @@ export default {
 <style>
 .emergency_response {
   position: absolute;
-  width: 22%; /* 调整宽度 */
+  width: 23%; /* 调整宽度 */
   height: 22%;
   padding: 10px;
   border-radius: 5px;
