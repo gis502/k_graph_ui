@@ -116,7 +116,7 @@
           <el-table
               :data="paginatedTableData"
               width="100%"
-              height="575px"
+              height="530px"
               ref="table"
               fit
               :disable="true"
@@ -604,7 +604,7 @@ export default {
 
 
 .contentsBox {
-  margin: 10px;
+  margin: 4px;
   border-radius: 5px;
   background-color: rgba(255, 255, 255, 0.54);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.91);
