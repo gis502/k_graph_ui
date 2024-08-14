@@ -961,13 +961,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value:"hasCasualties",
-                    label:"有（10人以上）"
+                    value: "noCasualties",
+                    label: "无"
                 },
                 {
-                    value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    value: "casualties10OrLess",
+                    label: "有（10人及以下）"
                 },
+                {
+                    value: "casualtiesMoreThan10",
+                    label: "有（10人以上）"
+                }
             ]
         },
         natureOfUse:{
@@ -1116,13 +1120,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value:"hasCasualties",
-                    label:"有（10人以上）"
+                    value: "noCasualties",
+                    label: "无"
                 },
                 {
-                    value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    value: "casualties10OrLess",
+                    label: "有（10人及以下）"
                 },
+                {
+                    value: "casualtiesMoreThan10",
+                    label: "有（10人以上）"
+                }
             ]
         },
         natureOfUse:{
@@ -1271,13 +1279,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value:"hasCasualties",
-                    label:"有（10人以上）"
+                    value: "noCasualties",
+                    label: "无"
                 },
                 {
-                    value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    value: "casualties10OrLess",
+                    label: "有（10人及以下）"
                 },
+                {
+                    value: "casualtiesMoreThan10",
+                    label: "有（10人以上）"
+                }
             ]
         },
         natureOfUse:{
@@ -1426,13 +1438,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value:"hasCasualties",
-                    label:"有（10人以上）"
+                    value: "noCasualties",
+                    label: "无"
                 },
                 {
-                    value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    value: "casualties10OrLess",
+                    label: "有（10人及以下）"
                 },
+                {
+                    value: "casualtiesMoreThan10",
+                    label: "有（10人以上）"
+                }
             ]
         },
         natureOfUse:{
