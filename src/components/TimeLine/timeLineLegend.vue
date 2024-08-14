@@ -56,13 +56,13 @@ export default {
 
 <style scoped>
 .timeLineLegend {
-  width: 18%;
+  width: 25%;
   height: 5%;
-  right: 1%;
-  bottom: 8%;
+  left: 1%;
+  bottom: 9%;
   padding: 12px;
   position: absolute;
-  background-color: #565656;
+  background-color: rgba(40, 40, 40, 0.7);
   box-sizing: border-box;
   color: white;
   z-index: 100;
@@ -70,13 +70,14 @@ export default {
 }
 
 .timeLineLegend.open {
-  width: 14%;
-  height: 90%;
-  bottom: 2%;
+  width: 23%;
+  height: 80%;
+  bottom: 9%;
   right: 1%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: rgba(40, 40, 40);
 }
 
 .legend-header {

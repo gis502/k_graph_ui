@@ -1,16 +1,19 @@
 <template>
   <div class="app-container">
     <el-table :data="tableData"
-              height="650px"
+              height="600px"
               @row-click="go"
               :stripe="true"
-              :header-cell-style="{ borderColor: '#C0C0C0', background: 'rgba(252,218,5,0.22)' }"
-              :cell-style="{ padding: '0px', borderColor: 'rgba(252,218,5,0.22)' }"
-              :row-style="{ height: '7.5vh' }"
-    >
-      <el-table-column type="index" label="序号" width="80" header-align="center" align="center"  :formatter="typeIndex"></el-table-column>
-      <el-table-column prop="position" label="位置" width="300"></el-table-column>
+              :header-cell-style="{  }"
+              :cell-style="{ }"
+              :row-style="{ height: '7.4vh' }">
+      <el-table-column label="序号" width="60">
+        <template #default="{ row, column, $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="position" label="位置" width="300" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
       <el-table-column prop="longitude" label="经度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度" header-align="center" align="center"></el-table-column>
@@ -71,21 +74,19 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+        let resData = res.filter(item=>item.magnitude>=5)
+        that.getEqData = resData
+        that.total = resData.length
         let data = []
-        // console.log(res)
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.time = that.timestampToTime(res[i].time)
-          if (parseFloat(item.magnitude) >= 5) { // Only keep items with magnitude >= 5
-            data.push(item);
-          }
+          item.time = that.timestampToTime(item.time)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
         }
-        this.getEqData = data
-        console.log(data)
-        // console.log(that.getEqData)
-        this.total = data.length
-        this.tableData = that.getPageArr()
-
+        that.tableData = this.getPageArr()
       })
     },
     timestampToTime(timestamp) {
@@ -122,6 +123,7 @@ export default {
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
+      this.currentPage = 1;
       this.tableData = this.getPageArr()
       // console.log(`每页 ${val} 条`);
     },

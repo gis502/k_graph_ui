@@ -115,8 +115,8 @@ export default {
 <style>
 .personnel_casualties {
   position: absolute;
-  top: 31%;
-  width: 23%;
+  top: 34%;
+  width: 25%;
   height: 20%;
   padding: 10px;
   border-radius: 5px;

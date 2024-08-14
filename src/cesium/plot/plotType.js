@@ -961,17 +961,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value: "noCasualties",
-                    label: "无"
+                    value:"hasCasualties",
+                    label:"有（10人以上）"
                 },
                 {
-                    value: "casualties10OrLess",
-                    label: "有（10人及以下）"
+                    value:"noHasCasualties",
+                    label:"有（10人以下）"
                 },
                 {
-                    value: "casualtiesMoreThan10",
-                    label: "有（10人以上）"
-                }
+                    value:"noHasCasualties",
+                    label:"无"
+                },
             ]
         },
         natureOfUse:{
@@ -1120,17 +1120,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value: "noCasualties",
-                    label: "无"
+                    value:"hasCasualties",
+                    label:"有（10人以上）"
                 },
                 {
-                    value: "casualties10OrLess",
-                    label: "有（10人及以下）"
+                    value:"noHasCasualties",
+                    label:"有（10人以下）"
                 },
                 {
-                    value: "casualtiesMoreThan10",
-                    label: "有（10人以上）"
-                }
+                    value:"noHasCasualties",
+                    label:"无"
+                },
             ]
         },
         natureOfUse:{
@@ -1279,17 +1279,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value: "noCasualties",
-                    label: "无"
+                    value:"hasCasualties",
+                    label:"有（10人以上）"
                 },
                 {
-                    value: "casualties10OrLess",
-                    label: "有（10人及以下）"
+                    value:"noHasCasualties",
+                    label:"有（10人以下）"
                 },
                 {
-                    value: "casualtiesMoreThan10",
-                    label: "有（10人以上）"
-                }
+                    value:"noHasCasualties",
+                    label:"无"
+                },
             ]
         },
         natureOfUse:{
@@ -1438,17 +1438,17 @@ const plotType = {
             value:"",
             content:[
                 {
-                    value: "noCasualties",
-                    label: "无"
+                    value:"hasCasualties",
+                    label:"有（10人以上）"
                 },
                 {
-                    value: "casualties10OrLess",
-                    label: "有（10人及以下）"
+                    value:"noHasCasualties",
+                    label:"有（10人以下）"
                 },
                 {
-                    value: "casualtiesMoreThan10",
-                    label: "有（10人以上）"
-                }
+                    value:"noHasCasualties",
+                    label:"无"
+                },
             ]
         },
         natureOfUse:{
@@ -1710,18 +1710,18 @@ const plotType = {
                 name: "人员伤亡",
                 value: "",
                 content: [
-                {
-                    value: "noCasualties",
-                    label: "无"
-                },
-                {
-                    value: "casualties10OrLess",
-                    label: "有（10人及以下）"
-                },
-                {
-                    value: "casualtiesMoreThan10",
-                    label: "有（10人以上）"
-                }
+                    {
+                        value:"hasCasualties",
+                        label:"有（10人以上）"
+                    },
+                    {
+                        value:"noHasCasualties",
+                        label:"有（10人以下）"
+                    },
+                    {
+                        value:"noHasCasualties",
+                        label:"无"
+                    },
             ]
         },
         damageType: {

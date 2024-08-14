@@ -8,6 +8,7 @@
       </div>
       <div class="emergency_response_title-underline"></div>
 
+      <p class="emergency_response_state"> {{this.activity.time}}</p>
       <p class="emergency_response_department"><span>{{this.activity.department}}</span> </p>
       <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_state">{{this.activity.state}}</span></p>
 
@@ -16,7 +17,6 @@
         <p class="time_text"> 数据更新时间</p>
         <p class="time"> {{this.activity.time}}</p>
       </div>
-
     </div>
 
     <div v-show="!emergency_response_isExpanded">
@@ -80,7 +80,7 @@ export default {
         this.activity.ResponseName=tmp[2]
         this.activity.state=tmp[3]
       }
-
+      // console.log(this.activity)
     },
     emergency_response_toggleExpand() {
       this.emergency_response_isExpanded = !this.emergency_response_isExpanded
@@ -92,11 +92,11 @@ export default {
 <style>
 .emergency_response {
   position: absolute;
-  width: 23%; /* 调整宽度 */
-  height: 22%;
+  width: 25%; /* 调整宽度 */
+  height: 23%;
   padding: 10px;
   border-radius: 5px;
-  top:7%;
+  top:10%;
   left: 1%;
   z-index: 20; /* 提高层级 */
   background-color: rgba(40, 40, 40, 0.7);

@@ -1,29 +1,29 @@
 <template>
   <div>
     <div id="news" v-show="showRightButton">
-      <h2 class="sub-title">
+      <h2 class="sub-title-new">
         最新新闻:
         <span class="title-time">{{ currentEvent }}</span>
         <span class="icon" @click="hideNews">
-                    <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
-                </span>
+            <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
+        </span>
       </h2>
-
       <div class="sub-main">
         <ul class="sub-ul">
-          <li
-              :class="[i === 0 || i === 1 ? 'high' : '']"
+          <li :class="[i === 0 || i === 1 ? 'high' : '']"
               v-for="(item, i) in showNews"
               :key="item.id"
               style="cursor: pointer"
-              @click="showDetailedNews(item)"
-          >
+              @click="showDetailedNews(item)">
             <div v-if="item.img" class="news-img">
-              <img :src="item.img" alt="新闻图片" />
+              <img :src="item.img" alt="新闻图片" @error="handleErrorImage" />
+            </div>
+            <div v-else class="news-img">
+              <img :src="error" alt="新闻图片"/>
             </div>
             <div class="sub-content">
               <p class="sub-time">{{ item.time }}</p>
-              <p class="sub-text">{{ item.content }}</p>
+              <p class="sub-text">{{ item.title }}</p>
             </div>
           </li>
         </ul>
@@ -37,12 +37,16 @@
 </template>
 
 <script>
-import newsData from "@/assets/json/TimeLine/news.json"
+// import newsData from "@/assets/json/TimeLine/news.json"
+import newsData from "@/assets/json/TimeLine/news_copy1.json"
+import error from '@/assets/json/TimeLine/errorimg.jpg'
+
 
 export default {
   name: "news",
-  data(){
-    return{
+  data() {
+    return {
+      error,
       newsData: newsData,
       showNews: [],
       currentEvent: '',
@@ -70,16 +74,19 @@ export default {
       this.updateNews(newVal)
     },
   },
-  methods:{
+  methods: {
+    handleErrorImage(event) {
+      event.target.src = error // 当图片加载失败时，将其替换为备用图片
+    },
     async fetchData() {
       // this.newsData = this.newsData.filter((item,index) => index < 5)
       // console.log("----",this.newsData)
     },
-    hideNews(){
+    hideNews() {
       this.showRightButton = false
       this.showLeftButton = true
     },
-    showNewsConponent(){
+    showNewsConponent() {
       this.showRightButton = true
       this.showLeftButton = false
     },
@@ -95,7 +102,8 @@ export default {
           id: tmp.id,
           time: tmp.publish_time,
           content: tmp.content,
-          img: tmp.image
+          img: tmp.image,
+          title: tmp.title
         }
         this.currentEvent = activity.time
         if (this.showNews.length === 0) {
@@ -109,15 +117,12 @@ export default {
           })
           if (flag) {
             this.showNews.unshift(activity)
-            // console.log("this.showNews----",this.showNews)
           }
         }
       }
     },
     showDetailedNews(row) {
-      // console.log("row---",row)
       this.showingNews = row
-      // this.DialogFormVisible = true
       let bool = true
       this.$emit('detailedNews', row);
       this.$emit('ifShowDialog', bool);
@@ -128,7 +133,7 @@ export default {
 
 <style scoped>
 #news {
-  width: 18%;
+  width: 27%;
   height: 45%;
   position: absolute;
   padding: 0 5px 5px;
@@ -140,15 +145,16 @@ export default {
   color: white;
 }
 
-.sub-title {
+.sub-title-new {
+  /*
+  text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
+  padding: 1rem 0 1rem !important;*/
   font-family: myFirstFont;
-  font-size: 1.1rem;
   line-height: 1.8rem;
-  /*padding: 1rem 0 1rem !important;*/
+  font-size: 1.1rem;
   color: #ffffff;
   letter-spacing: 0;
   text-align: justify;
-  text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
   border-bottom: 0.1rem solid #ffffff;
   margin: 0;
   padding: 0;
@@ -158,9 +164,8 @@ export default {
 }
 
 .title-time {
-  font-size: 0.9rem;
+  font-size: 16px;
   font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
   color: #ffeb00;
   line-height: 1.8rem;
 }
@@ -196,7 +201,7 @@ export default {
 .sub-ul li {
   display: flex;
   align-items: center; /* Center items vertically */
-  margin-bottom: 0; /* Optional: Add some space between items */
+  margin-bottom: -14px; /* Optional: Add some space between items */
   /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
   padding: 0; /* Optional: Add padding for better spacing */
 }
@@ -204,8 +209,7 @@ export default {
 .sub-content {
   padding: 0;
   margin: 0;
-  line-height: .4rem;
-  font-size: .6rem;
+  font-size: 16px;
   flex: 1;
 }
 
@@ -217,10 +221,10 @@ export default {
 }
 
 .news-img img {
-  max-width: 30px; /* 设置图片最大宽度 */
-  max-height: 30px; /* 设置图片最大高度 */
-  width: auto; /* 自动调整宽度以保持比例 */
-  height: auto; /* 自动调整高度以保持比例 */
+   /* 设置图片最大宽度 max-width: 30px;*/
+   /* 设置图片最大高度 max-height: 30px;*/
+  width: 120px; /* 自动调整宽度以保持比例 */
+  height: 65px; /* 自动调整高度以保持比例 */
 }
 
 .sub-time {
@@ -236,7 +240,7 @@ export default {
   text-overflow: ellipsis; /* 超出部分用省略号表示 */
   line-height: 1.1; /* 行高，调整以适应你的字体 */
   height: 2.1em; /* 高度设置为两行的高度 */
-  left:10%
+  left: 10%
 }
 
 .showNewsButton {
