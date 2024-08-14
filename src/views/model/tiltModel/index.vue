@@ -38,9 +38,9 @@
             <!--          </template>-->
 <!--          </el-table-column>-->
           <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
-          <el-table-column prop="tz" label="模型中心高度"></el-table-column>
+          <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
           <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
-          <el-table-column prop="tze" label="模型中心高度（三维）" width="170px"></el-table-column>
+          <el-table-column prop="tze" label="模型中心高度(米)" width="160px"></el-table-column>
           <el-table-column label="操作" width="80" align="center">
             <!--          <template #default="scope">-->
             <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
@@ -971,7 +971,7 @@ function updataMCommit() {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  width: 525px;
+  width: 560px;
   top: 265px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
@@ -980,7 +980,7 @@ function updataMCommit() {
 
 .button-container {
   height: 195px;
-  width: 525px;
+  width: 560px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;

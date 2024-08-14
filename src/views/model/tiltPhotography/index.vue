@@ -8,11 +8,11 @@
     <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
       <el-table-column prop="eqid" label="序号" width="60" align="center"></el-table-column>
       <el-table-column prop="modelName" label="模型名称" width="200" align="center"></el-table-column>
-      <el-table-column prop="size" label="模型大小（GB）" width="150" align="center"></el-table-column>
-      <el-table-column prop="addTime" label="添加时间" align="center" width="220"></el-table-column>
+      <el-table-column prop="size" label="模型大小(GB)" width="150" align="center"></el-table-column>
+      <el-table-column prop="addTime" label="添加时间" align="center" width="180"></el-table-column>
       <el-table-column prop="modelPath" label="模型路径" width="250" align="center"></el-table-column>
-      <el-table-column prop="modelHeight" label="模型中心高度" align="center"></el-table-column>
-      <el-table-column prop="rotationAngle" label="旋转角度" align="center"></el-table-column>
+      <el-table-column prop="modelHeight" label="模型中心高度(米)" align="center"></el-table-column>
+      <el-table-column prop="rotationAngle" label="旋转角度(度)" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template v-slot="scope">
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleOpen('修改',scope.row)">修改</el-button>

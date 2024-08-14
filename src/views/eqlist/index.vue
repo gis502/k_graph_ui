@@ -16,7 +16,7 @@
       <el-table-column prop="magnitude" label="震级"></el-table-column>
       <el-table-column prop="longitude" label="经度"></el-table-column>
       <el-table-column prop="latitude" label="纬度"></el-table-column>
-      <el-table-column prop="depth" label="深度"></el-table-column>
+      <el-table-column prop="depth" label="深度(千米)"></el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button type="text" icon="Edit" @click="handleOpen('修改',scope.row)">修改</el-button>
