@@ -71,6 +71,18 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '',
+    component: Layout,
+    redirect: '/index',
+    children: [
+      {
+        path: '/thdTimeLine/:eqid',
+        component: () => import('@/views/plot/timeLine/thdTimeLine.vue'),
+        name: 'thdTimeLine',
+        props: true,
+      }]
+  },
+  {
     path: '/user',
     component: Layout,
     hidden: true,
@@ -84,21 +96,6 @@ export const constantRoutes = [
       }
     ]
   },
-  {
-    path:'/thd',
-    component: () =>import('@/components/Cesium/thd'),
-    hidden: true
-  },
-
-  {
-    // path:'/thdTimeLine',
-    path: '/thdTimeLine/:eqid',
-    component: () =>import('@/components/Cesium/thdTimeLine.vue'),
-    name:'thdTimeLine',
-    props: true
-
-    // hidden: true
-  }
 ]
 
 // 动态路由，基于用户权限动态去加载
@@ -186,5 +183,5 @@ const router = createRouter({
     }
   },
 });
-
+// 打印动态路由
 export default router;

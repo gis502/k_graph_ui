@@ -17,10 +17,13 @@ export default class Polyline {
     this.typeName = null
     this.img = null
     this.eqid = null
+    this.resolve = null
+    this.timestampArr = []
   }
 
   //激活
-  activate(material,typeName,img,eqid) {
+  activate(material,typeName,img,eqid,resolve) {
+    this.resolve = resolve
     this.eqid = eqid
     this.img = img
     this.typeName = typeName
@@ -33,7 +36,7 @@ export default class Polyline {
     // 创建Date对象
     let currentDate = new Date();
     // 获取当前时间的时间戳作为ID
-    this.initId = currentDate.getTime() + "polyline";
+    this.initId = this.guid();
     this.registerEvents(); //注册鼠标事件
   }
 
@@ -76,6 +79,9 @@ export default class Polyline {
       that.positions.push(position);
       let p = that.createPoint(position)
       that.pointLinePoint.push(p)
+      // 生成线上每个点的生成时间，用于situationplot中的time
+      let timestampe = this.timestampToTime(new Date().getTime())
+      that.timestampArr.push(timestampe)
       if (that.positions.length === 1) {
         that.generatePolyline();
       }
@@ -87,6 +93,9 @@ export default class Polyline {
   }
 
   rightClickEvent() {
+    window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
+      return false;
+    }
     let that = this
     this.handler.setInputAction(e => {
       if (!that.drawEntity) {
@@ -128,22 +137,30 @@ export default class Polyline {
     if(that.typeName==="地裂缝"||that.typeName==="可用供水管网"||that.typeName==="不可用供水管网"){
       img = this.img
     }
-    this.ws.send(JSON.stringify({
-      type: "polyline",
-      operate: "add",
-      data: {
-        id: that.initId,
-        type:that.typeName,
-        positions: that.positions,
-        img: img,
-        eqid: that.eqid
-      }
-    }))
+    let data = {
+      timestampArr:this.timestampArr,
+      pointPosArr:this.positions,
+      plotid: this.initId
+    }
+    this.resolve(data)
+    // this.ws.send(JSON.stringify({
+    //   type: "polyline",
+    //   operate: "add",
+    //   data: {
+    //     id: that.initId,
+    //     type:that.typeName,
+    //     positions: that.positions,
+    //     img: img,
+    //     eqid: that.eqid
+    //   }
+    // }))
     this.status = 0
     this.pointLinePoint = []
     this.drawEntity.remove = () => {
       this.viewer.entities.remove(this.drawEntity);
     }
+
+    this.timestampArr = []
     this.deactivate();
   }
 
@@ -153,7 +170,7 @@ export default class Polyline {
     return this.viewer.entities.add({
       show: false,
       position: position,
-      id: that.initId + "point" + that.index,
+      id: that.guid(),
       point: {
         pixelSize: 1,
         color: Cesium.Color.RED,
@@ -167,8 +184,37 @@ export default class Polyline {
     });
   }
 
+  noNo(data){
+    let situationPlotData = []// situationplot表中的线数据
+    for(let i=0;i<data.pointPosArr.length;i++){
+      let cartographic = Cesium.Cartographic.fromCartesian(data.pointPosArr[i]);
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      let height = Cesium.Math.toDegrees(cartographic.height);
+      let plotItem = {
+        // eqid: that.eqid,
+        plotid:data.plotid,
+        // time: data.timestampArr[i],
+        // plottype: item.name,
+        drawtype: "polyline",
+        // img:item.img,
+        // latitude,
+        // longitude,
+        // height,
+      }
+      situationPlotData.push(plotItem)
+    }
+    return situationPlotData
+  }
+
   generatePolyline() {
     let that = this
+    let data = this.noNo({
+      timestampArr:this.timestampArr,
+      pointPosArr:this.positions,
+      plotid: this.initId
+    })
+    console.log("干嘛？",data)
     this.drawEntity = this.viewer.entities.add({
       id: this.initId,
       polyline: {
@@ -227,6 +273,7 @@ export default class Polyline {
       },
       properties: {
         pointPosition: that.pointLinePoint,
+        data
       }
     })
   }
@@ -274,7 +321,7 @@ export default class Polyline {
         // 1-3 把数据库同一drawid的点数据放入此数组
         let line = []
         polylineArr.forEach(polylineElement => {
-          if (polylineElement.drawid === onlyDrawIdItem) {
+          if (polylineElement.plotid === onlyDrawIdItem) {
             line.push(polylineElement)
           }
         })
@@ -284,7 +331,7 @@ export default class Polyline {
           let p = window.viewer.entities.add({
             show: false,
             position: new Cesium.Cartesian3(line[i].longitude, line[i].latitude, line[i].height),
-            id: line[i].drawid + 'point' + (i + 1),
+            id: line[i].plotid + 'point' + (i + 1),
             point: {
               pixelSize: 0,
               color: Cesium.Color.RED,
@@ -300,9 +347,11 @@ export default class Polyline {
         // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
         let positionsArr = []
         line.forEach(e => {
-          positionsArr.push(new Cesium.Cartesian3(e.longitude, e.latitude, e.height))
+          // 线的positions需要数组里的点都是Cartesian3类型
+          positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e.longitude), parseFloat(e.latitude), parseFloat(e.height)))
         })
-        let material = getmaterial(line[0].pointtype,line[0].img)
+        let material = getmaterial(line[0].plottype,line[0].img)
+      console.log(line,8888)
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,
@@ -311,11 +360,11 @@ export default class Polyline {
             width: 5,
             material: material,
             // material: Cesium.Color.YELLOW,
-            depthFailMaterial: Cesium.Color.YELLOW,
+            // depthFailMaterial: Cesium.Color.YELLOW,
             clampToGround: true,
           },
           properties: {
-            pointPosition: pointLinePoints,
+            data: line,
           }
         })
       }
@@ -326,11 +375,34 @@ export default class Polyline {
   distinguishPolylineId(polylineArr) {
     let PolylineIdArr = []
     polylineArr.forEach(element => {
-      if (!PolylineIdArr.includes(element.drawid)) {
-        PolylineIdArr.push(element.drawid)
+      if (!PolylineIdArr.includes(element.plotid)) {
+        PolylineIdArr.push(element.plotid)
       }
     })
     return PolylineIdArr
   }
-
+  guid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      let r = Math.random() * 16 | 0,
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+  timestampToTime(timestamp) {
+    let DateObj = new Date(timestamp)
+    // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+    let year = DateObj.getFullYear()
+    let month = DateObj.getMonth() + 1
+    let day = DateObj.getDate()
+    let hh = DateObj.getHours()
+    let mm = DateObj.getMinutes()
+    let ss = DateObj.getSeconds()
+    month = month > 9 ? month : '0' + month
+    day = day > 9 ? day : '0' + day
+    hh = hh > 9 ? hh : '0' + hh
+    mm = mm > 9 ? mm : '0' + mm
+    ss = ss > 9 ? ss : '0' + ss
+    // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+    return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+  }
 }

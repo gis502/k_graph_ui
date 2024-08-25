@@ -2,16 +2,16 @@
   <el-dialog class="dialogDiv" v-model="DialogFormVisible" title="添加标注信息" width="800"
              :close-on-click-modal="false" :destroy-on-close="true" :show-close="false">
     <el-form :model="this.form" :inline="true">
-      <el-form-item label="标注类型" :label-width="100">
+      <el-form-item label="标注类型" :label-width="120">
         <el-input placeholder="请输入内容" v-model="form.type" :disabled="true" size="large"/>
       </el-form-item>
-      <el-form-item label="经度" :label-width="100">
+      <el-form-item label="经度" :label-width="120">
         <el-input v-model="form.lon" autocomplete="off" size="large"/>
       </el-form-item>
-      <el-form-item label="纬度" :label-width="100">
+      <el-form-item label="纬度" :label-width="120">
         <el-input v-model="form.lat" autocomplete="off" size="large"/>
       </el-form-item>
-      <el-form-item label="开始时间" :label-width="100">
+      <el-form-item label="开始时间" :label-width="120">
         <div class="formTime">
           <el-date-picker
               v-model="starttime"
@@ -22,7 +22,7 @@
           </el-date-picker>
         </div>
       </el-form-item>
-      <el-form-item label="结束时间" :label-width="100">
+      <el-form-item label="结束时间" :label-width="120">
         <div class="formTime">
           <el-date-picker
               v-model="endtime"
@@ -43,17 +43,20 @@
       <!--  v-if 比 v-for 的优先级更高，这意味着 v-if 的条件将无法访问到 v-for 作用域内定义的变量别名。    -->
       <!--  在外先包装一层 <template> 再在其上使用 v-for 可以解决这个问题-->
       <template v-for="(value,key,index) in typeInfo">
-        <el-form-item v-if="value.type ==='text'" :label="value.name" :label-width="100">
+        <el-form-item v-if="value.type ==='text'" :label="value.name" :label-width="120">
           <el-input v-model="value.value" autocomplete="off" size="large"/>
         </el-form-item>
       </template>
       <template v-for="(value,key) in typeInfo">
-        <el-form-item v-if="value.type ==='select'" :label="value.name">
-          <el-select v-model="value.value" placeholder="请选择" size="large">
+        <el-form-item v-if="value.type ==='select'" :label="value.name" :label-width="120">
+          <el-select v-model="value.value" placeholder="请选择" size="large" style="width: 220px">
             <el-option
                 v-for="item in value.content"
-                :label="item.lable"
-                :value="item.lable"/>
+                :label="item.label"
+                :value="item.label"/>
+            <template>
+              {{item}}
+            </template>
           </el-select>
         </el-form-item>
       </template>
@@ -83,7 +86,7 @@ export default {
     }
   },
   props: [
-    'addMarkDialogFormVisible', 'pointInfo'
+    'addMarkDialogFormVisible'
   ],
   watch: {
     addMarkDialogFormVisible() {
@@ -102,6 +105,7 @@ export default {
             break;
           }
         }
+        console.log(this.typeInfo)
       }
     },
   },
@@ -161,7 +165,7 @@ export default {
       // 组装 plot
       assemblyData.plot.eqid = data1.eqid
       assemblyData.plot.plotid = data1.plotid
-      assemblyData.plot.time = Date.now() // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
+      assemblyData.plot.time = this.timestampToTime(Date.now()) // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
       assemblyData.plot.plottype = data1.plottype
       assemblyData.plot.drawtype = "point" // 点线面后面再判断，先写点，别忘了改！！！！
       assemblyData.plot.latitude = data1.latitude
@@ -193,7 +197,8 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     guid() {

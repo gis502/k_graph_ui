@@ -3,7 +3,15 @@
     <div id="cesiumContainer" v-if="pageStatus">
       <el-form class="tool-container-1">
         <el-row>
-          <div class="modelAdj">模型调整</div>
+          <div class="modelAdj" style="margin-top: 5px">模型调整</div>
+          <el-button type="primary" @click="showSelectModel=!showSelectModel">
+            <span v-if="showSelectModel">
+              隐藏工具
+            </span>
+            <span v-if="!showSelectModel">
+              显示工具
+            </span>
+          </el-button>
           <el-button type="primary" @click="find">找到模型</el-button>
           <el-button type="primary" @click="showArrow">{{ showArrowText }}</el-button>
           <!--        <el-button class="el-button--primary" @click="isTerrainLoaded">地形是否加载</el-button>-->
@@ -12,28 +20,28 @@
           <el-button type="primary" @click="updataPosition">更新位置</el-button>
         </el-row>
       </el-form>
-      <el-form class="button-container">
+      <el-form class="button-container" v-show="showSelectModel">
         <div class="modelAdj">模型选择</div>
         <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(1)">0.4平方公里模型</el-button>-->
         <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(2)">7.37平方公里模型</el-button>-->
         <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="home">雅安</el-button>-->
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
-          <el-table-column prop="name" label="模型名称">
+          <el-table-column prop="name" label="模型名称" width="140px">
             <!--          <template #default="scope">-->
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
           </el-table-column>
-          <el-table-column prop="path" label="模型路径" width="">
+<!--          <el-table-column prop="path" label="模型路径" width="80">-->
             <!--          <template #default="scope">-->
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
-          </el-table-column>
+<!--          </el-table-column>-->
           <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
-          <el-table-column prop="tz" label="模型高度" width=""></el-table-column>
+          <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
           <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
-          <el-table-column prop="tze" label="模型高度（三维）" width=""></el-table-column>
-          <el-table-column label="操作" min-width="120" align="center">
+          <el-table-column prop="tze" label="模型中心高度(米)" width="160px"></el-table-column>
+          <el-table-column label="操作" width="80" align="center">
             <!--          <template #default="scope">-->
             <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
             <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="selectModel(scope.row.path)">查看</el-button>-->
@@ -45,16 +53,18 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            layout="total, prev, pager, next, jumper"
-            :total="total">
-        </el-pagination>
-      </el-form>
-      <el-form class="tool-container">
+        <div>
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="currentPage"
+              :page-size="pageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="total">
+          </el-pagination>
+        </div>
+      </el-form   >
+      <el-form class="tool-container" v-show="showSelectModel">
         <el-row>
           <!--        <br>-->
           <span style="color: white">调整高度</span>
@@ -158,7 +168,7 @@ let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
 //----------------------------model table---------------------------------------
 let currentPage = ref(1)
-let pageSize = ref(5)
+let pageSize = ref(6)
 let total = ref(0)
 let modelList = []
 let tableData = ref([])
@@ -169,6 +179,8 @@ let modelInfo = reactive({
   name: null, path: null, rz: null, tz: null, rze: null, tze: null, time: null, modelid: null
 })
 //-------------------------------------------------------------------------------
+let showSelectModel = ref(true)
+// -----------------------------------------------------------------------------
 
 onMounted(() => {
   init()
@@ -648,11 +660,14 @@ function initModelTable() {
 // 修改table的header的样式
 function tableHeaderColor() {
   return {
-    'border-color': '#293038',
+    'border-width':'1px',
+    'border-style':'solid',
+    'border-color': '#555555',
     'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
     'color': '#fff',
     'padding': '0',
     'text-align': 'center',
+    'font-size': '14px'
   }
 }
 
@@ -660,19 +675,25 @@ function tableHeaderColor() {
 function tableColor({row, column, rowIndex, columnIndex}) {
   if (rowIndex % 2 == 1) {
     return {
-      'border-color': '#313a44',
+      'border-width':'1px',
+      'border-style':'solid',
+      'border-color': '#555555',
       'background-color': '#313a44',
       'color': '#fff',
       'padding': '0',
-      'text-align': 'center'
+      'text-align': 'center',
+      'font-size': '14px'
     }
   } else {
     return {
-      'border-color': '#304156',
+      'border-width':'1px',
+      'border-style':'solid',
+      'border-color': '#555555',
       'background-color': '#304156',
       'color': '#fff',
       'padding': '0',
-      'text-align': 'center'
+      'text-align': 'center',
+      'font-size': '14px'
     }
   }
 }
@@ -858,6 +879,20 @@ function updataMCommit() {
 </script>
 
 <style scoped>
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
+/* 修改element内置css不生效，则需要加上/deep/ */
+/deep/ .el-pagination__total{
+  color: #FFFFFF;
+}
+/deep/ .el-pagination>.is-last{
+  color: #FFFFFF;
+}
+/deep/ .el-table--fit .el-table__inner-wrapper:before {
+  width: 0;
+}
 .cesium-viewer-navigationContainer {
   display: none !important;
 }
@@ -925,7 +960,7 @@ function updataMCommit() {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  width: 525px;
+  width: 625px;
   top: 10px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
@@ -936,16 +971,16 @@ function updataMCommit() {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  width: 525px;
-  top: 400px;
+  width: 560px;
+  top: 265px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
 .button-container {
-  height: 330px;
-  width: 525px;
+  height: 195px;
+  width: 560px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
@@ -968,7 +1003,7 @@ function updataMCommit() {
 }
 
 .modelAdj {
-  color: white;
+  color: #FFFFFF;
   margin-bottom: 5px;
   margin-right: 10px;
 }

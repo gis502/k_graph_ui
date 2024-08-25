@@ -1,85 +1,117 @@
 <template>
-  <div id="cesiumContainer">
-    <el-form class="eqTable">
-      <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true"
-                :header-cell-style="tableHeaderColor" :cell-style="tableColor" @row-click="plotAdj">
-        <el-table-column prop="position" label="位置"></el-table-column>
-        <el-table-column prop="time" label="发震时间" width="100"></el-table-column>
-        <el-table-column prop="magnitude" label="震级" width="50"></el-table-column>
-        <el-table-column prop="longitude" label="经度" width="65"></el-table-column>
-        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>
-        <el-table-column prop="depth" label="深度" width="50"></el-table-column>
-      </el-table>
-      <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next, jumper"
-          :total="total">
-      </el-pagination>
+  <div>
+    <div class="eqtitle">
+      <span class="eqtitle-text_eqname">{{this.title}}级地震</span>
+    </div>
+    <div id="cesiumContainer" class="situation_cesiumContainer">
+      <el-form class="situation_eqTable">
+        <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor" @row-click="plotAdj">
+          <el-table-column label="序号" width="55">
+            <template #default="{ row, column, $index }">
+              {{ ($index + 1) + (currentPage - 1) * pageSize }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="time" label="发震时间" width="160"/>
+          <el-table-column prop="position" label="位置">
+            <template #default="scope">
+              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.position.length>=14">
+                <div>{{ scope.row.position }}</div>
+                <template #reference>
+                  <div>
+                  <span class="posInfo">
+                    {{ scope.row.position }}
+                  </span>
+                  </div>
+                </template>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column prop="magnitude" label="震级" width="55"/>
+          <!--        <el-table-column prop="longitude" label="经度" width="70"></el-table-column>-->
+          <!--        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>-->
+          <!--        <el-table-column prop="depth" label="深度" width="50"></el-table-column>-->
+        </el-table>
+        <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next"
+            :total="total">
+        </el-pagination>
 
-    </el-form>
-    <el-form class="noteContainer">
-      <div class="modelAdj">标绘工具</div>
-      <el-row>
-        <el-col :span="13">
-          <el-tree :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
-        </el-col>
-        <el-col :span="11">
+      </el-form>
+      <el-form class="noteContainer">
+        <div class="modelAdj">态势标绘工具</div>
+        <el-row>
+          <el-col :span="13">
+            <el-tree :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick" accordion></el-tree>
+          </el-col>
+          <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
               <img :src="item.img" width="30px" height="30px">
             </el-tooltip>
           </span>
-          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">
-            <el-button type="primary" @click="drawP">量算面积</el-button>
-            <el-button type="primary" @click="drawN">量算距离</el-button>
-            <el-button style="margin: 10px;" type="danger" @click="deletePolygon"
-                       v-if="this.showPolygon">删除面</el-button>
-            <el-button style="margin: 10px;" type="danger" @click="deletePolyline"
-                       v-if="this.showPolyline">删除线</el-button>
-           <el-row>
-            <br>
-            <el-col :span="24">
-              <span style="color: white;">距离：</span>
-              <span style="color: white;" id="distanceLine">0</span>
-              <span style="color: white;"> 米</span>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24">
-              <span style="color: white;">面积：</span>
-              <span style="color: white;" id="area">0</span>
-              <span style="color: white;"> 平方米</span>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="24">
-              <span style="color: white;">区域内标绘个数：</span>
-              <span style="color: white;" id="ispointIcon">0 </span>
-              <span style="color: white;"> 个</span>
-            </el-col>
-          </el-row>
-          </span>
-        </el-col>
-      </el-row>
-    </el-form>
-    <addMarkCollectionDialog
-        :addMarkDialogFormVisible="addMarkDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @drawPoint="drawPoint"
-        @clearMarkDialogForm="resetAddMarkCollection"
-    />
-    <commonPanel
-        :visible="popupVisible"
-        :position="popupPosition"
-        :popupData="popupData"
-        @wsSendPoint="wsSendPoint"
-        @closePlotPop="closePlotPop"
-    />
+            <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
+            <!--            <el-button type="primary" @click="drawP">量算面积</el-button>-->
+            <!--            <el-button type="primary" @click="drawN">量算距离</el-button>-->
+            <!--            <el-button style="margin: 10px;" type="danger" @click="deletePolygon"-->
+            <!--                       v-if="this.showPolygon">删除面</el-button>-->
+            <!--            <el-button style="margin: 10px;" type="danger" @click="deletePolyline"-->
+            <!--                       v-if="this.showPolyline">删除线</el-button>-->
+            <!--           <el-row>-->
+            <!--            <br>-->
+            <!--            <el-col :span="24">-->
+            <!--              <span style="color: white;">距离：</span>-->
+            <!--              <span style="color: white;" id="distanceLine">0</span>-->
+            <!--              <span style="color: white;"> 米</span>-->
+            <!--            </el-col>-->
+            <!--          </el-row>-->
+            <!--          <el-row>-->
+            <!--            <el-col :span="24">-->
+            <!--              <span style="color: white;">面积：</span>-->
+            <!--              <span style="color: white;" id="area">0</span>-->
+            <!--              <span style="color: white;"> 平方米</span>-->
+            <!--            </el-col>-->
+            <!--          </el-row>-->
+            <!--          <el-row>-->
+            <!--            <el-col :span="24">-->
+            <!--              <span style="color: white;">区域内标绘个数：</span>-->
+            <!--              <span style="color: white;" id="ispointIcon">0 </span>-->
+            <!--              <span style="color: white;"> 个</span>-->
+            <!--            </el-col>-->
+            <!--          </el-row>-->
+            <!--          </span>-->
+          </el-col>
+        </el-row>
+      </el-form>
+      <addMarkCollectionDialog
+          :addMarkDialogFormVisible="addMarkDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @drawPoint="drawPoint"
+          @clearMarkDialogForm="resetAddMarkCollection"
+      />
+      <addPolylineDialog
+          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @drawPoint="drawPoint"
+          @clearMarkDialogForm="resetPolyline"
+      />
+      <addPolygonDialog
+          :popupVisiblePolygon="popupVisiblePolygon"
+          :defaultValue="defaultInputValue"
+          @confirm="handlePopupConfirm"
+      />
+      <commonPanel
+          :visible="popupVisible"
+          :position="popupPosition"
+          :popupData="popupData"
+          @wsSendPoint="wsSendPoint"
+          @closePlotPop="closePlotPop"
+      />
+    </div>
   </div>
-
 </template>
 
 <script>
@@ -92,20 +124,25 @@ import {getAllEq} from '@/api/system/eqlist'
 import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
+import addPolylineDialog from "@/components/Cesium/addPolylineDialog.vue"
+import addPolygonDialog from '@/components/Cesium/addPolygonDialog'
 import commonPanel from "@/components/Cesium/CommonPanel";
 import {useCesiumStore} from '@/store/modules/cesium.js'
+import {getCurrentInstance, onMounted} from 'vue'
 
 export default {
   components: {
-    addMarkCollectionDialog, commonPanel,//CesiumDraw
+    addMarkCollectionDialog, commonPanel,addPolygonDialog,addPolylineDialog//CesiumDraw
   },
   data: function () {
     return {
       //-----------标绘部分--------------
+      polylineStatus:0,//0 标绘线未激活状态，1 激活状态
       typeList: null,// 点标注控件根据此数据生成
       refenceTypeList: null,//用来对照弹窗中类型的中文
       message: null, // 添加点标绘的时候的弹窗相关
-      addMarkDialogFormVisible: false, // 标绘信息填写对话框的显示和隐藏
+      addMarkDialogFormVisible: false, // dian标绘信息填写对话框的显示和隐藏
+      addPolylineDialogFormVisible:false,// xian标绘信息填写对话框的显示和隐藏
       showMarkCollection: false, // 点标绘控件的显示和隐藏
       openAddStatus: true, // 用来控制添加billboard按钮的状态，点一次后只有添加完点才能再点击
       //-----------弹窗部分--------------
@@ -122,6 +159,17 @@ export default {
       websock: null,
       //-----------------------------------
       plotTreeData: [
+        {
+          label: '现场救援类',
+          children: [
+            {
+              label: 'I类（救援力量类）'
+            },
+            {
+              label: 'II类（救援行动类）'
+            },
+          ]
+        },
         {
           label: '次生灾害类',
           children: [
@@ -159,9 +207,9 @@ export default {
             },
           ]
         },
-        {
-          label: '量算工具',
-        }
+        // {
+        //   label: '量算工具',
+        // }
       ],
       defaultProps: {
         label: 'label',
@@ -170,17 +218,27 @@ export default {
       plotTreeClassification: [],
       //----------------------------------
       total: 0,
-      pageSize: 6,
+      pageSize: 5,
       currentPage: 1,
       getEqData: [],
       tableData: [],
       //----------------------------------
       eqid: '',
+      title:'',
+      popupVisiblePolygon: false,
+      defaultInputValue: '',
+      clickEvent: null // 用于存储点击事件对象
     };
   },
+  setup(props,ctx) {
+    onMounted(()=>{
+      window.showPopup= instance.proxy.showPopup
+    })
+    const instance = getCurrentInstance()
+  },
   mounted() {
+    // 初始化地图
     this.init()
-    // ---------------------------------------------------
     // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
@@ -188,7 +246,6 @@ export default {
     this.getEq()
     // 获取标绘图片
     this.getPlotPicture()
-
   },
   destroyed() {
     this.websock.close()
@@ -247,6 +304,30 @@ export default {
           }
           that.drawPoint(point)
         })
+        let polylineArr = data.filter(e => e.drawtype === 'polyline')
+        cesiumPlot.getDrawPolyline(polylineArr)
+        // 处理多边形数据
+        let polygonArr = data.filter(e => e.drawtype === 'polygon');
+        // console.log('index.polygonArr', polygonArr)
+        let polygonMap = {};
+
+        polygonArr.forEach(item => {
+          if (!polygonMap[item.plotid]) {
+            polygonMap[item.plotid] = [];
+          }
+          polygonMap[item.plotid].push(item);
+        });
+        console.log(polygonArr,1239)
+        // console.log('index.polygonMap', polygonMap)
+        Object.keys(polygonMap).forEach(plotid => {
+          let polygonData = polygonMap[plotid];
+          if (polygonData.length === 4) { // 确保有四个点
+            that.getDrawPolygonInfo(polygonData);
+            // console.log("数据库数据",polygonData)
+          } else {
+            console.warn(`多边形 ${plotid} 数据点数量不正确`);
+          }
+        });
       })
     },
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
@@ -256,6 +337,11 @@ export default {
         // 1-1 获取点击点的信息（包括）
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
+        if(window.selectedEntity === undefined){
+          this.popupVisible = false
+          this.popupData = {}
+
+        }
         // 2-1 判断点击物体是否为点实体（billboard）
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
           // 2-2 获取点击点的经纬度
@@ -297,30 +383,106 @@ export default {
           //   lat: window.selectedEntity.properties.lat?window.selectedEntity.properties.lat.getValue():"",
           //   describe: window.selectedEntity.properties.describe?window.selectedEntity.properties.describe.getValue():"",
           // };
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
-          console.log(window.selectedEntity.properties.data,this.popupData )
+          this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
+          this.popupData = {}
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          console.log(this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
-          this.popupVisible = false; // 隐藏弹窗
+          // this.popupVisible = false; // 隐藏弹窗
+          // this.popupData = {}
         }
         // 3-1 选中面时触发
         if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
-          that.showPolygon = true
+          // 2-2 获取点击点的经纬度
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
+          if (this.isTerrainLoaded()) {
+            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            let l = Cesium.Cartographic.fromCartesian(position)
+            let lon = Cesium.Math.toDegrees(l.longitude)
+            let lat = Cesium.Math.toDegrees(l.latitude)
+            let hei = l.height
+            let height
+            // 将笛卡尔坐标转换为地理坐标角度
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            // 将地理坐标角度换为弧度
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
+            // 将经纬度和高度生成新的笛卡尔坐标
+            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
+            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
+          }
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
+          this.popupData = {}
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          this.updatePopupPosition(); // 更新弹窗的位置
+          // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity
         } else {
-          this.showPolygon = false
+          // this.showPolygon = false
         }
         // 4-1选中线时触发
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined) {
-          let status = cesiumPlot.drawPolylineStatus()
-          if (status === 0) {
-            that.showPolyline = true
-            // that.polylinePosition = window.selectedEntity
+        if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined && window.selectedEntity.properties.data&&that.polylineStatus===0) {
+          // 2-2 获取点击点的经纬度
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
+          if (this.isTerrainLoaded()) {
+            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            let l = Cesium.Cartographic.fromCartesian(position)
+            let lon = Cesium.Math.toDegrees(l.longitude)
+            let lat = Cesium.Math.toDegrees(l.latitude)
+            let hei = l.height
+            let height
+            // 将笛卡尔坐标转换为地理坐标角度
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            // 将地理坐标角度换为弧度
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
+            // 将经纬度和高度生成新的笛卡尔坐标
+            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
+            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
           }
+          // console.log(window.selectedEntity,123)
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
+          this.popupData = {}
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          console.log("end",this.popupData)
+          this.updatePopupPosition(); // 更新弹窗的位置
+          // let status = cesiumPlot.drawPolylineStatus()
+          // if (status === 0) {
+          //   that.showPolyline = true
+          //   // that.polylinePosition = window.selectedEntity
+          // }
+
         } else {
-          this.showPolyline = false
+          // this.showPolyline = false
+          // this.popupData = {}
         }
+
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
 
       // 必须有这个，拖动地图弹窗位置才会跟着移动
@@ -358,20 +520,51 @@ export default {
 
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
-      console.log(row)
       window.viewer.entities.removeAll();
       this.eqid = row.eqid
       this.websock.eqid = this.eqid
       this.initPlot(row.eqid)
+      this.title = row.time + row.position + row.magnitude
+      window.viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude),parseFloat(row.latitude),500),
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        }
+      });
     },
     // 获取地震列表、以及最新地震的eqid、并渲染已有的标绘
     getEq() {
       let that = this
       getAllEq().then(res => {
-        that.getEqData = res
-        that.total = res.length
+        let resData = res.filter(item=>item.magnitude>=5)
+        let data = []
+        for(let i=0;i<resData.length;i++){
+          let item = resData[i]
+          item.time = that.timestampToTime(resData[i].time)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
+        }
+        that.getEqData = data
+        that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
+        that.title = that.tableData[0].time + that.tableData[0].position + that.tableData[0].magnitude
+        window.viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude),parseFloat(that.tableData[0].latitude),500),
+          orientation: {
+            // 指向
+            heading: 6.283185307179581,
+            // 视角
+            pitch: -1.5688168484696687,
+            roll: 0.0
+          }
+        });
         // 建立WS
         this.initWebsocket()
         // that.websock.eqid = that.eqid
@@ -381,33 +574,58 @@ export default {
         cesiumPlot.init(window.viewer,this.websock,cesiumStore)
       })
     },
+    // 修改table header的背景色
     tableHeaderColor() {
       return {
-        'border-color': '#293038',
+        'border-width':'1px',
+        'border-style':'solid',
+        'border-color': '#555555',
         'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
+        // 'border-left-color': '#323843',
+        // 'border-left-width': '1px',
+        // 'border-left-style': 'solid',
+        // 'border-right-color': '#323843',
+        // 'border-right-width': '1px',
+        // 'border-right-style': 'solid',
       }
     },
-    // 修改table header的背景色
+    // 修改table的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
-      if (rowIndex % 2 == 1) {
-        return {
-          'border-color': '#313a44',
-          'background-color': '#313a44',
-          'color': '#fff',
-          'padding': '0',
-          'text-align': 'center'
-        }
+      if (rowIndex % 2 === 1) {
+          return {
+            'border-width':'1px',
+            'border-style':'solid',
+            'border-color': '#555555',
+            'background-color': '#313a44',
+            'color': '#fff',
+            'padding': '10',
+            'text-align': 'center',
+            // 'border-left-color': '#323843',
+            // 'border-left-width': '1px',
+            // 'border-left-style': 'solid',
+            // 'border-right-color': '#323843',
+            // 'border-right-width': '1px',
+            // 'border-right-style': 'solid',
+          }
       } else {
-        return {
-          'border-color': '#304156',
-          'background-color': '#304156',
-          'color': '#fff',
-          'padding': '0',
-          'text-align': 'center'
-        }
+          return {
+            'border-width':'1px',
+            'border-style':'solid',
+            'border-color': '#555555',
+            'background-color': '#304156',
+            'color': '#fff',
+            'padding': '10',
+            'text-align': 'center',
+            // 'border-left-color': '#323843',
+            // 'border-left-width': '1px',
+            // 'border-left-style': 'solid',
+            // 'border-right-color': '#323843',
+            // 'border-right-width': '1px',
+            // 'border-right-style': 'solid',
+          }
       }
     },
     //数组切片
@@ -450,13 +668,43 @@ export default {
     },
 
     treeItemClick(item) {
+      let that = this
       if (item.plotType === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.plotType === '线图层') {
-        this.drawPolyline(item)
+        new Promise((resolve, reject) => {
+          this.drawPolyline(item,resolve)
+          this.polylineStatus = cesiumPlot.drawPolylineStatus()
+          console.log(this.polylineStatus,888)
+        }).then((res)=>{
+          // console.log(res,item)
+          let situationPlotData = []// situationplot表中的线数据
+          for(let i=0;i<res.pointPosArr.length;i++){
+            let cartographic = Cesium.Cartographic.fromCartesian(res.pointPosArr[i]);
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            let height = Cesium.Math.toDegrees(cartographic.height);
+            let plotItem = {
+              eqid: that.eqid,
+              plotid:res.plotid,
+              time: res.timestampArr[i],
+              plottype: item.name,
+              drawtype: "polyline",
+              img:item.img,
+              latitude,
+              longitude,
+              height,
+            }
+            situationPlotData.push(plotItem)
+          }
+          that.polylineStatus = cesiumPlot.drawPolylineStatus()
+          // let pl = window.viewer.entities.getById(situationPlotData[0].plotid);
+          // pl.properties.data = situationPlotData
+          // console.log(pl)
+          this.openPolylinePop(item.name,situationPlotData)
+        })
       } else {
-        this.drawPolygon(item)
-      }
+        this.drawPolygon(item)      }
     },
 
     //--------------点------------------------
@@ -505,9 +753,42 @@ export default {
     },
 
     //------------线------------
-
-    drawPolyline(info) {
-      cesiumPlot.drawActivatePolyline(info.name, info.img, this.eqid)
+    openPolylinePop(plottype,situationPlotData){
+      let that = this
+      let cesiumStore = useCesiumStore()
+      if (this.openAddStatus) {
+        // 1-1 更改添加点标注按钮状态
+        this.openAddStatus = !this.openAddStatus
+        // 1-2 提示弹窗
+        // this.message = ElMessage({
+        //   message: '请点击地图添加标注点',
+        //   type: 'info',
+        //   duration: 0
+        // })
+        cesiumStore.setPolyilneInfo({plottype,situationPlotData})
+        that.addPolylineDialogFormVisible = true
+        // 1-3 生成点标注的handler
+        // cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {
+        //   that.addMarkDialogFormVisible = true
+        //   this.message.close(that.addMarkDialogFormVisible)
+        // })
+      }
+    },
+    drawPolyline(info,resolve) {
+      cesiumPlot.drawActivatePolyline(info.name, info.img, this.eqid,resolve)
+    },
+    resetPolyline() {
+      let cesiumStore = useCesiumStore()
+      new Promise((resolve, reject) => {
+        // 1-1 先清空store中的数据，这时触发监听，因为是异步，所以用promise写成同步进行
+        cesiumStore.clearPolyilneInfo()
+        resolve()
+      }).then(res => {
+        // 2-1 更改添加点标绘按钮状态使其可以点击
+        this.openAddStatus = !this.openAddStatus
+        // 3-1 关闭弹窗
+        this.addPolylineDialogFormVisible = !this.addPolylineDialogFormVisible
+      })
     },
     // 画线
     drawN() {
@@ -521,19 +802,31 @@ export default {
     },
 
     //------------面-------------
-
     drawPolygon(info) {
       console.log(info, "面")
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,info)
+    },
+    //获取数据库数据绘制面
+    getDrawPolygonInfo(info) {
+      console.log(info, "面")
+      cesiumPlot.getDrawPolygon(info)
     },
     // 画面
     drawP() {
-      cesiumPlot.drawActivatePolygon()
+      cesiumPlot.drawActivatePolygon("量算面积")
     },
     // 删除面
     deletePolygon() {
       let polygon = window.selectedEntity//this.polygonPosition
       cesiumPlot.deletePolygon(polygon)
       this.showPolygon = false
+    },
+    showPopup() {
+      this.popupVisiblePolygon = true;
+    },
+    // 处理弹窗确认
+    handlePopupConfirm() {
+      this.popupVisiblePolygon = false;
     },
 
     //------------------------------------------------------------------------------
@@ -577,26 +870,59 @@ export default {
         }
       });
     },
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+    guid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
   }
 }
 </script>
 
-<style>
+<style scoped>
+
+.eqtitle{
+  background-color: #0d325f;
+  width: 100%;
+  height:10%;
+}
+
+.eqtitle-text_eqname{
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 30px;
+}
+
+.posInfo{
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
 .cesium-viewer-navigationContainer {
   display: none !important;
-}
-
-.el-tree {
-  background: rgb(38 36 36) !important;
-  color: #ffffff !important;
-}
-
-.el-tree-node__content:hover {
-  background-color: rgb(38 36 36) !important;
-}
-
-.el-tree-node:focus > .el-tree-node__content {
-  background-color: rgb(38 36 36) !important;
 }
 
 .plotTreeItem {
@@ -607,8 +933,8 @@ export default {
   margin: 4px;
 }
 
-#cesiumContainer {
-  height: calc(100vh - 50px);
+.situation_cesiumContainer {
+  height: calc(100vh - 50px)!important;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -634,12 +960,13 @@ export default {
   cursor: pointer;
 }
 
-.eqTable {
-  width: 500px;
+.situation_eqTable {
+  width: 510px;
+  height: 310px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 10px;
+  top: 30px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
@@ -649,9 +976,9 @@ export default {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 390px;
+  top: 345px;
   left: 10px;
-  width: 500px;
+  width: 510px;
   z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);
 }
@@ -667,31 +994,37 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
 }
 
-.button-container {
-  width: 500px;
-  position: absolute;
-  padding: 10px;
-  border-radius: 5px;
-  top: 10px;
-  left: 10px;
-  z-index: 10; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-}
 
-.latlon-legend {
-  pointer-events: auto;
-  position: absolute;
-  border-radius: 15px;
-  padding-left: 5px;
-  padding-right: 5px;
-  bottom: 30px;
-  height: 30px;
-  width: 125px;
-  box-sizing: content-box;
-}
+
 
 .modelAdj {
   color: white;
   margin-bottom: 5px;
+}
+
+
+
+/* 修改element内置css不生效，则需要加上/deep/ */
+/* 分页组件调整 */
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
+/* 树形结构调整 */
+/deep/ .el-pagination>.is-first{
+  color: #FFFFFF !important;
+}
+.el-tree {
+  background: rgb(38 36 36) !important;
+  color: #ffffff !important;
+}
+/deep/ .el-tree-node__content:hover {
+  background-color: rgb(56, 79, 105) !important;
+}
+/deep/ .el-tree-node:focus > .el-tree-node__content {
+  background-color: rgb(56, 79, 105) !important;
+}
+/deep/.el-table--fit .el-table__inner-wrapper:before {
+  width: 0% !important;
 }
 </style>

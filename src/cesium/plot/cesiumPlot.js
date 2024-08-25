@@ -26,6 +26,7 @@ let cesiumPlot= {
   },
 
   drawPoint(pointInfo){
+    console.log("?",pointInfo)
     this.point.drawPoint(pointInfo)
   },
 
@@ -35,9 +36,9 @@ let cesiumPlot= {
   //----------------------------------------------------------------
 
   //------------------------------线---------------------------------
-  drawActivatePolyline(type,img,eqid) {
+  drawActivatePolyline(type,img,eqid,obj) {
     let material = this.getMaterial(type,img)
-    this.polyline.activate(material,type,img,eqid)
+    this.polyline.activate(material,type,img,eqid,obj)
   },
   deletePolyline(polyline){
     this.polyline.deletePolyline(polyline)
@@ -112,17 +113,24 @@ let cesiumPlot= {
   //-----------------------------------------------------------------
 
   //------------------------------面---------------------------------
-  drawActivatePolygon() {
-    this.polygon.activate()
+  drawActivatePolygon(type,img,eqid,info) {
+    let name = type
+    if(type==="崩塌"||type==="滑坡"||type==="泥石流"||type==="地面塌陷"){
+      type = "标绘面"
+    }
+    this.polygon.activate(name,type,img,eqid,info)
   },
   deletePolygon(polygon){
     this.polygon.deletePolygon(polygon)
   },
+  //根据数据库中绘制页面
   getDrawPolygon(polygonArr){
-    this.polygon.getDrawPolygon(polygonArr)
+    this.polygon.getDrawActivatePolygon(polygonArr)
+  },
+  //插入面info信息
+  insertPolygon(polygonInfo){
+    this.polygon.rightClickSendEvent(polygonInfo)
   }
   //----------------------------------------------------------------
-
-
 }
 export default cesiumPlot;
