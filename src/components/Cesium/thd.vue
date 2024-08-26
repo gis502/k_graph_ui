@@ -59,8 +59,8 @@ export default {
       //-----------------图层---------------------
       LRDLStatus: false, // 路网
       //--------------------------------------
-      tableData:[],
-      eqid:''
+      tableData: [],
+      eqid: ''
     };
   },
   mounted() {
@@ -329,13 +329,13 @@ export default {
         that.tableData = res
       })
     },
-    changeEqListShow(){
+    changeEqListShow() {
       this.eqListShow = !this.eqListShow
-      if(this.eqListShow){
+      if (this.eqListShow) {
         this.getEq()
       }
     },
-    plotAdj(row){
+    plotAdj(row) {
       console.log(row)
       window.viewer.entities.removeAll();
       this.eqid = row.eqid

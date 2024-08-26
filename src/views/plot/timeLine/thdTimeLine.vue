@@ -167,7 +167,6 @@ export default {
         depth: '',
         plottype: '震中'
       },
-
         // 新闻组件
         showingNewsContent: {
             id: '',
@@ -196,7 +195,6 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-
       smallViewer:null,
     };
   },

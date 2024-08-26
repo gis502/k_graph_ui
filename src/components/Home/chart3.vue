@@ -3,13 +3,20 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import * as echarts from 'echarts';
 
 const chart3 = ref(null);
 
 const initChart = () => {
   const myChart = echarts.init(chart3.value);
+
+  const rawData = [
+    {value: 1, name: '受伤人数', itemStyle: {color: 'rgba(248,25,25,0.7)'}},
+    {value: 1, name: '失联人数', itemStyle: {color: 'rgba(255,235,47,0.7)'}},
+    {value: 0, name: '遇难人数', itemStyle: {color: 'rgba(0, 0, 0, 0.5)'}},
+  ];
+
   const option = {
     title: {
       // text: 'Referer of a Website',
@@ -35,13 +42,9 @@ const initChart = () => {
     series: [
       {
         type: 'pie',
-        radius: ['40%', '70%'],  // Adjust inner and outer radius
+        radius: ['0%', '70%'],  // Adjust inner and outer radius
         center: ['50%', '50%'],  // Center the pie chart
-        data: [
-          { value: 0, name: '受伤人数', itemStyle: { color: 'rgba(248,25,25,0.7)' } },
-          { value: 0, name: '失联人数', itemStyle: { color: 'rgba(255,235,47,0.7)' } },
-          { value: 0, name: '遇难人数', itemStyle: { color: 'rgba(0, 0, 0, 0.5)' } },
-        ],
+        data: rawData,  // 使用处理后的数据
         emphasis: {
           itemStyle: {
             shadowBlur: 0,
@@ -67,7 +70,6 @@ const initChart = () => {
           show: true,
           length: 20,
           length2: 25,
-
         }
       }
     ]
@@ -76,6 +78,7 @@ const initChart = () => {
   myChart.setOption(option);
 };
 
+
 onMounted(() => {
   initChart();
 });
@@ -83,7 +86,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.chart3{
+.chart3 {
   width: 100%;
   height: 100%;
 }
