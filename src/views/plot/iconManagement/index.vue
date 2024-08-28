@@ -19,7 +19,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
-      <el-table-column prop="plotType" label="标会类型" width="120" align="center"></el-table-column>
+      <el-table-column prop="plottype" label="标会类型" width="120" align="center"></el-table-column>
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
           <el-popover placement="top" :width="300" trigger="hover">
@@ -52,10 +52,15 @@
         :total="total">
     </el-pagination>
 
-    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false" :before-close="handleClose">
-      <el-row :gutter="10">
-        <el-col :span="6">类型：</el-col>
-        <el-col :span="18">
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="40%" :show-close="false" :before-close="handleClose">
+      <el-row >
+<!--        <el-col :span="6">-->
+<!--          <el-form-item label="处置队伍：">-->
+<!--            <el-input v-model="form.disposalTeam.value"></el-input>-->
+<!--          </el-form-item>-->
+<!--        </el-col>-->
+        <el-col :span="12">
+          <el-form-item label="类型：">
           <!--          <el-input v-model="dialogContent.type" placeholder="请输入内容"></el-input>-->
           <el-select v-model="dialogContent.type" placeholder="请选择">
             <el-option-group
@@ -70,12 +75,12 @@
               </el-option>
             </el-option-group>
           </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">标绘类型：</el-col>
-        <el-col :span="18">
-          <el-select v-model="dialogContent.plotType" placeholder="请选择">
+
+        <el-col :span="12">
+          <el-form-item label=" 标绘类型：">
+          <el-select v-model="dialogContent.plottype" placeholder="请选择">
             <el-option
                 v-for="item in plotTypeArr"
                 :key="item.value"
@@ -83,23 +88,26 @@
                 :value="item.value">
             </el-option>
           </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">名称：</el-col>
-        <el-col :span="18">
+
+        <el-col :span="12">
+          <el-form-item label="名称：">
           <el-input v-model="dialogContent.name" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">说明：</el-col>
-        <el-col :span="18">
-          <el-input type="textarea" :rows="2" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="说明：">
+          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">符号：</el-col>
-        <el-col :span="18">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="符号：">
           <el-upload
               action="#"
               :on-change='uploadOnChange'
@@ -121,6 +129,7 @@
               <!--              </div>-->
             </template>
           </el-upload>
+          </el-form-item>
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
@@ -148,12 +157,12 @@ export default {
       dialogShow: false,
       dialogTitle: null,
       dialogContent: {
-        id: null,
+        uuid: null,
         img: null,
         name: null,
         describe: null,
         type: null,
-        plotType: null,
+        plottype: null,
       },
       plotTypeArr: [
         {
@@ -279,7 +288,7 @@ export default {
     // 删除单个标绘图片
     handleDelete(row) {
       let that = this
-      deletePlotIcon({id: row.id}).then(res => {
+      deletePlotIcon({uuid: row.uuid}).then(res => {
         that.getPlotPicture()
       })
     },
