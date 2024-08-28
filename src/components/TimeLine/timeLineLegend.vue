@@ -5,9 +5,11 @@
       <span class="toggle-icon">{{ isOpen ? '▼' : '▲' }}</span>
     </div>
     <div class="legend-items" v-if="isOpen">
-      <img style="width: 17%;height: 5%" src="@/assets/icons/TimeLine/震中.png" /> <span class="legend-label">震中</span>
+<!--      <img style="width: 17%;height: 5%" src="@/assets/icons/TimeLine/震中.png" /> <span class="legend-label">震中</span>-->
+      <img class="legend-img" src="@/assets/icons/TimeLine/震中.png" /> <span class="legend-label">震中</span>
       <div v-for="item in getPicData" :key="item.label" class="legend-item">
-        <img style="width: 18%;height: 18%" :src="item.img" />
+<!--        <img style="width: 18%;height: 18%" :src="item.img" />-->
+        <img class="legend-img" :src="item.img" />
         <span class="legend-label">{{ item.name }}</span>
       </div>
     </div>
@@ -41,7 +43,7 @@ export default {
       let that = this
       getPlotIcon().then(res => {
         that.getPicData = res
-        // console.log(that.getPicData)
+        console.log("that.getPicData",that.getPicData)
       })
     }
   }
@@ -71,7 +73,7 @@ export default {
 
 .timeLineLegend.open {
   width: 23%;
-  height: 80%;
+  height: 81%;
   bottom: 9%;
   right: 1%;
   display: flex;
@@ -109,6 +111,10 @@ export default {
   width: 100%;
 }
 
+.legend-img{
+  max-height: 20px;
+  max-width: 20px;
+}
 .legend-item {
   display: flex;
   align-items: center;
