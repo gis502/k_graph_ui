@@ -1,20 +1,20 @@
 <template>
   <div id="cesiumContainer">
-<!--    <el-form class="tool-container">-->
-<!--    写功能按钮部分-->
-<!--    </el-form>-->
+    <!--    <el-form class="tool-container">-->
+    <!--    写功能按钮部分-->
+    <!--    </el-form>-->
     <RouterPanel :visible="popupVisible" :position="popupPosition" :popupData="popupData" />
-      <div id="supplies"  :class="{ 'collapsed': !tableVisible }" >
-          <el-form class="eqTable">
-              <div style="margin-bottom: 10px;">
-                  <el-input v-model="inputRadius" placeholder="请输入搜查范围/km"
-                            style="width: 170px;margin-right: 5px;" clearable>
-                  </el-input>
-                  <el-button class="el-button--primary" @click="searchSupply">查找物资</el-button>
-                  <el-button class="el-button--primary" @click="addDisasterPoint">添加受灾点</el-button>
-                  <el-button class="el-button--primary" @click="showAllSupplyPoints">{{showSupply}}</el-button>
-                  <el-button class="el-button--primary" @click="toggleTable">{{toolValue}}</el-button>
-              </div>
+    <div id="supplies"  :class="{ 'collapsed': !tableVisible }" >
+      <el-form class="eqTable">
+        <div style="margin-bottom: 10px;">
+          <el-input v-model="inputRadius" placeholder="请输入搜查范围/km"
+                    style="width: 170px;margin-right: 5px;" clearable>
+          </el-input>
+          <el-button class="el-button--primary" @click="searchSupply">查找物资</el-button>
+          <el-button class="el-button--primary" @click="addDisasterPoint">添加受灾点</el-button>
+          <el-button class="el-button--primary" @click="showAllSupplyPoints">{{showSupply}}</el-button>
+          <el-button class="el-button--primary" @click="toggleTable">{{toolValue}}</el-button>
+        </div>
 
         <el-table v-if="tableVisible" :data="showSuppliesList" style="width: 100%;margin-bottom: 5px;text-align: center"
                   :stripe="true"
@@ -44,6 +44,26 @@
         </el-pagination>
       </el-form>
     </div>
+
+
+
+    <div class="timeLineLegend" :class="{ 'open': isOpen }">
+      <div class="legend-header" @click="toggleLegend">
+        <p class="legend-title" :class="{ 'centered': isOpen }">图例</p>
+        <span class="toggle-icon">{{ isOpen ? '▼' : '▲' }}</span>
+      </div>
+      <div class="legend-items" v-if="isOpen">
+        <img style="width: 19%;height: 25%" src="@/assets/images/emergencyRescueEquipmentLogo.jpg" /> <span class="legend-label">救灾物资储备</span><br>
+        <img style="width: 19%;height: 25%"  src="@/assets/images/rescueTeamsInfoLogo.png" /> <span class="legend-label">抢险救灾装备</span><br>
+        <img style="width: 19%;height: 25%"  src="@/assets/images/disasterReliefsuppliesLogo.png" /> <span class="legend-label">雅安应急队伍</span>
+<!--        <div v-for="item in getPicD25ta" :key="item.label" class="legend-item">-->
+<!--          <img style="width: 18%;height: 18%" :src="item.img" />-->
+<!--          <span class="legend-label">{{ item.name }}</span>-->
+<!--        </div>-->
+      </div>
+    </div>
+
+
   </div>
 </template>
 
@@ -55,11 +75,11 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import RouterPanel from '@/components/Cesium/RouterPanel.vue'
 import cesiumPlot from '@/cesium/plot/cesiumPlot.js'
-import {getEmergency} from "@/api/system/emergency.js";
-import disasterReservesLogo from '@/assets/images/disasterReservesLogo.jpg';
-import disasterSuppliesLogo from '@/assets/images/disasterSuppliesLogo.png';
-import emergencyTeamLogo from '@/assets/images/emergencyTeamLogo.png';
-
+import {getEmergencyData} from "@/api/system/emergency.js";
+import emergencyRescueEquipmentLogo from '@/assets/images/emergencyRescueEquipmentLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
+import disasterReliefsuppliesLogo from '@/assets/images/disasterReliefsuppliesLogo.png';
+import {getPlotIcon} from "@/api/system/plot.js";
 
 export default {
   components: {
@@ -104,12 +124,19 @@ export default {
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
       popupVisible: false, // 弹窗的显示与隐藏，传值给子组件
       popupData: {}, // 弹窗内容，传值给子组件
+      // 图例部分
+      isOpen: false,
+      getPicData:[
+        emergencyRescueEquipmentLogo,rescueTeamsInfoLogo,disasterReliefsuppliesLogo
+      ],
     }
   },
   mounted() {
     this.init();
     this.entitiesClickPonpHandler()
     this.initPlot(this.id)
+    // 图例部分
+    this.getPlotPicture()
   },
   methods: {
     sortedSuppliesList() {
@@ -165,52 +192,47 @@ export default {
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
     initPlot() {
-      getEmergency().then(res => {
-        let disasterReserves = res.disasterReserves; // 提取 disasterReserves 列表
-        let disasterSupplies = res.disasterSupplies; // 提取 disasterSupplies 列表
-        let emergencyTeam = res.emergencyTeam; // 提取 emergencyTeam 列表
+      getEmergencyData().then(res => {
+        let emergencyRescueEquipment = res.emergencyRescueEquipment; // 提取 emergencyRescueEquipment 列表
+        let rescueTeamsInfo = res.rescueTeamsInfo; // 提取 rescueTeamsInfo 列表
+        let disasterReliefsupplies = res.disasterReliefsupplies; // 提取 disasterReliefsupplies 列表
         console.log('获取到的res', res);
-        // this.suppliesList = disasterReserves.concat(disasterSupplies)
-        // this.showIcon = disasterReserves.concat(disasterSupplies)
-        // this.fetSupplyPoints()
-        // console.log("this.suppliesList--", this.suppliesList.length);
-        // console.log("this.showIcon--", this.showIcon.length);
-        this.suppliesList.push(disasterReserves)
-        this.suppliesList.push(disasterSupplies)
-        this.suppliesList.push(emergencyTeam)
+        this.suppliesList.push(emergencyRescueEquipment)
+        this.suppliesList.push(rescueTeamsInfo)
+        this.suppliesList.push(disasterReliefsupplies)
 
-        // 对 disasterReserves 进行处理
-        if (Array.isArray(disasterReserves)) {
-          let pointArr = disasterReserves.filter(e => e.longitude !== null);
+        // 对 emergencyRescueEquipment 进行处理
+        if (Array.isArray(emergencyRescueEquipment)) {
+          let pointArr = emergencyRescueEquipment.filter(e => e.longitude !== null);
           // 画点
-          this.drawPointReserves(pointArr);
+          this.drawPointEquipment(pointArr);
         } else {
-          console.error("灾备物资数据格式不正确", disasterReserves);
+          console.error("抢险救援装备数据格式不正确", emergencyRescueEquipment);
         }
 
-        // 对 disasterSupplies 进行处理
-        if (Array.isArray(disasterSupplies)) {
-          let pointArr = disasterSupplies.filter(e => e.longitude !== null);
+        // 对 rescueTeamsInfo 进行处理
+        if (Array.isArray(rescueTeamsInfo)) {
+          let pointArr = rescueTeamsInfo.filter(e => e.longitude !== null);
           // 画点
           this.drawPointSupplies(pointArr);
         } else {
-          console.error("救灾用品数据格式不正确", disasterSupplies);
+          console.error("救援队伍数据格式不正确", rescueTeamsInfo);
         }
         this.fetSupplyPoints()
 
-        // 对 emergencyTeam 进行处理
-        if (Array.isArray(emergencyTeam)) {
-          let pointArr = emergencyTeam.filter(e => e.longitude !== null);
+        // 对 disasterReliefsupplies 进行处理
+        if (Array.isArray(disasterReliefsupplies)) {
+          let pointArr = disasterReliefsupplies.filter(e => e.longitude !== null);
           // 画点
-          this.drawPointEmergencyTeam(pointArr);
+          this.drawPointRescueTeams(pointArr);
         } else {
-          console.error("雅安应急队伍数据格式不正确", emergencyTeam);
+          console.error("救援队伍数据格式不正确", disasterReliefsupplies);
         }
 
       });
     },
 
-    drawPointReserves(pointArr) {
+    drawPointEquipment(pointArr) {
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
         let existingEntity = window.viewer.entities.getById(element.id);
@@ -239,7 +261,7 @@ export default {
           id: element.id,
           position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
           billboard: {
-            image: disasterReservesLogo, // 使用导入的图标路径
+            image: emergencyRescueEquipmentLogo, // 使用导入的图标路径
             width: 40, // 导入图标的宽度
             height: 40, // 导入图标的长度
             eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -311,7 +333,7 @@ export default {
           id: element.id,
           position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
           billboard: {
-            image: disasterSuppliesLogo, // 使用导入的图标路径
+            image: rescueTeamsInfoLogo, // 使用导入的图标路径
             width: 40, // 导入图标的宽度
             height: 40, // 导入图标的长度
             eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -378,7 +400,7 @@ export default {
         });
       });
     },
-    drawPointEmergencyTeam(pointArr) {
+    drawPointRescueTeams(pointArr) {
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
         let existingEntity = window.viewer.entities.getById(element.id);
@@ -400,14 +422,14 @@ export default {
           return; // 跳过坐标超出范围的实体
         }
 
-        element.type = "emergencyTeam"
+        element.type = "disasterReliefsupplies"
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
           id: element.id,
           position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
           billboard: {
-            image: emergencyTeamLogo, // 使用导入的图标路径
+            image: disasterReliefsuppliesLogo, // 使用导入的图标路径
             width: 40, // 导入图标的宽度
             height: 40, // 导入图标的长度
             eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -586,11 +608,11 @@ export default {
       this.removePoints(this.suppliesList[1])
       this.removePoints(this.suppliesList[2])
       if (this.showIcon[0].type === 'reserves') {
-        this.drawPointReserves(this.showIcon)
+        this.drawPointEquipment(this.showIcon)
       } else if (this.showIcon[0].type === 'supplies') {
         this.drawPointSupplies(this.showIcon)
       } else {
-        this.drawPointEmergencyTeam(this.showIcon)
+        this.drawPointRescueTeams(this.showIcon)
       }
     },
 
@@ -614,16 +636,9 @@ export default {
         }
       });
       this.removePoints(that.showIcon)
-      // this.drawPoint(this.suppliesList)
-      // if(that.suppliesList[0].type === 'reserves'){
-      //
-      // }else{
-      //     this.drawPointSupplies(that.suppliesList[0])
-      //     this.drawPointSupplies(that.suppliesList[1])
-      // }
-      this.drawPointReserves(that.suppliesList[0])
+      this.drawPointEquipment(that.suppliesList[0])
       this.drawPointSupplies(that.suppliesList[1])
-      this.drawPointEmergencyTeam(that.suppliesList[2])
+      this.drawPointRescueTeams(that.suppliesList[2])
 
     },
 
@@ -655,13 +670,13 @@ export default {
           let arr = []
           if (item.type === 'reserves') {
             arr.push(item)
-            this.drawPointReserves(arr)
+            this.drawPointEquipment(arr)
           } else if (item.type === 'supplies') {
             arr.push(item)
             this.drawPointSupplies(arr)
           } else {
             arr.push(item)
-            this.drawPointEmergencyTeam(arr)
+            this.drawPointRescueTeams(arr)
           }
         })
         this.selectPoints()
@@ -751,6 +766,18 @@ export default {
         }
       }
     },
+
+    // 图例部分
+    toggleLegend() {
+      this.isOpen = !this.isOpen;
+    },
+    getPlotPicture(){
+      let that = this
+      getPlotIcon().then(res => {
+        that.getPicData = res
+        // console.log(that.getPicData)
+      })
+    }
   }
 }
 </script>
@@ -775,17 +802,17 @@ export default {
   overflow: hidden;
 }
 #supplies{
-    position: absolute;
-    padding: 15px;
-    border-radius: 5px;
-    /*width: 500px;*/
-    /*height: 200px;*/
-    top: 10px;
-    left: 10px;
-    width: 80vw;
-    z-index: 10; /* 更高的层级 */
-    background-color: rgba(40, 40, 40,0.7);
-    transition: width 0.3s; /* 平滑过渡效果 */
+  position: absolute;
+  padding: 15px;
+  border-radius: 5px;
+  /*width: 500px;*/
+  /*height: 200px;*/
+  top: 10px;
+  left: 10px;
+  width: 80vw;
+  z-index: 10; /* 更高的层级 */
+  background-color: rgba(40, 40, 40,0.7);
+  transition: width 0.3s; /* 平滑过渡效果 */
 }
 #supplies.collapsed {
   width: 45vw; /* 收缩时的宽度 */
@@ -810,5 +837,71 @@ export default {
   width: 0%;
 }
 
+/*图例部分*/
+.timeLineLegend {
+  width: 25%;
+  height: 5%;
+  left: 1%;
+  bottom: 9%;
+  padding: 12px;
+  position: absolute;
+  background-color: rgba(40, 40, 40, 0.7);
+  box-sizing: border-box;
+  color: white;
+  z-index: 100;
+  transition: width 0.3s ease-in-out, height 0.3s ease-in-out, bottom 0.3s ease-in-out;
+}
+
+.timeLineLegend.open {
+  width: 23%;
+  height: 27%;
+  bottom: 9%;
+  right: 1%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(40, 40, 40);
+}
+
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  bottom:100%;
+}
+
+.legend-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.legend-title.centered {
+  text-align: center;
+}
+
+.toggle-icon {
+  margin-left: 10px;
+}
+
+.legend-items {
+  max-height: 93%;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.legend-label {
+  align-items: center;
+  font-size: 0.9rem;
+  text-indent: 0.5em;
+}
 </style>
 

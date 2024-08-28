@@ -19,6 +19,7 @@
 
 import {getPlotIcon} from "@/api/system/plot.js";
 
+
 export default {
   data() {
     return {
@@ -113,11 +114,6 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-}
-
-.legend-icon {
-  font-size: 20px;
-  margin-right: 10px;
 }
 
 .legend-label {

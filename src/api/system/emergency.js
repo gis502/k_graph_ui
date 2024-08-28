@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function getEmergency(query) {
+export function getEmergencyData(query) {
     return request({
         url: '/system/emergency/getEmergency',
         method: 'get',
