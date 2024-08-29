@@ -54,14 +54,8 @@
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="40%" :show-close="false" :before-close="handleClose">
       <el-row >
-<!--        <el-col :span="6">-->
-<!--          <el-form-item label="处置队伍：">-->
-<!--            <el-input v-model="form.disposalTeam.value"></el-input>-->
-<!--          </el-form-item>-->
-<!--        </el-col>-->
         <el-col :span="12">
           <el-form-item label="类型：">
-          <!--          <el-input v-model="dialogContent.type" placeholder="请输入内容"></el-input>-->
           <el-select v-model="dialogContent.type" placeholder="请选择">
             <el-option-group
                 v-for="group in typeArr"
@@ -435,4 +429,13 @@ export default {
   margin-top: 10px;
   justify-content: center;
 }
+.el-input {
+  --el-input-width: 270px !important;
+}
+
+.el-select {
+  /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
+  --el-select-width: 270px !important;
+}
+
 </style>
