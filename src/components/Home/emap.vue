@@ -34,7 +34,9 @@ const initEmap = () => {
     position: item.position,
     magnitude: parseFloat(item.magnitude),
     longitude: item.longitude,
-    latitude: item.latitude
+    latitude: item.latitude,
+    time: item.time,
+    depth: item.depth,
   }));
 
   const blue = extractedData.filter(item => item.magnitude < 3);
@@ -227,7 +229,7 @@ const initEmap = () => {
       formatter: function (params) {
         const { value } = params;
         const item = extractedData.find(item => item.longitude === value[0] && item.latitude === value[1]);
-        return `地点: ${item.position}<br/>震级: ${item.magnitude}`;
+        return `位置: ${item.position}<br/>发震时间: ${item.time}<br/>震级: ${item.magnitude}<br/>深度: ${item.depth}`;
       },
       backgroundColor: 'rgba(0,0,0,0.7)',
       borderColor: '#fff',
