@@ -112,7 +112,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 
 //报告产出
 import jsPDF from "jspdf";
-import "../../../api/SimHei-normal.js";
+// import "../../../api/SimHei-normal.js";
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import html2canvas from "html2canvas";
 import NewsDialog from "@/components/TimeLine/newsDialog.vue";

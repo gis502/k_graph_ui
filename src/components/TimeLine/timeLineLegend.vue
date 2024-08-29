@@ -25,6 +25,7 @@ export default {
   data() {
     return {
       isOpen: false,
+      // isOpen: true,
       getPicData:[
 
       ],
@@ -38,12 +39,15 @@ export default {
   methods: {
     toggleLegend() {
       this.isOpen = !this.isOpen;
+      // if(this.isOpen){
+      //   this.getPlotPicture()
+      // }
     },
     getPlotPicture(){
       let that = this
       getPlotIcon().then(res => {
         that.getPicData = res
-        console.log("that.getPicData",that.getPicData)
+        console.log("that.getPicData11111111111111111111111111111111111111111111111111111",that.getPicData)
       })
     }
   }
@@ -67,7 +71,7 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
   box-sizing: border-box;
   color: white;
-  z-index: 100;
+  z-index: 20;
   transition: width 0.3s ease-in-out, height 0.3s ease-in-out, bottom 0.3s ease-in-out;
 }
 
