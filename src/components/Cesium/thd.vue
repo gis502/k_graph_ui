@@ -15,9 +15,22 @@
     </div>
     <!--   路网切换-->
     <div class="LRDL-button">
-      <el-button class="el-button--primary" size="small" @click="LRDLChange">公路网图</el-button>
+      <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
     </div>
 
+
+    <div v-if="iflayerChoose" class="dropdown">
+      <el-checkbox-group v-model="selectedlayers">
+        <el-checkbox label="芦山县行政区划图"></el-checkbox>
+        <el-checkbox label="自建要素图层服务"></el-checkbox>
+        <el-checkbox label="行政区划要素图层"></el-checkbox>
+        <el-checkbox label="人口密度要素图层"></el-checkbox>
+        <el-checkbox label="交通网络要素图层"></el-checkbox>
+        <el-checkbox label="避难场所要素图层"></el-checkbox>
+        <el-checkbox label="救援队伍分布要素图层"></el-checkbox>
+        <el-checkbox label="应急物资存储要素图层"></el-checkbox>
+      </el-checkbox-group>
+    </div>
 
 
     <!--    box包裹地图，截图需要-->
@@ -128,6 +141,7 @@ import commonPanel from "@/components/Cesium/CommonPanel";
 import {getPloy} from "@/api/system/plot"
 import eqTable from '@/components/Home/eqtable.vue'
 import geojsonmap from '@/assets/geoJson/map.json'
+import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
 
 export default {
   components: {
@@ -219,6 +233,18 @@ export default {
       tableData: [],
 
       //-----------------图层---------------------
+      iflayerChoose:false,
+      layeritems: [
+        { id: '1', name: '自建要素图层服务'},
+        { id: '2', name: '行政区划要素图层'},
+        { id: '3', name: '人口密度要素图层'},
+        { id: '4', name: '交通网络要素图层'},
+        { id: '5', name: '避难场所要素图层'},
+        { id: '6', name: '救援队伍分布要素图层'},
+        { id: '7', name: '应急物资存储要素图层'},
+      ],
+      selectedlayers:[],
+
       LRDLStatus:false, // 路网
 
     };
@@ -235,6 +261,8 @@ export default {
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
+
+
   },
 
   methods: {
@@ -1083,12 +1111,16 @@ export default {
     },
 
 
-    // ---------------------图层切换------------------------
+    // ---------------------图层加载------------------------
 
     /*
     * 对于添加WMS型的数据用WebMapServiceImageryProvider接口
     *
     * */
+
+    layerChoose() {
+      this.iflayerChoose = !this.iflayerChoose;
+    },
 
     // 公路网
     LRDLChange() {
@@ -1288,4 +1320,15 @@ export default {
   left:1%;
   position: absolute;
 }
+
+.dropdown{
+  background-color: #1e1e43;
+  width: 30%;
+  top:10%;
+  height: 43%;
+  z-index: 30;
+  left:1%;
+  position: absolute;
+}
+
 </style>

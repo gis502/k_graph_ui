@@ -84,11 +84,32 @@
     <timeLineLegend></timeLineLegend>
 
 <!--    两侧组件 end-->
+
     <!--报告产出按钮-->
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
-    <!--报告产出按钮 end-->
+    <!--图件产出-->
+    <div class="draw-button">
+      <el-button class="el-button--primary" size="small" @click="drawListChage">图件产出</el-button>
+    </div>
+
+    <div v-if="dropdownVisible" class="dropdown">
+      <el-checkbox-group v-model="selectedItems">
+        <el-checkbox label="芦山县行政区划图"></el-checkbox>
+        <el-checkbox label="2"></el-checkbox>
+        <el-checkbox label="3"></el-checkbox>
+      </el-checkbox-group>
+
+      <div class="output-button">
+        <el-button
+            type="primary"
+            @click="exportSelected"
+        >
+          导出
+        </el-button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -114,6 +135,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 import jsPDF from "jspdf";
 // import "../../../api/SimHei-normal.js";
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
+import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png"
 import html2canvas from "html2canvas";
 import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
@@ -198,22 +220,83 @@ export default {
       dragStartX: 0,
 
       smallViewer:null,
+
+
+      dropdownVisible: false,
+      drawitems: [
+        // { id: 1, name: '图件1', pdfUrl: 'path/to/pdf1.pdf' },
+        // { id: 2, name: '图件2', pdfUrl: 'path/to/pdf2.pdf' },
+        // { id: 3, name: '图件3', pdfUrl: 'path/to/pdf3.pdf' }
+        { id: '1', name: '芦山县行政区划图', pdfUrl: picUrl1},
+        { id: '2', name: '图件2', pdfUrl: fileUrl },
+        { id: '3', name: '图件3', pdfUrl: fileUrl }
+      ],
+      // selectedItem: null,
+      selectedItems: [],
     };
   },
   created() {
     this.eqid = this.$route.params.eqid
   },
   mounted() {
-    this.init()
-    this.getEqInfo(this.eqid)
+    // this.init()
+    // this.getEqInfo(this.eqid)
     // this.initTimerLine()
     // ---------------------------------------------------
     // 生成实体点击事件的handler
-    this.entitiesClickPonpHandler()
-    this.watchTerrainProviderChanged()
+    // this.entitiesClickPonpHandler()
+    // this.watchTerrainProviderChanged()
   },
 
   methods: {
+
+
+
+
+
+
+    exportSelected() {
+      this.selectedItems.forEach(selectedName => {
+        console.log(selectedName)
+        const item = this.drawitems.find(item => item.name === selectedName);
+        // selectedName
+        console.log(item)
+        if (item) {
+          const link = document.createElement('a');
+          link.href = item.pdfUrl
+          link.download = '芦山县行政区划图.png';
+          link.click();
+        }
+      });
+      // const link = document.createElement('a');
+      // link.href = item.pdfUrl;
+      // link.download = item.name + '.jpg'; // Assuming images are in jpg format
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      // this.selectedItems = []; // Clear selections after export
+    },
+
+    toggleSelection(item) {
+      const index = this.selectedItems.indexOf(item);
+      if (index > -1) {
+        this.selectedItems.splice(index, 1); // Remove if already selected
+      } else {
+        this.selectedItems.push(item); // Add if not selected
+      }
+    },
+    downloadSelected() {
+      this.selectedItems.forEach(item => {
+        const link = document.createElement('a');
+        link.href = item.pdfUrl;
+        link.download = item.name + '.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+      this.selectedItems = []; // Clear selections after download
+    },
+
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -282,7 +365,7 @@ export default {
       viewer.scene.camera.changed.addEventListener(syncCamera);
 
       // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function() {
+      viewer.scene.postRender.addEventListener(function () {
         that.smallViewer.scene.requestRender(); // 确保缩略图更新
       });
 
@@ -290,10 +373,10 @@ export default {
       syncCamera();
     },
     // /取地震信息+开始结束当前时间初始化
-    getEqInfo(eqid){
-      getEqbyId({eqid:eqid}).then(res => {
+    getEqInfo(eqid) {
+      getEqbyId({eqid: eqid}).then(res => {
         //震中标绘点
-        this.centerPoint=res
+        this.centerPoint = res
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.time)
         this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
@@ -304,7 +387,7 @@ export default {
         this.eqmonth = this.eqstartTime.getMonth() + 1
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        this.eqendTime = new Date(this.eqstartTime.getTime() +( (7 * 24+5) * 60 * 60 * 1000));
+        this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
         this.updateMapandVariablebeforInit()
@@ -424,14 +507,14 @@ export default {
           text: this.centerPoint.position,
           show: true,
           font: '10px sans-serif',
-          fillColor:Cesium.Color.RED,        //字体颜色
+          fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
         },
-        id:this.centerPoint.plotid,
-        plottype:"震中",
+        id: this.centerPoint.plotid,
+        plottype: "震中",
       });
 
 
@@ -457,19 +540,19 @@ export default {
       })
     },
 
-      detailedNews(val){
-          // console.log("detailedNews-----",val)
-        this.showingNewsContent = val
+    detailedNews(val) {
+      // console.log("detailedNews-----",val)
+      this.showingNewsContent = val
 
-      },
-      ifShowDialog(val){
-          // console.log("ifShowDialog-----",val)
-        this.showDetailedNewsDialog = val
-      },
-      hideNewsDialog(val){
-          // console.log("showDetailedNewsDialog-----",val)
-          this.showDetailedNewsDialog = val
-      },
+    },
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
+    hideNewsDialog(val) {
+      // console.log("showDetailedNewsDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
 
     //时间轴操作
     initTimerLine() {
@@ -547,7 +630,7 @@ export default {
     },
     updatePlot() {
       // console.log(this.plots)
-      let that=this
+      let that = this
       //一个点线面一条数据
       //点
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -574,7 +657,7 @@ export default {
             if (existingPolyline) {
               // 更新已存在的数据
               // existingPolyline.endtime = polylineElement.endtime;
-              existingPolyline.positionsArr=positionsArr;
+              existingPolyline.positionsArr = positionsArr;
             } else {
               // 创建新的数据对象并添加到 polylineArr
               polylinetmp = {
@@ -612,7 +695,7 @@ export default {
             if (existingpolygon) {
               // 更新已存在的数据
               // existingPolyline.endtime = polylineElement.endtime;
-              existingpolygon.positionsArr=positionsArr;
+              existingpolygon.positionsArr = positionsArr;
             } else {
               // 创建新的数据对象并添加到 polylineArr
               polygontmp = {
@@ -623,7 +706,7 @@ export default {
                 plottype: polygonElement.plottype,
                 img: polygonElement.img,
                 positionsArr: positionsArr,
-                angle:polygonElement.angle,
+                angle: polygonElement.angle,
               };
               polygonArr.push(polygontmp);
             }
@@ -631,7 +714,6 @@ export default {
         });
       });
       // console.log("polygonArr",polygonArr)
-
 
 
       //渲染
@@ -695,7 +777,7 @@ export default {
           this.plotisshow[item.plotid] = 1
           this.drawPolyline(item)
         }
-          //消失
+        //消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
           this.plotisshow[item.plotid] = 0
           // console.log(item.plotid,"end")
@@ -796,25 +878,25 @@ export default {
     //时间轴end-------------
 
     drawPolyline(line) {
-        let material = this.getMaterial(line.plottype,line.img)
-        // 1-6 画线
-        window.viewer.entities.add({
-          id: line.plotid,
-          plottype: line.plottype,
-          polyline: {
-            status:1,
-            // positions: positionsArr,
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
-            width: 5,
-            material: material,
-            // material: Cesium.Color.YELLOW,
-            depthFailMaterial: Cesium.Color.YELLOW,
-            clampToGround: true,
-          },
-          properties: {
-            // pointPosition: pointLinePoints,
-          }
-        })
+      let material = this.getMaterial(line.plottype, line.img)
+      // 1-6 画线
+      window.viewer.entities.add({
+        id: line.plotid,
+        plottype: line.plottype,
+        polyline: {
+          status: 1,
+          // positions: positionsArr,
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
+          width: 5,
+          material: material,
+          // material: Cesium.Color.YELLOW,
+          depthFailMaterial: Cesium.Color.YELLOW,
+          clampToGround: true,
+        },
+        properties: {
+          // pointPosition: pointLinePoints,
+        }
+      })
     },
     distinguishPolylineId(polylineArr) {
       let PolylineIdArr = []
@@ -826,29 +908,29 @@ export default {
       return PolylineIdArr
     },
     // 选择当前线的material
-    getMaterial(type,img) {
-      if(type==="量算"){
+    getMaterial(type, img) {
+      if (type === "量算") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
         })
         return NORMALLINE
       }
-      if(type==="地裂缝"||type==="可用供水管网"||type==="不可用供水管网"){
+      if (type === "地裂缝" || type === "可用供水管网" || type === "不可用供水管网") {
         let PICTURELINE = new Cesium.ImageMaterialProperty({
           image: img,
           repeat: new Cesium.Cartesian2(3, 1),
         })
         return PICTURELINE
       }
-      if(type==="可通行公路"||type==="限制通行公路"||type==="不可通行公路"){
+      if (type === "可通行公路" || type === "限制通行公路" || type === "不可通行公路") {
         let color = null
-        if(type==="可通行公路"){
-          color = Cesium.Color.fromBytes(158,202,181)
-        }else if(type==="限制通行公路"){
-          color = Cesium.Color.fromBytes(206,184,157)
-        }else{
-          color = Cesium.Color.fromBytes(199,151,149)
+        if (type === "可通行公路") {
+          color = Cesium.Color.fromBytes(158, 202, 181)
+        } else if (type === "限制通行公路") {
+          color = Cesium.Color.fromBytes(206, 184, 157)
+        } else {
+          color = Cesium.Color.fromBytes(199, 151, 149)
         }
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: color,
@@ -856,28 +938,28 @@ export default {
         })
         return NORMALLINE
       }
-      if(type==="可通行铁路"||type==="不可通行铁路"){
+      if (type === "可通行铁路" || type === "不可通行铁路") {
         let gapColor
-        if(type==="可通行铁路"){
+        if (type === "可通行铁路") {
           gapColor = Cesium.Color.BLACK
-        }else {
+        } else {
           gapColor = Cesium.Color.RED
         }
-        let DASHLINE= new Cesium.PolylineDashMaterialProperty({
+        let DASHLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.WHITE,
           gapColor: gapColor,
           dashLength: 100
         })
         return DASHLINE
       }
-      if(type==="可用输电线路"||type==="不可用输电线路"){
+      if (type === "可用输电线路" || type === "不可用输电线路") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
         })
         return NORMALLINE
       }
-      if(type==="可用输气管线"||type==="不可用输气管线"){
+      if (type === "可用输气管线" || type === "不可用输气管线") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
@@ -887,20 +969,20 @@ export default {
     },
 
 
-    getDrawPolygon(polygon){
+    getDrawPolygon(polygon) {
       // console.log("polygon111111111",polygon)
-        viewer.entities.add({
-          id: polygon.plotid,
-          plottype: polygon.plottype,
-          polygon: {
-            show: true,
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
-            height: 0,
-            material: polygon.img,
-            stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
-            clampToGround: true,
-          }
-        })
+      viewer.entities.add({
+        id: polygon.plotid,
+        plottype: polygon.plottype,
+        polygon: {
+          show: true,
+          hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
+          height: 0,
+          material: polygon.img,
+          stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
+          clampToGround: true,
+        }
+      })
     },
 
 
@@ -912,11 +994,11 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
         // 2-1 判断点击物体是否为点实体（billboard）
-        if(window.selectedEntity === undefined){
+        if (window.selectedEntity === undefined) {
           this.popupVisible = false
           this.popupData = {}
         }
-        console.log("window.selectedEntity",window.selectedEntity)
+        console.log("window.selectedEntity", window.selectedEntity)
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
           // console.log("window.selectedEntity",window.selectedEntity)
@@ -953,7 +1035,6 @@ export default {
           // that.selectedEntity = window.selectedEntity
 
 
-
           // that.currentTime=
           // this.popupVisible = true; // 显示弹窗
           this.popupVisible = false
@@ -963,7 +1044,7 @@ export default {
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          console.log("popupData thd timeline",this.popupData)
+          console.log("popupData thd timeline", this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
@@ -1020,11 +1101,29 @@ export default {
       //   document.body.removeChild(link);
       //   // console.log(this.$el.textContent); // I'm text inside the component.
       // });
-        const link = document.createElement('a');
-        link.href = fileUrl
-        link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
-        link.click();
+      const link = document.createElement('a');
+      link.href = fileUrl
+      link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
+      link.click();
     },
+
+    drawListChage() {
+      this.dropdownVisible = !this.dropdownVisible;
+    },
+    selectItem(item) {
+      this.selectedItem = item;
+      // this.dropdownVisible = false; // 选择后关闭下拉框
+    },
+    // downloadSelected() {
+    //   if (this.selectedItem) {
+    //     const link = document.createElement('a');
+    //     link.href = this.selectedItem.pdfUrl;
+    //     link.download = this.selectedItem.name + '.pdf';
+    //     document.body.appendChild(link);
+    //     link.click();
+    //     document.body.removeChild(link);
+    //   }
+    // },
 
 
     //-地震列表-------------------------------------
@@ -1328,5 +1427,25 @@ export default {
   top: 6.3%;
   right: 7%;
 }
+.draw-button{
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  right: 15%;
+}
 
+
+.dropdown{
+  background-color: #C03639;
+  width: 30%;
+  top:10%;
+  height: 43%;
+  z-index: 30;
+  left:1%;
+  position: absolute;
+}
+
+.output-button {
+  margin-top: 10px;
+}
 </style>
