@@ -446,7 +446,7 @@ export default {
 }
 
 .cell-item {
-  width: 60px;
+  width: 100%;
   text-align: center;
 }
 

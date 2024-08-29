@@ -64,8 +64,8 @@ const initEmap = () => {
         viewControl: {
           projection: 'orthographic',
           orthographicSize: 105,
-          alpha: 45,
-          beta: 5,
+          alpha: 44,
+          beta: 0,
         },
         itemStyle: {
           color: '#0c274b',

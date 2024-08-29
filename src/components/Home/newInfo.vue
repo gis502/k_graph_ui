@@ -6,7 +6,7 @@
       </div>
     </el-col>
     <el-col>
-      <div class="time newColCommon">
+      <div class="newColCommon">
         发震时间：{{ time }}
       </div>
     </el-col>
@@ -17,7 +17,7 @@
     </el-col>
     <el-col>
       <div class="magnitude newColCommon">
-        地震震级：{{ magnitude }}
+        地震震级：{{ Number(magnitude).toFixed(1)}}
       </div>
     </el-col>
     <el-col>

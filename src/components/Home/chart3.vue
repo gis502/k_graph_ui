@@ -38,9 +38,9 @@ const initChart = () => {
         radius: ['40%', '70%'],  // Adjust inner and outer radius
         center: ['50%', '50%'],  // Center the pie chart
         data: [
-          { value: 0, name: '遇难人数', itemStyle: { color: 'rgba(248,25,25,0.7)' } },
-          { value: 0, name: '受伤人数', itemStyle: { color: 'rgba(255,235,47,0.7)' } },
-          { value: 0, name: '失联人数', itemStyle: { color: 'rgba(40,137,255,0.7)' } },
+          { value: 0, name: '受伤人数', itemStyle: { color: 'rgba(248,25,25,0.7)' } },
+          { value: 0, name: '失联人数', itemStyle: { color: 'rgba(255,235,47,0.7)' } },
+          { value: 0, name: '遇难人数', itemStyle: { color: 'rgba(0, 0, 0, 0.5)' } },
         ],
         emphasis: {
           itemStyle: {
@@ -67,6 +67,7 @@ const initChart = () => {
           show: true,
           length: 20,
           length2: 25,
+
         }
       }
     ]

@@ -27,20 +27,20 @@
         <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="home">雅安</el-button>-->
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
-          <el-table-column prop="name" label="模型名称" >
+          <el-table-column prop="name" label="模型名称" width="140px">
             <!--          <template #default="scope">-->
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
           </el-table-column>
-          <el-table-column prop="path" label="模型路径" width="80">
+<!--          <el-table-column prop="path" label="模型路径" width="80">-->
             <!--          <template #default="scope">-->
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
-          </el-table-column>
+<!--          </el-table-column>-->
           <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
-          <el-table-column prop="tz" label="模型高度" width="80"></el-table-column>
+          <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
           <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
-          <el-table-column prop="tze" label="模型高度（三维）" width="80"></el-table-column>
+          <el-table-column prop="tze" label="模型中心高度(米)" width="160px"></el-table-column>
           <el-table-column label="操作" width="80" align="center">
             <!--          <template #default="scope">-->
             <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
@@ -660,7 +660,9 @@ function initModelTable() {
 // 修改table的header的样式
 function tableHeaderColor() {
   return {
-    'border-color': '#293038',
+    'border-width':'1px',
+    'border-style':'solid',
+    'border-color': '#555555',
     'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
     'color': '#fff',
     'padding': '0',
@@ -673,7 +675,9 @@ function tableHeaderColor() {
 function tableColor({row, column, rowIndex, columnIndex}) {
   if (rowIndex % 2 == 1) {
     return {
-      'border-color': '#313a44',
+      'border-width':'1px',
+      'border-style':'solid',
+      'border-color': '#555555',
       'background-color': '#313a44',
       'color': '#fff',
       'padding': '0',
@@ -682,7 +686,9 @@ function tableColor({row, column, rowIndex, columnIndex}) {
     }
   } else {
     return {
-      'border-color': '#304156',
+      'border-width':'1px',
+      'border-style':'solid',
+      'border-color': '#555555',
       'background-color': '#304156',
       'color': '#fff',
       'padding': '0',
@@ -965,16 +971,16 @@ function updataMCommit() {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  width: 525px;
-  top: 400px;
+  width: 560px;
+  top: 265px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
 .button-container {
-  height: 330px;
-  width: 525px;
+  height: 195px;
+  width: 560px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;

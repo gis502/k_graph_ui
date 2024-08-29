@@ -65,7 +65,6 @@ export default {
   },
   mounted() {
     this.init()
-
     // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()

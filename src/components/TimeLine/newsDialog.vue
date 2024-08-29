@@ -10,20 +10,24 @@
       <h2 class="news-title">新闻事件</h2>
     </div>
     <div class="news-main">
+      <div class="news-title-in">
+        <span style="font-weight: 700">新闻标题：</span>{{ showingNewsContent.title }}
+      </div>
       <div class="news-time">
-        {{ showingNewsContent.time }}
+        <span style="font-weight: 700">发布时间：</span>{{ showingNewsContent.time }}
       </div>
       <div class="news-content">
-        {{ showingNewsContent.content }}
+        <span style="font-weight: 700">新闻内容：</span>{{ showingNewsContent.content }}
       </div>
       <div v-if="showingNewsContent.img" class="news-img">
-        <img :src="showingNewsContent.img" alt="新闻图片" />
+        <img width="250" height="150" :src="showingNewsContent.img" alt="新闻图片" @error="handleErrorImage"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import error from '@/assets/json/TimeLine/errorimg.jpg'
 export default {
   name: "newsDialog",
   props: {
@@ -51,6 +55,7 @@ export default {
   },
   data(){
     return{
+      error,
       // showingNewsContent: {
       //     id: '',
       //     time: '',
@@ -65,6 +70,9 @@ export default {
 
   },
   methods:{
+    handleErrorImage(event) {
+      event.target.src = error // 当图片加载失败时，将其替换为备用图片
+    },
     hideDetailedNews(){
       this.ifShowDialog = false
       this.$emit('hideNewsDialog', this.ifShowDialog);
@@ -81,7 +89,7 @@ export default {
   padding: 0 5px 5px;
   border-radius: 5px;
   top:10%;
-  right: 24%;
+  right: 29%;
   z-index: 30; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
   color: white;
@@ -107,6 +115,9 @@ export default {
   padding-top: 5px;
   text-align: center;
 }
+.news-title-in{
+  margin-bottom: 10px;
+}
 .news-main{
   padding-left: 5px;
   padding-right: 5px;
@@ -116,6 +127,7 @@ export default {
 .news-time{
   font-size: .9rem;
   line-height: 1.5rem;
+  margin-bottom: 1px;
 }
 .news-content{
   font-size: .9rem;

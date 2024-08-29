@@ -116,7 +116,7 @@
           <el-table
               :data="paginatedTableData"
               width="100%"
-              height="575px"
+              height="530px"
               ref="table"
               fit
               :disable="true"
@@ -519,7 +519,7 @@ export default {
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
       this.filename = fileNameWithoutExtension
-      this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.filename}`;
+      this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
       const isExcel = (type === "xlsx") || (type === 'xls');
       if (!isExcel) {
         this.$message({
@@ -604,7 +604,7 @@ export default {
 
 
 .contentsBox {
-  margin: 10px;
+  margin: 4px;
   border-radius: 5px;
   background-color: rgba(255, 255, 255, 0.54);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.91);

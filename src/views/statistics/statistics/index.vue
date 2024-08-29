@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div style="margin-bottom:20px;">
+    <div style="margin-bottom:5px;">
       <el-input
           v-model="requestParams"
           placeholder="请输入查询内容"
@@ -37,14 +37,16 @@
         </el-select>
       </el-col>
     </el-row>
+
     <el-table
+        table-layout="fixed"
         ref="multipleTableRef"
         :data="tableData"
-        height="485px"
+        height="510px"
         class="table tableMove"
         fit
         :row-key="getRowKey"
-        :row-style="{ height: '5.2vh' }"
+        :row-style="{ height: '6.3vh' }"
         @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
@@ -60,7 +62,8 @@
           :prop="col.prop"
           :label="col.label"
           :align="col.align"
-          :min-width="'250px'"
+          :width="col.width"
+          :formatter="col.label === '震级' ? formatMagnitude : undefined"
       />
       />
     </el-table>
@@ -122,15 +125,23 @@ const files = ref([])//存储当前用户的导表信息
 const name = ref([])
 const columns = ref([]); // 用于存储表格列配置
 const total = ref()
+const width = ref([])
+const widthList = {
+  'YaanAftershockStatistics': [300, 200, 100, 100, 200, 120, 100, 100, 100],
+  'YaanRelocationResettlementDisasterReliefGroup': [300, 200, 100, 100, 200, 150, 150, 130, 130, 170, 160],
+  'YaanCasualties': [300, 200, 100, 100, 200, 130, 120, 120, 120, 120, 120, 120, 120]
+}
 
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.fileFlag=== newFlag);
+  const selectedFile = files.value.find(file => file.fileFlag === newFlag);
+  console.log(newFlag)
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
     field.value = Array.from(map.keys());
     name.value = Array.from(map.values());
+    width.value = widthList[newFlag]
     data.value = generateData();
     columns.value = generateColumnConfig();
   }
@@ -167,14 +178,28 @@ const typeIndex = (row, column, cellValue, index) => {
   return index + 1 + (currentPage.value - 1) * pageSize.value;
 };
 
-const generateColumnConfig = () => {
-  return field.value.map((fieldName, index) => ({
-    prop: fieldName,
-    label: name.value[index],
-    align: "center",
-    width: null // Example: setting width for the first two columns
-  }));
+const formatMagnitude = (row, column, cellValue) => {
+  if (column.label === '震级') {
+    return cellValue.includes('.') ? cellValue : cellValue + '.0';
+  }
+  return cellValue;
 };
+
+const generateColumnConfig = () => {
+  return field.value.map((fieldName, index) => {
+    const label = name.value[index];
+    const width1 = width.value[index]
+    console.log(width1)
+    console.log(label)
+    return {
+      prop: fieldName,
+      label: label,
+      align: "center",
+      width: width1
+    };
+  });
+};
+
 
 const generateFieldData = () => {
   return field.value.map((fieldName, index) => ({
@@ -234,6 +259,14 @@ const generateData = _ => {
   }
   return data
 }
+
+const getColumnWidth = (prop) => {
+  const specialColumns = ['地震名称', '地震时间', '统计截止时间'];
+  if (specialColumns.includes(prop)) {
+    return 250;
+  }
+  return 150;
+};
 
 const data = ref(generateData())
 let value = ref([])
@@ -297,7 +330,8 @@ const clearSelection = () => {
 ::v-deep .el-input__inner {
   font-size: 16px;
 }
-.tableMove{
+
+.tableMove {
   overflow-y: auto;
 }
 

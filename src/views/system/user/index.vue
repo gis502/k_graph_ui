@@ -134,87 +134,88 @@
           <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 
-        <div class="table-container">
-          <el-table
-              v-loading="loading"
-              :data="userList"
-              @selection-change="handleSelectionChange"
-              style="width: 100%;"
-          >
-            <el-table-column label="序号" type="index" :index="indexMethod" align="center" width="50"
-                             v-if="columns[0].visible"/>
-            <el-table-column
-                label="用户名称"
-                align="center"
-                key="userName"
-                prop="userName"
-                v-if="columns[1].visible"
-                :show-overflow-tooltip="true"
-            />
-            <el-table-column label="用户密码" align="center" key="password" prop="password" v-if="columns[2].visible">
-              <template #default="{ row }">
-                <span>**********</span>
-              </template>
-            </el-table-column>
-            <el-table-column
-                label="隶属工作组"
-                align="center"
-                key="deptName"
-                prop="dept.deptName"
-                min-width="155"
-                v-if="columns[3].visible"
-                :show-overflow-tooltip="true"
-            />
-            <el-table-column
-                label="联系人"
-                align="center"
-                key="nickName"
-                prop="nickName"
-                v-if="columns[3].visible"
-                :show-overflow-tooltip="true"
-            />
-            <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber"
-                             v-if="columns[4].visible" width="120"/>
-            <el-table-column label="状态" align="center" key="status" v-if="columns[5].visible">
-              <template #default="scope">
-                <el-switch
-                    v-model="scope.row.status"
-                    active-value="0"
-                    inactive-value="1"
-                    @change="handleStatusChange(scope.row)"
-                ></el-switch>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
-              <template #default="scope">
-                <el-tooltip content="修改" placement="top">
-                  <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                             v-hasPermi="['system:user:edit']"></el-button>
-                </el-tooltip>
-                <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== 1">
-                  <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                             v-hasPermi="['system:user:remove']"></el-button>
-                </el-tooltip>
-                <el-tooltip content="重置密码" placement="top">
-                  <el-button link type="primary" icon="Key" @click="handleResetPwd(scope.row)"
-                             v-hasPermi="['system:user:resetPwd']"></el-button>
-                </el-tooltip>
-                <el-tooltip content="分配角色" placement="top" v-if="scope.row.userId !== 1">
-                  <el-button link type="primary" icon="CircleCheck" @click="handleAuthRole(scope.row)"
-                             v-hasPermi="['system:user:edit']"></el-button>
-                </el-tooltip>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div style="width:68%">
-            <pagination
-                :total="total"
-                v-model:page="queryParams.pageNum"
-                v-model:limit="queryParams.pageSize"
-                :pageSizes="[7, 20, 50, 100]"
-                @pagination="getList"
-            />
-          </div>
+        <el-table
+            v-loading="loading"
+            :data="userList"
+            @selection-change="handleSelectionChange"
+            height="430px"
+            :row-style="{ height: '1.5vh' }"
+            style="width: 100%;"
+        >
+          <el-table-column label="序号" type="index" :index="indexMethod" align="center" width="50"
+                           v-if="columns[0].visible"/>
+          <el-table-column
+              label="用户名称"
+              align="center"
+              key="userName"
+              prop="userName"
+              v-if="columns[1].visible"
+              :show-overflow-tooltip="true"
+          />
+          <el-table-column label="用户密码" align="center" key="password" prop="password" v-if="columns[2].visible">
+            <template #default="{ row }">
+              <span>**********</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="隶属工作组"
+              align="center"
+              key="deptName"
+              prop="dept.deptName"
+              min-width="155"
+              v-if="columns[3].visible"
+              :show-overflow-tooltip="true"
+          />
+          <el-table-column
+              label="联系人"
+              align="center"
+              key="nickName"
+              prop="nickName"
+              v-if="columns[3].visible"
+              :show-overflow-tooltip="true"
+          />
+          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber"
+                           v-if="columns[4].visible" width="120"/>
+          <el-table-column label="状态" align="center" key="status" v-if="columns[5].visible">
+            <template #default="scope">
+              <el-switch
+                  v-model="scope.row.status"
+                  active-value="0"
+                  inactive-value="1"
+                  @change="handleStatusChange(scope.row)"
+              ></el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
+            <template #default="scope">
+              <el-tooltip content="修改" placement="top">
+                <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+                           v-hasPermi="['system:user:edit']"></el-button>
+              </el-tooltip>
+              <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== 1">
+                <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+                           v-hasPermi="['system:user:remove']"></el-button>
+              </el-tooltip>
+              <el-tooltip content="重置密码" placement="top">
+                <el-button link type="primary" icon="Key" @click="handleResetPwd(scope.row)"
+                           v-hasPermi="['system:user:resetPwd']"></el-button>
+              </el-tooltip>
+              <el-tooltip content="分配角色" placement="top" v-if="scope.row.userId !== 1">
+                <el-button link type="primary" icon="CircleCheck" @click="handleAuthRole(scope.row)"
+                           v-hasPermi="['system:user:edit']"></el-button>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div>
+          <pagination
+              :total="total"
+              v-model:page="queryParams.pageNum"
+              v-model:limit="queryParams.pageSize"
+              :pageSizes="[8, 20, 50, 100]"
+              @pagination="getList"
+              class="pagination"
+          />
         </div>
       </el-col>
     </el-row>
@@ -250,13 +251,13 @@
           </el-col>
           <el-col :span="11">
             <el-form-item label="角色" prop="roleIds">
-              <el-select v-model="form.roleIds" multiple placeholder="请选择">
+              <el-select v-model="form.roleIds" placeholder="请选择">
                 <el-option
                     v-for="item in roleOptions"
                     :key="item.roleId"
                     :label="item.roleName"
                     :value="item.roleId"
-                    :disabled="item.status == 1"
+                    :disabled="item.status === 1"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -269,18 +270,18 @@
               <el-input v-model="form.nickName" placeholder="请输入联系人" maxlength="30"/>
             </el-form-item>
           </el-col>
-<!--          <el-col :span="11">-->
-<!--            <el-form-item label="性别">-->
-<!--              <el-select v-model="form.sex" placeholder="请选择">-->
-<!--                <el-option-->
-<!--                    v-for="dict in sys_user_sex"-->
-<!--                    :key="dict.value"-->
-<!--                    :label="dict.label"-->
-<!--                    :value="dict.value"-->
-<!--                ></el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </el-col>-->
+          <!--          <el-col :span="11">-->
+          <!--            <el-form-item label="性别">-->
+          <!--              <el-select v-model="form.sex" placeholder="请选择">-->
+          <!--                <el-option-->
+          <!--                    v-for="dict in sys_user_sex"-->
+          <!--                    :key="dict.value"-->
+          <!--                    :label="dict.label"-->
+          <!--                    :value="dict.value"-->
+          <!--                ></el-option>-->
+          <!--              </el-select>-->
+          <!--            </el-form-item>-->
+          <!--          </el-col>-->
           <el-col :span="11">
             <el-form-item label="手机号码" prop="phonenumber">
               <el-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11"/>
@@ -377,7 +378,8 @@
 </template>
 
 <script setup name="User">
-import {getToken} from "@/utils/auth";
+import
+{getToken} from "@/utils/auth";
 import {
   addUser,
   changeUserStatus,
@@ -444,7 +446,7 @@ const data = reactive({
   form: {},
   queryParams: {
     pageNum: 1,
-    pageSize: 7,
+    pageSize: 8,
     userName: undefined,
     phoneNumber: undefined,
     status: undefined,
@@ -472,6 +474,10 @@ const data = reactive({
 });
 
 const {queryParams, form, rules} = toRefs(data);
+
+function log() {
+  console.log(form)
+}
 
 /** 通过条件过滤节点  */
 const filterNode = (value, data) => {
@@ -684,7 +690,7 @@ function handleUpdate(row) {
     roleOptions.value = response.roles;
     excelOptions.value = response.fileIds;
     form.value.postIds = response.postIds;
-    form.value.roleIds = response.roleIds;
+    form.value.roleIds = response?.roleIds[0];
     form.value.fileIds = response.userFileIds.map(item => item.id);
     open.value = true;
     title.value = "修改用户";
@@ -694,7 +700,8 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  console.log(form.value)
+  // 若依框架存储为数组格式
+  form.value.roleIds = [form.value.roleIds]
   proxy.$refs["userRef"].validate(valid => {
     if (valid) {
       if (form.value.userId !== undefined) {
@@ -717,11 +724,3 @@ function submitForm() {
 getDeptTree();
 getList();
 </script>
-
-<style scoped>
-.table-container {
-  height: 430px; /* 设置容器总高度 */
-  display: flex;
-  flex-direction: column;
-}
-</style>

@@ -92,8 +92,8 @@ export default {
 <style>
 .emergency_response {
   position: absolute;
-  width: 23%; /* 调整宽度 */
-  height: 22%;
+  width: 25%; /* 调整宽度 */
+  height: 23%;
   padding: 10px;
   border-radius: 5px;
   top:10%;

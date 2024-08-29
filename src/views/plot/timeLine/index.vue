@@ -1,18 +1,24 @@
 <template>
   <div class="app-container">
     <el-table :data="tableData"
+              height="600px"
               @row-click="go"
               :stripe="true"
-              :cell-style="tableColor"
-    >
-      <el-table-column prop="position" label="位置" width="300" header-align="center" align="left"></el-table-column>
+              :header-cell-style="{  }"
+              :cell-style="{ }"
+              :row-style="{ height: '7.4vh' }">
+      <el-table-column label="序号" width="60">
+        <template #default="{ row, column, $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="position" label="位置" width="300" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
       <el-table-column prop="longitude" label="经度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="depth" label="深度" header-align="center" align="center"></el-table-column>
     </el-table>
-
 
       <el-pagination
           @size-change="handleSizeChange"
@@ -62,20 +68,25 @@ export default {
     this.getEq()
   },
   methods: {
+    typeIndex(row, column, cellValue, index) {
+      return (this.currentPage - 1) * this.pageSize + index + 1;
+    },
     getEq() {
       let that = this
       getAllEq().then(res => {
+        let resData = res.filter(item=>item.magnitude>=5)
+        that.getEqData = resData
+        that.total = resData.length
         let data = []
-        // console.log(res)
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.time = that.timestampToTime(res[i].time)
+          item.time = that.timestampToTime(item.time)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
-        that.getEqData = data
-        // console.log(that.getEqData)
-        that.total = res.length
-        that.tableData = that.getPageArr()
+        that.tableData = this.getPageArr()
       })
     },
     timestampToTime(timestamp) {
@@ -112,6 +123,7 @@ export default {
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
+      this.currentPage = 1;
       this.tableData = this.getPageArr()
       // console.log(`每页 ${val} 条`);
     },

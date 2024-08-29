@@ -456,6 +456,46 @@ const plotType = {
         //         value: ""
         //     }
         // },
+        newInjuriesMinorInjury: {
+            type: "text",
+            name: "轻伤新增人数",
+            value: ""
+        },
+        newInjuriesSeriousInjury: {
+            type: "text",
+            name: "重伤新增人数",
+            value: ""
+        },
+        newInjuriesCriticalInjury: {
+            type: "text",
+            name: "危重伤新增人数",
+            value: ""
+        },
+        newInjuriesDeath: {
+            type: "text",
+            name: "死亡新增人数",
+            value: ""
+        },
+        minorInjury: {
+            type: "text",
+            name: "轻伤累计人数",
+            value: ""
+        },
+        seriousInjury: {
+            type: "text",
+            name: "重伤累计人数",
+            value: ""
+        },
+        criticalInjury: {
+            type: "text",
+            name: "危重伤累计人数",
+            value: ""
+        },
+        death: {
+            type: "text",
+            name: "死亡累计人数",
+            value: ""
+        },
         medicalRescueTeam: {
             type: "text",
             name: "医疗救援队伍",
@@ -526,27 +566,49 @@ const plotType = {
             ]
         },
         // newInjuries: {
-        //     minorInjury: {
-        //         type: "text",
-        //         name: "轻伤新增人数",
-        //         value: ""
-        //     },
-        //     seriousInjury: {
-        //         type: "text",
-        //         name: "重伤新增人数",
-        //         value: ""
-        //     },
-        //     criticalInjury: {
-        //         type: "text",
-        //         name: "危重伤新增人数",
-        //         value: ""
-        //     },
-        //     death: {
-        //         type: "text",
-        //         name: "死亡新增人数",
-        //         value: ""
-        //     }
+        //
         // },
+        newInjuriesMinorInjury: {
+            type: "text",
+            name: "轻伤新增人数",
+            value: ""
+        },
+        newInjuriesSeriousInjury: {
+            type: "text",
+            name: "重伤新增人数",
+            value: ""
+        },
+        newInjuriesCriticalInjury: {
+            type: "text",
+            name: "危重伤新增人数",
+            value: ""
+        },
+        newInjuriesDeath: {
+            type: "text",
+            name: "死亡新增人数",
+            value: ""
+        },
+        minorInjury: {
+            type: "text",
+            name: "轻伤累计人数",
+            value: ""
+        },
+        seriousInjury: {
+            type: "text",
+            name: "重伤累计人数",
+            value: ""
+        },
+        criticalInjury: {
+            type: "text",
+            name: "危重伤累计人数",
+            value: ""
+        },
+        death: {
+            type: "text",
+            name: "死亡累计人数",
+            value: ""
+        },
+
         // cumulativeInjuries: {
         //     minorInjury: {
         //         type: "text",
@@ -682,6 +744,46 @@ const plotType = {
         //         value: ""
         //     }
         // },
+        newInjuriesMinorInjury: {
+            type: "text",
+            name: "轻伤新增人数",
+            value: ""
+        },
+        newInjuriesSeriousInjury: {
+            type: "text",
+            name: "重伤新增人数",
+            value: ""
+        },
+        newInjuriesCriticalInjury: {
+            type: "text",
+            name: "危重伤新增人数",
+            value: ""
+        },
+        newInjuriesDeath: {
+            type: "text",
+            name: "死亡新增人数",
+            value: ""
+        },
+        minorInjury: {
+            type: "text",
+            name: "轻伤累计人数",
+            value: ""
+        },
+        seriousInjury: {
+            type: "text",
+            name: "重伤累计人数",
+            value: ""
+        },
+        criticalInjury: {
+            type: "text",
+            name: "危重伤累计人数",
+            value: ""
+        },
+        death: {
+            type: "text",
+            name: "死亡累计人数",
+            value: ""
+        },
         medicalRescueTeam: {
             type: "text",
             name: "医疗救援队伍",
@@ -750,6 +852,46 @@ const plotType = {
                     label: "正在发生的突然死亡"
                 }
             ]
+        },
+        newInjuriesMinorInjury: {
+            type: "text",
+            name: "轻伤新增人数",
+            value: ""
+        },
+        newInjuriesSeriousInjury: {
+            type: "text",
+            name: "重伤新增人数",
+            value: ""
+        },
+        newInjuriesCriticalInjury: {
+            type: "text",
+            name: "危重伤新增人数",
+            value: ""
+        },
+        newInjuriesDeath: {
+            type: "text",
+            name: "死亡新增人数",
+            value: ""
+        },
+        minorInjury: {
+            type: "text",
+            name: "轻伤累计人数",
+            value: ""
+        },
+        seriousInjury: {
+            type: "text",
+            name: "重伤累计人数",
+            value: ""
+        },
+        criticalInjury: {
+            type: "text",
+            name: "危重伤累计人数",
+            value: ""
+        },
+        death: {
+            type: "text",
+            name: "死亡累计人数",
+            value: ""
         },
         // newInjuries: {
         //     minorInjury: {
@@ -824,7 +966,11 @@ const plotType = {
                 },
                 {
                     value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    label:"有（10人以下）"
+                },
+                {
+                    value:"noHasCasualties",
+                    label:"无"
                 },
             ]
         },
@@ -979,7 +1125,11 @@ const plotType = {
                 },
                 {
                     value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    label:"有（10人以下）"
+                },
+                {
+                    value:"noHasCasualties",
+                    label:"无"
                 },
             ]
         },
@@ -1134,7 +1284,11 @@ const plotType = {
                 },
                 {
                     value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    label:"有（10人以下）"
+                },
+                {
+                    value:"noHasCasualties",
+                    label:"无"
                 },
             ]
         },
@@ -1289,7 +1443,11 @@ const plotType = {
                 },
                 {
                     value:"noHasCasualties",
-                    label:"无（10人一下）"
+                    label:"有（10人以下）"
+                },
+                {
+                    value:"noHasCasualties",
+                    label:"无"
                 },
             ]
         },
@@ -1552,18 +1710,18 @@ const plotType = {
                 name: "人员伤亡",
                 value: "",
                 content: [
-                {
-                    value: "noCasualties",
-                    label: "无"
-                },
-                {
-                    value: "casualties10OrLess",
-                    label: "有（10人及以下）"
-                },
-                {
-                    value: "casualtiesMoreThan10",
-                    label: "有（10人以上）"
-                }
+                    {
+                        value:"hasCasualties",
+                        label:"有（10人以上）"
+                    },
+                    {
+                        value:"noHasCasualties",
+                        label:"有（10人以下）"
+                    },
+                    {
+                        value:"noHasCasualties",
+                        label:"无"
+                    },
             ]
         },
         damageType: {

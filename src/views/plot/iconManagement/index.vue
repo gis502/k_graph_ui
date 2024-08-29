@@ -6,20 +6,20 @@
       </el-col>
     </el-row>
 
-    <el-table :data="tableData">
-      <el-table-column label="序号" width="50" align="center">
+    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+      <el-table-column label="序号" width="60" align="center">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="type" label="类型" width="200" align="center"></el-table-column>
-      <el-table-column prop="img" label="符号" width="120" align="center">
+      <el-table-column prop="type" label="类型" width="240" align="center"></el-table-column>
+      <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
-          <img width="50px" height="50px" :src="scope.row.img" alt="图片不正确">
+          <img width="30px" height="30px" :src="scope.row.img" alt="图片不正确">
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="名称" width="200" align="center"></el-table-column>
-      <el-table-column prop="plotType" label="标会类型" width="120" align="center"></el-table-column>
+      <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
+      <el-table-column prop="plottype" label="标会类型" width="120" align="center"></el-table-column>
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
           <el-popover placement="top" :width="300" trigger="hover">
@@ -52,11 +52,10 @@
         :total="total">
     </el-pagination>
 
-    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false" :before-close="handleClose">
-      <el-row :gutter="10">
-        <el-col :span="6">类型：</el-col>
-        <el-col :span="18">
-          <!--          <el-input v-model="dialogContent.type" placeholder="请输入内容"></el-input>-->
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="40%" :show-close="false" :before-close="handleClose">
+      <el-row >
+        <el-col :span="12">
+          <el-form-item label="类型：">
           <el-select v-model="dialogContent.type" placeholder="请选择">
             <el-option-group
                 v-for="group in typeArr"
@@ -70,12 +69,12 @@
               </el-option>
             </el-option-group>
           </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">标绘类型：</el-col>
-        <el-col :span="18">
-          <el-select v-model="dialogContent.plotType" placeholder="请选择">
+
+        <el-col :span="12">
+          <el-form-item label=" 标绘类型：">
+          <el-select v-model="dialogContent.plottype" placeholder="请选择">
             <el-option
                 v-for="item in plotTypeArr"
                 :key="item.value"
@@ -83,23 +82,26 @@
                 :value="item.value">
             </el-option>
           </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">名称：</el-col>
-        <el-col :span="18">
+
+        <el-col :span="12">
+          <el-form-item label="名称：">
           <el-input v-model="dialogContent.name" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">说明：</el-col>
-        <el-col :span="18">
-          <el-input type="textarea" :rows="2" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="说明：">
+          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">符号：</el-col>
-        <el-col :span="18">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="符号：">
           <el-upload
               action="#"
               :on-change='uploadOnChange'
@@ -121,6 +123,7 @@
               <!--              </div>-->
             </template>
           </el-upload>
+          </el-form-item>
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
@@ -141,19 +144,19 @@ export default {
       getPicData: [],
       tableData: [],
       total: 0,
-      pageSize: 7,
-      pageSizes: [7, 20, 30, 40],
+      pageSize: 10,
+      pageSizes: [10, 20, 30, 40],
       currentPage: 1,
       //-----------弹出对话框-------------
       dialogShow: false,
       dialogTitle: null,
       dialogContent: {
-        id: null,
+        uuid: null,
         img: null,
         name: null,
         describe: null,
         type: null,
-        plotType: null,
+        plottype: null,
       },
       plotTypeArr: [
         {
@@ -279,7 +282,7 @@ export default {
     // 删除单个标绘图片
     handleDelete(row) {
       let that = this
-      deletePlotIcon({id: row.id}).then(res => {
+      deletePlotIcon({uuid: row.uuid}).then(res => {
         that.getPlotPicture()
       })
     },
@@ -350,7 +353,6 @@ export default {
       // console.log(`当前页: ${val}`);
     },
 
-
     handleClose(done) {
       // this.$confirm('确认关闭？')
       //   .then(_ => {
@@ -359,6 +361,57 @@ export default {
       //   .catch(_ => {});
     },
 
+    // 修改table header的背景色
+    tableHeaderColor() {
+      return {
+        'font-size':'16px',
+        // 'border-color': '#293038',
+        // 'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+        // 'color': '#fff',
+        // 'padding': '0',
+        // 'text-align': 'center',
+        // 'border-left-color': '#323843',
+        // 'border-left-width': '1px',
+        // 'border-left-style': 'solid',
+        // 'border-right-color': '#323843',
+        // 'border-right-width': '1px',
+        // 'border-right-style': 'solid',
+      }
+    },
+    // 修改table的背景色
+    tableColor({row, column, rowIndex, columnIndex}) {
+      if (rowIndex % 2 === 1) {
+        return {
+          'font-size':'16px',
+          // 'border-color': '#313a44',
+          // 'background-color': '#313a44',
+          // 'color': '#fff',
+          // 'padding': '10',
+          // 'text-align': 'center',
+          // 'border-left-color': '#323843',
+          // 'border-left-width': '1px',
+          // 'border-left-style': 'solid',
+          // 'border-right-color': '#323843',
+          // 'border-right-width': '1px',
+          // 'border-right-style': 'solid',
+        }
+      } else {
+        return {
+          'font-size':'16px',
+          // 'border-color': '#304156',
+          // 'background-color': '#304156',
+          // 'color': '#fff',
+          // 'padding': '10',
+          // 'text-align': 'center',
+          // 'border-left-color': '#323843',
+          // 'border-left-width': '1px',
+          // 'border-left-style': 'solid',
+          // 'border-right-color': '#323843',
+          // 'border-right-width': '1px',
+          // 'border-right-style': 'solid',
+        }
+      }
+    },
 
   },
 }
@@ -376,4 +429,13 @@ export default {
   margin-top: 10px;
   justify-content: center;
 }
+.el-input {
+  --el-input-width: 270px !important;
+}
+
+.el-select {
+  /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
+  --el-select-width: 270px !important;
+}
+
 </style>
