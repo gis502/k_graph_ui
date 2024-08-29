@@ -5,7 +5,7 @@
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
-        <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor" @row-click="plotAdj">
+        <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor" >
           <el-table-column label="序号" width="55">
             <template #default="{ row, column, $index }">
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
@@ -30,7 +30,15 @@
           <!--        <el-table-column prop="longitude" label="经度" width="70"></el-table-column>-->
           <!--        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>-->
           <!--        <el-table-column prop="depth" label="深度" width="50"></el-table-column>-->
+          <el-table-column label="操作" width="75">
+            <template #default="scope">
+              <el-button
+                  size="small"
+                  @click="plotAdj(scope.row)">查看</el-button>
+            </template>
+          </el-table-column>
         </el-table>
+
         <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
@@ -50,7 +58,7 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="item.img" width="30px" height="30px">
+              <img :src="item.img" width="17%" height="43.3px">
             </el-tooltip>
           </span>
             <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
@@ -961,7 +969,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 510px;
+  width: 39%;
   height: 310px;
   position: absolute;
   padding: 10px;
@@ -978,7 +986,7 @@ export default {
   border-radius: 5px;
   top: 345px;
   left: 10px;
-  width: 510px;
+  width: 39%;
   z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);
 }
@@ -993,9 +1001,6 @@ export default {
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
-
-
-
 
 .modelAdj {
   color: white;
