@@ -144,7 +144,7 @@ export default {
         // 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
-          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'id'&& key !== 'uniqueId') {
+          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid'&& key !== 'uniqueId') {
             const translatedKey = this.keyMappings[key] || key;
             translatedData[translatedKey] = rawPopupData[key];
           }
@@ -178,7 +178,7 @@ export default {
     // 删除标注
     deletePoint() {
       this.$emit('closePlotPop');
-      this.$emit('wsSendPoint', JSON.stringify({ type: "point", operate: "delete", id: window.selectedEntity.id }));
+      this.$emit('wsSendPoint', JSON.stringify({ type: "point", operate: "delete", uuid: window.selectedEntity.uuid }));
     }
   }
 };

@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function getEmergencyData(query) {
+export function getEmergency(query) {
     return request({
-        url: '/system/emergency/getEmergency',
+        url: '/emergency/getEmergency',
         method: 'get',
         params: query
     })

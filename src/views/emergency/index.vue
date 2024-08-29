@@ -75,7 +75,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import RouterPanel from '@/components/Cesium/RouterPanel.vue'
 import cesiumPlot from '@/cesium/plot/cesiumPlot.js'
-import {getEmergencyData} from "@/api/system/emergency.js";
+import {getEmergency} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/emergencyRescueEquipmentLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import disasterReliefsuppliesLogo from '@/assets/images/disasterReliefsuppliesLogo.png';
@@ -192,7 +192,7 @@ export default {
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
     initPlot() {
-      getEmergencyData().then(res => {
+      getEmergency().then(res => {
         let emergencyRescueEquipment = res.emergencyRescueEquipment; // 提取 emergencyRescueEquipment 列表
         let rescueTeamsInfo = res.rescueTeamsInfo; // 提取 rescueTeamsInfo 列表
         let disasterReliefsupplies = res.disasterReliefsupplies; // 提取 disasterReliefsupplies 列表
@@ -218,7 +218,8 @@ export default {
         } else {
           console.error("救援队伍数据格式不正确", rescueTeamsInfo);
         }
-        this.fetSupplyPoints()
+        // RXR 暂时注释
+        // this.fetSupplyPoints()
 
         // 对 disasterReliefsupplies 进行处理
         if (Array.isArray(disasterReliefsupplies)) {
@@ -235,9 +236,9 @@ export default {
     drawPointEquipment(pointArr) {
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          console.warn(`uuid为${element.uuid}的实体已存在。跳过此实体`);
           return; // 跳过这个实体
         }
 
@@ -245,12 +246,12 @@ export default {
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude)) {
-          console.error(`id为${element.id}的实体的坐标无效`, {longitude, latitude});
+          console.error(`uuid为${element.uuid}的实体的坐标无效`, {longitude, latitude});
           return; // 跳过无效坐标的实体
         }
         // 检查经度和纬度是否在合理范围内
         if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          // console.error(`uuid为 ${element.uuid}的实体坐标超出范围`, { longitude, latitude });
           return; // 跳过坐标超出范围的实体
         }
 
@@ -258,7 +259,7 @@ export default {
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
-          id: element.id,
+          uuid: element.uuid,
           position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
           billboard: {
             image: emergencyRescueEquipmentLogo, // 使用导入的图标路径
@@ -307,9 +308,9 @@ export default {
     drawPointSupplies(pointArr) {
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          console.warn(`uuid为${element.uuid}的实体已存在。跳过此实体`);
           return; // 跳过这个实体
         }
 
@@ -317,12 +318,12 @@ export default {
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude)) {
-          console.error(`id为${element.id}的实体的坐标无效`, {longitude, latitude});
+          console.error(`uuid为${element.uuid}的实体的坐标无效`, {longitude, latitude});
           return; // 跳过无效坐标的实体
         }
         // 检查经度和纬度是否在合理范围内
         if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          // console.error(`uuid为 ${element.uuid}的实体坐标超出范围`, { longitude, latitude });
           return; // 跳过坐标超出范围的实体
         }
 
@@ -330,7 +331,7 @@ export default {
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
-          id: element.id,
+          uuid: element.uuid,
           position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
           billboard: {
             image: rescueTeamsInfoLogo, // 使用导入的图标路径
@@ -345,7 +346,7 @@ export default {
           },
           properties: {
             tableName: "抢险救灾装备",
-            id: element.id,
+            uuid: element.uuid,
             county: element.county,
             totalItems: element.totalItems,
             infraredDetectors: element.infraredDetectors,
@@ -403,9 +404,9 @@ export default {
     drawPointRescueTeams(pointArr) {
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          // console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          // console.warn(`uuid为${element.uuid}的实体已存在。跳过此实体`);
           return; // 跳过这个实体
         }
 
@@ -413,12 +414,12 @@ export default {
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude)) {
-          console.error(`id为${element.id}的实体的坐标无效`, {longitude, latitude});
+          console.error(`uuid为${element.uuid}的实体的坐标无效`, {longitude, latitude});
           return; // 跳过无效坐标的实体
         }
         // 检查经度和纬度是否在合理范围内
         if (longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
+          // console.error(`uuid为 ${element.uuid}的实体坐标超出范围`, { longitude, latitude });
           return; // 跳过坐标超出范围的实体
         }
 
@@ -426,7 +427,7 @@ export default {
 
         // 如果不存在相同ID的实体，则准备新的实体
         window.viewer.entities.add({
-          id: element.id,
+          uuid: element.uuid,
           position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
           billboard: {
             image: disasterReliefsuppliesLogo, // 使用导入的图标路径
@@ -441,7 +442,7 @@ export default {
           },
           properties: {
             tableName: "雅安应急队伍",
-            id: element.id,
+            uuid: element.uuid,
             uniqueId: element.uniqueId,
             organization: element.organization,
             levelName: element.levelName,
