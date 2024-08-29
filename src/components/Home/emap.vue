@@ -35,7 +35,7 @@ const initEmap = () => {
     magnitude: parseFloat(item.magnitude),
     longitude: item.longitude,
     latitude: item.latitude,
-    time: item.time,
+    time: item.time.replace("T", " "),
     depth: item.depth,
   }));
 
@@ -85,11 +85,11 @@ const initEmap = () => {
         },
       },
     },
-
     series: [
       {
         type: 'map3D',
         map: 'data',
+        zlevel: 1, // 地图的zlevel
         viewControl: {
           projection: 'orthographic',
           orthographicSize: 105,
@@ -139,7 +139,7 @@ const initEmap = () => {
         type: 'scatter3D',
         coordinateSystem: 'geo3D',
         symbol: 'circle',
-        zlevel: 1,
+        zlevel: 10,
         data: blue.map(item => ({
           name: `Magnitude: ${item.magnitude}`,
           value: [item.longitude, item.latitude, item.magnitude],
@@ -162,7 +162,7 @@ const initEmap = () => {
         type: 'scatter3D',
         coordinateSystem: 'geo3D',
         symbol: 'circle',
-        zlevel: 1,
+        zlevel: 10,
         data: yellow.map(item => ({
           name: `Magnitude: ${item.magnitude}`,
           value: [item.longitude, item.latitude, item.magnitude],
@@ -184,7 +184,7 @@ const initEmap = () => {
         type: 'scatter3D',
         coordinateSystem: 'geo3D',
         symbol: 'circle',
-        zlevel: 1,
+        zlevel: 10,
         data: orange.map(item => ({
           name: `Magnitude: ${item.magnitude}`,
           value: [item.longitude, item.latitude, item.magnitude],
@@ -206,7 +206,7 @@ const initEmap = () => {
         type: 'scatter3D',
         coordinateSystem: 'geo3D',
         symbol: 'circle',
-        zlevel: 1,
+        zlevel: 10,
         data: red.map(item => ({
           name: `Magnitude: ${item.magnitude}`,
           value: [item.longitude, item.latitude, item.magnitude],

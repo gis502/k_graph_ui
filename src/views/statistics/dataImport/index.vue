@@ -4,25 +4,6 @@
       <div class="dataManage" style="height: auto">
         <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">上传Excel文件
         </el-button>
-        <el-upload
-            name="file"
-            ref="fileUpload"
-            class="upload-demo"
-            :action="uploadUrl"
-            :multiple="false"
-            :show-file-list="false"
-            :on-success="handleSuccess"
-            :before-upload="beforeAvatarUpload"
-            @change="handleFileChange"
-            :headers="this.headers">
-          <!-- 隐藏的文件选择按钮 -->
-          <input
-              type="file"
-              ref="fileInput"
-              style="display: none;"
-              @change="handleFileChange"
-          />
-        </el-upload>
         <el-button size='large' type='primary' style="margin: 10px;"
                    @click="downExcel($event)" plain icon="Download">下载上传Excel文件
         </el-button>
@@ -48,7 +29,26 @@
           </el-form>
           <div class="dialog-footer1">
             <el-button @click="importDialogVisible=false">取 消</el-button>
-            <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+            <el-upload
+                name="file"
+                ref="fileUpload"
+                class="upload-demo"
+                :action="uploadUrl"
+                :multiple="false"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :before-upload="beforeAvatarUpload"
+                @change="handleFileChange"
+                :headers="this.headers">
+              <!-- 隐藏的文件选择按钮 -->
+              <!--          <input-->
+              <!--              type="file"-->
+              <!--              ref="fileInput"-->
+              <!--              style="display: none;"-->
+              <!--              @change="handleFileChange"-->
+              <!--          />-->
+              <el-button type="primary" plain>选择文件</el-button>
+            </el-upload>
             <el-button type="primary" plain @click="confirmUpload">确定</el-button>
           </div>
 
@@ -73,11 +73,9 @@
           </el-form>
           <div class="dialog-footer">
             <el-button @click="formDialogVisible=false">取 消</el-button>
-            <el-button type="primary"  plain @click="downloadFile($event)">确定</el-button>
+            <el-button type="primary" plain @click="downloadFile($event)">确定</el-button>
           </div>
-
         </el-dialog>
-
         <el-input
             v-model="inputValue"
             placeholder="请输入查询内容"
@@ -99,7 +97,6 @@
             </el-option>
           </el-select>
           添加数据：{{ addCount }}
-
           <!--          更新数据：{{ updateCount }}-->
         </div>
       </div>
@@ -179,7 +176,7 @@
                 <el-button
                     size='small'
                     type='primary'
-                    @click=""
+                    @click="showDetail(scope.row.jsonResult)"
                 >详情
                 </el-button
                 >
@@ -188,7 +185,7 @@
           </el-table>
           <el-dialog
               title="详情"
-              :visible.sync="dialogVisible"
+              v-model="dialogVisible"
               width="50%">
             <el-table
                 :data="messageData"
@@ -218,7 +215,6 @@
             </span>
           </el-dialog>
         </div>
-
       </div>
     </div>
     <div class="paging-block">
@@ -257,7 +253,6 @@ export default {
     const uploadUrl = ref(``);
     const websocket = ref(null);
     const formDialogVisible = ref(false)
-
     return {
       name,
       uploadUrl,
@@ -329,14 +324,22 @@ export default {
     }
   },
   methods: {
+    showDetail(row) {
+      const message = JSON.parse(row)
+      if (message.msg === '操作成功') {
+        this.messageData = message.data
+        this.dialogVisible = true;
+      }
+      console.log(this.messageData)
+    },
     openUpload() {
       this.importDialogVisible = true;
     },
     triggerFileInput() {
-      this.$refs.fileInput.click();
+      this.$refs.fileUpload.click();
     },
     handleFileChange(event) {
-      const file = event.target.files[0];
+      const file = event.raw;
       if (file) {
         this.selectedFile = file;
       }
@@ -347,7 +350,7 @@ export default {
         const fileUpload = this.$refs.fileUpload;
         fileUpload.uploadFiles = [this.selectedFile]; // 将文件添加到 el-upload 组件
         fileUpload.submit(); // 提交文件上传
-      }else {
+      } else {
         this.triggerFileInput();// 如果没有文件，触发文件选择
       }
     },
@@ -515,6 +518,7 @@ export default {
     beforeAvatarUpload(file) {
       // 从对象数组中提取表名
       const validTableNames = this.tableNameOptions.map(option => option.label);
+      console.log(validTableNames)
       const type = file.name.split('.')[1]
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
@@ -557,6 +561,11 @@ export default {
 
     // 上传成功弹窗展示上传结果,需修改
     handleSuccess(res, file, fileList) {
+      if (res.code === 500){
+        ElMessage.error(res.msg)
+        return
+      }
+      console.log(res)
       const account = res.data.length
       // const account = res.data.失败信息.length + res.data.成功信息.length
       // if (res.data.失败信息[0] === "Excel格式错误-表头要求为-信息资产统计综合表") {
@@ -638,6 +647,7 @@ export default {
   margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
   margin-left: 160px;
 }
+
 .dialog-footer1 {
   display: flex;
   justify-content: left;
