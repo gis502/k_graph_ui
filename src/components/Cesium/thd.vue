@@ -20,7 +20,7 @@
 
 
     <div v-if="iflayerChoose" class="dropdown">
-      <el-checkbox-group v-model="selectedlayers">
+      <el-checkbox-group v-model="selectedlayers" class="grid-container">
         <el-checkbox label="芦山县行政区划图"></el-checkbox>
         <el-checkbox label="自建要素图层服务"></el-checkbox>
         <el-checkbox label="行政区划要素图层"></el-checkbox>
@@ -1323,12 +1323,22 @@ export default {
 
 .dropdown{
   background-color: #1e1e43;
-  width: 30%;
+  width: 25%;
   top:10%;
-  height: 43%;
+  height: 23%;
+  padding: 15px;
   z-index: 30;
   left:1%;
   position: absolute;
+  overflow-y: auto;  /* 启用垂直滚动条 */
 }
-
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
+  gap: 8px; /* 列间距 */
+}
+/*图层要素选项颜色改为白色*/
+.el-checkbox {
+  color:#FFFFFF;
+}
 </style>
