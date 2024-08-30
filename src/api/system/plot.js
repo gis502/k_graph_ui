@@ -41,6 +41,18 @@ export function getPlotIcon(query) {
   })
 }
 
+// 查询当前页的标绘图片
+export function getPagePlotIcon(currentPage,pageSize) {
+  return request({
+    url: '/system/ploy/getpageploticon',
+    method: 'get',
+    params: {
+      currentPage,
+      pageSize
+    }
+  })
+}
+
 //-------------------------------------------------------------
 export function insertPlotAndInfo(data){
   return request({

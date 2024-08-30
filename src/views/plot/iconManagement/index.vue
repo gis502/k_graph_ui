@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import {addPlotIcon, getPlotIcon, deletePlotIcon, updataPlotIcon} from "@/api/system/plot"
+import {addPlotIcon, getPlotIcon, deletePlotIcon, updataPlotIcon, getPagePlotIcon} from "@/api/system/plot"
 
 export default {
   name: "index",
@@ -240,10 +240,10 @@ export default {
     //查全部标绘图片数据
     getPlotPicture() {
       let that = this
-      getPlotIcon().then(res => {
-        that.getPicData = res
-        that.total = res.length
-        that.tableData = that.getPageArr()
+      getPagePlotIcon(this.currentPage,this.pageSize).then(res => {
+          // that.getPicData = res
+          that.total = res[0].totalCount
+          that.tableData = res
       })
     },
     // 在dialog对话框中上传img时触发
@@ -340,13 +340,21 @@ export default {
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
-      this.tableData = this.getPageArr()
+      getPagePlotIcon(this.currentPage,this.pageSize).then(res => {
+        // that.getPicData = res
+        this.total = res[0].totalCount
+        this.tableData = res
+      })
       // console.log(`每页 ${val} 条`);
     },
     // `当前页: ${val}`
     handleCurrentChange(val) {
       this.currentPage = val
-      this.tableData = this.getPageArr()
+      getPagePlotIcon(this.currentPage,this.pageSize).then(res => {
+        // that.getPicData = res
+        this.total = res[0].totalCount
+        this.tableData = res
+      })
       // console.log(`当前页: ${val}`);
     },
 
