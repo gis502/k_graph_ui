@@ -21,20 +21,30 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
+        <img class="play-icon" src="../../../assets/icons/TimeLine/后退箭头.png" @click="backward" />
         <img class="play-icon" src="../../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
              @click="toggleTimer"/>
         <img class="pause-icon" src="../../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
              @click="toggleTimer"/>
+        <img class="play-icon" src="../../../assets/icons/TimeLine/前进箭头.png" @click="forward" />
       </div>
 
-      <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
-        <div class="time-ruler-line" @click="jumpToTime">
-          <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
-          <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+        <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
+            <div class="time-ruler-line" @click="jumpToTime">
+                <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
+                <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+            </div>
+            <!-- speedButton 和 chooseSpeed 放在一起 -->
+            <span class="speedButton">{{speedOption}}</span>
+            <div class="chooseSpeed">
+                <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
+                    {{ option }}
+                </option>
+            </div>
         </div>
-      </div>
 
-      <!--      时间点-->
+
+        <!--      时间点-->
       <div class="current-time-info">
         <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
@@ -208,6 +218,11 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 1,
       intervalId: null,
+      // 倍速
+      currentSpeed: 1,
+        showSpeedOptions: false,
+        speedOption: '1X',
+        speedOptions: ['1X','2X','4X'],
 
       //是否记载到view上，已经存在则不再添加
       plotisshow: {},
@@ -610,8 +625,8 @@ export default {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
       // let tmp = 100.0 / 672.0  //进度条每次前进
 
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076  //共前进2016次，每次5分钟，
-      let tmp = 100.0 / 2076.0  //进度条每次前进
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076 //共前进2016次，每次5分钟，
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
@@ -624,7 +639,9 @@ export default {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        this.currentTime = new Date(this.eqstartTime.getTime()
+            + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
         this.updatePlot()
       }
     },
@@ -826,6 +843,44 @@ export default {
         this.initTimerLine();
       }
     },
+      // 前进
+      forward(){
+          this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076
+          let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
+          this.currentTimePosition += tmp;
+          if (this.currentTimePosition >= 100) {
+              this.currentTimePosition = 100;
+              this.currentTime = this.eqendTime
+              this.isTimerRunning = false
+          } else {
+              this.currentTimePosition = this.currentTimePosition % 100
+              // this.currentTime = new Date(this.eqstartTime.getTime()
+              //     + this.currentNodeIndex * currentTime.setMinutes(currentTime.getMinutes() + 5); * 60 * 1000);
+              let newTime = new Date(this.currentTime);
+              this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
+              this.updatePlot()
+          }
+          console.log("========================",this.currentTime)
+      },
+      // 后退
+      backward(){
+          this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
+          let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
+          this.currentTimePosition -= tmp;
+          if (this.currentTimePosition <= 0) {
+              this.currentTimePosition = 0;
+              this.currentTime = this.eqstartTime
+              this.isTimerRunning = false
+          } else {
+              this.currentTimePosition = this.currentTimePosition % 100
+              // this.currentTime = new Date(this.eqstartTime.getTime()
+              //     + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
+              let newTime = new Date(this.currentTime);
+              this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
+              console.log("this.currentTime--",this.currentTime)
+              this.updatePlot()
+          }
+      },
     //点击跳转时间对应场景
     jumpToTime(event) {
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
@@ -875,6 +930,12 @@ export default {
       document.body.style.MozUserSelect = 'auto';
       document.body.style.msUserSelect = 'auto';
     },
+      selectSpeed(speed){
+        // this.currentSpeed = speed
+          this.speedOption = speed
+          this.currentSpeed = parseFloat(speed.split(-1))
+          console.log("-----------------------",this.currentSpeed)
+      },
     //时间轴end-------------
 
     drawPolyline(line) {
@@ -1354,6 +1415,7 @@ export default {
 .play-icon,
 .pause-icon {
   width: 100%;
+  margin-right: 4px;
   height: auto;
   cursor: pointer;
 }
@@ -1368,20 +1430,49 @@ export default {
 
 .time-ruler {
   position: relative;
-  width: 81%;
+  width: 70%;
   height: 8px;
-  left: -11%;
+  left: -14%;
   background-color: #ddd;
   border-radius: 4px;
   margin: 0 1%;
   cursor: pointer;
+  flex-direction: row;
 }
 
+.speedButton {
+    position: relative;
+    left: 101%;
+    color: white;
+    top: -50%;
+}
+
+/* 原有的 chooseSpeed 样式 */
+.chooseSpeed {
+    width: 40px;
+    height: 60px;
+    position: absolute;
+    padding: 0 0px 5px;
+    border-radius: 3px;
+    top: -65px;
+    left: 97%;
+    z-index: 30; /* 更高的层级 */
+    background-color: rgba(40, 40, 40, 0.7);
+    color: white;
+    text-align: center;
+    display: none; /* 默认隐藏 */
+}
+
+/* 当 mouse hover speedButton 时显示 chooseSpeed */
+.speedButton:hover + .chooseSpeed,
+.chooseSpeed:hover {
+    display: block;
+}
 .time-ruler-line {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 98%;
   height: 100%;
 }
 

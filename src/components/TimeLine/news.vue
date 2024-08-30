@@ -15,14 +15,14 @@
               :key="item.id"
               style="cursor: pointer"
               @click="showDetailedNews(item)">
-            <div v-if="item.img" class="news-img">
-              <img :src="item.img" alt="新闻图片" @error="handleErrorImage" />
+            <div v-if="item.image" class="news-img">
+              <img :src="item.image" alt="新闻图片" @error="handleErrorImage" />
             </div>
             <div v-else class="news-img">
               <img :src="error" alt="新闻图片"/>
             </div>
             <div class="sub-content">
-              <p class="sub-time">{{ item.time }}</p>
+              <p class="sub-time">{{ item.publish_time }}</p>
               <p class="sub-text">{{ item.title }}</p>
             </div>
           </li>
@@ -38,7 +38,7 @@
 
 <script>
 // import newsData from "@/assets/json/TimeLine/news.json"
-import newsData from "@/assets/json/TimeLine/news_copy1.json"
+import newsData from "@/assets/json/TimeLine/sorted_data.json"
 import error from '@/assets/json/TimeLine/errorimg.jpg'
 
 
@@ -97,28 +97,32 @@ export default {
         );
       });
       if (activities.length > 0) {
-        let tmp = activities[activities.length - 1];
-        let activity = {
-          id: tmp.id,
-          time: tmp.publish_time,
-          content: tmp.content,
-          img: tmp.image,
-          title: tmp.title
-        }
-        this.currentEvent = activity.time
-        if (this.showNews.length === 0) {
-          this.showNews.unshift(activity)
-        } else {
-          let flag = true
-          this.showNews.forEach((item) => {
-            if (item.id === activity.id) {
-              flag = false
-            }
-          })
-          if (flag) {
-            this.showNews.unshift(activity)
-          }
-        }
+        this.showNews = activities.reverse()
+
+        // let tmp = activities[activities.length - 1];
+        // let activity = {
+        //   id: tmp.id,
+        //   time: tmp.publish_time,
+        //   content: tmp.content,
+        //   img: tmp.image,
+        //   title: tmp.title
+        // }
+        // this.currentEvent = activity.time
+        // if (this.showNews.length === 0) {
+        //   this.showNews.unshift(activity)
+        // } else {
+        //   let flag = true
+        //   this.showNews.forEach((item) => {
+        //     if (item.id === activity.id) {
+        //       flag = false
+        //     }
+        //   })
+        //   if (flag) {
+        //     this.showNews.unshift(activity)
+        //   }
+        // }
+      }else{
+          this.showNews = []
       }
     },
     showDetailedNews(row) {
