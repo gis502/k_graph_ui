@@ -94,17 +94,21 @@
     <div class="thd-eqtable" v-if="this.eqListShow">
       <eqTable :eqData="tableData"/>
     </div>
-    <!--   路网切换-->
+    <!--   图层要素-->
     <div class="LRDL-button">
       <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
     </div>
 
 
     <div v-if="iflayerChoose" class="dropdown">
-      <el-checkbox-group v-model="selectedlayers"  @change="updateMapLayers" class="grid-container">
-        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
-      </el-checkbox-group>
+      <MapLayerControl :isMarkingLayer="isMarkingLayer"
+                       @updateMarkingLayer="handleMarkingLayerChange" />
+<!--      <el-checkbox-group v-model="selectedlayers"  @change="updateMapLayers" class="grid-container">-->
+<!--        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>-->
+<!--      </el-checkbox-group>-->
     </div>
+
+
 
   </div>
 </template>
@@ -135,7 +139,7 @@ import {getPloy} from "@/api/system/plot"
 import eqTable from '@/components/Home/eqtable.vue'
 import geojsonmap from '@/assets/geoJson/map.json'
 import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
-
+import MapLayerControl from '@/components/TimeLine/MapLayerControl.vue';
 export default {
   components: {
     // NewsDialog,
@@ -150,6 +154,7 @@ export default {
     commonPanel,
     // eqListTable,
     eqTable,
+    MapLayerControl
   },
   data: function () {
     return {
@@ -227,19 +232,19 @@ export default {
 
       //-----------------图层---------------------
       iflayerChoose:false,
-      layeritems: [
-        { id: '0', name: '标绘点图层'},
-        { id: '1', name: '自建要素图层服务'},
-        { id: '2', name: '行政区划要素图层'},
-        { id: '3', name: '人口密度要素图层'},
-        { id: '4', name: '交通网络要素图层'},
-        { id: '5', name: '避难场所要素图层'},
-        { id: '6', name: '救援队伍分布要素图层'},
-        { id: '7', name: '应急物资存储要素图层'},
-      ],
-      selectedlayers:['标绘点图层'],
+      // layeritems: [
+      //   { id: '0', name: '标绘点图层'},
+      //   { id: '1', name: '自建要素图层服务'},
+      //   { id: '2', name: '行政区划要素图层'},
+      //   { id: '3', name: '人口密度要素图层'},
+      //   { id: '4', name: '交通网络要素图层'},
+      //   { id: '5', name: '避难场所要素图层'},
+      //   { id: '6', name: '救援队伍分布要素图层'},
+      //   { id: '7', name: '应急物资存储要素图层'},
+      // ],
+      // selectedlayers:['标绘点图层'],
       isMarkingLayer:true,
-      LRDLStatus:false, // 路网
+      // LRDLStatus:false, // 路网
 
     };
   },
@@ -459,7 +464,7 @@ export default {
     getPlotwithStartandEndTime(eqid) {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
         this.plots = res
-        console.log(res)
+        // console.log(res)
         this.plots.forEach(item => {
           if (!item.endtime) {
             item.endtime = new Date(this.eqendTime.getTime() + 5000);
@@ -561,7 +566,7 @@ export default {
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
 
         if(this.isMarkingLayer){
-          console.log("updatePlot timeline")
+          // console.log("updatePlot timeline")
           this.updatePlot()
         }
        else{
@@ -571,7 +576,7 @@ export default {
     },
     //更新标绘点
     updatePlot() {
-      console.log(this.plots)
+      // console.log(this.plots)
       let that=this
       //一个点线面一条数据
       //点
@@ -1153,20 +1158,19 @@ export default {
     layerChoose() {
       this.iflayerChoose = !this.iflayerChoose;
     },
-    updateMapLayers(){
-      //标绘点图层和时间联动，是否现实单独处理
-      const hasDrawingLayer = this.selectedlayers.includes('标绘点图层');
-      if (hasDrawingLayer) {
-        this.isMarkingLayer=true
-        this.updatePlot()
-        // 重新加载标绘点图层
-      } else {
-        this.isMarkingLayer=false
-        // console.log("没有勾选标绘点图层，清除标绘点图层");
-      }
-    },
-
-
+    // updateMapLayers(){
+    //   //标绘点图层和时间联动，是否现实单独处理
+    //   const hasDrawingLayer = this.selectedlayers.includes('标绘点图层');
+    //   if (hasDrawingLayer) {
+    //     this.isMarkingLayer=true
+    //     this.updatePlot()
+    //     // 重新加载标绘点图层
+    //   } else {
+    //     this.isMarkingLayer=false
+    //     // console.log("没有勾选标绘点图层，清除标绘点图层");
+    //   }
+    // },
+    //标绘图层清除
     MarkingLayerRemove(){
       this.plots.forEach(item => {
         const entity = viewer.entities.getById(item.plotid);
@@ -1175,6 +1179,9 @@ export default {
           this.plotisshow[item.plotid] = 0
         }
       })
+    },
+    handleMarkingLayerChange(newValue) {
+      this.isMarkingLayer = newValue; // 更新 isMarkingLayer
     },
     // 清除单一图层代码
     // removeAYaanImageryDistrict() {
@@ -1389,11 +1396,7 @@ export default {
   position: absolute;
   overflow-y: auto;  /* 启用垂直滚动条 */
 }
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
-  gap: 8px; /* 列间距 */
-}
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
   color:#FFFFFF;
