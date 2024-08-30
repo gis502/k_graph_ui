@@ -23,10 +23,9 @@
     </div>
     <div v-if="iflayerChoose" class="dropdown">
       <MapLayerControl :isMarkingLayer="isMarkingLayer"
+                       @updatePlot="updatePlot"
+                       @MarkingLayerRemove="MarkingLayerRemove"
                        @updateMarkingLayer="handleMarkingLayerChange" />
-      <!--      <el-checkbox-group v-model="selectedlayers"  @change="updateMapLayers" class="grid-container">-->
-      <!--        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>-->
-      <!--      </el-checkbox-group>-->
     </div>
 
 
@@ -1386,6 +1385,7 @@ export default {
       })
     },
     handleMarkingLayerChange(newValue) {
+      // console.log("this.isMarkingLayer = newValue",newValue)
       this.isMarkingLayer = newValue; // 更新 isMarkingLayer
     },
     // 清除单一图层代码
@@ -1602,7 +1602,7 @@ export default {
 }
 
 .dropdown{
-  background-color: #1e1e43;
+  background-color: #333832;
   width: 25%;
   top:10%;
   height: 23%;

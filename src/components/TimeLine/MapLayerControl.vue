@@ -41,9 +41,13 @@ export default {
       const hasDrawingLayer = this.selectedlayers.includes('标绘点图层');
       if (hasDrawingLayer) {
         this.$emit('updateMarkingLayer',true); // 通知父组件
+        this.$emit('updatePlot');
       } else {
         // this.$emit('isMarkingLayer', false);
         this.$emit('updateMarkingLayer', false);
+        this.$emit('MarkingLayerRemove');
+
+
       }
 
 
