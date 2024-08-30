@@ -6,31 +6,6 @@
     </div>
     <!--    title end-->
 
-    <!--    地震列表切换-->
-    <div class="eqlist-button">
-      <el-button class="el-button--primary" size="small" @click="changeEqListShow">地震列表</el-button>
-    </div>
-    <div class="thd-eqtable" v-if="this.eqListShow">
-      <eqTable :eqData="tableData"/>
-    </div>
-    <!--   路网切换-->
-    <div class="LRDL-button">
-      <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
-    </div>
-
-
-    <div v-if="iflayerChoose" class="dropdown">
-      <el-checkbox-group v-model="selectedlayers" class="grid-container">
-        <el-checkbox label="芦山县行政区划图"></el-checkbox>
-        <el-checkbox label="自建要素图层服务"></el-checkbox>
-        <el-checkbox label="行政区划要素图层"></el-checkbox>
-        <el-checkbox label="人口密度要素图层"></el-checkbox>
-        <el-checkbox label="交通网络要素图层"></el-checkbox>
-        <el-checkbox label="避难场所要素图层"></el-checkbox>
-        <el-checkbox label="救援队伍分布要素图层"></el-checkbox>
-        <el-checkbox label="应急物资存储要素图层"></el-checkbox>
-      </el-checkbox-group>
-    </div>
 
 
     <!--    box包裹地图，截图需要-->
@@ -103,8 +78,6 @@
     <div>
       <mini-map></mini-map>
     </div>
-
-
     <timeLineLegend></timeLineLegend>
 
     <!--    两侧组件 end-->
@@ -113,6 +86,26 @@
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
     <!--报告产出按钮 end-->
+
+    <!--    地震列表切换-->
+    <div class="eqlist-button">
+      <el-button class="el-button--primary" size="small" @click="changeEqListShow">地震列表</el-button>
+    </div>
+    <div class="thd-eqtable" v-if="this.eqListShow">
+      <eqTable :eqData="tableData"/>
+    </div>
+    <!--   路网切换-->
+    <div class="LRDL-button">
+      <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
+    </div>
+
+
+    <div v-if="iflayerChoose" class="dropdown">
+      <el-checkbox-group v-model="selectedlayers"  @change="updateMapLayers" class="grid-container">
+        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
+      </el-checkbox-group>
+    </div>
+
   </div>
 </template>
 
@@ -235,6 +228,7 @@ export default {
       //-----------------图层---------------------
       iflayerChoose:false,
       layeritems: [
+        { id: '0', name: '标绘点图层'},
         { id: '1', name: '自建要素图层服务'},
         { id: '2', name: '行政区划要素图层'},
         { id: '3', name: '人口密度要素图层'},
@@ -243,8 +237,8 @@ export default {
         { id: '6', name: '救援队伍分布要素图层'},
         { id: '7', name: '应急物资存储要素图层'},
       ],
-      selectedlayers:[],
-
+      selectedlayers:['标绘点图层'],
+      isMarkingLayer:true,
       LRDLStatus:false, // 路网
 
     };
@@ -466,7 +460,7 @@ export default {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
         this.plots = res
         console.log(res)
-        res.forEach(item => {
+        this.plots.forEach(item => {
           if (!item.endtime) {
             item.endtime = new Date(this.eqendTime.getTime() + 5000);
           }
@@ -565,11 +559,19 @@ export default {
         // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        this.updatePlot()
+
+        if(this.isMarkingLayer){
+          console.log("updatePlot timeline")
+          this.updatePlot()
+        }
+       else{
+         this.MarkingLayerRemove()
+        }
       }
     },
+    //更新标绘点
     updatePlot() {
-      // console.log(this.plots)
+      console.log(this.plots)
       let that=this
       //一个点线面一条数据
       //点
@@ -1118,34 +1120,89 @@ export default {
     *
     * */
 
+
+
+    // 公路网
+    // LRDLChange() {
+    //   if (this.LRDLStatus) {
+    //     this.LRDLStatus = !this.LRDLStatus
+    //     window.viewer.scene.imageryLayers.remove(window.LRDL)
+    //   } else {
+    //     this.LRDLStatus = !this.LRDLStatus
+    //     this.addWmsImageryLRDL()
+    //   }
+    // },
+    // addWmsImageryLRDL() {
+    //   let LRDL = new Cesium.WebMapServiceImageryProvider({
+    //     url: "http://gisserver.tianditu.gov.cn/TDTService/wfs",
+    //     layers: "LRDL",
+    //     parameters: {
+    //       service: "WMS",
+    //       format: "image/png",
+    //       transparent: true
+    //     }
+    //   })
+    //   // addImageryProvider是创建了一个图层，需要用viewer.scene.imageryLayers.remove移除
+    //   window.LRDL = window.viewer.imageryLayers.addImageryProvider(LRDL);
+    // },
+    // ------------------------------------------
+
+
+
+
     layerChoose() {
       this.iflayerChoose = !this.iflayerChoose;
     },
-
-    // 公路网
-    LRDLChange() {
-      if (this.LRDLStatus) {
-        this.LRDLStatus = !this.LRDLStatus
-        window.viewer.scene.imageryLayers.remove(window.LRDL)
+    updateMapLayers(){
+      //标绘点图层和时间联动，是否现实单独处理
+      const hasDrawingLayer = this.selectedlayers.includes('标绘点图层');
+      if (hasDrawingLayer) {
+        this.isMarkingLayer=true
+        this.updatePlot()
+        // 重新加载标绘点图层
       } else {
-        this.LRDLStatus = !this.LRDLStatus
-        this.addWmsImageryLRDL()
+        this.isMarkingLayer=false
+        // console.log("没有勾选标绘点图层，清除标绘点图层");
       }
     },
-    addWmsImageryLRDL() {
-      let LRDL = new Cesium.WebMapServiceImageryProvider({
-        url: "http://gisserver.tianditu.gov.cn/TDTService/wfs",
-        layers: "LRDL",
-        parameters: {
-          service: "WMS",
-          format: "image/png",
-          transparent: true
+
+
+    MarkingLayerRemove(){
+      this.plots.forEach(item => {
+        const entity = viewer.entities.getById(item.plotid);
+        if (entity) {
+          viewer.entities.removeById(item.plotid);
+          this.plotisshow[item.plotid] = 0
         }
       })
-      // addImageryProvider是创建了一个图层，需要用viewer.scene.imageryLayers.remove移除
-      window.LRDL = window.viewer.imageryLayers.addImageryProvider(LRDL);
     },
-    // ------------------------------------------
+    // 清除单一图层代码
+    // removeAYaanImageryDistrict() {
+    //   if (this.districtLayer) {
+    //     // 这里是删除语句（通过 getByName 获取 dataSources，用于删除）。
+    //     viewer.dataSources.remove(viewer.dataSources.getByName('geojson_map')[0])
+    //     this.districtLayer = null;
+    //     console.log("图层已移除");
+    //   }
+    // },
+    // //清除所有图层代码 有问题联系SWB
+    // removeALL(){
+    //   console.log("removeALLALLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+    //   viewer.dataSources.removeAll()
+    //   // this.labels.forEach(label => {
+    //   //   viewer.entities.remove(label);
+    //   // });
+    //   // this.labels = [];  // 清空标签引用数组
+    //   //复位
+    //   // const destination = Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500);
+    //   // 使用 viewer.camera.flyTo 飞到指定位置
+    //   // viewer.camera.flyTo({
+    //   //   destination: destination,
+    //   //   duration: 2.0 // 飞行持续时间（秒）
+    //   // });
+    // },
+
+
   }
 }
 </script>

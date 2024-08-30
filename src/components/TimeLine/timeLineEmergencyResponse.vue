@@ -35,6 +35,7 @@ import EmergencyResponse from "@/assets/json/TimeLine/EmergencyResponse";
 export default {
   data() {
     return {
+      eqid1:'',
       EmergencyResponseResponsecontent:'',
       activity:{
         ResponseName: '',
@@ -46,7 +47,7 @@ export default {
     }
   },
   props: [
-    'currentTime'
+    'currentTime','eqid'
   ],
   mounted() {
     this.init()
@@ -54,40 +55,49 @@ export default {
   watch: {
     currentTime(newVal) {
       this.updateEmergencyResponse(newVal)
+    },
+    eqid(){
+        this.eqid1 = this.eqid
     }
   },
   methods: {
     init() {
-      this.EmergencyResponseResponsecontent = [...EmergencyResponse]
+      // console.log(this.eqid1)
+      // if(this.eqid1=="be3a5ea48dfda0a2251021845f17960b"){
+      //   console.log("yes")
+        this.EmergencyResponseResponsecontent = [...EmergencyResponse]
+      // }
     },
     updateEmergencyResponse(currentTime){
-      const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
-        return (
-            new Date(activity[0]) <= currentTime
-        );
-      });
-      // console.log("EmergencyResponse",activities )
-      if(activities.length>=1){
-        activities.sort((a, b) => {
-          if (a[0] < b[0]) return -1;
-          if (a[0] > b[0]) return 1;
-          return 0;
+      // console.log(this.eqid1)
+      // if(this.eqid1=="be3a5ea48dfda0a2251021845f17960b") {
+        const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
+          return (
+              new Date(activity[0]) <= currentTime
+          );
         });
-        let tmp=activities[activities.length-1]
-        // console.log(tmp)
-        this.activity.time=tmp[0]
-        this.activity.department=tmp[1]
-        this.activity.ResponseName=tmp[2]
-        this.activity.state=tmp[3]
-      }
-      else{
-        this.activity={
-          ResponseName: '-',
-          state: '-',
-          department: '-',
-          time: '-',
+        // console.log("EmergencyResponse",activities )
+        if (activities.length >= 1) {
+          activities.sort((a, b) => {
+            if (a[0] < b[0]) return -1;
+            if (a[0] > b[0]) return 1;
+            return 0;
+          });
+          let tmp = activities[activities.length - 1]
+          // console.log(tmp)
+          this.activity.time = tmp[0]
+          this.activity.department = tmp[1]
+          this.activity.ResponseName = tmp[2]
+          this.activity.state = tmp[3]
+        } else {
+          this.activity = {
+            ResponseName: '-',
+            state: '-',
+            department: '-',
+            time: '-',
+          }
         }
-      }
+      // }
     },
     emergency_response_toggleExpand() {
       this.emergency_response_isExpanded = !this.emergency_response_isExpanded
@@ -134,7 +144,7 @@ export default {
   //height: 6%;
   padding: 10px;
   border-radius: 5px;
-  top: 9%;
+  top: 10%;
   left: 1%;
   z-index: 22; /* 提高层级 */
   //background-color: #C03639;

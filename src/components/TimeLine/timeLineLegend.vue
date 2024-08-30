@@ -47,7 +47,7 @@ export default {
       let that = this
       getPlotIcon().then(res => {
         that.getPicData = res
-        console.log("that.getPicData11111111111111111111111111111111111111111111111111111",that.getPicData)
+        // console.log("that.getPicData11111111111111111111111111111111111111111111111111111",that.getPicData)
       })
     }
   }

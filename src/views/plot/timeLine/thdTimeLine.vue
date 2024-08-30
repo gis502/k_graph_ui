@@ -58,6 +58,7 @@
 
       <timeLineEmergencyResponse
           :currentTime="currentTime"
+          :eqid="eqid"
       />
 
       <timeLinePersonnelCasualties

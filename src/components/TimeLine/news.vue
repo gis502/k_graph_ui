@@ -99,27 +99,6 @@ export default {
       if (activities.length > 0) {
         this.showNews = activities.reverse()
         this.currentEvent=activities[0].publish_time
-        // let activity = {
-        //   id: tmp.id,
-        //   time: tmp.publish_time,
-        //   content: tmp.content,
-        //   img: tmp.image,
-        //   title: tmp.title
-        // }
-        // this.currentEvent = activity.time
-        // if (this.showNews.length === 0) {
-        //   this.showNews.unshift(activity)
-        // } else {
-        //   let flag = true
-        //   this.showNews.forEach((item) => {
-        //     if (item.id === activity.id) {
-        //       flag = false
-        //     }
-        //   })
-        //   if (flag) {
-        //     this.showNews.unshift(activity)
-        //   }
-        // }
       }else{
           this.showNews = []
           this.currentEvent=''
