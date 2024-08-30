@@ -11,6 +11,34 @@
           公路网图
         </div>
       </button>
+      <div>
+        <el-popover
+            placement="bottom"
+            width="180"
+            v-model:visible="visible"
+        >
+          <!-- 雅安市按钮 -->
+          <div class="city-button">
+            <el-button @click="districtShowcase">雅安市</el-button>
+          </div>
+          <!-- 下属区县按钮 -->
+          <div class="district-buttons">
+            <div v-for="district in districts" :key="district.adcode" class="district-button">
+              <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
+            </div>
+          </div>
+          <template #reference>
+            <button @click="togglePopover">
+              <div>行政区划</div>
+            </button>
+          </template>
+        </el-popover>
+      </div>
+      <button @click="removeALL">
+        <div>
+          清除图层
+        </div>
+      </button>
       <transition name="eqListfade">
         <eqListTable :eqData="tableData" v-if="eqListShow" @plotAdj="plotAdj"/>
       </transition>
@@ -22,7 +50,6 @@
         @wsSendPoint="wsSendPoint"
     />
   </div>
-
 </template>
 
 <script>
@@ -36,7 +63,7 @@ import {getPloy} from "@/api/system/plot"
 import {getAllEq} from '@/api/system/eqlist'
 import eqListTable from "@/components/Thd/eqListTable";
 import geojsonmap from '@/assets/geoJson/map.json'
-
+import yaan from '@/assets/geoJson/yaan.json'
 
 export default {
   components: {
@@ -58,9 +85,25 @@ export default {
       eqListShow: false,
       //-----------------图层---------------------
       LRDLStatus: false, // 路网
-      //--------------------------------------
+      districtLayer: null,
+      districtStatus: false, //行政区划
+      //------------------------------------------
       tableData: [],
-      eqid: ''
+      eqid: '',
+      //------------------按钮下拉框------
+      visible: false,
+      districts: [
+        { adcode: 511802, name: "雨城区" },
+        { adcode: 511803, name: "名山区" },
+        { adcode: 511822, name: "荥经县" },
+        { adcode: 511823, name: "汉源县" },
+        { adcode: 511824, name: "石棉县" },
+        { adcode: 511825, name: "天全县" },
+        { adcode: 511826, name: "芦山县" },
+        { adcode: 511827, name: "宝兴县" },
+      ],
+      geojsonData: [],
+      labels: []  // 保存标签实体的引用
     };
   },
   mounted() {
@@ -70,13 +113,13 @@ export default {
     this.watchTerrainProviderChanged()
     cesiumPlot.init(window.viewer, this.websock, this.$store)
     // console.log(this.$router.currentRoute.query.eqid)
-    this.eqid = this.$router.currentRoute.query.eqid
-    this.initPlot(this.eqid)
-    this.initWebsocket()
+    // this.eqid = this.$router.currentRoute.query.eqid
+    // this.initPlot(this.eqid)
+    // this.initWebsocket()
     //-----------------------------------------
   },
   destroyed() {
-    this.websock.close()
+    // this.websock.close()
   },
   methods: {
     init() {
@@ -341,6 +384,143 @@ export default {
       this.websock.eqid = this.eqid
       this.initPlot(row.eqid)
     },
+    // ------------------行政区划--------------------
+    //按钮打开详情
+    togglePopover() {
+      this.visible = !this.visible;
+    },
+    districtShowcase() {
+      this.removeALL()
+      if (this.districtStatus) {
+        this.addYaanImageryDistrict();
+      } else {
+        this.addYaanImageryDistrict();
+      }
+      this.districtStatus = !this.districtStatus;
+    },
+    // 添加雅安市GeoJSON数据
+    addYaanImageryDistrict() {
+    this.removeALL()
+      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+            stroke: Cesium.Color.RED,
+            fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+            strokeWidth: 4,
+          }
+      );
+      geoPromise.then((dataSource) => {
+        // 添加 geojson
+        this.districtLayer = dataSource;
+        viewer.dataSources.add(dataSource);
+
+        // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
+        dataSource.name = "geojson_map";
+        // 视角跳转到 geojson
+        viewer.flyTo(dataSource.entities.values)
+      }).catch((error) => {
+        console.error("加载GeoJSON数据失败:", error);
+      });
+      let labelData =  { lon: 103.003398, lat: 29.981831, name: "雅安市" };
+      let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
+      let labelEntity = viewer.entities.add(new Cesium.Entity({
+        position: position,
+        label: new Cesium.LabelGraphics({
+          text: labelData.name,
+          scale: 1,
+          font: "bolder 50px sans-serif",
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+          pixelOffset: new Cesium.Cartesian2(0, -60)
+        })
+      }));
+      this.labels.push(labelEntity);  // 保存标签实体的引用
+    },
+    //处理雅安市区县数据
+    handleDistrictClick(district) {
+      //清除其他实体标签
+      viewer.dataSources.removeAll()
+      this.labels.forEach(label => {
+        viewer.entities.remove(label);
+      });
+      this.labels = [];  // 清空标签引用数组
+      this.visible = false;
+      // 根据区县代码过滤GeoJSON数据
+      let filteredFeatures = yaan.features.filter(feature => {
+        return feature.properties.adcode === district.adcode;
+      });
+      if (filteredFeatures.length > 0) {
+        let filteredGeoJson = {
+          type: "FeatureCollection",
+          features: filteredFeatures
+        };
+
+        let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          strokeWidth: 4,
+        });
+
+        geoPromise.then((dataSource) => {
+          viewer.dataSources.add(dataSource);
+
+          filteredFeatures.forEach((feature) => {
+            let center = feature.properties.center;
+
+            if (center && center.length === 2) {
+              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+              let labelEntity = viewer.entities.add(new Cesium.Entity({
+                position: position,
+                label: new Cesium.LabelGraphics({
+                  text: district.name,
+                  scale: 1,
+                  font: "bolder 50px sans-serif",
+                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                  pixelOffset: new Cesium.Cartesian2(0, -60)
+                })
+              }));
+              this.labels.push(labelEntity);  // 保存标签实体的引用
+            } else {
+              console.warn('中心点未定义或格式不正确:', feature);
+            }
+          });
+          viewer.flyTo(dataSource.entities.values);
+        }).catch((error) => {
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      } else {
+        console.error("未找到对应的区县:", adcode);
+      }
+    },
+    // 清除单一图层代码
+    removeAYaanImageryDistrict() {
+      if (this.districtLayer) {
+        // 这里是删除语句（通过 getByName 获取 dataSources，用于删除）。
+        viewer.dataSources.remove(viewer.dataSources.getByName('geojson_map')[0])
+        this.districtLayer = null;
+        console.log("图层已移除");
+      }
+    },
+    //清除所有图层代码 有问题联系SWB
+    removeALL(){
+      viewer.dataSources.removeAll()
+      this.labels.forEach(label => {
+        viewer.entities.remove(label);
+      });
+      this.labels = [];  // 清空标签引用数组
+      //复位
+      const destination = Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500);
+      // 使用 viewer.camera.flyTo 飞到指定位置
+      viewer.camera.flyTo({
+        destination: destination,
+        // orientation: {
+        //   heading: Cesium.Math.toRadians(0.0),
+        //   pitch: Cesium.Math.toRadians(-45.0),
+        //   roll: 0.0
+        // },
+        duration: 2.0 // 飞行持续时间（秒）
+      });
+
+    },
   }
 }
 </script>
@@ -406,4 +586,21 @@ export default {
   color: white;
   margin-bottom: 15px;
 }
+/*行政区划按钮样式*/
+.city-button {
+  margin-bottom: 8px;
+}
+
+.district-buttons {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.district-button {
+  flex: 0 0 25%; /* 每行4个按钮 */
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
 </style>
