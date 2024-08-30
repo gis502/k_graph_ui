@@ -98,8 +98,7 @@ export default {
       });
       if (activities.length > 0) {
         this.showNews = activities.reverse()
-
-        // let tmp = activities[activities.length - 1];
+        this.currentEvent=activities[0].publish_time
         // let activity = {
         //   id: tmp.id,
         //   time: tmp.publish_time,
@@ -123,6 +122,7 @@ export default {
         // }
       }else{
           this.showNews = []
+          this.currentEvent=''
       }
     },
     showDetailedNews(row) {

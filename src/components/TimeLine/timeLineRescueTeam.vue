@@ -129,6 +129,10 @@ export default {
         })
         console.log(this.showRescueTeam)
       }
+      else{
+        this.showRescueTeam=[]
+        this.recordtime=''
+      }
 
 
     },
@@ -178,7 +182,7 @@ export default {
   width: 2.5%; /* 调整宽度 */
   padding: 10px;
   border-radius: 5px;
-  top: 52%;
+  top: 54%;
   left: 1%;
   z-index: 22; /* 提高层级 */
 }

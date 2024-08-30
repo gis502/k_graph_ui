@@ -21,7 +21,7 @@
 
     <div v-show="!emergency_response_isExpanded">
       <div class="emergency_response_notexpand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 20px;max-width: 20px">
+        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 15px;max-width: 15px">
       </div>
     </div>
   </div>
@@ -80,7 +80,14 @@ export default {
         this.activity.ResponseName=tmp[2]
         this.activity.state=tmp[3]
       }
-      // console.log(this.activity)
+      else{
+        this.activity={
+          ResponseName: '-',
+          state: '-',
+          department: '-',
+          time: '-',
+        }
+      }
     },
     emergency_response_toggleExpand() {
       this.emergency_response_isExpanded = !this.emergency_response_isExpanded
@@ -123,11 +130,11 @@ export default {
 }
 .emergency_response_notexpand_button{
   position: absolute;
-  width: 2.5%; /* 调整宽度 */
+  width: 2%; /* 调整宽度 */
   //height: 6%;
   padding: 10px;
   border-radius: 5px;
-  top: 5%;
+  top: 9%;
   left: 1%;
   z-index: 22; /* 提高层级 */
   //background-color: #C03639;

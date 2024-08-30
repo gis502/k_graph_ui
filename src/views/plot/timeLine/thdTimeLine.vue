@@ -100,26 +100,26 @@
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
     <!--图件产出-->
-    <div class="draw-button">
-      <el-button class="el-button--primary" size="small" @click="drawListChage">图件产出</el-button>
-    </div>
+<!--    <div class="draw-button">-->
+<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="drawListChage">图件产出</el-button>-->
+<!--    </div>-->
 
-    <div v-if="dropdownVisible" class="dropdown">
-      <el-checkbox-group v-model="selectedItems">
-        <el-checkbox label="芦山县行政区划图"></el-checkbox>
-        <el-checkbox label="2"></el-checkbox>
-        <el-checkbox label="3"></el-checkbox>
-      </el-checkbox-group>
+<!--    <div v-if="dropdownVisible" class="dropdown">-->
+<!--      <el-checkbox-group v-model="selectedItems">-->
+<!--        <el-checkbox label="芦山县行政区划图"></el-checkbox>-->
+<!--        <el-checkbox label="2"></el-checkbox>-->
+<!--        <el-checkbox label="3"></el-checkbox>-->
+<!--      </el-checkbox-group>-->
 
-      <div class="output-button">
-        <el-button
-            type="primary"
-            @click="exportSelected"
-        >
-          导出
-        </el-button>
-      </div>
-    </div>
+<!--      <div class="output-button">-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            @click="exportSelected"-->
+<!--        >-->
+<!--          导出-->
+<!--        </el-button>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -254,13 +254,13 @@ export default {
     this.eqid = this.$route.params.eqid
   },
   mounted() {
-    // this.init()
-    // this.getEqInfo(this.eqid)
+    this.init()
+    this.getEqInfo(this.eqid)
     // this.initTimerLine()
     // ---------------------------------------------------
     // 生成实体点击事件的handler
-    // this.entitiesClickPonpHandler()
-    // this.watchTerrainProviderChanged()
+    this.entitiesClickPonpHandler()
+    this.watchTerrainProviderChanged()
   },
 
   methods: {
@@ -270,47 +270,7 @@ export default {
 
 
 
-    exportSelected() {
-      this.selectedItems.forEach(selectedName => {
-        console.log(selectedName)
-        const item = this.drawitems.find(item => item.name === selectedName);
-        // selectedName
-        console.log(item)
-        if (item) {
-          const link = document.createElement('a');
-          link.href = item.pdfUrl
-          link.download = '芦山县行政区划图.png';
-          link.click();
-        }
-      });
-      // const link = document.createElement('a');
-      // link.href = item.pdfUrl;
-      // link.download = item.name + '.jpg'; // Assuming images are in jpg format
-      // document.body.appendChild(link);
-      // link.click();
-      // document.body.removeChild(link);
-      // this.selectedItems = []; // Clear selections after export
-    },
 
-    toggleSelection(item) {
-      const index = this.selectedItems.indexOf(item);
-      if (index > -1) {
-        this.selectedItems.splice(index, 1); // Remove if already selected
-      } else {
-        this.selectedItems.push(item); // Add if not selected
-      }
-    },
-    downloadSelected() {
-      this.selectedItems.forEach(item => {
-        const link = document.createElement('a');
-        link.href = item.pdfUrl;
-        link.download = item.name + '.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-      this.selectedItems = []; // Clear selections after download
-    },
 
     // 初始化控件等
     init() {
@@ -1171,20 +1131,27 @@ export default {
     drawListChage() {
       this.dropdownVisible = !this.dropdownVisible;
     },
-    selectItem(item) {
-      this.selectedItem = item;
-      // this.dropdownVisible = false; // 选择后关闭下拉框
+    exportSelected() {
+      this.selectedItems.forEach(selectedName => {
+        console.log(selectedName)
+        const item = this.drawitems.find(item => item.name === selectedName);
+        // selectedName
+        console.log(item)
+        if (item) {
+          const link = document.createElement('a');
+          link.href = item.pdfUrl
+          link.download = '芦山县行政区划图.png';
+          link.click();
+        }
+      });
+      // const link = document.createElement('a');
+      // link.href = item.pdfUrl;
+      // link.download = item.name + '.jpg'; // Assuming images are in jpg format
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      // this.selectedItems = []; // Clear selections after export
     },
-    // downloadSelected() {
-    //   if (this.selectedItem) {
-    //     const link = document.createElement('a');
-    //     link.href = this.selectedItem.pdfUrl;
-    //     link.download = this.selectedItem.name + '.pdf';
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    //   }
-    // },
 
 
     //-地震列表-------------------------------------
