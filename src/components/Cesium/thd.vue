@@ -1,22 +1,44 @@
 <template>
-  <div id="cesiumContainer">
-    <div class="eqList">
-      <button @click="changeEqListShow">
-        <div>
-          地震列表
-        </div>
-      </button>
-      <button @click="LRDLChange">
-        <div>
-          公路网图
-        </div>
-      </button>
-      <div>
+<!--  <div id="cesiumContainer">-->
+  <div>
+
+
+    <!--报告产出按钮-->
+    <div class="button-container">
+      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
+    </div>
+    <!--报告产出按钮 end-->
+
+    <!--    地震列表切换-->
+    <div class="eqlist-button">
+      <el-button class="el-button--primary" size="small" @click="changeEqListShow">地震列表</el-button>
+    </div>
+    <div class="thd-eqtable" v-if="this.eqListShow">
+      <eqTable :eqData="tableData"/>
+    </div>
+
+    <!--   图层要素-->
+    <div class="layer-button">
+      <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
+    </div>
+    <div v-if="iflayerChoose" class="dropdown">
+      <MapLayerControl :isMarkingLayer="isMarkingLayer"
+                       @updateMarkingLayer="handleMarkingLayerChange" />
+      <!--      <el-checkbox-group v-model="selectedlayers"  @change="updateMapLayers" class="grid-container">-->
+      <!--        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>-->
+      <!--      </el-checkbox-group>-->
+    </div>
+
+
+
+
+    <div class="switchregion-button">
         <el-popover
             placement="bottom"
-            width="180"
+            width="25%"
             v-model:visible="visible"
         >
+
           <!-- 雅安市按钮 -->
           <div class="city-button">
             <el-button @click="districtShowcase">雅安市</el-button>
@@ -27,6 +49,7 @@
               <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
             </div>
           </div>
+
           <template #reference>
             <button @click="togglePopover">
               <div>行政区划</div>
@@ -34,21 +57,21 @@
           </template>
         </el-popover>
       </div>
-      <button @click="removeALL">
-        <div>
-          清除图层
-        </div>
-      </button>
-      <transition name="eqListfade">
-        <eqListTable :eqData="tableData" v-if="eqListShow" @plotAdj="plotAdj"/>
-      </transition>
-  <div>
+
+    <div class="layerclear-button">
+      <el-button class="el-button--primary" size="small" @click="removeALL">清除图层</el-button>
+    </div>
+<!--      <button @click="removeALL">-->
+<!--        <div>-->
+<!--          清除图层-->
+<!--        </div>-->
+<!--      </button>-->
+
     <!--    title-->
     <div class="eqtitle">
       <span class="eqtitle-text_eqname">{{this.eqyear}}年{{this.eqmonth}}月{{this.eqday}}日{{this.centerPoint.position}}{{this.centerPoint.magnitude}}级地震</span>
     </div>
     <!--    title end-->
-
 
 
     <!--    box包裹地图，截图需要-->
@@ -124,34 +147,6 @@
     <timeLineLegend></timeLineLegend>
 
     <!--    两侧组件 end-->
-    <!--报告产出按钮-->
-    <div class="button-container">
-      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
-    </div>
-    <!--报告产出按钮 end-->
-
-    <!--    地震列表切换-->
-    <div class="eqlist-button">
-      <el-button class="el-button--primary" size="small" @click="changeEqListShow">地震列表</el-button>
-    </div>
-    <div class="thd-eqtable" v-if="this.eqListShow">
-      <eqTable :eqData="tableData"/>
-    </div>
-    <!--   图层要素-->
-    <div class="LRDL-button">
-      <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
-    </div>
-
-
-    <div v-if="iflayerChoose" class="dropdown">
-      <MapLayerControl :isMarkingLayer="isMarkingLayer"
-                       @updateMarkingLayer="handleMarkingLayerChange" />
-<!--      <el-checkbox-group v-model="selectedlayers"  @change="updateMapLayers" class="grid-container">-->
-<!--        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>-->
-<!--      </el-checkbox-group>-->
-    </div>
-
-
 
   </div>
 </template>
@@ -296,8 +291,8 @@ export default {
       districtLayer: null,
       districtStatus: false, //行政区划
       //------------------------------------------
-      tableData: [],
-      eqid: '',
+      // tableData: [],
+      // eqid: '',
       //------------------按钮下拉框------
       visible: false,
       districts: [
@@ -328,7 +323,7 @@ export default {
     this.watchTerrainProviderChanged()
 
 
-    cesiumPlot.init(window.viewer, this.websock, this.$store)
+    // cesiumPlot.init(window.viewer, this.websock, this.$store)
     // console.log(this.$router.currentRoute.query.eqid)
     // this.eqid = this.$router.currentRoute.query.eqid
     // this.initPlot(this.eqid)
@@ -336,9 +331,9 @@ export default {
     //-----------------------------------------
   },
 
-  destroyed() {
-    // this.websock.close()
-  },
+  // destroyed() {
+  //   // this.websock.close()
+  // },
   methods: {
     // 初始化控件等
     init() {
@@ -568,7 +563,7 @@ export default {
       this.showDetailedNewsDialog = val
     },
 
-    //时间轴操作
+    //时间轴操作-----------------------------------------------
     initTimerLine() {
       this.isTimerRunning = true
       // if(this.currentTimePosition >= 100 || this.currentTimePosition==0) {
@@ -898,8 +893,9 @@ export default {
       document.body.style.MozUserSelect = 'auto';
       document.body.style.msUserSelect = 'auto';
     },
-    //时间轴end-------------
+    //时间轴end------------------------------------------------
 
+    //线面渲染-------------------------------------------------
     drawPolyline(line) {
       let material = this.getMaterial(line.plottype,line.img)
       // 1-6 画线
@@ -990,8 +986,6 @@ export default {
         return NORMALLINE
       }
     },
-
-
     getDrawPolygon(polygon){
       // console.log("polygon111111111",polygon)
       viewer.entities.add({
@@ -1007,7 +1001,6 @@ export default {
         }
       })
     },
-
 
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
     entitiesClickPonpHandler() {
@@ -1180,7 +1173,6 @@ export default {
     changeEqListShow() {
       this.eqListShow = !this.eqListShow
       console.log(this.eqListShow)
-      if(this.eqListShow){
       if (this.eqListShow) {
         this.getEq()
       }
@@ -1581,13 +1573,24 @@ export default {
   top: 6.3%;
   left: 2%;
 }
-.LRDL-button {
+.layer-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   left: 8%;
 }
-
+.switchregion-button{
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  left: 14%;
+}
+.layerclear-button{
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  left: 20%;
+}
 .thd-eqtable{
   background-color: #324257;
   width: 30%;
