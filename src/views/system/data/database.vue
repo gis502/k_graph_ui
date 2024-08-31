@@ -8,7 +8,7 @@
     <el-table
         v-loading="loading"
         :data="listTable"
-        height="77vh"
+        height="71vh"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
     >
@@ -18,15 +18,6 @@
           {{ ($index + 1) + (queryParams.pageNum - 1) * queryParams.pageSize }}
         </template>
       </el-table-column>
-      <el-table-column
-          label="表名"
-          align="center"
-          key="tableName"
-          prop="tableName"
-          show-overflow-tooltip
-          width="500px"
-      />
-      <el-table-column label="备注" align="center" key="tableComment" prop="tableComment" show-overflow-tooltip/>
       <el-table-column label="创建时间" align="center" key="createTime" prop="createTime">
         <template v-slot="scope">
           {{ formatDateTime(scope.row.createTime) }}
@@ -37,6 +28,15 @@
           {{ formatDateTime(scope.row.updateTime) }}
         </template>
       </el-table-column>
+      <el-table-column
+          label="表名"
+          align="center"
+          key="tableName"
+          prop="tableName"
+          show-overflow-tooltip
+      />
+      <el-table-column label="备注" align="center" key="tableComment" prop="tableComment" show-overflow-tooltip/>
+
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button type="text" disabled @click="handleUpdate(scope.row)">
@@ -66,7 +66,7 @@
           :total="total"
           v-model:page="queryParams.pageNum"
           v-model:limit="queryParams.pageSize"
-          :pageSizes="[13, 20, 50, 100]"
+          :pageSizes="[10, 20, 50, 100]"
           @pagination="getList"
           class="pagination"
       />
@@ -94,7 +94,7 @@ const listTable = ref([])
 const isBackupDialogVisible = ref(false)
 const queryParams = ref({
   pageNum: 1,
-  pageSize: 13,
+  pageSize: 10,
   queryValue: ''
 });
 
@@ -113,15 +113,15 @@ function tableHeaderColor() {
 function tableColor({row, column, rowIndex, columnIndex}) {
   if (rowIndex % 2 === 1) {
     return {
-      'padding-top': '10px',
-      'padding-bottom': '10px',
+      'padding-top': '8px',
+      'padding-bottom': '8px',
       'text-align': 'center',
       'font-size': '16px',
     }
   } else {
     return {
-      'padding-top': '10px',
-      'padding-bottom': '10px',
+      'padding-top': '8px',
+      'padding-bottom': '8px',
       'text-align': 'center',
       'font-size': '16px',
     }
