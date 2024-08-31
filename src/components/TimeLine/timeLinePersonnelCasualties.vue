@@ -40,6 +40,7 @@
       </div>
     </div>
 
+
     <div v-show="!personnel_casualties_isExpanded">
       <div class="personnel_casualties_notexpand_button" @click="personnel_casualties_toggleExpand">
         <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%;width: 100%">
@@ -103,11 +104,34 @@ export default {
         this.activity.miss=tmp[2]
         this.activity.injure=tmp[3]
       }
-
+      else{  //初始化为eqlist时间
+        this.activity.time='-'
+        this.activity.death='-'
+        this.activity.miss='-'
+        this.activity.injure='-'
+      }
     },
     personnel_casualties_toggleExpand() {
       this.personnel_casualties_isExpanded = !this.personnel_casualties_isExpanded
-    }
+    },
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+
   }
 }
 </script>
@@ -148,7 +172,7 @@ export default {
   width: 2.5%; /* 调整宽度 */
   padding: 10px;
   border-radius: 5px;
-  top: 28%;
+  top: 34%;
   left: 1%;
   z-index: 22; /* 提高层级 */
 }
