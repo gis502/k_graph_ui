@@ -11,6 +11,8 @@
 <script>
 import * as Cesium from 'cesium'
 import yaan from '@/assets/geoJson/yaan.json'
+import {TianDiTuToken} from "@/cesium/tool/config";
+
 
 export default {
   props: ['isMarkingLayer','selectedlayers'],
@@ -20,7 +22,7 @@ export default {
     },
     selectedlayers(newVal){
       this.selectedlayersLocal=newVal
-      console.log("newVal",newVal)
+      // console.log("newVal",newVal)
     },
   },
   data() {
@@ -42,8 +44,6 @@ export default {
   methods: {
     updateMapLayers() {
       this.$emit('handleSelectLayerListChange', this.selectedlayersLocal);
-
-
       //标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
@@ -55,16 +55,38 @@ export default {
       }
 
       //雅安市行政区划要素图层
-      const hasAdminLayer = this.selectedlayersLocal.includes('行政区划要素图层');
-      if (hasAdminLayer) {
+      const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
+      if (hasYaanRegionLayer) {
        this.addYaanRegion()
       } else {
-        this.rmoveoneLayer('YaanRegion')
+        this.rmoveonedataSourcesLayer('YaanRegionLayer')
+      }
+
+      //交通网络要素图层
+      const hastrafficLayer = this.selectedlayersLocal.includes('交通网络要素图层');
+      if (hastrafficLayer) {
+        this.addTrafficLayer()
+      } else {
+        this.rmoveoneimageryLayer('TrafficLayer')
+        this.rmoveoneimageryLayer('TrafficTxtLayer')
       }
 
     },
 
+    //判断添加imageryLayer的图层是否存在
+    imageryLayersExists(layerName){
+      const layers = viewer.imageryLayers;
+      for (let i = 0; i < layers.length; i++) {
+        // 检查图层是否具有名称属性
+        if (layers.get(i).name === layerName) {
+          return true;
+        }
+      }
+      return false;
+    },
+
     addYaanRegion() {
+      if(!window.viewer.dataSources.getByName('YaanRegionLayer')[0]){
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
               stroke: Cesium.Color.RED,
               fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
@@ -75,15 +97,63 @@ export default {
           window.viewer.dataSources.add(dataSource);
           console.log(dataSource)
           //给图层取名字,不取名字删除的时候找不到图层
-          dataSource.name='YaanRegion'
+          dataSource.name='YaanRegionLayer'
         }).catch((error) => {
           console.error("加载GeoJSON数据失败:", error);
         });
+      }
+
+    },
+    addTrafficLayer(){
+      let token=TianDiTuToken;
+      let trafficLayerexists=this.imageryLayersExists('TrafficLayer')
+      if(!trafficLayerexists){
+        let trafficLayer=viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              url:
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+            })
+        );
+        trafficLayer.name = "TrafficLayer"; // 设置名称
+      }
+
+      let trafficTxtLayerExists=this.imageryLayersExists('TrafficTxtLayer')
+      if(!trafficTxtLayerExists) {
+        //影像注记
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              url:
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false,
+            })
+        )
+        traffictxtLayer.name = "TrafficTxtLayer"
+      }
     },
 
-    rmoveoneLayer(layerName) {
+    //添加到dtatSourse上的图层
+    rmoveonedataSourcesLayer(layerName) {
       window.viewer.dataSources.remove(window.viewer.dataSources.getByName(layerName)[0], true)
-        console.log("图层已移除");
+    },
+    rmoveoneimageryLayer(layerName){
+      const layers = viewer.imageryLayers;
+      for (let i = 0; i < layers.length; i++) {
+        // 检查图层是否具有名称属性
+        if (layers.get(i).name === layerName) {
+          layers.remove(layers.get(i), true);
+          return;
+        }
+      }
     },
 
 

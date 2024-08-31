@@ -440,7 +440,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
-            8000),
+            120000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -1297,7 +1297,7 @@ export default {
       if(window.regionLayer111){
         window.viewer.dataSources.remove(window.regionLayer111, true); // 强制移除
         window.regionLayer111 = null; // 清空引用
-        console.log("图层已移除");
+        // console.log("图层已移除");
       }
       this.labels.forEach(label => {
         window.viewer.entities.remove(label);
@@ -1309,7 +1309,7 @@ export default {
       const position= Cesium.Cartesian3.fromDegrees(
           parseFloat(this.centerPoint.longitude),
           parseFloat(this.centerPoint.latitude),
-          8000,
+          120000,
       );
       viewer.camera.flyTo({destination: position,})
     },
@@ -1332,7 +1332,7 @@ export default {
     },
     handleSelectLayerListChange(newValue) {
       this.selectedlayers = newValue; // 更新 isMarkingLayer
-      console.log("this.selectedlayers thd",this.selectedlayers)
+      // console.log("this.selectedlayers thd",this.selectedlayers)
     },
   }
 }
