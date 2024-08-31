@@ -600,10 +600,11 @@ export default {
       }, 100);
     },
     updateCurrentTime() {
+      console.log("this.currentSpeed",this.currentSpeed)
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
       // let tmp = 100.0 / 672.0  //进度条每次前进
 
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076 //共前进2016次，每次5分钟，
+      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % 2076 //共前进2016次，每次5分钟，
       let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
@@ -618,8 +619,9 @@ export default {
         // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        console.log("this.currentTime-----------------")
         this.currentTime = new Date(this.eqstartTime.getTime()
-            + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
+            + this.currentNodeIndex  * 5 * 60 * 1000);
         if (this.isMarkingLayer) {
           // console.log("updatePlot timeline")
           this.updatePlot()
@@ -871,7 +873,7 @@ export default {
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
       // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672); // Assuming 672 is the total number of steps
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076); // Assuming 672 is the total number of steps
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076) // Assuming 672 is the total number of steps
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       //点击前运行状态
