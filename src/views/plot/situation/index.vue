@@ -14,13 +14,13 @@
           <el-table-column prop="time" label="发震时间" width="160"/>
           <el-table-column prop="position" label="位置">
             <template #default="scope">
-              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.position.length>=14">
+              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.position.length>=10">
                 <div>{{ scope.row.position }}</div>
                 <template #reference>
                   <div>
-                  <span class="posInfo">
-                    {{ scope.row.position }}
-                  </span>
+                    <span class="posInfo">
+                      {{ scope.row.position }}
+                    </span>
                   </div>
                 </template>
               </el-popover>
@@ -969,7 +969,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 39%;
+  width: 530px;
   height: 310px;
   position: absolute;
   padding: 10px;
@@ -986,7 +986,7 @@ export default {
   border-radius: 5px;
   top: 345px;
   left: 10px;
-  width: 39%;
+  width: 530px;
   z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);
 }
