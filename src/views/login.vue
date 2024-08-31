@@ -213,10 +213,11 @@ getCookie();
 }
 .login-code {
   width: 33%;
-  height: 40px;
+  height: 45px;
   float: right;
   img {
     cursor: pointer;
+    height: 45px;
     vertical-align: middle;
   }
 }
