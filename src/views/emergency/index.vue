@@ -10,39 +10,35 @@
         />
         <div id="supplies" :class="{ collapsed: !tableVisible }">
             <el-form class="eqTable">
-                <div style="margin-bottom: 10px; padding: 10px; width: 100%">
+                <div style="margin-bottom: 10px; padding: 10px; width: 100%;">
                     <el-input
                             v-model="inputRadius"
                             placeholder="请输入搜查范围/km"
-                            style="width: 170px; margin-right: 5px"
+                            style="width: 150px; margin-right: 5px;"
                             clearable
                     ></el-input>
-                    <el-button class="el-button--primary" @click="searchSupply"
+                    <el-button class="el-button--primary" @click="searchSupply" style="width: 80px;"
                     >查找物资</el-button
                     >
-                    <el-button class="el-button--primary" @click="addDisasterPoint"
+                    <el-button class="el-button--primary" @click="addDisasterPoint" style="width: 80px;"
                     >添加受灾点</el-button
                     >
-                    <el-button class="el-button--primary" @click="showAllSupplyPoints">{{
+                    <el-button class="el-button--primary" @click="showAllSupplyPoints" style="width: 110px;">{{
                         showSupply
                         }}</el-button>
                     <!--add-->
-                    <el-button class="el-button--primary" @click="route"
-                    >路径规划</el-button
-                    >
-                    <el-button class="el-button--primary" @click="addArea"
-                    >添加障碍区域</el-button
-                    >
-                    <el-button class="el-button--primary" @click="removeAll"
+                    <el-button class="el-button--primary" @click="route" style="width: 80px;">路径规划</el-button>
+                    <el-button class="el-button--primary" @click="addArea" style="width: 110px;">添加障碍区域</el-button>
+                    <el-button class="el-button--primary" @click="removeAll" style="width: 110px;"
                     >清空所有实体</el-button
                     >
-                    <el-button class="el-button--primary" @click="removePoint"
+                    <el-button class="el-button--primary" @click="removePoint" style="width: 110px;"
                     >删除障碍区域</el-button
                     >
-                    <el-button class="el-button--primary" @click="removePolyline"
+                    <el-button class="el-button--primary" @click="removePolyline" style="width: 110px;"
                     >删除路径规划</el-button
                     >
-                    <el-button class="el-button--primary" @click="toggleTable">{{
+                    <el-button class="el-button--primary" @click="toggleTable" style="width: 110px;">{{
                         toolValue
                         }}</el-button>
                 </div>
@@ -115,26 +111,29 @@
         </div>
 
         <div
-                v-if="showTips"
-                id="supplies"
-                :class="{ collapsed: !tableVisible }"
-                style="margin-top: 500px; margin-left: 0%; width: 30%"
-        >
+            v-if="showTips"
+            id="supplies"
+            :class="{ collapsed: !tableVisible }"
+            style="margin-top: 450px; margin-left: 0%; width: 30%; overflow-y: auto; max-height: 180px;"
+            @scroll="onScroll">
             <el-row>
                 <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>
-                <el-button @Click="driveStyle" :style="selectedDrive">驾驶</el-button>
+                <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>
             </el-row>
-            <div slot="header" class="clearfix" style="color: white; margin-top: 5%">
+            <div slot="header" class="clearfix" style="color: white; margin-top: 5%;">
                 <div>
                     全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}
                 </div>
                 <div v-if="visibleGuilde">
-                    <div v-for="guilde in RouteGuilde">
+                    <div v-for="(guilde, index) in RouteGuilde" :key="index">
                         {{ guilde.from }} 到 {{ guilde.to }} {{ guilde.dist }} m
                     </div>
+                    <div v-if="loading" class="loading">加载中...</div>
                 </div>
             </div>
         </div>
+
+
     </div>
 </template>
 
@@ -177,6 +176,7 @@ export default {
             selectedDrive: "",
             selectedWalk: "",
             RouteGuilde: [],
+            loading: false,
             // 资源快速匹配
             showSuppliesList: [],
             selectedSuppliesList: [],
@@ -984,6 +984,30 @@ export default {
             }
             this.RouteWay = "驾驶";
         },
+
+        onScroll(event) {
+            const container = event.target;
+            const bottom = container.scrollHeight === container.scrollTop + container.clientHeight;
+            if (bottom && !this.loading) {
+                this.loadMoreGuide();
+            }
+        },
+        async loadMoreGuide() {
+            this.loading = true;
+            try {
+                // 调用API获取更多的指南数据
+                const newGuides = await this.fetchMoreGuides();
+                this.RouteGuilde = [...this.RouteGuilde, ...newGuides];
+            } catch (error) {
+                console.error('Failed to load more guides', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+        async fetchMoreGuides() {
+            // 实现调用API逻辑
+            return []; // 返回新的指南数据
+        },
         route() {
             let handler = new Cesium.ScreenSpaceEventHandler(
                 window.viewer.scene.canvas
@@ -1032,7 +1056,7 @@ export default {
                     that.showTips = true;
                     //路径规划好后弹出气泡框
                     // this.bubbleTips(position);
-                    this.initTool(this.viewer.cesiumWidget.container);
+                    // this.initTool(this.viewer.cesiumWidget.container);
                     handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
                 }
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -1349,4 +1373,10 @@ canvas {
     height: 100%;
     display: block;
 }
+.loading {
+    text-align: center;
+    margin: 10px;
+    color: #999;
+}
+
 </style>
