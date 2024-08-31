@@ -22,14 +22,12 @@
       <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
     </div>
     <div v-if="iflayerChoose" class="dropdown">
-      <MapLayerControl :isMarkingLayer="isMarkingLayer"
-                       @updatePlot="updatePlot"
-                       @MarkingLayerRemove="MarkingLayerRemove"
-                       @updateMarkingLayer="handleMarkingLayerChange" />
+      <MapLayerControl
+          :isMarkingLayer="isMarkingLayer"
+          @updatePlot="updatePlot"
+          @MarkingLayerRemove="MarkingLayerRemove"
+          @updateMarkingLayer="handleMarkingLayerChange" />
     </div>
-
-
-
 
     <div class="switchregion-button">
         <el-popover
@@ -40,7 +38,7 @@
 
           <!-- 雅安市按钮 -->
           <div class="city-button">
-            <el-button @click="districtShowcase">雅安市</el-button>
+            <el-button @click="addYaanImageryDistrict">雅安市</el-button>
           </div>
           <!-- 下属区县按钮 -->
           <div class="district-buttons">
@@ -48,7 +46,8 @@
               <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
             </div>
           </div>
-
+          <div class="citylayer-button">
+          </div>
           <template #reference>
             <button @click="togglePopover">
               <div>行政区划</div>
@@ -56,15 +55,6 @@
           </template>
         </el-popover>
       </div>
-
-    <div class="layerclear-button">
-      <el-button class="el-button--primary" size="small" @click="removeALL">清除图层</el-button>
-    </div>
-<!--      <button @click="removeALL">-->
-<!--        <div>-->
-<!--          清除图层-->
-<!--        </div>-->
-<!--      </button>-->
 
     <!--    title-->
     <div class="eqtitle">
@@ -205,7 +195,7 @@ export default {
 
       //----------------------------------
       eqid: '',
-      viewer: '',
+      // viewer: '',
       store: '',
       //地震时间年月日
       eqyear: '',
@@ -256,7 +246,7 @@ export default {
       isDragging: false,
       dragStartX: 0,
 
-      smallViewer:null,
+      smallViewer: null,
 
       //-------------ws---------------------
       websock: null,
@@ -270,69 +260,38 @@ export default {
       tableData: [],
 
       //-----------------图层---------------------
-      iflayerChoose:false,
-      // layeritems: [
-      //   { id: '0', name: '标绘点图层'},
-      //   { id: '1', name: '自建要素图层服务'},
-      //   { id: '2', name: '行政区划要素图层'},
-      //   { id: '3', name: '人口密度要素图层'},
-      //   { id: '4', name: '交通网络要素图层'},
-      //   { id: '5', name: '避难场所要素图层'},
-      //   { id: '6', name: '救援队伍分布要素图层'},
-      //   { id: '7', name: '应急物资存储要素图层'},
-      // ],
-      // selectedlayers:['标绘点图层'],
-      isMarkingLayer:true,
-      // LRDLStatus:false, // 路网
-
+      iflayerChoose: false,
+      isMarkingLayer: true,
       //-----------------图层---------------------
       LRDLStatus: false, // 路网
       districtLayer: null,
-      districtStatus: false, //行政区划
-      //------------------------------------------
-      // tableData: [],
-      // eqid: '',
       //------------------按钮下拉框------
       visible: false,
       districts: [
-        { adcode: 511802, name: "雨城区" },
-        { adcode: 511803, name: "名山区" },
-        { adcode: 511822, name: "荥经县" },
-        { adcode: 511823, name: "汉源县" },
-        { adcode: 511824, name: "石棉县" },
-        { adcode: 511825, name: "天全县" },
-        { adcode: 511826, name: "芦山县" },
-        { adcode: 511827, name: "宝兴县" },
+        {adcode: 511802, name: "雨城区"},
+        {adcode: 511803, name: "名山区"},
+        {adcode: 511822, name: "荥经县"},
+        {adcode: 511823, name: "汉源县"},
+        {adcode: 511824, name: "石棉县"},
+        {adcode: 511825, name: "天全县"},
+        {adcode: 511826, name: "芦山县"},
+        {adcode: 511827, name: "宝兴县"},
       ],
       geojsonData: [],
-      labels: []  // 保存标签实体的引用
+      labels: [],  // 保存标签实体的引用
+      regionLayer111:null,
     };
   },
-  // created() {
-  //   this.eqid = this.$route.params.eqid
-  // },
   mounted() {
     this.init()
-    this.eqid= new URLSearchParams(window.location.search).get('eqid')
+    this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.getEqInfo(this.eqid)
-    // // this.initTimerLine()
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
 
-
-    // cesiumPlot.init(window.viewer, this.websock, this.$store)
-    // console.log(this.$router.currentRoute.query.eqid)
-    // this.eqid = this.$router.currentRoute.query.eqid
-    // this.initPlot(this.eqid)
-    // this.initWebsocket()
-    //-----------------------------------------
   },
-
-  // destroyed() {
-  //   // this.websock.close()
-  // },
   methods: {
     // 初始化控件等
     init() {
@@ -340,6 +299,7 @@ export default {
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
       window.viewer = viewer
+      // this.viewer=window.viewer
       let options = {}
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
       // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
@@ -402,17 +362,17 @@ export default {
       viewer.scene.camera.changed.addEventListener(syncCamera);
 
       // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function() {
+      viewer.scene.postRender.addEventListener(function () {
         that.smallViewer.scene.requestRender(); // 确保缩略图更新
       });
 
       // 初始同步
       syncCamera();
     },
-    getEqInfo(eqid){
-      getEqbyId({eqid:eqid}).then(res => {
+    getEqInfo(eqid) {
+      getEqbyId({eqid: eqid}).then(res => {
         //震中标绘点
-        this.centerPoint=res
+        this.centerPoint = res
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.time)
         this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
@@ -423,7 +383,7 @@ export default {
         this.eqmonth = this.eqstartTime.getMonth() + 1
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        this.eqendTime = new Date(this.eqstartTime.getTime() +( (7 * 24+5) * 60 * 60 * 1000));
+        this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
         this.updateMapandVariablebeforInit()
@@ -515,17 +475,15 @@ export default {
           text: this.centerPoint.position,
           show: true,
           font: '10px sans-serif',
-          fillColor:Cesium.Color.RED,        //字体颜色
+          fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
         },
-        id:this.centerPoint.plotid,
-        plottype:"震中",
+        id: this.centerPoint.plotid,
+        plottype: "震中",
       });
-
-
       //获取渲染点
       this.getPlotwithStartandEndTime(this.eqid)
     },
@@ -548,16 +506,16 @@ export default {
       })
     },
 
-    detailedNews(val){
+    detailedNews(val) {
       // console.log("detailedNews-----",val)
       this.showingNewsContent = val
 
     },
-    ifShowDialog(val){
+    ifShowDialog(val) {
       // console.log("ifShowDialog-----",val)
       this.showDetailedNewsDialog = val
     },
-    hideNewsDialog(val){
+    hideNewsDialog(val) {
       // console.log("showDetailedNewsDialog-----",val)
       this.showDetailedNewsDialog = val
     },
@@ -634,19 +592,18 @@ export default {
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
 
-        if(this.isMarkingLayer){
+        if (this.isMarkingLayer) {
           // console.log("updatePlot timeline")
           this.updatePlot()
-        }
-       else{
-         this.MarkingLayerRemove()
+        } else {
+          this.MarkingLayerRemove()
         }
       }
     },
     //更新标绘点
     updatePlot() {
       // console.log(this.plots)
-      let that=this
+      let that = this
       //一个点线面一条数据
       //点
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -673,7 +630,7 @@ export default {
             if (existingPolyline) {
               // 更新已存在的数据
               // existingPolyline.endtime = polylineElement.endtime;
-              existingPolyline.positionsArr=positionsArr;
+              existingPolyline.positionsArr = positionsArr;
             } else {
               // 创建新的数据对象并添加到 polylineArr
               polylinetmp = {
@@ -711,7 +668,7 @@ export default {
             if (existingpolygon) {
               // 更新已存在的数据
               // existingPolyline.endtime = polylineElement.endtime;
-              existingpolygon.positionsArr=positionsArr;
+              existingpolygon.positionsArr = positionsArr;
             } else {
               // 创建新的数据对象并添加到 polylineArr
               polygontmp = {
@@ -722,7 +679,7 @@ export default {
                 plottype: polygonElement.plottype,
                 img: polygonElement.img,
                 positionsArr: positionsArr,
-                angle:polygonElement.angle,
+                angle: polygonElement.angle,
               };
               polygonArr.push(polygontmp);
             }
@@ -730,7 +687,6 @@ export default {
         });
       });
       // console.log("polygonArr",polygonArr)
-
 
 
       //渲染
@@ -837,9 +793,7 @@ export default {
     toggleTimer() {
       if (this.isTimerRunning) {
         this.stopTimer();
-        // this.isTimerRunning = false;
       } else {
-        // this.isTimerRunning=true
         this.initTimerLine();
       }
     },
@@ -896,13 +850,13 @@ export default {
 
     //线面渲染-------------------------------------------------
     drawPolyline(line) {
-      let material = this.getMaterial(line.plottype,line.img)
+      let material = this.getMaterial(line.plottype, line.img)
       // 1-6 画线
       window.viewer.entities.add({
         id: line.plotid,
         plottype: line.plottype,
         polyline: {
-          status:1,
+          status: 1,
           // positions: positionsArr,
           positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
           width: 5,
@@ -926,29 +880,29 @@ export default {
       return PolylineIdArr
     },
     // 选择当前线的material
-    getMaterial(type,img) {
-      if(type==="量算"){
+    getMaterial(type, img) {
+      if (type === "量算") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
         })
         return NORMALLINE
       }
-      if(type==="地裂缝"||type==="可用供水管网"||type==="不可用供水管网"){
+      if (type === "地裂缝" || type === "可用供水管网" || type === "不可用供水管网") {
         let PICTURELINE = new Cesium.ImageMaterialProperty({
           image: img,
           repeat: new Cesium.Cartesian2(3, 1),
         })
         return PICTURELINE
       }
-      if(type==="可通行公路"||type==="限制通行公路"||type==="不可通行公路"){
+      if (type === "可通行公路" || type === "限制通行公路" || type === "不可通行公路") {
         let color = null
-        if(type==="可通行公路"){
-          color = Cesium.Color.fromBytes(158,202,181)
-        }else if(type==="限制通行公路"){
-          color = Cesium.Color.fromBytes(206,184,157)
-        }else{
-          color = Cesium.Color.fromBytes(199,151,149)
+        if (type === "可通行公路") {
+          color = Cesium.Color.fromBytes(158, 202, 181)
+        } else if (type === "限制通行公路") {
+          color = Cesium.Color.fromBytes(206, 184, 157)
+        } else {
+          color = Cesium.Color.fromBytes(199, 151, 149)
         }
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: color,
@@ -956,28 +910,28 @@ export default {
         })
         return NORMALLINE
       }
-      if(type==="可通行铁路"||type==="不可通行铁路"){
+      if (type === "可通行铁路" || type === "不可通行铁路") {
         let gapColor
-        if(type==="可通行铁路"){
+        if (type === "可通行铁路") {
           gapColor = Cesium.Color.BLACK
-        }else {
+        } else {
           gapColor = Cesium.Color.RED
         }
-        let DASHLINE= new Cesium.PolylineDashMaterialProperty({
+        let DASHLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.WHITE,
           gapColor: gapColor,
           dashLength: 100
         })
         return DASHLINE
       }
-      if(type==="可用输电线路"||type==="不可用输电线路"){
+      if (type === "可用输电线路" || type === "不可用输电线路") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
         })
         return NORMALLINE
       }
-      if(type==="可用输气管线"||type==="不可用输气管线"){
+      if (type === "可用输气管线" || type === "不可用输气管线") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
@@ -985,7 +939,7 @@ export default {
         return NORMALLINE
       }
     },
-    getDrawPolygon(polygon){
+    getDrawPolygon(polygon) {
       // console.log("polygon111111111",polygon)
       viewer.entities.add({
         id: polygon.plotid,
@@ -1009,11 +963,11 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
         // 2-1 判断点击物体是否为点实体（billboard）
-        if(window.selectedEntity === undefined){
+        if (window.selectedEntity === undefined) {
           this.popupVisible = false
           this.popupData = {}
         }
-        console.log("window.selectedEntity",window.selectedEntity)
+        console.log("window.selectedEntity", window.selectedEntity)
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
           // console.log("window.selectedEntity",window.selectedEntity)
@@ -1050,7 +1004,6 @@ export default {
           // that.selectedEntity = window.selectedEntity
 
 
-
           // that.currentTime=
           // this.popupVisible = true; // 显示弹窗
           this.popupVisible = false
@@ -1060,7 +1013,7 @@ export default {
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          console.log("popupData thd timeline",this.popupData)
+          console.log("popupData thd timeline", this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
@@ -1166,7 +1119,7 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.tableData = res
-        console.log("that.tableData",that.tableData)
+        console.log("that.tableData", that.tableData)
       })
     },
     changeEqListShow() {
@@ -1188,28 +1141,17 @@ export default {
     togglePopover() {
       this.visible = !this.visible;
     },
-    districtShowcase() {
-      this.removeALL()
-      if (this.districtStatus) {
-        this.addYaanImageryDistrict();
-      } else {
-        this.addYaanImageryDistrict();
-      }
-      this.districtStatus = !this.districtStatus;
-    },
-    // 添加雅安市GeoJSON数据
     addYaanImageryDistrict() {
-    this.removeALL()
+      this.removethdRegions()
       let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-            stroke: Cesium.Color.RED,
-            fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-            strokeWidth: 4,
-          }
-      );
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+        strokeWidth: 4,
+      });
       geoPromise.then((dataSource) => {
         // 添加 geojson
-        this.districtLayer = dataSource;
-        viewer.dataSources.add(dataSource);
+        window.regionLayer111 = dataSource;
+        window.viewer.dataSources.add(dataSource);
 
         // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
         dataSource.name = "geojson_map";
@@ -1233,14 +1175,9 @@ export default {
       }));
       this.labels.push(labelEntity);  // 保存标签实体的引用
     },
-    //处理雅安市区县数据
     handleDistrictClick(district) {
       //清除其他实体标签
-      viewer.dataSources.removeAll()
-      this.labels.forEach(label => {
-        viewer.entities.remove(label);
-      });
-      this.labels = [];  // 清空标签引用数组
+      this.removethdRegions()
       this.visible = false;
       // 根据区县代码过滤GeoJSON数据
       let filteredFeatures = yaan.features.filter(feature => {
@@ -1259,7 +1196,8 @@ export default {
         });
 
         geoPromise.then((dataSource) => {
-          viewer.dataSources.add(dataSource);
+          window.viewer.dataSources.add(dataSource);
+          window.regionLayer111=dataSource
 
           filteredFeatures.forEach((feature) => {
             let center = feature.properties.center;
@@ -1290,92 +1228,33 @@ export default {
         console.error("未找到对应的区县:", adcode);
       }
     },
-    // 清除单一图层代码
-    removeAYaanImageryDistrict() {
-      if (this.districtLayer) {
-        // 这里是删除语句（通过 getByName 获取 dataSources，用于删除）。
-        viewer.dataSources.remove(viewer.dataSources.getByName('geojson_map')[0])
-        this.districtLayer = null;
+    removethdRegions() {
+      if(window.regionLayer111){
+        window.viewer.dataSources.remove(window.regionLayer111, true); // 强制移除
+        window.regionLayer111 = null; // 清空引用
         console.log("图层已移除");
       }
-    },
-    //清除所有图层代码 有问题联系SWB
-    removeALL(){
-      viewer.dataSources.removeAll()
-      this.labels.forEach(label => {
-        viewer.entities.remove(label);
-      });
-      this.labels = [];  // 清空标签引用数组
-      //复位
-      const destination = Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500);
-      // 使用 viewer.camera.flyTo 飞到指定位置
-      viewer.camera.flyTo({
-        destination: destination,
-        // orientation: {
-        //   heading: Cesium.Math.toRadians(0.0),
-        //   pitch: Cesium.Math.toRadians(-45.0),
-        //   roll: 0.0
-        // },
-        duration: 2.0 // 飞行持续时间（秒）
-      });
-
+        this.labels.forEach(label => {
+          window.viewer.entities.remove(label);
+        });
+        this.labels = [];  // 清空标签引用数组
     },
 
-
-    // ---------------------图层加载------------------------
-
-    /*
-    * 对于添加WMS型的数据用WebMapServiceImageryProvider接口
-    *
-    * */
-
-
-
-    // 公路网
-    // LRDLChange() {
-    //   if (this.LRDLStatus) {
-    //     this.LRDLStatus = !this.LRDLStatus
-    //     window.viewer.scene.imageryLayers.remove(window.LRDL)
-    //   } else {
-    //     this.LRDLStatus = !this.LRDLStatus
-    //     this.addWmsImageryLRDL()
-    //   }
-    // },
-    // addWmsImageryLRDL() {
-    //   let LRDL = new Cesium.WebMapServiceImageryProvider({
-    //     url: "http://gisserver.tianditu.gov.cn/TDTService/wfs",
-    //     layers: "LRDL",
-    //     parameters: {
-    //       service: "WMS",
-    //       format: "image/png",
-    //       transparent: true
-    //     }
-    //   })
-    //   // addImageryProvider是创建了一个图层，需要用viewer.scene.imageryLayers.remove移除
-    //   window.LRDL = window.viewer.imageryLayers.addImageryProvider(LRDL);
-    // },
-    // ------------------------------------------
-
-
-
+    backcenter(){
+      this.removethdRegions()
+      const position= Cesium.Cartesian3.fromDegrees(
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          8000,
+      );
+      viewer.camera.flyTo({destination: position,})
+    },
 
     layerChoose() {
       this.iflayerChoose = !this.iflayerChoose;
     },
-    // updateMapLayers(){
-    //   //标绘点图层和时间联动，是否现实单独处理
-    //   const hasDrawingLayer = this.selectedlayers.includes('标绘点图层');
-    //   if (hasDrawingLayer) {
-    //     this.isMarkingLayer=true
-    //     this.updatePlot()
-    //     // 重新加载标绘点图层
-    //   } else {
-    //     this.isMarkingLayer=false
-    //     // console.log("没有勾选标绘点图层，清除标绘点图层");
-    //   }
-    // },
     //标绘图层清除
-    MarkingLayerRemove(){
+    MarkingLayerRemove() {
       this.plots.forEach(item => {
         const entity = viewer.entities.getById(item.plotid);
         if (entity) {
@@ -1388,33 +1267,6 @@ export default {
       // console.log("this.isMarkingLayer = newValue",newValue)
       this.isMarkingLayer = newValue; // 更新 isMarkingLayer
     },
-    // 清除单一图层代码
-    // removeAYaanImageryDistrict() {
-    //   if (this.districtLayer) {
-    //     // 这里是删除语句（通过 getByName 获取 dataSources，用于删除）。
-    //     viewer.dataSources.remove(viewer.dataSources.getByName('geojson_map')[0])
-    //     this.districtLayer = null;
-    //     console.log("图层已移除");
-    //   }
-    // },
-    // //清除所有图层代码 有问题联系SWB
-    // removeALL(){
-    //   console.log("removeALLALLLLLLLLLLLLLLLLLLLLLLLLLLLL")
-    //   viewer.dataSources.removeAll()
-    //   // this.labels.forEach(label => {
-    //   //   viewer.entities.remove(label);
-    //   // });
-    //   // this.labels = [];  // 清空标签引用数组
-    //   //复位
-    //   // const destination = Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500);
-    //   // 使用 viewer.camera.flyTo 飞到指定位置
-    //   // viewer.camera.flyTo({
-    //   //   destination: destination,
-    //   //   duration: 2.0 // 飞行持续时间（秒）
-    //   // });
-    // },
-
-
   }
 }
 </script>
