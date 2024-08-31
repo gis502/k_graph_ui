@@ -16,9 +16,13 @@
     <div v-if="activeComponent === 'layerChoose'" class="dropdown">
       <MapLayerControl
           :isMarkingLayer="isMarkingLayer"
+          :selectedlayers="selectedlayers"
+          :showlayers="showlayers"
           @updatePlot="updatePlot"
           @MarkingLayerRemove="MarkingLayerRemove"
-          @updateMarkingLayer="handleMarkingLayerChange" />
+          @updateMarkingLayer="handleMarkingLayerChange"
+          @handleSelectLayerListChange="handleSelectLayerListChange"
+      />
     </div>
 
 <!--    行政区划-->
@@ -268,6 +272,8 @@ export default {
       //-----------------图层---------------------
       // iflayerChoose: false,
       isMarkingLayer: true,
+      selectedlayers:['标绘点图层'],
+      showlayers:[],
       //-----------------图层---------------------
       LRDLStatus: false, // 路网
       // districtLayer: null,
@@ -1208,7 +1214,7 @@ export default {
         window.regionLayer111 = dataSource;
         window.viewer.dataSources.add(dataSource);
         // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-        dataSource.name = "geojson_map";
+        dataSource.name = "thd_yaanregion";
         // 视角跳转到 geojson
         viewer.flyTo(dataSource.entities.values)
       }).catch((error) => {
@@ -1318,6 +1324,10 @@ export default {
     handleMarkingLayerChange(newValue) {
       // console.log("this.isMarkingLayer = newValue",newValue)
       this.isMarkingLayer = newValue; // 更新 isMarkingLayer
+    },
+    handleSelectLayerListChange(newValue) {
+      this.selectedlayers = newValue; // 更新 isMarkingLayer
+      console.log("this.selectedlayers thd",this.selectedlayers)
     },
   }
 }
