@@ -149,7 +149,7 @@ import { getEmergency } from "@/api/system/emergency.js";
 import disasterReservesLogo from "@/assets/images/disasterReservesLogo.jpg";
 import disasterSuppliesLogo from "@/assets/images/disasterSuppliesLogo.png";
 import emergencyTeamLogo from "@/assets/images/emergencyTeamLogo.png";
-import bubbleImg from "/src/assets/images/bubbles.png";
+// import bubbleImg from "@/assets/images/bubbles.png";
 // -----
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
