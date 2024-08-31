@@ -19,6 +19,25 @@
                     :label="header.label"
                     :width="header.width"
             >
+                <template #default="scope" >
+                    <div v-if="header.label === '地址' || header.label === '数据来源' || header.label === '队伍类型名称'">
+                        <el-popover placement="top" :width="200" trigger="hover">
+                            <div style="text-align: center">{{ scope.row[header.prop] }}</div>
+                            <template #reference>
+                                <div
+                                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }"
+                                >
+                        <span class="myNote">
+                            {{ scope.row[header.prop] }}
+                        </span>
+                                </div>
+                            </template>
+                        </el-popover>
+                    </div>
+                    <div v-else>
+                        {{ scope.row[header.prop] }}
+                    </div>
+                </template>
             </el-table-column>
 
             <el-table-column label="操作" align="center" width="150" fixed="right">
@@ -29,6 +48,7 @@
             </el-table-column>
         </el-table>
         <el-pagination
+                style="justify-content: center"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
@@ -57,11 +77,14 @@
                 // ---表头---
                 headersArr: [
                     // { prop: 'uniqueId', label: '唯一标识', width: 150 },
-                    { prop: 'organization', label: '组织机构', width: 150 },
-                    { prop: 'levelName', label: '级别名称', width: 210 },
-                    { prop: 'teamTypeName', label: '队伍类型名称', width: 150 },
+                    { prop: 'levelName', label: '级别名称', width: 220 },
                     { prop: 'address', label: '地址', width: 230 },
                     { prop: 'totalPersonnel', label: '总人数', width: 150 },
+                    { prop: 'personInCharge', label: '负责人', width: 150 },
+                    { prop: 'personInChargePhone', label: '负责人电话', width: 150 },
+                    { prop: 'dataSource', label: '数据来源', width: 160 },
+                    { prop: 'organization', label: '组织机构', width: 150 },
+                    { prop: 'teamTypeName', label: '队伍类型名称', width: 150 },
                     { prop: 'establishmentDate', label: '成立日期', width: 150 },
                     { prop: 'mainResponsibilities', label: '主要职责', width: 150 },
                     { prop: 'expertiseDescription', label: '专业描述', width: 150 },
@@ -71,12 +94,11 @@
                     { prop: 'selfTransportation', label: '自备交通工具', width: 150 },
                     { prop: 'longitude', label: '经度', width: 150 },
                     { prop: 'latitude', label: '纬度', width: 150 },
-                    { prop: 'personInCharge', label: '负责人', width: 150 },
-                    { prop: 'personInChargePhone', label: '负责人电话', width: 150 },
+
                     { prop: 'confidentialityLevel', label: '保密级别', width: 150 },
                     { prop: 'modifiedBy', label: '修改人', width: 150 },
                     { prop: 'qualificationLevel', label: '资质级别', width: 150 },
-                    { prop: 'dataSource', label: '数据来源', width: 160 },
+
                     { prop: 'notes', label: '备注', width: 150 }
                 ],
             }

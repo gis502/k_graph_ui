@@ -19,6 +19,25 @@
                     :label="header.label"
                     :width="header.width"
             >
+                <template #default="scope">
+                    <div v-if="(header.label === '地址' || header.label === '县（区）' || header.label === '其他')">
+                        <el-popover placement="top" :width="200" trigger="hover">
+                            <div style="text-align: center">{{ scope.row[header.prop] }}</div>
+                            <template #reference>
+                                <div
+                                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }"
+                                >
+                        <span class="myNote">
+                            {{ scope.row[header.prop] }}
+                        </span>
+                                </div>
+                            </template>
+                        </el-popover>
+                    </div>
+                    <div v-else>
+                        {{ scope.row[header.prop] }}
+                    </div>
+                </template>
             </el-table-column>
 
             <el-table-column label="操作" align="center" width="150" fixed="right">
@@ -29,6 +48,7 @@
             </el-table-column>
         </el-table>
         <el-pagination
+                style="justify-content: center"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
@@ -111,7 +131,7 @@
                 currentHeaders: [],
                 // ---表头---
                 headersArr: [
-                    { prop: 'county', label: "县（区）", width: 150 },
+                    { prop: 'county', label: "县（区）", width: 180 },
                     { prop: 'totalItems', label: "合计总件套数", width: 120 },
                     { prop: 'infraredDetectors', label: "红外探测仪", width: 120 },
                     { prop: 'opticalDetectors', label: "光学探测仪(蛇眼)", width: 150 },

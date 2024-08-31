@@ -20,9 +20,10 @@
                     :width="header.width"
             >
                 <template #default="scope">
-                    <div v-if="header.label === '备注'">
-                        <el-popover placement="top" :width="300" trigger="hover">
-                            <div>{{ scope.row[header.prop] }}</div>
+                    <div v-if="header.label === '备注' || header.label === '名称'
+                    || header.label === '地址' || header.label === '隶属组织'">
+                        <el-popover placement="top" :width="200" trigger="hover">
+                            <div style="text-align: center">{{ scope.row[header.prop] }}</div>
                             <template #reference>
                                 <div
                                         :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }"
@@ -48,6 +49,7 @@
             </el-table-column>
         </el-table>
         <el-pagination
+                style="justify-content: center"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
@@ -77,24 +79,23 @@
                 headersArr: [
                     // { prop: 'uniqueId', label: '唯一标识', width: 150 },
                     { prop: 'name', label: '名称', width: 240 },
-                    { prop: 'placeType', label: '地点类型', width: 150 },
                     { prop: 'area', label: '面积', width: 150 },
                     { prop: 'capacity', label: '容纳人数', width: 150 },
-                    { prop: 'levelName', label: '级别名称', width: 150 },
-                    { prop: 'secrecyLevel', label: '保密级别', width: 150 },
-                    { prop: 'administrativeDivision', label: '行政区划', width: 150 },
+                    { prop: 'administrativeDivision', label: '行政区划', width: 200 },
                     { prop: 'address', label: '地址', width: 240 },
-                    { prop: 'personInCharge', label: '负责人', width: 150 },
-                    { prop: 'emergencyPhone', label: '应急电话', width: 150 },
                     { prop: 'emergencyMobile', label: '应急手机', width: 150 },
                     { prop: 'affiliatedOrganization', label: '隶属组织', width: 150 },
-                    { prop: 'startUsingDate', label: '启用日期', width: 150 },
+                    { prop: 'startUsingDate', label: '启用日期', width: 200 },
                     { prop: 'designUsageYears', label: '设计使用年限', width: 150 },
-                    { prop: 'basicInformation', label: '基本信息', width: 150 },
-                    { prop: 'seismicIntensity', label: '地震烈度', width: 150 },
                     { prop: 'dataSourceUnit', label: '数据来源单位', width: 180 },
                     { prop: 'longitude', label: '经度', width: 150 },
                     { prop: 'latitude', label: '纬度', width: 150 },
+                    { prop: 'emergencyPhone', label: '应急电话', width: 150 },
+                    { prop: 'placeType', label: '地点类型', width: 150 },
+                    { prop: 'levelName', label: '级别名称', width: 150 },
+                    { prop: 'secrecyLevel', label: '保密级别', width: 150 },
+                    { prop: 'basicInformation', label: '基本信息', width: 150 },
+                    { prop: 'seismicIntensity', label: '地震烈度', width: 150 },
                     { prop: 'remarks', label: '备注', width: 300 },
                 ],
             }
