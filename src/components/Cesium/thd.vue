@@ -1,5 +1,5 @@
 <template>
-<!--  <div id="cesiumContainer">-->
+  <!--  <div id="cesiumContainer">-->
   <div>
 
 
@@ -30,38 +30,37 @@
     </div>
 
     <div class="switchregion-button">
-        <el-popover
-            placement="bottom"
-            width="25%"
-            v-model:visible="visible"
-        >
+      <el-popover
+          placement="bottom"
+          width="25%"
+          v-model:visible="visible"
+      >
 
-          <!-- 雅安市按钮 -->
-          <div class="city-button">
-            <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+        <!-- 雅安市按钮 -->
+        <div class="city-button">
+          <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+        </div>
+        <!-- 下属区县按钮 -->
+        <div class="district-buttons">
+          <div v-for="district in districts" :key="district.adcode" class="district-button">
+            <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
           </div>
-          <!-- 下属区县按钮 -->
-          <div class="district-buttons">
-            <div v-for="district in districts" :key="district.adcode" class="district-button">
-              <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
-            </div>
-          </div>
-          <div class="citylayer-button">
-          </div>
-          <template #reference>
-            <button @click="togglePopover">
-              <div>行政区划</div>
-            </button>
-          </template>
-        </el-popover>
-      </div>
+        </div>
+        <div class="citylayer-button">
+        </div>
+        <template #reference>
+          <button @click="togglePopover">
+            <div>行政区划</div>
+          </button>
+        </template>
+      </el-popover>
+    </div>
 
     <!--    title-->
     <div class="eqtitle">
       <span class="eqtitle-text_eqname">{{this.eqyear}}年{{this.eqmonth}}月{{this.eqday}}日{{this.centerPoint.position}}{{this.centerPoint.magnitude}}级地震</span>
     </div>
     <!--    title end-->
-
 
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
@@ -78,16 +77,25 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
+        <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward" />
         <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
              @click="toggleTimer"/>
         <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
              @click="toggleTimer"/>
+        <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward" />
       </div>
 
       <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+        </div>
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
+        <span class="speedButton">{{speedOption}}</span>
+        <div class="chooseSpeed">
+          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
+            {{ option }}
+          </option>
         </div>
       </div>
 
@@ -105,14 +113,12 @@
     <timeLineEmergencyResponse
         :currentTime="currentTime"
     />
-
     <timeLinePersonnelCasualties
         :currentTime="currentTime"
     />
     <timeLineRescueTeam
         :currentTime="currentTime"
     />
-
     <!--      新闻-->
     <div>
       <news
@@ -134,9 +140,7 @@
       <mini-map></mini-map>
     </div>
     <timeLineLegend></timeLineLegend>
-
     <!--    两侧组件 end-->
-
   </div>
 </template>
 
@@ -235,6 +239,11 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 1,
       intervalId: null,
+      // 倍速
+      currentSpeed: 1,
+      showSpeedOptions: false,
+      speedOption: '1X',
+      speedOptions: ['1X','2X','4X'],
 
       //是否记载到view上，已经存在则不再添加
       plotisshow: {},
@@ -369,6 +378,7 @@ export default {
       // 初始同步
       syncCamera();
     },
+    // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
       getEqbyId({eqid: eqid}).then(res => {
         //震中标绘点
@@ -576,8 +586,8 @@ export default {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
       // let tmp = 100.0 / 672.0  //进度条每次前进
 
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076  //共前进2016次，每次5分钟，
-      let tmp = 100.0 / 2076.0  //进度条每次前进
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076 //共前进2016次，每次5分钟，
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
@@ -590,8 +600,9 @@ export default {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-
+        // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        this.currentTime = new Date(this.eqstartTime.getTime()
+            + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
         if (this.isMarkingLayer) {
           // console.log("updatePlot timeline")
           this.updatePlot()
@@ -797,6 +808,44 @@ export default {
         this.initTimerLine();
       }
     },
+    // 前进
+    forward(){
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
+      this.currentTimePosition += tmp;
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 100;
+        this.currentTime = this.eqendTime
+        this.isTimerRunning = false
+      } else {
+        this.currentTimePosition = this.currentTimePosition % 100
+        // this.currentTime = new Date(this.eqstartTime.getTime()
+        //     + this.currentNodeIndex * currentTime.setMinutes(currentTime.getMinutes() + 5); * 60 * 1000);
+        let newTime = new Date(this.currentTime);
+        this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
+        this.updatePlot()
+      }
+      console.log("========================",this.currentTime)
+    },
+    // 后退
+    backward(){
+      this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
+      this.currentTimePosition -= tmp;
+      if (this.currentTimePosition <= 0) {
+        this.currentTimePosition = 0;
+        this.currentTime = this.eqstartTime
+        this.isTimerRunning = false
+      } else {
+        this.currentTimePosition = this.currentTimePosition % 100
+        // this.currentTime = new Date(this.eqstartTime.getTime()
+        //     + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
+        let newTime = new Date(this.currentTime);
+        this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
+        console.log("this.currentTime--",this.currentTime)
+        this.updatePlot()
+      }
+    },
     //点击跳转时间对应场景
     jumpToTime(event) {
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
@@ -846,7 +895,13 @@ export default {
       document.body.style.MozUserSelect = 'auto';
       document.body.style.msUserSelect = 'auto';
     },
-    //时间轴end------------------------------------------------
+    selectSpeed(speed){
+      // this.currentSpeed = speed
+      this.speedOption = speed
+      this.currentSpeed = parseFloat(speed.split(-1))
+      console.log("-----------------------",this.currentSpeed)
+    },
+    //时间轴end-------------
 
     //线面渲染-------------------------------------------------
     drawPolyline(line) {
@@ -1234,10 +1289,10 @@ export default {
         window.regionLayer111 = null; // 清空引用
         console.log("图层已移除");
       }
-        this.labels.forEach(label => {
-          window.viewer.entities.remove(label);
-        });
-        this.labels = [];  // 清空标签引用数组
+      this.labels.forEach(label => {
+        window.viewer.entities.remove(label);
+      });
+      this.labels = [];  // 清空标签引用数组
     },
 
     backcenter(){
@@ -1277,8 +1332,8 @@ export default {
   width: 100%;
   height: 33px;
   display: flex;
-  align-items: center;     /* 垂直居中 */
-  font-weight: bold;       /* 文字加粗 */
+  align-items: center; /* 垂直居中 */
+  font-weight: bold; /* 文字加粗 */
 }
 
 .eqtitle-text_eqname {
@@ -1298,7 +1353,7 @@ export default {
 }
 
 #cesiumContainer {
-  height: calc(100vh - 50px)!important;
+  height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1322,6 +1377,7 @@ export default {
 .timelabel {
   color: #ffffff;
 }
+
 /*·························································*/
 .bottom {
   height: 8%;
@@ -1346,6 +1402,7 @@ export default {
 .play-icon,
 .pause-icon {
   width: 100%;
+  margin-right: 4px;
   height: auto;
   cursor: pointer;
 }
@@ -1360,20 +1417,50 @@ export default {
 
 .time-ruler {
   position: relative;
-  width: 81%;
+  width: 70%;
   height: 8px;
-  left: -11%;
+  left: -14%;
   background-color: #ddd;
   border-radius: 4px;
   margin: 0 1%;
   cursor: pointer;
+  flex-direction: row;
+}
+
+.speedButton {
+  position: relative;
+  left: 101%;
+  color: white;
+  top: -50%;
+}
+
+/* 原有的 chooseSpeed 样式 */
+.chooseSpeed {
+  width: 40px;
+  height: 60px;
+  position: absolute;
+  padding: 0 0px 5px;
+  border-radius: 3px;
+  top: -65px;
+  left: 97%;
+  z-index: 30; /* 更高的层级 */
+  background-color: rgba(40, 40, 40, 0.7);
+  color: white;
+  text-align: center;
+  display: none; /* 默认隐藏 */
+}
+
+/* 当 mouse hover speedButton 时显示 chooseSpeed */
+.speedButton:hover + .chooseSpeed,
+.chooseSpeed:hover {
+  display: block;
 }
 
 .time-ruler-line {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 98%;
   height: 100%;
 }
 
@@ -1419,56 +1506,69 @@ export default {
   top: 6.3%;
   right: 7%;
 }
+
+.draw-button {
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  left: 14%;
+}
+
 .eqlist-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   left: 2%;
 }
+
 .layer-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   left: 8%;
 }
-.switchregion-button{
+
+.switchregion-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   left: 14%;
 }
-.layerclear-button{
+
+.layerclear-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   left: 20%;
 }
-.thd-eqtable{
+
+.thd-eqtable {
   background-color: #324257;
   width: 30%;
-  top:10%;
+  top: 10%;
   height: 43%;
   z-index: 30;
-  left:1%;
+  left: 1%;
   position: absolute;
 }
 
-.dropdown{
+.dropdown {
   background-color: #333832;
   width: 25%;
-  top:10%;
+  top: 10%;
   height: 23%;
   padding: 15px;
   z-index: 30;
-  left:1%;
+  left: 1%;
   position: absolute;
-  overflow-y: auto;  /* 启用垂直滚动条 */
+  overflow-y: auto; /* 启用垂直滚动条 */
 }
 
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
-  color:#FFFFFF;
+  color: #FFFFFF;
 }
+
 /*行政区划按钮样式*/
 .city-button {
   margin-bottom: 8px;

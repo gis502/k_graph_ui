@@ -55,21 +55,15 @@
     <!-- 进度条 end-->
 
 <!--    两侧组件-->
-
       <timeLineEmergencyResponse
           :currentTime="currentTime"
-          :eqid="eqid"
       />
-
       <timeLinePersonnelCasualties
           :currentTime="currentTime"
       />
-
-
       <timeLineRescueTeam
         :currentTime="currentTime"
       />
-
     <!--      新闻-->
     <div>
       <news
@@ -90,8 +84,6 @@
     <div>
       <mini-map></mini-map>
     </div>
-
-
     <timeLineLegend></timeLineLegend>
 
 <!--    两侧组件 end-->
