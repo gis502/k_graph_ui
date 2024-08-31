@@ -1,27 +1,19 @@
 <template>
-  <!--  <div id="cesiumContainer">-->
   <div>
-
-
-    <!--报告产出按钮-->
-    <div class="button-container">
-      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
-    </div>
-    <!--报告产出按钮 end-->
 
     <!--    地震列表切换-->
     <div class="eqlist-button">
-      <el-button class="el-button--primary" size="small" @click="changeEqListShow">地震列表</el-button>
+      <el-button class="el-button--primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>
     </div>
-    <div class="thd-eqtable" v-if="this.eqListShow">
+    <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
       <eqTable :eqData="tableData"/>
     </div>
 
     <!--   图层要素-->
     <div class="layer-button">
-      <el-button class="el-button--primary" size="small" @click="layerChoose">图层要素</el-button>
+      <el-button class="el-button--primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>
     </div>
-    <div v-if="iflayerChoose" class="dropdown">
+    <div v-if="activeComponent === 'layerChoose'" class="dropdown">
       <MapLayerControl
           :isMarkingLayer="isMarkingLayer"
           @updatePlot="updatePlot"
@@ -29,32 +21,33 @@
           @updateMarkingLayer="handleMarkingLayerChange" />
     </div>
 
-    <div class="switchregion-button">
-      <el-popover
-          placement="bottom"
-          width="25%"
-          v-model:visible="visible"
-      >
-
-        <!-- 雅安市按钮 -->
-        <div class="city-button">
-          <el-button @click="addYaanImageryDistrict">雅安市</el-button>
-        </div>
-        <!-- 下属区县按钮 -->
-        <div class="district-buttons">
-          <div v-for="district in districts" :key="district.adcode" class="district-button">
-            <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
-          </div>
-        </div>
-        <div class="citylayer-button">
-        </div>
-        <template #reference>
-          <button @click="togglePopover">
-            <div>行政区划</div>
-          </button>
-        </template>
-      </el-popover>
+<!--    行政区划-->
+    <div class="regionjump-button">
+      <el-button class="el-button--primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>
     </div>
+    <div class="dropdown" v-if="activeComponent === 'Regionjump'">
+      <div class="city-button">-->
+        <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+      </div>
+      <!-- 下属区县按钮 -->
+      <div class="district-buttons">
+        <div v-for="district in districts" :key="district.adcode" class="district-button">
+          <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
+        </div>
+      </div>
+      <div>
+        <el-button @click="backcenter">回到震中</el-button>
+      </div>
+    </div>
+
+    <!--报告产出按钮-->
+    <div class="button-container">
+      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
+    </div>
+    <div class="thematic-button">
+      <el-button class="el-button--primary" size="small" @click="">专题图下载</el-button>
+    </div>
+
 
     <!--    title-->
     <div class="eqtitle">
@@ -139,7 +132,11 @@
     <div>
       <mini-map></mini-map>
     </div>
-    <timeLineLegend></timeLineLegend>
+
+    <timeLineLegend
+      :activeComponent="activeComponent"
+      @toggleComponent="toggleComponent"
+    ></timeLineLegend>
     <!--    两侧组件 end-->
   </div>
 </template>
@@ -260,7 +257,7 @@ export default {
       //-------------ws---------------------
       websock: null,
       //-----------------地震列表---------------------
-      eqListShow: false,
+      // eqListShow: false,
       //-地震列表---------------------------------
       total: 0,
       pageSize: 6,
@@ -269,13 +266,13 @@ export default {
       tableData: [],
 
       //-----------------图层---------------------
-      iflayerChoose: false,
+      // iflayerChoose: false,
       isMarkingLayer: true,
       //-----------------图层---------------------
       LRDLStatus: false, // 路网
-      districtLayer: null,
+      // districtLayer: null,
       //------------------按钮下拉框------
-      visible: false,
+      // visible: false,
       districts: [
         {adcode: 511802, name: "雨城区"},
         {adcode: 511803, name: "名山区"},
@@ -289,6 +286,11 @@ export default {
       geojsonData: [],
       labels: [],  // 保存标签实体的引用
       regionLayer111:null,
+
+      activeComponent:null,
+
+
+
     };
   },
   mounted() {
@@ -302,6 +304,14 @@ export default {
 
   },
   methods: {
+    //设置组件展开的面板互斥,避免堆叠
+    toggleComponent(component) {
+      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+      this.activeComponent = this.activeComponent === component ? null : component;
+      if (this.activeComponent === 'eqList') {
+        this.getEq()
+      }
+    },
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -1177,13 +1187,7 @@ export default {
         console.log("that.tableData", that.tableData)
       })
     },
-    changeEqListShow() {
-      this.eqListShow = !this.eqListShow
-      console.log(this.eqListShow)
-      if (this.eqListShow) {
-        this.getEq()
-      }
-    },
+
     plotAdj(row) {
       console.log(row)
       window.viewer.entities.removeAll();
@@ -1192,10 +1196,6 @@ export default {
       this.initPlot(row.eqid)
     },
     // ------------------行政区划--------------------
-    //按钮打开详情
-    togglePopover() {
-      this.visible = !this.visible;
-    },
     addYaanImageryDistrict() {
       this.removethdRegions()
       let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
@@ -1207,7 +1207,6 @@ export default {
         // 添加 geojson
         window.regionLayer111 = dataSource;
         window.viewer.dataSources.add(dataSource);
-
         // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
         dataSource.name = "geojson_map";
         // 视角跳转到 geojson
@@ -1233,7 +1232,7 @@ export default {
     handleDistrictClick(district) {
       //清除其他实体标签
       this.removethdRegions()
-      this.visible = false;
+      // this.visible = false;
       // 根据区县代码过滤GeoJSON数据
       let filteredFeatures = yaan.features.filter(feature => {
         return feature.properties.adcode === district.adcode;
@@ -1294,7 +1293,6 @@ export default {
       });
       this.labels = [];  // 清空标签引用数组
     },
-
     backcenter(){
       this.removethdRegions()
       const position= Cesium.Cartesian3.fromDegrees(
@@ -1304,7 +1302,6 @@ export default {
       );
       viewer.camera.flyTo({destination: position,})
     },
-
     layerChoose() {
       this.iflayerChoose = !this.iflayerChoose;
     },
@@ -1506,7 +1503,12 @@ export default {
   top: 6.3%;
   right: 7%;
 }
-
+.thematic-button{
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  right: 14%;
+}
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -1528,7 +1530,7 @@ export default {
   left: 8%;
 }
 
-.switchregion-button {
+.regionjump-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;

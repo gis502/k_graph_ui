@@ -1,14 +1,13 @@
 <template>
-  <div class="timeLineLegend" :class="{ 'open': isOpen }">
+  <div class="timeLineLegend" :class="{ 'open': activeComponent === 'legend' }">
     <div class="legend-header" @click="toggleLegend">
-      <p class="legend-title" :class="{ 'centered': isOpen }">图例</p>
-      <span class="toggle-icon">{{ isOpen ? '▼' : '▲' }}</span>
+      <p class="legend-title" :class="{ 'centered': activeComponent === 'legend' }">图例</p>
+      <span class="toggle-icon">{{ activeComponent === 'legend' ? '▼' : '▲' }}</span>
     </div>
-    <div class="legend-items" v-if="isOpen">
-<!--      <img style="width: 17%;height: 5%" src="@/assets/icons/TimeLine/震中.png" /> <span class="legend-label">震中</span>-->
-      <img class="legend-img" src="@/assets/icons/TimeLine/震中.png" /> <span class="legend-label">震中</span>
+    <div class="legend-items" v-if="activeComponent === 'legend'">
+      <img class="legend-img" src="@/assets/icons/TimeLine/震中.png" />
+      <span class="legend-label">震中</span>
       <div v-for="item in getPicData" :key="item.label" class="legend-item">
-<!--        <img style="width: 18%;height: 18%" :src="item.img" />-->
         <img class="legend-img" :src="item.img" />
         <span class="legend-label">{{ item.name }}</span>
       </div>
@@ -17,46 +16,31 @@
 </template>
 
 <script>
-
-
-import {getPlotIcon} from "@/api/system/plot.js";
+import { getPlotIcon } from "@/api/system/plot.js";
 
 export default {
+  props: ['activeComponent'],
   data() {
     return {
-      isOpen: false,
-      // isOpen: true,
-      getPicData:[
-
-      ],
+      getPicData: [],
     };
   },
-
-
   mounted() {
-    this.getPlotPicture()
+    this.getPlotPicture();
   },
   methods: {
     toggleLegend() {
-      this.isOpen = !this.isOpen;
-      // if(this.isOpen){
-      //   this.getPlotPicture()
-      // }
+      const newComponent = this.activeComponent === 'legend' ? null : 'legend';
+      this.$emit('toggleComponent', newComponent);
     },
-    getPlotPicture(){
-      let that = this
+    getPlotPicture() {
       getPlotIcon().then(res => {
-        that.getPicData = res
-        // console.log("that.getPicData11111111111111111111111111111111111111111111111111111",that.getPicData)
-      })
+        this.getPicData = res;
+      });
     }
   }
 };
 </script>
-
-
-
-
 
 
 
