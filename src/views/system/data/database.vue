@@ -66,16 +66,24 @@
           :total="total"
           v-model:page="queryParams.pageNum"
           v-model:limit="queryParams.pageSize"
-          :pageSizes="[10, 20, 50, 100]"
+          :pageSizes="[13, 20, 50, 100]"
           @pagination="getList"
           class="pagination"
       />
     </div>
+    <el-dialog v-model="isBackupDialogVisible" title="备份中" style="top: 20vh" width="500">
+      <span>正在备份中...</span>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="isBackupDialogVisible = false">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import {ElIcon, ElButton} from 'element-plus';
+import {ElIcon, ElButton, ElDialog} from 'element-plus';
 import {Edit, Delete, DocumentCopy} from '@element-plus/icons-vue';
 import {ref} from 'vue'
 import {backup, getListTable} from "@/api/system/table.js";
@@ -83,6 +91,7 @@ import {backup, getListTable} from "@/api/system/table.js";
 const loading = ref(false)
 const total = ref(0)
 const listTable = ref([])
+const isBackupDialogVisible = ref(false)
 const queryParams = ref({
   pageNum: 1,
   pageSize: 13,
@@ -136,6 +145,7 @@ const getList = () => {
 const handleDelete = (row) => {
 }
 const handleBackup = (tableName) => {
+  isBackupDialogVisible.value = true;
   backup(tableName).then(response => {
     const blob = new Blob([response], {type: response.type});
     const link = document.createElement('a');
@@ -147,6 +157,8 @@ const handleBackup = (tableName) => {
     document.body.removeChild(link);
   }).catch(error => {
     console.error("Error during file download:", error);
+  }).finally(() => {
+    isBackupDialogVisible.value = false;
   });
 };
 const handleUpdate = (row) => {
