@@ -481,6 +481,7 @@ export default {
         },
         id: this.centerPoint.plotid,
         plottype: "震中",
+        layer:"标绘点"
       });
 
 
@@ -756,6 +757,7 @@ export default {
             // },
             id: item.plotid,
             plottype: item.plottype,
+            layer:"标绘点"
           });
         }
         //消失
@@ -938,7 +940,8 @@ export default {
         },
         properties: {
           // pointPosition: pointLinePoints,
-        }
+        },
+        layer:"标绘点"
       })
     },
     distinguishPolylineId(polylineArr) {
@@ -1022,8 +1025,10 @@ export default {
           material: polygon.img,
           stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
           clampToGround: true,
-        }
+        },
+        layer:"标绘点"
       })
+
     },
 
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
@@ -1040,7 +1045,7 @@ export default {
         }
         console.log("window.selectedEntity", window.selectedEntity)
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
-        if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
+        if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._layer=="标绘点") {
           // console.log("window.selectedEntity",window.selectedEntity)
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)

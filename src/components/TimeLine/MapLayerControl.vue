@@ -73,6 +73,7 @@ export default {
         );
         geoPromise.then((dataSource) => {
           window.viewer.dataSources.add(dataSource);
+          console.log(dataSource)
           //给图层取名字,不取名字删除的时候找不到图层
           dataSource.name='YaanRegion'
         }).catch((error) => {
