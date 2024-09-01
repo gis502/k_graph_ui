@@ -48,10 +48,8 @@ export default {
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
         this.$emit('updateMarkingLayer',true); // 通知父组件
-        this.$emit('updatePlot');
       } else {
         this.$emit('updateMarkingLayer', false);
-        this.$emit('MarkingLayerRemove');
       }
 
       //雅安市行政区划要素图层

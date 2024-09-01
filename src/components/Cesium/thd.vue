@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class="hiddenmap">
+      <div  ref="hiddenElement" id="cesiumContainerThematic"></div>
+    </div>
 
     <!--    地震列表切换-->
     <div class="eqlist-button">
@@ -25,7 +28,7 @@
       />
     </div>
 
-<!--    行政区划-->
+    <!--    行政区划-->
     <div class="regionjump-button">
       <el-button class="el-button--primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>
     </div>
@@ -45,12 +48,24 @@
     </div>
 
     <!--报告产出按钮-->
-    <div class="button-container">
-      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
-    </div>
+        <div class="button-container">
+          <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
+        </div>
+
     <div class="thematic-button">
-      <el-button class="el-button--primary" size="small" @click="">专题图下载</el-button>
+      <el-button class="el-button--primary" size="small" @click="toggleComponent('thematicMap')">专题图下载</el-button>
     </div>
+    <div v-if="activeComponent === 'thematicMap'" class="right-dropdown">
+<!--      hiddenElement 隐藏的地图-->
+      <thematicMap
+      :hiddenElement="this.$refs.hiddenElement"
+      :eqstartTime="this.eqstartTime"
+      :viewerthematic="this.viewerthematic"
+      :plotisshow="this.plotisshow"
+      @updatePlot="updatePlot"
+      />
+    </div>
+
 
 
     <!--    title-->
@@ -60,7 +75,7 @@
     <!--    title end-->
 
     <!--    box包裹地图，截图需要-->
-    <div id="box" ref="box">
+<!--    <div id="box" ref="box">-->
       <div id="cesiumContainer">
         <TimeLinePanel
             :visible="popupVisible"
@@ -68,7 +83,10 @@
             :popupData="popupData"
         />
       </div>
-    </div>
+
+
+
+<!--    </div>-->
 
     <!-- 进度条-->
     <div class="bottom">
@@ -104,7 +122,7 @@
         <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
       </div>
     </div>
-    <!-- 进度条 end-->
+<!--    &lt;!&ndash; 进度条 end&ndash;&gt;-->
 
     <!--    两侧组件-->
     <timeLineEmergencyResponse
@@ -138,8 +156,8 @@
     </div>
 
     <timeLineLegend
-      :activeComponent="activeComponent"
-      @toggleComponent="toggleComponent"
+        :activeComponent="activeComponent"
+        @toggleComponent="toggleComponent"
     ></timeLineLegend>
     <!--    两侧组件 end-->
   </div>
@@ -166,14 +184,16 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-
+import html2canvas from "html2canvas";
 import {getPloy} from "@/api/system/plot"
 import eqTable from '@/components/Home/eqtable.vue'
 import geojsonmap from '@/assets/geoJson/map.json'
 import yaan from '@/assets/geoJson/yaan.json'
 
-import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
+// import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
 import MapLayerControl from '@/components/TimeLine/MapLayerControl.vue';
+import thematicMap from '@/components/TimeLine/thematicMap.vue';
+
 export default {
   components: {
     // NewsDialog,
@@ -188,7 +208,9 @@ export default {
     commonPanel,
     // eqListTable,
     eqTable,
-    MapLayerControl
+    MapLayerControl,
+    thematicMap
+
   },
   data: function () {
     return {
@@ -294,6 +316,7 @@ export default {
       regionLayer111:null,
 
       activeComponent:null,
+      viewerthematic:null,
 
 
 
@@ -301,6 +324,7 @@ export default {
   },
   mounted() {
     this.init()
+    this.initmap()
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.getEqInfo(this.eqid)
     // // ---------------------------------------------------
@@ -310,6 +334,8 @@ export default {
 
   },
   methods: {
+
+
     //设置组件展开的面板互斥,避免堆叠
     toggleComponent(component) {
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
@@ -394,6 +420,7 @@ export default {
       // 初始同步
       syncCamera();
     },
+
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
       getEqbyId({eqid: eqid}).then(res => {
@@ -433,7 +460,77 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
+    initmap() {
+      // 获取传递的元素
+      let cesiumContainerThematic = document.getElementById('cesiumContainerThematic');
+      this.viewerthematic = new Cesium.Viewer(cesiumContainerThematic, {
+        // 隐藏所有控件
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        timeline: false,
+        navigationHelpButton: false,
+        animation: false,
+        infoBox: false,
+        fullscreenButton: false,
+        showRenderState: false,
+        selectionIndicator: false,
+        baseLayerPicker: false,
 
+        //截图和渲染相关的一些配置
+        contextOptions: {
+          webgl: {
+            alpha: true,
+            depth: false,
+            stencil: true,
+            antialias: true,
+            premultipliedAlpha: true,
+            //cesium状态下允许canvas转图片convertToImage
+            preserveDrawingBuffer: true,
+            failIfMajorPerformanceCaveat: true
+          },
+          allowTextureFilterAnisotropic: true
+        },
+      });
+
+
+      // viewer.extend(Cesium.viewerCesiumInspectorMixin);
+      // viewer.extend(Cesium.viewerCesium3DTilesInspectorMixin);
+      this.viewerthematic.scene.globe.enableLighting = false//全局光照
+      this.viewerthematic.shadows = false
+      this.viewerthematic.camera.setView({
+        // Cesium的坐标是以地心为原点，一向指向南美洲，一向指向亚洲，一向指向北极州
+        // fromDegrees()方法，将经纬度和高程转换为世界坐标
+        destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 600),
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        }
+      });
+      // console.log(this.eqid)
+
+      this.viewerthematic._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+
+      // this.viewer=window.viewer
+      // let optionsthematic = {}
+      // // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
+      // // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
+      // // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
+      // optionsthematic.enableCompass = false
+      // // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
+      // optionsthematic.enableZoomControls = false
+      // // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
+      // optionsthematic.enableDistanceLegend = true
+      // // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
+      // optionsthematic.enableCompassOuterRing = false
+      //
+      // // 新版必须new  CesiumNavigation ,可以查看作者github
+      // window.navigation = new CesiumNavigation(viewerthematic, optionsthematic)
+
+    },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
     updateMapandVariablebeforInit() {
       viewer.camera.setView({
@@ -483,8 +580,6 @@ export default {
         plottype: "震中",
         layer:"标绘点"
       });
-
-
       let that = this
       that.smallViewer.entities.removeAll();
       that.smallViewer.entities.add({
@@ -513,6 +608,52 @@ export default {
       });
       //获取渲染点
       this.getPlotwithStartandEndTime(this.eqid)
+      this.viewerthematic.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            120000),
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        }
+      });
+      this.viewerthematic.entities.add({
+        // properties: {
+        //   type: "震中",
+        //   time: this.centerPoint.time,
+        //   name: this.centerPoint.position,
+        //   lat: this.centerPoint.latitude,
+        //   lon: this.centerPoint.longitude,
+        //   describe: this.centerPoint.position,
+        // },
+        position: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
+        ),
+        billboard: {
+          image: centerstar,
+          width: 40,
+          height: 40,
+        },
+        label: {
+          text: this.centerPoint.position,
+          show: true,
+          font: '14px sans-serif',
+          fillColor: Cesium.Color.RED,        //字体颜色
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          outlineWidth: 2,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -16),
+        },
+        id: this.centerPoint.plotid,
+        plottype: "震中",
+        layer:"标绘点"
+      });
     },
     //取标绘点
     getPlotwithStartandEndTime(eqid) {
@@ -603,7 +744,7 @@ export default {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
       // let tmp = 100.0 / 672.0  //进度条每次前进
 
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076 //共前进2016次，每次5分钟，
+      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % 2076 //共前进2076次，每次5分钟，
       let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
@@ -619,17 +760,19 @@ export default {
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         this.currentTime = new Date(this.eqstartTime.getTime()
-            + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
+            + this.currentNodeIndex * 5 * 60 * 1000);
         if (this.isMarkingLayer) {
-          // console.log("updatePlot timeline")
-          this.updatePlot()
+          // this.updatePlot()
+          this.updatePlot(this.currentTime,window.viewer,this.plotisshow)
         } else {
           this.MarkingLayerRemove()
         }
       }
     },
     //更新标绘点
-    updatePlot() {
+    // updatePlot() {
+    updatePlot(currentTime,viewer,plotflag) {
+
       // console.log(this.plots)
       let that = this
       //一个点线面一条数据
@@ -719,12 +862,14 @@ export default {
 
       //渲染
       pointArr.forEach(item => {
-        const currentDate = new Date(this.currentTime);
+        // const currentDate = new Date(this.currentTime);
+        const currentDate = new Date(currentTime);
         const startDate = new Date(item.starttime);
         const endDate = new Date(item.endtime);
         // console.log(item.plotid,startDate,endDate,currentDate)
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-          this.plotisshow[item.plotid] = 1
+        if (startDate <= currentDate && endDate >= currentDate && plotflag[item.plotid] === 0) {
+          console.log("pointArr.forEach",item.plotid)
+          plotflag[item.plotid] = 1
           // console.log(item.plotid,"add")
           viewer.entities.add({
             // properties: {
@@ -761,27 +906,29 @@ export default {
           });
         }
         //消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-          this.plotisshow[item.plotid] = 0
+        if ((endDate <= currentDate || startDate > currentDate) && plotflag[item.plotid] === 1) {
+          plotflag[item.plotid] = 0
           // console.log(item.plotid,"end")
           viewer.entities.removeById(item.plotid)
         }
       });
+
       polylineArr.forEach(item => {
         // that.drawPolyline(item)
-        const currentDate = new Date(this.currentTime);
+        // const currentDate = new Date(this.currentTime);
+        const currentDate = new Date(currentTime);
         const startDate = new Date(item.starttime);
         const endDate = new Date(item.endtime);
         // console.log("line",item.plotid,startDate,endDate,currentDate)
 
 
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-          this.plotisshow[item.plotid] = 1
-          this.drawPolyline(item)
+        if (startDate <= currentDate && endDate >= currentDate && plotflag[item.plotid] === 0) {
+          plotflag[item.plotid] = 1
+          this.drawPolyline(item,viewer)
         }
         //消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-          this.plotisshow[item.plotid] = 0
+        if ((endDate <= currentDate || startDate > currentDate) && plotflag[item.plotid] === 1) {
+          plotflag[item.plotid] = 0
           // console.log(item.plotid,"end")
           viewer.entities.removeById(item.plotid)
         }
@@ -791,26 +938,26 @@ export default {
         // console.log(item)
         // that.getDrawPolygon(item);
 
-        const currentDate = new Date(this.currentTime);
+        // const currentDate = new Date(this.currentTime);
+        const currentDate = new Date(currentTime);
         const startDate = new Date(item.starttime);
         const endDate = new Date(item.endtime);
         // console.log("line",item.plotid,startDate,endDate,currentDate)
 
 
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-          this.plotisshow[item.plotid] = 1
-          this.getDrawPolygon(item)
+        if (startDate <= currentDate && endDate >= currentDate && plotflag[item.plotid] === 0) {
+          plotflag[item.plotid] = 1
+          this.getDrawPolygon(item,viewer)
         }
         //消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-          this.plotisshow[item.plotid] = 0
+        if ((endDate <= currentDate || startDate > currentDate) && plotflag[item.plotid] === 1) {
+          plotflag[item.plotid] = 0
           // console.log(item.plotid,"end")
           viewer.entities.removeById(item.plotid)
         }
       })
-
-
     },
+
     //时间轴停止
     stopTimer() {
       clearInterval(this.intervalId);
@@ -834,14 +981,18 @@ export default {
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
-        this.isTimerRunning = false
+        this.stopTimer();
+        // this.isTimerRunning = false
       } else {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime()
         //     + this.currentNodeIndex * currentTime.setMinutes(currentTime.getMinutes() + 5); * 60 * 1000);
         let newTime = new Date(this.currentTime);
         this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
-        this.updatePlot()
+        // this.updatePlot()
+        // this.updatePlot(this.currentTime)
+        // this.updatePlot(this.currentTime,window.viewer)
+        this.updatePlot(this.currentTime,window.viewer,this.plotisshow)
       }
       console.log("========================",this.currentTime)
     },
@@ -853,7 +1004,8 @@ export default {
       if (this.currentTimePosition <= 0) {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime
-        this.isTimerRunning = false
+        // this.isTimerRunning = false
+        this.stopTimer();
       } else {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime()
@@ -861,7 +1013,10 @@ export default {
         let newTime = new Date(this.currentTime);
         this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
         console.log("this.currentTime--",this.currentTime)
-        this.updatePlot()
+        // this.updatePlot()
+        // this.updatePlot(this.currentTime)
+        // this.updatePlot(this.currentTime,window.viewer)
+        this.updatePlot(this.currentTime,window.viewer,this.plotisshow)
       }
     },
     //点击跳转时间对应场景
@@ -875,7 +1030,10 @@ export default {
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       //点击前运行状态
-      this.updatePlot();
+      // this.updatePlot();
+      // this.updatePlot(this.currentTime)
+      // this.updatePlot(this.currentTime,window.viewer)
+      this.updatePlot(this.currentTime,window.viewer,this.plotisshow)
     },
     //时间轴拖拽
     startDrag(event) {
@@ -906,7 +1064,10 @@ export default {
       this.isDragging = false;
       document.removeEventListener('mousemove', this.drag);
       document.removeEventListener('mouseup', this.stopDrag);
-      this.updatePlot();
+      // this.updatePlot();
+      // this.updatePlot(this.currentTime)
+      // this.updatePlot(this.currentTime,window.viewer)
+      this.updatePlot(this.currentTime,window.viewer,this.plotisshow)
       // 恢复默认的选择行为
       document.body.style.userSelect = 'auto';
       document.body.style.WebkitUserSelect = 'auto';
@@ -922,10 +1083,10 @@ export default {
     //时间轴end-------------
 
     //线面渲染-------------------------------------------------
-    drawPolyline(line) {
+    drawPolyline(line,viewer) {
       let material = this.getMaterial(line.plottype, line.img)
       // 1-6 画线
-      window.viewer.entities.add({
+      viewer.entities.add({
         id: line.plotid,
         plottype: line.plottype,
         polyline: {
@@ -1013,7 +1174,7 @@ export default {
         return NORMALLINE
       }
     },
-    getDrawPolygon(polygon) {
+    getDrawPolygon(polygon,viewer) {
       // console.log("polygon111111111",polygon)
       viewer.entities.add({
         id: polygon.plotid,
@@ -1150,7 +1311,6 @@ export default {
       link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
       link.click();
     },
-
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
     isTerrainLoaded() {
@@ -1225,7 +1385,7 @@ export default {
       }).catch((error) => {
         console.error("加载GeoJSON数据失败:", error);
       });
-      let labelData =  { lon: 103.003398, lat: 29.981831, name: "雅安市" };
+      let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
       let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
       let labelEntity = viewer.entities.add(new Cesium.Entity({
         position: position,
@@ -1262,7 +1422,7 @@ export default {
 
         geoPromise.then((dataSource) => {
           window.viewer.dataSources.add(dataSource);
-          window.regionLayer111=dataSource
+          window.regionLayer111 = dataSource
 
           filteredFeatures.forEach((feature) => {
             let center = feature.properties.center;
@@ -1294,7 +1454,7 @@ export default {
       }
     },
     removethdRegions() {
-      if(window.regionLayer111){
+      if (window.regionLayer111) {
         window.viewer.dataSources.remove(window.regionLayer111, true); // 强制移除
         window.regionLayer111 = null; // 清空引用
         // console.log("图层已移除");
@@ -1304,9 +1464,9 @@ export default {
       });
       this.labels = [];  // 清空标签引用数组
     },
-    backcenter(){
+    backcenter() {
       this.removethdRegions()
-      const position= Cesium.Cartesian3.fromDegrees(
+      const position = Cesium.Cartesian3.fromDegrees(
           parseFloat(this.centerPoint.longitude),
           parseFloat(this.centerPoint.latitude),
           120000,
@@ -1329,6 +1489,13 @@ export default {
     handleMarkingLayerChange(newValue) {
       // console.log("this.isMarkingLayer = newValue",newValue)
       this.isMarkingLayer = newValue; // 更新 isMarkingLayer
+      if(this.isMarkingLayer){
+        // this.updatePlot(this.currentTime,window.viewer)
+        this.updatePlot(this.currentTime,window.viewer,this.plotisshow)
+      }
+      else{
+        this.MarkingLayerRemove()
+      }
     },
     handleSelectLayerListChange(newValue) {
       this.selectedlayers = newValue; // 更新 isMarkingLayer
@@ -1356,21 +1523,15 @@ export default {
   margin-right: 60%;
 }
 
-#box {
-  height: 100%;
+
+#cesiumContainer {
+  //height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
 }
 
-#cesiumContainer {
-  height: calc(100vh - 50px) !important;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
 
 .current-time-info {
   position: absolute;
@@ -1518,12 +1679,9 @@ export default {
   top: 6.3%;
   right: 7%;
 }
-.thematic-button{
-  position: absolute;
-  z-index: 20;
-  top: 6.3%;
-  right: 14%;
-}
+
+
+
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -1581,6 +1739,7 @@ export default {
   overflow-y: auto; /* 启用垂直滚动条 */
 }
 
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
   color: #FFFFFF;
@@ -1602,5 +1761,27 @@ export default {
   justify-content: center;
   margin-bottom: 8px;
 }
-
+.hiddenmap{
+  position: absolute;
+  left:-100%;
+  width:100%;
+  z-index:10;
+}
+.right-dropdown {
+  background-color: #333832;
+  width: 27%;
+  top: 10%;
+  height: 50%;
+  padding: 15px;
+  z-index: 25;
+  right: 1%;
+  position: absolute;
+  overflow-y: auto; /* 启用垂直滚动条 */
+}
+.thematic-button {
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  right: 14%;
+}
 </style>

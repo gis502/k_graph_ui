@@ -50,7 +50,7 @@ export default {
   border-radius: 5px;
   top: 56%;
   right: 1%;
-  z-index: 100; /* 更高的层级 */
+  z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
