@@ -325,311 +325,77 @@ export default {
                 }
             }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         },
-        initPlot() {
-            getEmergency().then((res) => {
-                let disasterReserves = res.disasterReserves; // 提取 disasterReserves 列表
-                let disasterSupplies = res.disasterSupplies; // 提取 disasterSupplies 列表
-                let emergencyTeam = res.emergencyTeam; // 提取 emergencyTeam 列表
-                console.log("获取到的res", res);
-                // this.suppliesList = disasterReserves.concat(disasterSupplies)
-                // this.showIcon = disasterReserves.concat(disasterSupplies)
-                // this.fetSupplyPoints()
-                // console.log("this.suppliesList--", this.suppliesList.length);
-                // console.log("this.showIcon--", this.showIcon.length);
-                this.suppliesList.push(disasterReserves);
-                this.suppliesList.push(disasterSupplies);
-                this.suppliesList.push(emergencyTeam);
+      initPlot() {
+        getEmergency().then(res => {
+          let { disasterReserves, disasterSupplies, emergencyTeam } = res;
+          console.log('获取到的res', res);
 
-                // 对 disasterReserves 进行处理
-                if (Array.isArray(disasterReserves)) {
-                    let pointArr = disasterReserves.filter((e) => e.longitude !== null);
-                    // 画点
-                    this.drawPointReserves(pointArr);
-                } else {
-                    console.error("灾备物资数据格式不正确", disasterReserves);
-                }
+          this.suppliesList.push(disasterReserves, disasterSupplies, emergencyTeam);
 
-                // 对 disasterSupplies 进行处理
-                if (Array.isArray(disasterSupplies)) {
-                    let pointArr = disasterSupplies.filter((e) => e.longitude !== null);
-                    // 画点
-                    this.drawPointSupplies(pointArr);
-                } else {
-                    console.error("救灾用品数据格式不正确", disasterSupplies);
-                }
-                this.fetSupplyPoints();
+          // 调用 `processPoints` 并传递不同的 `tableName`
+          this.processPoints(disasterReserves, 'reserves', disasterReservesLogo, "救灾物资储备");
+          this.processPoints(disasterSupplies, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
+          this.processPoints(emergencyTeam, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
 
-                // 对 emergencyTeam 进行处理
-                if (Array.isArray(emergencyTeam)) {
-                    let pointArr = emergencyTeam.filter((e) => e.longitude !== null);
-                    // 画点
-                    this.drawPointEmergencyTeam(pointArr);
-                } else {
-                    console.error("雅安应急队伍数据格式不正确", emergencyTeam);
-                }
-            });
-        },
+          this.fetSupplyPoints();
+        });
+      },
 
-        drawPointReserves(pointArr) {
-            pointArr.forEach((element) => {
-                // 检查是否已存在具有相同ID的实体
-                let existingEntity = window.viewer.entities.getById(element.id);
-                if (existingEntity) {
-                    console.warn(`id为${element.id}的实体已存在。跳过此实体`);
-                    return; // 跳过这个实体
-                }
-                // 检查经度、纬度和高度是否为有效数值
-                let longitude = Number(element.longitude);
-                let latitude = Number(element.latitude);
-                if (isNaN(longitude) || isNaN(latitude)) {
-                    console.error(`id为${element.id}的实体的坐标无效`, {
-                        longitude,
-                        latitude,
-                    });
-                    return; // 跳过无效坐标的实体
-                }
-                // 检查经度和纬度是否在合理范围内
-                if (
-                    longitude < -180 ||
-                    longitude > 180 ||
-                    latitude < -90 ||
-                    latitude > 90
-                ) {
-                    // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
-                    return; // 跳过坐标超出范围的实体
-                }
+      processPoints(pointArr, type, icon, tableName) {
+        if (!Array.isArray(pointArr)) {
+          console.error(`${tableName} 数据格式不正确`, pointArr);
+          return;
+        }
 
-                element.type = "reserves";
+        pointArr = pointArr.filter(e => e.longitude !== null);
 
-                // 如果不存在相同ID的实体，则准备新的实体
-                window.viewer.entities.add({
-                    id: element.id,
-                    position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-                    billboard: {
-                        image: disasterReservesLogo, // 使用导入的图标路径
-                        width: 40, // 导入图标的宽度
-                        height: 40, // 导入图标的长度
-                        eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-                        color: Cesium.Color.WHITE.withAlpha(1), // 颜色
-                        scale: 0.8, // 缩放比例
-                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
-                        depthTest: false, // 禁止深度测试
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY, // 不再进行深度测试
-                    },
-                    properties: {
-                        tableName: "救灾物资储备",
-                        county: element.county,
-                        storagePointsCount: element.storagePointsCount,
-                        totalKitsCount: element.totalKitsCount,
-                        disasterTentsCount: element.disasterTentsCount,
-                        cottonBlanketsCount: element.cottonBlanketsCount,
-                        otherBlanketsCount: element.otherBlanketsCount,
-                        cottonClothesCount: element.cottonClothesCount,
-                        cottonCoatsCount: element.cottonCoatsCount,
-                        otherClothesCount: element.otherClothesCount,
-                        woolBlanketsCount: element.woolBlanketsCount,
-                        foldingBedsCount: element.foldingBedsCount,
-                        bunkBedsCount: element.bunkBedsCount,
-                        stripedClothBundlesCount: element.stripedClothBundlesCount,
-                        moistureMatsCount: element.moistureMatsCount,
-                        generatorsCount: element.generatorsCount, // 纠正：原代码错误地使用了其他BlanketsCount
-                        lightingFixturesCount: element.lightingFixturesCount,
-                        lightingKitsCount: element.lightingKitsCount,
-                        flashlightsCount: element.flashlightsCount,
-                        raincoatsCount: element.raincoatsCount,
-                        rainBootsCount: element.rainBootsCount,
-                        otherSuppliesCount: element.otherSuppliesCount,
-                        address: element.address,
-                        lon: element.longitude,
-                        lat: element.latitude,
-                        contactPerson: element.contactPerson,
-                        contactPhone: element.contactPhone,
-                        insertTime: element.insertTime,
-                    },
-                });
-            });
-        },
-        drawPointSupplies(pointArr) {
-            pointArr.forEach((element) => {
-                // 检查是否已存在具有相同ID的实体
-                let existingEntity = window.viewer.entities.getById(element.id);
-                if (existingEntity) {
-                    console.warn(`id为${element.id}的实体已存在。跳过此实体`);
-                    return; // 跳过这个实体
-                }
+        pointArr.forEach(element => {
+          // 检查是否已存在具有相同ID的实体
+          let existingEntity = window.viewer.entities.getById(element.id);
+          if (existingEntity) {
+            console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+            return;
+          }
 
-                // 检查经度、纬度和高度是否为有效数值
-                let longitude = Number(element.longitude);
-                let latitude = Number(element.latitude);
-                if (isNaN(longitude) || isNaN(latitude)) {
-                    console.error(`id为${element.id}的实体的坐标无效`, {
-                        longitude,
-                        latitude,
-                    });
-                    return; // 跳过无效坐标的实体
-                }
-                // 检查经度和纬度是否在合理范围内
-                if (
-                    longitude < -180 ||
-                    longitude > 180 ||
-                    latitude < -90 ||
-                    latitude > 90
-                ) {
-                    // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
-                    return; // 跳过坐标超出范围的实体
-                }
+          // 检查经度、纬度和高度是否为有效数值
+          let longitude = Number(element.longitude);
+          let latitude = Number(element.latitude);
+          if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
+            console.error(`id为${element.id}的实体的坐标无效或超出范围`, { longitude, latitude });
+            return;
+          }
 
-                element.type = "supplies";
+          element.type = type;
 
-                // 如果不存在相同ID的实体，则准备新的实体
-                window.viewer.entities.add({
-                    id: element.id,
-                    position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-                    billboard: {
-                        image: disasterSuppliesLogo, // 使用导入的图标路径
-                        width: 40, // 导入图标的宽度
-                        height: 40, // 导入图标的长度
-                        eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-                        color: Cesium.Color.WHITE.withAlpha(1), // 颜色
-                        scale: 0.8, // 缩放比例
-                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
-                        depthTest: false, // 禁止深度测试
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY, // 不再进行深度测试
-                    },
-                    properties: {
-                        tableName: "抢险救灾装备",
-                        id: element.id,
-                        county: element.county,
-                        totalItems: element.totalItems,
-                        infraredDetectors: element.infraredDetectors,
-                        opticalDetectors: element.opticalDetectors,
-                        hydraulicSpreaders: element.hydraulicSpreaders,
-                        hydraulicCutters: element.hydraulicCutters,
-                        rockDrills: element.rockDrills,
-                        crowbars: element.crowbars,
-                        rebarCutters: element.rebarCutters,
-                        hydraulicJacks: element.hydraulicJacks,
-                        lightSticks: element.lightSticks,
-                        fuelLiters: element.fuelLiters,
-                        tensileRopeMeters: element.tensileRopeMeters,
-                        rescueRopesMeters: element.rescueRopesMeters,
-                        ropeThrowers: element.ropeThrowers,
-                        foldingLadders: element.foldingLadders,
-                        shovelsPicksHooksForksHammers:
-                        element.shovelsPicksHooksForksHammers,
-                        foldingShovels: element.foldingShovels,
-                        whistles: element.whistles,
-                        helmets: element.helmets,
-                        rainBoots: element.rainBoots,
-                        gloves: element.gloves,
-                        lifelinesMeters: element.lifelinesMeters,
-                        drainagePumps: element.drainagePumps,
-                        fireBlowers: element.fireBlowers,
-                        ironShovels: element.ironShovels,
-                        lifeJackets: element.lifeJackets,
-                        lifeRings: element.lifeRings,
-                        warningTapesMeters: element.warningTapesMeters,
-                        walkieTalkies: element.walkieTalkies,
-                        megaphones: element.megaphones,
-                        gongs: element.gongs,
-                        headlamps: element.headlamps,
-                        portableLights: element.portableLights,
-                        medicalKits: element.medicalKits,
-                        excavators: element.excavators,
-                        loaders: element.loaders,
-                        waterPumps: element.waterPumps,
-                        relayPumps: element.relayPumps,
-                        mobileWaterBags: element.mobileWaterBags,
-                        backpackFireSprayers: element.backpackFireSprayers,
-                        chainsaws: element.chainsaws,
-                        hosesMeters: element.hosesMeters,
-                        fireTrucks: element.fireTrucks,
-                        otherSupplies: element.otherSupplies,
-                        address: element.address,
-                        lon: element.longitude,
-                        lat: element.latitude,
-                        contactPerson: element.contactPerson,
-                        contactPhone: element.contactPhone,
-                    },
-                });
-            });
-        },
-        drawPointEmergencyTeam(pointArr) {
-            pointArr.forEach((element) => {
-                // 检查是否已存在具有相同ID的实体
-                let existingEntity = window.viewer.entities.getById(element.id);
-                if (existingEntity) {
-                    // console.warn(`id为${element.id}的实体已存在。跳过此实体`);
-                    return; // 跳过这个实体
-                }
+          // 添加实体
+          this.addEntity(element, icon, tableName, longitude, latitude);
+        });
+      },
 
-                // 检查经度、纬度和高度是否为有效数值
-                let longitude = Number(element.longitude);
-                let latitude = Number(element.latitude);
-                if (isNaN(longitude) || isNaN(latitude)) {
-                    console.error(`id为${element.id}的实体的坐标无效`, {
-                        longitude,
-                        latitude,
-                    });
-                    return; // 跳过无效坐标的实体
-                }
-                // 检查经度和纬度是否在合理范围内
-                if (
-                    longitude < -180 ||
-                    longitude > 180 ||
-                    latitude < -90 ||
-                    latitude > 90
-                ) {
-                    // console.error(`id为 ${element.id}的实体坐标超出范围`, { longitude, latitude });
-                    return; // 跳过坐标超出范围的实体
-                }
+      addEntity(element, icon, tableName, longitude, latitude) {
+        window.viewer.entities.add({
+          id: element.id,
+          position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+          billboard: {
+            image: icon,
+            width: 40,
+            height: 40,
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+            color: Cesium.Color.WHITE.withAlpha(1),
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          properties: {
+            tableName: tableName, // 动态传入的表名称
+            ...element, // 将element对象展开，自动填充所有属性
+            lon: element.longitude,
+            lat: element.latitude
+          }
+        });
+      },
 
-                element.type = "emergencyTeam";
-
-                // 如果不存在相同ID的实体，则准备新的实体
-                window.viewer.entities.add({
-                    id: element.id,
-                    position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-                    billboard: {
-                        image: emergencyTeamLogo, // 使用导入的图标路径
-                        width: 40, // 导入图标的宽度
-                        height: 40, // 导入图标的长度
-                        eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-                        color: Cesium.Color.WHITE.withAlpha(1), // 颜色
-                        scale: 0.8, // 缩放比例
-                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
-                        depthTest: false, // 禁止深度测试
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY, // 不再进行深度测试
-                    },
-                    properties: {
-                        tableName: "雅安应急队伍",
-                        id: element.id,
-                        uniqueId: element.uniqueId,
-                        organization: element.organization,
-                        levelName: element.levelName,
-                        teamTypeName: element.teamTypeName,
-                        address: element.address,
-                        totalPersonnel: element.totalPersonnel,
-                        establishmentDate: element.establishmentDate,
-                        mainResponsibilities: element.mainResponsibilities,
-                        expertiseDescription: element.expertiseDescription,
-                        emergencyContactMethod: element.emergencyContactMethod,
-                        estimatedPreparationTime: element.estimatedPreparationTime,
-                        assemblyDepartureLocation: element.assemblyDepartureLocation,
-                        selfTransportation: element.selfTransportation,
-                        longitude: element.longitude,
-                        latitude: element.latitude,
-                        personInCharge: element.personInCharge,
-                        personInChargePhone: element.personInChargePhone,
-                        confidentialityLevel: element.confidentialityLevel,
-                        modifiedBy: element.modifiedBy,
-                        qualificationLevel: element.qualificationLevel,
-                        dataSource: element.dataSource,
-                        notes: element.notes,
-                    },
-                });
-            });
-        },
         isTerrainLoaded() {
             let terrainProvider = window.viewer.terrainProvider;
             if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
@@ -644,77 +410,78 @@ export default {
             // console.log("地形未加载")
             return false;
         },
-        entitiesClickPonpHandler() {
-            let that = this;
-            // 处理点击事件
-            window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-                // 获取点击位置的实体
-                let pickedEntity = window.viewer.scene.pick(click.position);
-                window.selectedEntity = pickedEntity?.id;
+      entitiesClickPonpHandler() {
+        let that = this;
+        // 处理点击事件
+        window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+          // 获取点击位置的实体
+          let pickedEntity = window.viewer.scene.pick(click.position);
+          window.selectedEntity = pickedEntity?.id;
 
-                if (Cesium.defined(pickedEntity)) {
-                    let entity = window.selectedEntity;
-                    // 判断实体类型并处理
-                    if (entity._billboard) {
-                        // 获取点击点的经纬度
-                        let ray = viewer.camera.getPickRay(click.position);
-                        let position = viewer.scene.globe.pick(ray, viewer.scene);
-                        let cartographic = Cesium.Cartographic.fromCartesian(position);
-                        let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-                        let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+          if (Cesium.defined(pickedEntity)) {
+            let entity = window.selectedEntity;
 
-                        // 如果有地形加载，更新高度
-                        let height = 0;
-                        if (this.isTerrainLoaded()) {
-                            height = viewer.scene.globe.getHeight(cartographic);
-                        }
-                        // 更新弹窗位置
-                        that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(
-                            longitude,
-                            latitude,
-                            height
-                        );
-                        // that.popupData = entity.properties;
-                        // 解析 properties 以获取实际的数据
-                        let properties = {};
-                        entity.properties.propertyNames.forEach((name) => {
-                            properties[name] = entity.properties[name].getValue();
-                        });
-                        that.popupData = properties;
-                        console.log("entity.properties作为弹窗数据:", that.popupData);
+            // 判断实体类型并处理
+            if (entity._billboard) {
+              // 获取点击点的经纬度
+              let ray = viewer.camera.getPickRay(click.position);
+              let position = viewer.scene.globe.pick(ray, viewer.scene);
+              let cartographic = Cesium.Cartographic.fromCartesian(position);
+              let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+              let longitude = Cesium.Math.toDegrees(cartographic.longitude);
 
-                        this.popupVisible = true;
-                        this.updatePopupPosition();
-                    } else {
-                        this.popupVisible = false;
-                    }
+              // 如果有地形加载，更新高度
+              let height = 0;
+              if (this.isTerrainLoaded()) {
+                height = viewer.scene.globe.getHeight(cartographic);
+              }
 
-                    // 处理面实体
-                    if (entity._polygon) {
-                        that.showPolygon = true;
-                    } else {
-                        that.showPolygon = false;
-                    }
+              // 更新弹窗位置
+              that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
 
-                    // 处理线实体
-                    if (entity._polyline) {
-                        let status = cesiumPlot.drawPolylineStatus();
-                        that.showPolyline = status === 0;
-                    } else {
-                        that.showPolyline = false;
-                    }
-                } else {
-                    this.popupVisible = false;
-                }
-            }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+              // that.popupData = entity.properties;
 
-            // 确保在地图拖动时弹窗位置更新
-            window.viewer.screenSpaceEventHandler.setInputAction((movement) => {
-                if (that.popupVisible && window.selectedEntity) {
-                    that.updatePopupPosition();
-                }
-            }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-        },
+              // 解析 properties 以获取实际的数据
+              let properties = {};
+              entity.properties.propertyNames.forEach(name => {
+                properties[name] = entity.properties[name].getValue();
+              });
+              that.popupData = properties;
+              console.log("entity.properties作为弹窗数据:", that.popupData);
+
+              this.popupVisible = true;
+              this.updatePopupPosition();
+            } else {
+              this.popupVisible = false;
+            }
+
+            // 处理面实体
+            if (entity._polygon) {
+              that.showPolygon = true;
+            } else {
+              that.showPolygon = false;
+            }
+
+            // 处理线实体
+            if (entity._polyline) {
+              let status = cesiumPlot.drawPolylineStatus();
+              that.showPolyline = (status === 0);
+            } else {
+              that.showPolyline = false;
+            }
+          } else {
+            this.popupVisible = false;
+          }
+
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        // 确保在地图拖动时弹窗位置更新
+        window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+          if (that.popupVisible && window.selectedEntity) {
+            that.updatePopupPosition();
+          }
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+      },
         //--------------------弹窗----------------------
         // 判断是否有高程
         // 更新弹窗的位置

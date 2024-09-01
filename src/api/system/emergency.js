@@ -8,6 +8,14 @@ export function getEmergency(query) {
     })
 }
 
+export function getFeaturesLayer(query) {
+    return request({
+        url: '/system/emergency/getFeaturesLayer',
+        method: 'get',
+        params: query
+    })
+}
+
 export function suppliesReservesList() {
     return request({
         url: '/system/emergency/suppliesReservesList',
