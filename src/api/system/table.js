@@ -13,6 +13,14 @@ export function backup(tableName) {
         url: '/backup/download',
         method: 'get',
         responseType: 'blob', // Important: specifies the response type
-        params: { tableName: tableName }
+        params: {tableName: tableName}
+    });
+}
+
+export function backupAll() {
+    return request({
+        url: '/backup/downloadAll',
+        method: 'get',
+        responseType: 'blob'
     });
 }
