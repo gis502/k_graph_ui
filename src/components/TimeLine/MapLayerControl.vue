@@ -126,6 +126,7 @@ export default {
       }
     },
 
+
     processPoints(pointArr, type, icon, tableName) {
       if (!Array.isArray(pointArr)) {
         console.error(`${tableName} 数据格式不正确`, pointArr);
@@ -186,6 +187,72 @@ export default {
       }
     },
 
+    //判断添加imageryLayer的图层是否存在
+    imageryLayersExists(layerName){
+      const layers = viewer.imageryLayers;
+      for (let i = 0; i < layers.length; i++) {
+        // 检查图层是否具有名称属性
+        if (layers.get(i).name === layerName) {
+          return true;
+        }
+      }
+      return false;
+    },
+    addYaanRegion() {
+      if(!window.viewer.dataSources.getByName('YaanRegionLayer')[0]){
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+              stroke: Cesium.Color.RED,
+              fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+              strokeWidth: 4,
+            }
+        );
+        geoPromise.then((dataSource) => {
+          window.viewer.dataSources.add(dataSource);
+          console.log(dataSource)
+          //给图层取名字,不取名字删除的时候找不到图层
+          dataSource.name='YaanRegionLayer'
+        }).catch((error) => {
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      }
+
+    },
+    addTrafficLayer(){
+      let token=TianDiTuToken;
+      let trafficLayerexists=this.imageryLayersExists('TrafficLayer')
+      if(!trafficLayerexists){
+        let trafficLayer=viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              url:
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+            })
+        );
+        trafficLayer.name = "TrafficLayer"; // 设置名称
+      }
+
+      let trafficTxtLayerExists=this.imageryLayersExists('TrafficTxtLayer')
+      if(!trafficTxtLayerExists) {
+        //影像注记
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              url:
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false,
+            })
+        )
+        traffictxtLayer.name = "TrafficTxtLayer"
+      }
+    },
     // 添加到 dataSources 的图层
     rmoveonedataSourcesLayer(layerName) {
       let layer = window.viewer.dataSources.getByName(layerName)[0];
