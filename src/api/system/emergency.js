@@ -46,6 +46,12 @@ export function sheltersList() {
     })
 }
 
+export function reservesList() {
+    return request({
+        url: '/system/emergency/reservesList',
+        method: 'get',
+    })
+}
 
 export function rescueTeamList() {
     return request({
