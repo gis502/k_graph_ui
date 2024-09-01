@@ -12,10 +12,11 @@
 
       <div class="sub-main">
         <ul class="sub-ul">
-          <li
-              :class="[i === 0 || i === 1 ? 'high' : '']"
-              v-for="item in showRescueTeam"
-          >
+<!--          <li-->
+<!--              :class="[i === 0 || i === 1 ? 'high' : '']"-->
+<!--              v-for="item in showRescueTeam"-->
+<!--          >-->
+            <li v-for="item in showRescueTeam">
 
             <div class="sub-content">
               <p class="rescue_team_p">
@@ -79,12 +80,13 @@ export default {
   },
   methods: {
     init() {
+      // if()
       this.Responsecontent = [...timeLineRescueTeam].sort((a, b) => {
         if (a[0] < b[0]) return -1;
         if (a[0] > b[0]) return 1;
         return 0;
       });
-      console.log("this.Responsecontent",this.Responsecontent)
+      // console.log("this.Responsecontent",this.Responsecontent)
     },
 
     rescue_team_update(currentTime){
@@ -100,7 +102,7 @@ export default {
 
 
       if(activities.length>0){
-        console.log("activities",activities)
+        // console.log("activities",activities)
         this.recordtime=activities[activities.length-1][0]
         activities.forEach((item) => {
           let activity={
@@ -126,7 +128,11 @@ export default {
           }
           this.showRescueTeam.unshift(activity)
         })
-        console.log(this.showRescueTeam)
+        // console.log(this.showRescueTeam)
+      }
+      else{
+        this.showRescueTeam=[]
+        this.recordtime=''
       }
 
 
@@ -177,7 +183,7 @@ export default {
   width: 2.5%; /* 调整宽度 */
   padding: 10px;
   border-radius: 5px;
-  top: 52%;
+  top: 54%;
   left: 1%;
   z-index: 22; /* 提高层级 */
 }

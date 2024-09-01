@@ -36,7 +36,7 @@
           </div>
           <div class="right-bottom public-bg">
             <div class="public-title">历史地震统计(次)</div>
-            <chart1  :eqData="tableData"/>
+            <chart1 :eqData="tableData"/>
           </div>
         </div>
       </div>
@@ -78,10 +78,6 @@ export default {
         that.tableData = res
       })
     },
-    // go() {
-    //   let route = this.$router.resolve({path: '/thd'}).href
-    //   window.open(route, '_blank');
-    // },
     now_time() {
       let myDate = new Date();
       let myYear = myDate.getFullYear() //获取完整的年份(4位,1970-????)

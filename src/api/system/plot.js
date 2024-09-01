@@ -21,7 +21,7 @@ export function addPlotIcon(data) {
 export function deletePlotIcon(query) {
   return request({
     url: '/system/ploy/deleteploticon',
-    method: 'get',
+    method: 'post',
     params: query
   })
 }
