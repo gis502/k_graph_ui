@@ -20,7 +20,8 @@
                     :width="header.width"
             >
                 <template #default="scope">
-                    <div v-if="header.label === '地址' || header.label === '县(区)'">
+                    <div v-if="header.label === '地址' || header.label === '县(区)'
+                    || header.label === '联系电话'">
                         <el-popover placement="top" :width="200" trigger="hover">
                             <div style="text-align: center">{{ scope.row[header.prop] }}</div>
                             <template #reference>
