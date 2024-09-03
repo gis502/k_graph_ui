@@ -164,6 +164,7 @@ onMounted(() => {
 }
 
 .header-time {
+  top:0;
   position: absolute;
   color: #FFFFFF;
   right: 2vw;
