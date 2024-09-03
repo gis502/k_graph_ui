@@ -38,3 +38,15 @@ export function getExcelUploadByTime(params) {
         params
     })
 }
+export function getPicEqData(flag, eqId, time) {
+    return request({
+        url: '/excel/getPicEqData',
+        method: 'get',
+        params: {
+            flag,
+            eqId,
+            time
+        }
+    });
+}
+

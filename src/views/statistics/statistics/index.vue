@@ -9,6 +9,7 @@
           class="search-input"
       />
       <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>
+      <el-button type="primary" class="button" @click="navigateToAnother()">专题图生成</el-button>
     </div>
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -108,6 +109,9 @@ import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
 import {exportExcel, getField, getData} from "@/api/system/excel.js";
 import {Search} from "@element-plus/icons-vue";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const dialogVisible = ref(false)
 const flag = ref()
@@ -229,6 +233,14 @@ const getTableField = () => {
     data.value = generateData();
     columns.value = generateColumnConfig();
   })
+}
+const navigateToAnother = () => {
+  router.push(
+      {
+        name: 'Pic',
+        params: {flag: flag.value}
+      },
+  );
 }
 
 // 表格翻页选中（需要设置row-key）
