@@ -1539,13 +1539,13 @@ export default {
   position: absolute;
   z-index: 20;
   top: 6.3%;
-  right: 7%;
+  left: 27%;
 }
 .thematic-button{
   position: absolute;
   z-index: 20;
   top: 6.3%;
-  right: 14%;
+  left: 20%;
 }
 .draw-button {
   position: absolute;
