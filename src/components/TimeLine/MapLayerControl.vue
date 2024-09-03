@@ -37,13 +37,12 @@ export default {
     return {
       layeritems: [
         { id: '0', name: '标绘点图层' },
-        { id: '1', name: '自建要素图层服务' },
-        { id: '2', name: '行政区划要素图层' },
-        { id: '3', name: '人口密度要素图层' },
-        { id: '4', name: '交通网络要素图层' },
-        { id: '5', name: '避难场所要素图层' },
-        { id: '6', name: '救援队伍分布要素图层' },
-        { id: '7', name: '应急物资存储要素图层' },
+        { id: '1', name: '行政区划要素图层' },
+        { id: '2', name: '人口密度要素图层' },
+        { id: '3', name: '交通网络要素图层' },
+        { id: '4', name: '避难场所要素图层' },
+        { id: '5', name: '救援队伍分布要素图层' },
+        { id: '6', name: '应急物资存储要素图层' },
       ],
       selectedlayersLocal: this.selectedlayers,
       isMarkingLayerLocal: this.isMarkingLayer,
@@ -87,6 +86,7 @@ export default {
       // 雅安市行政区划要素图层
       const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
       if (hasYaanRegionLayer) {
+        this.$emit('removethdRegions');
         this.addYaanRegion();
       } else {
         this.rmoveonedataSourcesLayer('YaanRegionLayer');
