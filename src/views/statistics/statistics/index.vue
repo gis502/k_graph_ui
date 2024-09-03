@@ -19,7 +19,7 @@
         <el-button type="warning" plain icon="Delete" class="button" @click="clearSelection()">清空选择</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" class="button" @click="clearSelection()">删除记录</el-button>
+        <el-button type="danger" plain icon="Delete" class="button" @click="handleDeleteAll()">删除记录</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-select
@@ -105,8 +105,8 @@
 
 <script setup>
 import {ref, onMounted} from 'vue'
-import {ElMessage} from "element-plus";
-import {exportExcel, getField, getData} from "@/api/system/excel.js";
+import {ElMessage,ElMessageBox} from "element-plus";
+import {exportExcel, getField, getData, deleteData} from "@/api/system/excel.js";
 import {Search} from "@element-plus/icons-vue";
 
 const dialogVisible = ref(false)
@@ -201,6 +201,38 @@ const generateColumnConfig = () => {
 };
 
 
+/** 删除按钮操作 */
+const handleDeleteAll = () => {
+  console.log(1111)
+  // 弹出确认框
+    ElMessageBox.confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+      .then(() => {
+        // 用户确认后直接删除数据
+        deleteData({
+          flag: flag.value,
+          requestParams: multipleSelection.value,
+        }).then(() => {
+          ElMessage({
+            type: 'success',
+            message: '删除成功!'
+          });
+          getYaanCasualtiesList()
+        });
+      })
+      .catch(() => {
+        // 用户取消操作
+        ElMessage({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+}
+
+
 const generateFieldData = () => {
   return field.value.map((fieldName, index) => ({
     value: fieldName,    // `value` should match field identifier
@@ -213,6 +245,7 @@ const generateFieldData = () => {
 const getTableField = () => {
   getField().then(res => {
     files.value = res.data
+    console.log(11111)
     console.log(res.data)
     if (files.value.length == 0) {
       ElMessage.error("该用户无导表权限")
@@ -287,10 +320,18 @@ const exportStatistics = () => {
       ids: ids,
       flag: flag.value
     }).then(res => {
+      let fileName;
+      if (flag.value === 'YaanRelocationResettlementDisasterReliefGroup') {
+        fileName = '震情伤亡-转移安置统计表.xlsx';
+      } else if (flag.value === 'YaanAftershockStatistics') {
+        fileName = '震情伤亡-震情灾情统计表.xlsx';
+      } else if (flag.value === 'YaanCasualties'){
+        fileName = '震情伤亡-人员伤亡统计表.xlsx'; // 默认文件名
+      }
       const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'earthquake-data.xlsx');
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       window.URL.revokeObjectURL(url);
