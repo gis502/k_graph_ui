@@ -38,11 +38,12 @@ const initChart = () => {
       {
         type: 'pie',
         showEmptyCircle: false,
-        radius: ['0%', '70%'],
+        radius: ['0%', '77%'],
         center: ['50%', '50%'],
         data: rawData,
         emphasis: {
           itemStyle: {
+            fontSize: 10,
             shadowBlur: 0,
             shadowOffsetX: 0,
             shadowColor: 'rgba(0, 0, 0, 0.5)'
@@ -75,7 +76,6 @@ const initChart = () => {
 
   myChart.setOption(option);
 };
-
 
 
 onMounted(() => {
