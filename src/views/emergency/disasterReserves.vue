@@ -20,17 +20,20 @@
                     :width="header.width"
             >
                 <template #default="scope">
-                    <div v-if="header.label === '地址' || header.label === '县（区）'
-                    || header.label === '其他' || header.label === '联系电话'">
+                    <div v-if="header.label === '地址' || header.label === '县(区)'
+                    || header.label === '联系电话'">
                         <el-popover placement="top" :width="200" trigger="hover">
                             <div style="text-align: center">{{ scope.row[header.prop] }}</div>
                             <template #reference>
                                 <div
-                                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }"
+                                        :style="{ width: header.width + 'px',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis' }"
                                 >
-                        <span class="myNote">
-                            {{ scope.row[header.prop] }}
-                        </span>
+                                    <span class="myNote" style="text-align: center">
+                                        {{ scope.row[header.prop] }}
+                                    </span>
                                 </div>
                             </template>
                         </el-popover>
@@ -115,15 +118,15 @@
 <script>
     import {
         addOrUpdateSuppliesReserves,
-        delSuppliesReserves,
+        delSuppliesReserves, reservesList,
         suppliesReservesList
     } from "../../api/system/emergency.js";
 
     export default {
-        name: "suppliesReserves",
+        name: "disasterReserves",
         data(){
             return {
-                suppliesReservesData: [],
+                reservesData: [],
                 tableData: [],
                 total: 0,
                 pageSize: 10,
@@ -132,58 +135,33 @@
                 currentHeaders: [],
                 // ---表头---
                 headersArr: [
-                    { prop: 'county', label: "县（区）", width: 180 },
-                    { prop: 'totalItems', label: "合计总件套数", width: 120 },
-                    { prop: 'infraredDetectors', label: "红外探测仪", width: 120 },
-                    { prop: 'opticalDetectors', label: "光学探测仪(蛇眼)", width: 150 },
-                    { prop: 'hydraulicSpreaders', label: "液压扩张钳", width: 120 },
-                    { prop: 'hydraulicCutters', label: "液压剪切钳", width: 120 },
-                    { prop: 'rockDrills', label: "凿岩机", width: 150 },
-                    { prop: 'crowbars', label: "撬棍（把）", width: 150 },
-                    { prop: 'rebarCutters', label: "钢筋速断器", width: 120 },
-                    { prop: 'hydraulicJacks', label: "手动液压千斤顶", width: 150 },
-                    { prop: 'lightSticks', label: "发光棒", width: 150 },
-                    { prop: 'fuelLiters', label: "油料（升）", width: 150 },
-                    { prop: 'tensileRopeMeters', label: "抗拉索", width: 150 },
-                    { prop: 'rescueRopesMeters', label: "救援绳（米）", width: 150 },
-                    { prop: 'ropeThrowers', label: "抛绳器", width: 150 },
-                    { prop: 'foldingLadders', label: "折叠梯（个）", width: 150 },
-                    { prop: 'shovelsPicksHooksForksHammers', label: "锹/镐/钩/叉/锤", width: 130 },
-                    { prop: 'foldingShovels', label: "折叠铲（把）", width: 150 },
-                    { prop: 'whistles', label: "口哨（个）", width: 150 },
-                    { prop: 'helmets', label: "头盔（顶）", width: 150 },
-                    { prop: 'rainBoots', label: "雨鞋（双）", width: 150 },
-                    { prop: 'gloves', label: "手套（双）", width: 150 },
-                    { prop: 'lifelinesMeters', label: "救生缆索（米）", width: 150 },
-                    { prop: 'drainagePumps', label: "排水泵（台）", width: 150 },
-                    { prop: 'fireBlowers', label: "风力灭火机（个）", width: 170 },
-                    { prop: 'ironShovels', label: "铁锹（把）", width: 150 },
-                    { prop: 'lifeJackets', label: "救生衣（件）", width: 150 },
-                    { prop: 'lifeRings', label: "救生圈（个）", width: 150 },
-                    { prop: 'warningTapesMeters', label: "警示带（米）", width: 150 },
-                    { prop: 'walkieTalkies', label: "对讲机（台）", width: 150 },
-                    { prop: 'megaphones', label: "扩音器（个）", width: 150 },
-                    { prop: 'gongs', label: "锣（个）", width: 150 },
-                    { prop: 'headlamps', label: "头灯（个）", width: 150 },
-                    { prop: 'portableLights', label: "手提照明灯（个）", width: 170 },
-                    { prop: 'medicalKits', label: "医疗急救箱", width: 150 },
-                    { prop: 'excavators', label: "挖掘机", width: 150 },
-                    { prop: 'loaders', label: "装载机（推土机）", width: 180 },
-                    { prop: 'waterPumps', label: "抽水泵", width: 150 },
-                    { prop: 'relayPumps', label: "接力水泵", width: 150 },
-                    { prop: 'mobileWaterBags', label: "移动水囊（个）", width: 150 },
-                    { prop: 'backpackFireSprayers', label: "背负式喷水灭火抢", width: 170 },
-                    { prop: 'chainsaws', label: "油锯（个）", width: 150 },
-                    { prop: 'hosesMeters', label: "水带（米）", width: 150 },
-                    { prop: 'fireTrucks', label: "消防水车", width: 150 },
-                    { prop: 'otherSupplies', label: "其他", width: 150 },
-                    { prop: 'address', label: "地址", width: 200 },
+                    { prop: 'county', label: "县(区)", width: 150 },
+                    { prop: 'storagePointsCount', label: "储备库点数量(个)", width: 170 },
+                    { prop: 'totalKitsCount', label: "合计总件套数", width: 150 },
+                    { prop: 'disasterTentsCount', label: "救灾帐篷(顶)", width: 150 },
+                    { prop: 'cottonBlanketsCount', label: "棉被(床)", width: 150 },
+                    { prop: 'otherBlanketsCount', label: "其他被子(床)", width: 150 },
+                    { prop: 'cottonClothesCount', label: "棉衣裤(套)", width: 150 },
+                    { prop: 'cottonCoatsCount', label: "棉大衣(件)", width: 150 },
+                    { prop: 'otherClothesCount', label: "其他衣物(套、件)", width: 180 },
+                    { prop: 'woolBlanketsCount', label: "毛毯(床)", width: 150 },
+                    { prop: 'foldingBedsCount', label: "折叠床(张)", width: 150 },
+                    { prop: 'bunkBedsCount', label: "高低床(套)", width: 150 },
+                    { prop: 'stripedClothBundlesCount', label: "彩条布(包)", width: 150 },
+                    { prop: 'moistureMatsCount', label: "防潮垫(张)", width: 150 },
+                    { prop: 'generatorsCount', label: "发电机(台)", width: 150 },
+                    { prop: 'lightingFixturesCount', label: "照明灯具(个)", width: 150 },
+                    { prop: 'lightingKitsCount', label: "照明灯组(套)", width: 150 },
+                    { prop: 'flashlightsCount', label: "手电筒(支)", width: 150 },
+                    { prop: 'raincoatsCount', label: "雨衣(件)", width: 150 },
+                    { prop: 'rainBootsCount', label: "雨靴(双)", width: 150 },
+                    { prop: 'otherSuppliesCount', label: "其他装备数量(个)", width: 180 },
+                    { prop: 'address', label: "地址", width: 150 },
                     { prop: 'longitude', label: "经度", width: 150 },
                     { prop: 'latitude', label: "纬度", width: 150 },
                     { prop: 'contactPerson', label: "联系人", width: 150 },
-                    { prop: 'contactPhone', label: "联系电话", width: 150 },
-                    // { prop: '', label: "经纬度点", width: 150 },
-                    { prop: 'insertTime', label: "插入时间", width: 200 }
+                    { prop: 'contactPhone', label: "联系电话", width: 180 },
+                    { prop: 'insertTime', label: "插入时间", width: 180 }
                 ],
                 // ---新增/修改---
                 dialogShow: false,
@@ -200,11 +178,17 @@
             }
         },
         mounted() {
-            suppliesReservesList().then(res => {
-                this.suppliesReservesData = res
+            // suppliesReservesList().then(res => {
+            //     this.suppliesReservesData = res
+            //     this.total = res.length
+            //     this.tableData = this.getPageArr()
+            //     // console.log("----------------",res[0])
+            // })
+            reservesList().then(res => {
+                this.reservesData = res
                 this.total = res.length
                 this.tableData = this.getPageArr()
-                console.log("----------------",res[0])
+                console.log("-----------------",res[0])
             })
             // let data = {
             //     uuid: 'c12c82fe-5828-408a-9c73-f2605fb94e68',
@@ -333,8 +317,8 @@
                     end = this.total
                 }
                 for (; start < end; start++) {
-                    this.suppliesReservesData[start].insertTime = this.formatDate(this.suppliesReservesData[start].insertTime);
-                    arr.push(this.suppliesReservesData[start])
+                    this.reservesData[start].insertTime = this.formatDate(this.reservesData[start].insertTime);
+                    arr.push(this.reservesData[start])
                 }
                 return arr
             },

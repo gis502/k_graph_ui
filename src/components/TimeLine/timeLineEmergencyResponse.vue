@@ -43,6 +43,7 @@ export default {
         department: '',
         time: '',
       },
+        ifShowData: false,
       emergency_response_isExpanded:'true'
     }
   },
@@ -50,11 +51,16 @@ export default {
     'currentTime','eqid'
   ],
   mounted() {
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
     this.init()
   },
   watch: {
     currentTime(newVal) {
-      this.updateEmergencyResponse(newVal)
+        if(this.ifShowData){
+            this.updateEmergencyResponse(newVal)
+        }
     },
     eqid(){
         this.eqid1 = this.eqid
@@ -62,15 +68,10 @@ export default {
   },
   methods: {
     init() {
-      // console.log(this.eqid1)
-      // if(this.eqid1=="be3a5ea48dfda0a2251021845f17960b"){
-      //   console.log("yes")
         this.EmergencyResponseResponsecontent = [...EmergencyResponse]
-      // }
     },
     updateEmergencyResponse(currentTime){
       // console.log(this.eqid1)
-      // if(this.eqid1=="be3a5ea48dfda0a2251021845f17960b") {
         const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
           return (
               new Date(activity[0]) <= currentTime
