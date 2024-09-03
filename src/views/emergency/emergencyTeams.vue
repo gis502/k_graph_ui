@@ -20,7 +20,9 @@
                     :width="header.width"
             >
                 <template #default="scope" >
-                    <div v-if="header.label === '地址' || header.label === '数据来源' || header.label === '队伍类型名称'">
+                    <div v-if="header.label === '地址' || header.label === '数据来源'
+                    || header.label === '队伍类型名称' || header.label === '级别名称'
+                    || header.label === '负责人' || header.label === '负责人电话'">
                         <el-popover placement="top" :width="200" trigger="hover">
                             <div style="text-align: center">{{ scope.row[header.prop] }}</div>
                             <template #reference>
@@ -85,7 +87,7 @@
                     { prop: 'dataSource', label: '数据来源', width: 160 },
                     { prop: 'organization', label: '组织机构', width: 150 },
                     { prop: 'teamTypeName', label: '队伍类型名称', width: 150 },
-                    { prop: 'establishmentDate', label: '成立日期', width: 150 },
+                    { prop: 'establishmentDate', label: '成立日期', width: 200 },
                     { prop: 'mainResponsibilities', label: '主要职责', width: 150 },
                     { prop: 'expertiseDescription', label: '专业描述', width: 150 },
                     { prop: 'emergencyContactMethod', label: '应急联系方式', width: 150 },
@@ -94,11 +96,9 @@
                     { prop: 'selfTransportation', label: '自备交通工具', width: 150 },
                     { prop: 'longitude', label: '经度', width: 150 },
                     { prop: 'latitude', label: '纬度', width: 150 },
-
                     { prop: 'confidentialityLevel', label: '保密级别', width: 150 },
                     { prop: 'modifiedBy', label: '修改人', width: 150 },
                     { prop: 'qualificationLevel', label: '资质级别', width: 150 },
-
                     { prop: 'notes', label: '备注', width: 150 }
                 ],
             }
@@ -128,9 +128,21 @@
                     end = this.total
                 }
                 for (; start < end; start++) {
+                    this.teamsData[start].establishmentDate = this.formatDate(this.teamsData[start].establishmentDate);
                     arr.push(this.teamsData[start])
                 }
                 return arr
+            },
+            // 将ISO时间格式转为"YYYY-MM-DD HH:MM:SS"
+            formatDate(isoString) {
+                const date = new Date(isoString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
             },
             //`每页 ${val} 条`
             handleSizeChange(val) {

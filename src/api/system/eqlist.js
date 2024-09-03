@@ -23,6 +23,21 @@ export function getAllEq(query) {
     method: 'get',
   })
 }
+
+export function getKeyEq(query) {
+  return request({
+    url: '/system/getKeyeq',
+    method: 'get',
+  })
+}
+
+export function getLatestEq(query) {
+  return request({
+    url: '/system/getLatesteq',
+    method: 'get',
+  })
+}
+
 export function getExcelUploadEarthquake() {
   return request({
     url: '/system/getExcelUploadEarthquake',
