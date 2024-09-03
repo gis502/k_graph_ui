@@ -25,7 +25,7 @@ import { onMounted, ref, watch } from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import { getKeyEq, getLatestEq } from "../../api/system/eqlist.js";
+import { getKeyEq, getLatestEq } from "@/api/system/eqlist.js";
 
 // 图例分类
 const eqGroups = ref([
