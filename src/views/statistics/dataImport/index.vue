@@ -4,25 +4,6 @@
       <div class="dataManage" style="height: auto">
         <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">上传Excel文件
         </el-button>
-        <el-upload
-            name="file"
-            ref="fileUpload"
-            class="upload-demo"
-            :action="uploadUrl"
-            :multiple="false"
-            :show-file-list="false"
-            :on-success="handleSuccess"
-            :before-upload="beforeAvatarUpload"
-            @change="handleFileChange"
-            :headers="this.headers">
-          <!-- 隐藏的文件选择按钮 -->
-          <input
-              type="file"
-              ref="fileInput"
-              style="display: none;"
-              @change="handleFileChange"
-          />
-        </el-upload>
         <el-button size='large' type='primary' style="margin: 10px;"
                    @click="downExcel($event)" plain icon="Download">下载上传Excel文件
         </el-button>
@@ -47,9 +28,23 @@
             </el-form-item>
           </el-form>
           <div class="dialog-footer1">
-            <el-button @click="importDialogVisible=false">取 消</el-button>
-            <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
-            <el-button type="primary" plain @click="confirmUpload">确定</el-button>
+            <div style="margin-bottom: 30px"><el-button @click="importDialogVisible=false">取 消</el-button></div>
+            <el-upload
+                name="file"
+                ref="fileUpload"
+                class="upload-demo"
+                :action="uploadUrl"
+                :multiple="false"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :before-upload="beforeAvatarUpload"
+                @change="handleFileChange"
+                :headers="this.headers">
+              <!-- 隐藏的文件选择按钮 -->
+
+              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+            </el-upload>
+<!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
 
         </el-dialog>
@@ -58,7 +53,7 @@
                    v-model="formDialogVisible"
                    width="35%"
                    center
-                   @close="resetFileInput">
+                   >
           <el-form :model="form" ref="form" label-width="100px" style="margin-left:30px">
             <el-form-item label="表名" prop="tableName">
               <el-select v-model="form.tableName" placeholder="请选择表名" style="width: 18vw" filterable>
@@ -256,14 +251,11 @@ export default {
     const filename = ref('');
     const uploadUrl = ref(``);
     const websocket = ref(null);
-    const formDialogVisible = ref(false)
-
     return {
       name,
       uploadUrl,
       filename,
       websocket,
-      formDialogVisible
     }
   },
   data() {
@@ -299,6 +291,7 @@ export default {
       messageData: [],
       percent: 0,
       importDialogVisible: false,
+      formDialogVisible: false,
       dialogVisible: false,
       progressColor: '#001ce1',
       inputValue: '',
@@ -336,7 +329,7 @@ export default {
       this.$refs.fileInput.click();
     },
     handleFileChange(event) {
-      const file = event.target.files[0];
+      const file = event.raw;
       if (file) {
         this.selectedFile = file;
       }
@@ -572,6 +565,7 @@ export default {
         confirmButtonText: '确定',
         callback: action => {
           this.getExcelUploadByTimeButton()
+          this.importDialogVisible = false
         }
       });
       setTimeout(() => {
@@ -643,7 +637,7 @@ export default {
   justify-content: left;
   gap: 10px; /* 按钮间距 */
   margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
-  margin-left: 150px;
+  margin-left: 160px;
 }
 
 /*table样式*/

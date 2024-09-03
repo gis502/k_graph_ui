@@ -159,7 +159,6 @@ export default class Polyline {
     this.drawEntity.remove = () => {
       this.viewer.entities.remove(this.drawEntity);
     }
-
     this.timestampArr = []
     this.deactivate();
   }

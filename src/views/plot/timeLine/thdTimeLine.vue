@@ -21,20 +21,30 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
+        <img class="play-icon" src="../../../assets/icons/TimeLine/后退箭头.png" @click="backward" />
         <img class="play-icon" src="../../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
              @click="toggleTimer"/>
         <img class="pause-icon" src="../../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
              @click="toggleTimer"/>
+        <img class="play-icon" src="../../../assets/icons/TimeLine/前进箭头.png" @click="forward" />
       </div>
 
-      <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
-        <div class="time-ruler-line" @click="jumpToTime">
-          <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
-          <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+        <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
+            <div class="time-ruler-line" @click="jumpToTime">
+                <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
+                <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+            </div>
+            <!-- speedButton 和 chooseSpeed 放在一起 -->
+            <span class="speedButton">{{speedOption}}</span>
+            <div class="chooseSpeed">
+                <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
+                    {{ option }}
+                </option>
+            </div>
         </div>
-      </div>
 
-      <!--      时间点-->
+
+        <!--      时间点-->
       <div class="current-time-info">
         <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
@@ -45,20 +55,15 @@
     <!-- 进度条 end-->
 
 <!--    两侧组件-->
-
       <timeLineEmergencyResponse
           :currentTime="currentTime"
       />
-
       <timeLinePersonnelCasualties
           :currentTime="currentTime"
       />
-
-
       <timeLineRescueTeam
         :currentTime="currentTime"
       />
-
     <!--      新闻-->
     <div>
       <news
@@ -79,16 +84,35 @@
     <div>
       <mini-map></mini-map>
     </div>
-
-
     <timeLineLegend></timeLineLegend>
 
 <!--    两侧组件 end-->
+
     <!--报告产出按钮-->
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
-    <!--报告产出按钮 end-->
+    <!--图件产出-->
+<!--    <div class="draw-button">-->
+<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="drawListChage">图件产出</el-button>-->
+<!--    </div>-->
+
+<!--    <div v-if="dropdownVisible" class="dropdown">-->
+<!--      <el-checkbox-group v-model="selectedItems">-->
+<!--        <el-checkbox label="芦山县行政区划图"></el-checkbox>-->
+<!--        <el-checkbox label="2"></el-checkbox>-->
+<!--        <el-checkbox label="3"></el-checkbox>-->
+<!--      </el-checkbox-group>-->
+
+<!--      <div class="output-button">-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            @click="exportSelected"-->
+<!--        >-->
+<!--          导出-->
+<!--        </el-button>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -112,8 +136,9 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 
 //报告产出
 import jsPDF from "jspdf";
-import "../../../api/SimHei-normal.js";
+// import "../../../api/SimHei-normal.js";
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
+import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png"
 import html2canvas from "html2canvas";
 import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 // import canvas2image from 'canvas2image';
@@ -167,7 +192,6 @@ export default {
         depth: '',
         plottype: '震中'
       },
-
         // 新闻组件
         showingNewsContent: {
             id: '',
@@ -186,6 +210,11 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 1,
       intervalId: null,
+      // 倍速
+      currentSpeed: 1,
+        showSpeedOptions: false,
+        speedOption: '1X',
+        speedOptions: ['1X','2X','4X'],
 
       //是否记载到view上，已经存在则不再添加
       plotisshow: {},
@@ -196,8 +225,20 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-
       smallViewer:null,
+
+
+      dropdownVisible: false,
+      drawitems: [
+        // { id: 1, name: '图件1', pdfUrl: 'path/to/pdf1.pdf' },
+        // { id: 2, name: '图件2', pdfUrl: 'path/to/pdf2.pdf' },
+        // { id: 3, name: '图件3', pdfUrl: 'path/to/pdf3.pdf' }
+        { id: '1', name: '芦山县行政区划图', pdfUrl: picUrl1},
+        { id: '2', name: '图件2', pdfUrl: fileUrl },
+        { id: '3', name: '图件3', pdfUrl: fileUrl }
+      ],
+      // selectedItem: null,
+      selectedItems: [],
     };
   },
   created() {
@@ -214,6 +255,14 @@ export default {
   },
 
   methods: {
+
+
+
+
+
+
+
+
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -282,7 +331,7 @@ export default {
       viewer.scene.camera.changed.addEventListener(syncCamera);
 
       // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function() {
+      viewer.scene.postRender.addEventListener(function () {
         that.smallViewer.scene.requestRender(); // 确保缩略图更新
       });
 
@@ -290,10 +339,10 @@ export default {
       syncCamera();
     },
     // /取地震信息+开始结束当前时间初始化
-    getEqInfo(eqid){
-      getEqbyId({eqid:eqid}).then(res => {
+    getEqInfo(eqid) {
+      getEqbyId({eqid: eqid}).then(res => {
         //震中标绘点
-        this.centerPoint=res
+        this.centerPoint = res
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.time)
         this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
@@ -304,7 +353,7 @@ export default {
         this.eqmonth = this.eqstartTime.getMonth() + 1
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        this.eqendTime = new Date(this.eqstartTime.getTime() +( (7 * 24+5) * 60 * 60 * 1000));
+        this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
         this.updateMapandVariablebeforInit()
@@ -424,14 +473,14 @@ export default {
           text: this.centerPoint.position,
           show: true,
           font: '10px sans-serif',
-          fillColor:Cesium.Color.RED,        //字体颜色
+          fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
         },
-        id:this.centerPoint.plotid,
-        plottype:"震中",
+        id: this.centerPoint.plotid,
+        plottype: "震中",
       });
 
 
@@ -457,19 +506,19 @@ export default {
       })
     },
 
-      detailedNews(val){
-          // console.log("detailedNews-----",val)
-        this.showingNewsContent = val
+    detailedNews(val) {
+      // console.log("detailedNews-----",val)
+      this.showingNewsContent = val
 
-      },
-      ifShowDialog(val){
-          // console.log("ifShowDialog-----",val)
-        this.showDetailedNewsDialog = val
-      },
-      hideNewsDialog(val){
-          // console.log("showDetailedNewsDialog-----",val)
-          this.showDetailedNewsDialog = val
-      },
+    },
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
+    hideNewsDialog(val) {
+      // console.log("showDetailedNewsDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
 
     //时间轴操作
     initTimerLine() {
@@ -527,8 +576,8 @@ export default {
       // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
       // let tmp = 100.0 / 672.0  //进度条每次前进
 
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076  //共前进2016次，每次5分钟，
-      let tmp = 100.0 / 2076.0  //进度条每次前进
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076 //共前进2016次，每次5分钟，
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
@@ -541,13 +590,15 @@ export default {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
         // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        this.currentTime = new Date(this.eqstartTime.getTime()
+            + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
         this.updatePlot()
       }
     },
     updatePlot() {
       // console.log(this.plots)
-      let that=this
+      let that = this
       //一个点线面一条数据
       //点
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -574,7 +625,7 @@ export default {
             if (existingPolyline) {
               // 更新已存在的数据
               // existingPolyline.endtime = polylineElement.endtime;
-              existingPolyline.positionsArr=positionsArr;
+              existingPolyline.positionsArr = positionsArr;
             } else {
               // 创建新的数据对象并添加到 polylineArr
               polylinetmp = {
@@ -612,7 +663,7 @@ export default {
             if (existingpolygon) {
               // 更新已存在的数据
               // existingPolyline.endtime = polylineElement.endtime;
-              existingpolygon.positionsArr=positionsArr;
+              existingpolygon.positionsArr = positionsArr;
             } else {
               // 创建新的数据对象并添加到 polylineArr
               polygontmp = {
@@ -623,7 +674,7 @@ export default {
                 plottype: polygonElement.plottype,
                 img: polygonElement.img,
                 positionsArr: positionsArr,
-                angle:polygonElement.angle,
+                angle: polygonElement.angle,
               };
               polygonArr.push(polygontmp);
             }
@@ -631,7 +682,6 @@ export default {
         });
       });
       // console.log("polygonArr",polygonArr)
-
 
 
       //渲染
@@ -695,7 +745,7 @@ export default {
           this.plotisshow[item.plotid] = 1
           this.drawPolyline(item)
         }
-          //消失
+        //消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
           this.plotisshow[item.plotid] = 0
           // console.log(item.plotid,"end")
@@ -744,6 +794,44 @@ export default {
         this.initTimerLine();
       }
     },
+      // 前进
+      forward(){
+          this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076
+          let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
+          this.currentTimePosition += tmp;
+          if (this.currentTimePosition >= 100) {
+              this.currentTimePosition = 100;
+              this.currentTime = this.eqendTime
+              this.isTimerRunning = false
+          } else {
+              this.currentTimePosition = this.currentTimePosition % 100
+              // this.currentTime = new Date(this.eqstartTime.getTime()
+              //     + this.currentNodeIndex * currentTime.setMinutes(currentTime.getMinutes() + 5); * 60 * 1000);
+              let newTime = new Date(this.currentTime);
+              this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
+              this.updatePlot()
+          }
+          console.log("========================",this.currentTime)
+      },
+      // 后退
+      backward(){
+          this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
+          let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
+          this.currentTimePosition -= tmp;
+          if (this.currentTimePosition <= 0) {
+              this.currentTimePosition = 0;
+              this.currentTime = this.eqstartTime
+              this.isTimerRunning = false
+          } else {
+              this.currentTimePosition = this.currentTimePosition % 100
+              // this.currentTime = new Date(this.eqstartTime.getTime()
+              //     + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
+              let newTime = new Date(this.currentTime);
+              this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
+              console.log("this.currentTime--",this.currentTime)
+              this.updatePlot()
+          }
+      },
     //点击跳转时间对应场景
     jumpToTime(event) {
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
@@ -751,7 +839,7 @@ export default {
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
       // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672); // Assuming 672 is the total number of steps
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076); // Assuming 672 is the total number of steps
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076) / this.currentSpeed; // Assuming 672 is the total number of steps
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       //点击前运行状态
@@ -793,28 +881,34 @@ export default {
       document.body.style.MozUserSelect = 'auto';
       document.body.style.msUserSelect = 'auto';
     },
+      selectSpeed(speed){
+        // this.currentSpeed = speed
+          this.speedOption = speed
+          this.currentSpeed = parseFloat(speed.split(-1))
+          console.log("-----------------------",this.currentSpeed)
+      },
     //时间轴end-------------
 
     drawPolyline(line) {
-        let material = this.getMaterial(line.plottype,line.img)
-        // 1-6 画线
-        window.viewer.entities.add({
-          id: line.plotid,
-          plottype: line.plottype,
-          polyline: {
-            status:1,
-            // positions: positionsArr,
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
-            width: 5,
-            material: material,
-            // material: Cesium.Color.YELLOW,
-            depthFailMaterial: Cesium.Color.YELLOW,
-            clampToGround: true,
-          },
-          properties: {
-            // pointPosition: pointLinePoints,
-          }
-        })
+      let material = this.getMaterial(line.plottype, line.img)
+      // 1-6 画线
+      window.viewer.entities.add({
+        id: line.plotid,
+        plottype: line.plottype,
+        polyline: {
+          status: 1,
+          // positions: positionsArr,
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
+          width: 5,
+          material: material,
+          // material: Cesium.Color.YELLOW,
+          depthFailMaterial: Cesium.Color.YELLOW,
+          clampToGround: true,
+        },
+        properties: {
+          // pointPosition: pointLinePoints,
+        }
+      })
     },
     distinguishPolylineId(polylineArr) {
       let PolylineIdArr = []
@@ -826,29 +920,29 @@ export default {
       return PolylineIdArr
     },
     // 选择当前线的material
-    getMaterial(type,img) {
-      if(type==="量算"){
+    getMaterial(type, img) {
+      if (type === "量算") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
         })
         return NORMALLINE
       }
-      if(type==="地裂缝"||type==="可用供水管网"||type==="不可用供水管网"){
+      if (type === "地裂缝" || type === "可用供水管网" || type === "不可用供水管网") {
         let PICTURELINE = new Cesium.ImageMaterialProperty({
           image: img,
           repeat: new Cesium.Cartesian2(3, 1),
         })
         return PICTURELINE
       }
-      if(type==="可通行公路"||type==="限制通行公路"||type==="不可通行公路"){
+      if (type === "可通行公路" || type === "限制通行公路" || type === "不可通行公路") {
         let color = null
-        if(type==="可通行公路"){
-          color = Cesium.Color.fromBytes(158,202,181)
-        }else if(type==="限制通行公路"){
-          color = Cesium.Color.fromBytes(206,184,157)
-        }else{
-          color = Cesium.Color.fromBytes(199,151,149)
+        if (type === "可通行公路") {
+          color = Cesium.Color.fromBytes(158, 202, 181)
+        } else if (type === "限制通行公路") {
+          color = Cesium.Color.fromBytes(206, 184, 157)
+        } else {
+          color = Cesium.Color.fromBytes(199, 151, 149)
         }
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: color,
@@ -856,28 +950,28 @@ export default {
         })
         return NORMALLINE
       }
-      if(type==="可通行铁路"||type==="不可通行铁路"){
+      if (type === "可通行铁路" || type === "不可通行铁路") {
         let gapColor
-        if(type==="可通行铁路"){
+        if (type === "可通行铁路") {
           gapColor = Cesium.Color.BLACK
-        }else {
+        } else {
           gapColor = Cesium.Color.RED
         }
-        let DASHLINE= new Cesium.PolylineDashMaterialProperty({
+        let DASHLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.WHITE,
           gapColor: gapColor,
           dashLength: 100
         })
         return DASHLINE
       }
-      if(type==="可用输电线路"||type==="不可用输电线路"){
+      if (type === "可用输电线路" || type === "不可用输电线路") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
         })
         return NORMALLINE
       }
-      if(type==="可用输气管线"||type==="不可用输气管线"){
+      if (type === "可用输气管线" || type === "不可用输气管线") {
         let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
           color: Cesium.Color.CYAN,
           dashPattern: parseInt("110000001111", 1),
@@ -887,20 +981,20 @@ export default {
     },
 
 
-    getDrawPolygon(polygon){
+    getDrawPolygon(polygon) {
       // console.log("polygon111111111",polygon)
-        viewer.entities.add({
-          id: polygon.plotid,
-          plottype: polygon.plottype,
-          polygon: {
-            show: true,
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
-            height: 0,
-            material: polygon.img,
-            stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
-            clampToGround: true,
-          }
-        })
+      viewer.entities.add({
+        id: polygon.plotid,
+        plottype: polygon.plottype,
+        polygon: {
+          show: true,
+          hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
+          height: 0,
+          material: polygon.img,
+          stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
+          clampToGround: true,
+        }
+      })
     },
 
 
@@ -912,11 +1006,11 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
         // 2-1 判断点击物体是否为点实体（billboard）
-        if(window.selectedEntity === undefined){
+        if (window.selectedEntity === undefined) {
           this.popupVisible = false
           this.popupData = {}
         }
-        console.log("window.selectedEntity",window.selectedEntity)
+        console.log("window.selectedEntity", window.selectedEntity)
         // if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined) {
           // console.log("window.selectedEntity",window.selectedEntity)
@@ -953,7 +1047,6 @@ export default {
           // that.selectedEntity = window.selectedEntity
 
 
-
           // that.currentTime=
           // this.popupVisible = true; // 显示弹窗
           this.popupVisible = false
@@ -963,7 +1056,7 @@ export default {
             plotname: window.selectedEntity.plottype,
             centerPoint: that.centerPoint
           };
-          console.log("popupData thd timeline",this.popupData)
+          console.log("popupData thd timeline", this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           this.popupVisible = false; // 隐藏弹窗
@@ -1020,10 +1113,35 @@ export default {
       //   document.body.removeChild(link);
       //   // console.log(this.$el.textContent); // I'm text inside the component.
       // });
-        const link = document.createElement('a');
-        link.href = fileUrl
-        link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
-        link.click();
+      const link = document.createElement('a');
+      link.href = fileUrl
+      link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
+      link.click();
+    },
+
+    drawListChage() {
+      this.dropdownVisible = !this.dropdownVisible;
+    },
+    exportSelected() {
+      this.selectedItems.forEach(selectedName => {
+        console.log(selectedName)
+        const item = this.drawitems.find(item => item.name === selectedName);
+        // selectedName
+        console.log(item)
+        if (item) {
+          const link = document.createElement('a');
+          link.href = item.pdfUrl
+          link.download = '芦山县行政区划图.png';
+          link.click();
+        }
+      });
+      // const link = document.createElement('a');
+      // link.href = item.pdfUrl;
+      // link.download = item.name + '.jpg'; // Assuming images are in jpg format
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      // this.selectedItems = []; // Clear selections after export
     },
 
 
@@ -1255,6 +1373,7 @@ export default {
 .play-icon,
 .pause-icon {
   width: 100%;
+  margin-right: 4px;
   height: auto;
   cursor: pointer;
 }
@@ -1269,20 +1388,49 @@ export default {
 
 .time-ruler {
   position: relative;
-  width: 81%;
+  width: 70%;
   height: 8px;
-  left: -11%;
+  left: -14%;
   background-color: #ddd;
   border-radius: 4px;
   margin: 0 1%;
   cursor: pointer;
+  flex-direction: row;
 }
 
+.speedButton {
+    position: relative;
+    left: 101%;
+    color: white;
+    top: -50%;
+}
+
+/* 原有的 chooseSpeed 样式 */
+.chooseSpeed {
+    width: 40px;
+    height: 60px;
+    position: absolute;
+    padding: 0 0px 5px;
+    border-radius: 3px;
+    top: -65px;
+    left: 97%;
+    z-index: 30; /* 更高的层级 */
+    background-color: rgba(40, 40, 40, 0.7);
+    color: white;
+    text-align: center;
+    display: none; /* 默认隐藏 */
+}
+
+/* 当 mouse hover speedButton 时显示 chooseSpeed */
+.speedButton:hover + .chooseSpeed,
+.chooseSpeed:hover {
+    display: block;
+}
 .time-ruler-line {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 98%;
   height: 100%;
 }
 
@@ -1328,5 +1476,25 @@ export default {
   top: 6.3%;
   right: 7%;
 }
+.draw-button{
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  right: 15%;
+}
 
+
+.dropdown{
+  background-color: #C03639;
+  width: 30%;
+  top:10%;
+  height: 43%;
+  z-index: 30;
+  left:1%;
+  position: absolute;
+}
+
+.output-button {
+  margin-top: 10px;
+}
 </style>

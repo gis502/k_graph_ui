@@ -41,6 +41,7 @@ const plotType = {
                     value: "forestFirefightingTeam",
                     label: "森林消防队伍"
                 },
+                -
                 {
                     value: "professionalRescueTeam",
                     label: "专业救援队伍"
