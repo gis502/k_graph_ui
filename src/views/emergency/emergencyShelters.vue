@@ -21,7 +21,7 @@
             >
                 <template #default="scope">
                     <div v-if="header.label === '备注' || header.label === '名称'
-                    || header.label === '地址' || header.label === '隶属组织'">
+                    || header.label === '地址' || header.label === '隶属组织' || header.label === '数据来源单位'">
                         <el-popover placement="top" :width="200" trigger="hover">
                             <div style="text-align: center">{{ scope.row[header.prop] }}</div>
                             <template #reference>
