@@ -65,17 +65,23 @@ export default {
       showRescueTeam:[],
       rescue_team_isExpanded:'true',
       recordtime: '',
+      ifShowData:false,
     }
   },
   props: [
-    'currentTime'
+    'currentTime','eqid'
   ],
   mounted() {
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
     this.init()
   },
   watch: {
     currentTime(newVal) {
-      this.rescue_team_update(newVal)
+        if(this.ifShowData){
+            this.rescue_team_update(newVal)
+        }
     }
   },
   methods: {

@@ -55,18 +55,25 @@
     <!-- 进度条 end-->
 
 <!--    两侧组件-->
+        <!--   应急响应-左上   -->
       <timeLineEmergencyResponse
           :currentTime="currentTime"
+          :eqid="eqid"
       />
+        <!--   人员伤亡-左中   -->
       <timeLinePersonnelCasualties
           :currentTime="currentTime"
+          :eqid="eqid"
       />
+        <!--   救援出队-左下   -->
       <timeLineRescueTeam
         :currentTime="currentTime"
+        :eqid="eqid"
       />
-    <!--      新闻-->
+        <!--  新闻-右上  -->
     <div>
       <news
+              :eqid="eqid"
               :currentTime="currentTime"
               @ifShowDialog="ifShowDialog"
               @detailedNews="detailedNews"
