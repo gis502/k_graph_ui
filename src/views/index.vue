@@ -39,14 +39,18 @@
         <div class="right-body">
           <div class="right-top public-bg">
             <dv-border-box7>
-              <div class="public-title">地震列表</div>
+              <div class="public-title">
+                地震列表
+                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
+                <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
+              </div>
               <eq-table :eq-data="tableData"/>
             </dv-border-box7>
           </div>
           <div class="right-bottom public-bg">
             <dv-border-box7>
               <div class="public-title">历史地震统计(次)</div>
-              <chart1 :eq-data="tableData"/>
+              <chart1 :eq-data="EqAll"/>
             </dv-border-box7>
           </div>
         </div>
@@ -69,10 +73,22 @@ import newInfo from '@/components/Home/newInfo.vue';
 import chart1 from '@/components/Home/chart1.vue';
 import chart2 from '@/components/Home/chart2.vue';
 import chart3 from '@/components/Home/chart3.vue';
-import {getAllEq} from '@/api/system/eqlist';
+import {getAllEq, queryEq} from '@/api/system/eqlist';
 
 const nowTime = ref(null);
 const tableData = ref([]);
+const EqAll = ref([])
+const requestParams = ref("")
+
+const query = () => {
+  if (requestParams.value === "") {
+    tableData.value = EqAll.value
+    return
+  }
+  queryEq({queryValue: requestParams.value}).then(res => {
+    tableData.value = res
+  })
+}
 
 const updateTime = () => {
   nowTime.value = now_time();
@@ -97,6 +113,7 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
+    EqAll.value = res
     tableData.value = res
   })
   ;
@@ -108,7 +125,6 @@ onMounted(() => {
 });
 </script>
 <style scoped>
-
 .public-bg {
   background: rgba(12, 26, 63, 0.3);
 }
