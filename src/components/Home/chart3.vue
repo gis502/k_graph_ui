@@ -12,10 +12,19 @@ const initChart = () => {
   const myChart = echarts.init(chart3.value);
 
   const rawData = [
-    {value: 1, name: '受伤人数', itemStyle: {color: 'rgba(248,25,25,0.7)'}},
-    {value: 1, name: '失联人数', itemStyle: {color: 'rgba(255,235,47,0.7)'}},
-    {value: 1, name: '遇难人数', itemStyle: {color: 'rgba(0, 0, 0, 0.5)'}},
+    {value: 0, name: '受伤人数', itemStyle: {color: 'rgba(248,25,25,0.7)'}},
+    {value: 0, name: '失联人数', itemStyle: {color: 'rgba(255,235,47,0.7)'}},
+    {value: 0, name: '遇难人数', itemStyle: {color: 'rgba(0, 0, 0, 0.5)'}},
   ];
+
+  const peopleList = rawData.filter(item => item.value === 0).length === 2 ? rawData : rawData.map(item => {
+    return {
+      ...item,
+      itemStyle: {
+        color: 'rgba(130,145,163,0.77)'
+      }
+    }
+  });
 
   const option = {
     grid: {
@@ -40,7 +49,7 @@ const initChart = () => {
         showEmptyCircle: false,
         radius: ['0%', '78%'],
         center: ['50%', '47%'],
-        data: rawData,
+        data: peopleList,
         emphasis: {
           itemStyle: {
             fontSize: 10,
