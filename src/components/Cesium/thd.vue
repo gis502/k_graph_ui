@@ -51,6 +51,9 @@
     <div class="thematic-button">
       <el-button class="el-button--primary" size="small" @click="">专题图下载</el-button>
     </div>
+      <div class="back-button">
+          <el-button class="el-button--primary" size="small" @click="backToHome">返回首页</el-button>
+      </div>
 
 
     <!--    title-->
@@ -98,25 +101,31 @@
 
       <!--      时间点-->
       <div class="current-time-info">
-        <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
+        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
       <div class="end-time-info">
-        <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
+        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>
       </div>
     </div>
     <!-- 进度条 end-->
 
     <!--    两侧组件-->
+      <!--   应急响应-左上   -->
     <timeLineEmergencyResponse
-        :currentTime="currentTime"
+            :eqid="eqid"
+            :currentTime="currentTime"
     />
+      <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
-        :currentTime="currentTime"
+            :eqid="eqid"
+            :currentTime="currentTime"
     />
+      <!--   救援出队-左下   -->
     <timeLineRescueTeam
-        :currentTime="currentTime"
+            :eqid="eqid"
+            :currentTime="currentTime"
     />
-    <!--      新闻-->
+      <!--  新闻-右上  -->
     <div>
       <news
           :currentTime="currentTime"
@@ -232,6 +241,7 @@ export default {
       showDetailedNewsDialog: false,
 
       //时间轴时间
+      ifShowData: false,
       eqstartTime: '',
       currentTime: '',
       eqendTime: '',
@@ -299,15 +309,19 @@ export default {
 
     };
   },
-  mounted() {
+    created() {
+        this.eqid = new URLSearchParams(window.location.search).get('eqid')
+    },
+    mounted() {
     this.init()
-    this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.getEqInfo(this.eqid)
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
-
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
   },
   methods: {
     //设置组件展开的面板互斥,避免堆叠
@@ -529,7 +543,11 @@ export default {
           this.plotisshow[item.plotid] = 0
         })
         //开启时间轴
-        this.initTimerLine();
+          if(this.ifShowData){
+              this.initTimerLine();
+          }else{
+              this.isTimerRunning = false
+          }
       })
     },
 
@@ -1152,6 +1170,9 @@ export default {
       link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
       link.click();
     },
+      backToHome(){
+
+      },
 
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
@@ -1525,6 +1546,12 @@ export default {
   z-index: 20;
   top: 6.3%;
   right: 14%;
+}
+.back-button{
+    position: absolute;
+    z-index: 20;
+    top: 6.3%;
+    right: 21%;
 }
 .draw-button {
   position: absolute;
