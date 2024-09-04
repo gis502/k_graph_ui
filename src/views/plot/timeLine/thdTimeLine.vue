@@ -46,10 +46,10 @@
 
         <!--      时间点-->
       <div class="current-time-info">
-        <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
+        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
       <div class="end-time-info">
-        <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
+        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>
       </div>
     </div>
     <!-- 进度条 end-->
@@ -217,6 +217,7 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 1,
       intervalId: null,
+        ifShowData: false,
       // 倍速
       currentSpeed: 1,
         showSpeedOptions: false,
@@ -252,6 +253,9 @@ export default {
     this.eqid = this.$route.params.eqid
   },
   mounted() {
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
     this.init()
     this.getEqInfo(this.eqid)
     // this.initTimerLine()
@@ -262,14 +266,6 @@ export default {
   },
 
   methods: {
-
-
-
-
-
-
-
-
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -295,7 +291,6 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-
 
       // 创建缩略图视图器实例
       let that = this
@@ -509,7 +504,11 @@ export default {
           this.plotisshow[item.plotid] = 0
         })
         //开启时间轴
-        this.initTimerLine();
+          if(this.ifShowData){
+              this.initTimerLine();
+          }else{
+              this.isTimerRunning = false
+          }
       })
     },
 

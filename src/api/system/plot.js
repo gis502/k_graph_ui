@@ -37,7 +37,7 @@ export function updataPlotIcon(data) {
 export function getPlotIcon(query) {
   return request({
     url: '/system/ploy/getploticon',
-    method: 'get',
+    method: 'post',
   })
 }
 
