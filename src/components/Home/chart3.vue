@@ -38,8 +38,8 @@ const initChart = () => {
       {
         type: 'pie',
         showEmptyCircle: false,
-        radius: ['0%', '77%'],
-        center: ['50%', '50%'],
+        radius: ['0%', '78%'],
+        center: ['50%', '47%'],
         data: rawData,
         emphasis: {
           itemStyle: {
@@ -57,7 +57,7 @@ const initChart = () => {
           },
           color: 'rgb(241,106,106)',
           textStyle: {
-            fontSize: 16,
+            fontSize: 13,
             fontWeight: 'bold',
             textShadowColor: 'rgba(0, 0, 0, 0.8)',
             textShadowBlur: 6,
