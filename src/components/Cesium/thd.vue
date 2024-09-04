@@ -130,6 +130,7 @@
       <!--  新闻-右上  -->
     <div>
       <news
+          :eqid="eqid"
           :currentTime="currentTime"
           @ifShowDialog="ifShowDialog"
           @detailedNews="detailedNews"
@@ -288,7 +289,6 @@ export default {
       //-----------------图层---------------------
       // iflayerChoose: false,
       isMarkingLayer: true,
-      selectedlayers: ['标绘点图层'],
       showlayers: [],
       //-----------------图层---------------------
       LRDLStatus: false, // 路网
@@ -320,7 +320,7 @@ export default {
         { id: '5', name: '救援队伍分布要素图层' },
         { id: '6', name: '应急物资存储要素图层' },
       ],
-      selectedlayersLocal: [],
+      selectedlayersLocal: ['标绘点图层'],
       isMarkingLayerLocal: false,
       disasterReserves: [],
       emergencyTeam: [],
@@ -1183,7 +1183,7 @@ export default {
     // ------------------行政区划--------------------
     addYaanImageryDistrict() {
       this.removethdRegions()
-      if (!this.selectedlayers.includes("行政区划要素图层")) {
+      if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
           stroke: Cesium.Color.RED,
           fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
@@ -1333,8 +1333,10 @@ export default {
       // 行政区划要素图层
       const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
       if (hasYaanRegionLayer) {
+        this.removethdRegions();
         this.addYaanRegion();
       } else {
+        this.removethdRegions();
         this.removeDataSourcesLayer('YaanRegionLayer');
       }
 
