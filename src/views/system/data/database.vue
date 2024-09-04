@@ -1,9 +1,10 @@
 <template>
   <div class="app-container">
-    <div>
-      <el-input style="width: 10vw;margin: 0 1vw 1vh 0; font-size: 15px" v-model="queryParams.queryValue"
+    <div style="margin: 0 0 1vh 0">
+      <el-input style="width: 10vw;margin-right:1vw ; font-size: 15px" v-model="queryParams.queryValue"
                 placeholder="请输入查询的表名或备注"/>
-      <el-button style="margin: 0 0 1vh 0 " type="primary" @click="getList">搜索</el-button>
+      <el-button type="primary" @click="getList">搜索</el-button>
+      <el-button type="primary" @click="handleBackupAll">一键备份</el-button>
     </div>
     <el-table
         v-loading="loading"
@@ -86,7 +87,7 @@
 import {ElIcon, ElButton, ElDialog} from 'element-plus';
 import {Edit, Delete, DocumentCopy} from '@element-plus/icons-vue';
 import {ref} from 'vue'
-import {backup, getListTable} from "@/api/system/table.js";
+import {backup, backupAll, getListTable} from "@/api/system/table.js";
 
 const loading = ref(false)
 const total = ref(0)
@@ -161,6 +162,23 @@ const handleBackup = (tableName) => {
     isBackupDialogVisible.value = false;
   });
 };
+const handleBackupAll = () => {
+  isBackupDialogVisible.value = true;
+  backupAll().then(response => {
+    const blob = new Blob([response], {type: response.type});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+
+    link.download = 'all.backup';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }).catch(error => {
+    console.error("Error during file download:", error);
+  }).finally(() => {
+    isBackupDialogVisible.value = false;
+  });
+}
 const handleUpdate = (row) => {
 }
 

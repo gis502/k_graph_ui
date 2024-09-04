@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <!--    地震列表切换-->
@@ -19,22 +18,24 @@
       </el-checkbox-group>
     </div>
 
-    <!--    行政区划-->
+<!--    行政区划-->
     <div class="regionjump-button">
       <el-button class="el-button--primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>
     </div>
     <div class="dropdown" v-if="activeComponent === 'Regionjump'">
-      <div class="city-button">-->
+      <div class="district-buttons">
+      <div class="city-button">
         <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+      </div>
+        <div class="city-button">
+        <el-button @click="backcenter">回到震中</el-button>
+      </div>
       </div>
       <!-- 下属区县按钮 -->
       <div class="district-buttons">
         <div v-for="district in districts" :key="district.adcode" class="district-button">
           <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
         </div>
-      </div>
-      <div>
-        <el-button @click="backcenter">回到震中</el-button>
       </div>
     </div>
 
@@ -285,14 +286,14 @@ export default {
       //------------------按钮下拉框------
       // visible: false,
       districts: [
-        {adcode: 511802, name: "雨城区"},
-        {adcode: 511803, name: "名山区"},
-        {adcode: 511822, name: "荥经县"},
-        {adcode: 511823, name: "汉源县"},
-        {adcode: 511824, name: "石棉县"},
-        {adcode: 511825, name: "天全县"},
-        {adcode: 511826, name: "芦山县"},
-        {adcode: 511827, name: "宝兴县"},
+        {adcode: 511802, name: "芦山县"},
+        {adcode: 511803, name: "雨城区"},
+        {adcode: 511822, name: "名山区"},
+        {adcode: 511823, name: "天全县"},
+        {adcode: 511824, name: "宝兴县"},
+        {adcode: 511825, name: "石棉县"},
+        {adcode: 511826, name: "荥经县"},
+        {adcode: 511827, name: "汉源县"},
       ],
       geojsonData: [],
       labels: [],  // 保存标签实体的引用
@@ -302,13 +303,12 @@ export default {
       //-----------------图层要素---------------------
       layeritems: [
         { id: '0', name: '标绘点图层' },
-        { id: '1', name: '自建要素图层服务' },
-        { id: '2', name: '行政区划要素图层' },
-        { id: '3', name: '人口密度要素图层' },
-        { id: '4', name: '交通网络要素图层' },
-        { id: '5', name: '避难场所要素图层' },
-        { id: '6', name: '救援队伍分布要素图层' },
-        { id: '7', name: '应急物资存储要素图层' },
+        { id: '1', name: '行政区划要素图层' },
+        { id: '2', name: '人口密度要素图层' },
+        { id: '3', name: '交通网络要素图层' },
+        { id: '4', name: '避难场所要素图层' },
+        { id: '5', name: '救援队伍分布要素图层' },
+        { id: '6', name: '应急物资存储要素图层' },
       ],
       selectedlayersLocal: [],
       isMarkingLayerLocal: false,
@@ -819,10 +819,10 @@ export default {
         this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
         this.updatePlot()
       }
-      console.log("========================", this.currentTime)
+      // console.log("========================",this.currentTime)
     },
     // 后退
-    backward() {
+    backward(){
       this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
       let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
       this.currentTimePosition -= tmp;
@@ -836,7 +836,7 @@ export default {
         //     + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
         let newTime = new Date(this.currentTime);
         this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
-        console.log("this.currentTime--", this.currentTime)
+        // console.log("this.currentTime--",this.currentTime)
         this.updatePlot()
       }
     },
@@ -893,7 +893,7 @@ export default {
       // this.currentSpeed = speed
       this.speedOption = speed
       this.currentSpeed = parseFloat(speed.split(-1))
-      console.log("-----------------------", this.currentSpeed)
+      // console.log("-----------------------",this.currentSpeed)
     },
     //时间轴end-------------
 
@@ -1162,23 +1162,40 @@ export default {
     // ------------------行政区划--------------------
     addYaanImageryDistrict() {
       this.removethdRegions()
-      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-        stroke: Cesium.Color.RED,
-        fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-        strokeWidth: 4,
-      });
-      geoPromise.then((dataSource) => {
-        // 添加 geojson
-        window.regionLayer111 = dataSource;
-        window.viewer.dataSources.add(dataSource);
-        // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-        dataSource.name = "thd_yaanregion";
-        // 视角跳转到 geojson
-        viewer.flyTo(dataSource.entities.values)
+      if (!this.selectedlayers.includes("行政区划要素图层")) {
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          strokeWidth: 4,
+        });
+        geoPromise.then((dataSource) => {
+          // 添加 geojson
+          window.regionLayer111 = dataSource;
+          window.viewer.dataSources.add(dataSource);
+          // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
+          dataSource.name = "thd_yaanregion";
+          // 视角跳转到 geojson
+          viewer.flyTo(dataSource.entities.values);
       }).catch((error) => {
         console.error("加载GeoJSON数据失败:", error);
       });
-      let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
+    }else {
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          stroke: Cesium.Color.TRANSPARENT,
+          fill: Cesium.Color.TRANSPARENT,
+          markerColor: Cesium.Color.TRANSPARENT,
+          markerSize: 0,
+          strokeWidth: 0,
+          clampToGround: true
+        });
+        geoPromise.then((dataSource) => {
+          window.viewer.dataSources.add(dataSource);
+          viewer.flyTo(dataSource.entities.values);
+        }).catch((error) => {
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      }
+      let labelData =  { lon: 103.003398, lat: 29.981831, name: "雅安市" };
       let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
       let labelEntity = viewer.entities.add(new Cesium.Entity({
         position: position,
@@ -1193,6 +1210,7 @@ export default {
       }));
       this.labels.push(labelEntity);  // 保存标签实体的引用
     },
+
     handleDistrictClick(district) {
       //清除其他实体标签
       this.removethdRegions()
@@ -1247,7 +1265,7 @@ export default {
       }
     },
     removethdRegions() {
-      if (window.regionLayer111) {
+      if(window.regionLayer111){
         window.viewer.dataSources.remove(window.regionLayer111, true); // 强制移除
         window.regionLayer111 = null; // 清空引用
         // console.log("图层已移除");
@@ -1257,9 +1275,9 @@ export default {
       });
       this.labels = [];  // 清空标签引用数组
     },
-    backcenter() {
+    backcenter(){
       this.removethdRegions()
-      const position = Cesium.Cartesian3.fromDegrees(
+      const position= Cesium.Cartesian3.fromDegrees(
           parseFloat(this.centerPoint.longitude),
           parseFloat(this.centerPoint.latitude),
           120000,
@@ -1680,16 +1698,15 @@ export default {
   position: absolute;
   z-index: 20;
   top: 6.3%;
-  right: 7%;
+  left: 27%;
 }
 
 .thematic-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
-  right: 14%;
+  left: 20%;
 }
-
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -1752,22 +1769,26 @@ export default {
   color: #FFFFFF;
 }
 
-
-.city-button {
-  margin-bottom: 8px;
-}
-
+/*行政区划按钮样式*/
 .district-buttons {
   display: flex;
   flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
-.district-button {
-  flex: 0 0 25%; /* 每行4个按钮 */
+.city-button, .district-button {
+  flex: 0 0 20%; /* 每行5个按钮 */
   display: flex;
   justify-content: center;
-  margin-bottom: 8px;
+  margin: 4px; /* 调整按钮之间的间距 */
 }
+
+.el-button {
+  font-size: 12px; /* 调整按钮字体大小 */
+  padding: 6px 12px; /* 调整按钮内边距 */
+  width: 100%; /* 使按钮宽度自适应 */
+}
+
 /*弹窗样式*/
 .grid-container {
   display: grid;
@@ -1778,5 +1799,6 @@ export default {
 .el-checkbox {
   color:#FFFFFF;
 }
+
 
 </style>
