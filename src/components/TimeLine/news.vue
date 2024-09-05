@@ -47,11 +47,12 @@ export default {
   data() {
     return {
       error,
-      newsData: newsData,
+      newsData: [],
       showNews: [],
       currentEvent: '',
       showRightButton: true,
       showLeftButton: false,
+      ifShowData:false,
 
       // ----新闻详情Dialog----
       DialogFormVisible: false,
@@ -64,10 +65,13 @@ export default {
     }
   },
   props: [
-    'currentTime'
+    'currentTime','eqid'
   ],
   mounted() {
-    this.fetchData()
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+          this.fetchData()
+      }
   },
   watch: {
     currentTime(newVal) {
@@ -79,8 +83,7 @@ export default {
       event.target.src = error // 当图片加载失败时，将其替换为备用图片
     },
     async fetchData() {
-      // this.newsData = this.newsData.filter((item,index) => index < 5)
-      // console.log("----",this.newsData)
+      this.newsData = newsData
     },
     hideNews() {
       this.showRightButton = false

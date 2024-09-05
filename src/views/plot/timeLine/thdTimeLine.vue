@@ -46,27 +46,34 @@
 
         <!--      时间点-->
       <div class="current-time-info">
-        <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
+        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
       <div class="end-time-info">
-        <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
+        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>
       </div>
     </div>
     <!-- 进度条 end-->
 
 <!--    两侧组件-->
+        <!--   应急响应-左上   -->
       <timeLineEmergencyResponse
           :currentTime="currentTime"
+          :eqid="eqid"
       />
+        <!--   人员伤亡-左中   -->
       <timeLinePersonnelCasualties
           :currentTime="currentTime"
+          :eqid="eqid"
       />
+        <!--   救援出队-左下   -->
       <timeLineRescueTeam
         :currentTime="currentTime"
+        :eqid="eqid"
       />
-    <!--      新闻-->
+        <!--  新闻-右上  -->
     <div>
       <news
+              :eqid="eqid"
               :currentTime="currentTime"
               @ifShowDialog="ifShowDialog"
               @detailedNews="detailedNews"
@@ -192,7 +199,6 @@ export default {
         depth: '',
         plottype: '震中'
       },
-
         // 新闻组件
         showingNewsContent: {
             id: '',
@@ -211,6 +217,7 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 1,
       intervalId: null,
+        ifShowData: false,
       // 倍速
       currentSpeed: 1,
         showSpeedOptions: false,
@@ -226,7 +233,6 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-
       smallViewer:null,
 
 
@@ -247,6 +253,9 @@ export default {
     this.eqid = this.$route.params.eqid
   },
   mounted() {
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
     this.init()
     this.getEqInfo(this.eqid)
     // this.initTimerLine()
@@ -257,14 +266,6 @@ export default {
   },
 
   methods: {
-
-
-
-
-
-
-
-
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -290,7 +291,6 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-
 
       // 创建缩略图视图器实例
       let that = this
@@ -504,7 +504,11 @@ export default {
           this.plotisshow[item.plotid] = 0
         })
         //开启时间轴
-        this.initTimerLine();
+          if(this.ifShowData){
+              this.initTimerLine();
+          }else{
+              this.isTimerRunning = false
+          }
       })
     },
 
@@ -841,7 +845,7 @@ export default {
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
       // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672); // Assuming 672 is the total number of steps
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076); // Assuming 672 is the total number of steps
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076) / this.currentSpeed; // Assuming 672 is the total number of steps
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       //点击前运行状态

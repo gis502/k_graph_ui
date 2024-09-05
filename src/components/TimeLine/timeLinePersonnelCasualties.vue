@@ -64,22 +64,29 @@ export default {
         miss: '',
         injure: '',
       },
+        ifShowData: false,
       personnel_casualties_isExpanded:'true'
     }
   },
   props: [
-    'currentTime'
+    'currentTime','eqid'
   ],
   mounted() {
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
     this.init()
   },
   watch: {
     currentTime(newVal) {
-      this.personnel_casualties_update(newVal)
+        if(this.ifShowData){
+            this.personnel_casualties_update(newVal)
+        }
     }
   },
   methods: {
     init() {
+        console.log("---------------------------------------",this.eqid)
       this.Responsecontent = [...PersonnelCasualties]
       // console.log(this.Responsecontent)
     },
