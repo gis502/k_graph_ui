@@ -113,12 +113,15 @@ let cesiumPlot= {
   //-----------------------------------------------------------------
 
   //------------------------------面---------------------------------
-  drawActivatePolygon(type,img,eqid,info) {
+  drawActivatePolygon(type,img,eqid,obj) {
     let name = type
     if(type==="崩塌"||type==="滑坡"||type==="泥石流"||type==="地面塌陷"){
       type = "标绘面"
     }
-    this.polygon.activate(name,type,img,eqid,info)
+    this.polygon.activate(name,type,img,eqid,obj)
+  },
+  drawPolygonStatus() {
+    return this.polygon.status
   },
   deletePolygon(polygon){
     this.polygon.deletePolygon(polygon)
@@ -127,10 +130,7 @@ let cesiumPlot= {
   getDrawPolygon(polygonArr){
     this.polygon.getDrawActivatePolygon(polygonArr)
   },
-  //插入面info信息
-  insertPolygon(polygonInfo){
-    this.polygon.rightClickSendEvent(polygonInfo)
-  }
+
   //----------------------------------------------------------------
 }
 export default cesiumPlot;

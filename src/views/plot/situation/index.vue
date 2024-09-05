@@ -103,13 +103,11 @@
       <addPolylineDialog
           :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
           @wsSendPoint="wsSendPoint"
-          @drawPoint="drawPoint"
           @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-          :popupVisiblePolygon="popupVisiblePolygon"
-          :defaultValue="defaultInputValue"
-          @confirm="handlePopupConfirm"
+          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+          @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
           :visible="popupVisible"
@@ -151,6 +149,7 @@ export default {
       message: null, // 添加点标绘的时候的弹窗相关
       addMarkDialogFormVisible: false, // dian标绘信息填写对话框的显示和隐藏
       addPolylineDialogFormVisible:false,// xian标绘信息填写对话框的显示和隐藏
+      addPolygonDialogFormVisible:false,// mian标绘信息填写对话框的显示和隐藏
       showMarkCollection: false, // 点标绘控件的显示和隐藏
       openAddStatus: true, // 用来控制添加billboard按钮的状态，点一次后只有添加完点才能再点击
       //-----------弹窗部分--------------
@@ -233,16 +232,8 @@ export default {
       //----------------------------------
       eqid: '',
       title:'',
-      popupVisiblePolygon: false,
-      defaultInputValue: '',
       clickEvent: null // 用于存储点击事件对象
     };
-  },
-  setup(props,ctx) {
-    onMounted(()=>{
-      window.showPopup= instance.proxy.showPopup
-    })
-    const instance = getCurrentInstance()
   },
   mounted() {
     // 初始化地图
@@ -685,7 +676,6 @@ export default {
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
           console.log(this.polylineStatus,888)
         }).then((res)=>{
-          // console.log(res,item)
           let situationPlotData = []// situationplot表中的线数据
           for(let i=0;i<res.pointPosArr.length;i++){
             let cartographic = Cesium.Cartographic.fromCartesian(res.pointPosArr[i]);
@@ -712,7 +702,35 @@ export default {
           this.openPolylinePop(item.name,situationPlotData)
         })
       } else {
-        this.drawPolygon(item)      }
+        new Promise((resolve, reject) => {
+          this.drawPolygon(item, resolve)
+          this.polygonStatus = cesiumPlot.drawPolygonStatus()
+        }).then((res) => {
+          // console.log(res1,item)
+          let situationPlotData = []// situationplot表中的面数据
+          for (let i = 0; i < res.pointPosArr.length; i++) {
+            let cartographic = Cesium.Cartographic.fromCartesian(res.pointPosArr[i]);
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            let height = Cesium.Math.toDegrees(cartographic.height);
+            let plotItem = {
+              eqid: res.eqid,
+              name: res.name,
+              drawtype: "polygon",
+              time: res.time,
+              plotid:res.plotid,
+              img: res.img,
+              latitude,
+              longitude,
+              height,
+              angle:res.angle
+            }
+            situationPlotData.push(plotItem)
+          }
+          that.polygonStatus = cesiumPlot.drawPolygonStatus()
+          this.openPolygonPop(item.name,situationPlotData)
+        })
+      }
     },
 
     //--------------点------------------------
@@ -810,14 +828,48 @@ export default {
     },
 
     //------------面-------------
-    drawPolygon(info) {
+    openPolygonPop(plottype,situationPlotData){
+      let that = this
+      let cesiumStore = useCesiumStore()
+      if (this.openAddStatus) {
+        // 1-1 更改添加点标注按钮状态
+        this.openAddStatus = !this.openAddStatus
+        // 1-2 提示弹窗
+        // this.message = ElMessage({
+        //   message: '请点击地图添加标注点',
+        //   type: 'info',
+        //   duration: 0
+        // })
+        cesiumStore.setPolygonInfo({plottype,situationPlotData})
+        that.addPolygonDialogFormVisible = true
+        // 1-3 生成点标注的handler
+        // cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {
+        //   that.addMarkDialogFormVisible = true
+        //   this.message.close(that.addMarkDialogFormVisible)
+        // })
+      }
+    },
+    drawPolygon(info,resolve) {
       console.log(info, "面")
-      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,info)
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,resolve)
     },
     //获取数据库数据绘制面
     getDrawPolygonInfo(info) {
       console.log(info, "面")
       cesiumPlot.getDrawPolygon(info)
+    },
+    resetPolygon() {
+      let cesiumStore = useCesiumStore()
+      new Promise((resolve, reject) => {
+        // 1-1 先清空store中的数据，这时触发监听，因为是异步，所以用promise写成同步进行
+        cesiumStore.clearPolygonInfo()
+        resolve()
+      }).then(res => {
+        // 2-1 更改添加点标绘按钮状态使其可以点击
+        this.openAddStatus = !this.openAddStatus
+        // 3-1 关闭弹窗
+        this.addPolygonDialogFormVisible = !this.addPolygonDialogFormVisible
+      })
     },
     // 画面
     drawP() {
