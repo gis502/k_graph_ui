@@ -103,10 +103,12 @@
 
       <!--      时间点-->
       <div class="current-time-info">
-        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>
+<!--        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>-->
+        <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
       <div class="end-time-info">
-        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>
+<!--        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>-->
+        <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
       </div>
     </div>
     <!-- 进度条 end-->
@@ -249,11 +251,13 @@ export default {
       showDetailedNewsDialog: false,
 
       //时间轴时间
-      ifShowData: false,
+      // ifShowData: false,
+      // timelineTotalDurationMinutes:10380,
+      timelineAdvancesNumber:2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
       eqstartTime: '',
       currentTime: '',
       eqendTime: '',
-      //时间轴当前时间
+      //时间轴当前进度条节点位置
       currentTimePosition: 0,
       //时间轴当前前进步
       currentNodeIndex: 1,
@@ -338,9 +342,9 @@ export default {
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
-      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
-          this.ifShowData = true
-      }
+      // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+      //     this.ifShowData = true
+      // }
   },
   methods: {
     //设置组件展开的面板互斥,避免堆叠
@@ -562,11 +566,12 @@ export default {
           this.plotisshow[item.plotid] = 0
         })
         //开启时间轴
-          if(this.ifShowData){
-              this.initTimerLine();
-          }else{
-              this.isTimerRunning = false
-          }
+        this.initTimerLine();
+        //   if(this.ifShowData){
+        //       this.initTimerLine();
+        //   }else{
+        //       this.isTimerRunning = false
+        //   }
       })
     },
 
@@ -587,40 +592,50 @@ export default {
     //时间轴操作-----------------------------------------------
     initTimerLine() {
       this.isTimerRunning = true
-      this.intervalId = setInterval(() => {
-        this.updateCurrentTime();
-      }, 100);
-    },
-    updateCurrentTime() {
-      // console.log("this.currentSpeed",this.currentSpeed)
-      // this.currentNodeIndex = (this.currentNodeIndex + 1) % 672  //共前进672次，每次15分钟
-      // let tmp = 100.0 / 672.0  //进度条每次前进
-
-      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % 2076 //共前进2016次，每次5分钟，
-      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
-      this.currentTimePosition += tmp;
-      if (this.currentTimePosition >= 100) {
-        this.currentTimePosition = 100;
-        this.currentTime = this.eqendTime
-        this.stopTimer();
-        // this.initTimerLine();
-        this.isTimerRunning = false
-
-      } else {
-        this.currentTimePosition = this.currentTimePosition % 100
-        // this.currentTime = new Date(this.eqstartTime.getTime() + (7 * 24 * 60 * 60 * 1000));
-        // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
-        // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // console.log("this.currentTime-----------------")
-        this.currentTime = new Date(this.eqstartTime.getTime()
-            + this.currentNodeIndex * 5 * 60 * 1000);
-        if (this.isMarkingLayer) {
-          // console.log("updatePlot timeline")
-          this.updatePlot()
-        } else {
-          this.MarkingLayerRemove()
-        }
+      // 当前时间>地震发生时间+7天 默认达到最大值，不会再更新，展示历史记录 每100ms前进一步
+      if(realTime> new Date(this.eqstartTime).getTime()+7*24*60*60*1000) {
+        this.intervalId = setInterval(() => {
+          this.updateCurrentTime();
+        }, 100);
       }
+
+    },
+    //updateCurrentTime 循环执行
+    updateCurrentTime() {
+      const realTime = new Date(); //真实时间
+
+
+        this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+        let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition += tmp;
+
+        //播放一遍完成（停止，如果计算结果超过，设为最大值）
+        if (this.currentTimePosition >= 100) {
+          this.currentTimePosition = 100;
+          this.currentTime = this.eqendTime
+          this.stopTimer();
+          this.isTimerRunning = false
+        }
+        //时间轴播放中
+        else {
+          this.currentTimePosition = this.currentTimePosition % 100
+          // console.log("this.currentTime-----------------")
+          //倍速为前进多个节点，时间以节点数量计算。每个节点表示五分钟
+          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+          //图层控制 是否显示标绘点（时间轴仍然需要往前）
+          if (this.isMarkingLayer) {
+            this.updatePlot()
+          }
+          else {
+            this.MarkingLayerRemove()
+          }
+          // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
+      }
+      // }
+      // else{
+      //   this.eqendTime=realTime
+      //   this.timelineAdvancesNumber=
+      // }
     },
     //更新标绘点
     updatePlot() {
@@ -822,8 +837,8 @@ export default {
     },
     // 前进
     forward() {
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076
-      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
+      let tmp = 100.0 / (this.timelineAdvancesNumber*1.0)* this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
@@ -841,8 +856,8 @@ export default {
     },
     // 后退
     backward(){
-      this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
-      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
+      this.currentNodeIndex = (this.currentNodeIndex - 1) % this.timelineAdvancesNumber
+      let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次后退
       this.currentTimePosition -= tmp;
       if (this.currentTimePosition <= 0) {
         this.currentTimePosition = 0;
@@ -864,8 +879,7 @@ export default {
       const clickedPosition = event.clientX - timeRulerRect.left;
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
-      // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672); // Assuming 672 is the total number of steps
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076) // Assuming 672 is the total number of steps
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       //点击前运行状态
@@ -891,7 +905,7 @@ export default {
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
       this.currentTimePosition = newPosition;
       // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 672);
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * 2076);
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
