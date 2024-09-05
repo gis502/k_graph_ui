@@ -245,8 +245,6 @@ const generateFieldData = () => {
 const getTableField = () => {
   getField().then(res => {
     files.value = res.data
-    console.log(11111)
-    console.log(res.data)
     if (files.value.length == 0) {
       ElMessage.error("该用户无导表权限")
     }

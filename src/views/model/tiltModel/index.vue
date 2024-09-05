@@ -32,11 +32,11 @@
             <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
             <!--          </template>-->
           </el-table-column>
-<!--          <el-table-column prop="path" label="模型路径" width="80">-->
-            <!--          <template #default="scope">-->
-            <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
-            <!--          </template>-->
-<!--          </el-table-column>-->
+          <!--          <el-table-column prop="path" label="模型路径" width="80">-->
+          <!--          <template #default="scope">-->
+          <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
+          <!--          </template>-->
+          <!--          </el-table-column>-->
           <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
           <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
           <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
@@ -63,7 +63,7 @@
               :total="total">
           </el-pagination>
         </div>
-      </el-form   >
+      </el-form>
       <el-form class="tool-container" v-show="showSelectModel">
         <el-row>
           <!--        <br>-->
@@ -136,7 +136,7 @@
       <!--      </template>-->
       <!--    </el-dialog>-->
 
-  </div>
+    </div>
     <!--  <div v-if="!pageStatus">-->
     <!--    <tiltTable />-->
     <!--  </div>-->
@@ -149,10 +149,17 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {Edit, Delete} from '@element-plus/icons-vue'
-import {addModelApi, deleteModel, getAllModel, updataModel,updataModelNoElevation,updataModelElevation} from '@/api/system/model.js'
+import {
+  addModelApi,
+  deleteModel,
+  getAllModel,
+  updataModel,
+  updataModelNoElevation,
+  updataModelElevation
+} from '@/api/system/model.js'
 // import tiltTable from '@/components/Model/tiltModel/tiltTable.vue'
-import { ElMessageBox } from 'element-plus';
-import { ElMessage } from 'element-plus';
+import {ElMessageBox} from 'element-plus';
+import {ElMessage} from 'element-plus';
 import {CustomShader} from "cesium";
 
 let pageStatus = ref(true)
@@ -342,7 +349,7 @@ function initModel(modelName) {
   let baseURL = import.meta.env.VITE_APP_API_URL
 
   const customShader = new CustomShader({
-    lightingModel:0
+    lightingModel: 0
   })
 
   const tileset = new Cesium.Cesium3DTileset({
@@ -660,8 +667,8 @@ function initModelTable() {
 // 修改table的header的样式
 function tableHeaderColor() {
   return {
-    'border-width':'1px',
-    'border-style':'solid',
+    'border-width': '1px',
+    'border-style': 'solid',
     'border-color': '#555555',
     'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
     'color': '#fff',
@@ -675,8 +682,8 @@ function tableHeaderColor() {
 function tableColor({row, column, rowIndex, columnIndex}) {
   if (rowIndex % 2 == 1) {
     return {
-      'border-width':'1px',
-      'border-style':'solid',
+      'border-width': '1px',
+      'border-style': 'solid',
       'border-color': '#555555',
       'background-color': '#313a44',
       'color': '#fff',
@@ -686,8 +693,8 @@ function tableColor({row, column, rowIndex, columnIndex}) {
     }
   } else {
     return {
-      'border-width':'1px',
-      'border-style':'solid',
+      'border-width': '1px',
+      'border-style': 'solid',
       'border-color': '#555555',
       'background-color': '#304156',
       'color': '#fff',
@@ -729,7 +736,7 @@ function handleCurrentChange(val) {
 
 //-----------------------------------------------------------
 
-function goModel(row){
+function goModel(row) {
   modelInfo.name = row.name
   modelInfo.path = row.path
   modelInfo.tz = row.tz
@@ -742,14 +749,14 @@ function goModel(row){
 }
 
 // 更新模型位置
-function updataPosition(){
-  if(isTerrainLoaded()){
+function updataPosition() {
+  if (isTerrainLoaded()) {
     let data = {
       rze: rz.value,
       tze: tz.value,
       modelid: modelInfo.modelid
     }
-    updataModelElevation(data).then(res=>{
+    updataModelElevation(data).then(res => {
       ElMessage({
         showClose: true,
         message: '加载地形情况下，更新成功',
@@ -758,13 +765,13 @@ function updataPosition(){
       })
       initModelTable()
     })
-  }else{
+  } else {
     let data = {
       rz: rz.value,
       tz: tz.value,
       modelid: modelInfo.modelid
     }
-    updataModelNoElevation(data).then(res=>{
+    updataModelNoElevation(data).then(res => {
       ElMessage({
         showClose: true,
         message: '不加载地形情况下，更新成功',
@@ -883,16 +890,19 @@ function updataMCommit() {
   margin-top: 10px;
   justify-content: center;
 }
-/* 修改element内置css不生效，则需要加上/deep/ */
-/deep/ .el-pagination__total{
+
+:deep(.el-pagination__total) {
   color: #FFFFFF;
 }
-/deep/ .el-pagination>.is-last{
+
+:deep(.el-pagination>.is-last) {
   color: #FFFFFF;
 }
-/deep/ .el-table--fit .el-table__inner-wrapper:before {
+
+:deep(.el-table--fit .el-table__inner-wrapper:before) {
   width: 0;
 }
+
 .cesium-viewer-navigationContainer {
   display: none !important;
 }

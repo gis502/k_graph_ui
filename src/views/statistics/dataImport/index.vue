@@ -286,8 +286,6 @@ export default {
       form1: {
         tableName1: ''
       },
-      files: [],//导表文件列表
-      field:[],
       eqlists: [],//地震文件列表
       tableNameOptions: [],
       tableNameOptions1: [],
@@ -413,7 +411,8 @@ export default {
     getExcelUploadByTimeButton() {
       getExcelUploadByTime({
         "time": this.timeValue,
-        "requestParams": this.inputValueParams
+        "requestParams": this.inputValueParams,
+        "username":this.name
       }).then((res) => {
         this.tableData = res.data
         this.total = res.data.length
@@ -550,7 +549,7 @@ export default {
         // 检查文件名是否在允许的表名列表中
         this.$message({
           type: 'error',
-          message: '上传文件名称错误，请重新上传！'
+          message: '该上传文件没有权限，请重新上传！'
         });
         return false;
       } else {
