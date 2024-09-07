@@ -6,13 +6,13 @@
     <div v-for="(group, groupIndex) in eqGroups" :key="'group-' + groupIndex">
       <div class="row">
         <div
-          class="line"
-          v-for="(item, itemIndex) in group.items"
-          :key="group.type + '-' + itemIndex"
+            class="line"
+            v-for="(item, itemIndex) in group.items"
+            :key="group.type + '-' + itemIndex"
         >
           <span
-            :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"
-            @click="toggleSeriesVisibility(group.type, item.type)"
+              :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"
+              @click="toggleSeriesVisibility(group.type, item.type)"
           ></span>{{ item.label }}
         </div>
       </div>
@@ -21,27 +21,27 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import { getKeyEq, getLatestEq } from "@/api/system/eqlist.js";
+import {getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
 
 // 图例分类
 const eqGroups = ref([
   {
     type: 'history',
     items: [
-      { type: 'moderate', label: '历史4.5 - 6级地震' },
-      { type: 'major', label: '历史6级以上地震' }
+      {type: 'moderate', label: '历史4.5 - 6级地震'},
+      {type: 'major', label: '历史6级以上地震'}
     ]
   },
   {
     type: 'latest',
     items: [
-      { type: 'slight', label: '最新4.5级以下地震' },
-      { type: 'moderate', label: '最新4.5 - 6级地震' },
-      { type: 'major', label: '最新6级以上地震' }
+      {type: 'slight', label: '最新4.5级以下地震'},
+      {type: 'moderate', label: '最新4.5 - 6级地震'},
+      {type: 'major', label: '最新6级以上地震'}
     ]
   }
 ]);
@@ -70,7 +70,7 @@ onMounted(() => {
 
 watch([historyEqData, latestEqData], (newData) => {
   initEmap();
-}, { deep: true });
+}, {deep: true});
 
 echarts.registerMap('data', data);
 
@@ -96,6 +96,7 @@ const initEmap = () => {
     time: item.time.replace("T", " "),
     depth: item.depth,
   }));
+
   const historyData = historyEqData.value.map(item => ({
     position: item.position,
     magnitude: parseFloat(item.magnitude),
@@ -138,15 +139,21 @@ const initEmap = () => {
     // 故设置其中一张地图show: false，
     // 鼠标中键拖动地图时会改变geo3D的center属性
     const option = {
+      // 点的配置
       geo3D: {
         map: 'data',
-        boxHeight: 4,
+        boxHeight: 20,
         show: false,
         viewControl: {
           projection: 'orthographic',
-          orthographicSize: 105,
+          orthographicSize: 95,
           alpha: 44,
           beta: 0,
+          autoRotate: false, // Disable auto-rotation
+          minAlpha: 44,  // Restrict vertical rotation
+          maxAlpha: 44,
+          minBeta: 0,    // Restrict horizontal rotation
+          maxBeta: 0
         },
         itemStyle: {
           color: '#0c274b',
@@ -177,14 +184,20 @@ const initEmap = () => {
         },
       },
       series: [
+        // 地图的配置
         {
           type: 'map3D',
           map: 'data',
           viewControl: {
             projection: 'orthographic',
-            orthographicSize: 105,
+            orthographicSize: 95,
             alpha: 44,
             beta: 0,
+            autoRotate: false, // Disable auto-rotation
+            minAlpha: 44,
+            maxAlpha: 44,
+            minBeta: 0,
+            maxBeta: 0,
           },
           itemStyle: {
             color: '#0c274b',
@@ -227,7 +240,6 @@ const initEmap = () => {
             {name: '宝兴县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
           ],
         },
-
         // 根据分类渲染散点
         {
           name: '最新4.5级以下地震',
@@ -235,12 +247,12 @@ const initEmap = () => {
           coordinateSystem: 'geo3D',
           show: true,
           symbol: 'circle',
-          zlevel: 1,
+          zlevel: 10,
           data: latestSlight.map(item => ({
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
             itemStyle: {color: '#ed2a2a'},
-            symbolSize: 10
+            symbolSize: 20
           })),
           emphasis: {
             label: {
@@ -259,7 +271,7 @@ const initEmap = () => {
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
             itemStyle: {color: '#ed2a2a'},
-            symbolSize: 15
+            symbolSize: 20
           })),
           emphasis: {
             label: {
@@ -336,9 +348,9 @@ const initEmap = () => {
             return '';
           }
           let item = latestData.find(item =>
-            item.longitude === value[0] && item.latitude === value[1]
+              item.longitude === value[0] && item.latitude === value[1]
           ) || historyData.find(item =>
-            item.longitude === value[0] && item.latitude === value[1]
+              item.longitude === value[0] && item.latitude === value[1]
           );
           if (item) {
             const result = `
@@ -420,7 +432,6 @@ const toggleSeriesVisibility = (groupType, itemType) => {
 
 
 </script>
-
 
 
 <style scoped>
