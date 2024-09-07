@@ -210,5 +210,15 @@ export default {
     margin-top: 10px;
     justify-content: center;
 }
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
+}
 </style>
 
