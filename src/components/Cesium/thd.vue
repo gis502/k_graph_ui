@@ -266,6 +266,7 @@ export default {
       currentNodeIndex: 2076,
       realtimeinterval:null,
       intervalId: null,
+      eqendtimeinterval:null,
       // 倍速
       currentSpeed: 1,
       showSpeedOptions: false,
@@ -624,6 +625,23 @@ export default {
               console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
               // this.
             }, 3000000);
+          }
+
+          //当前时间每秒更新
+          if (!this.eqendtimeinterval) {
+
+            console.log("!this.eqendtimeinterval")
+            this.eqendtimeinterval = setInterval(() => {
+              if (this.currentTimePosition !== 100) {
+                clearInterval(this.eqendtimeinterval); // 停止定时器
+                this.eqendtimeinterval = null; // 清除引用
+                // this.isTimerRunning = false; // 更新状态
+                return; // 跳出当前循环
+              }
+              this.eqendTime=new Date()
+              this.currentTime=this.eqendTime
+              // this.
+            }, 1000);
           }
         }
       }
