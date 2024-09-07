@@ -573,42 +573,94 @@ export default {
       this.xuanran(this.eqid)
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
-    xuanran(eqid){
-      this.getPlotwithStartandEndTime(eqid)
-      //定时向数据库请求 每分钟请求一次
+    // xuanran(eqid){
+    //   this.getPlotwithStartandEndTime(eqid)
+    //   //定时向数据库请求 每分钟请求一次
+    //   if(this.realTime< this.tmpeqendTime) {
+    //     if(!this.isTimerRunning&&this.currentTimePosition===100){
+    //       console.log("gengxin")
+    //       this.realtimeinterval = setInterval(() => {
+    //         if (this.currentTimePosition !== 100) {
+    //           clearInterval(this.realtimeinterval); // 停止定时器
+    //           this.realtimeinterval = null; // 清除引用
+    //           // this.isTimerRunning = false; // 更新状态
+    //           return; // 跳出当前循环
+    //         }
+    //         //更新开始结束当前时间，时间轴进度条位置，节点数量
+    //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+    //         this.eqendTime=new Date()
+    //         this.currentTime=this.eqendTime
+    //         this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+    //         this.currentNodeIndex=this.timelineAdvancesNumber
+    //         console.log(this.currentNodeIndex,"xuanran this.currentNodeIndex")
+    //         // this.
+    //       }, 5000);
+    //     }
+    //   }
+    // },
+
+    intimexuanran(eqid){
+      //5分钟一次
       if(this.realTime< this.tmpeqendTime) {
         if(!this.isTimerRunning&&this.currentTimePosition===100){
           console.log("gengxin")
-          this.realtimeinterval = setInterval(() => {
-            if (this.currentTimePosition !== 100) {
-              clearInterval(this.realtimeinterval); // 停止定时器
-              this.realtimeinterval = null; // 清除引用
-              // this.isTimerRunning = false; // 更新状态
-              return; // 跳出当前循环
-            }
-            //更新开始结束当前时间，时间轴进度条位置，节点数量
-            this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-            this.eqendTime=new Date()
-            this.currentTime=this.eqendTime
-            this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-            this.currentNodeIndex=this.timelineAdvancesNumber
-            console.log(this.currentNodeIndex,"xuanran this.currentNodeIndex")
-            // this.
-          }, 5000);
+          // 检查是否已经有定时器在运行
+          if (!this.realtimeinterval) {
+
+            console.log("!this.realtimeinterval")
+            this.realtimeinterval = setInterval(() => {
+              if (this.currentTimePosition !== 100) {
+                clearInterval(this.realtimeinterval); // 停止定时器
+                this.realtimeinterval = null; // 清除引用
+                // this.isTimerRunning = false; // 更新状态
+                return; // 跳出当前循环
+              }
+              //更新开始结束当前时间，时间轴进度条位置，节点数量
+              this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+              this.eqendTime = new Date()
+              this.currentTime = this.eqendTime
+              this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+              this.currentNodeIndex = this.timelineAdvancesNumber
+              console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
+              // this.
+            }, 3000000);
+          }
         }
       }
     },
 
+// xuanran 方法
+    xuanran(eqid){
+      this.getPlotwithStartandEndTime(eqid)
+      this.intimexuanran(eqid)
+      //定时向数据库请求 每分钟请求一次
+      // if(this.realTime< this.tmpeqendTime) {
+      //   if(!this.isTimerRunning&&this.currentTimePosition===100){
+      //     console.log("gengxin")
+      //     // 检查是否已经有定时器在运行
+      //     if (!this.realtimeinterval) {
+      //
+      //       console.log("!this.realtimeinterval")
+      //       this.realtimeinterval = setInterval(() => {
+      //         if (this.currentTimePosition !== 100) {
+      //           clearInterval(this.realtimeinterval); // 停止定时器
+      //           this.realtimeinterval = null; // 清除引用
+      //           // this.isTimerRunning = false; // 更新状态
+      //           return; // 跳出当前循环
+      //         }
+      //         //更新开始结束当前时间，时间轴进度条位置，节点数量
+      //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+      //         this.eqendTime = new Date()
+      //         this.currentTime = this.eqendTime
+      //         this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+      //         this.currentNodeIndex = this.timelineAdvancesNumber
+      //         console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
+      //         // this.
+      //       }, 5000);
+      //     }
+      //   }
+      // }
 
-    // 防抖函数
-    debounce(func, delay) {
-      let timeout;
-      return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          func.apply(this, args);
-        }, delay);
-      };
     },
 
 
@@ -864,7 +916,8 @@ export default {
           this.currentTime = this.eqendTime
           this.stopTimer();
           this.isTimerRunning = false
-          this.xuanran(this.eqid)
+          this.intimexuanran(this.eqid)
+          // this.xuanran(this.eqid)
         }
         //时间轴播放中
         else {
@@ -906,7 +959,8 @@ export default {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.isTimerRunning = false
-        this.xuanran(this.eqid)
+        this.intimexuanran(this.eqid)
+        // this.xuanran(this.eqid)
       } else {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime()
@@ -952,7 +1006,8 @@ export default {
         this.currentTime = this.eqendTime
         this.stopTimer();
         this.isTimerRunning = false
-        this.xuanran(this.eqid)
+        this.intimexuanran(this.eqid)
+        // this.xuanran(this.eqid)
       }
       else{
         //点击前运行状态
@@ -993,7 +1048,8 @@ export default {
         this.currentTime = this.eqendTime
         this.stopTimer();
         // this.isTimerRunning = false
-        this.xuanran(this.eqid)
+        // this.xuanran(this.eqid)
+        this.intimexuanran(this.eqid)
       }
       else{
         //点击前运行状态
