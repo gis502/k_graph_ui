@@ -54,7 +54,7 @@ deathCount.value = 0;
 
 .count {
   font-size: 35px; /* Larger font size for the numbers */
-  color: rgb(181, 236, 227);
+  color: rgb(248, 150, 150);
   margin-left: 7vw; /* Pushes count to the right */
 }
 
