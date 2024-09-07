@@ -624,7 +624,8 @@ export default {
               this.currentNodeIndex = this.timelineAdvancesNumber
               console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
               // this.
-            }, 3000000);
+            // }, 3000000);
+            }, 5000);
           }
 
           //当前时间每秒更新
@@ -685,25 +686,58 @@ export default {
     //取标绘点
     getPlotwithStartandEndTime(eqid) {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
+
+        //显示标记，追加新的点 （增）
         console.log(res,"res")
         res.forEach(item => {
-          // 检查当前 item 是否已经存在于 this.plots 中
           const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
-          if(!plotexists){
-            // 设置 endtime 和 starttime
-            if (!item.endtime) {
-              // item.endtime = new Date(this.eqendTime.getTime() + 5000);
-              item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
-            }
-            if (!item.starttime) {
-              item.starttime = this.eqstartTime;
-            }
-            // 将 item 添加到 this.plots
-            this.plots.push(item);
-            // 初始化 plotisshow
+          if (!plotexists) {
             this.plotisshow[item.plotid] = 0;
           }
         })
+        //删除的点删除  （删）
+        const currentPlotIds = new Set(res.map(item => item.plotid)); //当前请求中返回的有哪些图标
+        // 移除不再存在的 plotid
+        for (const plotId in this.plotisshow) {
+          if (!currentPlotIds.has(plotId)) {
+            // 删除 plotisshow 中的项
+            delete this.plotisshow[plotId];
+            // 从 viewer 中移除对应的点
+            viewer.entities.removeById(plotId);
+          }
+        }
+
+
+        //更新数组信息（包括点的起止时间、属性信息） （改）
+        this.plots=res
+        this.plots.forEach(item => {
+          if (!item.endtime) {
+            // item.endtime = new Date(this.eqendTime.getTime() + 5000);
+            item.endtime = new Date(this.eqstartTime.getTime() + 10 * 24 * 36000 * 1000);
+          }
+          if (!item.starttime) {
+            item.starttime = this.eqstartTime;
+          }
+        })
+            // 将 item 添加到 this.plots
+            // this.plots.push(item);
+          // 检查当前 item 是否已经存在于 this.plots 中
+          // const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
+          // if(!plotexists){
+          //   // 设置 endtime 和 starttime
+          //   if (!item.endtime) {
+          //     // item.endtime = new Date(this.eqendTime.getTime() + 5000);
+          //     item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
+          //   }
+          //   if (!item.starttime) {
+          //     item.starttime = this.eqstartTime;
+          //   }
+          //   // 将 item 添加到 this.plots
+          //   this.plots.push(item);
+          //   // 初始化 plotisshow
+          //
+          // }
+        // })
         this.updatePlot()
 
 
