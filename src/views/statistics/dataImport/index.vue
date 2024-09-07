@@ -681,7 +681,16 @@ export default {
   max-width: 100%;
   margin-bottom: 20px;
 }
-
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
+}
 
 </style>
 

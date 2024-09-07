@@ -12,35 +12,39 @@
                 </template>
             </el-table-column>
 
-            <el-table-column
-                    v-for="(header, index) in headersArr"
-                    :key="index"
-                    :prop="header.prop"
-                    :label="header.label"
-                    :width="header.width"
-            >
-                <template #default="scope" >
-                    <div v-if="header.label === '地址' || header.label === '数据来源'
-                    || header.label === '队伍类型名称' || header.label === '级别名称'
-                    || header.label === '负责人' || header.label === '负责人电话'">
-                        <el-popover placement="top" :width="200" trigger="hover">
-                            <div style="text-align: center">{{ scope.row[header.prop] }}</div>
-                            <template #reference>
-                                <div
-                                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }"
-                                >
-                        <span class="myNote">
-                            {{ scope.row[header.prop] }}
-                        </span>
-                                </div>
-                            </template>
-                        </el-popover>
+          <!-- 遍历每个表头，创建表格列 -->
+          <el-table-column
+              v-for="(header, index) in headersArr"
+              :key="index"
+              :prop="header.prop"
+              :label="header.label"
+              :width="header.width"
+          >
+            <!-- 为表格单元格内容定义默认模板 -->
+            <template #default="scope">
+              <!-- 对特定表头，使用Popover显示完整信息 -->
+              <div v-if="header.label === '地址'">
+                <el-popover placement="top" :width="200" trigger="hover">
+                  <div style="text-align: left">{{ scope.row[header.prop] }}</div>
+                  <!-- 定义触发Popover显示的参考元素 -->
+                  <template #reference>
+                    <div
+                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"
+                    >
+                      <!-- 在参考元素内显示截断的字段值 -->
+                      <span class="myNote" style="text-align: left">
+                                             {{ scope.row[header.prop] }}
+                                         </span>
                     </div>
-                    <div v-else>
-                        {{ scope.row[header.prop] }}
-                    </div>
-                </template>
-            </el-table-column>
+                  </template>
+                </el-popover>
+              </div>
+              <!-- 对其他表头，直接显示字段值 -->
+              <div v-else>
+                {{ scope.row[header.prop] }}
+              </div>
+            </template>
+          </el-table-column>
 
             <el-table-column label="操作" align="center" width="150" fixed="right">
                 <template #default="scope">
@@ -79,10 +83,10 @@
                 // ---表头---
                 headersArr: [
                     // { prop: 'uniqueId', label: '唯一标识', width: 150 },
-                    { prop: 'levelName', label: '级别名称', width: 220 },
-                    { prop: 'address', label: '地址', width: 230 },
-                    { prop: 'totalPersonnel', label: '总人数', width: 150 },
-                    { prop: 'personInCharge', label: '负责人', width: 150 },
+                    { prop: 'levelName', label: '级别名称', width: 230 },
+                    { prop: 'address', label: '地址', width: 360 },
+                    { prop: 'totalPersonnel', label: '总人数', width: 100 },
+                    { prop: 'personInCharge', label: '负责人', width: 120 },
                     { prop: 'personInChargePhone', label: '负责人电话', width: 150 },
                     { prop: 'dataSource', label: '数据来源', width: 160 },
                     { prop: 'organization', label: '组织机构', width: 150 },
@@ -94,8 +98,8 @@
                     { prop: 'estimatedPreparationTime', label: '预估准备时间', width: 150 },
                     { prop: 'assemblyDepartureLocation', label: '集合出发地点', width: 150 },
                     { prop: 'selfTransportation', label: '自备交通工具', width: 150 },
-                    { prop: 'longitude', label: '经度', width: 150 },
-                    { prop: 'latitude', label: '纬度', width: 150 },
+                    { prop: 'longitude', label: '经度', width: 120 },
+                    { prop: 'latitude', label: '纬度', width: 120 },
                     { prop: 'confidentialityLevel', label: '保密级别', width: 150 },
                     { prop: 'modifiedBy', label: '修改人', width: 150 },
                     { prop: 'qualificationLevel', label: '资质级别', width: 150 },

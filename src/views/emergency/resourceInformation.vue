@@ -63,7 +63,7 @@
                 currentHeaders: [],
                 // 应急避难场所表头
                 emergencyShelters: [
-                    { label: '名称', width: 50 },
+                    { label: '名称', width: 150 },
                     { label: '地点类型', width: 50 },
                     { label: '面积', width: 50 },
                     { label: '容纳人数', width: 50 },
