@@ -257,10 +257,14 @@ export default {
       eqstartTime: '',
       currentTime: '',
       eqendTime: '',
+      tmpeqendTime:'',//默认的地震结束时间
+      realTime:new Date(),
       //时间轴当前进度条节点位置
-      currentTimePosition: 0,
+      // currentTimePosition: 0,
+      currentTimePosition: 100,
       //时间轴当前前进步
-      currentNodeIndex: 1,
+      currentNodeIndex: 2076,
+      realtimeinterval:null,
       intervalId: null,
       // 倍速
       currentSpeed: 1,
@@ -273,7 +277,7 @@ export default {
       //包括最早出现时间，最晚结束时间的标绘点信息
       plots: [],
       //时间轴暂停播放状态
-      isTimerRunning: true,
+      isTimerRunning: false,
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
@@ -329,6 +333,9 @@ export default {
       disasterReserves: [],
       emergencyTeam: [],
       emergencyShelters: [],
+
+      //请求防抖
+      isRequesting: false,
     };
   },
     created() {
@@ -431,24 +438,38 @@ export default {
       // 初始同步
       syncCamera();
     },
+
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
       getEqbyId({eqid: eqid}).then(res => {
         //震中标绘点
         this.centerPoint = res
+        console.log(res)
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.time)
-        this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
-
+        // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
+        //默认结束时间（设置得大一点，防止按时间渲染随时间长度更新消失了）10天
+        this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + 10*24*36000*1000);
+        // console.log(this.centerPoint.starttime,this.centerPoint.endtime,this.timelineAdvancesNumber)
         //变量初始化
         this.eqstartTime = this.centerPoint.starttime
         this.eqyear = this.eqstartTime.getFullYear()
         this.eqmonth = this.eqstartTime.getMonth() + 1
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
-        this.currentTime = this.eqstartTime
-
+        //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+        this.tmpeqendTime=new Date(this.centerPoint.starttime.getTime() + 2076*5*60*1000);
+        // this.realTime = new Date(); //真实时间
+        //
+        if(this.realTime< this.tmpeqendTime) {
+          this.eqendTime=new Date(this.realTime)
+          this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+          this.currentNodeIndex=this.timelineAdvancesNumber
+        }
+        else{
+          this.eqendTime=this.tmpeqendTime
+        }
+        this.currentTime = this.eqendTime
         this.updateMapandVariablebeforInit()
 
       })
@@ -548,94 +569,82 @@ export default {
         id: this.centerPoint.plotid,
         plottype: "震中",
       });
-      //获取渲染点
-      this.getPlotwithStartandEndTime(this.eqid)
+
+      this.xuanran(this.eqid)
     },
+    //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
+    xuanran(eqid){
+      this.getPlotwithStartandEndTime(eqid)
+      //定时向数据库请求 每分钟请求一次
+      if(this.realTime< this.tmpeqendTime) {
+        if(!this.isTimerRunning&&this.currentTimePosition===100){
+          console.log("gengxin")
+          this.realtimeinterval = setInterval(() => {
+            if (this.currentTimePosition !== 100) {
+              clearInterval(this.realtimeinterval); // 停止定时器
+              this.realtimeinterval = null; // 清除引用
+              // this.isTimerRunning = false; // 更新状态
+              return; // 跳出当前循环
+            }
+            //更新开始结束当前时间，时间轴进度条位置，节点数量
+            this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+            this.eqendTime=new Date()
+            this.currentTime=this.eqendTime
+            this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+            this.currentNodeIndex=this.timelineAdvancesNumber
+            console.log(this.currentNodeIndex,"xuanran this.currentNodeIndex")
+            // this.
+          }, 5000);
+        }
+      }
+    },
+
+
+    // 防抖函数
+    debounce(func, delay) {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    },
+
+
     //取标绘点
     getPlotwithStartandEndTime(eqid) {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
-        this.plots = res
-        // console.log(res)
-        this.plots.forEach(item => {
-          if (!item.endtime) {
-            item.endtime = new Date(this.eqendTime.getTime() + 5000);
+        console.log(res,"res")
+        res.forEach(item => {
+          // 检查当前 item 是否已经存在于 this.plots 中
+          const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
+          if(!plotexists){
+            // 设置 endtime 和 starttime
+            if (!item.endtime) {
+              // item.endtime = new Date(this.eqendTime.getTime() + 5000);
+              item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
+            }
+            if (!item.starttime) {
+              item.starttime = this.eqstartTime;
+            }
+            // 将 item 添加到 this.plots
+            this.plots.push(item);
+            // 初始化 plotisshow
+            this.plotisshow[item.plotid] = 0;
           }
-          if (!item.starttime) {
-            item.starttime = this.eqstartTime;
-          }
-          this.plotisshow[item.plotid] = 0
         })
+        this.updatePlot()
+
+
         //开启时间轴
-        this.initTimerLine();
+        // this.initTimerLine();
         //   if(this.ifShowData){
         //       this.initTimerLine();
         //   }else{
         //       this.isTimerRunning = false
         //   }
       })
-    },
-
-    detailedNews(val) {
-      // console.log("detailedNews-----",val)
-      this.showingNewsContent = val
-
-    },
-    ifShowDialog(val) {
-      // console.log("ifShowDialog-----",val)
-      this.showDetailedNewsDialog = val
-    },
-    hideNewsDialog(val) {
-      // console.log("showDetailedNewsDialog-----",val)
-      this.showDetailedNewsDialog = val
-    },
-
-    //时间轴操作-----------------------------------------------
-    initTimerLine() {
-      this.isTimerRunning = true
-      // 当前时间>地震发生时间+7天 默认达到最大值，不会再更新，展示历史记录 每100ms前进一步
-      if(realTime> new Date(this.eqstartTime).getTime()+7*24*60*60*1000) {
-        this.intervalId = setInterval(() => {
-          this.updateCurrentTime();
-        }, 100);
-      }
-
-    },
-    //updateCurrentTime 循环执行
-    updateCurrentTime() {
-      const realTime = new Date(); //真实时间
-
-
-        this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-        let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次前进
-        this.currentTimePosition += tmp;
-
-        //播放一遍完成（停止，如果计算结果超过，设为最大值）
-        if (this.currentTimePosition >= 100) {
-          this.currentTimePosition = 100;
-          this.currentTime = this.eqendTime
-          this.stopTimer();
-          this.isTimerRunning = false
-        }
-        //时间轴播放中
-        else {
-          this.currentTimePosition = this.currentTimePosition % 100
-          // console.log("this.currentTime-----------------")
-          //倍速为前进多个节点，时间以节点数量计算。每个节点表示五分钟
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          //图层控制 是否显示标绘点（时间轴仍然需要往前）
-          if (this.isMarkingLayer) {
-            this.updatePlot()
-          }
-          else {
-            this.MarkingLayerRemove()
-          }
-          // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
-      }
-      // }
-      // else{
-      //   this.eqendTime=realTime
-      //   this.timelineAdvancesNumber=
-      // }
     },
     //更新标绘点
     updatePlot() {
@@ -820,21 +829,74 @@ export default {
 
 
     },
+
+
+    //时间轴操作-----------------------------------------------
+    //暂停播放切换
+    toggleTimer() {
+      if (!this.isTimerRunning) {
+        this.initTimerLine();
+      } else {
+        this.stopTimer();
+      }
+    },
+    initTimerLine() {
+      this.isTimerRunning = true
+      //播放一遍完成（停止，如果计算结果超过，设为最大值）
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 0;
+        this.currentTime = this.eqstartTime
+        this.currentNodeIndex=0
+      }
+      this.intervalId = setInterval(() => {
+        this.updateCurrentTime();
+      }, 100);
+    },
+    //updateCurrentTime 循环执行
+    updateCurrentTime() {
+        this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+        let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition += tmp;
+
+        //播放一遍完成（停止，如果计算结果超过，设为最大值）
+        if (this.currentTimePosition >= 100) {
+          this.currentTimePosition = 100;
+          this.currentTime = this.eqendTime
+          this.stopTimer();
+          this.isTimerRunning = false
+          this.xuanran(this.eqid)
+        }
+        //时间轴播放中
+        else {
+          this.currentTimePosition = this.currentTimePosition % 100
+          // console.log("this.currentTime-----------------")
+          //倍速为前进多个节点，时间以节点数量计算。每个节点表示五分钟
+          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+          //图层控制 是否显示标绘点（时间轴仍然需要往前）
+          if (this.isMarkingLayer) {
+            this.updatePlot()
+          }
+          else {
+            this.MarkingLayerRemove()
+          }
+          // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
+      }
+      // }
+      // else{
+      //   this.eqendTime=realTime
+      //   this.timelineAdvancesNumber=
+      // }
+    },
+
     //时间轴停止
     stopTimer() {
       clearInterval(this.intervalId);
       this.intervalId = null;
       this.isTimerRunning = false
+
       // console.log("stopTimer")
     },
-    //暂停播放切换
-    toggleTimer() {
-      if (this.isTimerRunning) {
-        this.stopTimer();
-      } else {
-        this.initTimerLine();
-      }
-    },
+
     // 前进
     forward() {
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
@@ -844,6 +906,7 @@ export default {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.isTimerRunning = false
+        this.xuanran(this.eqid)
       } else {
         this.currentTimePosition = this.currentTimePosition % 100
         // this.currentTime = new Date(this.eqstartTime.getTime()
@@ -880,10 +943,21 @@ export default {
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
       this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
+      console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      //点击前运行状态
-      this.updatePlot();
+      console.log("this.currentTime jumpToTime",this.currentTime)
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 100;
+        this.currentTime = this.eqendTime
+        this.stopTimer();
+        this.isTimerRunning = false
+        this.xuanran(this.eqid)
+      }
+      else{
+        //点击前运行状态
+        this.updatePlot();
+      }
     },
     //时间轴拖拽
     startDrag(event) {
@@ -914,7 +988,18 @@ export default {
       this.isDragging = false;
       document.removeEventListener('mousemove', this.drag);
       document.removeEventListener('mouseup', this.stopDrag);
-      this.updatePlot();
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 100;
+        this.currentTime = this.eqendTime
+        this.stopTimer();
+        // this.isTimerRunning = false
+        this.xuanran(this.eqid)
+      }
+      else{
+        //点击前运行状态
+        this.updatePlot();
+      }
+      // this.updatePlot();
       // 恢复默认的选择行为
       document.body.style.userSelect = 'auto';
       document.body.style.WebkitUserSelect = 'auto';
@@ -1128,6 +1213,20 @@ export default {
         properties[name] = entity.properties[name].getValue();
       });
       return properties;
+    },
+
+    detailedNews(val) {
+      // console.log("detailedNews-----",val)
+      this.showingNewsContent = val
+
+    },
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
+    hideNewsDialog(val) {
+      // console.log("showDetailedNewsDialog-----",val)
+      this.showDetailedNewsDialog = val
     },
     //截图
     takeScreenshot() {
