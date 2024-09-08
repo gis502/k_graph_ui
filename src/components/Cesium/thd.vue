@@ -18,18 +18,18 @@
       </el-checkbox-group>
     </div>
 
-<!--    行政区划-->
+    <!--    行政区划-->
     <div class="regionjump-button">
       <el-button class="el-button--primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>
     </div>
     <div class="dropdown" v-if="activeComponent === 'Regionjump'">
       <div class="district-buttons">
-      <div class="city-button">
-        <el-button @click="addYaanImageryDistrict">雅安市</el-button>
-      </div>
         <div class="city-button">
-        <el-button @click="backcenter">回到震中</el-button>
-      </div>
+          <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+        </div>
+        <div class="city-button">
+          <el-button @click="backcenter">回到震中</el-button>
+        </div>
       </div>
       <!-- 下属区县按钮 -->
       <div class="district-buttons">
@@ -46,9 +46,9 @@
     <div class="thematic-button">
       <el-button class="el-button--primary" size="small" @click="">专题图下载</el-button>
     </div>
-      <div class="back-button">
-          <el-button class="el-button--primary" size="small" @click="backToHome">返回首页</el-button>
-      </div>
+    <div class="back-button">
+      <el-button class="el-button--primary" size="small" @click="backToHome">返回首页</el-button>
+    </div>
 
 
     <!--    title-->
@@ -91,7 +91,7 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-<!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
+          <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
         <span class="speedButton">{{speedOption}}</span>
@@ -104,33 +104,33 @@
 
       <!--      时间点-->
       <div class="current-time-info">
-<!--        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>-->
+        <!--        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>-->
         <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
       <div class="end-time-info">
-<!--        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>-->
+        <!--        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>-->
         <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
       </div>
     </div>
     <!-- 进度条 end-->
 
     <!--    两侧组件-->
-      <!--   应急响应-左上   -->
+    <!--   应急响应-左上   -->
     <timeLineEmergencyResponse
-            :eqid="eqid"
-            :currentTime="currentTime"
+        :eqid="eqid"
+        :currentTime="currentTime"
     />
-      <!--   人员伤亡-左中   -->
+    <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
-            :eqid="eqid"
-            :currentTime="currentTime"
+        :eqid="eqid"
+        :currentTime="currentTime"
     />
-      <!--   救援出队-左下   -->
+    <!--   救援出队-左下   -->
     <timeLineRescueTeam
-            :eqid="eqid"
-            :currentTime="currentTime"
+        :eqid="eqid"
+        :currentTime="currentTime"
     />
-      <!--  新闻-右上  -->
+    <!--  新闻-右上  -->
     <div>
       <news
           :eqid="eqid"
@@ -340,10 +340,10 @@ export default {
       isRequesting: false,
     };
   },
-    created() {
-        this.eqid = new URLSearchParams(window.location.search).get('eqid')
-    },
-    mounted() {
+  created() {
+    this.eqid = new URLSearchParams(window.location.search).get('eqid')
+  },
+  mounted() {
     this.init()
     this.getEqInfo(this.eqid)
     this.initPlot(); // 初始化加载应急数据
@@ -351,9 +351,9 @@ export default {
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
-      // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
-      //     this.ifShowData = true
-      // }
+    // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+    //     this.ifShowData = true
+    // }
   },
   methods: {
     //设置组件展开的面板互斥,避免堆叠
@@ -625,7 +625,7 @@ export default {
               this.currentNodeIndex = this.timelineAdvancesNumber
               console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
               // this.
-            // }, 3000000);
+              // }, 3000000);
             }, 5000);
           }
 
@@ -720,24 +720,24 @@ export default {
             item.starttime = this.eqstartTime;
           }
         })
-            // 将 item 添加到 this.plots
-            // this.plots.push(item);
-          // 检查当前 item 是否已经存在于 this.plots 中
-          // const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
-          // if(!plotexists){
-          //   // 设置 endtime 和 starttime
-          //   if (!item.endtime) {
-          //     // item.endtime = new Date(this.eqendTime.getTime() + 5000);
-          //     item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
-          //   }
-          //   if (!item.starttime) {
-          //     item.starttime = this.eqstartTime;
-          //   }
-          //   // 将 item 添加到 this.plots
-          //   this.plots.push(item);
-          //   // 初始化 plotisshow
-          //
-          // }
+        // 将 item 添加到 this.plots
+        // this.plots.push(item);
+        // 检查当前 item 是否已经存在于 this.plots 中
+        // const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
+        // if(!plotexists){
+        //   // 设置 endtime 和 starttime
+        //   if (!item.endtime) {
+        //     // item.endtime = new Date(this.eqendTime.getTime() + 5000);
+        //     item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
+        //   }
+        //   if (!item.starttime) {
+        //     item.starttime = this.eqstartTime;
+        //   }
+        //   // 将 item 添加到 this.plots
+        //   this.plots.push(item);
+        //   // 初始化 plotisshow
+        //
+        // }
         // })
         this.updatePlot()
 
@@ -959,33 +959,33 @@ export default {
     },
     //updateCurrentTime 循环执行
     updateCurrentTime() {
-        this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-        let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次前进
-        this.currentTimePosition += tmp;
+      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+      let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次前进
+      this.currentTimePosition += tmp;
 
-        //播放一遍完成（停止，如果计算结果超过，设为最大值）
-        if (this.currentTimePosition >= 100) {
-          this.currentTimePosition = 100;
-          this.currentTime = this.eqendTime
-          this.stopTimer();
-          this.isTimerRunning = false
-          this.intimexuanran(this.eqid)
-          // this.xuanran(this.eqid)
+      //播放一遍完成（停止，如果计算结果超过，设为最大值）
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 100;
+        this.currentTime = this.eqendTime
+        this.stopTimer();
+        this.isTimerRunning = false
+        this.intimexuanran(this.eqid)
+        // this.xuanran(this.eqid)
+      }
+      //时间轴播放中
+      else {
+        this.currentTimePosition = this.currentTimePosition % 100
+        // console.log("this.currentTime-----------------")
+        //倍速为前进多个节点，时间以节点数量计算。每个节点表示五分钟
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        //图层控制 是否显示标绘点（时间轴仍然需要往前）
+        if (this.isMarkingLayer) {
+          this.updatePlot()
         }
-        //时间轴播放中
         else {
-          this.currentTimePosition = this.currentTimePosition % 100
-          // console.log("this.currentTime-----------------")
-          //倍速为前进多个节点，时间以节点数量计算。每个节点表示五分钟
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          //图层控制 是否显示标绘点（时间轴仍然需要往前）
-          if (this.isMarkingLayer) {
-            this.updatePlot()
-          }
-          else {
-            this.MarkingLayerRemove()
-          }
-          // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
+          this.MarkingLayerRemove()
+        }
+        // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
       }
       // }
       // else{
@@ -1344,9 +1344,9 @@ export default {
       link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
       link.click();
     },
-      backToHome(){
+    backToHome(){
 
-      },
+    },
 
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
@@ -1419,10 +1419,10 @@ export default {
           dataSource.name = "thd_yaanregion";
           // 视角跳转到 geojson
           viewer.flyTo(dataSource.entities.values);
-      }).catch((error) => {
-        console.error("加载GeoJSON数据失败:", error);
-      });
-    }else {
+        }).catch((error) => {
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      }else {
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
           stroke: Cesium.Color.TRANSPARENT,
           fill: Cesium.Color.TRANSPARENT,
@@ -1953,10 +1953,10 @@ export default {
   left: 20%;
 }
 .back-button{
-    position: absolute;
-    z-index: 20;
-    top: 6.3%;
-    right: 21%;
+  position: absolute;
+  z-index: 20;
+  top: 6.3%;
+  right: 21%;
 }
 .draw-button {
   position: absolute;
