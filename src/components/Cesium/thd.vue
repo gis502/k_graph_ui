@@ -91,6 +91,7 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+<!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
         <span class="speedButton">{{speedOption}}</span>
@@ -1791,7 +1792,7 @@ export default {
 }
 
 #cesiumContainer {
-  height: calc(100vh - 50px) !important;
+  height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1855,9 +1856,9 @@ export default {
 
 .time-ruler {
   position: relative;
-  width: 70%;
+  width: 69%;
   height: 8px;
-  left: -14%;
+  left: -15%;
   background-color: #ddd;
   border-radius: 4px;
   margin: 0 1%;
@@ -1867,7 +1868,7 @@ export default {
 
 .speedButton {
   position: relative;
-  left: 101%;
+  left: 102%;
   color: white;
   top: -50%;
 }
@@ -1898,7 +1899,7 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  width: 98%;
+  width: 100%;
   height: 100%;
 }
 
