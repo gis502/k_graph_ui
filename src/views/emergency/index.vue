@@ -14,10 +14,18 @@
             <el-menu
                     class="el-menu-demo"
                     mode="horizontal"
+                    background-color="#293038"
+                    text-color="#fff"
+                    active-text-color="#537BB7FF"
                     style="margin: 0;padding: 0"
             >
                 <el-menu-item index="1">
-                    <el-input style="width: 140px;" v-model="inputRadius" clearable></el-input>
+                    <el-input
+                            style="width: 140px;"
+                            v-model="inputRadius"
+                            placeholder="请输入查询内容"
+                            clearable
+                    ></el-input>
                 </el-menu-item>
                 <el-menu-item index="2" @click="searchSupply" style="width: 90px;">匹配物资</el-menu-item>
                 <el-menu-item index="3" @click="search" style="width: 90px;">查找物资</el-menu-item>
