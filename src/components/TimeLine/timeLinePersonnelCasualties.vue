@@ -15,19 +15,19 @@
             <ul class="total-list">
                 <li>
                     <p>
-                        <span>{{this.activity.death}}</span> 人
+                        <span class="death_num">{{this.activity.death}}</span> 人
                     </p>
                     <p>死亡人数 </p>
                 </li>
                 <li >
                     <p>
-                        <span>{{this.activity.miss}} </span> 人
+                        <span class="miss_num">{{this.activity.miss}} </span> 人
                     </p>
                     <p>失联人数</p>
                 </li>
                 <li>
                     <p>
-                        <span> {{this.activity.injure}} </span> 人
+                        <span class="injure_num"> {{this.activity.injure}} </span> 人
                     </p>
                     <p>受伤人数 </p>
                 </li>
@@ -224,7 +224,16 @@
         font-size: 1.5rem;
         font-weight: bold;
         margin-right: 5px;
-        color: #c0383b;
+    }
+    .death_num{
+      color: #b92853;
+    }
+    .miss_num{
+      color: #a59ccb;
+    }
+    .injure_num{
+
+      color: #c1d58b;
     }
     .personnel_casualties_time_div{
         position: absolute;

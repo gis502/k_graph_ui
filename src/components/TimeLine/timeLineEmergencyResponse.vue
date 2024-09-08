@@ -8,9 +8,10 @@
             </div>
             <div class="emergency_response_title-underline"></div>
 
-            <p class="emergency_response_state"> {{this.activity.time}}</p>
-            <p class="emergency_response_department"><span>{{this.activity.department}}</span> </p>
-            <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_state">{{this.activity.state}}</span></p>
+<!--            <p class="emergency_response_state"> {{this.activity.time}}</p>-->
+            <p class="emergency_response_txt"> {{this.activity.time}}</p>
+            <p class="emergency_response_txt"><span>{{this.activity.department}}</span> </p>
+            <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_txt">{{this.activity.state}}</span></p>
 
             <div class="emergency_response_time_div">
                 <div class="emergency_response_title-underline"></div>
@@ -165,20 +166,28 @@
         margin-top: 1px;
     }
 
-    .emergency_response_department {
-        font-size: 1rem;
-        line-height: 0rem;
-        font-weight: bold;
-        font-family: 'myFirstFont', sans-serif;
-        color: #ffffff;
-    }
+
 
     .emergency_response_responseName{
-        font-size: 1.3rem;
+        font-size: 1.1rem;
         line-height: 0.5rem;
         font-weight: bold;
         font-family: 'myFirstFont', sans-serif;
         color: #419fff;
+    }
+    .emergency_response_txt{
+      font-size: 1.1rem;
+      line-height: 0.5rem;
+      font-weight: bold;
+      font-weight: normal;
+      color: #ffffff;
+    }
+    .emergency_response_department {
+      font-size: 1rem;
+      line-height: 0rem;
+      font-weight: bold;
+      font-family: 'myFirstFont', sans-serif;
+      color: #ffffff;
     }
     .emergency_response_state {
         font-size: 0.9rem;
