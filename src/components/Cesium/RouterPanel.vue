@@ -121,7 +121,24 @@ export default {
           modifiedBy: '修改人',
           qualificationLevel: '资质级别',
           dataSource: '数据来源',
-          notes: '备注'
+          notes: '备注',
+      //   避难场所表
+          id: '编号',
+          name: '名称',
+          placeType: '地点类型',
+          area: '面积',
+          capacity: '容纳人数',
+          secrecyLevel: '保密级别',
+          administrativeDivision: '行政区划',
+          emergencyPhone: '应急电话',
+          emergencyMobile: '应急手机',
+          affiliatedOrganization: '隶属组织',
+          startUsingDate: '启用日期',
+          designUsageYears: '设计使用年限',
+          basicInformation: '基本信息',
+          seismicIntensity: '地震烈度',
+          dataSourceUnit: '数据来源单位',
+          remarks: '备注'
       },
     }
   },
@@ -144,7 +161,7 @@ export default {
         // 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
-          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'id'&& key !== 'uniqueId') {
+          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'id'&& key !== 'uniqueId'&& key !== 'type') {
             const translatedKey = this.keyMappings[key] || key;
             translatedData[translatedKey] = rawPopupData[key];
           }

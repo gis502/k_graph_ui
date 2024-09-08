@@ -1,90 +1,79 @@
 <template>
-  <div ref="chart3" class="chart3"></div>
+  <div class="container">
+    <div class="row injury">
+      <span class="label">受伤人数累计</span>
+      <span class="count">{{ injuryCount }}</span>
+      <span class="suffix">人</span>
+    </div>
+    <div class="row missing">
+      <span class="label">失联人数累计</span>
+      <span class="count">{{ missingCount }}</span>
+      <span class="suffix">人</span>
+    </div>
+    <div class="row death">
+      <span class="label">遇难人数累计</span>
+      <span class="count">{{ deathCount }}</span>
+      <span class="suffix">人</span>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import * as echarts from 'echarts';
+import {ref} from 'vue';
 
-const chart3 = ref(null);
+const injuryCount = ref(0);
+const missingCount = ref(0);
+const deathCount = ref(0);
 
-const initChart = () => {
-  const myChart = echarts.init(chart3.value);
-  const option = {
-    title: {
-      // text: 'Referer of a Website',
-      // subtext: 'Fake Data',
-      // left: 'center'
-    },
-    grid: {
-      left: '3%',
-      right: '3%',
-      bottom: '2%',
-      containLabel: true
-    },
-    tooltip: {
-      trigger: 'item'
-    },
-    legend: {
-      orient: 'horizontal',
-      top: 'top',
-      textStyle: {
-        color: '#fff'
-      },
-    },
-    series: [
-      {
-        type: 'pie',
-        radius: ['40%', '70%'],  // Adjust inner and outer radius
-        center: ['50%', '50%'],  // Center the pie chart
-        data: [
-          { value: 0, name: '受伤人数', itemStyle: { color: 'rgba(248,25,25,0.7)' } },
-          { value: 0, name: '失联人数', itemStyle: { color: 'rgba(255,235,47,0.7)' } },
-          { value: 0, name: '遇难人数', itemStyle: { color: 'rgba(0, 0, 0, 0.5)' } },
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 0,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        },
-        label: {
-          show: true,  // Ensure labels are shown
-          position: 'inside',  // Adjust label position
-          formatter: (params) => `${params.name}: ${params.value} 人`,  // Custom label formatter
-          color: 'rgb(241,106,106)',
-          textStyle: {
-            fontSize: 16,  // Increase font size
-            fontWeight: 'bold',  // Bold font
-            textShadowColor: 'rgba(0, 0, 0, 0.8)',  // Set shadow color
-            textShadowBlur: 6,  // Set shadow blur
-            textShadowOffsetX: 3,  // Shadow X offset
-            textShadowOffsetY: 3,  // Shadow Y offset
-          },
-        },
-        labelLine: {
-          show: true,
-          length: 20,
-          length2: 25,
-
-        }
-      }
-    ]
-  };
-
-  myChart.setOption(option);
-};
-
-onMounted(() => {
-  initChart();
-});
-
+injuryCount.value = 0;
+missingCount.value = 0;
+deathCount.value = 0;
 </script>
 
 <style scoped>
-.chart3{
+.container {
   width: 100%;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 1vh;
+}
+
+.row {
+  margin: 0.7vh 0;
+  height: 8vh;
+  display: flex;
+  align-items: center;
+  font-size: 20px; /* Default font size */
+  font-weight: bold;
+  padding-left: 20px; /* Move text 10px to the right */
+  border-left-width: 0.1vw; /* Add a border on the left */
+  border-left-style: solid; /* Style the left border */
+  position: relative;
+}
+
+.count {
+  font-size: 35px; /* Larger font size for the numbers */
+  color: rgb(248, 150, 150);
+  margin-left: 7vw; /* Pushes count to the right */
+}
+
+.suffix {
+  margin-left: 10px; /* Space between count and suffix */
+}
+
+.injury {
+  background: linear-gradient(to right, rgba(142, 7, 7, 0.5) 0%, rgba(254, 254, 254, 0) 70%);
+  border-left-color: rgba(251, 71, 71, 0.5); /* Red border */
+}
+
+.missing {
+  background: linear-gradient(to right, rgba(145, 131, 12, 0.5) 30%, rgba(255, 235, 47, 0) 70%);
+  border-left-color: rgba(252, 230, 5, 0.5); /* Yellow border */
+}
+
+.death {
+  background: linear-gradient(to right, rgba(24, 8, 8, 0.5) 30%, rgba(0, 0, 0, 0) 70%);
+  border-left-color: rgba(9, 0, 0, 0.5); /* Black border */
 }
 </style>

@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 
 import Cookies from 'js-cookie'
 
@@ -13,9 +13,11 @@ import store from './store'
 import router from './router'
 import directive from './directive' // directive
 
+import DataVVue3 from '@kjgl77/datav-vue3'
 // 注册指令
 import plugins from './plugins' // plugins
-import { download } from '@/utils/request'
+import {download} from '@/utils/request'
+// 将自动注册所有组件为全局组件
 
 // svg图标
 import 'virtual:svg-icons-register'
@@ -24,8 +26,8 @@ import elementIcons from '@/components/SvgIcon/svgicon'
 
 import './permission' // permission control
 
-import { useDict } from '@/utils/dict'
-import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/yaan'
+import {useDict} from '@/utils/dict'
+import {parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels} from '@/utils/yaan'
 
 // 分页组件
 import Pagination from '@/components/Pagination'
@@ -71,15 +73,16 @@ app.use(router)
 app.use(store)
 app.use(plugins)
 app.use(elementIcons)
+app.use(DataVVue3)
 app.component('svg-icon', SvgIcon)
 
 directive(app)
 
 // 使用element-plus 并且设置全局的大小
 app.use(ElementPlus, {
-  locale: locale,
-  // 支持 large、default、small
-  size: Cookies.get('size') || 'default'
+    locale: locale,
+    // 支持 large、default、small
+    size: Cookies.get('size') || 'default'
 })
 
 app.mount('#app')

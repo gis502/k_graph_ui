@@ -48,6 +48,10 @@ export const useCesiumStore = defineStore('cesium', () => {
             plottype: null,
             situationPlotData: null
         })
+        const polygonInfo = reactive({
+            plottype: null,
+            situationPlotData: null
+        })
 
         function getPolyilneInfo() {
             return {
@@ -65,6 +69,22 @@ export const useCesiumStore = defineStore('cesium', () => {
             polyilneInfo.plottype = null
             polyilneInfo.situationPlotData = null
         }
+        function getPolygonInfo() {
+            return {
+                plottype: polygonInfo.plottype,
+                situationPlotData: polygonInfo.situationPlotData
+            }
+        }
+
+        function setPolygonInfo(info) {
+            polygonInfo.plottype = info.plottype
+            polygonInfo.situationPlotData = info.situationPlotData
+        }
+
+        function clearPolygonInfo() {
+            polygonInfo.plottype = null
+            polygonInfo.situationPlotData = null
+        }
 
         return {
             pointInfo,
@@ -73,7 +93,10 @@ export const useCesiumStore = defineStore('cesium', () => {
             clearData,
             getPolyilneInfo,
             setPolyilneInfo,
-            clearPolyilneInfo
+            clearPolyilneInfo,
+            getPolygonInfo,
+            setPolygonInfo,
+            clearPolygonInfo
         }
     }
 )

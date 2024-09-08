@@ -16,7 +16,6 @@
               :class="[i === 0 || i === 1 ? 'high' : '']"
               v-for="item in showRescueTeam"
           >
-
             <div class="sub-content">
               <p class="rescue_team_p">
                 <span v-if="item.gotime && item.gotime!==''">{{item.goyear}}年{{item.gomonth}}月{{item.goday}}日</span>
@@ -57,6 +56,7 @@
 
 <script>
 import timeLineRescueTeam from "@/assets/json/TimeLine/timeLineRescueTeam";
+import {getRescueTeam} from "../../api/system/timeLine.js";
 export default {
   data() {
     return {
@@ -64,72 +64,98 @@ export default {
       showRescueTeam:[],
       rescue_team_isExpanded:'true',
       recordtime: '',
+      ifShowData:false,
     }
   },
   props: [
-    'currentTime'
+    'currentTime','eqid'
   ],
   mounted() {
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          this.ifShowData = true
+      }
     this.init()
   },
   watch: {
     currentTime(newVal) {
-      this.rescue_team_update(newVal)
+        if(this.ifShowData){
+            this.rescue_team_update(newVal)
+        }
     }
   },
   methods: {
     init() {
-      this.Responsecontent = [...timeLineRescueTeam].sort((a, b) => {
-        if (a[0] < b[0]) return -1;
-        if (a[0] > b[0]) return 1;
-        return 0;
-      });
-      console.log("this.Responsecontent",this.Responsecontent)
+        getRescueTeam().then(res => {
+            console.log("res:----",res)
+            this.Responsecontent = res
+            console.log("this.Responsecontent",this.Responsecontent)
+        })
+      // this.Responsecontent.sort((a, b) => {
+      //   if (a.departureDate < b.departureDate) return -1;
+      //   if (a.departureDate > b.departureDate) return 1;
+      //   return 0;
+      // });
     },
 
-    rescue_team_update(currentTime){
+    async rescue_team_update(currentTime) {
       this.showRescueTeam=[]
       // console.log("rescue_team_update",this.Responsecontent)
       // console.log(currentTime)
-      const activities = this.Responsecontent.filter((activity) => {
+        const activities = await this.Responsecontent.filter((activity) => {
         return (
-            new Date(activity[0]) <= currentTime
+                new Date(activity.departureDate) <= currentTime
             // new Date(activity[0]) <= currentTime && new Date(activity[0]) > new Date(currentTime.getTime()-5*60*1000)
         );
       });
-
-
+        activities.sort((a, b) => {
+            if (a.departureDate < b.departureDate) return -1;
+            if (a.departureDate > b.departureDate) return 1;
+            return 0;
+        });
       if(activities.length>0){
-        console.log("activities",activities)
-        this.recordtime=activities[activities.length-1][0]
+            console.log("activities", activities)
+            this.recordtime = this.timestampToTime(activities[activities.length - 1].departureDate)
         activities.forEach((item) => {
           let activity={
-            recordtime: item[0],
+                    recordtime: this.timestampToTime(item.departureDate),
             gotime:'',
             goyear: '',
             gomonth: '',
             goday: '',
             gohour:'',
             gominute:'',
-            team: item[2],
-            personnum: item[3],
-            destination: item[4],
+            team: item.teamName,
+            personnum: item.personnelCount,
+            destination: item.plannedRescueArea,
           }
-
-          if(item[1]){
-            activity.gotime=new Date(item[1])
-            activity.goyear = activity.gotime.getFullYear()
-            activity.gomonth = activity.gotime.getMonth() + 1
-            activity.goday = activity.gotime.getDate()
-            activity.gohour = String(new Date(item[1]).getHours()).padStart(2, '0');
-            activity.gominute = String(new Date(item[1]).getMinutes()).padStart(2, '0');
-          }
+            if (item.departureDate) {
+                activity.gotime = new Date(item.departureDate)
+                activity.goyear = activity.gotime.getFullYear()
+                activity.gomonth = activity.gotime.getMonth() + 1
+                activity.goday = activity.gotime.getDate()
+                activity.gohour = String(new Date(item.departureDate).getHours()).padStart(2, '0');
+                activity.gominute = String(new Date(item.departureDate).getMinutes()).padStart(2, '0');
+            }
           this.showRescueTeam.unshift(activity)
         })
-        console.log(this.showRescueTeam)
       }
-
-
+    },
+      timestampToTime(timestamp) {
+          let DateObj = new Date(timestamp)
+          // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+          let year = DateObj.getFullYear()
+          let month = DateObj.getMonth() + 1
+          let day = DateObj.getDate()
+          let hh = DateObj.getHours()
+          let mm = DateObj.getMinutes()
+          let ss = DateObj.getSeconds()
+          month = month > 9 ? month : '0' + month
+          day = day > 9 ? day : '0' + day
+          hh = hh > 9 ? hh : '0' + hh
+          mm = mm > 9 ? mm : '0' + mm
+          ss = ss > 9 ? ss : '0' + ss
+          // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+          return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
     rescue_team_toggleExpand() {
       this.rescue_team_isExpanded = !this.rescue_team_isExpanded
@@ -177,7 +203,7 @@ export default {
   width: 2.5%; /* 调整宽度 */
   padding: 10px;
   border-radius: 5px;
-  top: 52%;
+  top: 54%;
   left: 1%;
   z-index: 22; /* 提高层级 */
 }
