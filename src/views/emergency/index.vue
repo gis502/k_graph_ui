@@ -1,8 +1,5 @@
 <template>
   <div id="cesiumContainer">
-    <!--    <el-form class="tool-container">-->
-    <!--    写功能按钮部分-->
-    <!--    </el-form>-->
     <RouterPanel
         :visible="popupVisible"
         :position="popupPosition"
@@ -363,7 +360,6 @@ export default {
           console.warn(`id为${element.id}的实体已存在。跳过此实体`);
           return;
         }
-
         // 检查经度、纬度和高度是否为有效数值
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
@@ -371,14 +367,11 @@ export default {
           console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
-
         element.type = type;
-
         // 添加实体
         this.addEntity(element, icon, tableName, longitude, latitude);
       });
     },
-
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
         id: element.id,
@@ -402,7 +395,6 @@ export default {
         }
       });
     },
-
     isTerrainLoaded() {
       let terrainProvider = window.viewer.terrainProvider;
       if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {

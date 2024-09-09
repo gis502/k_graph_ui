@@ -146,7 +146,7 @@ const initEmap = () => {
         show: false,
         viewControl: {
           projection: 'orthographic',
-          orthographicSize: 95,
+          orthographicSize: 105,
           alpha: 44,
           beta: 0,
           autoRotate: false, // Disable auto-rotation
@@ -190,7 +190,7 @@ const initEmap = () => {
           map: 'data',
           viewControl: {
             projection: 'orthographic',
-            orthographicSize: 95,
+            orthographicSize: 105,
             alpha: 44,
             beta: 0,
             autoRotate: false, // Disable auto-rotation

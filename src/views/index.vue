@@ -80,14 +80,14 @@
           />
         </el-form-item>
         <el-form-item label="地震震级">
-          <el-input v-model="formValue.startMagnitude" style="width: 3.03vw"/>
+          <el-input v-model="formValue.startMagnitude" style="width: 2.5vw"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endMagnitude" style="width: 3.03vw;"/>
+          <el-input v-model="formValue.endMagnitude" style="width: 2.5vw;"/>
         </el-form-item>
-        <el-form-item label="地震深度">
-          <el-input v-model="formValue.startDepth" style="width: 3.03vw"/>
+        <el-form-item label="地震深度(千米)">
+          <el-input v-model="formValue.startDepth" style="width: 2.5vw"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endDepth" style="width: 3.03vw"/>
+          <el-input v-model="formValue.endDepth" style="width: 2.5vw"/>
         </el-form-item>
       </el-form>
       <template #footer>
