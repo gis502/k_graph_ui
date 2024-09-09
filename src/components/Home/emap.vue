@@ -252,7 +252,7 @@ const initEmap = () => {
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
             itemStyle: {color: '#ed2a2a'},
-            symbolSize: 20
+            symbolSize: 10
           })),
           emphasis: {
             label: {
@@ -271,7 +271,7 @@ const initEmap = () => {
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
             itemStyle: {color: '#ed2a2a'},
-            symbolSize: 20
+            symbolSize: 15
           })),
           emphasis: {
             label: {
