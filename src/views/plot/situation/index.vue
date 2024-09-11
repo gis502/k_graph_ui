@@ -281,8 +281,8 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
-      this.websock = initWebSocket()
-      this.websock.eqid = this.eqid
+      this.websock = initWebSocket(this.eqid)
+      // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
       // this.websock.onmessage = this.wsOnmessage()
       // this.websock.wsAdd = this.wsAdd()
@@ -320,8 +320,6 @@ export default {
           }
           polygonMap[item.plotid].push(item);
         });
-        console.log(polygonArr, 1239)
-        // console.log('index.polygonMap', polygonMap)
         Object.keys(polygonMap).forEach(plotid => {
           let polygonData = polygonMap[plotid];
           if (polygonData.length === 4) { // 确保有四个点
@@ -514,6 +512,7 @@ export default {
     getPlotPicture() {
       let that = this
       getPlotIcon().then(res => {
+        // console.log(res)
         that.plotPicture = res
         // 设置plotTree初始样式
         // that.plotTreeClassification = res.filter(item=>item.type==="I类（次生地质灾害）")
