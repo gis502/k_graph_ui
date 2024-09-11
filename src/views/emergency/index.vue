@@ -1,5 +1,8 @@
 <template>
   <div id="cesiumContainer">
+    <!--    <el-form class="tool-container">-->
+    <!--    写功能按钮部分-->
+    <!--    </el-form>-->
     <RouterPanel
         :visible="popupVisible"
         :position="popupPosition"
@@ -8,43 +11,55 @@
     <div id="supplies" :class="{ collapsed: !tableVisible }">
       <el-form class="eqTable">
         <div style="margin-bottom: 10px; padding: 10px; width: 100%;">
-          <el-input
-              v-model="inputRadius"
-              placeholder="请输入搜查范围/km"
-              style="width: 150px; margin-right: 5px;"
-              clearable
-          ></el-input>
-          <el-button class="el-button--primary" @click="searchSupply" style="width: 80px;"
-          >查找物资
-          </el-button
-          >
-          <el-button class="el-button--primary" @click="addDisasterPoint" style="width: 80px;"
-          >添加受灾点
-          </el-button
-          >
-          <el-button class="el-button--primary" @click="showAllSupplyPoints" style="width: 110px;">{{
-              showSupply
-            }}
-          </el-button>
-          <!--add-->
-          <el-button class="el-button--primary" @click="route" style="width: 80px;">路径规划</el-button>
-          <el-button class="el-button--primary" @click="addArea" style="width: 110px;">添加障碍区域</el-button>
-          <el-button class="el-button--primary" @click="removeAll" style="width: 110px;"
-          >清空所有实体
-          </el-button
-          >
-          <el-button class="el-button--primary" @click="removePoint" style="width: 110px;"
-          >删除障碍区域
-          </el-button
-          >
-          <el-button class="el-button--primary" @click="removePolyline" style="width: 110px;"
-          >删除路径规划
-          </el-button
-          >
-          <el-button class="el-button--primary" @click="toggleTable" style="width: 110px;">{{
-              toolValue
-            }}
-          </el-button>
+            <el-menu
+                    class="el-menu-demo"
+                    mode="horizontal"
+                    background-color="#293038"
+                    text-color="#fff"
+                    active-text-color="#537BB7FF"
+                    style="margin: 0;padding: 0"
+            >
+                <el-menu-item index="1">
+                    <el-input
+                            style="width: 140px;"
+                            v-model="inputRadius"
+                            placeholder="请输入查询内容"
+                            clearable
+                    ></el-input>
+                </el-menu-item>
+                <el-menu-item index="2" @click="searchSupply" style="width: 90px;">匹配物资</el-menu-item>
+                <el-menu-item index="3" @click="search" style="width: 90px;">查找物资</el-menu-item>
+                <el-menu-item index="4" @click="addDisasterPoint" style="width: 100px;">添加受灾点</el-menu-item>
+                <el-menu-item index="5" @click="showAllSupplyPoints" style="width: 120px;">{{ showSupply }}</el-menu-item>
+                <el-menu-item index="6" @click="route" style="width: 90px;">路径规划</el-menu-item>
+                <el-menu-item index="7" @click="addArea" style="width: 110px;">添加障碍区域</el-menu-item>
+                <el-menu-item index="8" @click="removeAll" style="width: 110px;">清空所有实体</el-menu-item>
+                <el-menu-item index="9" @click="removePoint" style="width: 110px;">删除障碍区域</el-menu-item>
+                <el-menu-item index="10" @click="removePolyline" style="width: 110px;">删除路径规划</el-menu-item>
+                <el-menu-item index="11" @click="toggleTable" style="width: 130px;">{{ toolValue }}</el-menu-item>
+            </el-menu>
+<!--          <el-input-->
+<!--              v-model="inputRadius"-->
+<!--              placeholder="请输入搜查范围/km"-->
+<!--              style="width: 150px; margin-right: 5px;"-->
+<!--              clearable-->
+<!--          ></el-input>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="searchSupply" style="width: 80px;">查找物资</el-button>-->
+<!--          <el-input-->
+<!--                  v-model="inputData"-->
+<!--                  placeholder="请输入查询条件"-->
+<!--                  style="width: 150px; margin-right: 5px;"-->
+<!--                  clearable></el-input>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="search" style="width: 80px;">查询</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="addDisasterPoint" style="width: 80px;">添加受灾点</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="showAllSupplyPoints" style="width: 110px;">{{showSupply }}</el-button>-->
+<!--          &lt;!&ndash;add&ndash;&gt;-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="route" style="width: 80px;">路径规划</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="addArea" style="width: 110px;">添加障碍区域</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="removeAll" style="width: 110px;">清空所有实体</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="removePoint" style="width: 110px;">删除障碍区域</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="removePolyline" style="width: 110px;">删除路径规划</el-button>-->
+<!--          <el-button class="el-button&#45;&#45;primary" @click="toggleTable" style="width: 110px;">{{toolValue }}</el-button>-->
         </div>
         <el-table
             v-if="tableVisible"
@@ -129,8 +144,8 @@
           全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}
         </div>
         <div v-if="visibleGuilde">
-          <div v-for="(instruction, index) in RouteGuilde" :key="index">
-            {{ instruction }}
+          <div v-for="(guilde, index) in RouteGuilde" :key="index">
+            {{ guilde.from }} 到 {{ guilde.to }} {{ guilde.dist }} m
           </div>
           <div v-if="loading" class="loading">加载中...</div>
         </div>
@@ -161,6 +176,7 @@ import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
+import {searchMaterialData} from "../../api/system/emergency.js";
 
 export default {
   components: {
@@ -183,6 +199,7 @@ export default {
       selectedWalk: "",
       RouteGuilde: [],
       loading: false,
+        selectedMenu: '2-1', // 默认选中“匹配物资”
       // 资源快速匹配
       showSuppliesList: [],
       selectedSuppliesList: [],
@@ -203,6 +220,7 @@ export default {
         tel: "",
       },
       inputRadius: "",
+      inputData: '',
       canMarkPoint: false,
       DialogFormVisible: false,
       affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
@@ -325,7 +343,7 @@ export default {
                 this.clickCount,
                 Cesium.Color.RED
             );
-            console.log("已添加标注点");
+            // console.log("已添加标注点");
             this.canMarkPoint = false;
           }
         }
@@ -334,7 +352,7 @@ export default {
     initPlot() {
       getEmergency().then(res => {
         let {disasterReserves, disasterSupplies, emergencyTeam} = res;
-        console.log('获取到的res', res);
+        // console.log('获取到的res', res);
 
         this.suppliesList.push(disasterReserves, disasterSupplies, emergencyTeam);
 
@@ -362,6 +380,7 @@ export default {
           console.warn(`id为${element.id}的实体已存在。跳过此实体`);
           return;
         }
+
         // 检查经度、纬度和高度是否为有效数值
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
@@ -369,11 +388,15 @@ export default {
           console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
+
         element.type = type;
+        element.icon = icon
+
         // 添加实体
         this.addEntity(element, icon, tableName, longitude, latitude);
       });
     },
+
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
         id: element.id,
@@ -397,6 +420,7 @@ export default {
         }
       });
     },
+
     isTerrainLoaded() {
       let terrainProvider = window.viewer.terrainProvider;
       if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
@@ -539,18 +563,18 @@ export default {
     },
 
     showSupplyPoint(row) {
-      console.log("点击了：", row.type);
+      console.log("点击了：", row);
       this.showIcon = [];
       this.showIcon.push(row);
       this.removePoints(this.suppliesList[0]);
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
       if (this.showIcon[0].type === "reserves") {
-        this.drawPointReserves(this.showIcon);
+          this.processPoints(this.showIcon, 'reserves', disasterReservesLogo, "救灾物资储备");
       } else if (this.showIcon[0].type === "supplies") {
-        this.drawPointSupplies(this.showIcon);
+          this.processPoints(this.showIcon, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
       } else {
-        this.drawPointEmergencyTeam(this.showIcon);
+          this.processPoints(this.showIcon, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
       }
     },
 
@@ -575,21 +599,25 @@ export default {
         }
       });
       this.removePoints(that.showIcon);
-      // this.drawPoint(this.suppliesList)
-      // if(that.suppliesList[0].type === 'reserves'){
-      //
-      // }else{
-      //     this.drawPointSupplies(that.suppliesList[0])
-      //     this.drawPointSupplies(that.suppliesList[1])
-      // }
-      this.drawPointReserves(that.suppliesList[0]);
-      this.drawPointSupplies(that.suppliesList[1]);
-      this.drawPointEmergencyTeam(that.suppliesList[2]);
+      this.removePoints(that.selectedSuppliesList);
+      this.initPlot()
     },
 
+    search(){
+        // this.inputData = this.inputRadius.toString()
+        searchMaterialData(this.inputData).then(res => {
+            console.log("search----------",res)
+            this.selectedSuppliesList = res
+            this.total = this.selectedSuppliesList.length;
+            this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+            this.removePoints(this.suppliesList[0]);
+            this.removePoints(this.suppliesList[1]);
+            this.removePoints(this.suppliesList[2]);
+            this.processPoints(res, 'reserves', disasterReservesLogo, "救灾物资储备");
+        })
+    },
     searchSupply() {
       if (!isNaN(parseFloat(this.inputRadius))) {
-        console.log(111);
         let longitude = parseFloat(this.addSupplyPointCurrently.lng);
         let latitude = parseFloat(this.addSupplyPointCurrently.lat);
         const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
@@ -614,19 +642,22 @@ export default {
         this.removePoints(this.showIcon);
         this.showIcon = [];
         this.showIcon = this.selectedSuppliesList;
+          let reservesArr = [];
+          let suppliesArr = []
+          let emergencyTeamArr = []
         this.showIcon.forEach((item) => {
-          let arr = [];
+
           if (item.type === "reserves") {
-            arr.push(item);
-            this.drawPointReserves(arr);
+              reservesArr.push(item);
           } else if (item.type === "supplies") {
-            arr.push(item);
-            this.drawPointSupplies(arr);
+              suppliesArr.push(item);
           } else {
-            arr.push(item);
-            this.drawPointEmergencyTeam(arr);
+              emergencyTeamArr.push(item);
           }
         });
+          this.processPoints(reservesArr, 'reserves', disasterReservesLogo, "救灾物资储备");
+          this.processPoints(suppliesArr, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
+          this.processPoints(emergencyTeamArr, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
         this.selectPoints();
       }
     },
@@ -1176,7 +1207,7 @@ export default {
   /*height: 200px;*/
   top: 10px;
   left: 10px;
-  width: 80vw;
+  width: 83vw;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
   transition: width 0.3s; /* 平滑过渡效果 */
