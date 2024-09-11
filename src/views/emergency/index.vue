@@ -603,7 +603,7 @@ export default {
     },
 
     search(){
-        this.inputData = this.inputRadius.toString()
+        // this.inputData = this.inputRadius.toString()
         searchMaterialData(this.inputData).then(res => {
             console.log("search----------",res)
             this.selectedSuppliesList = res

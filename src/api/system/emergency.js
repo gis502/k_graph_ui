@@ -60,12 +60,11 @@ export function rescueTeamList() {
     })
 }
 
-export function searchMaterialData(query) {
+export function searchMaterialData(inputData) {
     return request({
         url: '/system/emergency/searchMaterialData',
         method: 'post',
-        // body: JSON.stringify(query)
-        data: query
+        params: {'inputData':inputData}
     })
 }
 
