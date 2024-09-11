@@ -14,13 +14,9 @@
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        <el-button type="primary" plain icon="Plus" size="mini" @click="handleOpen('新增')">新增</el-button>
       </el-form-item>
     </el-form>
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" size="mini" @click="handleOpen('新增')">新增</el-button>
-      </el-col>
-    </el-row>
 
     <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
       <el-table-column label="序号" width="60" align="center">
@@ -238,14 +234,14 @@ export default {
               value: 'I类（应急避难功能区类）',
               label: 'I类（应急避难功能区类）'
             },
-            {
-              value: 'II类（应急避难设施设备类）',
-              label: 'II类（应急避难设施设备类）'
-            },
-            {
-              value: 'III类（应急避难场所类）',
-              label: 'III类（应急避难场所类）'
-            }
+            // {
+            //   value: 'II类（应急避难设施设备类）',
+            //   label: 'II类（应急避难设施设备类）'
+            // },
+            // {
+            //   value: 'III类（应急避难场所类）',
+            //   label: 'III类（应急避难场所类）'
+            // }
           ]
         }
       ],
@@ -304,7 +300,7 @@ export default {
     // 删除单个标绘图片
     handleDelete(row) {
       let that = this
-      deletePlotIcon({uuid: row.uuid}).then(res => {
+      deletePlotIcon({id: row.id}).then(res => {
         that.getPlotPicture()
       })
     },

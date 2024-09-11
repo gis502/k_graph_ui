@@ -1,10 +1,10 @@
 import * as Cesium from 'cesium'
 
 let webSocket
+let ip = "ws://localhost:8080/ws/"
 
-export function initWebSocket() {
-    const currentTime = Date.now();
-    const wsuri = "ws://localhost:8080/ws/" + currentTime;
+export function initWebSocket(eqid) {
+    const wsuri = ip + eqid;
     if (typeof (WebSocket) == "undefined") {
         console.log("您的浏览器不支持WebSocket");
     } else {
@@ -13,16 +13,15 @@ export function initWebSocket() {
         webSocket.onopen = websocketonopen;
         webSocket.onerror = websocketonerror;
         webSocket.onclose = websocketclose;
-        webSocket.eqid = ''
+        webSocket.eqid = eqid
     }
     return webSocket
 }
 
 //连接建立之后执行send方法发送数据
 function websocketonopen() {
-    let actions = {"test": "我已在线"};
-    webSocket.send(JSON.stringify(actions));
-    // websocketsend(JSON.stringify(actions));
+    // let actions = {"test": "我已在线"};
+    // webSocket.send(JSON.stringify(actions));
 }
 
 //连接建立失败重连

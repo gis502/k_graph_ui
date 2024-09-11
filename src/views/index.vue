@@ -267,7 +267,7 @@ onMounted(() => {
   display: flex;
   justify-content: center; /* 标题居中对齐 */
   align-items: center;
-  height: 50px;
+  height: 34px;
   width: 100%;
   z-index: 10;
 }
