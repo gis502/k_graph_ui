@@ -144,8 +144,8 @@
           全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}
         </div>
         <div v-if="visibleGuilde">
-          <div v-for="(guilde, index) in RouteGuilde" :key="index">
-            {{ guilde.from }} 到 {{ guilde.to }} {{ guilde.dist }} m
+          <div v-for="(instruction, index) in RouteGuilde" :key="index">
+            {{ instruction }}
           </div>
           <div v-if="loading" class="loading">加载中...</div>
         </div>
