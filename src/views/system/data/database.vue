@@ -5,6 +5,7 @@
                 placeholder="请输入查询的表名或备注"/>
       <el-button type="primary" @click="getList">搜索</el-button>
       <el-button type="primary" @click="handleBackupAll">一键备份</el-button>
+      <span>（每天0点自动备份，备份文件保存在服务器D:/backup文件夹下）</span>
     </div>
     <el-table
         v-loading="loading"

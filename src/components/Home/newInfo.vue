@@ -1,35 +1,35 @@
 <template>
   <div class="newIn">
-      <el-col>
-        <div class="eqName">
-          {{ eqName }}
-        </div>
-      </el-col>
-      <el-col>
-        <div class="newColCommon">
-          发震时间：{{ time }}
-        </div>
-      </el-col>
-      <el-col>
-        <div class="lonlat newColCommon">
-          震中经纬：{{ longitude }},{{ latitude }}
-        </div>
-      </el-col>
-      <el-col>
-        <div class="magnitude newColCommon">
-          地震震级：{{ magnitude.toFixed(1) }}
-        </div>
-      </el-col>
-      <el-col>
-        <div class="depth newColCommon">
-          震源深度：{{ depth }}
-        </div>
-      </el-col>
-      <el-col>
-        <div class="position newColCommon">
-          参考位置：{{ position }}
-        </div>
-      </el-col>
+    <el-col>
+      <div class="eqName">
+        {{ eqName }}
+      </div>
+    </el-col>
+    <el-col>
+      <div class="newColCommon">
+        发震时间：{{ time }}
+      </div>
+    </el-col>
+    <el-col>
+      <div class="lonlat newColCommon">
+        震中经纬：东经{{ longitude }}度 北纬{{ latitude }}度
+      </div>
+    </el-col>
+    <el-col>
+      <div class="magnitude newColCommon">
+        地震震级：{{ magnitude.toFixed(1) }}
+      </div>
+    </el-col>
+    <el-col>
+      <div class="depth newColCommon">
+        震源深度：{{ depth }} 千米
+      </div>
+    </el-col>
+    <el-col>
+      <div class="position newColCommon">
+        震中位置：{{ position }}
+      </div>
+    </el-col>
   </div>
 </template>
 
@@ -51,6 +51,7 @@ const depth = ref('8');
   color: #fff;
   width: 100%;
   height: 100%;
+  line-height: 3.4vh;
 }
 
 .newColCommon {

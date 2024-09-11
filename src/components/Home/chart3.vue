@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <div class="row injury">
-      <span class="label">受伤人数累计</span>
+      <span class="label">受伤人数</span>
       <span class="count">{{ injuryCount }}</span>
       <span class="suffix">人</span>
     </div>
     <div class="row missing">
-      <span class="label">失联人数累计</span>
+      <span class="label">失联人数</span>
       <span class="count">{{ missingCount }}</span>
       <span class="suffix">人</span>
     </div>
     <div class="row death">
-      <span class="label">遇难人数累计</span>
+      <span class="label">遇难人数</span>
       <span class="count">{{ deathCount }}</span>
       <span class="suffix">人</span>
     </div>
@@ -44,7 +44,7 @@ deathCount.value = 0;
   height: 8vh;
   display: flex;
   align-items: center;
-  font-size: 20px; /* Default font size */
+  font-size: 16px;
   font-weight: bold;
   padding-left: 20px; /* Move text 10px to the right */
   border-left-width: 0.1vw; /* Add a border on the left */
@@ -53,9 +53,9 @@ deathCount.value = 0;
 }
 
 .count {
-  font-size: 35px; /* Larger font size for the numbers */
+  font-size: 25px; /* Larger font size for the numbers */
   color: rgb(248, 150, 150);
-  margin-left: 7vw; /* Pushes count to the right */
+  margin-left: 9vw; /* Pushes count to the right */
 }
 
 .suffix {
