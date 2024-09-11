@@ -189,7 +189,7 @@ const initEmap = () => {
           },
         },
       },
-// 初始比例尺
+      // 初始比例尺
       graphic: {
         type: 'group',
         left: 20,
@@ -299,14 +299,14 @@ const initEmap = () => {
             },
           },
           data: [
-            {name: '雨城区', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '名山区', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '荥经县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '汉源县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '石棉县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '天全县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '芦山县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '宝兴县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
+            {name: '雨城区', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '名山区', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '荥经县', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '汉源县', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '石棉县', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '天全县', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '芦山县', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
+            {name: '宝兴县', itemStyle: {color: '#5ca3f8'}, emphasis: {itemStyle: {color: '#b9d4f9'}}},
           ],
         },
         // 根据分类渲染散点
