@@ -19,8 +19,8 @@
       <span>灾害评估</span>
       <div style="margin-top: 25px"><span>震中</span><span style="font-size: 20px;color: #409eff">50</span><span>公里范围内</span></div>
       <ul style="padding: 0 10px;" v-if="isNoHistoryEq === false">
-        <li style="display: flex;justify-content: space-between">4.5-5.9级地震：<span class="emphasis">{{type1Eq}}次</span></li>
-        <li style="display: flex;justify-content: space-between">6.0级以上地震：<span class="emphasis">{{type2Eq}}次</span></li>
+        <li style="display: flex;justify-content: space-between;font-size: 14px">4.5-5.9级地震：<span class="emphasis">{{type1Eq}}次</span></li>
+        <li style="display: flex;justify-content: space-between;font-size: 14px">6.0级以上地震：<span class="emphasis">{{type2Eq}}次</span></li>
       </ul>
       <span v-else>未发生过地震</span>
     </div>
@@ -38,7 +38,7 @@
       </div>
       <div class="table">
         <el-table :data="copiedHistoryEqData" :height="180" :max-height="180" stripe :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
-          <el-table-column prop="time" label="发震时刻" width="160" align="center"></el-table-column>
+          <el-table-column prop="time" label="发震时刻" width="150" align="center"></el-table-column>
           <el-table-column prop="magnitude" label="震级" width="55" align="center"></el-table-column>
           <el-table-column prop="depth" label="深度" width="55" align="center"></el-table-column>
           <el-table-column prop="position" label="参考位置" width="210" align="left"></el-table-column>
@@ -236,7 +236,7 @@ export default {
 }
 
 .panelEqInfo {
-  width: 425px;
+  width: 333px;
   height: 100%;
 }
 
@@ -259,11 +259,11 @@ export default {
 }
 
 .panelChart {
-  width: 300px;
+  width: 270px;
 }
 
 .panelTable {
-  width: calc(100% - 425px - 8% - 12% - 300px);
+  width: calc(100% - 333px - 270px - 8% - 12%);
 }
 
 .panelEqInfo, .panelLegend, .panelAssessment, .panelChart, .panelTable {
@@ -303,7 +303,6 @@ span {
 
 li {
   display: flex;
-
   text-align: center;
   margin: 10px 0;
   color: #fff;

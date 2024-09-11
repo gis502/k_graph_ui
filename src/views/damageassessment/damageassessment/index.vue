@@ -2,27 +2,13 @@
   <div id="cesiumContainer" class="situation_cesiumContainer">
     <!-- 左侧表单 -->
     <div class="eqTable" v-show="isLeftShow">
-      <!-- 选项卡与开关 -->
-      <div style="display: flex">
-        <div class="tab">
-          <div class="tabItem" :class="{ active: currentTab === '震害事件' }" @click="changeTab('震害事件')">震害事件
-          </div>
-          <div v-for="(tab, index) in tabs" :key="tab.name" class="tabItem"
-               :class="{ active: currentTab === tab.name }" @click="changeTab(tab.name)">
-            <span>{{ tab.name }}</span>
-            <span class="closeIcon" @click.stop="removeTab(index)">×</span>
-          </div>
-        </div>
 
-        <div class="fold" @click="isLeftShow = false">
-          <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;">
-        </div>
-      </div>
       <div class="eqListContent" v-if="currentTab === '震害事件'">
-        <!-- 搜索框 -->
-        <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
-        </el-input>
-
+        <div style="display: flex">
+          <!-- 搜索框 -->
+          <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+          </el-input>
+        </div>
         <!-- 地震列表 -->
         <div class="eqList">
           <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
@@ -35,12 +21,13 @@
             </div>
 
             <!-- 地震名称与简要信息 -->
-            <div class="eqText">
-          <span style="color: #409eff; font-size: 15px;">
+            <div class="eqText" style="width: 320px;">
+          <span
+            style="width: 320px;color: #409eff; font-size: 15px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;  ">
             {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
           </span>
               <br/>
-              <span style="color: #fff; font-size: 14px; display: inline-block; margin-top: 5px;">
+              <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
             发震时刻：{{ eq.time }}<br/>
             参考位置：{{ eq.position }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
@@ -49,7 +36,7 @@
             </div>
 
             <!-- 详情按钮 -->
-            <div class="eqTapToInfo" @click="addTab(eq)">详情</div>
+            <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
           </div>
         </div>
 
@@ -70,6 +57,9 @@
       <!--   指定地震   -->
       <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
         <div class="eqInfo">
+          <div style="height: 30px;display: flex;align-items: center">
+            <div class="button return" @click="back()">返回</div>
+          </div>
           <div style="height: 10px;background-color: #054576"></div>
           <el-divider content-position="left">
             <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
@@ -77,7 +67,7 @@
           </el-divider>
           <div style="padding: 1px 20px 10px 20px">
             <!-- 显示选项卡内容 -->
-            <h3>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h3>
+            <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
             <p>发震时刻：{{ selectedTabData.time }}</p>
             <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
             <p>地震震级：{{ selectedTabData.magnitude }}</p>
@@ -99,9 +89,9 @@
 
           <el-divider content-position="left"> 大屏展示</el-divider>
 
-
           <div class="eqVisible">
-            <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+            <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
+              src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
             </div>
           </div>
 
@@ -109,10 +99,13 @@
       </div>
 
     </div>
-    <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true">
+    <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
+         @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
+      <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" v-if="isFoldUnfolding" style="height: 60%;width: 60%;">
+    </div>
+    <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
       <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 60%;width: 60%;cursor: pointer">
     </div>
-
 
     <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
     <div class="panel">
@@ -122,7 +115,8 @@
                       @hidden="hidden"/>
     </div>
 
-    <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow" @click="isHistoryEqPointsShow=true, isShow=false">
+    <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
+         @click="isHistoryEqPointsShow=true, isShow=false">
       展开专题详情
     </div>
   </div>
@@ -146,7 +140,7 @@ export default {
     return {
       websock: null,
       total: 0,
-      pageSize: 5,
+      pageSize: 10,
       currentPage: 1,
       getEqData: [],
       filteredEqData: [],
@@ -159,6 +153,8 @@ export default {
 
       title: "",
       isLeftShow: true,
+      isFoldShow: true,
+      isFoldUnfolding: false,
       isHistoryEqPointsShow: false,
       isShow: false,
 
@@ -372,19 +368,10 @@ export default {
       });
     },
 
-    // 添加新选项卡
-    addTab(eq) {
-      const newTabName = `${eq.position} ${eq.magnitude}级地震`;
-      if (!this.tabs.find(tab => tab.name === newTabName)) {
-        this.tabs.push({name: newTabName});
-      }
-      this.changeTab(newTabName);
-    },
-
-    // 切换选项卡
-    changeTab(tabName) {
-      this.currentTab = tabName;
+    toTab(eq) {
+      this.currentTab = `${eq.position} ${eq.magnitude}级地震`;
       if (this.currentTab !== '震害事件') {
+
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.getEqData.find(
           eq => `${eq.position} ${eq.magnitude}级地震` === this.currentTab
@@ -396,16 +383,9 @@ export default {
       }
     },
 
-    // 删除选项卡
-    removeTab(index) {
-      if (this.currentTab === this.tabs[index]?.name) {
-        this.changeTab('震害事件')
-        this.currentTab = '震害事件';
-        this.selectedTabData = null;
-        this.isHistoryEqPointsShow = false;
-        this.renderQueryEqPoints();
-      }
-      this.tabs.splice(index, 1);
+    back() {
+      this.currentTab = '震害事件';
+      this.selectedTabData = null;
     },
 
     // 分页数据更新
@@ -521,8 +501,8 @@ export default {
 
     // 跳转至指挥大屏
     navigateToVisualization(thisEq) {
-        const path = `/thd?eqid=${thisEq.eqid}`;
-        window.open(path, '_blank');
+      const path = `/thd?eqid=${thisEq.eqid}`;
+      window.open(path, '_blank');
     },
 
     hidden(hidden) {
@@ -572,7 +552,7 @@ export default {
 // 左侧地震面板
 .eqTable {
   position: absolute;
-  width: 427px;
+  width: 333px;
   height: 100%;
   z-index: 3;
   background-color: #2d3d51;
@@ -612,11 +592,20 @@ export default {
 
 // 开关
 .fold {
+  position: absolute;
+  left: 323px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
+  width: 10px;
+  height: 50px;
+  background-color: #2d3d51;
+  -webkit-border-top-right-radius: 10px;
+  -webkit-border-bottom-right-radius: 10px;
   cursor: pointer;
+  z-index: 4;
+  transition: width 0.3s ease; /* 宽度过渡动画 */
 }
 
 .unfold {
@@ -637,13 +626,13 @@ export default {
 // 地震列表
 .eqList {
   position: relative;
-  height: 650px;
+  height: 85vh;
   overflow-y: auto;
 }
 
 .eqCard {
   display: flex;
-  height: 130px;
+  height: 110px;
   border-bottom: #0d325f 2px solid;
   cursor: pointer;
 }
@@ -675,7 +664,7 @@ export default {
 .eqTapToInfo {
   position: absolute;
   right: 10px;
-  margin-top: 80px;
+  margin-top: 70px;
   width: 60px;
   height: 30px;
   border: #0d325f 1.5px solid;
@@ -695,6 +684,7 @@ export default {
 
 // 分页容器
 .pagination {
+  position: absolute;
   bottom: 0;
   width: 327px;
   background-color: #2d3d51;
@@ -707,14 +697,28 @@ export default {
 // 指定地震面板
 .thisEq {
   height: 100%;
+  overflow: auto;
 }
 
 .eqInfo {
-  height: 300px;
+
+}
+
+.return {
+  width: 40px;
+  height: 25px;
+  border: #fff 1px solid;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.return:hover {
+  border-color: #409eff;
+  color: #409eff;
+  transition: all 0.3s;
 }
 
 .eqTheme {
-  height: 210px;
+  height: 150px;
   padding: 0 30px;
 }
 
@@ -740,13 +744,15 @@ export default {
 // 大屏展示
 .eqVisible {
   display: flex;
+  height: 80px;
+  width: 100%;
   justify-content: center;
   text-align: center;
-  height: 100%;
+  align-items: center;
 }
 
 .toVisible {
-  margin-top: 15px;
+  margin-bottom: 0;
   width: 200px;
   height: 50px;
   border: #fff 1px solid;
@@ -787,26 +793,18 @@ export default {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ::v-deep .el-divider__text.is-left {
   background-color: #2d3d51;
   color: #fff;
   font-size: 20px;
 }
 
-h3, p {
+h4, p {
   color: #fff;
+}
+
+p {
+  font-size: 14px;
 }
 
 // 滚动条样式
