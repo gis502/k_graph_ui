@@ -484,5 +484,14 @@ export default {
   /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
   --el-select-width: 270px !important;
 }
-
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
+}
 </style>

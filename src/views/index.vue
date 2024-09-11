@@ -43,6 +43,7 @@
                 地震列表
                 <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
                 <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
+                <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
               </div>
               <eq-table :eq-data="tableData"/>
             </dv-border-box7>
@@ -56,6 +57,45 @@
         </div>
       </div>
     </div>
+    <el-dialog
+        v-model="queryFormVisible"
+        title="筛选"
+        width="28vw"
+        style="top:20vh"
+    >
+      <el-form :inline="true" :model="formValue">
+        <el-form-item label="地震位置">
+          <el-input v-model="formValue.position" style="width: 23vw;" placeholder="地震位置" clearable/>
+        </el-form-item>
+        <el-form-item label="发震时间">
+          <el-date-picker
+              v-model="formValue.time"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              :shortcuts="shortcuts"
+              style="width: 23vw;"
+          />
+        </el-form-item>
+        <el-form-item label="地震震级">
+          <el-input v-model="formValue.startMagnitude" style="width: 2.5vw"/>
+          <span style="margin: 0 10px"> 至 </span>
+          <el-input v-model="formValue.endMagnitude" style="width: 2.5vw;"/>
+        </el-form-item>
+        <el-form-item label="地震深度(千米)">
+          <el-input v-model="formValue.startDepth" style="width: 2.5vw"/>
+          <span style="margin: 0 10px"> 至 </span>
+          <el-input v-model="formValue.endDepth" style="width: 2.5vw"/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="onSubmit">查询</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -73,12 +113,73 @@ import newInfo from '@/components/Home/newInfo.vue';
 import chart1 from '@/components/Home/chart1.vue';
 import chart2 from '@/components/Home/chart2.vue';
 import chart3 from '@/components/Home/chart3.vue';
-import {getAllEq, queryEq} from '@/api/system/eqlist';
+import {fromEq, getAllEq, queryEq} from '@/api/system/eqlist';
 
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([])
 const requestParams = ref("")
+
+const queryFormVisible = ref(false)
+
+const shortcuts = [
+  {
+    text: '近一周',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+      return [start, end]
+    },
+  },
+  {
+    text: '近一个月',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+      return [start, end]
+    },
+  },
+  {
+    text: '近三个月',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+      return [start, end]
+    },
+  },
+  {
+    text: '近一年',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 360)
+      return [start, end]
+    },
+  },
+]
+
+const formValue = reactive({
+  position: "",
+  time: "",
+  startMagnitude: "",
+  endMagnitude: "",
+  startDepth: "",
+  endDepth: "",
+})
+
+const onSubmit = () => {
+  fromEq(formValue).then(res => {
+    tableData.value = res
+  })
+  queryFormVisible.value = false;
+}
+
+const openQueryFrom = () => {
+  queryFormVisible.value = true;
+}
 
 const query = () => {
   if (requestParams.value === "") {
@@ -180,7 +281,7 @@ onMounted(() => {
 }
 
 .header-time {
-  top:0;
+  top: 0;
   position: absolute;
   color: #FFFFFF;
   right: 2vw;

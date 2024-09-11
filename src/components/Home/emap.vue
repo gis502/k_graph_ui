@@ -1,18 +1,19 @@
 <template>
   <!-- 地图 -->
+  <div class="compassContainer"></div>
   <div ref="eMap" class="eMap"></div>
   <!-- 自制图例 -->
   <div class="legend">
     <div v-for="(group, groupIndex) in eqGroups" :key="'group-' + groupIndex">
       <div class="row">
         <div
-          class="line"
-          v-for="(item, itemIndex) in group.items"
-          :key="group.type + '-' + itemIndex"
+            class="line"
+            v-for="(item, itemIndex) in group.items"
+            :key="group.type + '-' + itemIndex"
         >
           <span
-            :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"
-            @click="toggleSeriesVisibility(group.type, item.type)"
+              :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"
+              @click="toggleSeriesVisibility(group.type, item.type)"
           ></span>{{ item.label }}
         </div>
       </div>
@@ -21,27 +22,27 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import { getKeyEq, getLatestEq } from "@/api/system/eqlist.js";
+import {getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
 
 // 图例分类
 const eqGroups = ref([
   {
     type: 'history',
     items: [
-      { type: 'moderate', label: '历史4.5 - 6级地震' },
-      { type: 'major', label: '历史6级以上地震' }
+      {type: 'moderate', label: '历史4.5 - 6级地震'},
+      {type: 'major', label: '历史6级以上地震'}
     ]
   },
   {
     type: 'latest',
     items: [
-      { type: 'slight', label: '最新4.5级以下地震' },
-      { type: 'moderate', label: '最新4.5 - 6级地震' },
-      { type: 'major', label: '最新6级以上地震' }
+      {type: 'slight', label: '最新4.5级以下地震'},
+      {type: 'moderate', label: '最新4.5 - 6级地震'},
+      {type: 'major', label: '最新6级以上地震'}
     ]
   }
 ]);
@@ -62,7 +63,8 @@ const eMap = ref(null);
 const historyEqData = ref([]);
 const latestEqData = ref([]);
 const eMapInstance = ref(null);
-
+const initialScaleLength = ref(50); // 假设初始长度为 100 像素
+const initialDistance = ref(100); // 对应 100 公里
 onMounted(() => {
   initEmap();
   getMapEq();
@@ -70,7 +72,7 @@ onMounted(() => {
 
 watch([historyEqData, latestEqData], (newData) => {
   initEmap();
-}, { deep: true });
+}, {deep: true});
 
 echarts.registerMap('data', data);
 
@@ -96,6 +98,7 @@ const initEmap = () => {
     time: item.time.replace("T", " "),
     depth: item.depth,
   }));
+
   const historyData = historyEqData.value.map(item => ({
     position: item.position,
     magnitude: parseFloat(item.magnitude),
@@ -137,16 +140,26 @@ const initEmap = () => {
     // 为了避免重叠，
     // 故设置其中一张地图show: false，
     // 鼠标中键拖动地图时会改变geo3D的center属性
+
+    // 初始比例尺长度（像素）和实际距离（公里）
+
     const option = {
+      // 点的配置
       geo3D: {
         map: 'data',
-        boxHeight: 4,
+        boxHeight: 20,
         show: false,
         viewControl: {
           projection: 'orthographic',
           orthographicSize: 105,
           alpha: 44,
           beta: 0,
+          autoRotate: false, // Disable auto-rotation
+          minAlpha: 44,
+          maxAlpha: 44,
+          minBeta: 0,
+          maxBeta: 0,
+          distance: 100
         },
         itemStyle: {
           color: '#0c274b',
@@ -176,7 +189,71 @@ const initEmap = () => {
           },
         },
       },
+      // 初始比例尺
+      graphic: {
+        type: 'group',
+        left: 20,
+        bottom: 20,
+        children: [
+          // 横线
+          {
+            type: 'line',
+            id: 'scale-line',
+            shape: {
+              x1: 0,
+              y1: 0,
+              x2: initialScaleLength.value,
+              y2: 0
+            },
+            style: {
+              stroke: '#fff',
+              lineWidth: 2
+            }
+          },
+          // 左边竖线
+          {
+            type: 'line',
+            shape: {
+              x1: 0,
+              y1: 0,
+              x2: 0,
+              y2: -10
+            },
+            style: {
+              stroke: '#fff',
+              lineWidth: 2
+            }
+          },
+          // 右边竖线
+          {
+            type: 'line',
+            id: 'scale-right-line',
+            shape: {
+              x1: initialScaleLength.value,
+              y1: 0,
+              x2: initialScaleLength.value,
+              y2: -10
+            },
+            style: {
+              stroke: '#fff',
+              lineWidth: 2
+            }
+          },
+          // 比例尺文本
+          {
+            type: 'text',
+            id: 'scale-text',
+            left: 1,
+            top: 10,
+            style: {
+              text: initialDistance.value + '千米',
+              fill: '#fff'
+            }
+          }
+        ]
+      },
       series: [
+        // 地图的配置
         {
           type: 'map3D',
           map: 'data',
@@ -185,6 +262,11 @@ const initEmap = () => {
             orthographicSize: 105,
             alpha: 44,
             beta: 0,
+            autoRotate: false, // Disable auto-rotation
+            minAlpha: 44,
+            maxAlpha: 44,
+            minBeta: 0,
+            maxBeta: 0,
           },
           itemStyle: {
             color: '#0c274b',
@@ -217,17 +299,16 @@ const initEmap = () => {
             },
           },
           data: [
-            {name: '雨城区', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '名山区', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '荥经县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '汉源县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '石棉县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '天全县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '芦山县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
-            {name: '宝兴县', itemStyle: {color: '#ea5353'}, emphasis: {itemStyle: {color: '#ef0909'}}},
+            {name: '雨城区', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '名山区', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '荥经县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '汉源县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '石棉县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '天全县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '芦山县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
+            {name: '宝兴县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
           ],
         },
-
         // 根据分类渲染散点
         {
           name: '最新4.5级以下地震',
@@ -235,7 +316,7 @@ const initEmap = () => {
           coordinateSystem: 'geo3D',
           show: true,
           symbol: 'circle',
-          zlevel: 1,
+          zlevel: 10,
           data: latestSlight.map(item => ({
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
@@ -336,9 +417,9 @@ const initEmap = () => {
             return '';
           }
           let item = latestData.find(item =>
-            item.longitude === value[0] && item.latitude === value[1]
+              item.longitude === value[0] && item.latitude === value[1]
           ) || historyData.find(item =>
-            item.longitude === value[0] && item.latitude === value[1]
+              item.longitude === value[0] && item.latitude === value[1]
           );
           if (item) {
             const result = `
@@ -418,9 +499,17 @@ const toggleSeriesVisibility = (groupType, itemType) => {
   }
 };
 
+const updateScaleBar = () => {
+  console.log(eMapInstance.value)
+  const viewRect = eMapInstance.value.getModel().getComponent('geo3D').coordinateSystem.getViewRect();
+  const scale = viewRect.width / viewRect.height;
+
+  const newDistance = initialDistance.value / scale;
+  console.log(newDistance)
+
+}
 
 </script>
-
 
 
 <style scoped>
@@ -486,5 +575,15 @@ const toggleSeriesVisibility = (groupType, itemType) => {
 /* 添加“inactive”类用于设置灰色 */
 .inactive {
   background-color: #888; /* 灰色 */
+}
+
+.compassContainer {
+  position: absolute;
+  top: 4vh;
+  right: 28vw;
+  height: 120px;
+  width: 160px;
+  background: url(../../assets/compass.png) no-repeat 0 0 / cover;
+  z-index: 20;
 }
 </style>

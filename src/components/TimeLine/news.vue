@@ -126,7 +126,7 @@ export default {
   border-radius: 5px;
   top: 10%;
   right: 1%;
-  z-index: 30; /* 更高的层级 */
+  z-index: 20; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
   color: white;
 }

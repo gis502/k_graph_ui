@@ -34,6 +34,14 @@ export function queryEq(queryValue) {
     })
 }
 
+export function fromEq(form) {
+    return request({
+        url: '/system/fromEq',
+        method: 'post',
+        data: form
+    })
+}
+
 export function getKeyEq(query) {
     return request({
         url: '/system/getKeyeq',

@@ -778,7 +778,6 @@ export default {
     },
 
     treeItemClick(item) {
-
       let that = this
       if (item.plotType === '点图层') {
         this.openPointPop(item.name, item.img)

@@ -1,10 +1,23 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
+<!--      </el-col>-->
+<!--    </el-row>-->
+
+      <el-form-item label="地震信息" >
+        <el-input
+            v-model="queryParams"
+            placeholder="请输入地震信息"
+            clearable
+            style="width: 200px"
+            @keyup.enter="handleQuery"
+        />
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
         <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
-      </el-col>
-    </el-row>
+      </el-form-item>
+
     <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
       <el-table-column label="序号" width="60">
         <template #default="{ row, column, $index }">
@@ -36,60 +49,116 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
-      <el-row :gutter="10">
-        <el-col :span="6">位置：</el-col>
-        <el-col :span="18">
-          <el-input v-model="dialogContent.position" placeholder="请输入内容"></el-input>
+      <el-row >
+        <el-col :span="13">
+          <el-form-item label="震发位置：">
+            <el-input v-model="dialogContent.position" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">发震时间：</el-col>
+      <el-row >
         <el-col :span="18">
-          <!--          <el-input v-model="dialogContent.time" placeholder="请输入内容"></el-input>-->
-          <el-date-picker
-              v-model="dialogContent.time"
-              type="datetime"
-              placeholder="选择日期时间"
-              value-format="x"
-              size="large">
-          </el-date-picker>
+          <el-form-item label="发震时间：">
+            <el-date-picker
+                v-model="dialogContent.time"
+                type="datetime"
+                placeholder="选择日期时间"
+                value-format="x"
+                size="large">
+            </el-date-picker>
+          </el-form-item>
         </el-col>
       </el-row>
+
       <el-row :gutter="10">
-        <el-col :span="6">震级：</el-col>
-        <el-col :span="18">
-          <el-input v-model="dialogContent.magnitude" placeholder="请输入内容"></el-input>
+        <el-col :span="12">
+          <el-form-item label="震级：">
+            <el-input v-model="dialogContent.magnitude" placeholder="请输入内容"></el-input>
+          </el-form-item>
+        </el-col>
+          <el-col :span="12">
+            <el-form-item label="深度：">
+              <el-input v-model="dialogContent.depth" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+      </el-row>
+
+      <el-row :gutter="10">
+        <el-col :span="12">
+          <el-form-item label="经度：">
+            <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="纬度：">
+            <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">经度：</el-col>
-        <el-col :span="18">
-          <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">纬度：</el-col>
-        <el-col :span="18">
-          <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">深度：</el-col>
-        <el-col :span="18">
-          <el-input v-model="dialogContent.depth" placeholder="请输入内容"></el-input>
-        </el-col>
-      </el-row>
-      <span slot="footer" class="dialog-footer">
+
+
+      <span slot="footer" class="dialog-footer" >
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="commit">确 定</el-button>
       </span>
     </el-dialog>
+
+
+<!--    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">-->
+<!--      <el-row :gutter="10">-->
+<!--        <el-col :span="6">位置：</el-col>-->
+<!--        <el-col :span="18">-->
+<!--          <el-input v-model="dialogContent.position" placeholder="请输入内容"></el-input>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+<!--      <el-row :gutter="10">-->
+<!--        <el-col :span="6">发震时间：</el-col>-->
+<!--        <el-col :span="18">-->
+<!--          &lt;!&ndash;          <el-input v-model="dialogContent.time" placeholder="请输入内容"></el-input>&ndash;&gt;-->
+<!--          <el-date-picker-->
+<!--              v-model="dialogContent.time"-->
+<!--              type="datetime"-->
+<!--              placeholder="选择日期时间"-->
+<!--              value-format="x"-->
+<!--              size="large">-->
+<!--          </el-date-picker>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+<!--      <el-row :gutter="10">-->
+<!--        <el-col :span="6">震级：</el-col>-->
+<!--        <el-col :span="18">-->
+<!--          <el-input v-model="dialogContent.magnitude" placeholder="请输入内容"></el-input>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+<!--      <el-row :gutter="10">-->
+<!--        <el-col :span="6">经度：</el-col>-->
+<!--        <el-col :span="18">-->
+<!--          <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+<!--      <el-row :gutter="10">-->
+<!--        <el-col :span="6">纬度：</el-col>-->
+<!--        <el-col :span="18">-->
+<!--          <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+<!--      <el-row :gutter="10">-->
+<!--        <el-col :span="6">深度：</el-col>-->
+<!--        <el-col :span="18">-->
+<!--          <el-input v-model="dialogContent.depth" placeholder="请输入内容"></el-input>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button @click="cancel">取 消</el-button>-->
+<!--        <el-button type="primary" @click="commit">确 定</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
+
   </div>
 </template>
 
 <script>
-import {addEq, getAllEq, deleteeq, updataEq} from '@/api/system/eqlist'
-
+import {addEq, getAllEq, deleteeq, updataEq, queryEq} from '@/api/system/eqlist'
 export default {
   name: "index",
   data() {
@@ -110,8 +179,9 @@ export default {
         longitude: '',
         latitude: '',
         depth: '',
-        eqid: ''
+        eqid: '',
       },
+      queryParams: '',
     }
   },
   mounted() {
@@ -154,17 +224,56 @@ export default {
       }
       this.dialogShow = !this.dialogShow
     },
+    // 搜索功能
+    handleQuery() {
+      // 获取搜索关键字
+      const searchKey = this.queryParams.trim();
+
+      // 如果搜索关键字为空，恢复为原始数据
+      if (searchKey === "") {
+        this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
+        return;
+      }
+
+      // 发送搜索请求
+      queryEq({ queryValue: searchKey }).then(res => {
+        // 处理并格式化返回的数据
+        const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
+          ...item,
+          time: this.timestampToTime(item.time),
+          magnitude: Number(item.magnitude).toFixed(1),
+          latitude: Number(item.latitude).toFixed(2),
+          longitude: Number(item.longitude).toFixed(2)
+        }));
+        // 搜索之后更新数据
+        this.getEqData = filteredData;
+        this.total = filteredData.length;  // 更新总数
+        // 使用更新后的数据更新分页
+        this.tableData = this.getPageArr(filteredData);  // 传入处理后的数据
+      }).catch(error => {
+        console.error("搜索时出现错误:", error);
+      });
+    },
+
+    // 重置功能
+    resetQuery() {
+      this.queryParams = '';  // 清空搜索输入框
+      this.getEq();  // 重新加载所有数据
+    },
     // 确认提交修改或新增
     commit() {
       let that = this
       if (this.dialogTitle === "新增") {
         this.dialogContent.eqid = this.guid()
+        // console.log("this.dialogContent.time新增：",this.dialogContent.time)
         addEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false
           this.clearDialogContent()
         })
       } else {
+        this.dialogContent.time = new Date(this.dialogContent.time).getTime();  // 将日期转换为时间戳
+        // console.log("this.dialogContent.time更新：",this.dialogContent.time)
         updataEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false
@@ -184,7 +293,7 @@ export default {
       });
     },
     // 对数据库获取到的标绘图片数组切片
-    getPageArr() {
+    getPageArr(data) {
       let arr = []
       let start = (this.currentPage - 1) * this.pageSize
       let end = this.currentPage * this.pageSize
@@ -196,6 +305,7 @@ export default {
       }
       return arr
     },
+
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
@@ -268,13 +378,24 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
-  }
+  },
 }
+
 </script>
 
 <style scoped>
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
+}
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
 }
 </style>

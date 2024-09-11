@@ -8,9 +8,10 @@
       </div>
       <div class="emergency_response_title-underline"></div>
 
-      <p class="emergency_response_state"> {{this.activity.time}}</p>
-      <p class="emergency_response_department"><span>{{this.activity.department}}</span> </p>
-      <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_state">{{this.activity.state}}</span></p>
+      <!--            <p class="emergency_response_state"> {{this.activity.time}}</p>-->
+      <p class="emergency_response_txt"> {{this.activity.time}}</p>
+      <p class="emergency_response_txt"><span>{{this.activity.department}}</span> </p>
+      <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_txt">{{this.activity.state}}</span></p>
 
       <div class="emergency_response_time_div">
         <div class="emergency_response_title-underline"></div>
@@ -32,18 +33,18 @@
 
 <script>
 import EmergencyResponse from "@/assets/json/TimeLine/EmergencyResponse";
+import {getEmergencyResponse} from "../../api/system/timeLine.js";
 export default {
   data() {
     return {
-      eqid1:'',
-      EmergencyResponseResponsecontent:'',
+      EmergencyResponseResponsecontent: [],
       activity:{
         ResponseName: '',
         state: '',
         department: '',
         time: '',
       },
-        ifShowData: false,
+      ifShowData: false,
       emergency_response_isExpanded:'true'
     }
   },
@@ -51,54 +52,63 @@ export default {
     'currentTime','eqid'
   ],
   mounted() {
-      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
-          this.ifShowData = true
-      }
+    if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+      this.ifShowData = true
+    }
     this.init()
   },
   watch: {
     currentTime(newVal) {
-        if(this.ifShowData){
-            this.updateEmergencyResponse(newVal)
-        }
-    },
-    eqid(){
-        this.eqid1 = this.eqid
+      if(this.ifShowData) {
+        this.updateEmergencyResponse(newVal)
+      }
     }
   },
   methods: {
     init() {
-        this.EmergencyResponseResponsecontent = [...EmergencyResponse]
+        getEmergencyResponse().then(res => {
+          this.EmergencyResponseResponsecontent = res
+          // console.log("EmergencyResponse------",this.EmergencyResponseResponsecontent)
+        })
+      // this.EmergencyResponseResponsecontent = [...EmergencyResponse]
     },
     updateEmergencyResponse(currentTime){
-      // console.log(this.eqid1)
-        const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
-          return (
-              new Date(activity[0]) <= currentTime
-          );
+      const activities = this.EmergencyResponseResponsecontent.filter((activity) => {
+        return (
+            new Date(activity.responseTime) <= currentTime
+        );
+      });
+      if(activities.length>=1){
+        activities.sort((a, b) => {
+          if (a.responseTime < b.responseTime) return -1;
+          if (a.responseTime > b.responseTime) return 1;
+          return 0;
         });
-        // console.log("EmergencyResponse",activities )
-        if (activities.length >= 1) {
-          activities.sort((a, b) => {
-            if (a[0] < b[0]) return -1;
-            if (a[0] > b[0]) return 1;
-            return 0;
-          });
-          let tmp = activities[activities.length - 1]
-          // console.log(tmp)
-          this.activity.time = tmp[0]
-          this.activity.department = tmp[1]
-          this.activity.ResponseName = tmp[2]
-          this.activity.state = tmp[3]
-        } else {
-          this.activity = {
-            ResponseName: '-',
-            state: '-',
-            department: '-',
-            time: '-',
-          }
-        }
-      // }
+        let tmp=activities[activities.length-1]
+        // console.log(tmp)
+        this.activity.time=this.timestampToTime(tmp.responseTime)
+        this.activity.department=tmp.unit
+        this.activity.ResponseName=tmp.level
+        this.activity.state=tmp.status
+      }
+      // console.log("this.activity-------",this.activity)
+    },
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
     emergency_response_toggleExpand() {
       this.emergency_response_isExpanded = !this.emergency_response_isExpanded
@@ -141,11 +151,11 @@ export default {
 }
 .emergency_response_notexpand_button{
   position: absolute;
-  width: 2%; /* 调整宽度 */
+  width: 2.5%; /* 调整宽度 */
   //height: 6%;
   padding: 10px;
   border-radius: 5px;
-  top: 10%;
+  top: 5%;
   left: 1%;
   z-index: 22; /* 提高层级 */
   //background-color: #C03639;
@@ -158,20 +168,28 @@ export default {
   margin-top: 1px;
 }
 
+
+
+.emergency_response_responseName{
+  font-size: 1.1rem;
+  line-height: 0.5rem;
+  font-weight: bold;
+  font-family: 'myFirstFont', sans-serif;
+  color: #419fff;
+}
+.emergency_response_txt{
+  font-size: 1.1rem;
+  line-height: 0.5rem;
+  font-weight: bold;
+  font-weight: normal;
+  color: #ffffff;
+}
 .emergency_response_department {
   font-size: 1rem;
   line-height: 0rem;
   font-weight: bold;
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
-}
-
-.emergency_response_responseName{
-  font-size: 1.3rem;
-  line-height: 0.5rem;
-  font-weight: bold;
-  font-family: 'myFirstFont', sans-serif;
-  color: #419fff;
 }
 .emergency_response_state {
   font-size: 0.9rem;
