@@ -1,5 +1,21 @@
 <template>
   <div class="app-container">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form-item label="标绘名称" prop="menuName">
+        <el-input
+            v-model="queryParams.menuName"
+            placeholder="请输入标绘名称"
+            clearable
+            style="width: 200px"
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+      </el-form-item>
+    </el-form>
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Plus" size="mini" @click="handleOpen('新增')">新增</el-button>
@@ -19,7 +35,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
-      <el-table-column prop="plottype" label="标会类型" width="120" align="center"></el-table-column>
+      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
           <el-popover placement="top" :width="300" trigger="hover">
@@ -135,7 +151,7 @@
 </template>
 
 <script>
-import {addPlotIcon, getPlotIcon, deletePlotIcon, updataPlotIcon} from "@/api/system/plot"
+import {addPlotIcon, getPlotIcon, deletePlotIcon, updataPlotIcon, searchploticon} from "@/api/system/plot"
 
 export default {
   name: "index",
@@ -234,6 +250,12 @@ export default {
         }
       ],
       fileList: [],
+      showSearch: true,
+      queryParams: {
+        menuName: ""
+      },
+      menuList: [],
+      loading: false
     }
   },
   mounted() {
@@ -411,6 +433,31 @@ export default {
           // 'border-right-style': 'solid',
         }
       }
+    },
+    getList() {
+      this.loading = true;
+      let that = this;
+      searchploticon(this.queryParams.menuName).then(res => {
+        that.menuList = res;
+        that.getPicData=[]
+        that.getPicData = that.menuList
+        console.log("3",that.tableData)
+        that.total = res.length
+        that.tableData = that.getPageArr()
+        that.loading = false;
+        // that.getPicData = res
+        // that.total = res.length
+        // that.tableData = that.getPageArr()
+      });
+    },
+    // 搜索按钮操作
+    handleQuery() {
+      this.getList();
+    },
+    // 重置按钮操作
+    resetQuery() {
+      this.getPlotPicture();
+      // this.handleQuery();
     },
 
   },

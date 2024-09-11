@@ -128,7 +128,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlot, getPlotIcon} from '@/api/system/plot'
-import {getAllEq} from '@/api/system/eqlist'
+import {getAllEq,getEqbyId} from '@/api/system/eqlist'
 import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
@@ -136,7 +136,7 @@ import addPolylineDialog from "@/components/Cesium/addPolylineDialog.vue"
 import addPolygonDialog from '@/components/Cesium/addPolygonDialog'
 import commonPanel from "@/components/Cesium/CommonPanel";
 import {useCesiumStore} from '@/store/modules/cesium.js'
-import {getCurrentInstance, onMounted} from 'vue'
+import centerstar from "@/assets/icons/TimeLine/震中.png";
 
 export default {
   components: {
@@ -236,7 +236,22 @@ export default {
       title: '',
       popupVisiblePolygon: false,
       defaultInputValue: '',
-      clickEvent: null // 用于存储点击事件对象
+      clickEvent: null ,// 用于存储点击事件对象
+      //----------------------------------
+      // 震中点数据结构
+      centerPoint: {
+        plotid: 'center',
+        position: '',
+        // time:'',
+        starttime: '',
+        endtime: '',
+        magnitude: '',
+        longitude: '',
+        latitude: '',
+        height: '',
+        depth: '',
+        plottype: '震中'
+      },
     };
   },
   mounted() {
@@ -528,7 +543,7 @@ export default {
       this.initPlot(row.eqid)
       this.title = row.time + row.position + row.magnitude
       window.viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude),parseFloat(row.latitude),500),
+        destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude),parseFloat(row.latitude),60000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -537,6 +552,7 @@ export default {
           roll: 0.0
         }
       });
+       this.getEqInfo(this.eqid)
     },
     // 获取地震列表、以及最新地震的eqid、并渲染已有的标绘
     getEq() {
@@ -558,7 +574,7 @@ export default {
         that.eqid = that.tableData[0].eqid
         that.title = that.tableData[0].time + that.tableData[0].position + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 500),
+          destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
             // 指向
             heading: 6.283185307179581,
@@ -571,10 +587,101 @@ export default {
         this.initWebsocket()
         // that.websock.eqid = that.eqid
         this.initPlot(that.eqid)
+        this.getEqInfo(that.eqid)
         // 初始化标绘所需的viewer、ws、pinia
         let cesiumStore = useCesiumStore()
         cesiumPlot.init(window.viewer, this.websock, cesiumStore)
       })
+    },
+    // /取地震信息+开始结束当前时间初始化
+    getEqInfo(eqid) {
+      getEqbyId({eqid: eqid}).then(res => {
+        //震中标绘点
+
+        this.centerPoint = res
+        this.centerPoint.plotid = "center"
+        this.centerPoint.starttime = new Date(res.time)
+        this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
+
+        //变量初始化
+        this.eqstartTime = this.centerPoint.starttime
+        this.eqyear = this.eqstartTime.getFullYear()
+        this.eqmonth = this.eqstartTime.getMonth() + 1
+        this.eqday = this.eqstartTime.getDate()
+        // 计算结束时间 结束时间为开始后72小时，单位为毫秒
+        this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
+        this.currentTime = this.eqstartTime
+
+        this.updateMapandVariablebeforInit()
+
+      })
+    },
+    //更新地图中心视角，更新变量：地震起止时间，渲染点
+    updateMapandVariablebeforInit() {
+      console.log(this.centerPoint)
+      //加载中心点
+      viewer.entities.add({
+        // properties: {
+        //   type: "震中",
+        //   time: this.centerPoint.time,
+        //   name: this.centerPoint.position,
+        //   lat: this.centerPoint.latitude,
+        //   lon: this.centerPoint.longitude,
+        //   describe: this.centerPoint.position,
+        // },
+        position: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
+        ),
+
+        billboard: {
+          image: centerstar,
+          width: 60,
+          height: 60,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
+        },
+        label: {
+          text: this.centerPoint.position+parseFloat(this.centerPoint.magnitude).toFixed(1)+"级",
+          show: true,
+          font: '20px sans-serif',
+          fillColor: Cesium.Color.RED,        //字体颜色
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          outlineWidth: 2,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -30),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
+        },
+        id: this.centerPoint.plotid,
+        plottype: "震中",
+        layer: "标绘点"
+      });
+      let that = this
+      that.smallViewer.entities.removeAll();
+      that.smallViewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
+        ),
+        billboard: {
+          image: centerstar,
+          width: 50,
+          height: 50,
+        },
+        label: {
+          text: this.centerPoint.position,
+          show: true,
+          font: '10px sans-serif',
+          fillColor: Cesium.Color.RED,        //字体颜色
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          outlineWidth: 2,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -16),
+        },
+        id: this.centerPoint.plotid,
+        plottype: "震中",
+      });
     },
     // 修改table header的背景色
     tableHeaderColor() {
@@ -670,7 +777,6 @@ export default {
     },
 
     treeItemClick(item) {
-      console.log("item",item)
       let that = this
       if (item.plotType === '点图层') {
         this.openPointPop(item.name, item.img)
@@ -706,6 +812,7 @@ export default {
           this.openPolylinePop(item.name,situationPlotData)
         })
       } else {
+        this.initPlot(this.eqid)
         new Promise((resolve, reject) => {
           this.drawPolygon(item, resolve)
           this.polygonStatus = cesiumPlot.drawPolygonStatus()
