@@ -129,8 +129,8 @@
           全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}
         </div>
         <div v-if="visibleGuilde">
-          <div v-for="(guilde, index) in RouteGuilde" :key="index">
-            {{ guilde.from }} 到 {{ guilde.to }} {{ guilde.dist }} m
+          <div v-for="(instruction, index) in RouteGuilde" :key="index">
+            {{ instruction }}
           </div>
           <div v-if="loading" class="loading">加载中...</div>
         </div>
@@ -159,6 +159,8 @@ import end from "@/assets/end.svg";
 import {Entity} from "cesium";
 import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
+import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
+import axios from "axios"
 
 export default {
   components: {
@@ -734,9 +736,14 @@ export default {
       arr.push([arr[0][0], arr[0][1]]); //闭环
       return arr;
     },
+    formatTime(minutes) {
+      const hours = Math.floor(minutes / 60); // 计算小时数
+      const remainingMinutes = Math.round(minutes % 60); // 计算剩余的分钟数并四舍五入
+      return `${hours > 0 ? hours + '小时' : ''}${remainingMinutes}分钟`;
+    },
     walkStyle() {
       this.visibleGuilde = false;
-      this.RouteTime = this.humantime;
+      this.RouteTime = this.formatTime(this.humantime);
       this.RouteWay = "步行";
       this.selectedDrive = "backcolor: red";
       this.selectedWalk = "backcolor: white";
@@ -746,7 +753,7 @@ export default {
       if (this.cartime.includes("0时0分钟")) {
         this.RouteTime = "1分钟";
       } else {
-        this.RouteTime = this.cartime;
+        this.RouteTime = this.formatTime(this.cartime);
       }
       this.RouteWay = "驾驶";
     },
@@ -799,26 +806,81 @@ export default {
           propertiesId.push(billBoardId);
         }
         if (that.pos.length === 2) {
-          getWay({pathWay: that.pos, hardAreas: that.areas}).then((res) => {
-            that.polylineD(res.path, propertiesId);
+          let path = ""
+          let pathName = []
+          let pathM = 0
+
+          let from = wgs84togcj02(that.pos[0][0], that.pos[0][1])
+          let end = wgs84togcj02(that.pos[1][0], that.pos[1][1])
+          let avoidArea = ""
+          if (that.areas.length > 0) {
+            let area = JSON.parse(JSON.stringify(that.areas))
+            for (let i = 0; i < area.length; i++) {
+              for (let j = 0; j < area[i].area.length; j += 2) {
+                avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";"
+              }
+              avoidArea += "|"
+            }
+            avoidArea = avoidArea.substring(0, avoidArea.length - 1);
+          }
+
+          axios.get("https://restapi.amap.com/v3/direction/driving?origin=" + from + "&destination=" + end + "&extensions=base&strategy=0&avoidpolygons=" + avoidArea + "&key=7b0b64174ef6951cc6ee669de03e4f59", {}).then(res => {
+
+            pathM += parseInt(res.data.route.paths[0].distance)
+            res.data.route.paths[0].steps.map(step => {
+                  pathName.push(step.instruction)
+                  path += (step.polyline + ";")
+                }
+            )
+
+            let pathSegments = path.split(";")
+                .map(segment =>
+                    segment
+                        .replace(/"/g, "")  // 去除双引号
+                        .split(",")  // 按逗号分割成经纬度数组
+                        .map(Number)  // 将字符串转换为数字
+                        .filter(seg => !isNaN(seg))  // 去除无效数字
+                )
+                .filter(segment => segment.length === 2)
+                .map(segment => gcj02towgs84(segment[0], segment[1]))
+// 在pathSegments数组开头插入起点
+            pathSegments.unshift(that.pos[0]);
+
+// 在pathSegments数组结尾添加终点
+            pathSegments.push(that.pos[1]);
             that.pos = [];
-            this.cartime = res.carTime;
-            this.humantime = res.humanTime;
+            that.polylineD(pathSegments, propertiesId);
+            this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
+            this.humantime = (pathM * 0.7 / 60).toFixed(2);
             this.driveStyle();
             this.walkStyle();
-            this.totalRoute = res.distance.substring(0, 6);
-            let list = [];
-            for (let i = 1; i < res.instructions.length; i++) {
-              if (res.instructions[i].name === "")
-                res.instructions[i].name = "无名氏路";
-              list.push({
-                from: res.instructions[i - 1].name,
-                to: res.instructions[i].name,
-                dist: Math.floor(res.instructions[i - 1].distance),
-              });
-            }
-            this.RouteGuilde = list;
-          });
+            this.totalRoute = pathM;
+            this.RouteGuilde = pathName;
+          })
+
+
+          // getWay({pathWay: that.pos, hardAreas: that.areas}).then((res) => {
+          //   console.log("true")
+          //   console.log(res.path)
+          //   that.polylineD(res.path, propertiesId);
+          //   that.pos = [];
+          //   this.cartime = res.carTime;
+          //   this.humantime = res.humanTime;
+          //   this.driveStyle();
+          //   this.walkStyle();
+          //   this.totalRoute = res.distance.substring(0, 6);
+          //   let list = [];
+          //   for (let i = 1; i < res.instructions.length; i++) {
+          //     if (res.instructions[i].name === "")
+          //       res.instructions[i].name = "无名氏路";
+          //     list.push({
+          //       from: res.instructions[i - 1].name,
+          //       to: res.instructions[i].name,
+          //       dist: Math.floor(res.instructions[i - 1].distance),
+          //     });
+          //   }
+          //   this.RouteGuilde = list;
+          // });
           that.showTips = true;
           //路径规划好后弹出气泡框
           // this.bubbleTips(position);

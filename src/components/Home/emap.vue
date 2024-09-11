@@ -1,5 +1,6 @@
 <template>
   <!-- 地图 -->
+  <div class="compassContainer"></div>
   <div ref="eMap" class="eMap"></div>
   <!-- 自制图例 -->
   <div class="legend">
@@ -62,7 +63,8 @@ const eMap = ref(null);
 const historyEqData = ref([]);
 const latestEqData = ref([]);
 const eMapInstance = ref(null);
-
+const initialScaleLength = ref(50); // 假设初始长度为 100 像素
+const initialDistance = ref(100); // 对应 100 公里
 onMounted(() => {
   initEmap();
   getMapEq();
@@ -138,6 +140,9 @@ const initEmap = () => {
     // 为了避免重叠，
     // 故设置其中一张地图show: false，
     // 鼠标中键拖动地图时会改变geo3D的center属性
+
+    // 初始比例尺长度（像素）和实际距离（公里）
+
     const option = {
       // 点的配置
       geo3D: {
@@ -150,10 +155,11 @@ const initEmap = () => {
           alpha: 44,
           beta: 0,
           autoRotate: false, // Disable auto-rotation
-          minAlpha: 44,  // Restrict vertical rotation
+          minAlpha: 44,
           maxAlpha: 44,
-          minBeta: 0,    // Restrict horizontal rotation
-          maxBeta: 0
+          minBeta: 0,
+          maxBeta: 0,
+          distance: 100
         },
         itemStyle: {
           color: '#0c274b',
@@ -182,6 +188,69 @@ const initEmap = () => {
             },
           },
         },
+      },
+// 初始比例尺
+      graphic: {
+        type: 'group',
+        left: 20,
+        bottom: 20,
+        children: [
+          // 横线
+          {
+            type: 'line',
+            id: 'scale-line',
+            shape: {
+              x1: 0,
+              y1: 0,
+              x2: initialScaleLength.value,
+              y2: 0
+            },
+            style: {
+              stroke: '#fff',
+              lineWidth: 2
+            }
+          },
+          // 左边竖线
+          {
+            type: 'line',
+            shape: {
+              x1: 0,
+              y1: 0,
+              x2: 0,
+              y2: -10
+            },
+            style: {
+              stroke: '#fff',
+              lineWidth: 2
+            }
+          },
+          // 右边竖线
+          {
+            type: 'line',
+            id: 'scale-right-line',
+            shape: {
+              x1: initialScaleLength.value,
+              y1: 0,
+              x2: initialScaleLength.value,
+              y2: -10
+            },
+            style: {
+              stroke: '#fff',
+              lineWidth: 2
+            }
+          },
+          // 比例尺文本
+          {
+            type: 'text',
+            id: 'scale-text',
+            left: 1,
+            top: 10,
+            style: {
+              text: initialDistance.value + '千米',
+              fill: '#fff'
+            }
+          }
+        ]
       },
       series: [
         // 地图的配置
@@ -430,6 +499,15 @@ const toggleSeriesVisibility = (groupType, itemType) => {
   }
 };
 
+const updateScaleBar = () => {
+  console.log(eMapInstance.value)
+  const viewRect = eMapInstance.value.getModel().getComponent('geo3D').coordinateSystem.getViewRect();
+  const scale = viewRect.width / viewRect.height;
+
+  const newDistance = initialDistance.value / scale;
+  console.log(newDistance)
+
+}
 
 </script>
 
@@ -497,5 +575,15 @@ const toggleSeriesVisibility = (groupType, itemType) => {
 /* 添加“inactive”类用于设置灰色 */
 .inactive {
   background-color: #888; /* 灰色 */
+}
+
+.compassContainer {
+  position: absolute;
+  top: 4vh;
+  right: 28vw;
+  height: 120px;
+  width: 160px;
+  background: url(../../assets/compass.png) no-repeat 0 0 / cover;
+  z-index: 20;
 }
 </style>

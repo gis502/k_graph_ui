@@ -51,7 +51,7 @@ const depth = ref('8');
   color: #fff;
   width: 100%;
   height: 100%;
-  line-height: 3.8vh;
+  line-height: 3.4vh;
 }
 
 .newColCommon {

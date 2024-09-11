@@ -44,7 +44,7 @@ deathCount.value = 0;
   height: 8vh;
   display: flex;
   align-items: center;
-  font-size: 16px; /* Default font size */
+  font-size: 16px;
   font-weight: bold;
   padding-left: 20px; /* Move text 10px to the right */
   border-left-width: 0.1vw; /* Add a border on the left */
