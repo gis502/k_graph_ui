@@ -1,5 +1,8 @@
 <template>
   <div id="cesiumContainer" class="situation_cesiumContainer">
+<!--    <div v-if="this.FaultZonePopupVisible" :style="styleObject">{{this.FaultZonepopupData}}-->
+    <div v-if="this.FaultZonePopupVisible">111111111111111{{this.FaultZonepopupData}}
+    </div>
     <!-- 左侧表单 -->
     <div class="eqTable" v-show="isLeftShow">
 
@@ -83,6 +86,9 @@
             <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
                  @click="showHistoryEqPoints(this.selectedTabData)"> 历史地震
             </div>
+            <div class="button themes history" :class="{ active: isshowFaultZone }"
+                 @click=" showFaultZone(this.selectedTabData)"> 断裂带
+            </div>
           </div>
 
           <div style="height: 10px;background-color: #054576"></div>
@@ -130,9 +136,12 @@ import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
-
+import fault_zone from "@/assets/geoJson/line_fault_zone.json";
+import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
+// import fault_zone from "@/assets/geoJson/fault_zone.json";
 export default {
   components: {
+    TimeLinePanel,
     historyEqPanel,
   },
 
@@ -157,17 +166,28 @@ export default {
       isFoldUnfolding: false,
       isHistoryEqPointsShow: false,
       isShow: false,
+      //烈度圈
+      isshowFaultZone:false,
+      FaultZonePopupVisible: false,
+      FaultZonePopupPosition: { x: 0, y: 0 },
+      FaultZonepopupData: '', // 弹窗内容，传值给子组件
+
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
 
       listEqPoints: [], // 列表地震点
       area: null,
+      // FaultZonelayer:null,
+      faultzonelines:[],
     };
   },
   mounted() {
     this.init();
     this.getEq();
+    // // 生成实体点击事件的handler
+    // this.entitiesClickPonpHandler()
+    // this.watchTerrainProviderChanged()
   },
 
   methods: {
@@ -197,10 +217,10 @@ export default {
       window.viewer = viewer;
       let options = {};
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        1500,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          1500,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -211,11 +231,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -287,9 +307,9 @@ export default {
           const positionStr = eq.position;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -319,8 +339,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
+              Number(this.selectedTabData.longitude),
+              Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -329,8 +349,8 @@ export default {
           },
           label: {
             text: this.timestampToTime(this.selectedTabData.time, 'date') +
-              this.selectedTabData.position +
-              this.selectedTabData.magnitude + '级地震',
+                this.selectedTabData.position +
+                this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -374,7 +394,7 @@ export default {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.getEqData.find(
-          eq => `${eq.position} ${eq.magnitude}级地震` === this.currentTab
+            eq => `${eq.position} ${eq.magnitude}级地震` === this.currentTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -536,7 +556,219 @@ export default {
       }
     },
 
-  },
+    //断裂带--------------------------------------------------------------------------------------
+    //两条断裂带之间的距离
+    getLonAndLatDistance(lonAndlat) {
+      let [coordinate1, coordinate2] = lonAndlat;
+      let [lon1, lat1] = [
+        parseFloat(coordinate1[0]),
+        parseFloat(coordinate1[1]),
+      ];
+      let [lon2, lat2] = [
+        parseFloat(coordinate2[0]),
+        parseFloat(coordinate2[1]),
+      ];
+      let [radlat1, radlat2] = [
+        (lat1 * Math.PI) / 180.0,
+        (lat2 * Math.PI) / 180.0,
+      ];
+      let a = radlat1 - radlat2;
+      let b = (lon1 * Math.PI) / 180.0 - (lon2 * Math.PI) / 180.0;
+      let s =
+          2 *
+          Math.asin(
+              Math.sqrt(
+                  Math.pow(Math.sin(a / 2), 2) +
+                  Math.cos(radlat1) *
+                  Math.cos(radlat2) *
+                  Math.pow(Math.sin(b / 2), 2)
+              )
+          );
+      s = s * 6378.137;
+      return Math.round(s * 10000) / 10000;
+    },
+    //断裂带加载
+    showFaultZone() {
+      this.isshowFaultZone = !this.isshowFaultZone;
+      if (this.isshowFaultZone) {
+        // let lines = []
+        this.faultzonelines = []
+        fault_zone.forEach((item) => {
+          for (let i = 0; i < item.lonlat[0].length; i++) {
+            if (
+                this.getLonAndLatDistance([
+                  [this.selectedTabData.longitude, this.selectedTabData.latitude],
+                  item.lonlat[0][i],
+                ]) < 200
+            ) {
+              this.faultzonelines.push(item);
+              break;
+            }
+          }
+        })
+
+        console.log("faultzonelines", this.faultzonelines)
+
+        this.faultzonelines.forEach((item) => {
+          let positionsArr = [];
+          for (var i = 0; i + 1 < item.lonlat[0].length; i++) {
+            positionsArr.push(
+                parseFloat(item.lonlat[0][i][0]),
+                parseFloat(item.lonlat[0][i][1]),
+                0
+            );
+          }
+          // console.log("positionsArr",positionsArr)
+          window.viewer.entities.add({
+            id: item.line,
+            polyline: {
+              status: 1,
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights(positionsArr),
+              width: 5,
+              material: Cesium.Color.RED,
+              depthFailMaterial: Cesium.Color.YELLOW,
+              clampToGround: true,
+            },
+            properties: {
+              name: item.name
+            },
+            layer: "断裂带"
+          })
+        })
+      } else {
+        this.faultzonelines.forEach(item => {
+          const entity = viewer.entities.getById(item.line);
+          if (entity._layer === "断裂带") {
+            viewer.entities.removeById(item.line)
+          }
+        })
+        this.faultzonelines = []
+      }
+    },
+    // 所有entity实体类型点击事件的handler
+    // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
+    // entitiesClickPonpHandler() {
+    //   let that = this
+    //   window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+    //     // 1-1 获取点击点的信息（包括）
+    //     let pickedEntity = window.viewer.scene.pick(click.position);
+    //     window.selectedEntity = pickedEntity?.id
+    //     console.log("window.selectedEntity pickedEntity",pickedEntity)
+    //     this.FaultZonePopupVisible = false;
+    //     if (Cesium.defined(pickedEntity)) {
+    //       console.log("window.selectedEntity pickedEntity111",pickedEntity)
+    //       let entity = window.selectedEntity;
+    //       if (entity._layer === "断裂带") {
+    //         console.log("window.selectedEntity entity",entity)
+    //         // 2-2 获取点击点的经纬度
+    //         let ray = viewer.camera.getPickRay(click.position)
+    //         let position = viewer.scene.globe.pick(ray, viewer.scene)
+    //         // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+    //         let cartographic = Cesium.Cartographic.fromCartesian(position);
+    //         let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+    //         let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+    //
+    //         // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+    //         let height = 0
+    //         that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+    //         // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
+    //         if (this.isTerrainLoaded()) {
+    //           const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+    //           let l = Cesium.Cartographic.fromCartesian(position)
+    //           let lon = Cesium.Math.toDegrees(l.longitude)
+    //           let lat = Cesium.Math.toDegrees(l.latitude)
+    //           let hei = l.height
+    //           let height
+    //           // 将笛卡尔坐标转换为地理坐标角度
+    //           let cartographic = Cesium.Cartographic.fromCartesian(position);
+    //           // 将地理坐标角度换为弧度
+    //           let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+    //           let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+    //           height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
+    //           // 将经纬度和高度生成新的笛卡尔坐标
+    //           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
+    //           // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
+    //         }
+    //
+    //         this.FaultZonePopupVisible = true; // 显示弹窗
+    //         // this.FaultZonePopupPosition = this.selectedEntityPopupPosition; // 更新位置
+    //         this.updatePopupPosition(); // 更新弹窗的位置
+    //         this.FaultZonePopupData = "1111111111111";
+    //       }
+    //       else {
+    //         this.FaultZonePopupVisible = false; // 隐藏弹窗
+    //       }
+    //     }
+    //   }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
+    //
+    //   // 必须有这个，拖动地图弹窗位置才会跟着移动
+    //   window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+    //     if (that.FaultZonePopupVisible && window.selectedEntity) {
+    //       that.updatePopupPosition(); // 更新弹窗的位置
+    //     }
+    //   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    // },
+    // // 更新弹窗的位置
+    // updatePopupPosition() {
+    //   // 笛卡尔3转笛卡尔2（屏幕坐标）
+    //   const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, this.selectedEntityHighDiy)
+    //   if (canvasPosition) {
+    //     this.FaultZonePopupPosition = {
+    //       x: canvasPosition.x,//+ 20,
+    //       y: canvasPosition.y //- 60 // 假设弹窗应该在图标上方 50px 的位置
+    //     };
+    //   }
+    // },
+    //
+    // // 调整弹框位置
+    // styleObject() {
+    //   return {
+    //     FaultZonePopupPosition: "absolute",
+    //     left: `${this.FaultZonePopupPosition.x}px`,
+    //     top: `${this.FaultZonePopupPosition.y}px`
+    //   };
+    // },
+    // // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
+    // // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
+    // isTerrainLoaded() {
+    //   let terrainProvider = window.viewer.terrainProvider;
+    //   if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
+    //     // console.log("地形未加载")
+    //     return false;
+    //   } else if (Cesium.defined(terrainProvider)) {
+    //     // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
+    //     // 则表示已经设置了其他地形提供者
+    //     // console.log("地形已加载")
+    //     return true;
+    //   }
+    //   // console.log("地形未加载")
+    //   return false;
+    // },
+    // watchTerrainProviderChanged() {
+    //   let that = this
+    //   window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
+    //     this.popupVisible = false // 地形改变时关闭弹窗
+    //     let tzs = []
+    //     if (that.modelName === 1) {
+    //       tzs[0] = 9
+    //       tzs[1] = -567
+    //     } else {
+    //       tzs[0] = 15
+    //       tzs[1] = -557
+    //     }
+    //     if (that.isTerrainLoaded()) {
+    //       // that.changeHeight(tzs[0])
+    //       // that.tz = tzs[0]
+    //       // that.find()
+    //     } else {
+    //       // that.changeHeight(tzs[1])
+    //       // that.tz = tzs[1]
+    //       // that.find()
+    //     }
+    //   });
+    // },
+
+  }
 };
 </script>
 

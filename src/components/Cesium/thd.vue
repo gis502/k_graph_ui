@@ -480,7 +480,7 @@ export default {
       getEqbyId({eqid: eqid}).then(res => {
         //震中标绘点
         this.centerPoint = res
-        console.log(res)
+        // console.log(res)
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.time)
         // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
@@ -639,11 +639,11 @@ export default {
       //5分钟一次
       if(this.realTime< this.tmpeqendTime) {
         if(!this.isTimerRunning&&this.currentTimePosition===100){
-          console.log("gengxin")
+          // console.log("gengxin")
           // 检查是否已经有定时器在运行
           if (!this.realtimeinterval) {
 
-            console.log("!this.realtimeinterval")
+            // console.log("!this.realtimeinterval")
             this.realtimeinterval = setInterval(() => {
               if (this.currentTimePosition !== 100) {
                 clearInterval(this.realtimeinterval); // 停止定时器
@@ -657,7 +657,7 @@ export default {
               this.currentTime = this.eqendTime
               this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
               this.currentNodeIndex = this.timelineAdvancesNumber
-              console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
+              // console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
               // this.
               // }, 3000000);
             }, 5000);
@@ -666,7 +666,7 @@ export default {
           //当前时间每秒更新
           if (!this.eqendtimeinterval) {
 
-            console.log("!this.eqendtimeinterval")
+            // console.log("!this.eqendtimeinterval")
             this.eqendtimeinterval = setInterval(() => {
               if (this.currentTimePosition !== 100) {
                 clearInterval(this.eqendtimeinterval); // 停止定时器
@@ -723,7 +723,7 @@ export default {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
 
         //显示标记，追加新的点 （增）
-        console.log(res,"res")
+        // console.log(res,"res")
         res.forEach(item => {
           const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
           if (!plotexists) {
@@ -1084,10 +1084,10 @@ export default {
       this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
       this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
       this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
-      console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
+      // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
       // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 15 * 60 * 1000);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      console.log("this.currentTime jumpToTime",this.currentTime)
+      // console.log("this.currentTime jumpToTime",this.currentTime)
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
@@ -1426,12 +1426,12 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.tableData = res
-        console.log("that.tableData", that.tableData)
+        // console.log("that.tableData", that.tableData)
       })
     },
 
     plotAdj(row) {
-      console.log(row)
+      // console.log(row)
       window.viewer.entities.removeAll();
       this.eqid = row.eqid
       this.websock.eqid = this.eqid
