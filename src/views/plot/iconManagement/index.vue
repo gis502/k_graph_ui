@@ -31,7 +31,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
-      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>
+<!--      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>-->
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
           <el-popover placement="top" :width="300" trigger="hover">

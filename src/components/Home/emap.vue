@@ -189,69 +189,6 @@ const initEmap = () => {
           },
         },
       },
-      // 初始比例尺
-      graphic: {
-        type: 'group',
-        left: 20,
-        bottom: 20,
-        children: [
-          // 横线
-          {
-            type: 'line',
-            id: 'scale-line',
-            shape: {
-              x1: 0,
-              y1: 0,
-              x2: initialScaleLength.value,
-              y2: 0
-            },
-            style: {
-              stroke: '#fff',
-              lineWidth: 2
-            }
-          },
-          // 左边竖线
-          {
-            type: 'line',
-            shape: {
-              x1: 0,
-              y1: 0,
-              x2: 0,
-              y2: -10
-            },
-            style: {
-              stroke: '#fff',
-              lineWidth: 2
-            }
-          },
-          // 右边竖线
-          {
-            type: 'line',
-            id: 'scale-right-line',
-            shape: {
-              x1: initialScaleLength.value,
-              y1: 0,
-              x2: initialScaleLength.value,
-              y2: -10
-            },
-            style: {
-              stroke: '#fff',
-              lineWidth: 2
-            }
-          },
-          // 比例尺文本
-          {
-            type: 'text',
-            id: 'scale-text',
-            left: 1,
-            top: 10,
-            style: {
-              text: initialDistance.value + '千米',
-              fill: '#fff'
-            }
-          }
-        ]
-      },
       series: [
         // 地图的配置
         {

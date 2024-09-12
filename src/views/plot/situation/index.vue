@@ -346,6 +346,31 @@ export default {
         });
       })
     },
+    initPolygon(eqid) {
+      let that = this
+      getPlot({eqid}).then(res => {
+        let data = res
+        let polygonArr = data.filter(e => e.drawtype === 'polygon');
+        // console.log('index.polygonArr', polygonArr)
+        let polygonMap = {};
+
+        polygonArr.forEach(item => {
+          if (!polygonMap[item.plotid]) {
+            polygonMap[item.plotid] = [];
+          }
+          polygonMap[item.plotid].push(item);
+        });
+        Object.keys(polygonMap).forEach(plotid => {
+          let polygonData = polygonMap[plotid];
+          if (polygonData.length === 4) { // 确保有四个点
+            that.getDrawPolygonInfo(polygonData);
+            // console.log("数据库数据",polygonData)
+          } else {
+            console.warn(`多边形 ${plotid} 数据点数量不正确`);
+          }
+        });
+      })
+    },
     // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
     entitiesClickPonpHandler() {
       let that = this
@@ -657,31 +682,31 @@ export default {
         layer: "标绘点"
       });
       let that = this
-      that.smallViewer.entities.removeAll();
-      that.smallViewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            parseFloat(this.centerPoint.height || 0)
-        ),
-        billboard: {
-          image: centerstar,
-          width: 50,
-          height: 50,
-        },
-        label: {
-          text: this.centerPoint.position,
-          show: true,
-          font: '10px sans-serif',
-          fillColor: Cesium.Color.RED,        //字体颜色
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          outlineWidth: 2,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -16),
-        },
-        id: this.centerPoint.plotid,
-        plottype: "震中",
-      });
+      // that.smallViewer.entities.removeAll();
+      // that.smallViewer.entities.add({
+      //   position: Cesium.Cartesian3.fromDegrees(
+      //       parseFloat(this.centerPoint.longitude),
+      //       parseFloat(this.centerPoint.latitude),
+      //       parseFloat(this.centerPoint.height || 0)
+      //   ),
+      //   billboard: {
+      //     image: centerstar,
+      //     width: 50,
+      //     height: 50,
+      //   },
+      //   label: {
+      //     text: this.centerPoint.position,
+      //     show: true,
+      //     font: '10px sans-serif',
+      //     fillColor: Cesium.Color.RED,        //字体颜色
+      //     style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      //     outlineWidth: 2,
+      //     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+      //     pixelOffset: new Cesium.Cartesian2(0, -16),
+      //   },
+      //   id: this.centerPoint.plotid,
+      //   plottype: "震中",
+      // });
     },
     // 修改table header的背景色
     tableHeaderColor() {
@@ -812,7 +837,7 @@ export default {
           this.openPolylinePop(item.name,situationPlotData)
         })
       } else {
-        this.initPlot(this.eqid)
+        this.initPolygon(this.eqid)
         new Promise((resolve, reject) => {
           this.drawPolygon(item, resolve)
           this.polygonStatus = cesiumPlot.drawPolygonStatus()
