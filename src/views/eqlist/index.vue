@@ -21,7 +21,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="time" label="发震时间" width="200"></el-table-column>
-      <el-table-column prop="position" label="位置" width="300" ></el-table-column>
+      <el-table-column prop="position" label="位置" width="300"></el-table-column>
       <el-table-column prop="magnitude" label="震级"></el-table-column>
       <el-table-column prop="longitude" label="经度"></el-table-column>
       <el-table-column prop="latitude" label="纬度"></el-table-column>
@@ -45,14 +45,14 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
-      <el-row >
+      <el-row>
         <el-col :span="13">
           <el-form-item label="震发位置：">
             <el-input v-model="dialogContent.position" placeholder="请输入内容"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row >
+      <el-row>
         <el-col :span="18">
           <el-form-item label="发震时间：">
             <el-date-picker
@@ -92,7 +92,7 @@
         </el-col>
       </el-row>
 
-      <span slot="footer" class="dialog-footer" >
+      <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="commit">确 定</el-button>
       </span>
@@ -133,15 +133,15 @@
         </el-form-item>
       </el-form>
 
-        <div class="dialog-footer">
-          <el-button type="primary" @click="onSubmit" >筛选</el-button>
-        </div>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="onSubmit">筛选</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import {addEq, getAllEq, deleteeq, updataEq, queryEq,fromEq} from '@/api/system/eqlist'
+import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq} from '@/api/system/eqlist'
 
 export default {
   name: "index",
@@ -223,7 +223,7 @@ export default {
   },
   methods: {
     onSubmit() {
-      const { position, time, startMagnitude, endMagnitude, startDepth, endDepth } = this.formValue;
+      const {position, time, startMagnitude, endMagnitude, startDepth, endDepth} = this.formValue;
 
       // 如果时间范围选择为空，将其设为null
       let startTime = null;
@@ -285,7 +285,7 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
-        let resData = res.filter(item=>item.magnitude>=3)
+        let resData = res.filter(item => item.magnitude >= 3)
         that.getEqData = resData
         that.total = resData.length
         let data = []
@@ -330,7 +330,7 @@ export default {
       }
 
       // 发送搜索请求
-      queryEq({ queryValue: searchKey }).then(res => {
+      queryEq({queryValue: searchKey}).then(res => {
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
           ...item,
@@ -482,6 +482,7 @@ export default {
   margin-top: 10px;
   justify-content: center;
 }
+
 .dialog-footer {
   position: relative;
   bottom: 0;
@@ -489,6 +490,7 @@ export default {
   padding: 5px; /* 调整按钮与对话框边缘的距离 */
   text-align: right; /* 右对齐按钮 */
 }
+
 :deep(.el-dialog) {
   transform: none;
   left: 0;
