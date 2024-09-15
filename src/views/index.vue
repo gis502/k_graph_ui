@@ -15,20 +15,20 @@
           <div class="left-top public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震</div>
-              <new-info/>
+              <new-info :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
 
           <div class="left-con public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震受灾人员统计</div>
-              <chart3/>
+              <chart3 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
           <div class="left-bottom public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震余震情况统计(次)</div>
-              <chart2/>
+              <chart2 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
         </div>
@@ -41,6 +41,7 @@
             <dv-border-box7>
               <div class="public-title">
                 地震列表
+
                 <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
                 <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
                 <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
@@ -103,9 +104,7 @@
 
 <script setup>
 import {
-  BorderBox12 as DvBorderBox12,
   BorderBox7 as DvBorderBox7,
-  BorderBox5 as DvBorderBox5,
   Decoration5 as DvDecoration5
 } from '@kjgl77/datav-vue3'
 import {onMounted, ref} from 'vue';
@@ -120,6 +119,7 @@ import {fromEq, getAllEq, queryEq} from '@/api/system/eqlist';
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([])
+const lastEqData = ref()
 const requestParams = ref("")
 
 const queryFormVisible = ref(false)
@@ -173,11 +173,13 @@ const formValue = reactive({
 })
 
 const onSubmit = () => {
-  const [startTime, endTime] = formValue.time;
-  const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
-  const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
+  if (formValue.time !== "") {
+    const [startTime, endTime] = formValue.time;
+    const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
+    const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
 
-  formValue.time = `${startDate} 至 ${endDate}`;
+    formValue.time = `${startDate} 至 ${endDate}`;
+  }
   fromEq(formValue).then(res => {
     tableData.value = res;
   });
@@ -187,7 +189,6 @@ const onSubmit = () => {
 const openQueryFrom = () => {
   queryFormVisible.value = true;
 }
-// console.log(123)
 
 const query = () => {
   if (requestParams.value === "") {
@@ -224,6 +225,7 @@ const getEq = () => {
   getAllEq().then((res) => {
     EqAll.value = res
     tableData.value = res
+    lastEqData.value = res[0]
   })
   ;
 };
