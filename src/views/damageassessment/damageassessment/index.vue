@@ -236,35 +236,35 @@ export default {
       this.renderQueryEqPoints();
 
       //雅安行政区加载
-      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-        stroke: Cesium.Color.RED,
-        fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
-        strokeWidth: 4,
-      });
-      geoPromise.then((dataSource) => {
-        window.viewer.dataSources.add(dataSource);
-        dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
-
-        const colors = [
-          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-          {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
-          {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
-          {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
-          {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
-          {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
-          {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
-          {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
-        ];
-        dataSource.entities.values.forEach((entity, index) => {
-          // 根据实体索引依次从颜色数组中取颜色
-          const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-          const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
-          entity.polygon.material = colorMaterial; // 设置填充颜色
-          // console.log("--------", index, "----------------", entity)
-        });
-        //雅安行政区加载 end
-      })
+      // let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+      //   stroke: Cesium.Color.RED,
+      //   fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+      //   strokeWidth: 4,
+      // });
+      // geoPromise.then((dataSource) => {
+      //   window.viewer.dataSources.add(dataSource);
+      //   dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
+      //
+      //   const colors = [
+      //     {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+      //     {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+      //     {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+      //     {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+      //     {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+      //     {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+      //     {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+      //     {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+      //     {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+      //   ];
+      //   dataSource.entities.values.forEach((entity, index) => {
+      //     // 根据实体索引依次从颜色数组中取颜色
+      //     const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
+      //     const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
+      //     entity.polygon.material = colorMaterial; // 设置填充颜色
+      //     // console.log("--------", index, "----------------", entity)
+      //   });
+      //   //雅安行政区加载 end
+      // })
 
 
     },
@@ -721,7 +721,7 @@ export default {
             angle_num_tmp=angle_num
           }
           //渲染烈度圈
-          viewer.entities.add({
+          let tmpOvalCirclelayer=viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude), 0),
             ellipse: {
               semiMinorAxis:longAndshort[i][1],
@@ -741,15 +741,16 @@ export default {
             // title: "烈度 :" + I[longintenArray[i] - 6],
             layername: "烈度圈",
           });
+          this.OvalCirclelayer.push(tmpOvalCirclelayer)
         }
       }
       else{
         //清除烈度圈
-        // if(this.OvalCirclelayer){
-        //   OvalCirclelayer.forEach((itemlayer) => {
-        //     viewer.entities.remove(itemlayer);
-        //   })
-        // }
+        if(this.OvalCirclelayer){
+          this.OvalCirclelayer.forEach((itemlayer) => {
+            viewer.entities.remove(itemlayer);
+          })
+        }
 
       }
     },
