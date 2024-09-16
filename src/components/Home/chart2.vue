@@ -31,7 +31,8 @@ const initChart = () => {
         },
         interval: 0,  // Ensure all labels are shown
       },
-      data: ['3级以下', '3 - 4.5级', '4.5 - 6级', '6级以上']
+      data: ['3级以下', '3 - 4' +
+      '.5级', '4.5 - 6级', '6级以上']
     },
     yAxis: {
       type: 'value',
