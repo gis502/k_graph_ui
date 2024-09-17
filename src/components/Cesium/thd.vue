@@ -1548,6 +1548,10 @@ export default {
         window.regionLayer111 = null; // 清空引用
         // console.log("图层已移除");
       }
+      const legend = document.getElementById('legend');
+      while (legend.firstChild) {
+          legend.removeChild(legend.firstChild);
+      }
       this.labels.forEach(label => {
         window.viewer.entities.remove(label);
       });
