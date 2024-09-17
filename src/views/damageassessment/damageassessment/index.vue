@@ -253,11 +253,12 @@ export default {
         strokeWidth: 4,
       });
       geoPromise.then((dataSource) => {
+        // console.log("dataSource",dataSource)
         window.viewer.dataSources.add(dataSource);
         dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
 
         const colors = [
-          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+          // {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
           {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
           {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
           {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
@@ -268,12 +269,35 @@ export default {
           {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
         ];
         dataSource.entities.values.forEach((entity, index) => {
+          // console.log("dataSource entity",entity)
           // 根据实体索引依次从颜色数组中取颜色
           const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
           const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
           entity.polygon.material = colorMaterial; // 设置填充颜色
           // console.log("--------", index, "----------------", entity)
         });
+        yaan.features.forEach((feature) => {
+          let center = feature.properties.center;
+
+          if (center && center.length === 2) {
+            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+            let regionlabelEntity = viewer.entities.add(new Cesium.Entity({
+              position: position,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name,
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                pixelOffset: new Cesium.Cartesian2(0, 0)
+              })
+            }));
+          }
+        })
+
         //雅安行政区加载 end
       })
     },
@@ -384,7 +408,27 @@ export default {
           },
           id: eq.eqid
         });
+        yaan.features.forEach((feature) => {
+          let center = feature.properties.center;
 
+          if (center && center.length === 2) {
+            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+            let regionlabelEntity = viewer.entities.add(new Cesium.Entity({
+              position: position,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name,
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                pixelOffset: new Cesium.Cartesian2(0, 0)
+              })
+            }));
+          }
+        })
         this.listEqPoints.push(entity);  // 保存实体到 listEqPoints
       });
     },
