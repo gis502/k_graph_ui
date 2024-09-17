@@ -1,9 +1,9 @@
 <template>
   <div id="cesiumContainer" class="situation_cesiumContainer">
     <!--  小组件  -->
-    <div class="layers">
-      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>
-    </div>
+<!--    <div class="layers">-->
+<!--      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>-->
+<!--    </div>-->
 
     <!-- 左侧表单 -->
     <div class="eqTable" v-show="isLeftShow">
@@ -94,6 +94,10 @@
             <div class="button themes circle" :class="{ active: isshowOvalCircle }"
                  @click="showOvalCircle(this.selectedTabData)"> 烈度圈
             </div>
+            <div class="button themes region" :class="{ active: isshowRegion }"
+                 @click="toggleYaanLayer()"> 行政区划
+            </div>
+
           </div>
 
           <div style="height: 10px;background-color: #054576"></div>
@@ -185,7 +189,9 @@ export default {
 
       listEqPoints: [], // 列表地震点
       area: null,
-      layerVisible: true, // 图层可见性状态
+      // layerVisible: true, // 图层可见性状态
+      isshowRegion:true,//行政区划
+      RegionLabels:[],
     };
   },
   mounted() {
@@ -281,7 +287,7 @@ export default {
 
           if (center && center.length === 2) {
             let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-            let regionlabelEntity = viewer.entities.add(new Cesium.Entity({
+            let regionlabel = viewer.entities.add(new Cesium.Entity({
               position: position,
               label: new Cesium.LabelGraphics({
                 text: feature.properties.name,
@@ -295,6 +301,7 @@ export default {
                 pixelOffset: new Cesium.Cartesian2(0, 0)
               })
             }));
+            this.RegionLabels.push(regionlabel)
           }
         })
 
@@ -306,8 +313,35 @@ export default {
       // 切换图层显示与隐藏
       let yaanRegionLayer = window.viewer.dataSources.getByName("YaanRegionLayer")[0];
       if (yaanRegionLayer) {
-        this.layerVisible = !this.layerVisible;
-        yaanRegionLayer.show = this.layerVisible; // 根据 layerVisible 的值显示或隐藏图层
+        this.isshowRegion = !this.isshowRegion;
+        yaanRegionLayer.show = this.isshowRegion; // 根据 isshowRegion 的值显示或隐藏图层
+        yaan.features.forEach((feature) => {
+          let center = feature.properties.center;
+
+          if (center && center.length === 2) {
+            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+            let regionlabel = viewer.entities.add(new Cesium.Entity({
+              position: position,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name,
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                pixelOffset: new Cesium.Cartesian2(0, 0)
+              })
+            }));
+            this.RegionLabels.push(regionlabel)
+          }
+        })
+      }
+      if(!this.isshowRegion){ //false
+        // this.RegionLabels
+        this.RegionLabels.forEach(entity => window.viewer.entities.remove(entity));
+        this.RegionLabels=[]
       }
     },
 
@@ -413,7 +447,7 @@ export default {
 
           if (center && center.length === 2) {
             let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-            let regionlabelEntity = viewer.entities.add(new Cesium.Entity({
+            let regionlabel = viewer.entities.add(new Cesium.Entity({
               position: position,
               label: new Cesium.LabelGraphics({
                 text: feature.properties.name,
@@ -427,6 +461,7 @@ export default {
                 pixelOffset: new Cesium.Cartesian2(0, 0)
               })
             }));
+            this.RegionLabels.push(regionlabel)
           }
         })
         this.listEqPoints.push(entity);  // 保存实体到 listEqPoints
@@ -1243,8 +1278,8 @@ export default {
   position: relative;
   margin: 5px 15px 15px 0;
   font-size: 15px;
-  height: 30px;
-  width: 80px;
+  height: 34%;
+  width: 44%;
   border: #fff 1px solid;
   cursor: pointer;
 }
