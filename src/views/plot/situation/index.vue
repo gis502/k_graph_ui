@@ -101,6 +101,7 @@
           :addMarkDialogFormVisible="addMarkDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @drawPoint="drawPoint"
+          @ifPointAnimate="ifPointAnimation"
           @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
@@ -156,6 +157,7 @@ export default {
       addPolygonDialogFormVisible: false,// mian标绘信息填写对话框的显示和隐藏
       showMarkCollection: false, // 点标绘控件的显示和隐藏
       openAddStatus: true, // 用来控制添加billboard按钮的状态，点一次后只有添加完点才能再点击
+        ifPointAnimate: false, // 说明是否为新标绘的点
       //-----------弹窗部分--------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -892,7 +894,7 @@ export default {
           duration: 0
         })
         // 1-3 生成点标注的handler
-        cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {
+        cesiumPlot.initPointHandler(type, img, this.eqid,true).then(res => {
           that.addMarkDialogFormVisible = true
           this.message.close(that.addMarkDialogFormVisible)
         })
@@ -900,8 +902,15 @@ export default {
     },
     // 画点
     drawPoint(pointInfo) {
-      cesiumPlot.drawPoint(pointInfo)
+        if(this.ifPointAnimate){
+            cesiumPlot.drawPoint(pointInfo,true)
+        }else{
+            cesiumPlot.drawPoint(pointInfo)
+        }
     },
+      ifPointAnimation(val){
+        this.ifPointAnimate = val
+      },
     // 重置标绘信息填写的绑定数据
     resetAddMarkCollection() {
       let cesiumStore = useCesiumStore()

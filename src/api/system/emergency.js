@@ -64,7 +64,7 @@ export function searchMaterialData(inputData) {
     return request({
         url: '/system/emergency/searchMaterialData',
         method: 'post',
-        params: {'inputData':inputData}
+        data: inputData
     })
 }
 

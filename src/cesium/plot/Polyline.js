@@ -275,6 +275,47 @@ export default class Polyline {
         data
       }
     })
+
+//     let startTime = Date.now();
+//     let duration = 10000;  // 动画持续时间为10秒
+//     let isBlurred = false;  // 初始状态是清晰的
+//
+// // 动态修改线的模糊和清晰状态
+//     let animation = () => {
+//       let currentTime = Date.now();
+//       let elapsedTime = currentTime - startTime;
+//
+//       // 计算动画进度（0到1之间）
+//       let progress = (elapsedTime % duration) / duration;
+//
+//       // 根据进度计算模糊程度
+//       if (progress < 0.5) {
+//         // 前5秒，线变模糊
+//         this.drawEntity.polyline.material = new Cesium.PolylineGlowMaterialProperty({
+//           glowPower: 0.5 * progress,  // 增加模糊程度
+//           color: Cesium.Color.WHITE.withAlpha(1.0 - progress)  // 逐渐变得透明
+//         });
+//         isBlurred = true;
+//       } else {
+//         // 后5秒，线变清晰
+//         this.drawEntity.polyline.material = new Cesium.PolylineGlowMaterialProperty({
+//           glowPower: 0.5 * (1 - progress),  // 减少模糊程度
+//           color: Cesium.Color.WHITE.withAlpha(progress)  // 逐渐恢复透明度
+//         });
+//         isBlurred = false;
+//       }
+//
+//       // 继续执行动画
+//       if (elapsedTime < duration) {
+//         requestAnimationFrame(animation);
+//       } else {
+//         // 动画结束，重置材质为初始状态（不变的材质）
+//         this.drawEntity.polyline.material = this.material;
+//       }
+//     };
+//
+// // 开始动画
+//     animation();
   }
 
   // 空间两点距离计算函数
