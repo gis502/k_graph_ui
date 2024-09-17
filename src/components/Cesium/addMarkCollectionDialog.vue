@@ -123,6 +123,9 @@ export default {
       let that = this
       let data = this.assembleData(this.form,this.typeInfo,this.starttime,this.endtime)
       insertPlotAndInfo(data).then(res=>{
+
+        let bool = true
+        this.$emit('ifPointAnimate',bool)
         this.$emit('drawPoint', data.plot)
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         let form = {...this.form}

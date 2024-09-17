@@ -5,9 +5,11 @@ export default class Point {
     this.viewer = viewer;
     this.handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
     this.store = store
+    this.ifAnimate = false
   }
   // 画点的屏幕事件
-  initPointHandlder(pointType,img,eqid) {
+  initPointHandlder(pointType,img,eqid, bool) {
+    this.ifAnimate = bool
     return new Promise((resolve, reject)=>{
       let viewer = this.viewer
       let that = this
@@ -45,26 +47,58 @@ export default class Point {
     })
   }
   // 画点
-  drawPoint(data) {
+  drawPoint(data,bool) {
     console.log("end")
-    window.viewer.entities.add({
-      id: data.plotid,
-      position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
-      billboard: {
-        image: data.img,
-        width: 50,//图片宽度,单位px
-        height: 50,//图片高度，单位px // 会影响point大小，离谱
-        eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
-        color: Cesium.Color.WHITE.withAlpha(1),//颜色
-        scale: 0.8,//缩放比例
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-        depthTest: false,//禁止深度测试但是没有下面那句有用
-        disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-      },
-      properties: {
-        data
-      }
-    })
+    if (bool) {
+      let colorFactor = 1.0;
+      const intervalTime = 500; // 切换颜色的时间间隔
+      const animationDuration = 10000; // 动画总持续时间（10秒）
+      const intervalId = setInterval(() => {
+        colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
+      }, intervalTime);
+      // 使用 setTimeout 在动画持续时间结束后清除 interval
+      setTimeout(() => {
+        clearInterval(intervalId); // 停止颜色切换
+      }, animationDuration);
+      window.viewer.entities.add({
+        id: data.plotid,
+        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+        billboard: {
+          image: data.img,
+          width: 50,
+          height: 50,
+          color: new Cesium.CallbackProperty(() => {
+            return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+          }, false),
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
+        },
+        properties: {
+          data
+        }
+      });
+    } else {
+      window.viewer.entities.add({
+        id: data.plotid,
+        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+        billboard: {
+          image: data.img,
+          width: 50, // 图片宽度,单位px
+          height: 50, // 图片高度，单位px
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+          color: Cesium.Color.WHITE.withAlpha(1), // 固定颜色
+          scale: 0.8, // 缩放比例
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+          depthTest: false, // 禁止深度测试
+          disableDepthTestDistance: Number.POSITIVE_INFINITY // 不进行深度测试
+        },
+        properties: {
+          data
+        }
+      });
+    }
+
   }
   // 删除点
   deletePoint(point){
