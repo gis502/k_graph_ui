@@ -215,7 +215,7 @@ export default {
         this.getEqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
-        console.log("data:", data)
+        // console.log("data:", data)
       });
     },
 
@@ -415,6 +415,8 @@ export default {
 
     // 地图渲染查询地震点(根据页码、根据搜索框)
     renderQueryEqPoints() {
+      this.OvalCirclelayer.forEach(entity => window.viewer.entities.remove(entity));
+      this.isshowOvalCircle=false
       // 清空之前的点
       this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
       this.listEqPoints = []; // 重置 listEqPoints
@@ -491,7 +493,7 @@ export default {
     pickEqPoint(eq) {
       this.listEqPoints.forEach(entity => {
         entity.label._show._value = entity._id === eq.eqid;
-        console.log(entity.label)
+        // console.log(entity.label)
       })
     },
 
@@ -534,7 +536,7 @@ export default {
         });
 
         // 渲染 selectedEqPoint
-        console.log("Selected Eq Point:", this.selectedEqPoint);
+        // console.log("Selected Eq Point:", this.selectedEqPoint);
       } else {
         console.warn("No selectedTabData available");
       }
@@ -582,8 +584,8 @@ export default {
 
     removeData() {
       this.isHistoryEqPointsShow = false;
-      this.isshowFaultZone = false;
-      this.isshowOvalCircle = false;
+
+      // this.isshowOvalCircle = false;
 
       this.historyEqPoints.forEach(point => window.viewer.entities.remove(point));
       this.historyEqPoints = [];
@@ -599,9 +601,21 @@ export default {
         }
       })
       this.faultzonelines = [];
+      this.isshowFaultZone = false;
 
-      this.OvalCirclelayer.forEach(entity => window.viewer.entities.remove(entity));
+      this.OvalCirclelayer.forEach(item => {
+        if (item.oval._layername === "烈度圈") {
+          // console.log(333)
+          console.log(item)
+          viewer.entities.remove(item.oval);
+          viewer.entities.remove(item.label);
+        }
+      });
       this.OvalCirclelayer = [];
+      this.isshowOvalCircle=false
+
+      // this.OvalCirclelayer.forEach(entity => window.viewer.entities.remove(entity));
+      // this.OvalCirclelayer = [];
     },
 
     // 分页数据更新
@@ -609,7 +623,7 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = this.currentPage * this.pageSize;
       this.pagedEqData = this.filteredEqData.slice(start, end);
-      console.log("pagedEqData:", this.pagedEqData)
+      // console.log("pagedEqData:", this.pagedEqData)
 
       // 清除之前的点并重新添加
       viewer.entities.removeAll();
@@ -805,7 +819,7 @@ export default {
           }
         })
 
-        console.log("faultzonelines", this.faultzonelines)
+        // console.log("faultzonelines", this.faultzonelines)
 
         this.faultzonelines.forEach((item) => {
           let positionsArr = [];
@@ -857,7 +871,10 @@ export default {
       ];
 
       let intensityLabels = [
-        "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "X", "XI", "XII", "XIII", "XIV", "XV", "XⅥ", "XⅦ", "XⅧ"
+        "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "X", "XI", "XII"
+      ];
+      let intensityLabelsChinese = [
+        "六", "七", "八", "九", "十", "十一", "十二"
       ];
 
       if (this.isshowOvalCircle) {
@@ -913,7 +930,8 @@ export default {
               0
             ),
             label: {
-              text: "烈度 : " + intensityLabels[longintenArray[i] - 6],
+              //最多画到6度
+              text: "烈度 : " + intensityLabels[longintenArray[i] - 6]+" (" + intensityLabelsChinese[longintenArray[i] - 6]+ "度)",
               font: '18px Sans-serif',
               style: Cesium.LabelStyle.FILL_AND_OUTLINE,
               outlineWidth: 2,
@@ -932,7 +950,7 @@ export default {
         }
 
         // console.log(123)
-        console.log(this.OvalCirclelayer)
+        // console.log(this.OvalCirclelayer)
 
       } else {
         this.OvalCirclelayer.forEach(item => {
@@ -988,7 +1006,7 @@ export default {
 
       // console.log("longAxis,shortAxis",longAxis,shortAxis)
       for (var i = Math.floor(longAxis); i >= 6; i--) {
-        console.log(i)
+        // console.log(i)
         if (longAxisArray.length >= 6) {
           break;
         }
@@ -1001,7 +1019,7 @@ export default {
           Math.pow(10,
             ( 4.0293 + 1.3003 * magnitude - i) / 3.6404
           ) - 10;
-        console.log(R)
+        // console.log(R)
         longAxisArray.push(R);
       }
       for (var j = Math.floor(shortAxis); j >= 6; j--) {
@@ -1031,10 +1049,10 @@ export default {
           numi++;
         }
       }
-      console.log("shortAxisArray",shortAxisArray);
-      console.log("longAxisArray",longAxisArray);
-      console.log("longAndshort",longAndshort);
-      console.log("longintenArray",longintenArray);
+      // console.log("shortAxisArray",shortAxisArray);
+      // console.log("longAxisArray",longAxisArray);
+      // console.log("longAndshort",longAndshort);
+      // console.log("longintenArray",longintenArray);
       return [longAndshort, longintenArray];
     },
     angle (lon, lat) {
