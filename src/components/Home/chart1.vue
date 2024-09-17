@@ -104,7 +104,7 @@ onMounted(() => {
   initChart();
 });
 
-watch(() => props.eqData, (newData) => {
+watch(() => props.eqData, () => {
   initChart();  // Reinitialize chart when data changes
 }, {deep: true});
 </script>

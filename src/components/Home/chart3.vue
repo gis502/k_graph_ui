@@ -1,5 +1,9 @@
 <template>
   <div class="container">
+    <span
+        style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); ">
+      更新时间：{{ updateTime }}
+    </span>
     <div class="row injury">
       <span class="label">受伤人数</span>
       <span class="count">{{ injuryCount }}</span>
@@ -19,15 +23,24 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
+
+const props = defineProps(['lastEq'])
 
 const injuryCount = ref(0);
 const missingCount = ref(0);
 const deathCount = ref(0);
+const updateTime = ref()
 
-injuryCount.value = 0;
-missingCount.value = 0;
-deathCount.value = 0;
+watch(() => props.lastEq, () => {
+  initNewEq();
+});
+
+const initNewEq = () => {
+
+  updateTime.value = props.lastEq.time.replace('T', ' ');
+
+}
 </script>
 
 <style scoped>
@@ -40,7 +53,7 @@ deathCount.value = 0;
 }
 
 .row {
-  margin: 0.7vh 0;
+  margin: 0.5vh 0;
   height: 8vh;
   display: flex;
   align-items: center;
