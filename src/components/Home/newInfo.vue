@@ -11,22 +11,22 @@
       </div>
     </el-col>
     <el-col>
-      <div class="lonlat newColCommon">
+      <div class="newColCommon">
         震中经纬：东经{{ longitude }}度 北纬{{ latitude }}度
       </div>
     </el-col>
     <el-col>
-      <div class="magnitude newColCommon">
-        地震震级：{{ magnitude.toFixed(1) }}
+      <div class="newColCommon">
+        地震震级：{{ Number(magnitude).toFixed(1) }}
       </div>
     </el-col>
     <el-col>
-      <div class="depth newColCommon">
-        震源深度：{{ depth }} 千米
+      <div class="newColCommon">
+        震源深度：{{ Number(depth) }} 千米
       </div>
     </el-col>
     <el-col>
-      <div class="position newColCommon">
+      <div class="newColCommon">
         震中位置：{{ position }}
       </div>
     </el-col>
@@ -34,16 +34,32 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
-import {BorderBox13 as DvBorderBox13} from '@kjgl77/datav-vue3'
+import {ref, watch} from 'vue';
 
-const eqName = ref('四川泸州市泸县3级地震');
-const position = ref('四川泸州市泸县');
-const time = ref('2024-08-02 00:18:02');
-const magnitude = ref(3);
-const longitude = ref('105.56');
-const latitude = ref('29.24');
-const depth = ref('8');
+const props = defineProps(['lastEq']);
+const eqName = ref('');
+const position = ref('');
+const time = ref('');
+const magnitude = ref('');
+const longitude = ref('');
+const latitude = ref('');
+const depth = ref('');
+
+
+watch(() => props.lastEq, () => {
+  initNewEq();
+});
+
+const initNewEq = () => {
+  eqName.value = props.lastEq.position + props.lastEq.magnitude + '级地震';
+  time.value = props.lastEq.time.replace('T', ' ');
+  magnitude.value = props.lastEq.magnitude;
+  longitude.value = props.lastEq.longitude;
+  latitude.value = props.lastEq.latitude;
+  position.value = props.lastEq.position;
+  depth.value = props.lastEq.depth;
+}
+
 </script>
 
 <style scoped>
