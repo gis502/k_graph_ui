@@ -113,173 +113,6 @@ const times = [
 onMounted(() => {
   getTableField()
   getEarthquake()
-  // 初始化 ECharts 实例
-  const chartInstance = echarts.init(chart.value);
-// ECharts 配置项
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      },
-      formatter: function (params) {
-        // 第一行显示地区名称
-        let result = `${params[0].axisValue}<br/>`;
-
-        // 第二行显示截止时间
-        const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
-        result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
-
-        // 显示系列名和数值
-        params.forEach(item => {
-          result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
-        });
-
-        return result;
-      }
-    },
-    legend: {
-      // data:FieldName.value,
-      data:['余震次数累计', '3.0-3.9级','4.0-4.9级','5.0-5.9级'],
-      align: 'right',
-      right: 10,
-      textStyle: {
-        color: "#fff"
-      },
-      itemWidth: 10,
-      itemHeight: 10,
-      itemGap: 35
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: [{
-      type: 'category',
-      data: [
-        '雨城区',
-        '名山区',
-        '荥经县',
-        '汉源县',
-        '石棉县',
-        '天全县',
-        '芦山县',
-        '宝兴县'
-      ],
-      axisLine: {
-        show: true,
-        lineStyle: {
-          color: "#063374",
-          width: 1,
-          type: "solid"
-        }
-      },
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        show: true,
-        textStyle: {
-          color: "#00c7ff"
-        }
-      }
-    }],
-    yAxis: [{
-      type: 'value',
-      axisLabel: {
-        // 移除百分比格式化
-        // formatter: '{value} %'
-      },
-      axisTick: {
-        show: false
-      },
-      axisLine: {
-        show: false,
-        lineStyle: {
-          color: "#00c7ff",
-          width: 1,
-          type: "solid"
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#063374"
-        }
-      }
-    }],
-    series: [
-      {
-        name: '余震次数累计',
-        type: 'bar',
-        data: [2, 5, 8, 5, 8, 6, 5, 8, 4, 6],
-        barWidth: 13,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#008cff' },
-              { offset: 1, color: '#005193' }
-            ]),
-            opacity: 1
-          }
-        }
-      },
-      {
-        name: '3.0-3.9级',
-        type: 'bar',
-        data: [1,2,4,2,4,3,2,4,2,3],
-        barWidth: 13,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color:'#ffeb2f',
-            // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            //   { offset: 0, color: '#00da9c' },
-            //   { offset: 1, color: '#007a55' }
-            // ]),
-            opacity: 1
-          }
-        }
-      },
-      {
-        name: '4.0-4.9级',
-        type: 'bar',
-        data: [0,2,3,2,2,2,2,2,1,2],
-        barWidth: 13,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color:'#ffa500',
-              //   new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              // { offset: 0, color: '#c4e300' },
-              // { offset: 1, color: '#728400' }
-            // ]),
-            opacity: 1
-          }
-        }
-      },
-      {
-        name: '5.0-5.9级',
-        type: 'bar',
-        data: [1,1,1,1,2,1,1,2,1,1],
-        barWidth: 13,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color:'#f81919',
-            opacity: 1
-          }
-        }
-      }
-    ]
-  };
-
-  chartInstance.setOption(option);
-  window.addEventListener('resize', () => {
-    chartInstance.resize();
-  });
 })
 
 // 请求人员伤亡表数据
@@ -332,10 +165,183 @@ const getTableField = () => {
     name.value = Array.from(map.values())
     data.value = generateData();
     columns.value = generateColumnConfig();
-    const fetchedData = name.value.filter(item =>  item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
+
+    console.log(name.value)
+    console.log(123)
+
+    FieldName.value = name.value.filter(item =>  item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
-    FieldName.value = fetchedData;
+
     console.log(FieldName.value)
+
+    // 初始化 ECharts 实例
+    const chartInstance = echarts.init(chart.value);
+// ECharts 配置项
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        formatter: function (params) {
+          // 第一行显示地区名称
+          let result = `${params[0].axisValue}<br/>`;
+
+          // 第二行显示截止时间
+          const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
+          result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
+
+          // 显示系列名和数值
+          params.forEach(item => {
+            result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
+          });
+
+          return result;
+        }
+      },
+      legend: {
+        data:FieldName.value,
+        // data:['余震次数累计', '3.0-3.9级','4.0-4.9级','5.0-5.9级'],
+        align: 'right',
+        right: 10,
+        textStyle: {
+          color: "#fff"
+        },
+        itemWidth: 10,
+        itemHeight: 10,
+        itemGap: 35
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: [{
+        type: 'category',
+        data: [
+          '雨城区',
+          '名山区',
+          '荥经县',
+          '汉源县',
+          '石棉县',
+          '天全县',
+          '芦山县',
+          '宝兴县'
+        ],
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: "#063374",
+            width: 1,
+            type: "solid"
+          }
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true,
+          textStyle: {
+            color: "#00c7ff"
+          }
+        }
+      }],
+      yAxis: [{
+        type: 'value',
+        axisLabel: {
+          // 移除百分比格式化
+          // formatter: '{value} %'
+        },
+        axisTick: {
+          show: false
+        },
+        axisLine: {
+          show: false,
+          lineStyle: {
+            color: "#00c7ff",
+            width: 1,
+            type: "solid"
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: "#063374"
+          }
+        }
+      }],
+      series: [
+        {
+          name: '余震次数累计',
+          type: 'bar',
+          data: [2, 5, 8, 5, 8, 6, 5, 8, 4, 6],
+          barWidth: 13,
+          barGap: 1,
+          itemStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#008cff' },
+                { offset: 1, color: '#005193' }
+              ]),
+              opacity: 1
+            }
+          }
+        },
+        {
+          name: '3.0-3.9级',
+          type: 'bar',
+          data: [1,2,4,2,4,3,2,4,2,3],
+          barWidth: 13,
+          barGap: 1,
+          itemStyle: {
+            normal: {
+              color:'#ffeb2f',
+              // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              //   { offset: 0, color: '#00da9c' },
+              //   { offset: 1, color: '#007a55' }
+              // ]),
+              opacity: 1
+            }
+          }
+        },
+        {
+          name: '4.0-4.9级',
+          type: 'bar',
+          data: [0,2,3,2,2,2,2,2,1,2],
+          barWidth: 13,
+          barGap: 1,
+          itemStyle: {
+            normal: {
+              color:'#ffa500',
+              //   new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              // { offset: 0, color: '#c4e300' },
+              // { offset: 1, color: '#728400' }
+              // ]),
+              opacity: 1
+            }
+          }
+        },
+        {
+          name: '5.0-5.9级',
+          type: 'bar',
+          data: [1,1,1,1,2,1,1,2,1,1],
+          barWidth: 13,
+          barGap: 1,
+          itemStyle: {
+            normal: {
+              color:'#f81919',
+              opacity: 1
+            }
+          }
+        }
+      ]
+    };
+
+    chartInstance.setOption(option);
+    window.addEventListener('resize', () => {
+      chartInstance.resize();
+    });
+
   })
 }
 //获取地震列表
