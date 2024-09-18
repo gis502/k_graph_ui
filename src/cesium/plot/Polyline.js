@@ -213,7 +213,6 @@ export default class Polyline {
       pointPosArr:this.positions,
       plotid: this.initId
     })
-    console.log("干嘛？",data)
     this.drawEntity = this.viewer.entities.add({
       id: this.initId,
       polyline: {
@@ -391,7 +390,6 @@ export default class Polyline {
           positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e.longitude), parseFloat(e.latitude), parseFloat(e.height)))
         })
         let material = getmaterial(line[0].plottype,line[0].img)
-      console.log(line,8888)
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,
