@@ -115,7 +115,7 @@ export default class Polygon {
     }
 
   showDetailInputPopup(event) {
-    console.log("点实体",this.polygonPointEntity)
+    // console.log("点实体",this.polygonPointEntity)
     // 删除之前生成的点实体
     this.polygonPointEntity.forEach((pointEntity) => {
       this.viewer.entities.remove(pointEntity);
@@ -178,7 +178,7 @@ export default class Polygon {
       name: this.name
     }
     this.resolve(data)
-    console.log("SAAS",this.resolve)
+    // console.log("SAAS",this.resolve)
     this.status = 0
     this.polygonPointEntity = []
     this.polygonEntity.remove = () => {
@@ -246,7 +246,7 @@ export default class Polygon {
         let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
 
         pointLinePoints.push(cartesian);
-        console.log("点实体",pointLinePoints)
+        // console.log("点实体",pointLinePoints)
         // 添加调试输出
         this.viewer.entities.add({
           // id: `${onlyPlotidItem}_Point_${i}`,
@@ -322,7 +322,7 @@ export default class Polygon {
         rotationAngle = angle - 45
       }
       let vertices = this.calculateSquareVertices(this.centerPoint, id,afterDraggedPoint)
-      console.log("vertices",vertices[0].position)
+      // console.log("vertices",vertices[0].position)
       // 更新顶点位置
       // 如果数组二当前元素有id
       if (vertices[0].id !== null) {
