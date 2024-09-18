@@ -1634,6 +1634,25 @@ export default {
       } else {
         this.removeEntitiesByType('emergencyShelters');
       }
+
+      //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
+      if((this.selectedlayersLocal.length==1 && hasDrawingLayer)|| this.selectedlayersLocal.length==0 ){
+        const position= Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            120000,
+        );
+        viewer.camera.flyTo({destination: position,})
+      }
+      else{
+        const position= Cesium.Cartesian3.fromDegrees(
+            103.0,
+            29.98,
+            500000,
+        );
+        viewer.camera.flyTo({destination: position,})
+      }
+
     },
 
     processPoints(pointArr, type, icon, tableName) {
