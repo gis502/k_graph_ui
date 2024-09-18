@@ -72,7 +72,7 @@
           >
               <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
               <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
-              <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">行政区划</el-menu-item>
+              <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
               <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">报告产出</el-menu-item>
               <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
               <el-menu-item index="6">返回首页</el-menu-item>
@@ -1581,6 +1581,7 @@ export default {
     },
 
     updateMapLayers() {
+
       // 标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
