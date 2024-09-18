@@ -1,143 +1,145 @@
 <template>
-  <div id="cesiumContainer" class="situation_cesiumContainer">
-    <!--  小组件  -->
-<!--    <div class="layers">-->
-<!--      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>-->
-<!--    </div>-->
+  <div>
+    <div id="cesiumContainer" class="situation_cesiumContainer">
+      <!--  小组件  -->
+      <!--    <div class="layers">-->
+      <!--      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>-->
+      <!--    </div>-->
 
-    <!-- 左侧表单 -->
-    <div class="eqTable" v-show="isLeftShow">
+      <!-- 左侧表单 -->
+      <div class="eqTable" v-show="isLeftShow">
 
-      <div class="eqListContent" v-if="currentTab === '震害事件'">
-        <div style="display: flex">
-          <!-- 搜索框 -->
-          <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
-          </el-input>
-        </div>
-        <!-- 地震列表 -->
-        <div class="eqList">
-          <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
-            <!-- 圆圈震级 -->
-            <div style="width: 55px">
-              <div class="eqMagnitude"
-                   :style="{ backgroundColor: eq.magnitude >= 4.5 && eq.magnitude < 6.0 ? '#f0aa2e' : 'red' }">
-                {{ eq.magnitude }}
+        <div class="eqListContent" v-if="currentTab === '震害事件'">
+          <div style="display: flex">
+            <!-- 搜索框 -->
+            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+            </el-input>
+          </div>
+          <!-- 地震列表 -->
+          <div class="eqList">
+            <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
+              <!-- 圆圈震级 -->
+              <div style="width: 55px">
+                <div class="eqMagnitude"
+                     :style="{ backgroundColor: eq.magnitude >= 4.5 && eq.magnitude < 6.0 ? '#f0aa2e' : 'red' }">
+                  {{ eq.magnitude }}
+                </div>
               </div>
-            </div>
 
-            <!-- 地震名称与简要信息 -->
-            <div class="eqText">
+              <!-- 地震名称与简要信息 -->
+              <div class="eqText">
           <span
-            class="eqTitle">
+              class="eqTitle">
             {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
           </span>
-              <br/>
-              <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
+                <br/>
+                <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
             发震时刻：{{ eq.time }}<br/>
             参考位置：{{ eq.position }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
           </span>
-            </div>
+              </div>
 
-            <!-- 详情按钮 -->
-            <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
+              <!-- 详情按钮 -->
+              <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
+            </div>
+          </div>
+
+          <!-- 分页 -->
+          <div class="pagination">
+            <el-pagination
+                small
+                layout="total, prev, pager, next"
+                :total="filteredEqData.length"
+                :page-size="pageSize"
+                :current-page.sync="currentPage"
+                @current-change="handleCurrentChange"
+                style="margin: 0 20px"
+            />
           </div>
         </div>
 
-        <!-- 分页 -->
-        <div class="pagination">
-          <el-pagination
-            small
-            layout="total, prev, pager, next"
-            :total="filteredEqData.length"
-            :page-size="pageSize"
-            :current-page.sync="currentPage"
-            @current-change="handleCurrentChange"
-            style="margin: 0 20px"
-          />
+        <!--   指定地震   -->
+        <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
+          <div class="eqInfo">
+            <div style="height: 30px;display: flex;align-items: center">
+              <div class="button return" @click="back()">返回</div>
+            </div>
+            <div style="height: 10px;background-color: #054576"></div>
+            <el-divider content-position="left">
+              <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
+              地震信息
+            </el-divider>
+            <div style="padding: 1px 20px 10px 20px">
+              <!-- 显示选项卡内容 -->
+              <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
+              <p>发震时刻：{{ selectedTabData.time }}</p>
+              <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
+              <p>地震震级：{{ selectedTabData.magnitude }}</p>
+              <p>震源深度：{{ selectedTabData.depth }}千米</p>
+              <p>参考位置：{{ selectedTabData.position }}</p>
+            </div>
+
+            <div style="height: 10px;background-color: #054576"></div>
+
+            <el-divider content-position="left"> 地震专题</el-divider>
+
+            <div class="eqTheme">
+              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
+                   @click="showHistoryEqPoints(this.selectedTabData)"> 历史地震
+              </div>
+              <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
+                   @click="showFaultZone(this.selectedTabData)"> 断裂带
+              </div>
+              <div class="button themes circle" :class="{ active: isshowOvalCircle }"
+                   @click="showOvalCircle(this.selectedTabData)"> 烈度圈
+              </div>
+              <div class="button themes region" :class="{ active: isshowRegion }"
+                   @click="toggleYaanLayer()"> 行政区划
+              </div>
+
+            </div>
+
+            <div style="height: 10px;background-color: #054576"></div>
+
+            <el-divider content-position="left"> 大屏展示</el-divider>
+
+            <div class="eqVisible">
+              <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
+                  src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+              </div>
+            </div>
+
+          </div>
         </div>
+
+      </div>
+      <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
+           @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
+        <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding" style="height: 60%;width: 60%;">
+      </div>
+      <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
+        <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
 
-      <!--   指定地震   -->
-      <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
-        <div class="eqInfo">
-          <div style="height: 30px;display: flex;align-items: center">
-            <div class="button return" @click="back()">返回</div>
-          </div>
-          <div style="height: 10px;background-color: #054576"></div>
-          <el-divider content-position="left">
-            <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
-            地震信息
-          </el-divider>
-          <div style="padding: 1px 20px 10px 20px">
-            <!-- 显示选项卡内容 -->
-            <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
-            <p>发震时刻：{{ selectedTabData.time }}</p>
-            <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
-            <p>地震震级：{{ selectedTabData.magnitude }}</p>
-            <p>震源深度：{{ selectedTabData.depth }}千米</p>
-            <p>参考位置：{{ selectedTabData.position }}</p>
-          </div>
-
-          <div style="height: 10px;background-color: #054576"></div>
-
-          <el-divider content-position="left"> 地震专题</el-divider>
-
-          <div class="eqTheme">
-            <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
-                 @click="showHistoryEqPoints(this.selectedTabData)"> 历史地震
-            </div>
-            <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
-                 @click="showFaultZone(this.selectedTabData)"> 断裂带
-            </div>
-            <div class="button themes circle" :class="{ active: isshowOvalCircle }"
-                 @click="showOvalCircle(this.selectedTabData)"> 烈度圈
-            </div>
-            <div class="button themes region" :class="{ active: isshowRegion }"
-                 @click="toggleYaanLayer()"> 行政区划
-            </div>
-
-          </div>
-
-          <div style="height: 10px;background-color: #054576"></div>
-
-          <el-divider content-position="left"> 大屏展示</el-divider>
-
-          <div class="eqVisible">
-            <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
-              src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
-            </div>
-          </div>
-
-        </div>
+      <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
+      <div class="panel">
+        <historyEqPanel v-if="isHistoryEqPointsShow"
+                        :historyEqData="historyEqData"
+                        :selectedTabData="selectedTabData"
+                        @hidden="hidden"/>
       </div>
 
-    </div>
-    <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
-         @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
-      <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding" style="height: 60%;width: 60%;">
-    </div>
-    <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
-      <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
+      <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
+           @click="isHistoryEqPointsShow=true, isShow=false">
+        展开专题详情
+      </div>
     </div>
 
-    <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
-    <div class="panel">
-      <historyEqPanel v-if="isHistoryEqPointsShow"
-                      :historyEqData="historyEqData"
-                      :selectedTabData="selectedTabData"
-                      @hidden="hidden"/>
-    </div>
-
-    <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
-         @click="isHistoryEqPointsShow=true, isShow=false">
-      展开专题详情
-    </div>
+    <!--  断裂带名称div  -->
+    <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
   </div>
-
-  <!--  断裂带名称div  -->
-  <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
 
 </template>
 

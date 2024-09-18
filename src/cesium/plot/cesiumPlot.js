@@ -29,6 +29,11 @@ let cesiumPlot= {
     this.point.drawPoint(pointInfo,bool)
   },
 
+  drawPoints(points){
+    // console.log("?",pointInfo)
+    this.point.drawPoints(points)
+  },
+
   deletePoint(point){
     this.point.deletePoint(point)
   },

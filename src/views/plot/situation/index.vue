@@ -274,7 +274,8 @@ export default {
   },
   methods: {
     drawStraightArrow() {
-      Arrow.draw("pincerArrow");
+      Arrow.draw("straightArrow");
+      console.log(13)
     },
     // 初始化控件等
     init() {
@@ -317,6 +318,23 @@ export default {
       getPlot({eqid}).then(res => {
         let data = res
         let pointArr = data.filter(e => e.drawtype === 'point')
+        // -------------------------------------------
+        // pointArr.forEach(item => {
+        //   let point = {
+        //     eqid: item.eqid,
+        //     plotid: item.plotid,
+        //     time: item.time,
+        //     plottype: item.plottype,
+        //     drawtype: item.drawtype,
+        //     latitude: item.latitude,
+        //     longitude: item.longitude,
+        //     height: item.height,
+        //     img: item.img,
+        //   }
+        //   that.drawPoint(point)
+        // })
+        // ----------------------------------------------
+        let points = []
         pointArr.forEach(item => {
           let point = {
             eqid: item.eqid,
@@ -329,15 +347,16 @@ export default {
             height: item.height,
             img: item.img,
           }
-          that.drawPoint(point)
+          points.push(point)
         })
+        that.drawPoints(points)
+        console.log(window.viewer.dataSources)
         let polylineArr = data.filter(e => e.drawtype === 'polyline')
         cesiumPlot.getDrawPolyline(polylineArr)
         // 处理多边形数据
         let polygonArr = data.filter(e => e.drawtype === 'polygon');
         // console.log('index.polygonArr', polygonArr)
         let polygonMap = {};
-
         polygonArr.forEach(item => {
           if (!polygonMap[item.plotid]) {
             polygonMap[item.plotid] = [];
@@ -353,7 +372,14 @@ export default {
             console.warn(`多边形 ${plotid} 数据点数量不正确`);
           }
         });
+        // that.entityclustering()
       })
+    },
+    entityclustering(){
+      // window.viewer.dataSource.cl
+      let dataSource = new Cesium.CustomDataSource("myData");
+      dataSource.entities.add()
+      console.log(window.viewer.dataSources.clustering.enabled)
     },
     initPolygon(eqid) {
       let that = this
@@ -436,8 +462,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log(this.popupData)
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗
@@ -519,8 +544,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log("end", this.popupData)
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -652,7 +676,6 @@ export default {
     },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
     updateMapandVariablebeforInit() {
-      console.log(this.centerPoint)
       //加载中心点
       viewer.entities.add({
         // properties: {
@@ -673,6 +696,7 @@ export default {
           image: centerstar,
           width: 60,
           height: 60,
+          scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
           disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
         },
         label: {
@@ -684,6 +708,8 @@ export default {
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -30),
+          scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+
           disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
         },
         id: this.centerPoint.plotid,
@@ -818,8 +844,7 @@ export default {
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
-          console.log(this.polylineStatus, 888)
-        }).then((res) => {
+        }).then((res)=>{
           let situationPlotData = []// situationplot表中的线数据
           for (let i = 0; i < res.pointPosArr.length; i++) {
             let cartographic = Cesium.Cartographic.fromCartesian(res.pointPosArr[i]);
@@ -907,6 +932,9 @@ export default {
         }else{
             cesiumPlot.drawPoint(pointInfo)
         }
+    },
+    drawPoints(pointInfo) {
+      cesiumPlot.drawPoints(pointInfo)
     },
       ifPointAnimation(val){
         this.ifPointAnimate = val
@@ -1001,13 +1029,13 @@ export default {
         // })
       }
     },
-    drawPolygon(info, resolve) {
-      console.log(info, "面")
-      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid, resolve)
+    drawPolygon(info,resolve) {
+      // console.log(info, "面")
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,resolve)
     },
     //获取数据库数据绘制面
     getDrawPolygonInfo(info) {
-      console.log(info, "面")
+      // console.log(info, "面")
       cesiumPlot.getDrawPolygon(info)
     },
     resetPolygon() {
