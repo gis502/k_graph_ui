@@ -72,8 +72,8 @@
           >
               <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
               <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
-              <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">行政区划</el-menu-item>
-              <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">报告产出</el-menu-item>
+              <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
+              <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
               <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
               <el-menu-item index="6">返回首页</el-menu-item>
           </el-menu>
@@ -1548,6 +1548,10 @@ export default {
         window.regionLayer111 = null; // 清空引用
         // console.log("图层已移除");
       }
+      const legend = document.getElementById('legend');
+      while (legend.firstChild) {
+          legend.removeChild(legend.firstChild);
+      }
       this.labels.forEach(label => {
         window.viewer.entities.remove(label);
       });
@@ -1577,6 +1581,7 @@ export default {
     },
 
     updateMapLayers() {
+
       // 标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
@@ -1629,6 +1634,25 @@ export default {
       } else {
         this.removeEntitiesByType('emergencyShelters');
       }
+
+      //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
+      if((this.selectedlayersLocal.length==1 && hasDrawingLayer)|| this.selectedlayersLocal.length==0 ){
+        const position= Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            120000,
+        );
+        viewer.camera.flyTo({destination: position,})
+      }
+      else{
+        const position= Cesium.Cartesian3.fromDegrees(
+            103.0,
+            29.98,
+            500000,
+        );
+        viewer.camera.flyTo({destination: position,})
+      }
+
     },
 
     processPoints(pointArr, type, icon, tableName) {

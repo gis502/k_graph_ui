@@ -1,143 +1,145 @@
 <template>
-  <div id="cesiumContainer" class="situation_cesiumContainer">
-    <!--  小组件  -->
-<!--    <div class="layers">-->
-<!--      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>-->
-<!--    </div>-->
+  <div>
+    <div id="cesiumContainer" class="situation_cesiumContainer">
+      <!--  小组件  -->
+      <!--    <div class="layers">-->
+      <!--      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>-->
+      <!--    </div>-->
 
-    <!-- 左侧表单 -->
-    <div class="eqTable" v-show="isLeftShow">
+      <!-- 左侧表单 -->
+      <div class="eqTable" v-show="isLeftShow">
 
-      <div class="eqListContent" v-if="currentTab === '震害事件'">
-        <div style="display: flex">
-          <!-- 搜索框 -->
-          <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
-          </el-input>
-        </div>
-        <!-- 地震列表 -->
-        <div class="eqList">
-          <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
-            <!-- 圆圈震级 -->
-            <div style="width: 55px">
-              <div class="eqMagnitude"
-                   :style="{ backgroundColor: eq.magnitude >= 4.5 && eq.magnitude < 6.0 ? '#f0aa2e' : 'red' }">
-                {{ eq.magnitude }}
+        <div class="eqListContent" v-if="currentTab === '震害事件'">
+          <div style="display: flex">
+            <!-- 搜索框 -->
+            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+            </el-input>
+          </div>
+          <!-- 地震列表 -->
+          <div class="eqList">
+            <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
+              <!-- 圆圈震级 -->
+              <div style="width: 55px">
+                <div class="eqMagnitude"
+                     :style="{ backgroundColor: eq.magnitude >= 4.5 && eq.magnitude < 6.0 ? '#f0aa2e' : 'red' }">
+                  {{ eq.magnitude }}
+                </div>
               </div>
-            </div>
 
-            <!-- 地震名称与简要信息 -->
-            <div class="eqText">
+              <!-- 地震名称与简要信息 -->
+              <div class="eqText">
           <span
-            class="eqTitle">
+              class="eqTitle">
             {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
           </span>
-              <br/>
-              <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
+                <br/>
+                <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
             发震时刻：{{ eq.time }}<br/>
             参考位置：{{ eq.position }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
           </span>
-            </div>
+              </div>
 
-            <!-- 详情按钮 -->
-            <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
+              <!-- 详情按钮 -->
+              <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
+            </div>
+          </div>
+
+          <!-- 分页 -->
+          <div class="pagination">
+            <el-pagination
+                small
+                layout="total, prev, pager, next"
+                :total="filteredEqData.length"
+                :page-size="pageSize"
+                :current-page.sync="currentPage"
+                @current-change="handleCurrentChange"
+                style="margin: 0 20px"
+            />
           </div>
         </div>
 
-        <!-- 分页 -->
-        <div class="pagination">
-          <el-pagination
-            small
-            layout="total, prev, pager, next"
-            :total="filteredEqData.length"
-            :page-size="pageSize"
-            :current-page.sync="currentPage"
-            @current-change="handleCurrentChange"
-            style="margin: 0 20px"
-          />
+        <!--   指定地震   -->
+        <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
+          <div class="eqInfo">
+            <div style="height: 30px;display: flex;align-items: center">
+              <div class="button return" @click="back()">返回</div>
+            </div>
+            <div style="height: 10px;background-color: #054576"></div>
+            <el-divider content-position="left">
+              <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
+              地震信息
+            </el-divider>
+            <div style="padding: 1px 20px 10px 20px">
+              <!-- 显示选项卡内容 -->
+              <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
+              <p>发震时刻：{{ selectedTabData.time }}</p>
+              <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
+              <p>地震震级：{{ selectedTabData.magnitude }}</p>
+              <p>震源深度：{{ selectedTabData.depth }}千米</p>
+              <p>参考位置：{{ selectedTabData.position }}</p>
+            </div>
+
+            <div style="height: 10px;background-color: #054576"></div>
+
+            <el-divider content-position="left"> 地震专题</el-divider>
+
+            <div class="eqTheme">
+              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
+                   @click="showHistoryEqPoints(this.selectedTabData)"> 历史地震
+              </div>
+              <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
+                   @click="showFaultZone(this.selectedTabData)"> 断裂带
+              </div>
+              <div class="button themes circle" :class="{ active: isshowOvalCircle }"
+                   @click="showOvalCircle(this.selectedTabData)"> 烈度圈
+              </div>
+              <div class="button themes region" :class="{ active: isshowRegion }"
+                   @click="toggleYaanLayer()"> 行政区划
+              </div>
+
+            </div>
+
+            <div style="height: 10px;background-color: #054576"></div>
+
+            <el-divider content-position="left"> 大屏展示</el-divider>
+
+            <div class="eqVisible">
+              <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
+                  src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+              </div>
+            </div>
+
+          </div>
         </div>
+
+      </div>
+      <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
+           @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
+        <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding" style="height: 60%;width: 60%;">
+      </div>
+      <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
+        <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
 
-      <!--   指定地震   -->
-      <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
-        <div class="eqInfo">
-          <div style="height: 30px;display: flex;align-items: center">
-            <div class="button return" @click="back()">返回</div>
-          </div>
-          <div style="height: 10px;background-color: #054576"></div>
-          <el-divider content-position="left">
-            <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
-            地震信息
-          </el-divider>
-          <div style="padding: 1px 20px 10px 20px">
-            <!-- 显示选项卡内容 -->
-            <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
-            <p>发震时刻：{{ selectedTabData.time }}</p>
-            <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
-            <p>地震震级：{{ selectedTabData.magnitude }}</p>
-            <p>震源深度：{{ selectedTabData.depth }}千米</p>
-            <p>参考位置：{{ selectedTabData.position }}</p>
-          </div>
-
-          <div style="height: 10px;background-color: #054576"></div>
-
-          <el-divider content-position="left"> 地震专题</el-divider>
-
-          <div class="eqTheme">
-            <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
-                 @click="showHistoryEqPoints(this.selectedTabData)"> 历史地震
-            </div>
-            <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
-                 @click="showFaultZone(this.selectedTabData)"> 断裂带
-            </div>
-            <div class="button themes circle" :class="{ active: isshowOvalCircle }"
-                 @click="showOvalCircle(this.selectedTabData)"> 烈度圈
-            </div>
-            <div class="button themes region" :class="{ active: isshowRegion }"
-                 @click="toggleYaanLayer()"> 行政区划
-            </div>
-
-          </div>
-
-          <div style="height: 10px;background-color: #054576"></div>
-
-          <el-divider content-position="left"> 大屏展示</el-divider>
-
-          <div class="eqVisible">
-            <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
-              src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
-            </div>
-          </div>
-
-        </div>
+      <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
+      <div class="panel">
+        <historyEqPanel v-if="isHistoryEqPointsShow"
+                        :historyEqData="historyEqData"
+                        :selectedTabData="selectedTabData"
+                        @hidden="hidden"/>
       </div>
 
-    </div>
-    <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
-         @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
-      <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding" style="height: 60%;width: 60%;">
-    </div>
-    <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
-      <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
+      <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
+           @click="isHistoryEqPointsShow=true, isShow=false">
+        展开专题详情
+      </div>
     </div>
 
-    <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
-    <div class="panel">
-      <historyEqPanel v-if="isHistoryEqPointsShow"
-                      :historyEqData="historyEqData"
-                      :selectedTabData="selectedTabData"
-                      @hidden="hidden"/>
-    </div>
-
-    <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
-         @click="isHistoryEqPointsShow=true, isShow=false">
-      展开专题详情
-    </div>
+    <!--  断裂带名称div  -->
+    <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
   </div>
-
-  <!--  断裂带名称div  -->
-  <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
 
 </template>
 
@@ -215,7 +217,7 @@ export default {
         this.getEqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
-        console.log("data:", data)
+        // console.log("data:", data)
       });
     },
 
@@ -415,6 +417,8 @@ export default {
 
     // 地图渲染查询地震点(根据页码、根据搜索框)
     renderQueryEqPoints() {
+      this.OvalCirclelayer.forEach(entity => window.viewer.entities.remove(entity));
+      this.isshowOvalCircle=false
       // 清空之前的点
       this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
       this.listEqPoints = []; // 重置 listEqPoints
@@ -491,7 +495,7 @@ export default {
     pickEqPoint(eq) {
       this.listEqPoints.forEach(entity => {
         entity.label._show._value = entity._id === eq.eqid;
-        console.log(entity.label)
+        // console.log(entity.label)
       })
     },
 
@@ -534,7 +538,7 @@ export default {
         });
 
         // 渲染 selectedEqPoint
-        console.log("Selected Eq Point:", this.selectedEqPoint);
+        // console.log("Selected Eq Point:", this.selectedEqPoint);
       } else {
         console.warn("No selectedTabData available");
       }
@@ -582,8 +586,8 @@ export default {
 
     removeData() {
       this.isHistoryEqPointsShow = false;
-      this.isshowFaultZone = false;
-      this.isshowOvalCircle = false;
+
+      // this.isshowOvalCircle = false;
 
       this.historyEqPoints.forEach(point => window.viewer.entities.remove(point));
       this.historyEqPoints = [];
@@ -599,9 +603,21 @@ export default {
         }
       })
       this.faultzonelines = [];
+      this.isshowFaultZone = false;
 
-      this.OvalCirclelayer.forEach(entity => window.viewer.entities.remove(entity));
+      this.OvalCirclelayer.forEach(item => {
+        if (item.oval._layername === "烈度圈") {
+          // console.log(333)
+          console.log(item)
+          viewer.entities.remove(item.oval);
+          viewer.entities.remove(item.label);
+        }
+      });
       this.OvalCirclelayer = [];
+      this.isshowOvalCircle=false
+
+      // this.OvalCirclelayer.forEach(entity => window.viewer.entities.remove(entity));
+      // this.OvalCirclelayer = [];
     },
 
     // 分页数据更新
@@ -609,7 +625,7 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = this.currentPage * this.pageSize;
       this.pagedEqData = this.filteredEqData.slice(start, end);
-      console.log("pagedEqData:", this.pagedEqData)
+      // console.log("pagedEqData:", this.pagedEqData)
 
       // 清除之前的点并重新添加
       viewer.entities.removeAll();
@@ -805,7 +821,7 @@ export default {
           }
         })
 
-        console.log("faultzonelines", this.faultzonelines)
+        // console.log("faultzonelines", this.faultzonelines)
 
         this.faultzonelines.forEach((item) => {
           let positionsArr = [];
@@ -857,7 +873,10 @@ export default {
       ];
 
       let intensityLabels = [
-        "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "X", "XI", "XII", "XIII", "XIV", "XV", "XⅥ", "XⅦ", "XⅧ"
+        "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "X", "XI", "XII"
+      ];
+      let intensityLabelsChinese = [
+        "六", "七", "八", "九", "十", "十一", "十二"
       ];
 
       if (this.isshowOvalCircle) {
@@ -913,7 +932,8 @@ export default {
               0
             ),
             label: {
-              text: "烈度 : " + intensityLabels[longintenArray[i] - 6],
+              //最多画到6度
+              text: "烈度 : " + intensityLabels[longintenArray[i] - 6]+" (" + intensityLabelsChinese[longintenArray[i] - 6]+ "度)",
               font: '18px Sans-serif',
               style: Cesium.LabelStyle.FILL_AND_OUTLINE,
               outlineWidth: 2,
@@ -932,7 +952,7 @@ export default {
         }
 
         // console.log(123)
-        console.log(this.OvalCirclelayer)
+        // console.log(this.OvalCirclelayer)
 
       } else {
         this.OvalCirclelayer.forEach(item => {
@@ -988,7 +1008,7 @@ export default {
 
       // console.log("longAxis,shortAxis",longAxis,shortAxis)
       for (var i = Math.floor(longAxis); i >= 6; i--) {
-        console.log(i)
+        // console.log(i)
         if (longAxisArray.length >= 6) {
           break;
         }
@@ -1001,7 +1021,7 @@ export default {
           Math.pow(10,
             ( 4.0293 + 1.3003 * magnitude - i) / 3.6404
           ) - 10;
-        console.log(R)
+        // console.log(R)
         longAxisArray.push(R);
       }
       for (var j = Math.floor(shortAxis); j >= 6; j--) {
@@ -1031,10 +1051,10 @@ export default {
           numi++;
         }
       }
-      console.log("shortAxisArray",shortAxisArray);
-      console.log("longAxisArray",longAxisArray);
-      console.log("longAndshort",longAndshort);
-      console.log("longintenArray",longintenArray);
+      // console.log("shortAxisArray",shortAxisArray);
+      // console.log("longAxisArray",longAxisArray);
+      // console.log("longAndshort",longAndshort);
+      // console.log("longintenArray",longintenArray);
       return [longAndshort, longintenArray];
     },
     angle (lon, lat) {
