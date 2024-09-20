@@ -27,6 +27,7 @@
           :prop="header.prop"
           :label="header.label"
           :width="header.width"
+          show-overflow-tooltip
       >
         <!-- 为表格单元格内容定义默认模板 -->
         <template #default="scope">
