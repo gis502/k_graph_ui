@@ -45,7 +45,13 @@ export function sheltersList() {
         method: 'get',
     })
 }
-
+export function searchEmergencyShelters(inputData) {
+    return request({
+        url: '/system/emergency/searchEmergencyShelters',
+        method: 'post',
+        params: {'inputData':inputData}
+    })
+}
 export function reservesList() {
     return request({
         url: '/system/emergency/reservesList',
@@ -60,3 +66,26 @@ export function rescueTeamList() {
     })
 }
 
+export function searchEmergencyTeam(inputData) {
+    return request({
+        url: '/system/emergency/searchEmergencyTeam',
+        method: 'post',
+        params: {'inputData':inputData}
+    })
+}
+
+export function searchMaterialData(inputData) {
+    return request({
+        url: '/system/emergency/searchMaterialData',
+        method: 'post',
+        data: inputData
+    })
+}
+
+export function searchDisasterReserves(inputData) {
+    return request({
+        url: '/system/emergency/searchDisasterReserves',
+        method: 'post',
+        params: {'inputData':inputData}
+    })
+}

@@ -3,13 +3,13 @@
              :close-on-click-modal="false" :destroy-on-close="true" :show-close="false">
     <el-form :model="this.form" :inline="true">
       <el-form-item label="标注类型" :label-width="120">
-        <el-input placeholder="请输入内容" v-model="form.type" :disabled="true" size="large"/>
+        <el-input placeholder="请输入内容" v-model="form.plottype" :disabled="true" size="large"/>
       </el-form-item>
       <el-form-item label="经度" :label-width="120">
-        <el-input v-model="form.lon" autocomplete="off" size="large"/>
+        <el-input v-model="form.longitude" autocomplete="off" size="large"/>
       </el-form-item>
       <el-form-item label="纬度" :label-width="120">
-        <el-input v-model="form.lat" autocomplete="off" size="large"/>
+        <el-input v-model="form.latitude" autocomplete="off" size="large"/>
       </el-form-item>
       <el-form-item label="开始时间" :label-width="120">
         <div class="formTime">
@@ -102,6 +102,7 @@ export default {
           if (this.form.plottype === plotType[item].name) {
             // 此处对plotType[item]用json的parse和stringify是因为需要深拷贝，而{...plotType[item]}是浅拷贝
             this.typeInfo = JSON.parse(JSON.stringify(plotType[item]))//{...plotType[item]}
+            console.log(this.typeInfo)
             break;
           }
         }
@@ -122,10 +123,13 @@ export default {
       let that = this
       let data = this.assembleData(this.form,this.typeInfo,this.starttime,this.endtime)
       insertPlotAndInfo(data).then(res=>{
+
+        let bool = true
+        this.$emit('ifPointAnimate',bool)
         this.$emit('drawPoint', data.plot)
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         let form = {...this.form}
-        this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
+        // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
         ElMessage({
           message: '添加成功',

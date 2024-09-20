@@ -113,6 +113,7 @@ export default {
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         // let form = {...this.form}
         // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
+          this.$emit('')
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
         ElMessage({
           message: '添加成功',

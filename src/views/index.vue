@@ -15,20 +15,20 @@
           <div class="left-top public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震</div>
-              <new-info/>
+              <new-info :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
 
           <div class="left-con public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震受灾人员统计</div>
-              <chart3/>
+              <chart3 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
           <div class="left-bottom public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震余震情况统计(次)</div>
-              <chart2/>
+              <chart2 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
         </div>
@@ -41,6 +41,7 @@
             <dv-border-box7>
               <div class="public-title">
                 地震列表
+
                 <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
                 <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
                 <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
@@ -57,6 +58,7 @@
         </div>
       </div>
     </div>
+
     <el-dialog
         v-model="queryFormVisible"
         title="筛选"
@@ -77,17 +79,20 @@
               end-placeholder="结束时间"
               :shortcuts="shortcuts"
               style="width: 23vw;"
+              value-format="x"
           />
         </el-form-item>
         <el-form-item label="地震震级">
-          <el-input v-model="formValue.startMagnitude" style="width: 3.03vw"/>
+          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endMagnitude" style="width: 3.03vw;"/>
+          <el-input v-model="formValue.endMagnitude" style="width: 5vw;"/>
+          <span style="margin: 0 10px">(里氏)</span>
         </el-form-item>
         <el-form-item label="地震深度">
-          <el-input v-model="formValue.startDepth" style="width: 3.03vw"/>
+          <el-input v-model="formValue.startDepth" style="width: 5vw"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endDepth" style="width: 3.03vw"/>
+          <el-input v-model="formValue.endDepth" style="width: 5vw"/>
+          <span style="margin: 0 10px">(千米)</span>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -101,9 +106,7 @@
 
 <script setup>
 import {
-  BorderBox12 as DvBorderBox12,
   BorderBox7 as DvBorderBox7,
-  BorderBox5 as DvBorderBox5,
   Decoration5 as DvDecoration5
 } from '@kjgl77/datav-vue3'
 import {onMounted, ref} from 'vue';
@@ -118,6 +121,7 @@ import {fromEq, getAllEq, queryEq} from '@/api/system/eqlist';
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([])
+const lastEqData = ref()
 const requestParams = ref("")
 
 const queryFormVisible = ref(false)
@@ -171,9 +175,16 @@ const formValue = reactive({
 })
 
 const onSubmit = () => {
+  if (formValue.time !== "") {
+    const [startTime, endTime] = formValue.time;
+    const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
+    const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
+
+    formValue.time = `${startDate} 至 ${endDate}`;
+  }
   fromEq(formValue).then(res => {
-    tableData.value = res
-  })
+    tableData.value = res;
+  });
   queryFormVisible.value = false;
 }
 
@@ -216,6 +227,7 @@ const getEq = () => {
   getAllEq().then((res) => {
     EqAll.value = res
     tableData.value = res
+    lastEqData.value = res[0]
   })
   ;
 };
@@ -267,7 +279,7 @@ onMounted(() => {
   display: flex;
   justify-content: center; /* 标题居中对齐 */
   align-items: center;
-  height: 50px;
+  height: 34px;
   width: 100%;
   z-index: 10;
 }

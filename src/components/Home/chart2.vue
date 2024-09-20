@@ -3,10 +3,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 
 const chart2 = ref(null);
+const props = defineProps(['lastEq']);
+
+watch(() => props.lastEq, () => {
+  initChart();
+});
 
 const initChart = () => {
   const myChart = echarts.init(chart2.value);
@@ -31,7 +36,8 @@ const initChart = () => {
         },
         interval: 0,  // Ensure all labels are shown
       },
-      data: ['3级以下', '3 - 4.5级', '4.5 - 6级', '6级以上']
+      data: ['3级以下', '3 - 4' +
+      '.5级', '4.5 - 6级', '6级以上']
     },
     yAxis: {
       type: 'value',
@@ -51,10 +57,10 @@ const initChart = () => {
       {
         name: '余震数量',
         data: [
-          2,  // 弱震 (< 3级)
-          1,  // 有感地震 (3 - 4.5级)
-          1,  // 中强震 (4.5 - 6级)
-          1   // 强震 (≥ 6级)
+          0,  // 弱震 (< 3级)
+          0,  // 有感地震 (3 - 4.5级)
+          0,  // 中强震 (4.5 - 6级)
+          0   // 强震 (≥ 6级)
         ],
         type: 'bar',
         itemStyle: {
@@ -74,10 +80,6 @@ const initChart = () => {
   };
   myChart.setOption(option);
 };
-
-onMounted(() => {
-  initChart();
-});
 
 </script>
 

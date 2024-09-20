@@ -5,6 +5,7 @@
                 placeholder="请输入查询的表名或备注"/>
       <el-button type="primary" @click="getList">搜索</el-button>
       <el-button type="primary" @click="handleBackupAll">一键备份</el-button>
+      <span style="float: right;color: red">(系统每天0点自动备份，备份文件保存在云服务器backup文件夹下）</span>
     </div>
     <el-table
         v-loading="loading"
@@ -145,6 +146,7 @@ const getList = () => {
 
 const handleDelete = (row) => {
 }
+
 const handleBackup = (tableName) => {
   isBackupDialogVisible.value = true;
   backup(tableName).then(response => {
@@ -162,9 +164,10 @@ const handleBackup = (tableName) => {
     isBackupDialogVisible.value = false;
   });
 };
+
 const handleBackupAll = () => {
-  isBackupDialogVisible.value = true;
   backupAll().then(response => {
+    isBackupDialogVisible.value = true;
     const blob = new Blob([response], {type: response.type});
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -174,7 +177,7 @@ const handleBackupAll = () => {
     link.click();
     document.body.removeChild(link);
   }).catch(error => {
-    console.error("Error during file download:", error);
+    console.error("文件正在生成中，请稍后再试")
   }).finally(() => {
     isBackupDialogVisible.value = false;
   });
