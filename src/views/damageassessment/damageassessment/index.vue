@@ -607,8 +607,7 @@ export default {
 
       this.OvalCirclelayer.forEach(item => {
         if (item.oval._layername === "烈度圈") {
-          // console.log(333)
-          console.log(item)
+          // console.log(item)
           viewer.entities.remove(item.oval);
           viewer.entities.remove(item.label);
         }
@@ -951,14 +950,10 @@ export default {
           });
         }
 
-        // console.log(123)
-        // console.log(this.OvalCirclelayer)
-
       } else {
         this.OvalCirclelayer.forEach(item => {
           if (item.oval._layername === "烈度圈") {
-            // console.log(333)
-            console.log(item)
+            // console.log(item)
             viewer.entities.remove(item.oval);
             viewer.entities.remove(item.label);
           }
@@ -1051,10 +1046,7 @@ export default {
           numi++;
         }
       }
-      // console.log("shortAxisArray",shortAxisArray);
-      // console.log("longAxisArray",longAxisArray);
-      // console.log("longAndshort",longAndshort);
-      // console.log("longintenArray",longintenArray);
+
       return [longAndshort, longintenArray];
     },
     angle (lon, lat) {
@@ -1094,8 +1086,9 @@ export default {
 .eqTable {
   position: absolute;
   right: 0;
+  bottom: 0;
   width: 333px;
-  height: 100%;
+  height: calc(100% - 50px);
   z-index: 3;
   background-color: #2d3d51;
 }
@@ -1135,6 +1128,7 @@ export default {
 // 开关
 .fold {
   position: absolute;
+  top: 50px;
   right: 323px;
   margin: 0 auto;
   display: flex;
