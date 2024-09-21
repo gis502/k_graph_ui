@@ -7,7 +7,7 @@ import request from '@/utils/request'
  */
 export function aftershockSum() {
     return request({
-        url: '/system/getAftershockMagnitudeSums',
+        url: '/system/getLatestAftershockMagnitude',
         method: 'get',
     })
 }

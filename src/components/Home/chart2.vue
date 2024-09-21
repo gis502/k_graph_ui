@@ -3,93 +3,105 @@
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from 'vue';
+import { onMounted, ref, } from 'vue';
 import * as echarts from 'echarts';
-import {aftershockSum} from "@/api/system/statistics.js";
+import {aftershockSum} from '/src/api/system/statistics.js'; // 确保路径正确
 
 const chart2 = ref(null);
-const props = defineProps(['lastEq']);
+let myChart = null;
 
-watch(() => props.lastEq, () => {
-  initChart();
+onMounted(() => {
+  initChart();  // 初始化图表
+  fetchAftershockData();  // 获取最新余震数据
 });
 
-const initChart = async () => {
-  try {
-    const res = await aftershockSum(); // 从 API 获取数据
-
-    const data = res; // 后端返回数据
-    console.log(res)
-    // x轴 匹配数据
-    const chartData = [data.magnitude3to39, data.magnitude4to49, data.magnitude5to59];
-
-    const myChart = echarts.init(chart2.value);
-    const option = {
-      tooltip: {
-        trigger: 'axis'
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        top: '20%',
-        bottom: '15%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        axisLabel: {
-          show: true,
-          textStyle: {
-            color: '#fff',
-            fontSize: 14,
-          },
-          interval: 0,
-        },
-        data: ['3 - 3.9级', '4 - 4.9级 ', '5 - 5.9级']
-      },
-      yAxis: {
-        type: 'value',
-        nameTextStyle: {
+// 初始化图表
+const initChart = () => {
+  myChart = echarts.init(chart2.value);
+  const option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      top: '20%',
+      bottom: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      axisLabel: {
+        show: true,
+        textStyle: {
           color: '#fff',
           fontSize: 14,
         },
-        axisLabel: {
-          show: true,
-          textStyle: {
-            color: '#fff'
+        interval: 0,
+      },
+      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级']
+    },
+    yAxis: {
+      type: 'value',
+      nameTextStyle: {
+        color: '#fff',
+        fontSize: 14,
+      },
+      axisLabel: {
+        show: true,
+        textStyle: {
+          color: '#fff'
+        }
+      },
+      minInterval: 1,
+    },
+    series: [
+      {
+        name: '余震数量',
+        data: [0, 0, 0],  // 初始数据
+        type: 'bar',
+        itemStyle: {
+          color: (params) => {
+            const colors = ['#2889ff', '#ffeb2f', '#ffa500'];
+            return colors[params.dataIndex];
           }
         },
-        minInterval: 1,
-      },
-      series: [
-        {
-          name: '余震数量',
-          data: chartData, // 使用转换后的数据数组
-          type: 'bar',
-          itemStyle: {
-            color: (params) => {
-              const colors = ['#2889ff', '#ffeb2f', '#ffa500'];
-              return colors[params.dataIndex];
-            }
-          },
-          label: {
-            show: true,
-            position: 'top',
-            color: '#fff',
-            fontSize: 16, // 增大标签字体大小
-          },
-        }
-      ]
-    };
-    myChart.setOption(option);
+        label: {
+          show: true,
+          position: 'top',
+          color: '#fff',
+          fontSize: 16,
+        },
+      }
+    ]
+  };
+  myChart.setOption(option);
+};
+
+// 获取最新余震数据
+const fetchAftershockData = async () => {
+  try {
+    const res = await aftershockSum();
+    updateChart(res); // 更新图表数据
   } catch (error) {
-    console.error('Error loading chart data:', error);
+    console.error('获取余震数据失败:', error);
   }
 };
 
-onMounted(() => {
-  initChart();
-});
+// 更新图表数据
+const updateChart = (res) => {
+  console.log('图表更新数据:', res);  // 打印传递给图表的数据
+  if (myChart) {
+    myChart.setOption({
+      series: [
+        {
+          data: [res.magnitude_3_0_to_3_9, res.magnitude_4_0_to_4_9, res.magnitude_5_0_to_5_9]
+        }
+      ]
+    });
+  }
+};
+
 </script>
 
 <style scoped>
