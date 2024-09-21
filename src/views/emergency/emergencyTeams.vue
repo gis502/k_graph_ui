@@ -27,6 +27,7 @@
               :prop="header.prop"
               :label="header.label"
               :width="header.width"
+              show-overflow-tooltip
           >
             <!-- 为表格单元格内容定义默认模板 -->
             <template #default="scope">
@@ -103,7 +104,7 @@ export default {
             { prop: 'mainResponsibilities', label: '主要职责', width: 150 },
             { prop: 'expertiseDescription', label: '专业描述', width: 150 },
             { prop: 'emergencyContactMethod', label: '应急联系方式', width: 150 },
-            { prop: 'estimatedPreparationTime', label: '预估准备时间', width: 150 },
+            { prop: 'estimatedPreparationTime', label: '预估准备时间', width: 180 },
             { prop: 'assemblyDepartureLocation', label: '集合出发地点', width: 150 },
             { prop: 'selfTransportation', label: '自备交通工具', width: 150 },
             { prop: 'longitude', label: '经度', width: 120 },

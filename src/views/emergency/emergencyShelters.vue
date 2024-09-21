@@ -27,6 +27,7 @@
               :prop="header.prop"
               :label="header.label"
               :width="header.width"
+              show-overflow-tooltip
           >
             <!-- 为表格单元格内容定义默认模板 -->
             <template #default="scope">
@@ -99,8 +100,8 @@ export default {
         { prop: 'administrativeDivision', label: '行政区划', width: 200 },
         { prop: 'address', label: '地址', width: 450 },
         { prop: 'emergencyMobile', label: '应急手机', width: 150 },
-        { prop: 'affiliatedOrganization', label: '隶属组织', width: 120 },
-        { prop: 'startUsingDate', label: '启用日期', width: 200 },
+        { prop: 'affiliatedOrganization', label: '隶属组织', width: 140 },
+        { prop: 'startUsingDate', label: '启用日期', width: 180 },
         { prop: 'designUsageYears', label: '设计使用年限', width: 120 },
         { prop: 'dataSourceUnit', label: '数据来源单位', width: 180 },
         { prop: 'longitude', label: '经度', width: 120 },
