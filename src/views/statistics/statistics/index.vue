@@ -19,7 +19,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-select
-            v-model="selectedComponent"
+            v-model="selectedComponentKey"
             placeholder="请选择模块"
             size="large"
             style="width: 240px"
@@ -46,20 +46,27 @@ import {ElMessage} from "element-plus";
 import {getField, getData} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
-import ResettlementGraph from "@/components/DisasterStatistics/ResettlementGraph.vue";
+import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
 
+// 选项数据
 const options = [
-  {label: '震情伤亡信息可视化', value: EarthquakeCasualties},
-  // { label: '交通电力通信信息可视化', value: 'DisasterStatistics' }
+  { label: '震情伤亡信息可视化', value: 'EarthquakeCasualties' },
+  { label: '交通电力通信信息可视化', value: 'TransportationElectricity' }
 ]
-// 当前选择的组件
-const selectedComponent = ref(EarthquakeCasualties)
-// 注册组件
+
+// 当前选择的组件标识符
+const selectedComponentKey = ref('EarthquakeCasualties')
+
+// 组件映射表
 const components = {
   EarthquakeCasualties,
-  // DisasterStatistics,
-
+  TransportationElectricity
 }
+
+// 动态获取选定的组件
+const selectedComponent = computed(() => {
+  return components[selectedComponentKey.value]
+})
 
 
 const flag = ref()
@@ -186,7 +193,7 @@ const clearSelection = () => {
 .style-container {
   width: 100%;
   height: calc(100vh - 50px);
-  background-image: url("@/assets/bg.png");
+  background-image: url("@/assets/bg1.png");
   background-size: 100% 100%;
   position: absolute;
 
@@ -197,26 +204,7 @@ const clearSelection = () => {
   height: calc(100vh - 90px);
 }
 
-.model1 {
-  width: 48%;
-  height: 40%;
-  position: relative;
-  text-align:center ;
-  float: right;
-  font-size: 20px;
-  margin: 10px;
-  color: #FFFFFF;
-}
 
-.model2 {
-  width: 100%;
-  height: 50%;
-  font-size: 25px;
-  position: relative;
-  float: left;
-  text-align: center;
-  color: #FFFFFF;
-}
 
 ::v-deep .el-transfer-panel {
   width: 38%; /* 调整宽度 */

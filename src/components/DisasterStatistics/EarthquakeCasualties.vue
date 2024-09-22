@@ -1,17 +1,17 @@
 <template>
-  <div class="app-container style-container">
+  <div class="style-container">
     <div class="container-center">
-      <dv-border-box-7 class="model1">转移安置信息统计
+      <dv-border-box-13 class="model1">转移安置信息统计
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
         <ResettlementGraph/>
-      </dv-border-box-7>
-      <dv-border-box-7 class="model1">人员伤亡信息统计<br>
+      </dv-border-box-13>
+      <dv-border-box-13 class="model1">人员伤亡信息统计<br>
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
         <DisasterStatistics/>
-      </dv-border-box-7>
-      <dv-border-box-10 class="model2">地震震情灾情信息统计
-        <div ref="chart" style="width:100%; height:270px;margin-top: 50px" vc ></div>
-      </dv-border-box-10>
+      </dv-border-box-13>
+      <dv-border-box-12 class="model2">地震震情灾情信息统计
+        <div ref="chart" style="width:100%; height:270px;margin-top: 30px" vc ></div>
+      </dv-border-box-12>
     </div>
   </div>
 </template>
@@ -131,7 +131,6 @@ const getTableField = () => {
     columns.value = generateColumnConfig();
     FieldName.value = name.value.filter(item =>  item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
-
     console.log(FieldName.value)
 
     // 初始化 ECharts 实例
@@ -353,9 +352,10 @@ const clearSelection = () => {
 .style-container {
   width: 100%;
   height: calc(100vh - 50px);
-  background-image: url("@/assets/bg.png");
+  background-image: url("@/assets/bg1.png");
   background-size: 100% 100%;
   position: absolute;
+  padding-right:40px;
 
 }
 
@@ -368,13 +368,13 @@ const clearSelection = () => {
   width: 48%;
   height: 40%;
   position: relative;
-  text-align:center ;
+  text-align: center;
   float: right;
   font-size: 20px;
   margin: 10px;
   color: #FFFFFF;
+  padding-top: 10px;
 }
-
 .model2 {
   width: 100%;
   height: 50%;
@@ -383,6 +383,7 @@ const clearSelection = () => {
   float: left;
   text-align: center;
   color: #FFFFFF;
+  padding-top:10px;
 }
 
 ::v-deep .el-transfer-panel {
