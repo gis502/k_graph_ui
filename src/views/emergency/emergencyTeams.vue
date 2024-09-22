@@ -1,9 +1,9 @@
 <template>
     <div class="app-container">
-      <el-form-item label="应急物资存储" >
+      <el-form-item label="应急救援队伍" >
         <el-input
             v-model="queryParams"
-            placeholder="请输入物资存储信息"
+            placeholder="请输入救援队伍信息"
             clearable
             style="width: 200px"
             @keyup.enter="handleQuery"
@@ -30,29 +30,29 @@
               show-overflow-tooltip
           >
             <!-- 为表格单元格内容定义默认模板 -->
-            <template #default="scope">
-              <!-- 对特定表头，使用Popover显示完整信息 -->
-              <div v-if="header.label === '地址'">
-                <el-popover placement="top" :width="200" trigger="hover">
-                  <div style="text-align: left">{{ scope.row[header.prop] }}</div>
-                  <!-- 定义触发Popover显示的参考元素 -->
-                  <template #reference>
-                    <div
-                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"
-                    >
-                      <!-- 在参考元素内显示截断的字段值 -->
-                      <span class="myNote" style="text-align: left">
-                                             {{ scope.row[header.prop] }}
-                                         </span>
-                    </div>
-                  </template>
-                </el-popover>
-              </div>
-              <!-- 对其他表头，直接显示字段值 -->
-              <div v-else>
-                {{ scope.row[header.prop] }}
-              </div>
-            </template>
+<!--            <template #default="scope">-->
+<!--              &lt;!&ndash; 对特定表头，使用Popover显示完整信息 &ndash;&gt;-->
+<!--              <div v-if="header.label === '地址'">-->
+<!--                <el-popover placement="top" :width="200" trigger="hover">-->
+<!--                  <div style="text-align: left">{{ scope.row[header.prop] }}</div>-->
+<!--                  &lt;!&ndash; 定义触发Popover显示的参考元素 &ndash;&gt;-->
+<!--                  <template #reference>-->
+<!--                    <div-->
+<!--                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"-->
+<!--                    >-->
+<!--                      &lt;!&ndash; 在参考元素内显示截断的字段值 &ndash;&gt;-->
+<!--                      <span class="myNote" style="text-align: left">-->
+<!--                                             {{ scope.row[header.prop] }}-->
+<!--                                         </span>-->
+<!--                    </div>-->
+<!--                  </template>-->
+<!--                </el-popover>-->
+<!--              </div>-->
+<!--              &lt;!&ndash; 对其他表头，直接显示字段值 &ndash;&gt;-->
+<!--              <div v-else>-->
+<!--                {{ scope.row[header.prop] }}-->
+<!--              </div>-->
+<!--            </template>-->
           </el-table-column>
 
             <el-table-column label="操作" align="center" width="150" fixed="right">
