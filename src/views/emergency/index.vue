@@ -467,8 +467,8 @@ export default {
         this.suppliesList.push(emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo);
 
         // 调用 `processPoints` 并传递不同的 `tableName`
-        this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "救灾物资储备");
-        this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefsuppliesLogo, "抢险救灾装备");
+        this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefsuppliesLogo, "救灾物资储备");
         this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
 
         this.fetSupplyPoints();
@@ -525,8 +525,8 @@ export default {
         properties: {
           tableName: tableName, // 动态传入的表名称
           ...element, // 将element对象展开，自动填充所有属性
-          lon: element.longitude,
-          lat: element.latitude
+          longitude: element.longitude,
+          latitude: element.latitude
         }
       });
     },
