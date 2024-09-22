@@ -3,21 +3,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref, } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import * as echarts from 'echarts';
-import {aftershockSum} from '/src/api/system/statistics.js'; // 确保路径正确
+import { getAftershockMagnitude } from "@/api/system/statistics.js";
 
 const chart2 = ref(null);
+const props = defineProps(['lastEq']);
 let myChart = null;
-
-onMounted(() => {
-  initChart();  // 初始化图表
-  fetchAftershockData();  // 获取最新余震数据
-});
 
 // 初始化图表
 const initChart = () => {
-  myChart = echarts.init(chart2.value);
+  if (!chart2.value) return;
+
+  myChart = echarts.init(chart2.value); // 初始化 ECharts
   const option = {
     tooltip: {
       trigger: 'axis'
@@ -39,7 +37,7 @@ const initChart = () => {
         },
         interval: 0,
       },
-      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级']
+      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级', '6级及以上']
     },
     yAxis: {
       type: 'value',
@@ -58,11 +56,11 @@ const initChart = () => {
     series: [
       {
         name: '余震数量',
-        data: [0, 0, 0],  // 初始数据
+        data: [0, 0, 0, 0], // 初始数据，后续用实际数据替换
         type: 'bar',
         itemStyle: {
           color: (params) => {
-            const colors = ['#2889ff', '#ffeb2f', '#ffa500'];
+            const colors = ['#2889ff', '#ffeb2f', '#ffa500', '#ff2f2f'];
             return colors[params.dataIndex];
           }
         },
@@ -75,33 +73,51 @@ const initChart = () => {
       }
     ]
   };
-  myChart.setOption(option);
-};
-
-// 获取最新余震数据
-const fetchAftershockData = async () => {
-  try {
-    const res = await aftershockSum();
-    updateChart(res); // 更新图表数据
-  } catch (error) {
-    console.error('获取余震数据失败:', error);
-  }
+  myChart.setOption(option); // 设置初始图表配置
 };
 
 // 更新图表数据
-const updateChart = (res) => {
-  console.log('图表更新数据:', res);  // 打印传递给图表的数据
+const updateChart = (data) => {
   if (myChart) {
     myChart.setOption({
       series: [
         {
-          data: [res.magnitude_3_0_to_3_9, res.magnitude_4_0_to_4_9, res.magnitude_5_0_to_5_9]
+          data: [
+            data.magnitude_3_0_to_3_9 || 0,
+            data.magnitude_4_0_to_4_9 || 0,
+            data.magnitude_5_0_to_5_9 || 0,
+            0
+          ],
         }
       ]
     });
   }
 };
 
+// 监听 eqid 的变化
+watch(() => props.lastEq, async (newEqid) => {
+  console.log('LastEq 内容:', props.lastEq);
+  if (!newEqid) {
+    console.warn('eqid is not available.'); // 如果没有 eqid，打印警告
+    return;
+  }
+  try {
+    // 发起请求，将 eqid 传递到后端获取数据
+    const response = await getAftershockMagnitude(newEqid); // 确保该方法接受 eqid
+    console.log('Received data:', response); // 打印从后端接收到的数据
+
+    // 更新图表数据
+    updateChart(response);
+  } catch (error) {
+    console.error('Failed to fetch aftershock data:', error);
+  }
+});
+
+
+// 组件挂载时初始化图表
+onMounted(() => {
+  initChart();
+});
 </script>
 
 <style scoped>
