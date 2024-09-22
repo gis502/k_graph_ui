@@ -29,11 +29,13 @@
                 </el-sub-menu>
                 <el-sub-menu index="2">
                     <template #title>物资匹配</template>
-                    <el-menu-item @click="searchSupplyDialog = true">匹配物资</el-menu-item>
-                    <el-menu-item index="2-2" @click="addDisasterPoint">添加受灾点</el-menu-item>
-                    <el-menu-item index="2-3" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
+                    <el-menu-item index="2-1" @click="addDisasterPoint">添加受灾点</el-menu-item>
+                    <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
+                    <el-menu-item index="2-3" @click="marchSupply">物资匹配</el-menu-item>
+                    <el-menu-item index="2-4" @click="searchSuppliesByRadius">半径查询</el-menu-item>
+                    <el-menu-item index="2-5" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
                 </el-sub-menu>
-                <el-menu-item index="3" @click="toggleTable">{{ toolValue }}</el-menu-item>
+                <el-menu-item index="4" @click="toggleTable">{{ toolValue }}</el-menu-item>
             </el-menu>
         </div>
         <el-table
@@ -127,33 +129,48 @@
       </div>
     </div>
 
-      <!--   物资匹配dialog   -->
-      <el-dialog v-model="searchSupplyDialog" title="物资匹配" width="500" class="marchSupply">
+    <!--   物资查询dialog   -->
+    <el-dialog v-model="searchSupplyDialog" title="物资查询" width="500" class="marchSupply">
+        <el-form :model="searchSupplyForm" label-width="80px">
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="区域">
+                        <el-input v-model="searchSupplyForm.country" autocomplete="off" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="地址">
+                        <el-input v-model="searchSupplyForm.address" autocomplete="off" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="联系人">
+                        <el-input v-model="searchSupplyForm.contactPerson" autocomplete="off" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="联系电话">
+                        <el-input v-model="searchSupplyForm.contactPhone" autocomplete="off" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+        </el-form>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="searchSupplyDialog = false">取消</el-button>
+                <el-button type="primary" @click="searchSupply">
+                    查询
+                </el-button>
+            </div>
+        </template>
+
+    </el-dialog>
+
+    <!--   物资匹配dialog   -->
+    <el-dialog v-model="marchSupplyDialog" title="物资匹配" width="500" class="marchSupply">
           <el-form :model="searchSupplyForm" label-width="80px">
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="区域">
-                          <el-input v-model="searchSupplyForm.country" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="地址">
-                          <el-input v-model="searchSupplyForm.address" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="联系人">
-                          <el-input v-model="searchSupplyForm.contactPerson" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="联系电话">
-                          <el-input v-model="searchSupplyForm.contactPhone" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
               <el-row>
                   <el-col :span="12">
                       <el-form-item label="帐篷">
@@ -194,18 +211,33 @@
                       </el-form-item>
                   </el-col>
               </el-row>
+          </el-form>
+          <template #footer>
+              <div class="dialog-footer">
+                  <el-button @click="marchSupplyDialog = false">取消</el-button>
+                  <el-button type="primary" @click="marchSupplies">
+                      查询
+                  </el-button>
+              </div>
+          </template>
+
+      </el-dialog>
+
+        <!--   半径查询Dialog   -->
+      <el-dialog v-model="searchSupplyByRadiusDialog" title="半径查询" width="400" class="marchSupply">
+          <el-form :model="searchSupplyForm" label-width="80px">
               <el-form-item label="匹配半径">
                   <el-input v-model="displayRadius"
                             @input="handleRadiusInput"
                             placeholder="请输入匹配的半径/km"
                             autocomplete="off"
-                            style="width: 155px;" />
+                            style="width: 180px;" />
               </el-form-item>
           </el-form>
           <template #footer>
               <div class="dialog-footer">
-                  <el-button @click="searchSupplyDialog = false">取消</el-button>
-                  <el-button type="primary" @click="search">
+                  <el-button @click="searchSupplyByRadiusDialog = false">取消</el-button>
+                  <el-button type="primary" @click="marchSuppliesByRadius">
                       查询
                   </el-button>
               </div>
@@ -265,8 +297,12 @@ export default {
       showIcon: [],
       tableVisible: true, // 显示表格
       isCollapsed: false, // 控制是否收缩
-      searchSupplyDialog: false, // 物资匹配dialog是否显示
+      searchSupplyDialog: false, // 物资查询dialog是否显示
+      marchSupplyDialog: false, // 物资匹配dialog是否显示
+      searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
+      ifDrawEllipse: false,
+      marchSupplyRadius: 0,
       toolValue: "隐藏数据列表",
       showSupply: "显示所有物资点",
       total: 0,
@@ -297,6 +333,7 @@ export default {
       DialogFormVisible: false,
       affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
       suppliesList: [],
+      supplyList: [],
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -467,7 +504,7 @@ export default {
       getEmergency().then(res => {
         let {disasterReserves, disasterSupplies, emergencyTeam} = res;
         // console.log('获取到的res', res);
-
+        this.supplyList = disasterReserves
         this.suppliesList.push(disasterReserves, disasterSupplies, emergencyTeam);
 
         // 调用 `processPoints` 并传递不同的 `tableName`
@@ -717,15 +754,22 @@ export default {
       this.initPlot()
     },
 
-    async search(){
+      // 物资查询
+    async searchSupply(){
+        let that = this;
+        viewer.entities.values.forEach((entity) => {
+            if (entity.ellipse) {
+                viewer.entities.remove(entity);
+            }
+        });
+        this.removePoints(that.showIcon);
+        this.removePoints(that.selectedSuppliesList);
         // 移除现有的点
         this.removePoints(this.suppliesList[0]);
         this.removePoints(this.suppliesList[1]);
         this.removePoints(this.suppliesList[2]);
         let result = []
-        let radiusResult = []
-        let countResult = false
-        let ifClean = true
+        this.ifDrawEllipse = false
         this.selectedSuppliesList = []
         // 字符串部分到后端查询
         let obj = {
@@ -739,100 +783,179 @@ export default {
             result = res
             this.selectedSuppliesList = result
         })
-        // 已添加受灾点
-        if(this.addSupplyPointCurrently.lat !== 0){
-            if(this.searchSupplyForm.radius <= 0){
-                // 没填半径，则从5公里往上递增来匹配目标数量物资
-                let i = 5.0
-                let flag = false
-                while (i < 15.0 && !flag){
-                    radiusResult = this.marchSupplyByRadius(result,i)
-                    countResult = this.marchSupplyByCount(radiusResult)
-                    // console.log("-------------------",countResult)
-                    if(countResult){
-                        flag = true
-                    }
-                    i++
-                }
-                if(flag){
-                    this.selectedSuppliesList = radiusResult
-                    await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
-                        confirmButtonText: '确认',
-                    });
-
-                }else{
-                    this.selectedSuppliesList = []
-                    // alert('未匹配到合适的物资。');
-                    await ElMessageBox.alert('未匹配到合适的物资。', '提示', {
-                        confirmButtonText: '确认',
-                    });
-                }
-                this.searchSupplyForm.radius = i - 1
-            }
-            else{
-                // 填了半径，匹配物资
-                countResult = this.marchSupplyByRadius(result,this.searchSupplyForm.radius)
-                // 填了物资目标数量，则再该半径范围内计算
-                let flag = false
-                flag = this.marchSupplyByCount(countResult)
-                if(flag){
-                    this.selectedSuppliesList = countResult
-                }else{
-                    this.selectedSuppliesList = []
-                }
-            }
-        }
-        // 未添加受灾点
-        else{
-            if(this.searchSupplyForm.radius !== 0
-                || this.searchSupplyForm.disasterTentsCount !== 0
-                || this.searchSupplyForm.raincoatsCount !== 0
-                || this.searchSupplyForm.rainBootsCount !== 0
-                || this.searchSupplyForm.flashlightsCount !== 0){
-                ifClean = false
-                await ElMessageBox.alert('请先添加受灾点。', '提示', {
-                    confirmButtonText: '确认',
-                });
-            }
-        }
-        // console.log("this.selectedSuppliesList-----------",this.selectedSuppliesList)
-        this.searchSupply("searchSupplies")
-        if(ifClean && this.selectedSuppliesList.length > 0){
-            this.searchSupplyForm = {
-                country: "",
-                address: "",
-                contactPerson: "",
-                contactPhone: "",
-                disasterTentsCount: 0,
-                raincoatsCount: 0,
-                rainBootsCount: 0,
-                flashlightsCount: 0,
-                radius: 0.0,
-            }
-        }
+        this.drawSupplyPoint('searchSupplies')
         this.searchSupplyDialog = false
     },
+
+    // 物资匹配------------------------
+    async marchSupply(){
+      if(this.addSupplyPointCurrently.lat === 0){
+          await ElMessageBox.alert('请先添加受灾点。', '提示', {
+              confirmButtonText: '确认',
+          });
+      }else{
+          this.marchSupplyDialog = true
+      }
+    },
+    async marchSupplies(){
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
+        let result = this.supplyList
+        let radiusResult = []
+        let countResult = false
+        this.selectedSuppliesList = []
+        // console.log("result-------------------",result)
+        let i = 1.0
+        let flag = false
+        while (i < 15.0 && !flag){
+            radiusResult = await this.marchSupplyByRadius(result,i)
+            // console.log("radiusResult-------------------",radiusResult)
+            countResult = this.marchSupplyByCount(radiusResult)
+            console.log("countResult-------------------", countResult);
+            if(countResult){
+                flag = true
+                this.marchSupplyRadius = i
+            }
+            i++
+        }
+        if(flag){
+            this.selectedSuppliesList = radiusResult
+            await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
+                confirmButtonText: '确认',
+            });
+            this.ifDrawEllipse = true
+            this.drawSupplyPoint("searchSupplies",this.marchSupplyRadius)
+        }else{
+            this.selectedSuppliesList = []
+            await ElMessageBox.alert('未匹配到合适的物资。', '提示', {
+                confirmButtonText: '确认',
+            });
+        }
+        // 移除现有的点
+        // this.removePoints(this.suppliesList[0]);
+        // this.removePoints(this.suppliesList[1]);
+        // this.removePoints(this.suppliesList[2]);
+        // let result = []
+        // let radiusResult = []
+        // let countResult = false
+        // let ifClean = true
+        //
+        // this.selectedSuppliesList = []
+        // // 已添加受灾点
+        // if(this.addSupplyPointCurrently.lat !== 0){
+        //     if(this.searchSupplyForm.radius <= 0){
+        //         // 没填半径，则从5公里往上递增来匹配目标数量物资
+        //         let i = 5.0
+        //         let flag = false
+        //         while (i < 15.0 && !flag){
+        //             radiusResult = this.marchSupplyByRadius(result,i)
+        //             countResult = this.marchSupplyByCount(radiusResult)
+        //             // console.log("-------------------",countResult)
+        //             if(countResult){
+        //                 flag = true
+        //             }
+        //             i++
+        //         }
+        //         if(flag){
+        //             this.selectedSuppliesList = radiusResult
+        //             await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
+        //                 confirmButtonText: '确认',
+        //             });
+        //
+        //         }else{
+        //             this.selectedSuppliesList = []
+        //             // alert('未匹配到合适的物资。');
+        //             await ElMessageBox.alert('未匹配到合适的物资。', '提示', {
+        //                 confirmButtonText: '确认',
+        //             });
+        //         }
+        //         this.searchSupplyForm.radius = i - 1
+        //     }
+        //     else{
+        //         // 填了半径，匹配物资
+        //         countResult = this.marchSupplyByRadius(result,this.searchSupplyForm.radius)
+        //         // 填了物资目标数量，则再该半径范围内计算
+        //         let flag = false
+        //         flag = this.marchSupplyByCount(countResult)
+        //         if(flag){
+        //             this.selectedSuppliesList = countResult
+        //         }else{
+        //             this.selectedSuppliesList = []
+        //         }
+        //     }
+        // }
+        // // 未添加受灾点
+        // else{
+        //     if(this.searchSupplyForm.radius !== 0
+        //         || this.searchSupplyForm.disasterTentsCount !== 0
+        //         || this.searchSupplyForm.raincoatsCount !== 0
+        //         || this.searchSupplyForm.rainBootsCount !== 0
+        //         || this.searchSupplyForm.flashlightsCount !== 0){
+        //         ifClean = false
+        //         await ElMessageBox.alert('请先添加受灾点。', '提示', {
+        //             confirmButtonText: '确认',
+        //         });
+        //     }
+        // }
+        // // console.log("this.selectedSuppliesList-----------",this.selectedSuppliesList)
+        // this.drawSupplyPoint("searchSupplies")
+        // if(ifClean && this.selectedSuppliesList.length > 0){
+        //     this.searchSupplyForm = {
+        //         country: "",
+        //         address: "",
+        //         contactPerson: "",
+        //         contactPhone: "",
+        //         disasterTentsCount: 0,
+        //         raincoatsCount: 0,
+        //         rainBootsCount: 0,
+        //         flashlightsCount: 0,
+        //         radius: 0.0,
+        //     }
+        // }
+        this.marchSupplyDialog = false
+    },
+
+    // 半径查询------------------------
+    async searchSuppliesByRadius(){
+        if(this.addSupplyPointCurrently.lat === 0){
+            await ElMessageBox.alert('请先添加受灾点。', '提示', {
+                confirmButtonText: '确认',
+            });
+        }else{
+            this.searchSupplyByRadiusDialog = true
+        }
+    },
+      async marchSuppliesByRadius(){
+          this.ifDrawEllipse = true
+        this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList,this.searchSupplyForm.radius)
+          this.drawSupplyPoint("searchSupplies",this.searchSupplyForm.radius)
+          this.searchSupplyByRadiusDialog = false
+      },
     // 通过半径匹配物资
-    marchSupplyByRadius(array,radius){
-      let result = []
-      let longitude = parseFloat(this.addSupplyPointCurrently.lng);
-      let latitude = parseFloat(this.addSupplyPointCurrently.lat);
-      const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-      array.forEach((point) => {
-          const pointLongitude = parseFloat(point.longitude);
-          const pointLatitude = parseFloat(point.latitude);
-          const initialPoint = Cesium.Cartesian3.fromDegrees(
-              pointLongitude,
-              pointLatitude
-          );
-          // 距离以公里为单位
-          const distance =
-              Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-          if (distance < radius) {
-              result.push(point);
-          }
-      });
-      return result
+    async marchSupplyByRadius(array,radius){
+        // 移除现有的点
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
+        let result = []
+        let longitude = parseFloat(this.addSupplyPointCurrently.lng);
+        let latitude = parseFloat(this.addSupplyPointCurrently.lat);
+        const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
+        array.forEach((point) => {
+            const pointLongitude = parseFloat(point.longitude);
+            const pointLatitude = parseFloat(point.latitude);
+            const initialPoint = Cesium.Cartesian3.fromDegrees(
+                pointLongitude,
+                pointLatitude
+            );
+            // 距离以公里为单位
+            const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+            if (distance < radius) {
+                result.push(point);
+            }
+        });
+        return result
     },
     // 通过目标数量匹配物资
     marchSupplyByCount(array){
@@ -841,26 +964,48 @@ export default {
         let rainBootsCount = 0
         let flashlightsCount = 0
         let flag = false
+        // let filteredArray = array.filter((ele) => {
+        //     if (this.searchSupplyForm.disasterTentsCount > 0 && ele.disasterTentsCount === 0) {
+        //         return false;
+        //     }
+        //     if (this.searchSupplyForm.raincoatsCount > 0 && ele.raincoatsCount === 0) {
+        //         return false;
+        //     }
+        //     if (this.searchSupplyForm.rainBootsCount > 0 && ele.rainBootsCount === 0) {
+        //         return false;
+        //     }
+        //     if (this.searchSupplyForm.flashlightsCount > 0 && ele.flashlightsCount === 0) {
+        //         return false;
+        //     }
+        //     return true;
+        // });
+        // console.log("filteredArray-------",filteredArray)
         array.forEach((ele) => {
-            disasterTentsCount += ele.disasterTentsCount
-            raincoatsCount += ele.raincoatsCount
-            rainBootsCount += ele.rainBootsCount
-            flashlightsCount += ele.flashlightsCount
-            if(disasterTentsCount >= this.searchSupplyForm.disasterTentsCount
+            disasterTentsCount += ele.disasterTentsCount;
+            raincoatsCount += ele.raincoatsCount;
+            rainBootsCount += ele.rainBootsCount;
+            flashlightsCount += ele.flashlightsCount;
+            if (disasterTentsCount >= this.searchSupplyForm.disasterTentsCount
                 && raincoatsCount >= this.searchSupplyForm.raincoatsCount
                 && rainBootsCount >= this.searchSupplyForm.rainBootsCount
-                && flashlightsCount >= this.searchSupplyForm.flashlightsCount){
-                flag = true
+                && flashlightsCount >= this.searchSupplyForm.flashlightsCount) {
+                flag = true;
             }
-        })
+        });
+        // if(flag){
+        //     return array
+        // }else{
+        //     return []
+        // }
         return flag
     },
-    searchSupply(param) {
+      drawSupplyPoint(param,radius) {
         this.total = this.selectedSuppliesList.length;
         this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
         this.removePoints(this.showIcon);
         this.showIcon = [];
         this.showIcon = this.selectedSuppliesList;
+          // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
         let reservesArr = [];
         let suppliesArr = []
         let emergencyTeamArr = []
@@ -882,17 +1027,16 @@ export default {
         this.processPoints(reservesArr, 'reserves', disasterReservesLogo, "救灾物资储备");
         this.processPoints(suppliesArr, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
         this.processPoints(emergencyTeamArr, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
-        if(this.addSupplyPointCurrently.lat !== 0){
-            this.selectPoints();
+        if(this.ifDrawEllipse){
+            this.selectPoints(radius);
         }
       // }
 
     },
     // 查询指定范围内的物资点
-    selectPoints() {
-      if (!isNaN(parseFloat(this.searchSupplyForm.radius))) {
-        // 确保 inputRadius 为数字类型  画圆的单位为m
-        const radius = parseFloat(this.searchSupplyForm.radius) * 1000;
+    selectPoints(radius) {
+      if (!isNaN(parseFloat(radius))) {
+        radius = parseFloat(radius) * 1000;
 
         // 将经纬度转换为 Cartesian3 类型
         const position = Cesium.Cartesian3.fromDegrees(
