@@ -8,7 +8,7 @@
         :position="popupPosition"
         :popupData="popupData"
     />
-    <div id="supplies" :class="{ collapsed: !tableVisible }">
+    <div id="supplies" :class="{ collapsed: !tableVisible }" style="width: 70%;">
       <el-form class="eqTable">
         <div style="margin-bottom: 10px; padding: 10px; width: 100%;">
             <el-menu

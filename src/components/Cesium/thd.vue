@@ -1,17 +1,17 @@
 <template>
   <div>
     <!--    地震列表切换-->
-<!--    <div class="eqlist-button">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
-<!--    </div>-->
+    <!--    <div class="eqlist-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
+    <!--    </div>-->
     <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
       <eqTable :eqData="tableData"/>
     </div>
 
     <!--   图层要素-->
-<!--    <div class="layer-button">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
-<!--    </div>-->
+    <!--    <div class="layer-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
+    <!--    </div>-->
     <div v-if="activeComponent === 'layerChoose'" class="dropdown">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
@@ -19,9 +19,9 @@
     </div>
 
     <!--    行政区划-->
-<!--    <div class="regionjump-button">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
-<!--    </div>-->
+    <!--    <div class="regionjump-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
+    <!--    </div>-->
     <div class="dropdown" v-if="activeComponent === 'Regionjump'">
       <div class="district-buttons">
         <div class="city-button">
@@ -40,44 +40,45 @@
     </div>
 
     <!--报告产出按钮-->
-<!--    <div class="button-container">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
-<!--    </div>-->
-<!--    <div class="thematic-button">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="">专题图下载</el-button>-->
-<!--    </div>-->
-<!--    <div class="back-button">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="backToHome">返回首页</el-button>-->
-<!--    </div>-->
+    <!--    <div class="button-container">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
+    <!--    </div>-->
+    <!--    <div class="thematic-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="">专题图下载</el-button>-->
+    <!--    </div>-->
+    <!--    <div class="back-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="backToHome">返回首页</el-button>-->
+    <!--    </div>-->
 
 
     <!--    title-->
     <div class="eqtitle">
-      <span class="eqtitle-text_eqname">{{this.eqyear}}年{{this.eqmonth}}月{{this.eqday}}日{{this.centerPoint.position}}{{this.centerPoint.magnitude}}级地震</span>
+      <span
+          class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日{{ this.centerPoint.position }}{{ this.centerPoint.magnitude }}级地震</span>
     </div>
     <!--    title end-->
 
-      <div>
-          <el-menu
-                  class="el-menu-vertical-demo"
-                  mode="horizontal"
-                  background-color="#293038"
-                  text-color="#fff"
-                  active-text-color="#537BB7FF"
-                  style="position: absolute;
+    <div>
+      <el-menu
+          class="el-menu-vertical-demo"
+          mode="horizontal"
+          background-color="#293038"
+          text-color="#fff"
+          active-text-color="#537BB7FF"
+          style="position: absolute;
                   top: 4.3%;z-index: 20;
                   height: 45px;width: 400px;
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
-          >
-              <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
-              <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
-              <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-              <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
-              <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
-              <el-menu-item index="6">返回首页</el-menu-item>
-          </el-menu>
-      </div>
+      >
+        <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
+        <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
+        <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
+        <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
+        <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
+        <el-menu-item index="6">返回首页</el-menu-item>
+      </el-menu>
+    </div>
 
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
@@ -101,12 +102,12 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
-        <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward" />
+        <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
         <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
              @click="toggleTimer"/>
         <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
              @click="toggleTimer"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward" />
+        <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
       </div>
 
       <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
@@ -116,7 +117,7 @@
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <span class="speedButton">{{speedOption}}</span>
+        <span class="speedButton">{{ speedOption }}</span>
         <div class="chooseSpeed">
           <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
             {{ option }}
@@ -181,15 +182,15 @@
     <!--    两侧组件 end-->
 
 
-      <!--   行政区划要素图层图例   -->
-      <div id="legend"
-           style="display: none;position: absolute;
+    <!--   行政区划要素图层图例   -->
+    <div id="legend"
+         style="display: none;position: absolute;
            z-index:20; bottom: 100px;
            right: 450px; color: #FFFFFF;
            background-color: rgba(0, 0, 0, 0.5);
            padding: 10px; border-radius: 5px;text-align: center;">
-          <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>
-      </div>
+      <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>
+    </div>
 
   </div>
 </template>
@@ -220,7 +221,7 @@ import eqTable from '@/components/Home/eqtable.vue'
 import geojsonmap from '@/assets/geoJson/map.json'
 import yaan from '@/assets/geoJson/yaan.json'
 import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
-import { TianDiTuToken } from "@/cesium/tool/config";
+import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import disasterReservesLogo from '@/assets/images/disasterReservesLogo.jpg';
 import emergencyTeamLogo from '@/assets/images/emergencyTeamLogo.png';
@@ -246,11 +247,11 @@ export default {
 // -----------弹窗们的状态变量-------------
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
-      routerPopupPosition: { x: 0, y: 0 }, // RouterPanel弹窗的位置
+      routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
       routerPopupData: {}, // RouterPanel弹窗的数据
 
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
-      timelinePopupPosition: { x: 0, y: 0 }, // TimeLinePanel弹窗的位置
+      timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
       timelinePopupData: {}, // TimeLinePanel弹窗的数据
       //----------------------------------
       eqid: '',
@@ -288,20 +289,20 @@ export default {
       //时间轴时间
       // ifShowData: false,
       // timelineTotalDurationMinutes:10380,
-      timelineAdvancesNumber:2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
+      timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
       eqstartTime: '',
       currentTime: '',
       eqendTime: '',
-      tmpeqendTime:'',//默认的地震结束时间
-      realTime:new Date(),
+      tmpeqendTime: '',//默认的地震结束时间
+      realTime: new Date(),
       //时间轴当前进度条节点位置
       // currentTimePosition: 0,
       currentTimePosition: 100,
       //时间轴当前前进步
       currentNodeIndex: 2076,
-      realtimeinterval:null,
+      realtimeinterval: null,
       intervalId: null,
-      eqendtimeinterval:null,
+      eqendtimeinterval: null,
       // 倍速
       currentSpeed: 1,
       showSpeedOptions: false,
@@ -356,13 +357,13 @@ export default {
       activeComponent: null,
       //-----------------图层要素---------------------
       layeritems: [
-        { id: '0', name: '标绘点图层' },
-        { id: '1', name: '行政区划要素图层' },
-        { id: '2', name: '人口密度要素图层' },
-        { id: '3', name: '交通网络要素图层' },
-        { id: '4', name: '避难场所要素图层' },
-        { id: '5', name: '救援队伍分布要素图层' },
-        { id: '6', name: '应急物资存储要素图层' },
+        {id: '0', name: '标绘点图层'},
+        {id: '1', name: '行政区划要素图层'},
+        {id: '2', name: '人口密度要素图层'},
+        {id: '3', name: '交通网络要素图层'},
+        {id: '4', name: '避难场所要素图层'},
+        {id: '5', name: '救援队伍分布要素图层'},
+        {id: '6', name: '应急物资存储要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
       isMarkingLayerLocal: false,
@@ -425,9 +426,33 @@ export default {
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
 
+      //经纬度查询
+      let that = this
+
+      let canvas = viewer.scene.canvas;
+      //具体事件的实现
+      let ellipsoid = viewer.scene.globe.ellipsoid;
+      let handler = new Cesium.ScreenSpaceEventHandler(canvas);
+      handler.setInputAction(function (movement) {
+        //捕获椭球体，将笛卡尔二维平面坐标转为椭球体的笛卡尔三维坐标，返回球体表面的点
+        let cartesian = viewer.camera.pickEllipsoid(movement.position, ellipsoid);
+        if (cartesian) {
+          //将笛卡尔三维坐标转为地图坐标（弧度）
+          let cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+          //将地图坐标（弧度）转为十进制的度数
+          let latString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+          let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+          // 获取相机的海拔高度作为视角高度/km
+          let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
+          console.log(latString);
+          console.log(logString);
+          console.log(altiString);
+          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude),Cesium.Math.toDegrees(cartographic.latitude))
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
 
       // 创建缩略图视图器实例
-      let that = this
       let smallMapContainer = document.getElementById('smallMapContainer');
       that.smallViewer = new Cesium.Viewer(smallMapContainer, {
         // 隐藏所有控件
@@ -485,7 +510,7 @@ export default {
         this.centerPoint.starttime = new Date(res.time)
         // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
         //默认结束时间（设置得大一点，防止按时间渲染随时间长度更新消失了）10天
-        this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + 10*24*36000*1000);
+        this.centerPoint.endtime = new Date(this.centerPoint.starttime.getTime() + 10 * 24 * 36000 * 1000);
         // console.log(this.centerPoint.starttime,this.centerPoint.endtime,this.timelineAdvancesNumber)
         //变量初始化
         this.eqstartTime = this.centerPoint.starttime
@@ -494,16 +519,15 @@ export default {
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
         //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        this.tmpeqendTime=new Date(this.centerPoint.starttime.getTime() + 2076*5*60*1000);
+        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + 2076 * 5 * 60 * 1000);
         // this.realTime = new Date(); //真实时间
         //
-        if(this.realTime< this.tmpeqendTime) {
-          this.eqendTime=new Date(this.realTime)
-          this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-          this.currentNodeIndex=this.timelineAdvancesNumber
-        }
-        else{
-          this.eqendTime=this.tmpeqendTime
+        if (this.realTime < this.tmpeqendTime) {
+          this.eqendTime = new Date(this.realTime)
+          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+          this.currentNodeIndex = this.timelineAdvancesNumber
+        } else {
+          this.eqendTime = this.tmpeqendTime
         }
         this.currentTime = this.eqendTime
         this.updateMapandVariablebeforInit()
@@ -562,6 +586,11 @@ export default {
           image: centerstar,
           width: 40,
           height: 40,
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.position,
@@ -570,6 +599,8 @@ export default {
           fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
         },
@@ -589,8 +620,13 @@ export default {
         ),
         billboard: {
           image: centerstar,
-          width: 30,
-          height: 30,
+          width: 40,
+          height: 40,
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.position,
@@ -598,6 +634,8 @@ export default {
           font: '10px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
@@ -635,10 +673,10 @@ export default {
     //   }
     // },
 
-    intimexuanran(eqid){
+    intimexuanran(eqid) {
       //5分钟一次
-      if(this.realTime< this.tmpeqendTime) {
-        if(!this.isTimerRunning&&this.currentTimePosition===100){
+      if (this.realTime < this.tmpeqendTime) {
+        if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // console.log("gengxin")
           // 检查是否已经有定时器在运行
           if (!this.realtimeinterval) {
@@ -674,8 +712,8 @@ export default {
                 // this.isTimerRunning = false; // 更新状态
                 return; // 跳出当前循环
               }
-              this.eqendTime=new Date()
-              this.currentTime=this.eqendTime
+              this.eqendTime = new Date()
+              this.currentTime = this.eqendTime
               // this.
             }, 1000);
           }
@@ -684,7 +722,7 @@ export default {
     },
 
 // xuanran 方法
-    xuanran(eqid){
+    xuanran(eqid) {
       this.getPlotwithStartandEndTime(eqid)
       this.intimexuanran(eqid)
       //定时向数据库请求 每分钟请求一次
@@ -744,7 +782,7 @@ export default {
 
 
         //更新数组信息（包括点的起止时间、属性信息） （改）
-        this.plots=res
+        this.plots = res
         this.plots.forEach(item => {
           if (!item.endtime) {
             // item.endtime = new Date(this.eqendTime.getTime() + 5000);
@@ -900,8 +938,14 @@ export default {
             ),
             billboard: {
               image: item.img,
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
+              eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+              color: Cesium.Color.WHITE.withAlpha(1),
+              scale: 0.8,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              depthTest: false,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
             },
             // label: {
             //   text: item.pointname,
@@ -985,7 +1029,7 @@ export default {
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime
-        this.currentNodeIndex=0
+        this.currentNodeIndex = 0
       }
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
@@ -994,7 +1038,7 @@ export default {
     //updateCurrentTime 循环执行
     updateCurrentTime() {
       this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-      let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次前进
+      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
 
       //播放一遍完成（停止，如果计算结果超过，设为最大值）
@@ -1015,8 +1059,7 @@ export default {
         //图层控制 是否显示标绘点（时间轴仍然需要往前）
         if (this.isMarkingLayer) {
           this.updatePlot()
-        }
-        else {
+        } else {
           this.MarkingLayerRemove()
         }
         // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
@@ -1040,7 +1083,7 @@ export default {
     // 前进
     forward() {
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
-      let tmp = 100.0 / (this.timelineAdvancesNumber*1.0)* this.currentSpeed //进度条每次前进
+      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
       this.currentTimePosition += tmp;
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
@@ -1059,9 +1102,9 @@ export default {
       // console.log("========================",this.currentTime)
     },
     // 后退
-    backward(){
+    backward() {
       this.currentNodeIndex = (this.currentNodeIndex - 1) % this.timelineAdvancesNumber
-      let tmp = 100.0 / (this.timelineAdvancesNumber*1.0) * this.currentSpeed //进度条每次后退
+      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次后退
       this.currentTimePosition -= tmp;
       if (this.currentTimePosition <= 0) {
         this.currentTimePosition = 0;
@@ -1095,8 +1138,7 @@ export default {
         this.isTimerRunning = false
         this.intimexuanran(this.eqid)
         // this.xuanran(this.eqid)
-      }
-      else{
+      } else {
         //点击前运行状态
         this.updatePlot();
       }
@@ -1137,8 +1179,7 @@ export default {
         // this.isTimerRunning = false
         // this.xuanran(this.eqid)
         this.intimexuanran(this.eqid)
-      }
-      else{
+      } else {
         //点击前运行状态
         this.updatePlot();
       }
@@ -1378,7 +1419,7 @@ export default {
       link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
       link.click();
     },
-    backToHome(){
+    backToHome() {
 
     },
 
@@ -1457,7 +1498,7 @@ export default {
         }).catch((error) => {
           console.error("加载GeoJSON数据失败:", error);
         });
-      }else {
+      } else {
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
           stroke: Cesium.Color.TRANSPARENT,
           fill: Cesium.Color.TRANSPARENT,
@@ -1473,7 +1514,7 @@ export default {
           console.error("加载GeoJSON数据失败:", error);
         });
       }
-      let labelData =  { lon: 103.003398, lat: 29.981831, name: "雅安市" };
+      let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
       let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
       let labelEntity = viewer.entities.add(new Cesium.Entity({
         position: position,
@@ -1543,23 +1584,23 @@ export default {
       }
     },
     removethdRegions() {
-      if(window.regionLayer111){
+      if (window.regionLayer111) {
         window.viewer.dataSources.remove(window.regionLayer111, true); // 强制移除
         window.regionLayer111 = null; // 清空引用
         // console.log("图层已移除");
       }
       const legend = document.getElementById('legend');
       while (legend.firstChild) {
-          legend.removeChild(legend.firstChild);
+        legend.removeChild(legend.firstChild);
       }
       this.labels.forEach(label => {
         window.viewer.entities.remove(label);
       });
       this.labels = [];  // 清空标签引用数组
     },
-    backcenter(){
+    backcenter() {
       this.removethdRegions()
-      const position= Cesium.Cartesian3.fromDegrees(
+      const position = Cesium.Cartesian3.fromDegrees(
           parseFloat(this.centerPoint.longitude),
           parseFloat(this.centerPoint.latitude),
           120000,
@@ -1572,7 +1613,7 @@ export default {
     // 图层要素
     initPlot() {
       getFeaturesLayer().then(res => {
-        let { disasterReserves, emergencyTeam, emergencyShelters } = res;
+        let {disasterReserves, emergencyTeam, emergencyShelters} = res;
         this.disasterReserves = disasterReserves;
         this.emergencyTeam = emergencyTeam;
         this.emergencyShelters = emergencyShelters;
@@ -1600,6 +1641,14 @@ export default {
       } else {
         this.removethdRegions();
         this.removeDataSourcesLayer('YaanRegionLayer');
+      }
+
+      // 人口密度要素图层
+      const hasPopLayer = this.selectedlayersLocal.includes('人口密度要素图层');
+      if (hasPopLayer) {
+        this.addPopLayer();
+      } else {
+        this.removeImageryLayer('PopLayer');
       }
 
       // 交通网络要素图层
@@ -1636,16 +1685,15 @@ export default {
       }
 
       //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
-      if((this.selectedlayersLocal.length==1 && hasDrawingLayer)|| this.selectedlayersLocal.length==0 ){
-        const position= Cesium.Cartesian3.fromDegrees(
+      if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
+        const position = Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
             120000,
         );
         viewer.camera.flyTo({destination: position,})
-      }
-      else{
-        const position= Cesium.Cartesian3.fromDegrees(
+      } else {
+        const position = Cesium.Cartesian3.fromDegrees(
             103.0,
             29.98,
             500000,
@@ -1673,7 +1721,7 @@ export default {
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.id}的实体的坐标无效或超出范围`, { longitude, latitude });
+          console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
 
@@ -1725,81 +1773,98 @@ export default {
       return false;
     },
 
-      addYaanRegion() {
-          if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
-              let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-                  stroke: Cesium.Color.RED,
-                  fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-                  strokeWidth: 4,
-              });
+    addYaanRegion() {
+      if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          strokeWidth: 4,
+        });
 
-              geoPromise.then((dataSource) => {
-                  window.viewer.dataSources.add(dataSource);
-                  dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
+        geoPromise.then((dataSource) => {
+          window.viewer.dataSources.add(dataSource);
+          dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
 
-                  const colors = [
-                      { color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区' },
-                      { color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区' },
-                      { color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区' },
-                      { color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县' },
-                      { color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县' },
-                      { color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县' },
-                      { color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县' },
-                      { color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县' },
-                      { color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县' },
-                  ];
-                  dataSource.entities.values.forEach((entity, index) => {
-                      // 根据实体索引依次从颜色数组中取颜色
+          const colors = [
+            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+            {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+            {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+            {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+            {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+            {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+            {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+            {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+          ];
+          dataSource.entities.values.forEach((entity, index) => {
+            // 根据实体索引依次从颜色数组中取颜色
 
-                      const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-                      const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
-                      entity.polygon.material = colorMaterial; // 设置填充颜色
-                      console.log("--------",index,"----------------",entity)
+            const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
+            const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
+            entity.polygon.material = colorMaterial; // 设置填充颜色
+            console.log("--------", index, "----------------", entity)
 
-                  });
-                  console.log("dataSource--------------",dataSource.entities.values.length)
+          });
+          console.log("dataSource--------------", dataSource.entities.values.length)
 
-                  // 生成图例
-                  const legend = document.getElementById('legend');
-                  legend.style.display = 'block';
-                  colors.forEach((colorItem,index) => {
-                      if(index > 0){
-                          const colorBox = document.createElement('div');
-                          colorBox.style.display = 'flex';
-                          colorBox.style.alignItems = 'center';
-                          colorBox.style.marginBottom = '5px';
+          // 生成图例
+          const legend = document.getElementById('legend');
+          legend.style.display = 'block';
+          colors.forEach((colorItem, index) => {
+            if (index > 0) {
+              const colorBox = document.createElement('div');
+              colorBox.style.display = 'flex';
+              colorBox.style.alignItems = 'center';
+              colorBox.style.marginBottom = '5px';
 
-                          // 创建颜色方块
-                          const colorSquare = document.createElement('div');
-                          colorSquare.style.width = '20px';
-                          colorSquare.style.height = '20px';
-                          colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
-                          colorSquare.style.marginRight = '10px';
+              // 创建颜色方块
+              const colorSquare = document.createElement('div');
+              colorSquare.style.width = '20px';
+              colorSquare.style.height = '20px';
+              colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
+              colorSquare.style.marginRight = '10px';
 
-                          // 创建颜色名称标签
-                          const colorLabel = document.createElement('span');
-                          colorLabel.textContent = colorItem.name;
+              // 创建颜色名称标签
+              const colorLabel = document.createElement('span');
+              colorLabel.textContent = colorItem.name;
 
-                          // 将颜色方块和名称加入到图例中
-                          colorBox.appendChild(colorSquare);
-                          colorBox.appendChild(colorLabel);
-                          legend.appendChild(colorBox);
-                      }
+              // 将颜色方块和名称加入到图例中
+              colorBox.appendChild(colorSquare);
+              colorBox.appendChild(colorLabel);
+              legend.appendChild(colorBox);
+            }
 
-                  });
-              }).catch((error) => {
-                  console.error("加载GeoJSON数据失败:", error);
-              });
-          }
-      },
+          });
+        }).catch((error) => {
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      }
+    },
+
+    addPopLayer() {
+      let popLayerexists = this.imageryLayersExists('PopLayer')
+      if (!popLayerexists) {
+        let popLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapServiceImageryProvider({
+              url: 'http://10.16.7.69:9080/geoserver/yaan/wms',
+              layers: 'yaan:pop',
+              parameters: {
+                service: 'WMS',
+                format: 'image/png',
+                transparent: true
+              }
+            })
+        );
+        popLayer.name = "PopLayer"; // 设置名称
+      }
+    },
 
 
-
-      addTrafficLayer(){
-      let token=TianDiTuToken;
-      let trafficLayerexists=this.imageryLayersExists('TrafficLayer')
-      if(!trafficLayerexists){
-        let trafficLayer=viewer.imageryLayers.addImageryProvider(
+    addTrafficLayer() {
+      let token = TianDiTuToken;
+      let trafficLayerexists = this.imageryLayersExists('TrafficLayer')
+      if (!trafficLayerexists) {
+        let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               url:
                   "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
@@ -1813,8 +1878,8 @@ export default {
         trafficLayer.name = "TrafficLayer"; // 设置名称
       }
 
-      let trafficTxtLayerExists=this.imageryLayersExists('TrafficTxtLayer')
-      if(!trafficTxtLayerExists) {
+      let trafficTxtLayerExists = this.imageryLayersExists('TrafficTxtLayer')
+      if (!trafficTxtLayerExists) {
         //影像注记
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
@@ -1848,7 +1913,7 @@ export default {
       }
     },
     //标绘图层清除-->
-    MarkingLayerRemove(){
+    MarkingLayerRemove() {
       this.plots.forEach(item => {
         const entity = viewer.entities.getById(item.plotid);
         if (entity) {
@@ -1874,6 +1939,29 @@ export default {
         }
       }
     },
+
+
+    //人口密度灰度查询
+    getPopDesity(longitude,latitude){
+      const url="http://10.16.7.69:9080/geoserver/yaan/wms"
+      const bboxSize = 0.001
+      const urlParams = new URLSearchParams({
+        service: 'WMS',
+        request: 'GetFeatureInfo',
+        version: '1.1.1',
+        layers: "yaan:pop",
+        query_layers: "yaan:pop",
+        bbox: `${longitude - bboxSize},${latitude - bboxSize},${longitude + bboxSize},${latitude + bboxSize}`,
+        width: 101,
+        height: 101,
+        info_format: 'application/json',
+        x: 50,
+        y: 50,
+        srs:'EPSG:4326',
+      })
+      const fullUrl = `${url}?${urlParams.toString()}`;
+      console.log('GetFeatureInfo URL:', fullUrl);
+    }
   }
 }
 </script>
@@ -2065,12 +2153,14 @@ export default {
   top: 6.3%;
   left: 20%;
 }
-.back-button{
+
+.back-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   right: 21%;
 }
+
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -2159,23 +2249,25 @@ export default {
   grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
   gap: 8px; /* 列间距 */
 }
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
-  color:#FFFFFF;
+  color: #FFFFFF;
 }
+
 /* 覆盖 el-tooltip 的宽度 */
 .el-tooltip__popper {
-    min-width: 150px;  /* 设置下拉框的最小宽度 */
-    max-width: 200px;  /* 设置下拉框的最大宽度 */
+  min-width: 150px; /* 设置下拉框的最小宽度 */
+  max-width: 200px; /* 设置下拉框的最大宽度 */
 }
 
 /* 如果要针对特定的菜单项，可以通过更具体的选择器进行控制 */
 .el-menu-item[data-index="5"] .el-tooltip__popper {
-    width: 100px;  /* 专题图下载的下拉框宽度 */
+  width: 100px; /* 专题图下载的下拉框宽度 */
 }
 
 .el-menu-item[data-index="6"] .el-tooltip__popper {
-    width: 200px;  /* 返回首页的下拉框宽度 */
+  width: 200px; /* 返回首页的下拉框宽度 */
 }
 
 
