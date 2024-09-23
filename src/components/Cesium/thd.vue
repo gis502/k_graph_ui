@@ -226,7 +226,7 @@ import disasterReservesLogo from '@/assets/images/disasterReservesLogo.jpg';
 import emergencyTeamLogo from '@/assets/images/emergencyTeamLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-
+// import {getPersonDes} from "@/api/system/damageassessment.js";
 export default {
   components: {
     RouterPanel,
@@ -608,33 +608,12 @@ export default {
 
       this.xuanran(this.eqid)
     },
-    //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
-    // xuanran(eqid){
-    //   this.getPlotwithStartandEndTime(eqid)
-    //   //定时向数据库请求 每分钟请求一次
-    //   if(this.realTime< this.tmpeqendTime) {
-    //     if(!this.isTimerRunning&&this.currentTimePosition===100){
-    //       console.log("gengxin")
-    //       this.realtimeinterval = setInterval(() => {
-    //         if (this.currentTimePosition !== 100) {
-    //           clearInterval(this.realtimeinterval); // 停止定时器
-    //           this.realtimeinterval = null; // 清除引用
-    //           // this.isTimerRunning = false; // 更新状态
-    //           return; // 跳出当前循环
-    //         }
-    //         //更新开始结束当前时间，时间轴进度条位置，节点数量
-    //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-    //         this.eqendTime=new Date()
-    //         this.currentTime=this.eqendTime
-    //         this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-    //         this.currentNodeIndex=this.timelineAdvancesNumber
-    //         console.log(this.currentNodeIndex,"xuanran this.currentNodeIndex")
-    //         // this.
-    //       }, 5000);
-    //     }
-    //   }
-    // },
 
+    // xuanran 方法
+    xuanran(eqid){
+      this.getPlotwithStartandEndTime(eqid)  //拿渲染点数据
+      this.intimexuanran(eqid)  //定时向数据库请求 每分钟请求一次
+    },
     intimexuanran(eqid){
       //5分钟一次
       if(this.realTime< this.tmpeqendTime) {
@@ -665,7 +644,6 @@ export default {
 
           //当前时间每秒更新
           if (!this.eqendtimeinterval) {
-
             // console.log("!this.eqendtimeinterval")
             this.eqendtimeinterval = setInterval(() => {
               if (this.currentTimePosition !== 100) {
@@ -682,41 +660,6 @@ export default {
         }
       }
     },
-
-// xuanran 方法
-    xuanran(eqid){
-      this.getPlotwithStartandEndTime(eqid)
-      this.intimexuanran(eqid)
-      //定时向数据库请求 每分钟请求一次
-      // if(this.realTime< this.tmpeqendTime) {
-      //   if(!this.isTimerRunning&&this.currentTimePosition===100){
-      //     console.log("gengxin")
-      //     // 检查是否已经有定时器在运行
-      //     if (!this.realtimeinterval) {
-      //
-      //       console.log("!this.realtimeinterval")
-      //       this.realtimeinterval = setInterval(() => {
-      //         if (this.currentTimePosition !== 100) {
-      //           clearInterval(this.realtimeinterval); // 停止定时器
-      //           this.realtimeinterval = null; // 清除引用
-      //           // this.isTimerRunning = false; // 更新状态
-      //           return; // 跳出当前循环
-      //         }
-      //         //更新开始结束当前时间，时间轴进度条位置，节点数量
-      //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-      //         this.eqendTime = new Date()
-      //         this.currentTime = this.eqendTime
-      //         this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-      //         this.currentNodeIndex = this.timelineAdvancesNumber
-      //         console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
-      //         // this.
-      //       }, 5000);
-      //     }
-      //   }
-      // }
-
-    },
-
 
     //取标绘点
     getPlotwithStartandEndTime(eqid) {
@@ -934,6 +877,7 @@ export default {
 
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
           this.plotisshow[item.plotid] = 1
+          console.log("item",item)
           this.drawPolyline(item)
         }
         //消失
@@ -1581,7 +1525,6 @@ export default {
     },
 
     updateMapLayers() {
-
       // 标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
@@ -1601,7 +1544,14 @@ export default {
         this.removethdRegions();
         this.removeDataSourcesLayer('YaanRegionLayer');
       }
+      //人口密度要素图层
+      const hasPersonDesLayer = this.selectedlayersLocal.includes('人口密度要素图层');
+      if (hasPersonDesLayer) {
+        // this.removethdRegions();
+        this.addPersonDesLayer();
+      } else {
 
+      }
       // 交通网络要素图层
       const hasTrafficLayer = this.selectedlayersLocal.includes('交通网络要素图层');
       if (hasTrafficLayer) {
@@ -1635,7 +1585,7 @@ export default {
         this.removeEntitiesByType('emergencyShelters');
       }
 
-      //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
+      //视角跳转 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
       if((this.selectedlayersLocal.length==1 && hasDrawingLayer)|| this.selectedlayersLocal.length==0 ){
         const position= Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
@@ -1652,6 +1602,7 @@ export default {
         );
         viewer.camera.flyTo({destination: position,})
       }
+      //视角跳转 end
 
     },
 
@@ -1725,8 +1676,8 @@ export default {
       return false;
     },
 
-      addYaanRegion() {
-          if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
+    addYaanRegion() {
+      if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
               let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
                   stroke: Cesium.Color.RED,
                   fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
@@ -1791,11 +1742,19 @@ export default {
                   console.error("加载GeoJSON数据失败:", error);
               });
           }
-      },
-
-
-
-      addTrafficLayer(){
+    },
+    addPersonDesLayer(){
+      console.log("addPersonDesLayer 占位")
+      // getPersonDes().then(res => {
+      //   console.log(res)
+      //   // let { disasterReserves, emergencyTeam, emergencyShelters } = res;
+      //   // this.disasterReserves = disasterReserves;
+      //   // this.emergencyTeam = emergencyTeam;
+      //   // this.emergencyShelters = emergencyShelters;
+      //   // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
+      // });
+    },
+    addTrafficLayer(){
       let token=TianDiTuToken;
       let trafficLayerexists=this.imageryLayersExists('TrafficLayer')
       if(!trafficLayerexists){
@@ -1831,7 +1790,6 @@ export default {
         traffictxtLayer.name = "TrafficTxtLayer"
       }
     },
-
     removeImageryLayer(layerName) {
       const layers = window.viewer.imageryLayers;
       for (let i = 0; i < layers.length; i++) {

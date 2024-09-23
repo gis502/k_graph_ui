@@ -147,12 +147,13 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {getAllEq} from "@/api/system/eqlist";
+import {addEq, getAllEq, getEqbyId} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
+import {saveIntensityCircle} from "@/api/system/damageassessment.js";
 import sichuan from "@/assets/geoJson/sichuan.json";
 export default {
   components: {
@@ -185,6 +186,7 @@ export default {
       faultzonelines:[], //断裂带线
       isshowOvalCircle:false, //烈度圈显示隐藏
       OvalCirclelayer:[],
+      // ishadsaveCirclelayer:false,//标记是否已经存入数据库
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -860,6 +862,118 @@ export default {
       }
     },
     //烈度圈------------------------------------------------------------------
+    //存储烈度圈
+    //geom字符串
+    buildCurvePolygonString(outlinepoints,inlinepoints) {
+      let curvePolygonString=''
+    // 构建CIRCULARSTRING部分
+    let outline = 'CIRCULARSTRING(';
+      outlinepoints.forEach((point, index) => {
+        outline += `${point.longitude} ${point.latitude}`;
+      if (index < outlinepoints.length - 1) {
+        outline += ', ';
+      }
+    });
+    outline += ')';
+    //最高烈度没有内环
+    if(inlinepoints.length==0){
+      // 组合成最终的CURVEPOLYGON字符串
+      curvePolygonString = `CURVEPOLYGON(${outline})`;
+    }
+    else{
+        let inline = '(';
+        inlinepoints.forEach((point, index) => {
+          inline += `${point.longitude} ${point.latitude}`;
+          if (index < inlinepoints.length - 1) {
+            inline += ', ';
+          }
+        });
+        inline += ')';
+        // 组合成最终的CURVEPOLYGON字符串
+        curvePolygonString = `CURVEPOLYGON(${outline}, ${inline})`;
+    }
+    return curvePolygonString;
+    },
+    //1个烈度
+    computecircle(majorAxis,minorAxis,rotationAngle,intensity,lastlong,lastshort, lastrotationAngle){
+      let IntensityCircle={
+        eqid:this.selectedTabData.eqid,
+        intensity:intensity,
+        geom:'',
+      };
+
+      //外环
+      // // 将角度转换为弧度
+      const rotationAngleRad = this.degree2Radium(rotationAngle);
+      // 计算椭圆的四个顶点
+      const outlinepoints = [];
+      const angleStep = Math.PI / 2; // 90度的弧度
+      // 长轴和短轴的四个方向
+      const directions = [
+        { angle: rotationAngleRad, type: 'major' },
+        { angle: rotationAngleRad + Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad + Math.PI, type: 'major' },
+        { angle: rotationAngleRad + 3 * Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad, type: 'major' }, //首位相连，围成环
+      ];
+      directions.forEach(direction => {
+        const angle = direction.angle;
+        const type = direction.type;
+        let distance = type === 'major' ? majorAxis : minorAxis;
+
+        // 计算经度和纬度的增量
+        const deltaX = distance * Math.cos(angle) / 111319.9; // 经度增量，每度约等于111.32公里
+        const deltaY = distance * Math.sin(angle) / 110574; // 纬度增量，每度约等于110.57公里
+        // console.log(deltaX,deltaY)
+        const vertexLongitude = parseFloat(this.selectedTabData.longitude) + deltaX;
+        const vertexLatitude = parseFloat(this.selectedTabData.latitude) + deltaY;
+
+        outlinepoints.push({
+          longitude: vertexLongitude,
+          latitude: vertexLatitude
+        });
+      });
+      console.log("outlinepoints",outlinepoints)
+
+      //内环
+      // 计算椭圆的四个顶点
+      const inlinepoints = [];
+      // // 将角度转换为弧度
+      const rotationAngleRad_in = this.degree2Radium(lastrotationAngle);
+      // 长轴和短轴的四个方向
+      const directions_in = [
+        { angle: rotationAngleRad_in, type: 'major' },
+        { angle: rotationAngleRad_in + Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad_in + Math.PI, type: 'major' },
+        { angle: rotationAngleRad_in + 3 * Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad_in, type: 'major' }, //首位相连，围成环
+      ];
+      if(lastlong!=0){
+        directions_in.forEach(direction => {
+          const angle = direction.angle;
+          const type = direction.type;
+          let distance = type === 'major' ? lastlong : lastshort;
+          // 计算经度和纬度的增量
+          const deltaX = distance * Math.cos(angle) / 111319.9; // 经度增量，每度约等于111.32公里
+          const deltaY = distance * Math.sin(angle) / 110574; // 纬度增量，每度约等于110.57公里
+          // console.log(deltaX,deltaY)
+          const vertexLongitude = parseFloat(this.selectedTabData.longitude) + deltaX;
+          const vertexLatitude = parseFloat(this.selectedTabData.latitude) + deltaY;
+
+          inlinepoints.push({
+            longitude: vertexLongitude,
+            latitude: vertexLatitude
+          });
+        });
+      }
+
+      console.log("inlinepoints",inlinepoints)
+      let curvePolygonString=this.buildCurvePolygonString(outlinepoints,inlinepoints)
+      IntensityCircle.geom=curvePolygonString
+      console.log("IntensityCircle",IntensityCircle)
+      return IntensityCircle;
+    },
+    //烈度圈渲染
     showOvalCircle() {
       this.isshowOvalCircle = !this.isshowOvalCircle;
 
@@ -879,12 +993,23 @@ export default {
         "六", "七", "八", "九", "十", "十一", "十二"
       ];
 
+
       if (this.isshowOvalCircle) {
         let angle_num = this.angle(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude));
-        let angle_num_tmp;
+        // console.log(angle_num)
+
         let [longAndshort, longintenArray] = this.EllipseDraw(this.selectedTabData.magnitude);
 
+        // if(!this.ishadsaveCirclelayer){ //没有入库则入库
+        let angle_num_tmp;
+        let lastsemiMajorAxis=0;//震中
+        let lastsemiMinorAxis = 0;
+        let last_angle_num_tmp = 0; // 椭圆的旋转角度
+
+
+        let savecircles=[]  //存库信息
         for (let i = longAndshort.length - 1; i >= 0; i--) {
+          //渲染 MajorAxis 必须长于 MinorAxis
           if (longAndshort[i][1] > longAndshort[i][0]) {
             let temp = longAndshort[i][0];
             longAndshort[i][0] = longAndshort[i][1];
@@ -894,16 +1019,12 @@ export default {
             angle_num_tmp = angle_num;
           }
 
+          console.log("longAndshort",longAndshort)
           // 计算椭圆边界的内部位置
           const semiMajorAxis = longAndshort[i][0];
           const semiMinorAxis = longAndshort[i][1];
           const radius = Math.max(semiMajorAxis, semiMinorAxis) * 0.8; // 标签距离边界的距离
           const offsetAngle = Cesium.Math.toRadians(angle_num_tmp); // 椭圆的旋转角度
-
-          // 计算标签位置
-          const offsetX = radius * Math.cos(offsetAngle);
-          const offsetY = radius * Math.sin(offsetAngle);
-
           // 渲染椭圆
           let ovalEntity = viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude), 0),
@@ -924,6 +1045,9 @@ export default {
             layername: "烈度圈",
           });
 
+          // 计算标签位置
+          const offsetX = radius * Math.cos(offsetAngle);
+          const offsetY = radius * Math.sin(offsetAngle);
           // 添加显示烈度的标签
           let labelEntity = viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(
@@ -949,10 +1073,18 @@ export default {
             oval: ovalEntity,
             label: labelEntity
           });
-        }
+          //渲染 end
 
-        // console.log(123)
-        // console.log(this.OvalCirclelayer)
+          //计算烈度圈进行存储
+          savecircles.push(this.computecircle(semiMajorAxis, semiMinorAxis,angle_num_tmp,longintenArray[i],lastsemiMajorAxis,lastsemiMinorAxis,last_angle_num_tmp))
+          //内环
+          lastsemiMajorAxis=semiMajorAxis;
+          lastsemiMinorAxis =semiMinorAxis;
+          last_angle_num_tmp = angle_num_tmp; // 旋转角度
+        }
+        console.log("savecircles",savecircles)
+        saveIntensityCircle(savecircles).then(res => {
+        })
 
       } else {
         this.OvalCirclelayer.forEach(item => {
@@ -966,7 +1098,6 @@ export default {
         this.OvalCirclelayer = [];
       }
     },
-
     degree2Radium(deg) { //角度转弧度
       return deg * (Math.PI / 180);
     },
@@ -1075,8 +1206,6 @@ export default {
       var angle_ = fault_zone[angle_list[0][0]].angle;
       return angle_;
     },
-
-
   }
 };
 </script>
