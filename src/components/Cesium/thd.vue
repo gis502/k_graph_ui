@@ -1961,6 +1961,11 @@ export default {
       })
       const fullUrl = `${url}?${urlParams.toString()}`;
       console.log('GetFeatureInfo URL:', fullUrl);
+      fetch( fullUrl).then(response => response.json()).then(data => {
+        console.log(data.features[0].properties)
+      }).catch(error => {
+        console.error('There was an error!', error);
+      });
     }
   }
 }
