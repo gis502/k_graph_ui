@@ -4,9 +4,10 @@
       <!-- Cesium 地图容器 -->
       <div id="cesiumContainer" class="situation_cesiumContainer"></div>
       <!--  指南针  -->
-      <div class="compassContainer"></div>
+      <div class="compassContainer" ref="compassContainer"></div>
       <!-- 图例 -->
       <el-form class="noteContainer">
+        <p style="color: white; text-align: center; margin: 5px 0; padding: 0;">余震次数累计</p>
         <div class="legend_item" v-for="(item, index) in legendData" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"></span>{{ item.name }}
         </div>
@@ -17,12 +18,15 @@
     </div>
 
     <!-- 添加一个按钮用于导出 -->
-    <button @click="exportCesiumScene" class="export-button">导出场景图片</button>
+    <button @click="exportCesiumScene" class="export-button">导出专题图</button>
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
       <h3 style="color: white">图片预览</h3>
       <img :src="previewImage" class="preview-image" alt="导出预览">
+      <div class="export-info">
+        <p>{{ exportTitle }}</p>
+      </div>
       <div class="preview-buttons">
         <button @click="downloadImage" class="download-button">下载图片</button>
         <button @click="closePreview" class="cancel-button">取消</button>
@@ -43,12 +47,17 @@ export default {
   data() {
     return {
       viewer: null, // 保存 Cesium Viewer
+      // legendData: [
+      //   {value: 10, name: '类型A', color: '#ff6d39'},
+      //   {value: 20, name: '类型B', color: '#53a8ff'},
+      //   {value: 30, name: '类型C', color: '#50d693'},
+      //   {value: 40, name: '类型D', color: '#ffc975'},
+      //   {value: 50, name: '类型E', color: '#ff7c88'}
+      // ],
       legendData: [
-        {value: 10, name: '类型A', color: '#ff6d39'},
-        {value: 20, name: '类型B', color: '#53a8ff'},
-        {value: 30, name: '类型C', color: '#50d693'},
-        {value: 40, name: '类型D', color: '#ffc975'},
-        {value: 50, name: '类型E', color: '#ff7c88'}
+        {value: 10, name: '3.0-3.9级', color: '#ff6d39'},
+        {value: 20, name: '4.0-4.9级', color: '#53a8ff'},
+        {value: 50, name: '5.0-5.9级', color: '#ff7c88'}
       ],
       locations: [
         {name: '雨城区', longitude: 103.0, latitude: 29.94},
@@ -61,6 +70,7 @@ export default {
         {name: '宝兴县', longitude: 102.75, latitude: 30.52}
       ],
       previewImage: null, // 保存预览图片的 URL
+      exportTitle: '震情伤亡-震情灾情统计表',
       pollingInterval: null, // 保存轮询定时器的引用
     };
   },
@@ -96,7 +106,7 @@ export default {
       let options = {
         defaultResetView: Cesium.Cartographic.fromDegrees(103.00, 29.98, 1500),
         enableCompass: false,
-        enableZoomControls: false,
+        enableZoomControls: true,
         enableDistanceLegend: true,
         enableCompassOuterRing: false,
         resetTooltip: "重置视图",
@@ -106,12 +116,48 @@ export default {
 
       window.navigation = new CesiumNavigation(this.viewer, options);
 
-      document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索';
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务';
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务';
+      // 添加一个监听器，在每个场景渲染后更新指南针的旋转
+      this.viewer.scene.postRender.addEventListener(this.updateCompassRotation.bind(this));
 
-      // 禁用所有交互
-      // this.viewer.scene.screenSpaceCameraController.enableInputs = false;
+      // 锁定相机，正对着地面
+      this.viewer.scene.preRender.addEventListener(function() {
+        var camera = viewer.scene.camera;
+        var currentPitch = camera.pitch;
+
+        // 如果 pitch 不是 -Cesium.Math.PI_OVER_TWO，则将其设置为固定值
+        if (currentPitch !== -Cesium.Math.PI_OVER_TWO) {
+          viewer.scene.camera.setView({
+            orientation: {
+              heading: camera.heading,  // 保持当前的 heading
+              pitch: -Cesium.Math.PI_OVER_TWO,  // 固定 pitch 为垂直朝下
+              roll: camera.roll        // 保持当前的 roll
+            }
+          });
+        }
+      });
+    },
+
+    //更新指南针的旋转
+    updateCompassRotation() {
+      const camera = this.viewer.camera;
+      const heading = Cesium.Math.toDegrees(camera.heading);
+
+      const compassContainer = this.$refs.compassContainer;
+      const currentRotation = parseFloat(compassContainer.style.transform.replace(/[^0-9\-\.]/g, '')) || 0;
+
+      // 规范化角度到0-360范围
+      const normalizedHeading = ((-heading % 360) + 360) % 360;
+
+      // 计算角度差
+      let delta = normalizedHeading - currentRotation;
+      if (delta > 180) delta -= 360; // 防止大角度跳变
+      if (delta < -180) delta += 360;
+
+      // 使用线性插值平滑旋转
+      const step = delta * 0.8; // 调整这个值可以改变旋转平滑的速度
+      const newRotation = currentRotation + step;
+
+      compassContainer.style.transform = `rotate(${newRotation}deg)`;
     },
 
     // 启动轮询
@@ -188,6 +234,7 @@ export default {
           }
         },
         yAxis: {
+          show: false, // 隐藏 y 轴
           type: 'value',
           splitLine: {
             show: false // 隐藏 y 轴的横线
@@ -220,8 +267,8 @@ export default {
 
       chart.setOption(option);
       // 添加鼠标事件，悬浮时显示 tooltip，移开时隐藏 tooltip
-      chart.on('mouseover', () => chart.setOption({tooltip: {show: true}}));
-      chart.on('mouseout', () => chart.setOption({tooltip: {show: false}}));
+      chart.on('mouseover', () => chart.setOption({ tooltip: { show: true } }));
+      chart.on('mouseout', () => chart.setOption({ tooltip: { show: false } }));
     },
 
 
@@ -384,9 +431,49 @@ export default {
     },
 
     // 下载预览图片
+    // async downloadImage() {
+    //   // 1. 渲染包含标题和时间的 div
+    //   const exportInfoDiv = document.querySelector('.export-info');
+    //   const exportInfoCanvas = await html2canvas(exportInfoDiv, {
+    //     useCORS: true,
+    //     backgroundColor: null,
+    //   });
+    //
+    //   // 2. 创建一个新的 Canvas 来合并图片和导出信息
+    //   const finalCanvas = document.createElement('canvas');
+    //   const finalContext = finalCanvas.getContext('2d');
+    //   const previewImage = new Image();
+    //   previewImage.src = this.previewImage;
+    //
+    //   // 等待预览图片加载完成
+    //   await new Promise(resolve => previewImage.onload = resolve);
+    //
+    //   // 设置最终 Canvas 尺寸
+    //   finalCanvas.width = previewImage.width;
+    //   finalCanvas.height = previewImage.height + exportInfoCanvas.height; // 高度加上导出信息的高度
+    //
+    //   // 3. 先绘制预览图片
+    //   finalContext.drawImage(previewImage, 0, 0);
+    //
+    //   // 4. 然后绘制导出信息的内容在图片的下面
+    //   finalContext.drawImage(exportInfoCanvas, 0, previewImage.height);
+    //
+    //   // 5. 将合并后的 Canvas 导出为图片
+    //   const finalImage = finalCanvas.toDataURL('image/png');
+    //
+    //   // 6. 下载合成后的图片
+    //   const link = document.createElement('a');
+    //   link.download = 'scene_with_info.png';
+    //   link.href = finalImage;
+    //   link.click();
+    //
+    //   // 清除预览图片
+    //   this.previewImage = null;
+    // },
+
     downloadImage() {
       const link = document.createElement('a');
-      link.download = 'scene_with_legend.png';
+      link.download = '震情伤亡-震情灾情统计表.png';
       link.href = this.previewImage;
       link.click();
       this.previewImage = null;
@@ -464,12 +551,14 @@ export default {
 
 .compassContainer {
   position: absolute;
-  top: 20px; /* 调整为距离顶部的像素 */
-  right: 20px; /* 调整为距离右侧的像素 */
+  top: 20px; /* 距离顶部的像素 */
+  right: 20px; /* 距离右侧的像素 */
   height: 120px;
   width: 160px;
   background: url(@/assets/compass.png) no-repeat center / cover;
   z-index: 20;
+  transform-origin: center; /* 设置旋转中心 */
+  transition: transform 0.5s; /* 动画效果 */
 }
 
 .markCollection span {
@@ -518,8 +607,6 @@ export default {
 .preview-image {
   max-width: 100%;
   height: auto;
-  margin-bottom: 20px;
-  border-radius: 5px;
 }
 
 .preview-buttons {
@@ -548,5 +635,12 @@ export default {
 .preview-buttons {
   justify-content: center;
   margin-top: 10px;
+}
+
+.export-info{
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  width: 100%;
 }
 </style>

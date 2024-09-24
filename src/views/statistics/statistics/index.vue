@@ -22,6 +22,7 @@
             v-model="selectedComponentKey"
             placeholder="请选择模块"
             size="large"
+
             style="width: 240px"
         >
           <el-option

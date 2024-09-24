@@ -5,14 +5,24 @@
 <script setup>
 import { onMounted } from 'vue';
 import * as echarts from 'echarts';
+import {getResettlementData} from "@/api/system/excel.js";
 
 // 数据源
 const data = [
-  { name: "启用应急避难所", value: 54 },
-  { name: "搭建临时安置点", value: 44 },
-  { name: "新增转移安置（人）", value: 35 },
-  { name: "累计转移安置（人）", value: 30 },
+  { name: "启用应急避难所", value: 79 },
+  { name: "搭建临时安置点", value:23 },
+  { name: "新增转移安置（人）", value: 23 },
+  { name: "累计转移安置（人）", value: 430 },
 ];
+const  fetchData= async () => {
+  getResettlementData().then(res => {
+    const values = res.data;  // 假设后端返回一个 value 数组
+    data.value.forEach((item, index) => {
+      item.value = res.data[index].value;
+    }
+  );
+  })
+}
 
 // 定义颜色
 const colors = [
@@ -96,7 +106,6 @@ function generateChartOptions(data) {
   });
 
   return {
-    // backgroundColor: "#fff",
     title: titleArr,
     series: seriesArr,
   };
@@ -104,6 +113,7 @@ function generateChartOptions(data) {
 
 // 图表初始化函数
 onMounted(() => {
+  fetchData()
   const chartDom = document.getElementById('chart');
   const myChart = echarts.init(chartDom);
 
