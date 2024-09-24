@@ -881,7 +881,7 @@ export default {
       curvePolygonString = `CURVEPOLYGON(${outline})`;
     }
     else{
-        let inline = '(';
+        let inline = 'CIRCULARSTRING(';
         inlinepoints.forEach((point, index) => {
           inline += `${point.longitude} ${point.latitude}`;
           if (index < inlinepoints.length - 1) {
@@ -1077,6 +1077,7 @@ export default {
 
           //计算烈度圈进行存储
           savecircles.push(this.computecircle(semiMajorAxis, semiMinorAxis,angle_num_tmp,longintenArray[i],lastsemiMajorAxis,lastsemiMinorAxis,last_angle_num_tmp))
+          console.log("savecircles",savecircles)
           //内环
           lastsemiMajorAxis=semiMajorAxis;
           lastsemiMinorAxis =semiMinorAxis;
