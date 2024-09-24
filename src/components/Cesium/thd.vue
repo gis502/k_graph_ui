@@ -1000,7 +1000,7 @@ export default {
         //倍速为前进多个节点，时间以节点数量计算。每个节点表示五分钟
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         //图层控制 是否显示标绘点（时间轴仍然需要往前）
-        if (this.isMarkingLayer) {
+        if (this.isMarkingLayerLocal) {
           this.updatePlot()
         } else {
           this.MarkingLayerRemove()
