@@ -45,10 +45,9 @@ export function deleteData(data) {
         data
     })
 }
-export function getResettlementData(data) {
+export function getResettlementData() {
     return request({
         url: '/excel/getResettlementData',
         method: 'post',
-        data
     })
 }

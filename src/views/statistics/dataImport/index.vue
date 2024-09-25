@@ -284,7 +284,8 @@ export default {
         tableName: ''
       },
       form1: {
-        tableName1: ''
+        tableName1: '',
+        eqId:''
       },
       eqlists: [],//地震文件列表
       tableNameOptions: [],
@@ -455,14 +456,22 @@ export default {
     getEarthquake() {
       getExcelUploadEarthquake().then(res => {
         this.eqlists = res
+
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }
-        this.tableNameOptions1 = this.eqlists.map(file => ({
-          label: file,
-          value: file
-        }))
-        this.form1.tableName1 = this.tableNameOptions1[0].label
+        this.tableNameOptions1 = this.eqlists.map(eq => {
+          const eqid = eq.split(' - ')[0]?.trim();
+          const details = eq.split(' - ')[1]?.trim();
+          // this.form1.eqId = eqid
+          // console.log(this.form1.eqId)
+          // 提取 `-` 后面的部分
+          return {
+            label: details, // 使用提取的部分作为标签
+            value: eqid// 选择值为 ID
+          };
+        });
+        this.form1.tableName1 = this.tableNameOptions1[0].value;
       })
     },
     //查询user对应上的表
