@@ -186,6 +186,11 @@ export default {
       faultzonelines:[], //断裂带线
       isshowOvalCircle:false, //烈度圈显示隐藏
       OvalCirclelayer:[],
+      angle_num:0, //烈度圈旋转角度
+      longAndshort:[], //长短轴距离米
+      longintenArray:[],//烈度
+      // intensityArray:[],
+
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -195,6 +200,8 @@ export default {
       // layerVisible: true, // 图层可见性状态
       isshowRegion:true,//行政区划
       RegionLabels:[],
+
+
     };
   },
   mounted() {
@@ -583,6 +590,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
+          this.computeCircle();
         }
       }
     },
@@ -984,6 +992,75 @@ export default {
       console.log("IntensityCircle",IntensityCircle)
       return IntensityCircle;
     },
+    degree2Radium(deg) { //角度转弧度
+      return deg * (Math.PI / 180);
+    },
+    radium2Degree (rad)  {
+      return rad * (180 / Math.PI);
+    },
+    getPointsForEllipse (lat1, lon1, xaxis, yaxis, rotation) {
+      //axis distance in km
+      var rEarth = 6371.01; //# Earth's average radius in km
+      var rXaxis = (xaxis * 68) / rEarth;
+      var rYaxis = (yaxis * 68) / rEarth; //that shall be km distance, just use xaxis/yaxis at line 44, 45 if you want to measure by dms
+
+      var rRotation = this.degree2Radium(rotation);
+      var polygonRings = [];
+      for (var i = 0; i <= 360; i += 10) {
+        var t = this.degree2Radium(i); // # ellipse math ref
+        var x = rXaxis * Math.cos(t); // # ellipse math
+        var y = rYaxis * Math.sin(t); // # ellipse math
+        var rot_x = lon1 + (x * Math.cos(rRotation)) - (y * Math.sin(rRotation)); // # rotate/transpose ellipse
+        var rot_y = lat1 + (y * Math.cos(rRotation)) + (x * Math.sin(rRotation)); // # rotate/transpose ellipse
+        //console.log([rot_x, rot_y]);
+        polygonRings.push([rot_x, rot_y]);
+      }
+      return polygonRings;
+    },
+    computeCircle() {
+      // OvalCircleangle
+      // OvalCirclelongAndshort:[],
+      //     OvalCircleintensity:[],
+      // this.OvalCircleangle
+      this.angle_num = this.angle(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude));
+      // this.
+      // let [longAndshort, longintenArray] =
+      this.EllipseDraw(this.selectedTabData.magnitude);
+      let angle_num_tmp;
+      let lastsemiMajorAxis=0;//震中
+      let lastsemiMinorAxis = 0;
+      let last_angle_num_tmp = 0; // 椭圆的旋转角度
+
+
+      let savecircles=[]  //存库信息
+      for (let i =  0; i <this.longAndshort.length; i++) {
+          //渲染 MajorAxis 必须长于 MinorAxis
+          if (this.longAndshort[i][1] > this.longAndshort[i][0]) {
+            let temp = this.longAndshort[i][0];
+            this.longAndshort[i][0] = this.longAndshort[i][1];
+            this.longAndshort[i][1] = temp;
+            angle_num_tmp = this.angle_num + 90;
+          } else {
+            angle_num_tmp = this.angle_num;
+          }
+
+          // 计算椭圆边界的内部位置
+          const semiMajorAxis = this.longAndshort[i][0];
+          const semiMinorAxis = this.longAndshort[i][1];
+
+          //计算烈度圈进行存储
+          savecircles.push(this.computecircle(semiMajorAxis, semiMinorAxis,angle_num_tmp,this.longintenArray[i],lastsemiMajorAxis,lastsemiMinorAxis,last_angle_num_tmp))
+
+          lastsemiMajorAxis=semiMajorAxis;
+          lastsemiMinorAxis =semiMinorAxis;
+          last_angle_num_tmp = angle_num_tmp; // 旋转角度
+        }
+
+        console.log("savecircles",savecircles)
+        saveIntensityCircle(savecircles).then(res => {
+        })
+      },
+
     //烈度圈渲染
     showOvalCircle() {
       this.isshowOvalCircle = !this.isshowOvalCircle;
@@ -1005,30 +1082,20 @@ export default {
       ];
 
       if (this.isshowOvalCircle) {
-        let angle_num = this.angle(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude));
-        let [longAndshort, longintenArray] = this.EllipseDraw(this.selectedTabData.magnitude);
-        // console.log(longAndshort,longintenArray)
         let angle_num_tmp;
-        let lastsemiMajorAxis=0;//震中
-        let lastsemiMinorAxis = 0;
-        let last_angle_num_tmp = 0; // 椭圆的旋转角度
-
-
-        let savecircles=[]  //存库信息
-        for (let i =  0; i <longAndshort.length; i++) {
+        for (let i =  0; i <this.longAndshort.length; i++) {
           //渲染 MajorAxis 必须长于 MinorAxis
-          if (longAndshort[i][1] > longAndshort[i][0]) {
-            let temp = longAndshort[i][0];
-            longAndshort[i][0] = longAndshort[i][1];
-            longAndshort[i][1] = temp;
-            angle_num_tmp = angle_num + 90;
+          if (this.longAndshort[i][1] > this.longAndshort[i][0]) {
+            let temp = this.longAndshort[i][0];
+            this.longAndshort[i][0] = this.longAndshort[i][1];
+            this.longAndshort[i][1] = temp;
+            angle_num_tmp = this.angle_num + 90;
           } else {
-            angle_num_tmp = angle_num;
+            angle_num_tmp = this.angle_num;
           }
-
           // 计算椭圆边界的内部位置
-          const semiMajorAxis = longAndshort[i][0];
-          const semiMinorAxis = longAndshort[i][1];
+          const semiMajorAxis = this.longAndshort[i][0];
+          const semiMinorAxis = this.longAndshort[i][1];
           const radius = Math.max(semiMajorAxis, semiMinorAxis) * 0.8; // 标签距离边界的距离
           const offsetAngle = Cesium.Math.toRadians(angle_num_tmp); // 椭圆的旋转角度
           // 渲染椭圆
@@ -1062,7 +1129,7 @@ export default {
             ),
             label: {
               //最多画到6度
-              text: "烈度 : " + intensityLabels[longintenArray[i] - 6]+" (" + intensityLabelsChinese[longintenArray[i] - 6]+ "度)",
+              text: "烈度 : " + intensityLabels[this.longintenArray[i] - 6]+" (" + intensityLabelsChinese[this.longintenArray[i] - 6]+ "度)",
               font: '18px Sans-serif',
               style: Cesium.LabelStyle.FILL_AND_OUTLINE,
               outlineWidth: 2,
@@ -1078,20 +1145,7 @@ export default {
             oval: ovalEntity,
             label: labelEntity
           });
-          //渲染 end
-
-          //计算烈度圈进行存储
-          savecircles.push(this.computecircle(semiMajorAxis, semiMinorAxis,angle_num_tmp,longintenArray[i],lastsemiMajorAxis,lastsemiMinorAxis,last_angle_num_tmp))
-          console.log("savecircles",savecircles)
-          //内环
-          lastsemiMajorAxis=semiMajorAxis;
-          lastsemiMinorAxis =semiMinorAxis;
-          last_angle_num_tmp = angle_num_tmp; // 旋转角度
         }
-        console.log("savecircles",savecircles)
-        saveIntensityCircle(savecircles).then(res => {
-        })
-
       } else {
         this.OvalCirclelayer.forEach(item => {
           if (item.oval._layername === "烈度圈") {
@@ -1103,37 +1157,12 @@ export default {
         this.OvalCirclelayer = [];
       }
     },
-    degree2Radium(deg) { //角度转弧度
-      return deg * (Math.PI / 180);
-    },
-    radium2Degree (rad)  {
-      return rad * (180 / Math.PI);
-    },
-    getPointsForEllipse (lat1, lon1, xaxis, yaxis, rotation) {
-      //axis distance in km
-      var rEarth = 6371.01; //# Earth's average radius in km
-      var rXaxis = (xaxis * 68) / rEarth;
-      var rYaxis = (yaxis * 68) / rEarth; //that shall be km distance, just use xaxis/yaxis at line 44, 45 if you want to measure by dms
 
-      var rRotation = this.degree2Radium(rotation);
-      var polygonRings = [];
-      for (var i = 0; i <= 360; i += 10) {
-        var t = this.degree2Radium(i); // # ellipse math ref
-        var x = rXaxis * Math.cos(t); // # ellipse math
-        var y = rYaxis * Math.sin(t); // # ellipse math
-        var rot_x = lon1 + (x * Math.cos(rRotation)) - (y * Math.sin(rRotation)); // # rotate/transpose ellipse
-        var rot_y = lat1 + (y * Math.cos(rRotation)) + (x * Math.sin(rRotation)); // # rotate/transpose ellipse
-        //console.log([rot_x, rot_y]);
-        polygonRings.push([rot_x, rot_y]);
-      }
-      return polygonRings;
-    },
     EllipseDraw (magnitude) {
-      let longintenArray = []; //长轴烈度
       let shortintenArray = []; //短轴烈度
       let longAxisArray = []; //长轴数组
       let shortAxisArray = []; //短轴数组
-      let longAndshort = []; //最终的长短轴数组，单位：千米
+
       var numi = 0;
       let R = 0 //震源到目标区域的距离，因为只需要震中的烈度，所以令其为零
 
@@ -1148,7 +1177,7 @@ export default {
         if (longAxisArray.length >= 6) {
           break;
         }
-        longintenArray.push(i); //长轴烈度
+        this.longintenArray.push(i); //长轴烈度
 
         R =
           // Math.exp(
@@ -1176,19 +1205,18 @@ export default {
           ) - 5;
         shortAxisArray.push(R1);
       }
+      let that=this
       for (let i = 0; i <= shortAxisArray.length - 1; i++) {
         if (longAxisArray[i] != null && shortAxisArray[i] != null) {
           (function (item, index) {
             var xy = new Array();
             xy[0] = longAxisArray[index]*1000; //将符合条件每个长轴储存起来
             xy[1] = shortAxisArray[index]*1000; //将符合条件每个短轴储存起来
-            longAndshort[item] = xy;
+            that.longAndshort[item] = xy;
           })(numi, i);
           numi++;
         }
       }
-
-      return [longAndshort, longintenArray];
     },
     angle (lon, lat) {
       var angle_list = [];
