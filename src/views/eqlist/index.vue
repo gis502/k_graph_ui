@@ -122,14 +122,16 @@
           />
         </el-form-item>
         <el-form-item label="地震震级">
-          <el-input v-model="formValue.startMagnitude" style="width: 3.5vw;"/>
+          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endMagnitude" style="width: 3.5vw;"/>
+          <el-input v-model="formValue.endMagnitude" style="width: 5vw;"/>
+          <span style="margin: 0 10px">(里氏)</span>
         </el-form-item>
-        <el-form-item label="地震深度(千米)">
-          <el-input v-model="formValue.startDepth" style="width: 3.5vw"/>
+        <el-form-item label="地震深度">
+          <el-input v-model="formValue.startDepth" style="width: 5vw"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endDepth" style="width: 3.5vw"/>
+          <el-input v-model="formValue.endDepth" style="width: 5vw"/>
+          <span style="margin: 0 10px">(千米)</span>
         </el-form-item>
       </el-form>
 
@@ -301,10 +303,25 @@ export default {
     },
     // 删除单条地震
     handleDelete(row) {
-      let that = this
-      deleteeq({eqid: row.eqid}).then(res => {
-        that.getEq()
-      })
+      let that = this;
+      this.$confirm('确定要删除这条地震记录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteeq({eqid: row.eqid}).then(res => {
+          that.getEq();
+          that.$message({
+            type: 'success',
+            message: '删除成功'
+          });
+        });
+      }).catch(() => {
+        that.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
     // 点击新增或修改打开dialog对话框
     handleOpen(title, row) {

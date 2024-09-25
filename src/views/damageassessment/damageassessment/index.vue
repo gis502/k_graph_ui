@@ -186,7 +186,6 @@ export default {
       faultzonelines:[], //断裂带线
       isshowOvalCircle:false, //烈度圈显示隐藏
       OvalCirclelayer:[],
-      // ishadsaveCirclelayer:false,//标记是否已经存入数据库
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -609,8 +608,7 @@ export default {
 
       this.OvalCirclelayer.forEach(item => {
         if (item.oval._layername === "烈度圈") {
-          // console.log(333)
-          console.log(item)
+          // console.log(item)
           viewer.entities.remove(item.oval);
           viewer.entities.remove(item.label);
         }
@@ -993,15 +991,10 @@ export default {
         "六", "七", "八", "九", "十", "十一", "十二"
       ];
 
-
       if (this.isshowOvalCircle) {
         let angle_num = this.angle(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude));
-        // console.log(angle_num)
-
         let [longAndshort, longintenArray] = this.EllipseDraw(this.selectedTabData.magnitude);
-
-        console.log(longAndshort,longintenArray)
-        // if(!this.ishadsaveCirclelayer){ //没有入库则入库
+        // console.log(longAndshort,longintenArray)
         let angle_num_tmp;
         let lastsemiMajorAxis=0;//震中
         let lastsemiMinorAxis = 0;
@@ -1020,7 +1013,6 @@ export default {
             angle_num_tmp = angle_num;
           }
 
-          console.log("longAndshort",longAndshort)
           // 计算椭圆边界的内部位置
           const semiMajorAxis = longAndshort[i][0];
           const semiMinorAxis = longAndshort[i][1];
@@ -1091,8 +1083,7 @@ export default {
       } else {
         this.OvalCirclelayer.forEach(item => {
           if (item.oval._layername === "烈度圈") {
-            // console.log(333)
-            console.log(item)
+            // console.log(item)
             viewer.entities.remove(item.oval);
             viewer.entities.remove(item.label);
           }
@@ -1184,10 +1175,7 @@ export default {
           numi++;
         }
       }
-      // console.log("shortAxisArray",shortAxisArray);
-      // console.log("longAxisArray",longAxisArray);
-      // console.log("longAndshort",longAndshort);
-      // console.log("longintenArray",longintenArray);
+
       return [longAndshort, longintenArray];
     },
     angle (lon, lat) {
@@ -1225,8 +1213,9 @@ export default {
 .eqTable {
   position: absolute;
   right: 0;
+  bottom: 0;
   width: 333px;
-  height: 100%;
+  height: calc(100% - 50px);
   z-index: 3;
   background-color: #2d3d51;
 }
@@ -1266,6 +1255,7 @@ export default {
 // 开关
 .fold {
   position: absolute;
+  top: 50px;
   right: 323px;
   margin: 0 auto;
   display: flex;

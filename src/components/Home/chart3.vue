@@ -23,16 +23,39 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue';
-
+import {ref, watch,onMounted } from 'vue';
+import { getCasualtyStats } from '@/api/system/casualtystats.js'; // 引入之前定义的 API 方法
 const props = defineProps(['lastEq'])
 
 const injuryCount = ref(0);
 const missingCount = ref(0);
 const deathCount = ref(0);
-const updateTime = ref()
+const updateTime = ref('')
 
-watch(() => props.lastEq, () => {
+const fetchCasualtyStats = async (eqid) => {
+  console.log('监听到的ID:',eqid); // 打印监听到的ID
+  try {
+    const data = await getCasualtyStats(eqid); // 确保以对象形式传递参数
+    injuryCount.value = data.injuryCount || 0;
+    missingCount.value = data.missingCount || 0;
+    deathCount.value = data.deathCount || 0;
+    console.log('返回的数据:', data);
+  } catch (error) {
+    console.error('获取人员伤亡数据失败:', error);
+  }
+};
+
+onMounted(() => {
+  if (props.lastEq && props.lastEq.eqid) {
+    fetchCasualtyStats(props.lastEq.eqid);
+    initNewEq();
+  }
+});
+
+watch(() => props.lastEq, (newVal) => {
+  if (newVal && newVal.eqid) {
+    fetchCasualtyStats(newVal.eqid);
+  }
   initNewEq();
 });
 

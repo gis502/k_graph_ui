@@ -28,6 +28,7 @@
                     :prop="header.prop"
                     :label="header.label"
                     :width="header.width"
+                    show-overflow-tooltip
             >
             </el-table-column>
 
