@@ -2091,8 +2091,8 @@ export default {
       console.log("select")
       console.log(this.selectedlayersLocal)
 
-      //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
-      if((this.selectedlayersLocal.length==1 && hasDrawingLayer)|| this.selectedlayersLocal.length==0 ){
+      //视角转换 如果 只有标绘点、烈度圈，视角更近（震中），其他要素图层，视角拉高（雅安市）
+      if(this.selectedlayersLocal.length==0||(this.selectedlayersLocal.length==1 && hasDrawingLayer)|| (this.selectedlayersLocal.length==1 && hasOvalCircleLayer )||(this.selectedlayersLocal.length==2 && hasDrawingLayer && hasOvalCircleLayer )){
         const position= Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),

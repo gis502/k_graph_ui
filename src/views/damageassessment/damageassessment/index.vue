@@ -1556,4 +1556,11 @@ span {
   display: none;
 }
 
+:deep(.cesium-baseLayerPicker-dropDown-visible){
+  z-index:100 !important ;
+  background-color: #2b323a;
+}
+:deep(.cesium-baseLayerPicker-dropDown){
+  right: -5px !important;
+}
 </style>
