@@ -1000,6 +1000,7 @@ export default {
 
         let [longAndshort, longintenArray] = this.EllipseDraw(this.selectedTabData.magnitude);
 
+        console.log(longAndshort,longintenArray)
         // if(!this.ishadsaveCirclelayer){ //没有入库则入库
         let angle_num_tmp;
         let lastsemiMajorAxis=0;//震中
@@ -1008,7 +1009,7 @@ export default {
 
 
         let savecircles=[]  //存库信息
-        for (let i = longAndshort.length - 1; i >= 0; i--) {
+        for (let i =  0; i <longAndshort.length; i++) {
           //渲染 MajorAxis 必须长于 MinorAxis
           if (longAndshort[i][1] > longAndshort[i][0]) {
             let temp = longAndshort[i][0];
