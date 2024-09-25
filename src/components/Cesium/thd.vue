@@ -1390,6 +1390,7 @@ export default {
           outlineColor: Cesium.Color.RED,
           outlineWidth: 2,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+
           fill: true,
           clampToGround: true,
           height: 0,
@@ -1419,6 +1420,10 @@ export default {
                 width: size,
                 height: size,
                 eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+                scale: 0.8,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                depthTest: false,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
               },
               label: {
                 show: false,

@@ -432,6 +432,10 @@ export default {
             width: 20,
             height: 20,
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
           },
           label: {
             text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
@@ -521,6 +525,10 @@ export default {
             width: 25,
             height: 25,
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
           },
           label: {
             text: this.timestampToTime(this.selectedTabData.time, 'date') +
@@ -658,7 +666,10 @@ export default {
             outline: true,
             outlineColor: Cesium.Color.RED,
             outlineWidth: 2,
+            scale: 0.8,
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
             fill: true,
             clampToGround: true,
             height: 0,
@@ -689,6 +700,10 @@ export default {
                   width: size,
                   height: size,
                   eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+                  scale: 0.8,
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  depthTest: false,
+                  disableDepthTestDistance: Number.POSITIVE_INFINITY
                 },
                 label: {
                   show: false,
@@ -1028,7 +1043,10 @@ export default {
               outline: true,
               outlineColor: Cesium.Color.fromCssColorString(colorIntensity[i]),
               outlineWidth: 9,
+              scale: 0.8,
               heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              depthTest: false,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
               fill: true,
               clampToGround: true,
               height: 0,

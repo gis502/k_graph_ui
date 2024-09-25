@@ -442,6 +442,10 @@ export default {
           image: centerstar,
           width: 40,
           height: 40,
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.position,
@@ -470,6 +474,10 @@ export default {
           image: centerstar,
           width: 30,
           height: 30,
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.position,
@@ -718,6 +726,10 @@ export default {
               image: item.img,
               width: 30,
               height: 30,
+              scale: 0.8,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              depthTest: false,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
             },
             // label: {
             //   text: item.pointname,
