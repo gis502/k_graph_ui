@@ -26,7 +26,9 @@ import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import {getKeyEq, getLatestEq, queryAllEq} from "@/api/system/eqlist.js";
+import {getAllEq, getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
+
+const props = defineProps(['eqData']);
 
 // 图例分类
 const eqGroups = ref([
@@ -67,23 +69,27 @@ const initialScaleLength = ref(50); // 假设初始长度为 100 像素
 const initialDistance = ref(100); // 对应 100 公里
 onMounted(() => {
   initEmap();
-  getMapEq();
 });
 
 watch([historyEqData, latestEqData], (newData) => {
   initEmap();
 }, {deep: true});
 
+watch(() => props.eqData, () => {
+  latestEqData.value = props.eqData;
+  historyEqData.value = props.eqData;
+});
+
 echarts.registerMap('data', data);
 
-const getMapEq = () => {
-  getLatestEq().then(res => {
-    latestEqData.value = res;
-  })
-  queryAllEq().then(res => {
-    historyEqData.value = res;
-  })
-};
+// const getMapEq = () => {
+//   getLatestEq().then(res => {
+//     latestEqData.value = res;
+//   })
+//   getAllEq().then(res => {
+//     historyEqData.value = res;
+//   })
+// };
 
 const initEmap = () => {
   const latestData = latestEqData.value.map(item => ({
