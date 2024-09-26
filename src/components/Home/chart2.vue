@@ -96,14 +96,16 @@ const updateChart = (data) => {
 
 // 监听 eqid 的变化
 watch(() => props.lastEq, async (newEqid) => {
-  console.log('LastEq 内容:', props.lastEq);
+  console.log("===============================================")
+  console.log('LastEq 内容:', props);
+  console.log('LastEq 内容:', props.lastEq.eqid);
   if (!newEqid) {
     console.warn('eqid is not available.'); // 如果没有 eqid，打印警告
     return;
   }
   try {
     // 发起请求，将 eqid 传递到后端获取数据
-    const response = await getAftershockMagnitude(newEqid); // 确保该方法接受 eqid
+    const response = await getAftershockMagnitude(newEqid);// 确保该方法接受 eqid
     console.log('Received data:', response); // 打印从后端接收到的数据
 
     // 更新图表数据
@@ -116,6 +118,7 @@ watch(() => props.lastEq, async (newEqid) => {
 
 // 组件挂载时初始化图表
 onMounted(() => {
+  console.log('Initial lastEq:', props.lastEq);
   initChart();
 });
 </script>
