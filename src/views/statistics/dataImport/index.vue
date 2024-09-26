@@ -463,8 +463,6 @@ export default {
         this.tableNameOptions1 = this.eqlists.map(eq => {
           const eqid = eq.split(' - ')[0]?.trim();
           const details = eq.split(' - ')[1]?.trim();
-          // this.form1.eqId = eqid
-          // console.log(this.form1.eqId)
           // 提取 `-` 后面的部分
           return {
             label: details, // 使用提取的部分作为标签
