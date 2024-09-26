@@ -138,7 +138,13 @@ export default {
           basicInformation: '基本信息',
           seismicIntensity: '地震烈度',
           dataSourceUnit: '数据来源单位',
-          remarks: '备注'
+          remarks: '备注',
+
+        // 来自历史地震
+          historyEqTime: '发震时间',
+          position: '位置',
+          magnitude: '震级',
+          depth: '震源深度'
       },
     }
   },
