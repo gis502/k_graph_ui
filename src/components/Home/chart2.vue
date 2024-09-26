@@ -102,12 +102,12 @@ watch(() => props.lastEq, async (newEqid) => {
     return;
   }
   try {
-    // 发起请求，将 eqid 传递到后端获取数据
-    const response = await getAftershockMagnitude(newEqid); // 确保该方法接受 eqid
-    console.log('Received data:', response); // 打印从后端接收到的数据
-
-    // 更新图表数据
-    updateChart(response);
+    // // 发起请求，将 eqid 传递到后端获取数据
+    // const response = await getAftershockMagnitude(newEqid); // 确保该方法接受 eqid
+    // console.log('Received data:', response); // 打印从后端接收到的数据
+    //
+    // // 更新图表数据
+    // updateChart(response);
   } catch (error) {
     console.error('Failed to fetch aftershock data:', error);
   }

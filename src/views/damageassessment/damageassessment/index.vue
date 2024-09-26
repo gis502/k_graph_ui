@@ -30,12 +30,12 @@
               <div class="eqText">
           <span
               class="eqTitle">
-            {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{ eq.magnitude }}级地震
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
-            发震时刻：{{ eq.time }}<br/>
-            参考位置：{{ eq.position }}<br/>
+            发震时刻：{{ eq.occurrenceTime }}<br/>
+            参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
           </span>
@@ -73,12 +73,12 @@
             </el-divider>
             <div style="padding: 1px 20px 10px 20px">
               <!-- 显示选项卡内容 -->
-              <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
-              <p>发震时刻：{{ selectedTabData.time }}</p>
+              <h4>地震名称：{{ selectedTabData.earthquakeName}} {{ selectedTabData.magnitude }}级地震</h4>
+              <p>发震时刻：{{ selectedTabData.occurrenceTime }}</p>
               <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
               <p>地震震级：{{ selectedTabData.magnitude }}</p>
               <p>震源深度：{{ selectedTabData.depth }}千米</p>
-              <p>参考位置：{{ selectedTabData.position }}</p>
+              <p>参考位置：{{ selectedTabData.earthquakeName }}</p>
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -208,7 +208,7 @@ export default {
         let resData = res.filter((item) => item.magnitude >= 4.5);
         let data = resData.map((item) => ({
           ...item,
-          time: this.timestampToTime(item.time, "full"),
+          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2),
@@ -433,7 +433,7 @@ export default {
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+            text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.position + eq.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -476,8 +476,8 @@ export default {
     filterEq() {
       if (this.title) {
         this.filteredEqData = this.getEqData.filter((eq) => {
-          const dateStr = this.timestampToTime(eq.time, 'date');
-          const positionStr = eq.position;
+          const dateStr = this.timestampToTime(eq.occurrenceTime, 'date');
+          const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
             dateStr.includes(this.title) ||
@@ -522,8 +522,8 @@ export default {
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(this.selectedTabData.time, 'date') +
-              this.selectedTabData.position +
+            text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
+              this.selectedTabData.earthquakeName +
               this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
@@ -564,12 +564,12 @@ export default {
     },
 
     toTab(eq) {
-      this.currentTab = `${eq.position} ${eq.magnitude}级地震`;
+      this.currentTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
       if (this.currentTab !== '震害事件') {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.getEqData.find(
-          eq => `${eq.position} ${eq.magnitude}级地震` === this.currentTab
+          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -607,8 +607,7 @@ export default {
 
       this.OvalCirclelayer.forEach(item => {
         if (item.oval._layername === "烈度圈") {
-          // console.log(333)
-          console.log(item)
+          // console.log(item)
           viewer.entities.remove(item.oval);
           viewer.entities.remove(item.label);
         }
@@ -693,7 +692,7 @@ export default {
                 label: {
                   show: false,
                   showBackground: true,
-                  text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+                  text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
                   font: '16px sans-serif',
                   fillColor: Cesium.Color.WHITE,
                   style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -951,14 +950,10 @@ export default {
           });
         }
 
-        // console.log(123)
-        // console.log(this.OvalCirclelayer)
-
       } else {
         this.OvalCirclelayer.forEach(item => {
           if (item.oval._layername === "烈度圈") {
-            // console.log(333)
-            console.log(item)
+            // console.log(item)
             viewer.entities.remove(item.oval);
             viewer.entities.remove(item.label);
           }
@@ -1051,10 +1046,7 @@ export default {
           numi++;
         }
       }
-      // console.log("shortAxisArray",shortAxisArray);
-      // console.log("longAxisArray",longAxisArray);
-      // console.log("longAndshort",longAndshort);
-      // console.log("longintenArray",longintenArray);
+
       return [longAndshort, longintenArray];
     },
     angle (lon, lat) {
@@ -1094,8 +1086,9 @@ export default {
 .eqTable {
   position: absolute;
   right: 0;
+  bottom: 0;
   width: 333px;
-  height: 100%;
+  height: calc(100% - 50px);
   z-index: 3;
   background-color: #2d3d51;
 }
@@ -1135,6 +1128,7 @@ export default {
 // 开关
 .fold {
   position: absolute;
+  top: 50px;
   right: 323px;
   margin: 0 auto;
   display: flex;

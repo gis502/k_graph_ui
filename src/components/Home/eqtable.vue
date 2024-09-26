@@ -8,7 +8,7 @@
         :row-style="{ height: '37.5px' }"
         @row-click="go">
       <el-table-column
-          prop="position"
+          prop="earthquakeName"
           label="位置"
           min-width="140px"
           show-overflow-tooltip>
@@ -19,7 +19,7 @@
           min-width="160px"
           show-overflow-tooltip>
         <template v-slot="scope">
-          <span>{{ formatTime(scope.row.time) }}</span>
+          <span>{{ formatTime(scope.row.occurrenceTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -72,6 +72,7 @@ const tableData = ref([]);
 const router = useRouter();
 
 watch(() => props.eqData, () => {
+  console.log(props.eqData)
   let list = props.eqData.filter(item => item.magnitude >= 3)
   getEqData.value = list;
   total.value = list.length;
