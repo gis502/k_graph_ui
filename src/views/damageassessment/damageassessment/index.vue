@@ -1146,6 +1146,7 @@ export default {
 
 .unfold {
   position: absolute;
+  top: 50px;
   right: 0;
   width: 30px;
   height: 40px;
@@ -1427,6 +1428,22 @@ span {
 
 ::v-deep .el-table__inner-wrapper::before {
   display: none;
+}
+
+::v-deep .cesium-baseLayerPicker-dropDown {
+  z-index: 1000;
+}
+
+::v-deep .compass {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+::v-deep .navigation-controls {
+  position: absolute;
+  top: 120px;
+  left: 53px;
 }
 
 </style>
