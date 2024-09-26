@@ -297,31 +297,53 @@ export default {
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
 
       // 创建缩略图视图器实例
-      let that = this
       let smallMapContainer = document.getElementById('smallMapContainer');
-      that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-        // 隐藏所有控件
-        geocoder: false,
-        homeButton: false,
-        sceneModePicker: false,
-        timeline: false,
-        navigationHelpButton: false,
-        animation: false,
-        infoBox: false,
-        fullscreenButton: false,
-        showRenderState: false,
-        selectionIndicator: false,
-        baseLayerPicker: false,
-        selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-        selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      });
+        let smallViewer = initCesium(Cesium,smallMapContainer)
+        window.smallViewer = smallViewer
+        smallViewer._cesiumWidget._creditContainer.style.display = 'none'
+        let smallOptions = {}
+        smallOptions.enableCompass = false
+        smallOptions.enableZoomControls = false
+        smallOptions.enableDistanceLegend = false
+        smallOptions.enableCompassOuterRing = false
+        smallOptions.geocoder = false
+        smallOptions.homeButton = false
+        smallOptions.sceneModePicker = false
+        smallOptions.timeline = false
+        smallOptions.navigationHelpButton = false
+        smallOptions.animation = false
+        smallOptions.infoBox = false
+        smallOptions.fullscreenButton = false
+        smallOptions.showRenderState = false
+        smallOptions.selectionIndicator = false
+        smallOptions.baseLayerPicker = false
+        smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
+        smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
+        window.navigation = new CesiumNavigation(smallViewer, smallOptions)
+        smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
+      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
+      //   // 隐藏所有控件
+      //   geocoder: false,
+      //   homeButton: false,
+      //   sceneModePicker: false,
+      //   timeline: false,
+      //   navigationHelpButton: false,
+      //   animation: false,
+      //   infoBox: false,
+      //   fullscreenButton: false,
+      //   showRenderState: false,
+      //   selectionIndicator: false,
+      //   baseLayerPicker: false,
+      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
+      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
+      // });
       // 隐藏缩略图视图器的版权信息
-      that.smallViewer._cesiumWidget._creditContainer.style.display = 'none';
+        smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
       // 同步主视图器的相机到缩略图视图器
       function syncCamera() {
         const camera1 = viewer.scene.camera;
-        const camera2 = that.smallViewer.scene.camera;
+        const camera2 = smallViewer.scene.camera;
 
         camera2.setView({
           destination: camera1.positionWC,
@@ -338,7 +360,7 @@ export default {
 
       // 每帧渲染时同步缩略图视图
       viewer.scene.postRender.addEventListener(function () {
-        that.smallViewer.scene.requestRender(); // 确保缩略图更新
+        smallViewer.scene.requestRender(); // 确保缩略图更新
       });
 
       // 初始同步
@@ -366,15 +388,6 @@ export default {
         this.updateMapandVariablebeforInit()
 
       })
-        // this.centerPoint.starttime = new Date('2022-06-01 17:00:08')
-        // this.centerPoint.endtime = new Date('2022-06-08 22:00:08')
-        // this.eqstartTime = this.centerPoint.starttime
-        // this.eqyear = this.eqstartTime.getFullYear()
-        // this.eqmonth = this.eqstartTime.getMonth() + 1
-        // this.eqday = this.eqstartTime.getDate()
-        // this.eqendTime = new Date('2022-06-08 22:00:08')
-        // this.currentTime = this.eqstartTime
-        // this.updateMapandVariablebeforInit()
     },
 
     timestampToTime(timestamp) {
@@ -424,10 +437,11 @@ export default {
 
     //更新地图中心视角，更新变量：地震起止时间，渲染点
     updateMapandVariablebeforInit() {
+        console.log("geom---------------------",this.centerPoint.geom.coordinates[0])
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
             8000),
         orientation: {
           // 指向
@@ -448,8 +462,8 @@ export default {
         //   describe: this.centerPoint.position,
         // },
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
             parseFloat(this.centerPoint.height || 0)
         ),
         billboard: {
@@ -458,7 +472,7 @@ export default {
           height: 40,
         },
         label: {
-          text: this.centerPoint.position,
+          text: this.centerPoint.earthquakeName,
           show: true,
           font: '14px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
@@ -472,12 +486,11 @@ export default {
       });
 
 
-      let that = this
-      that.smallViewer.entities.removeAll();
-      that.smallViewer.entities.add({
+      smallViewer.entities.removeAll();
+      smallViewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
             parseFloat(this.centerPoint.height || 0)
         ),
         billboard: {
@@ -486,7 +499,7 @@ export default {
           height: 30,
         },
         label: {
-          text: this.centerPoint.position,
+          text: this.centerPoint.earthquakeName,
           show: true,
           font: '10px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色

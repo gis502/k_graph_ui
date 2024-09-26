@@ -76,7 +76,7 @@ export default {
   },
   watch: {
     currentTime(newVal) {
-        console.log("``````````````````",newVal)
+        // console.log("``````````````````",newVal)
         if(this.ifShowData){
             this.rescue_team_update(newVal)
         }
@@ -85,8 +85,8 @@ export default {
   methods: {
     init() {
         getRescueTeam().then(res => {
-            console.log("res:----",res)
-            console.log("this.ifShowData-----",this.ifShowData)
+            // console.log("res:----",res)
+            // console.log("this.ifShowData-----",this.ifShowData)
             this.Responsecontent = res
         })
       // this.Responsecontent.sort((a, b) => {
@@ -98,7 +98,7 @@ export default {
 
     async rescue_team_update(currentTime) {
       this.showRescueTeam=[]
-      console.log("rescue_team_update",this.Responsecontent)
+      // console.log("rescue_team_update",this.Responsecontent)
       // console.log(currentTime)
         const activities = await this.Responsecontent.filter((activity) => {
         return (
@@ -112,7 +112,7 @@ export default {
             return 0;
         });
       if(activities.length>0){
-            console.log("activities", activities)
+            // console.log("activities", activities)
             this.recordtime = this.timestampToTime(activities[activities.length - 1].departureDate)
         activities.forEach((item) => {
           let activity={
