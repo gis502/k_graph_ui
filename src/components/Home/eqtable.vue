@@ -72,6 +72,7 @@ const tableData = ref([]);
 const router = useRouter();
 
 watch(() => props.eqData, () => {
+  console.log(props.eqData)
   let list = props.eqData.filter(item => item.magnitude >= 3)
   getEqData.value = list;
   total.value = list.length;

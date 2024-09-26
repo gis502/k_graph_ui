@@ -26,13 +26,6 @@ export function getAllEq(query) {
     })
 }
 
-export function queryAllEq() {
-    return request({
-        url: '/system/queryAllEq',
-        method: 'post',
-    })
-}
-
 export function queryEq(queryValue) {
     return request({
         url: '/system/queryEq',

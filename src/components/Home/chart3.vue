@@ -34,15 +34,15 @@ const updateTime = ref('')
 
 const fetchCasualtyStats = async (eqid) => {
   console.log('监听到的ID:',eqid); // 打印监听到的ID
-  try {
-    const data = await getCasualtyStats(eqid); // 确保以对象形式传递参数
-    injuryCount.value = data.injuryCount || 0;
-    missingCount.value = data.missingCount || 0;
-    deathCount.value = data.deathCount || 0;
-    console.log('返回的数据:', data);
-  } catch (error) {
-    console.error('获取人员伤亡数据失败:', error);
-  }
+  // try {
+  //   const data = await getCasualtyStats(eqid); // 确保以对象形式传递参数
+  //   injuryCount.value = data.injuryCount || 0;
+  //   missingCount.value = data.missingCount || 0;
+  //   deathCount.value = data.deathCount || 0;
+  //   console.log('返回的数据:', data);
+  // } catch (error) {
+  //   console.error('获取人员伤亡数据失败:', error);
+  // }
 };
 
 onMounted(() => {
@@ -61,7 +61,7 @@ watch(() => props.lastEq, (newVal) => {
 
 const initNewEq = () => {
 
-  updateTime.value = props.lastEq.time.replace('T', ' ');
+  updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');
 
 }
 </script>
