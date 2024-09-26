@@ -100,12 +100,12 @@ onMounted(() => {
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
     const label = name.value[index];
-    const width1 = width.value[index]
+    // const width1 = width.value[index]
     return {
       prop: fieldName,
       label: label,
       align: "center",
-      width: width1
+      // width: width1
     };
   });
 };
