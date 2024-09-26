@@ -62,12 +62,15 @@ export default {
         content: '',
         img: '',
       },
+        eqid:'',
     }
   },
   props: [
-    'currentTime','eqid'
+    'currentTime',
+    'eqid'
   ],
   mounted() {
+      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
       if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
           this.ifShowData = true
           this.fetchData()

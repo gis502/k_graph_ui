@@ -128,7 +128,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getEqbyId} from '@/api/system/eqlist'
+import {getAllEq, getEqById} from '../../../api/system/eqlist.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 
 import centerstar from "@/assets/icons/TimeLine/震中.png";
@@ -250,12 +250,16 @@ export default {
     };
   },
   created() {
-    this.eqid = this.$route.params.eqid
+    // this.eqid = this.$route.params.eqid
+    //   this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
   },
   mounted() {
+      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
       if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
           this.ifShowData = true
       }
+      // this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
+      this.ifShowData = true
     this.init()
     this.getEqInfo(this.eqid)
     // this.initTimerLine()
@@ -342,25 +346,35 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqbyId({eqid: eqid}).then(res => {
-        //震中标绘点
+        getEqById(eqid).then(res => {
+          console.log("getEqbyId-------",res)
+        // //震中标绘点
         this.centerPoint = res
         this.centerPoint.plotid = "center"
-        this.centerPoint.starttime = new Date(res.time)
-        this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
-
-        //变量初始化
+        this.centerPoint.starttime = new Date(res.occurrenceTime)
+        this.centerPoint.endtime = new Date(res.occurrenceTime + (7 * 24 * 60 * 60 * 1000 + 1000));
+        //
+        // //变量初始化
         this.eqstartTime = this.centerPoint.starttime
         this.eqyear = this.eqstartTime.getFullYear()
         this.eqmonth = this.eqstartTime.getMonth() + 1
         this.eqday = this.eqstartTime.getDate()
-        // 计算结束时间 结束时间为开始后72小时，单位为毫秒
+        // // 计算结束时间 结束时间为开始后72小时，单位为毫秒
         this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
-
+        //
         this.updateMapandVariablebeforInit()
 
       })
+        // this.centerPoint.starttime = new Date('2022-06-01 17:00:08')
+        // this.centerPoint.endtime = new Date('2022-06-08 22:00:08')
+        // this.eqstartTime = this.centerPoint.starttime
+        // this.eqyear = this.eqstartTime.getFullYear()
+        // this.eqmonth = this.eqstartTime.getMonth() + 1
+        // this.eqday = this.eqstartTime.getDate()
+        // this.eqendTime = new Date('2022-06-08 22:00:08')
+        // this.currentTime = this.eqstartTime
+        // this.updateMapandVariablebeforInit()
     },
 
     timestampToTime(timestamp) {

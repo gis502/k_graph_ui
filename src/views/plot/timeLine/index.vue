@@ -74,6 +74,7 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+          console.log("-----------------",res[0])
         let resData = res.filter(item=>item.magnitude>=5)
         that.getEqData = resData
         that.total = resData.length

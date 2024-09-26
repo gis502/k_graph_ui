@@ -49,9 +49,11 @@ export default {
     }
   },
   props: [
-    'currentTime','eqid'
+    'currentTime',
+      // 'eqid'
   ],
   mounted() {
+      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
     if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
       this.ifShowData = true
     }
@@ -60,6 +62,7 @@ export default {
   watch: {
     currentTime(newVal) {
       if(this.ifShowData) {
+          // console.log("``````````````",newVal)
         this.updateEmergencyResponse(newVal)
       }
     }

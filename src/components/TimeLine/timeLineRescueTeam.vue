@@ -31,16 +31,11 @@
           </li>
         </ul>
       </div>
-
-
-
-
       <div class="rescue_team_time_div">
         <div class="title-underline_low"></div>
         <p class="time_text"> 数据更新时间</p>
         <p class="time">{{this.recordtime}}</p>
       </div>
-
     </div>
 
     <div v-show="!rescue_team_isExpanded">
@@ -65,12 +60,15 @@ export default {
       rescue_team_isExpanded:'true',
       recordtime: '',
       ifShowData:false,
+        eqid: '',
     }
   },
   props: [
-    'currentTime','eqid'
+    'currentTime',
+      'eqid'
   ],
   mounted() {
+      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
       if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
           this.ifShowData = true
       }
@@ -78,6 +76,7 @@ export default {
   },
   watch: {
     currentTime(newVal) {
+        console.log("``````````````````",newVal)
         if(this.ifShowData){
             this.rescue_team_update(newVal)
         }
@@ -87,8 +86,8 @@ export default {
     init() {
         getRescueTeam().then(res => {
             console.log("res:----",res)
+            console.log("this.ifShowData-----",this.ifShowData)
             this.Responsecontent = res
-            console.log("this.Responsecontent",this.Responsecontent)
         })
       // this.Responsecontent.sort((a, b) => {
       //   if (a.departureDate < b.departureDate) return -1;
@@ -99,7 +98,7 @@ export default {
 
     async rescue_team_update(currentTime) {
       this.showRescueTeam=[]
-      // console.log("rescue_team_update",this.Responsecontent)
+      console.log("rescue_team_update",this.Responsecontent)
       // console.log(currentTime)
         const activities = await this.Responsecontent.filter((activity) => {
         return (
@@ -117,7 +116,7 @@ export default {
             this.recordtime = this.timestampToTime(activities[activities.length - 1].departureDate)
         activities.forEach((item) => {
           let activity={
-                    recordtime: this.timestampToTime(item.departureDate),
+            recordtime: this.timestampToTime(item.departureDate),
             gotime:'',
             goyear: '',
             gomonth: '',
