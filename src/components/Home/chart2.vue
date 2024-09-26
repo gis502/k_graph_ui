@@ -3,18 +3,19 @@
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import * as echarts from 'echarts';
+import { getAftershockMagnitude } from "@/api/system/statistics.js";
 
 const chart2 = ref(null);
 const props = defineProps(['lastEq']);
+let myChart = null;
 
-watch(() => props.lastEq, () => {
-  initChart();
-});
-
+// 初始化图表
 const initChart = () => {
-  const myChart = echarts.init(chart2.value);
+  if (!chart2.value) return;
+
+  myChart = echarts.init(chart2.value); // 初始化 ECharts
   const option = {
     tooltip: {
       trigger: 'axis'
@@ -32,18 +33,17 @@ const initChart = () => {
         show: true,
         textStyle: {
           color: '#fff',
-          fontSize: 14,  // Adjust font size if needed
+          fontSize: 14,
         },
-        interval: 0,  // Ensure all labels are shown
+        interval: 0,
       },
-      data: ['3级以下', '3 - 4' +
-      '.5级', '4.5 - 6级', '6级以上']
+      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级', '6级及以上']
     },
     yAxis: {
       type: 'value',
       nameTextStyle: {
         color: '#fff',
-        fontSize: 14,  // Adjust font size for the unit label
+        fontSize: 14,
       },
       axisLabel: {
         show: true,
@@ -51,21 +51,16 @@ const initChart = () => {
           color: '#fff'
         }
       },
-      minInterval: 1,  // Ensure that each grid line is spaced by at least 1 unit
+      minInterval: 1,
     },
     series: [
       {
         name: '余震数量',
-        data: [
-          0,  // 弱震 (< 3级)
-          0,  // 有感地震 (3 - 4.5级)
-          0,  // 中强震 (4.5 - 6级)
-          0   // 强震 (≥ 6级)
-        ],
+        data: [0, 0, 0, 0], // 初始数据，后续用实际数据替换
         type: 'bar',
         itemStyle: {
           color: (params) => {
-            const colors = ['#2889ff', '#ffeb2f', '#ffa500', '#f81919'];
+            const colors = ['#2889ff', '#ffeb2f', '#ffa500', '#ff2f2f'];
             return colors[params.dataIndex];
           }
         },
@@ -73,14 +68,56 @@ const initChart = () => {
           show: true,
           position: 'top',
           color: '#fff',
-          fontSize: 16, // Increase font size for labels
+          fontSize: 16,
         },
       }
     ]
   };
-  myChart.setOption(option);
+  myChart.setOption(option); // 设置初始图表配置
 };
 
+// 更新图表数据
+const updateChart = (data) => {
+  if (myChart) {
+    myChart.setOption({
+      series: [
+        {
+          data: [
+            data.magnitude_3_0_to_3_9 || 0,
+            data.magnitude_4_0_to_4_9 || 0,
+            data.magnitude_5_0_to_5_9 || 0,
+            0
+          ],
+        }
+      ]
+    });
+  }
+};
+
+// 监听 eqid 的变化
+watch(() => props.lastEq, async (newEqid) => {
+  console.log('LastEq 内容:', props.lastEq);
+  if (!newEqid) {
+    console.warn('eqid is not available.'); // 如果没有 eqid，打印警告
+    return;
+  }
+  try {
+    // // 发起请求，将 eqid 传递到后端获取数据
+    // const response = await getAftershockMagnitude(newEqid); // 确保该方法接受 eqid
+    // console.log('Received data:', response); // 打印从后端接收到的数据
+    //
+    // // 更新图表数据
+    // updateChart(response);
+  } catch (error) {
+    console.error('Failed to fetch aftershock data:', error);
+  }
+});
+
+
+// 组件挂载时初始化图表
+onMounted(() => {
+  initChart();
+});
 </script>
 
 <style scoped>

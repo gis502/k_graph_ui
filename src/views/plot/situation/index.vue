@@ -2,7 +2,6 @@
   <div>
     <div class="eqtitle">
       <span class="eqtitle-text_eqname">{{ this.title }}级地震</span>
-      <el-button type="primary" @click="drawStraightArrow">直线箭头</el-button>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
@@ -157,7 +156,7 @@ export default {
       addPolygonDialogFormVisible: false,// mian标绘信息填写对话框的显示和隐藏
       showMarkCollection: false, // 点标绘控件的显示和隐藏
       openAddStatus: true, // 用来控制添加billboard按钮的状态，点一次后只有添加完点才能再点击
-        ifPointAnimate: false, // 说明是否为新标绘的点
+      ifPointAnimate: false, // 说明是否为新标绘的点
       //-----------弹窗部分--------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -273,10 +272,6 @@ export default {
     this.websock.close()
   },
   methods: {
-    drawStraightArrow() {
-      Arrow.draw("straightArrow");
-      console.log(13)
-    },
     // 初始化控件等
     init() {
       let viewer = initCesium(Cesium)
@@ -375,7 +370,7 @@ export default {
         // that.entityclustering()
       })
     },
-    entityclustering(){
+    entityclustering() {
       // window.viewer.dataSource.cl
       let dataSource = new Cesium.CustomDataSource("myData");
       dataSource.entities.add()
@@ -462,7 +457,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗
@@ -544,7 +539,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -837,14 +832,21 @@ export default {
     },
 
     treeItemClick(item) {
+      console.log(item)
       let that = this
       if (item.plotType === '点图层') {
         this.openPointPop(item.name, item.img)
+      } else if (item.name === '直线箭头') {
+        Arrow.draw("straightArrow");
+      } else if (item.name === '攻击箭头') {
+        Arrow.draw("attackArrow");
+      } else if (item.name === '钳击箭头') {
+        Arrow.draw("pincerArrow");
       } else if (item.plotType === '线图层') {
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
-        }).then((res)=>{
+        }).then((res) => {
           let situationPlotData = []// situationplot表中的线数据
           for (let i = 0; i < res.pointPosArr.length; i++) {
             let cartographic = Cesium.Cartographic.fromCartesian(res.pointPosArr[i]);
@@ -919,7 +921,7 @@ export default {
           duration: 0
         })
         // 1-3 生成点标注的handler
-        cesiumPlot.initPointHandler(type, img, this.eqid,true).then(res => {
+        cesiumPlot.initPointHandler(type, img, this.eqid, true).then(res => {
           that.addMarkDialogFormVisible = true
           this.message.close(that.addMarkDialogFormVisible)
         })
@@ -927,18 +929,18 @@ export default {
     },
     // 画点
     drawPoint(pointInfo) {
-        if(this.ifPointAnimate){
-            cesiumPlot.drawPoint(pointInfo,true)
-        }else{
-            cesiumPlot.drawPoint(pointInfo)
-        }
+      if (this.ifPointAnimate) {
+        cesiumPlot.drawPoint(pointInfo, true)
+      } else {
+        cesiumPlot.drawPoint(pointInfo)
+      }
     },
     drawPoints(pointInfo) {
       cesiumPlot.drawPoints(pointInfo)
     },
-      ifPointAnimation(val){
-        this.ifPointAnimate = val
-      },
+    ifPointAnimation(val) {
+      this.ifPointAnimate = val
+    },
     // 重置标绘信息填写的绑定数据
     resetAddMarkCollection() {
       let cesiumStore = useCesiumStore()
@@ -1029,9 +1031,9 @@ export default {
         // })
       }
     },
-    drawPolygon(info,resolve) {
+    drawPolygon(info, resolve) {
       // console.log(info, "面")
-      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,resolve)
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid, resolve)
     },
     //获取数据库数据绘制面
     getDrawPolygonInfo(info) {

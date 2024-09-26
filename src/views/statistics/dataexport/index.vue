@@ -188,14 +188,14 @@ const formatMagnitude = (row, column, cellValue) => {
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
     const label = name.value[index];
-    const width1 = width.value[index]
-    console.log(width1)
+    // const width1 = width.value[index]
+    // console.log(width1)
     console.log(label)
     return {
       prop: fieldName,
       label: label,
       align: "center",
-      width: width1
+      // width: width1
     };
   });
 };

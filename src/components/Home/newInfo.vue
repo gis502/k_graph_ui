@@ -51,12 +51,12 @@ watch(() => props.lastEq, () => {
 });
 
 const initNewEq = () => {
-  eqName.value = props.lastEq.position + props.lastEq.magnitude + '级地震';
-  time.value = props.lastEq.time.replace('T', ' ');
+  eqName.value = props.lastEq.earthquakeName + props.lastEq.magnitude + '级地震';
+  time.value = props.lastEq.occurrenceTime.replace('T', ' ');
   magnitude.value = props.lastEq.magnitude;
   longitude.value = props.lastEq.longitude;
   latitude.value = props.lastEq.latitude;
-  position.value = props.lastEq.position;
+  position.value = props.lastEq.earthquakeName;
   depth.value = props.lastEq.depth;
 }
 
