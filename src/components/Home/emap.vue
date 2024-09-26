@@ -26,7 +26,7 @@ import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import {getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
+import {getKeyEq, getLatestEq, queryAllEq} from "@/api/system/eqlist.js";
 
 // 图例分类
 const eqGroups = ref([
@@ -80,14 +80,14 @@ const getMapEq = () => {
   getLatestEq().then(res => {
     latestEqData.value = res;
   })
-  getKeyEq().then(res => {
+  queryAllEq().then(res => {
     historyEqData.value = res;
   })
 };
 
 const initEmap = () => {
   const latestData = latestEqData.value.map(item => ({
-    position: item.position,
+    position: item.earthquakeName,
     magnitude: parseFloat(item.magnitude),
     longitude: item.longitude,
     latitude: item.latitude,
@@ -95,16 +95,16 @@ const initEmap = () => {
     // 但渲染在前端会出现个'T'，
     // 也就变成了2015-01-03T08:16:20，
     // 故以此将其删去
-    time: item.time.replace("T", " "),
+    time: item.occurrenceTime.replace("T", " "),
     depth: item.depth,
   }));
 
   const historyData = historyEqData.value.map(item => ({
-    position: item.position,
+    position: item.earthquakeName,
     magnitude: parseFloat(item.magnitude),
     longitude: item.longitude,
     latitude: item.latitude,
-    time: item.time.replace("T", " "),
+    time: item.occurrenceTime.replace("T", " "),
     depth: item.depth,
   }));
 
