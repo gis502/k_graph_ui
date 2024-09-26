@@ -672,33 +672,33 @@ export default {
       // console.log("this.showSuppliesList-", this.showSuppliesList);
     },
     //
-    // showSupplyPoint(row) {
-    //   console.log("点击了：", row);
-    //   this.showIcon = [];
-    //   this.showIcon.push(row);
-    //   this.removePoints(this.suppliesList[0]);
-    //   this.removePoints(this.suppliesList[1]);
-    //   this.removePoints(this.suppliesList[2]);
-    //   if (this.showIcon[0].type === "reserves") {
-    //     this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "救灾物资储备");
-    //   } else if (this.showIcon[0].type === "supplies") {
-    //     this.processPoints(this.showIcon, 'supplies', disasterReliefsuppliesLogo, "抢险救灾装备");
-    //   } else {
-    //     this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-    //   }
-    // },
-    //
-    // removePoints(entityArr) {
-    //   entityArr.forEach((entity) => {
-    //     // console.log("-----",entity.uuid)
-    //     let uuid = entity.uuid;
-    //
-    //     let existingEntity = window.viewer.entities.getById(uuid);
-    //     if (existingEntity) {
-    //       window.viewer.entities.removeById(uuid);
-    //     } else {
-    //     }
-    //   });
+    showSupplyPoint(row) {
+      console.log("点击了：", row);
+      this.showIcon = [];
+      this.showIcon.push(row);
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      if (this.showIcon[0].type === "reserves") {
+        this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "救灾物资储备");
+      } else if (this.showIcon[0].type === "supplies") {
+        this.processPoints(this.showIcon, 'supplies', disasterReliefsuppliesLogo, "抢险救灾装备");
+      } else {
+        this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+      }
+    },
+
+    removePoints(entityArr) {
+      entityArr.forEach((entity) => {
+        // console.log("-----",entity.uuid)
+        let uuid = entity.uuid;
+        let existingEntity = window.viewer.entities.getById(uuid);
+        if (existingEntity) {
+          window.viewer.entities.removeById(uuid);
+        } else {
+        }
+      });
+    },
     // },
     //
     // showAllSupplyPoints() {

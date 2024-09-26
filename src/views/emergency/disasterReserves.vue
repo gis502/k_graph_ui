@@ -27,31 +27,8 @@
           :prop="header.prop"
           :label="header.label"
           :width="header.width"
+          show-overflow-tooltip
       >
-        <!-- 为表格单元格内容定义默认模板 -->
-        <template #default="scope">
-          <!-- 对特定表头，使用Popover显示完整信息 -->
-          <div v-if="header.label === '地址'">
-            <el-popover placement="top" :width="200" trigger="hover">
-              <div style="text-align: left">{{ scope.row[header.prop] }}</div>
-              <!-- 定义触发Popover显示的参考元素 -->
-              <template #reference>
-                <div
-                    :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"
-                >
-                  <!-- 在参考元素内显示截断的字段值 -->
-                  <span class="myNote" style="text-align: left">
-                                             {{ scope.row[header.prop] }}
-                                         </span>
-                </div>
-              </template>
-            </el-popover>
-          </div>
-          <!-- 对其他表头，直接显示字段值 -->
-          <div v-else>
-            {{ scope.row[header.prop] }}
-          </div>
-        </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="150" fixed="right">
@@ -79,11 +56,15 @@
 </template>
 
 <script>
-import {reservesList, searchDisasterReserves} from "../../api/system/emergency.js";
+import {
+  addOrUpdateSuppliesReserves,
+  delSuppliesReserves, reservesList,
+  suppliesReservesList, searchDisasterReserves, searchMaterialData
+} from "../../api/system/emergency.js";
 
 export default {
   name: "disasterReserves",
-  data(){
+  data() {
     return {
       reservesData: [],
       tableData: [],
@@ -93,33 +74,33 @@ export default {
       currentPage: 1,
       // ---表头---
       headersArr: [
-        { prop: 'county', label: "县(区)", width: 160 },
-        { prop: 'storagePointsCount', label: "储备库点数量(个)", width: 180 },
-        { prop: 'address', label: "地址", width: 360 },
-        { prop: 'contactPerson', label: "联系人", width: 100 },
-        { prop: 'contactPhone', label: "联系电话", width: 180 },
-        { prop: 'totalKitsCount', label: "合计总件套数", width: 120 },
-        { prop: 'disasterTentsCount', label: "救灾帐篷(顶)", width: 120 },
-        { prop: 'cottonBlanketsCount', label: "棉被(床)", width: 120 },
-        { prop: 'otherBlanketsCount', label: "其他被子(床)", width: 120 },
-        { prop: 'cottonClothesCount', label: "棉衣裤(套)", width: 120 },
-        { prop: 'cottonCoatsCount', label: "棉大衣(件)", width: 120 },
-        { prop: 'otherClothesCount', label: "其他衣物(套、件)", width: 150 },
-        { prop: 'woolBlanketsCount', label: "毛毯(床)", width: 120 },
-        { prop: 'foldingBedsCount', label: "折叠床(张)", width: 120 },
-        { prop: 'bunkBedsCount', label: "高低床(套)", width: 120 },
-        { prop: 'stripedClothBundlesCount', label: "彩条布(包)", width: 120 },
-        { prop: 'moistureMatsCount', label: "防潮垫(张)", width: 120 },
-        { prop: 'generatorsCount', label: "发电机(台)", width: 120 },
-        { prop: 'lightingFixturesCount', label: "照明灯具(个)", width: 120 },
-        { prop: 'lightingKitsCount', label: "照明灯组(套)", width: 120 },
-        { prop: 'flashlightsCount', label: "手电筒(支)", width: 120 },
-        { prop: 'raincoatsCount', label: "雨衣(件)", width: 120 },
-        { prop: 'rainBootsCount', label: "雨靴(双)", width: 120 },
-        { prop: 'otherSuppliesCount', label: "其他装备数量(个)", width: 150 },
-        { prop: 'longitude', label: "经度", width: 150 },
-        { prop: 'latitude', label: "纬度", width: 150 },
-        { prop: 'insertTime', label: "插入时间", width: 180 }
+        {prop: 'county', label: "县(区)", width: 160},
+        {prop: 'storagePointsCount', label: "储备库点数量(个)", width: 180},
+        {prop: 'address', label: "地址", width: 360},
+        {prop: 'contactPerson', label: "联系人", width: 100},
+        {prop: 'contactPhone', label: "联系电话", width: 180},
+        {prop: 'totalKitsCount', label: "合计总件套数", width: 120},
+        {prop: 'disasterTentsCount', label: "救灾帐篷(顶)", width: 120},
+        {prop: 'cottonBlanketsCount', label: "棉被(床)", width: 120},
+        {prop: 'otherBlanketsCount', label: "其他被子(床)", width: 120},
+        {prop: 'cottonClothesCount', label: "棉衣裤(套)", width: 120},
+        {prop: 'cottonCoatsCount', label: "棉大衣(件)", width: 120},
+        {prop: 'otherClothesCount', label: "其他衣物(套、件)", width: 150},
+        {prop: 'woolBlanketsCount', label: "毛毯(床)", width: 120},
+        {prop: 'foldingBedsCount', label: "折叠床(张)", width: 120},
+        {prop: 'bunkBedsCount', label: "高低床(套)", width: 120},
+        {prop: 'stripedClothBundlesCount', label: "彩条布(包)", width: 120},
+        {prop: 'moistureMatsCount', label: "防潮垫(张)", width: 120},
+        {prop: 'generatorsCount', label: "发电机(台)", width: 120},
+        {prop: 'lightingFixturesCount', label: "照明灯具(个)", width: 120},
+        {prop: 'lightingKitsCount', label: "照明灯组(套)", width: 120},
+        {prop: 'flashlightsCount', label: "手电筒(支)", width: 120},
+        {prop: 'raincoatsCount', label: "雨衣(件)", width: 120},
+        {prop: 'rainBootsCount', label: "雨靴(双)", width: 120},
+        {prop: 'otherSuppliesCount', label: "其他装备数量(个)", width: 150},
+        {prop: 'longitude', label: "经度", width: 150},
+        {prop: 'latitude', label: "纬度", width: 150},
+        {prop: 'insertTime', label: "插入时间", width: 180}
       ],
       // 查询功能
       queryParams: '',   // 搜索关键字
@@ -140,21 +121,21 @@ export default {
   mounted() {
     this.getDate()
   },
-  methods:{
-    getDate(){
+  methods: {
+    getDate() {
       reservesList().then(res => {
         this.reservesData = res
         this.total = res.length
         this.tableData = this.getPageArr() // 这里不传参数，默认使用 this.reservesData
-        console.log("-----------------",res[0])
+        console.log("-----------------", res[0])
       })
     },
-    handleOpen(feature, row){
+    handleOpen(feature, row) {
       // console.log("row------",row)
       // this.dialogShow = false
       // this.dialogTitle = feature
     },
-    handleDelete(row){
+    handleDelete(row) {
       // delSuppliesReserves(row.uniqueId).then(res => {
       //     console.log("delete--------",res)
       // })
