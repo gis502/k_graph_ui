@@ -66,11 +66,11 @@
     >
       <el-form :inline="true" :model="formValue">
         <el-form-item label="地震位置">
-          <el-input v-model="formValue.position" style="width: 23vw;" placeholder="地震位置" clearable/>
+          <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-              v-model="formValue.time"
+              v-model="formValue.occurrenceTime"
               type="daterange"
               unlink-panels
               range-separator="至"
@@ -162,8 +162,8 @@ const shortcuts = [
 ]
 
 const formValue = reactive({
-  position: "",
-  time: "",
+  earthquakeName: "",
+  occurrenceTime: "",
   startMagnitude: "",
   endMagnitude: "",
   startDepth: "",
@@ -171,12 +171,12 @@ const formValue = reactive({
 })
 
 const onSubmit = () => {
-  if (formValue.time !== "") {
-    const [startTime, endTime] = formValue.time;
+  if (formValue.occurrenceTime !== "") {
+    const [startTime, endTime] = formValue.occurrenceTime;
     const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
     const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
 
-    formValue.time = `${startDate} 至 ${endDate}`;
+    formValue.occurrenceTime = `${startDate} 至 ${endDate}`;
   }
   fromEq(formValue).then(res => {
     tableData.value = res;
