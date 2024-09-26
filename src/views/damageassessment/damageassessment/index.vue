@@ -30,12 +30,12 @@
               <div class="eqText">
           <span
               class="eqTitle">
-            {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.city }}{{ eq.magnitude }}级地震
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
-            发震时刻：{{ eq.time }}<br/>
-            参考位置：{{ eq.position }}<br/>
+            发震时刻：{{ eq.occurrenceTime.replace('T', ' ') }}<br/>
+            参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
           </span>
@@ -73,12 +73,12 @@
             </el-divider>
             <div style="padding: 1px 20px 10px 20px">
               <!-- 显示选项卡内容 -->
-              <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
-              <p>发震时刻：{{ selectedTabData.time }}</p>
+              <h4>地震名称：{{ selectedTabData.city }} {{ selectedTabData.magnitude }}级地震</h4>
+              <p>发震时刻：{{ selectedTabData.occurrenceTime.replace('T',' ') }}</p>
               <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
               <p>地震震级：{{ selectedTabData.magnitude }}</p>
               <p>震源深度：{{ selectedTabData.depth }}千米</p>
-              <p>参考位置：{{ selectedTabData.position }}</p>
+              <p>参考位置：{{ selectedTabData.earthquakeName }}</p>
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -154,6 +154,7 @@ import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
 import sichuan from "@/assets/geoJson/sichuan.json";
+
 export default {
   components: {
     TimeLinePanel,
@@ -208,22 +209,34 @@ export default {
         let resData = res.filter((item) => item.magnitude >= 4.5);
         let data = resData.map((item) => ({
           ...item,
-          time: this.timestampToTime(item.time, "full"),
+          time: this.timestampToTime(item.occurrenceTime, "full"),
           magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
         }));
+        console.log("data:", data)
 
         this.getEqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
-        // console.log("data:", data)
+
       });
     },
 
     // 初始化控件等
     init() {
-      let viewer = initCesium(Cesium);
+      Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ZTRkYjIzNC0wODllLTQ5YTEtOWYxNy1lODIxYjczMjA3NWUiLCJpZCI6MjI2MDM3LCJpYXQiOjE3MjA1ODEwNjd9.flcblzH-hs9AD7H-RZHxfo5SRNVG4gzMCB9QHxCKpuw";
+      const viewer = new Cesium.Viewer("cesiumContainer", {
+        homeButton: false,
+        sceneModePicker: false,
+        baseLayerPicker: true,
+        animation: false,
+        infoBox: false,
+        selectionIndicator: false,
+        geocoder: true,
+        timeline: false,
+        fullscreenButton: false,
+        shouldAnimate: false,
+        navigationHelpButton: false,
+      });
       viewer._cesiumWidget._creditContainer.style.display = "none";
       window.viewer = viewer;
       let options = {};
@@ -244,12 +257,14 @@ export default {
       options.zoomInTooltip = "放大";
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
+
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
         "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
         "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
         "地形服务";
+
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -282,6 +297,7 @@ export default {
           const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
           const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
           entity.polygon.material = colorMaterial; // 设置填充颜色
+
           // console.log("--------", index, "----------------", entity)
         });
         yaan.features.forEach((feature) => {
@@ -300,7 +316,8 @@ export default {
                 verticalOrigin: Cesium.VerticalOrigin.CENTER,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                pixelOffset: new Cesium.Cartesian2(0, 0)
+                pixelOffset: new Cesium.Cartesian2(0, 0),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
               })
             }));
             this.RegionLabels.push(regionlabel)
@@ -433,7 +450,7 @@ export default {
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+            text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.position + eq.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -476,9 +493,10 @@ export default {
     filterEq() {
       if (this.title) {
         this.filteredEqData = this.getEqData.filter((eq) => {
-          const dateStr = this.timestampToTime(eq.time, 'date');
-          const positionStr = eq.position;
+          const dateStr = this.timestampToTime(eq.occurrenceTime, 'date');
+          const positionStr = eq.city;
           const magnitudeStr = eq.magnitude;
+
           return (
             dateStr.includes(this.title) ||
             positionStr.includes(this.title) ||
@@ -523,7 +541,7 @@ export default {
           },
           label: {
             text: this.timestampToTime(this.selectedTabData.time, 'date') +
-              this.selectedTabData.position +
+              this.selectedTabData.city +
               this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
@@ -660,8 +678,6 @@ export default {
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             fill: true,
             clampToGround: true,
-            height: 0,
-            extrudedHeight: 0,
             rotation: 0,
           },
         });
@@ -692,7 +708,7 @@ export default {
                 label: {
                   show: false,
                   showBackground: true,
-                  text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+                  text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.position + eq.magnitude + '级地震',
                   font: '16px sans-serif',
                   fillColor: Cesium.Color.WHITE,
                   style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -813,7 +829,10 @@ export default {
                 [this.selectedTabData.longitude, this.selectedTabData.latitude],
                 item.lonlat[0][i],
               ]) < 200
+
             ) {
+              console.log(99999)
+              console.log([this.selectedTabData.longitude, this.selectedTabData.latitude])
               this.faultzonelines.push(item);
               break;
             }
@@ -916,8 +935,6 @@ export default {
               heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
               fill: true,
               clampToGround: true,
-              height: 0,
-              extrudedHeight: 0,
               rotation: Cesium.Math.toRadians(angle_num_tmp),
             },
             layername: "烈度圈",
@@ -1146,6 +1163,7 @@ export default {
 
 .unfold {
   position: absolute;
+  top: 50px;
   right: 0;
   width: 30px;
   height: 40px;
@@ -1427,6 +1445,22 @@ span {
 
 ::v-deep .el-table__inner-wrapper::before {
   display: none;
+}
+
+::v-deep .cesium-baseLayerPicker-dropDown {
+  z-index: 1000;
+}
+
+::v-deep .compass {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+::v-deep .navigation-controls {
+  position: absolute;
+  top: 120px;
+  left: 53px;
 }
 
 </style>
