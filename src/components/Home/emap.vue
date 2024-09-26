@@ -76,7 +76,7 @@ watch([historyEqData, latestEqData], (newData) => {
 }, {deep: true});
 
 watch(() => props.eqData, () => {
-  latestEqData.value = props.eqData;
+  latestEqData.value = [props.eqData[0]];
   historyEqData.value = props.eqData;
 });
 
