@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="center-body">
-          <e-map/>
+          <e-map :eq-data="EqAll"/>
         </div>
 
         <div class="right-body">
@@ -41,7 +41,6 @@
             <dv-border-box7>
               <div class="public-title">
                 地震列表
-
                 <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
                 <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
                 <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
@@ -105,10 +104,7 @@
 </template>
 
 <script setup>
-import {
-  BorderBox7 as DvBorderBox7,
-  Decoration5 as DvDecoration5
-} from '@kjgl77/datav-vue3'
+import {BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5} from '@kjgl77/datav-vue3'
 import {onMounted, ref} from 'vue';
 import eMap from '@/components/Home/emap.vue';
 import eqTable from '@/components/Home/eqtable.vue';
@@ -229,7 +225,6 @@ const getEq = () => {
     tableData.value = res
     lastEqData.value = res[0]
   })
-  ;
 };
 
 onMounted(() => {
@@ -237,6 +232,7 @@ onMounted(() => {
   getEq();
 });
 </script>
+
 <style scoped>
 .public-bg {
   background: rgba(12, 26, 63, 0.3);
