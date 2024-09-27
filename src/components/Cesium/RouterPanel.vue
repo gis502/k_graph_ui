@@ -129,7 +129,7 @@ export default {
         shelterTypeName: '场所类型名称',
         area: '面积',
         capacity: '可容纳人数',
-        secretLevel: '密级',
+        secretLevel: '保密级别',
         administrativeDivision: '行政区划',
         emergencyPhone: '应急电话',
         emergencyMobile: '应急手机',

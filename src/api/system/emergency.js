@@ -10,7 +10,7 @@ export function getEmergency(query) {
 
 export function getFeaturesLayer(query) {
     return request({
-        url: '/system/emergency/getFeaturesLayer',
+        url: '/emergencyResources/getFeaturesLayer',
         method: 'get',
         params: query
     })
@@ -18,20 +18,20 @@ export function getFeaturesLayer(query) {
 
 export function suppliesReservesList() {
     return request({
-        url: '/system/emergency/suppliesReservesList',
+        url: '/emergencyResources/suppliesReservesList',
         method: 'get',
     })
 }
 export function addOrUpdateSuppliesReserves(data) {
     return request({
-        url: '/system/emergency/addOrUpdateSuppliesReserves',
+        url: '/emergencyResources/addOrUpdateSuppliesReserves',
         method: 'post',
         data: data
     })
 }
 export function delSuppliesReserves(uniqueId) {
     return request({
-        url: '/system/emergency/delSuppliesReserves',
+        url: '/emergencyResources/delSuppliesReserves',
         method: 'delete',
         params: {
             uniqueId: uniqueId
@@ -41,34 +41,34 @@ export function delSuppliesReserves(uniqueId) {
 
 export function sheltersList() {
     return request({
-        url: '/system/emergency/sheltersList',
+        url: '/emergencyResources/sheltersList',
         method: 'get',
     })
 }
 export function searchEmergencyShelters(inputData) {
     return request({
-        url: '/system/emergency/searchEmergencyShelters',
+        url: '/emergencyResources/searchEmergencyShelters',
         method: 'post',
         params: {'inputData':inputData}
     })
 }
 export function reservesList() {
     return request({
-        url: '/system/emergency/reservesList',
+        url: '/emergencyResources/reservesList',
         method: 'get',
     })
 }
 
 export function rescueTeamList() {
     return request({
-        url: '/system/emergency/rescueTeamList',
+        url: '/emergencyResources/rescueTeamList',
         method: 'get',
     })
 }
 
 export function searchEmergencyTeam(inputData) {
     return request({
-        url: '/system/emergency/searchEmergencyTeam',
+        url: '/emergencyResources/searchEmergencyTeam',
         method: 'post',
         params: {'inputData':inputData}
     })
@@ -76,7 +76,7 @@ export function searchEmergencyTeam(inputData) {
 
 export function searchMaterialData(inputData) {
     return request({
-        url: '/system/emergency/searchMaterialData',
+        url: '/emergencyResources/searchMaterialData',
         method: 'post',
         data: inputData
     })
@@ -84,7 +84,7 @@ export function searchMaterialData(inputData) {
 
 export function searchDisasterReserves(inputData) {
     return request({
-        url: '/system/emergency/searchDisasterReserves',
+        url: '/emergencyResources/searchDisasterReserves',
         method: 'post',
         params: {'inputData':inputData}
     })

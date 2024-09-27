@@ -109,9 +109,10 @@ export default {
         { prop: 'emergencyPhone', label: '应急电话', width: 120 },
         { prop: 'placeType', label: '地点类型', width: 120 },
         { prop: 'levelName', label: '级别名称', width: 120 },
-        { prop: 'secrecyLevel', label: '保密级别', width: 120 },
+        { prop: 'secretLevel', label: '保密级别', width: 120 },
         { prop: 'basicInformation', label: '基本信息', width: 150 },
         { prop: 'seismicIntensity', label: '地震烈度', width: 150 },
+        { prop: 'shelterTypeName', label: '场所类型名称', width: 150 },
         { prop: 'remarks', label: '备注', width: 300 },
       ],
       // 查询功能
