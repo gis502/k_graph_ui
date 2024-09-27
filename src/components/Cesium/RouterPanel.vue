@@ -161,16 +161,22 @@ export default {
         this.popupTitle = rawPopupData.tableName;
         console.log(this.popupTitle, 'title----');
 
-        // 将 key 转换为中文
+// 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
-          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type'&& key !== 'geom'&& key !== 'icon') {
-            const translatedKey = this.keyMappings[key] || key;
-            translatedData[translatedKey] = rawPopupData[key];
+          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type' && key !== 'geom' && key !== 'icon') {
+            if (key === 'insertionTime' || key === 'insertTime') {
+              if (rawPopupData[key] !== null) {
+                const translatedKey = this.keyMappings[key] || key;
+                translatedData[translatedKey] = rawPopupData[key];
+              }
+            } else {
+              const translatedKey = this.keyMappings[key] || key;
+              translatedData[translatedKey] = rawPopupData[key];
+            }
           }
         }
         this.popupPanelData = translatedData;
-
       }
     },
     position() {
