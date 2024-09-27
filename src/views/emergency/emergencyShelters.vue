@@ -101,7 +101,6 @@ export default {
         { prop: 'address', label: '地址', width: 450 },
         { prop: 'emergencyMobile', label: '应急手机', width: 150 },
         { prop: 'affiliatedOrganization', label: '隶属组织', width: 140 },
-        { prop: 'startUsingDate', label: '启用日期', width: 180 },
         { prop: 'designUsageYears', label: '设计使用年限', width: 120 },
         { prop: 'dataSourceUnit', label: '数据来源单位', width: 180 },
         { prop: 'longitude', label: '经度', width: 120 },

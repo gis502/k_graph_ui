@@ -179,7 +179,7 @@ export default {
       }
       for (; start < end; start++) {
         if (data[start]) {
-          data[start].insertTime = this.formatDate(data[start].insertTime);
+          data[start].insertTime = data[start].insertTime ? this.formatDate(data[start].insertTime) : null;
           arr.push(data[start]);
         }
       }
