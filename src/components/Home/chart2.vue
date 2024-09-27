@@ -3,9 +3,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
-import { getAftershockMagnitude } from "@/api/system/statistics.js";
+import {getAftershockMagnitude} from "@/api/system/statistics.js";
 
 const chart2 = ref(null);
 const props = defineProps(['lastEq']);
@@ -95,30 +95,18 @@ const updateChart = (data) => {
 };
 
 // 监听 eqid 的变化
-watch(() => props.lastEq, async (newEqid) => {
-  console.log("===============================================")
-  console.log('LastEq 内容:', props);
-  console.log('LastEq 内容:', props.lastEq.eqid);
-  if (!newEqid) {
-    console.warn('eqid is not available.'); // 如果没有 eqid，打印警告
-    return;
-  }
-  try {
-    // 发起请求，将 eqid 传递到后端获取数据
-    const response = await getAftershockMagnitude(newEqid);// 确保该方法接受 eqid
-    console.log('Received data:', response); // 打印从后端接收到的数据
-
-    // 更新图表数据
-    updateChart(response);
-  } catch (error) {
-    console.error('Failed to fetch aftershock data:', error);
+watch(() => props.lastEq, () => {
+  console.log(props.lastEq)
+  if (props.lastEq) {
+    getAftershockMagnitude(props.lastEq.eqid).then((res) => {
+      console.log(res)
+    })
   }
 });
 
 
 // 组件挂载时初始化图表
 onMounted(() => {
-  console.log('Initial lastEq:', props.lastEq);
   initChart();
 });
 </script>

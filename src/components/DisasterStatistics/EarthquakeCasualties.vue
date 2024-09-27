@@ -62,7 +62,7 @@ watch(flag, (newFlag) => {
   // 清空选择
   clearSelection();
   value.value = [];
-  getYaanCasualtiesList();
+  // getYaanCasualtiesList();
 
 });
 const times = [
@@ -82,30 +82,30 @@ onMounted(() => {
 })
 
 // 请求人员伤亡表数据
-const getYaanCasualtiesList = async () => {
-  await getData({
-    currentPage: currentPage.value,
-    pageSize: pageSize.value,
-    requestParams: requestParams.value,
-    flag: flag.value
-  }).then(res => {
-    tableData.value = res.data.records
-    console.log(res.data.records)
-    total.value = res.data.total
-  })
-
-}
+// const getYaanCasualtiesList = async () => {
+//   await getData({
+//     currentPage: currentPage.value,
+//     pageSize: pageSize.value,
+//     requestParams: requestParams.value,
+//     flag: flag.value
+//   }).then(res => {
+//     tableData.value = res.data.records
+//     console.log(res.data.records)
+//     total.value = res.data.total
+//   })
+//
+// }
 
 
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
     const label = name.value[index];
-    const width1 = width.value[index]
+    // const width1 = width.value[index]
     return {
       prop: fieldName,
       label: label,
       align: "center",
-      width: width1
+      // width: width1
     };
   });
 };
