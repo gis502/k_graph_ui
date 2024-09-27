@@ -54,7 +54,7 @@ const initChart = () => {
         show: true,
         textStyle: {
           color: '#fff',
-          fontSize: 16, // Increase font size
+          fontSize: 16,
         },
         interval: 0,
       },
@@ -64,12 +64,12 @@ const initChart = () => {
       type: 'value',
       nameTextStyle: {
         color: '#fff',
-        fontSize: 16, // Increase font size
+        fontSize: 16,
       },
       axisLabel: {
         show: true,
         textStyle: {
-          fontSize: 15, // Increase font size
+          fontSize: 15,
           color: '#fff'
         }
       },
@@ -78,18 +78,20 @@ const initChart = () => {
       {
         name: '地震次数',
         data: data,
-        type: 'bar',
+        type: 'line',
+        smooth: false, // Disable smooth line
         itemStyle: {
-          color: (params) => {
-            const colors = ['#2889ff', '#ffeb2f', '#ffa500', '#f81919'];
-            return colors[params.dataIndex];
-          }
+          color: '#3099E2'
+        },
+        lineStyle: {
+          color: '#1cccff',
+          width: 2, // Adjust line thickness
         },
         label: {
           show: true,
           position: 'top',
           color: '#fff',
-          fontSize: 16, // Increase font size for labels
+          fontSize: 16,
         }
       }
     ]
@@ -102,7 +104,7 @@ onMounted(() => {
   initChart();
 });
 
-watch(() => props.eqData, (newData) => {
+watch(() => props.eqData, () => {
   initChart();  // Reinitialize chart when data changes
 }, {deep: true});
 </script>

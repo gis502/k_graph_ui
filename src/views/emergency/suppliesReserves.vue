@@ -20,14 +20,12 @@
         </template>
       </el-table-column>
 
-      <!-- 遍历每个表头，创建表格列 -->
       <el-table-column
           v-for="(header, index) in headersArr"
           :key="index"
           :prop="header.prop"
           :label="header.label"
           :width="header.width"
-          show-overflow-tooltip
       >
       </el-table-column>
 

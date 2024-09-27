@@ -4,25 +4,6 @@
       <div class="dataManage" style="height: auto">
         <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">上传Excel文件
         </el-button>
-        <el-upload
-            name="file"
-            ref="fileUpload"
-            class="upload-demo"
-            :action="uploadUrl"
-            :multiple="false"
-            :show-file-list="false"
-            :on-success="handleSuccess"
-            :before-upload="beforeAvatarUpload"
-            @change="handleFileChange"
-            :headers="this.headers">
-          <!-- 隐藏的文件选择按钮 -->
-          <input
-              type="file"
-              ref="fileInput"
-              style="display: none;"
-              @change="handleFileChange"
-          />
-        </el-upload>
         <el-button size='large' type='primary' style="margin: 10px;"
                    @click="downExcel($event)" plain icon="Download">下载上传Excel文件
         </el-button>
@@ -47,9 +28,25 @@
             </el-form-item>
           </el-form>
           <div class="dialog-footer1">
-            <el-button @click="importDialogVisible=false">取 消</el-button>
-            <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
-            <el-button type="primary" plain @click="confirmUpload">确定</el-button>
+            <div style="margin-bottom: 30px">
+              <el-button @click="importDialogVisible=false">取 消</el-button>
+            </div>
+            <el-upload
+                name="file"
+                ref="fileUpload"
+                class="upload-demo"
+                :action="uploadUrl"
+                :multiple="false"
+                :show-file-list="false"
+                :on-success="handleSuccess"
+                :before-upload="beforeAvatarUpload"
+                @change="handleFileChange"
+                :headers="this.headers">
+              <!-- 隐藏的文件选择按钮 -->
+
+              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+            </el-upload>
+            <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
 
         </el-dialog>
@@ -58,7 +55,7 @@
                    v-model="formDialogVisible"
                    width="35%"
                    center
-                   @close="resetFileInput">
+        >
           <el-form :model="form" ref="form" label-width="100px" style="margin-left:30px">
             <el-form-item label="表名" prop="tableName">
               <el-select v-model="form.tableName" placeholder="请选择表名" style="width: 18vw" filterable>
@@ -73,7 +70,7 @@
           </el-form>
           <div class="dialog-footer">
             <el-button @click="formDialogVisible=false">取 消</el-button>
-            <el-button type="primary"  plain @click="downloadFile($event)">确定</el-button>
+            <el-button type="primary" plain @click="downloadFile($event)">确定</el-button>
           </div>
 
         </el-dialog>
@@ -154,13 +151,24 @@
             <el-table-column
                 align='center'
                 prop='operTime'
+                width="180"
                 label='更新时间'
+            >
+            </el-table-column>
+            <el-table-column
+                align='center'
+                prop='operParam'
+                label='上传表名'
+                width="200"
+                :formatter='formatMessageTableName'
+                :show-overflow-tooltip="true"
             >
             </el-table-column>
             <el-table-column
                 align='center'
                 prop='jsonResult'
                 label='添加数据'
+                width="100"
                 :formatter='formatMessageAdd'
             >
             </el-table-column>
@@ -171,52 +179,56 @@
                 :formatter='formatMessageUpdate'
             >
             </el-table-column>
-            <el-table-column
-                label='操作'
-                align='center'
-            >
-              <template v-slot="scope">
-                <el-button
-                    size='small'
-                    type='primary'
-                    @click=""
-                >详情
-                </el-button
-                >
-              </template>
-            </el-table-column>
+<!--            <el-table-column-->
+<!--                label='操作'-->
+<!--                align='center'-->
+<!--            >-->
+<!--              <template v-slot="scope">-->
+<!--                <el-button-->
+<!--                    size='small'-->
+<!--                    type='primary'-->
+<!--                    @click="openDetailPanel"-->
+<!--                >详情-->
+<!--                </el-button-->
+<!--                >-->
+<!--              </template>-->
+<!--            </el-table-column>-->
           </el-table>
-          <el-dialog
-              title="详情"
-              :visible.sync="dialogVisible"
-              width="50%">
-            <el-table
-                :data="messageData"
-                style="width: 100%"
-                height="400"
-                ref="table"
-            >
-              <el-table-column
-                  prop="id"
-                  label="编号"
-                  align='center'>
-              </el-table-column>
-              <el-table-column
-                  prop="message"
-                  label="信息"
-                  align='center'>
-              </el-table-column>
-              <el-table-column
-                  prop="isSuccess"
-                  align='center'
-                  label="是否成功">
-              </el-table-column>
-            </el-table>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-            </span>
-          </el-dialog>
+<!--          <el-dialog-->
+<!--              title="详情"-->
+<!--              v-model="dialogVisible"-->
+<!--              width="75%">-->
+<!--            <el-table-->
+<!--                table-layout="fixed"-->
+<!--                ref="multipleTableRef"-->
+<!--                :data="messageData"-->
+<!--                height="510px"-->
+<!--                class="table tableMove"-->
+<!--                fit-->
+<!--                :row-style="{ height: '6.3vh' }"-->
+<!--            >-->
+<!--              <el-table-column-->
+<!--                  label="序号"-->
+<!--                  width="50"-->
+<!--                  align="center"-->
+<!--                  :formatter="changeIndex"-->
+<!--              />-->
+<!--              <el-table-column-->
+<!--                  v-for="col in columns"-->
+<!--                  :key="col.prop"-->
+<!--                  :prop="col.prop"-->
+<!--                  :label="col.label"-->
+<!--                  :align="col.align"-->
+<!--                  :width="col.width"-->
+<!--                  :formatter="col.label === '震级' ? formatMagnitude : undefined"-->
+<!--              />-->
+<!--              />-->
+<!--            </el-table>-->
+<!--            <span slot="footer" class="dialog-footer2">-->
+<!--              <el-button @click="dialogVisible = false">取 消</el-button>-->
+<!--              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
+<!--            </span>-->
+<!--          </el-dialog>-->
         </div>
 
       </div>
@@ -256,14 +268,11 @@ export default {
     const filename = ref('');
     const uploadUrl = ref(``);
     const websocket = ref(null);
-    const formDialogVisible = ref(false)
-
     return {
       name,
       uploadUrl,
       filename,
       websocket,
-      formDialogVisible
     }
   },
   data() {
@@ -275,9 +284,9 @@ export default {
         tableName: ''
       },
       form1: {
-        tableName1: ''
+        tableName1: '',
+        eqId:''
       },
-      files: [],//导表文件列表
       eqlists: [],//地震文件列表
       tableNameOptions: [],
       tableNameOptions1: [],
@@ -299,9 +308,11 @@ export default {
       messageData: [],
       percent: 0,
       importDialogVisible: false,
+      formDialogVisible: false,
       dialogVisible: false,
       progressColor: '#001ce1',
       inputValue: '',
+      columns: [],
       inputValueParams: '',
       addCount: 0,
       timeValue: '今日',
@@ -329,6 +340,7 @@ export default {
     }
   },
   methods: {
+    // 打开上传文件弹窗
     openUpload() {
       this.importDialogVisible = true;
     },
@@ -336,7 +348,7 @@ export default {
       this.$refs.fileInput.click();
     },
     handleFileChange(event) {
-      const file = event.target.files[0];
+      const file = event.raw;
       if (file) {
         this.selectedFile = file;
       }
@@ -347,7 +359,7 @@ export default {
         const fileUpload = this.$refs.fileUpload;
         fileUpload.uploadFiles = [this.selectedFile]; // 将文件添加到 el-upload 组件
         fileUpload.submit(); // 提交文件上传
-      }else {
+      } else {
         this.triggerFileInput();// 如果没有文件，触发文件选择
       }
     },
@@ -372,6 +384,13 @@ export default {
     handleCurrentChange(val) {
       this.currentPage = val
     },
+    formatMessageTableName(row, column, cellValue) {
+      // 正则表达式匹配第二个双引号中的内容
+      const matches = cellValue.match(/"([^"]*?)"/g);
+      // 返回第二个匹配项，即表名
+      return matches && matches.length >= 2 ? matches[1].replace(/"/g, '') : ''; // 去掉双引号
+    },
+
     //添加数据数量
     formatMessageAdd(row, column, cellValue) {
       if (JSON.parse(cellValue).msg === "操作成功") {
@@ -393,7 +412,8 @@ export default {
     getExcelUploadByTimeButton() {
       getExcelUploadByTime({
         "time": this.timeValue,
-        "requestParams": this.inputValueParams
+        "requestParams": this.inputValueParams,
+        "username":this.name
       }).then((res) => {
         this.tableData = res.data
         this.total = res.data.length
@@ -432,19 +452,24 @@ export default {
     downloadForm() {
       this.formDialogVisible = true
     },
-
     //获取地震列表
     getEarthquake() {
       getExcelUploadEarthquake().then(res => {
         this.eqlists = res
+
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }
-        this.tableNameOptions1 = this.eqlists.map(file => ({
-          label: file,
-          value: file
-        }))
-        this.form1.tableName1 = this.tableNameOptions1[0].label
+        this.tableNameOptions1 = this.eqlists.map(eq => {
+          const eqid = eq.split(' - ')[0]?.trim();
+          const details = eq.split(' - ')[1]?.trim();
+          // 提取 `-` 后面的部分
+          return {
+            label: details, // 使用提取的部分作为标签
+            value: eqid// 选择值为 ID
+          };
+        });
+        this.form1.tableName1 = this.tableNameOptions1[0].value;
       })
     },
     //查询user对应上的表
@@ -531,7 +556,7 @@ export default {
         // 检查文件名是否在允许的表名列表中
         this.$message({
           type: 'error',
-          message: '上传文件名称错误，请重新上传！'
+          message: '该上传文件没有权限，请重新上传！'
         });
         return false;
       } else {
@@ -572,6 +597,7 @@ export default {
         confirmButtonText: '确定',
         callback: action => {
           this.getExcelUploadByTimeButton()
+          this.importDialogVisible = false
         }
       });
       setTimeout(() => {
@@ -638,12 +664,21 @@ export default {
   margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
   margin-left: 160px;
 }
+
 .dialog-footer1 {
   display: flex;
   justify-content: left;
   gap: 10px; /* 按钮间距 */
   margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
-  margin-left: 150px;
+  margin-left: 160px;
+}
+
+.dialog-footer2 {
+  display: flex;
+  justify-content: left;
+  gap: 10px; /* 按钮间距 */
+  margin-top: 20px; /* 调整顶部外边距以保持对话框内容的间距 */
+  /*margin-left: 290px;*/
 }
 
 /*table样式*/
@@ -653,7 +688,16 @@ export default {
   max-width: 100%;
   margin-bottom: 20px;
 }
-
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
+}
 
 </style>
 

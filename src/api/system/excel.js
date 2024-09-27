@@ -38,3 +38,16 @@ export function getExcelUploadByTime(params) {
         params
     })
 }
+export function deleteData(data) {
+    return request({
+        url: '/excel/deleteData',
+        method: 'delete',
+        data
+    })
+}
+export function getResettlementData() {
+    return request({
+        url: '/excel/getResettlementData',
+        method: 'post',
+    })
+}

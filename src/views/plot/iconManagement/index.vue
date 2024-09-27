@@ -1,10 +1,22 @@
 <template>
   <div class="app-container">
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form-item label="标绘名称" prop="menuName">
+        <el-input
+            v-model="queryParams.menuName"
+            placeholder="请输入标绘名称"
+            clearable
+            style="width: 200px"
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
         <el-button type="primary" plain icon="Plus" size="mini" @click="handleOpen('新增')">新增</el-button>
-      </el-col>
-    </el-row>
+      </el-form-item>
+    </el-form>
 
     <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
       <el-table-column label="序号" width="60" align="center">
@@ -19,7 +31,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
-      <el-table-column prop="plotType" label="标会类型" width="120" align="center"></el-table-column>
+<!--      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>-->
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
           <el-popover placement="top" :width="300" trigger="hover">
@@ -52,11 +64,10 @@
         :total="total">
     </el-pagination>
 
-    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false" :before-close="handleClose">
-      <el-row :gutter="10">
-        <el-col :span="6">类型：</el-col>
-        <el-col :span="18">
-          <!--          <el-input v-model="dialogContent.type" placeholder="请输入内容"></el-input>-->
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="40%" :show-close="false" :before-close="handleClose">
+      <el-row >
+        <el-col :span="12">
+          <el-form-item label="类型：">
           <el-select v-model="dialogContent.type" placeholder="请选择">
             <el-option-group
                 v-for="group in typeArr"
@@ -70,12 +81,12 @@
               </el-option>
             </el-option-group>
           </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">标绘类型：</el-col>
-        <el-col :span="18">
-          <el-select v-model="dialogContent.plotType" placeholder="请选择">
+
+        <el-col :span="12">
+          <el-form-item label=" 标绘类型：">
+          <el-select v-model="dialogContent.plottype" placeholder="请选择">
             <el-option
                 v-for="item in plotTypeArr"
                 :key="item.value"
@@ -83,23 +94,26 @@
                 :value="item.value">
             </el-option>
           </el-select>
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">名称：</el-col>
-        <el-col :span="18">
+
+        <el-col :span="12">
+          <el-form-item label="名称：">
           <el-input v-model="dialogContent.name" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">说明：</el-col>
-        <el-col :span="18">
-          <el-input type="textarea" :rows="2" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="说明：">
+          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+          </el-form-item>
         </el-col>
       </el-row>
-      <el-row :gutter="10">
-        <el-col :span="6">符号：</el-col>
-        <el-col :span="18">
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="符号：">
           <el-upload
               action="#"
               :on-change='uploadOnChange'
@@ -121,6 +135,7 @@
               <!--              </div>-->
             </template>
           </el-upload>
+          </el-form-item>
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
@@ -132,7 +147,7 @@
 </template>
 
 <script>
-import {addPlotIcon, getPlotIcon, deletePlotIcon, updataPlotIcon} from "@/api/system/plot"
+import {addPlotIcon, getPlotIcon, deletePlotIcon, updataPlotIcon, searchploticon} from "@/api/system/plot"
 
 export default {
   name: "index",
@@ -148,12 +163,12 @@ export default {
       dialogShow: false,
       dialogTitle: null,
       dialogContent: {
-        id: null,
+        uuid: null,
         img: null,
         name: null,
         describe: null,
         type: null,
-        plotType: null,
+        plottype: null,
       },
       plotTypeArr: [
         {
@@ -219,18 +234,24 @@ export default {
               value: 'I类（应急避难功能区类）',
               label: 'I类（应急避难功能区类）'
             },
-            {
-              value: 'II类（应急避难设施设备类）',
-              label: 'II类（应急避难设施设备类）'
-            },
-            {
-              value: 'III类（应急避难场所类）',
-              label: 'III类（应急避难场所类）'
-            }
+            // {
+            //   value: 'II类（应急避难设施设备类）',
+            //   label: 'II类（应急避难设施设备类）'
+            // },
+            // {
+            //   value: 'III类（应急避难场所类）',
+            //   label: 'III类（应急避难场所类）'
+            // }
           ]
         }
       ],
       fileList: [],
+      showSearch: true,
+      queryParams: {
+        menuName: ""
+      },
+      menuList: [],
+      loading: false
     }
   },
   mounted() {
@@ -409,6 +430,31 @@ export default {
         }
       }
     },
+    getList() {
+      this.loading = true;
+      let that = this;
+      searchploticon(this.queryParams.menuName).then(res => {
+        that.menuList = res;
+        that.getPicData=[]
+        that.getPicData = that.menuList
+        console.log("3",that.tableData)
+        that.total = res.length
+        that.tableData = that.getPageArr()
+        that.loading = false;
+        // that.getPicData = res
+        // that.total = res.length
+        // that.tableData = that.getPageArr()
+      });
+    },
+    // 搜索按钮操作
+    handleQuery() {
+      this.getList();
+    },
+    // 重置按钮操作
+    resetQuery() {
+      this.getPlotPicture();
+      // this.handleQuery();
+    },
 
   },
 }
@@ -425,5 +471,23 @@ export default {
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
+}
+.el-input {
+  --el-input-width: 270px !important;
+}
+
+.el-select {
+  /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
+  --el-select-width: 270px !important;
+}
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
 }
 </style>

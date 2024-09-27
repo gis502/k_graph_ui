@@ -37,10 +37,18 @@ export function updataPlotIcon(data) {
 export function getPlotIcon(query) {
   return request({
     url: '/system/ploy/getploticon',
-    method: 'get',
+    method: 'post',
   })
 }
 
+// 查询全部标绘图片
+export function searchploticon(menuName) {
+  return request({
+    url: '/system/ploy/searchploticon',
+    method: 'post',
+    params: { menuName }
+  })
+}
 //-------------------------------------------------------------
 export function insertPlotAndInfo(data){
   return request({

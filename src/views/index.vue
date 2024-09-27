@@ -1,8 +1,9 @@
 <template>
   <div class="content-body">
     <div class="header">
-      <div class="header-left">
+      <div class="header-center">
         <span>雅安市地震应急信息服务技术支撑平台</span>
+        <dv-decoration5 :dur="2" style="width: auto; height: 20px;"/>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>
@@ -12,113 +13,227 @@
       <div class="content-con">
         <div class="left-body">
           <div class="left-top public-bg">
-            <div class="public-title">最新地震</div>
-            <newInfo/>
+            <dv-border-box7>
+              <div class="public-title">最新地震</div>
+              <new-info :last-eq="lastEqData"/>
+            </dv-border-box7>
           </div>
+
           <div class="left-con public-bg">
-            <div class="public-title">最新地震受灾人员统计</div>
-            <chart3/>
+            <dv-border-box7>
+              <div class="public-title">最新地震受灾人员统计</div>
+              <chart3 :last-eq="lastEqData"/>
+            </dv-border-box7>
           </div>
           <div class="left-bottom public-bg">
-            <div class="public-title">最新地震余震情况统计(次)</div>
-            <chart2/>
+            <dv-border-box7>
+              <div class="public-title">最新地震余震情况统计(次)</div>
+              <chart2 :last-eq="lastEqData"/>
+            </dv-border-box7>
           </div>
         </div>
-
         <div class="center-body">
-          <eMap/>
+          <e-map :eq-data="EqAll"/>
         </div>
 
         <div class="right-body">
           <div class="right-top public-bg">
-            <div class="public-title">地震列表</div>
-            <eqTable :eqData="tableData"/>
+            <dv-border-box7>
+              <div class="public-title">
+                地震列表
+                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
+                <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
+                <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
+              </div>
+              <eq-table :eq-data="tableData"/>
+            </dv-border-box7>
           </div>
           <div class="right-bottom public-bg">
-            <div class="public-title">历史地震统计(次)</div>
-            <chart1  :eqData="tableData"/>
+            <dv-border-box7>
+              <div class="public-title">历史地震统计(次)</div>
+              <chart1 :eq-data="EqAll"/>
+            </dv-border-box7>
           </div>
         </div>
       </div>
     </div>
+
+    <el-dialog
+        v-model="queryFormVisible"
+        title="筛选"
+        width="28vw"
+        style="top:20vh"
+    >
+      <el-form :inline="true" :model="formValue">
+        <el-form-item label="地震位置">
+          <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
+        </el-form-item>
+        <el-form-item label="发震时间">
+          <el-date-picker
+              v-model="formValue.occurrenceTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              :shortcuts="shortcuts"
+              style="width: 23vw;"
+              value-format="x"
+          />
+        </el-form-item>
+        <el-form-item label="地震震级">
+          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"/>
+          <span style="margin: 0 10px"> 至 </span>
+          <el-input v-model="formValue.endMagnitude" style="width: 5vw;"/>
+          <span style="margin: 0 10px">(里氏)</span>
+        </el-form-item>
+        <el-form-item label="地震深度">
+          <el-input v-model="formValue.startDepth" style="width: 5vw"/>
+          <span style="margin: 0 10px"> 至 </span>
+          <el-input v-model="formValue.endDepth" style="width: 5vw"/>
+          <span style="margin: 0 10px">(千米)</span>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="onSubmit">查询</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
-<script>
-import eMap from '@/components/Home/emap.vue'
-import eqTable from '@/components/Home/eqtable.vue'
-import listInfo from '@/components/Home/listInfo.vue'
-import newInfo from '@/components/Home/newInfo.vue'
-import chart1 from '@/components/Home/chart1.vue'
-import chart2 from '@/components/Home/chart2.vue'
-import chart3 from '@/components/Home/chart3.vue'
-import {getAllEq} from '@/api/system/eqlist'
 
-export default {
-  // name: "home",
-  data() {
-    return {
-      nowTime: null,
-      tableData: [],
-    }
-  },
-  mounted() {
-    setInterval(() => {
-      this.nowTime = this.now_time()
-    }, 500);
-    this.getEq()
+<script setup>
+import {BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5} from '@kjgl77/datav-vue3'
+import {onMounted, ref} from 'vue';
+import eMap from '@/components/Home/emap.vue';
+import eqTable from '@/components/Home/eqtable.vue';
+import newInfo from '@/components/Home/newInfo.vue';
+import chart1 from '@/components/Home/chart1.vue';
+import chart2 from '@/components/Home/chart2.vue';
+import chart3 from '@/components/Home/chart3.vue';
+import {fromEq, getAllEq, queryEq} from '@/api/system/eqlist';
 
-  },
-  components: {
-    eMap, eqTable, listInfo, newInfo, chart1, chart2, chart3
-  },
-  methods: {
-    getEq() {
-      let that = this
-      getAllEq().then(res => {
-        that.tableData = res
-      })
+const nowTime = ref(null);
+const tableData = ref([]);
+const EqAll = ref([])
+const lastEqData = ref()
+const requestParams = ref("")
+
+const queryFormVisible = ref(false)
+
+const shortcuts = [
+  {
+    text: '近一周',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+      return [start, end]
     },
-    // go() {
-    //   let route = this.$router.resolve({path: '/thd'}).href
-    //   window.open(route, '_blank');
-    // },
-    now_time() {
-      let myDate = new Date();
-      let myYear = myDate.getFullYear() //获取完整的年份(4位,1970-????)
-      let myMonth = myDate.getMonth() + 1 //获取当前月份(0-11,0代表1月)
-      let myToday = myDate.getDate() //获取当前日(1-31)
-      let myDay = myDate.getDay() //获取当前星期X(0-6,0代表星期天)
-      let myHour = myDate.getHours() //获取当前小时数(0-23)
-      let myMinute = myDate.getMinutes() //获取当前分钟数(0-59)
-      let mySecond = myDate.getSeconds() //获取当前秒数(0-59)
-      let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-      let nowTime = myYear + '年' + this.fillZero(myMonth) + '月' + this.fillZero(myToday) + '日' + this.fillZero(myHour) + ':' + this.fillZero(myMinute) + ':' + this.fillZero(mySecond) + week[myDay]
-      return nowTime
+  },
+  {
+    text: '近一个月',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+      return [start, end]
     },
-    fillZero(str) {
-      let realNum;
-      if (str < 10) {
-        realNum = '0' + str;
-      } else {
-        realNum = str;
-      }
-      return realNum;
-    }
+  },
+  {
+    text: '近三个月',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+      return [start, end]
+    },
+  },
+  {
+    text: '近一年',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 360)
+      return [start, end]
+    },
+  },
+]
+
+const formValue = reactive({
+  earthquakeName: "",
+  occurrenceTime: "",
+  startMagnitude: "",
+  endMagnitude: "",
+  startDepth: "",
+  endDepth: "",
+})
+
+const onSubmit = () => {
+  if (formValue.occurrenceTime !== "") {
+    const [startTime, endTime] = formValue.occurrenceTime;
+    const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
+    const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
+
+    formValue.occurrenceTime = `${startDate} 至 ${endDate}`;
   }
+  fromEq(formValue).then(res => {
+    tableData.value = res;
+  });
+  queryFormVisible.value = false;
 }
+
+const openQueryFrom = () => {
+  queryFormVisible.value = true;
+}
+
+const query = () => {
+  if (requestParams.value === "") {
+    tableData.value = EqAll.value
+    return
+  }
+  queryEq({queryValue: requestParams.value}).then(res => {
+    tableData.value = res
+  })
+}
+
+const updateTime = () => {
+  nowTime.value = now_time();
+};
+
+const now_time = () => {
+  let myDate = new Date();
+  let myYear = myDate.getFullYear(); //获取完整的年份(4位,1970-????)
+  let myMonth = myDate.getMonth() + 1; //获取当前月份(0-11,0代表1月)
+  let myToday = myDate.getDate(); //获取当前日(1-31)
+  let myDay = myDate.getDay(); //获取当前星期X(0-6,0代表星期天)
+  let myHour = myDate.getHours(); //获取当前小时数(0-23)
+  let myMinute = myDate.getMinutes(); //获取当前分钟数(0-59)
+  let mySecond = myDate.getSeconds(); //获取当前秒数(0-59)
+  let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  return myYear + '年' + fillZero(myMonth) + '月' + fillZero(myToday) + '日' + fillZero(myHour) + ':' + fillZero(myMinute) + ':' + fillZero(mySecond) + week[myDay];
+};
+
+const fillZero = (str) => {
+  return str < 10 ? '0' + str : str;
+};
+
+const getEq = () => {
+  getAllEq().then((res) => {
+    EqAll.value = res
+    tableData.value = res
+    lastEqData.value = res[0]
+  })
+};
+
+onMounted(() => {
+  setInterval(updateTime, 500);
+  getEq();
+});
 </script>
+
 <style scoped>
-/** {*/
-/*  margin: 0;*/
-/*  padding: 0;*/
-/*}*/
-
-/*body {*/
-/*  width: 100%;*/
-/*  height: 100%;*/
-/*  overflow: auto;*/
-/*}*/
-
 .public-bg {
   background: rgba(12, 26, 63, 0.3);
 }
@@ -149,49 +264,43 @@ export default {
 .content-body {
   width: 100%;
   height: 100%;
-  background: #0d325f;
+  background-image: url("@/assets/背景图片.jpg");
   background-size: 100% 100%;
   position: absolute;
-
 }
 
 .header {
-  height: 55px;
+  margin-top: 1vh;
+  position: absolute;
+  display: flex;
+  justify-content: center; /* 标题居中对齐 */
+  align-items: center;
+  height: 34px;
   width: 100%;
-  /*    border: 1px solid red;*/
+  z-index: 10;
 }
 
-.header .header-left {
-  width: 50%;
-  float: left;
-  line-height: 70px;
-}
-
-.header .header-left span {
+.header-center {
+  margin-left: -5vw;
   color: #ffffff;
   font-weight: bold;
   font-size: 24px;
   letter-spacing: 2px;
-  padding: 0 20px;
 }
 
-.header .header-time {
-  width: 48%;
-  line-height: 70px;
-  float: right;
-  text-align: right;
-  padding-right: 20px;
-}
-
-.header .header-time span {
-  color: #ffffff;
-
+.header-time {
+  top: 0;
+  position: absolute;
+  color: #FFFFFF;
+  right: 2vw;
+  font-size: 18px;
 }
 
 .content {
+  position: absolute;
+  margin-top: 5vh;
   width: 100%;
   height: calc(100% - 75px);
-  position: absolute;
 }
 
 .content .content-con {
@@ -372,5 +481,3 @@ export default {
   margin-top: 1%;
 }
 </style>
-<script setup lang="ts">
-</script>

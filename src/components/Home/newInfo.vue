@@ -11,57 +11,70 @@
       </div>
     </el-col>
     <el-col>
-      <div class="lonlat newColCommon">
-        震中经纬：{{ longitude }},{{latitude}}
+      <div class="newColCommon">
+        震中经纬：东经{{ longitude }}度 北纬{{ latitude }}度
       </div>
     </el-col>
     <el-col>
-      <div class="magnitude newColCommon">
-        地震震级：{{ Number(magnitude).toFixed(1)}}
+      <div class="newColCommon">
+        地震震级：{{ Number(magnitude).toFixed(1) }}
       </div>
     </el-col>
     <el-col>
-      <div class="depth newColCommon">
-        震源深度：{{ depth }}
+      <div class="newColCommon">
+        震源深度：{{ Number(depth) }} 千米
       </div>
     </el-col>
     <el-col>
-      <div class="position newColCommon">
-        参考位置：{{ position }}
+      <div class="newColCommon">
+        震中位置：{{ position }}
       </div>
     </el-col>
   </div>
 </template>
 
-<script>
-export default {
-  name: "newInfo",
-  data() {
-    return {
-      eqName: '四川泸州市泸县3级地震',
-      position:'四川泸州市泸县',
-      time:'2024-08-02 00:18:02',
-      magnitude:'3',
-      longitude:'105.56',
-      latitude:'29.24',
-      depth:'8'
-    }
-  }
+<script setup>
+import {ref, watch} from 'vue';
+
+const props = defineProps(['lastEq']);
+const eqName = ref('');
+const position = ref('');
+const time = ref('');
+const magnitude = ref('');
+const longitude = ref('');
+const latitude = ref('');
+const depth = ref('');
+
+
+watch(() => props.lastEq, () => {
+  initNewEq();
+});
+
+const initNewEq = () => {
+  eqName.value = props.lastEq.earthquakeName + props.lastEq.magnitude + '级地震';
+  time.value = props.lastEq.occurrenceTime.replace('T', ' ');
+  magnitude.value = props.lastEq.magnitude;
+  longitude.value = props.lastEq.longitude;
+  latitude.value = props.lastEq.latitude;
+  position.value = props.lastEq.earthquakeName;
+  depth.value = props.lastEq.depth;
 }
+
 </script>
 
 <style scoped>
-.newIn{
+.newIn {
   color: #fff;
   width: 100%;
   height: 100%;
-
+  line-height: 3.4vh;
 }
-.newColCommon{
+
+.newColCommon {
   padding-left: 10px;
 }
 
-.eqName{
+.eqName {
   margin-left: 10px;
   font-size: 18px;
 }

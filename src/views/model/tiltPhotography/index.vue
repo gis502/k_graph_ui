@@ -2,10 +2,11 @@
   <div class="app-container">
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain  size="mini" @click="handleOpen('新增')">新增</el-button>
+        <el-button type="primary" plain size="mini" @click="handleOpen('新增')">新增</el-button>
       </el-col>
     </el-row>
-    <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+    <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor"
+              :cell-style="tableColor">
       <el-table-column prop="eqid" label="序号" width="60" align="center"></el-table-column>
       <el-table-column prop="modelName" label="模型名称" width="200" align="center"></el-table-column>
       <el-table-column prop="size" label="模型大小(GB)" width="150" align="center"></el-table-column>
@@ -15,8 +16,18 @@
       <el-table-column prop="rotationAngle" label="旋转角度(度)" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template v-slot="scope">
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleOpen('修改',scope.row)">修改</el-button>
-          <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button size="mini" type="text" @click="handleOpen('修改',scope.row)">
+            <el-icon>
+              <Edit/>
+            </el-icon>
+            修改
+          </el-button>
+          <el-button size="mini" type="text" @click="handleDelete(scope.row)">
+            <el-icon>
+              <Delete/>
+            </el-icon>
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -71,13 +82,33 @@
 </template>
 
 <script>
+import {ElButton, ElIcon} from "element-plus";
+import {Delete, Edit} from "@element-plus/icons-vue";
+
 export default {
   name: "index",
+  components: {Delete, ElButton, Edit, ElIcon},
   data() {
     return {
       tableData: [
-        { eqid: 1, modelName: '7.37平方公里模型',size:"84.0", addTime: '2023-08-19 15:31:19', modelPath: '/geoserver/yaan/wms/1', modelHeight: 15, rotationAngle: 0},
-        { eqid: 2, modelName: '0.4平方公里模型', size:"7.8",addTime: '2023-07-23 17:19:09', modelPath: '/geoserver/yaan/wms/2', modelHeight: 9 , rotationAngle: 0},
+        {
+          eqid: 1,
+          modelName: '7.37平方公里模型',
+          size: "84.0",
+          addTime: '2023-08-19 15:31:19',
+          modelPath: '/geoserver/yaan/wms/1',
+          modelHeight: 15,
+          rotationAngle: 0
+        },
+        {
+          eqid: 2,
+          modelName: '0.4平方公里模型',
+          size: "7.8",
+          addTime: '2023-07-23 17:19:09',
+          modelPath: '/geoserver/yaan/wms/2',
+          modelHeight: 9,
+          rotationAngle: 0
+        },
         // { eqid: 3, modelName: 'model1', addTime: '2023-08-10 17:02:57', modelPath: '/model1', modelHeight: 0, rotationAngle: 0},
         // { eqid: 4, modelName: 'model2', addTime: '2023-08-18 09:30:20', modelPath: '/model2', modelHeight: 0, rotationAngle: 0},
         // { eqid: 5, modelName: 'model3', addTime: '2023-08-13 13:40:11', modelPath: '/model3', modelHeight: 0, rotationAngle: 0},
@@ -126,18 +157,18 @@ export default {
         };
       } else {
         this.dialogTitle = title;
-        this.dialogContent = { ...row };
+        this.dialogContent = {...row};
       }
       this.dialogShow = !this.dialogShow;
     },
     commit() {
       if (this.dialogTitle === "新增") {
         this.dialogContent.eqid = Date.now();
-        this.tableData.push({ ...this.dialogContent });
+        this.tableData.push({...this.dialogContent});
       } else {
         const index = this.tableData.findIndex(item => item.eqid === this.dialogContent.eqid);
         if (index !== -1) {
-          this.tableData.splice(index, 1, { ...this.dialogContent });
+          this.tableData.splice(index, 1, {...this.dialogContent});
         }
       }
       this.total = this.tableData.length;
@@ -170,7 +201,7 @@ export default {
     tableHeaderColor() {
       return {
         // 'padding': '10',
-        'font-size':'16px'
+        'font-size': '16px'
       }
     },
     // 修改table的背景色
@@ -207,9 +238,20 @@ export default {
   justify-content: center;
   margin-top: 20px;
 }
+
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
+}
+:deep(.el-dialog__body) {
+  text-align: end;
+}
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 15%;
+  position: relative;
+  margin: 0 auto;
 }
 </style>
 
