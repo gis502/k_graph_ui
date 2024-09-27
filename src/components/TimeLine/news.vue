@@ -62,7 +62,6 @@ export default {
         content: '',
         img: '',
       },
-        eqid:'',
     }
   },
   props: [
@@ -70,11 +69,13 @@ export default {
     'eqid'
   ],
   mounted() {
-      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
-      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+      // console.log("this.eqid1111111111111------------",this.eqid)
+      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
           this.ifShowData = true
           this.fetchData()
       }
+      // console.log("ifShowData---------------",this.ifShowData)
+
   },
   watch: {
     currentTime(newVal) {

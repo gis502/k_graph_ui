@@ -129,7 +129,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlot, getPlotIcon} from '@/api/system/plot'
-import {getAllEq, getEqbyId} from '@/api/system/eqlist'
+import {getAllEq, getEqById} from '@/api/system/eqlist'
 import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
@@ -648,7 +648,7 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqbyId({eqid: eqid}).then(res => {
+        getEqById({eqid: eqid}).then(res => {
         //震中标绘点
 
         this.centerPoint = res

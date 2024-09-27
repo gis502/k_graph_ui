@@ -50,11 +50,11 @@ export default {
   },
   props: [
     'currentTime',
-      // 'eqid'
+      'eqid'
   ],
   mounted() {
-      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
-    if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+    // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
       this.ifShowData = true
     }
     this.init()
@@ -62,7 +62,6 @@ export default {
   watch: {
     currentTime(newVal) {
       if(this.ifShowData) {
-          // console.log("``````````````",newVal)
         this.updateEmergencyResponse(newVal)
       }
     }
@@ -71,7 +70,8 @@ export default {
     init() {
         getEmergencyResponse().then(res => {
           this.EmergencyResponseResponsecontent = res
-          // console.log("EmergencyResponse------",this.EmergencyResponseResponsecontent)
+            // console.log("ifShowData---------------",this.ifShowData)
+          console.log("EmergencyResponse------",this.EmergencyResponseResponsecontent)
         })
       // this.EmergencyResponseResponsecontent = [...EmergencyResponse]
     },

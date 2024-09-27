@@ -70,11 +70,11 @@
         },
         props: [
             'currentTime',
-            // 'eqid'
+            'eqid'
         ],
         mounted() {
-            this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
-          if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+          // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+            if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
               this.ifShowData = true
           }
             this.init()

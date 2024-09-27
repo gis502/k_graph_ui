@@ -249,16 +249,14 @@ export default {
     };
   },
   created() {
-    // this.eqid = this.$route.params.eqid
-    //   this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
+    this.eqid = this.$route.params.eqid
+
   },
   mounted() {
-      this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
-      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
           this.ifShowData = true
       }
-      // this.eqid = 'be3a5ea48dfda0a2251021845f17960b'
-      this.ifShowData = true
+      console.log("this.eqid------------",this.eqid)
     this.init()
     this.getEqInfo(this.eqid)
     // this.initTimerLine()
@@ -368,7 +366,7 @@ export default {
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
         getEqById(eqid).then(res => {
-          console.log("getEqbyId-------",res)
+          console.log("getEqById-------",res)
         // //震中标绘点
         this.centerPoint = res
         this.centerPoint.plotid = "center"
@@ -415,7 +413,7 @@ export default {
     //
     //   window.viewer.entities.removeAll();
     //   this.eqid = row.eqid
-    //   getEqbyId({eqid: this.eqid}).then(res => {
+    //   getEqById({eqid: this.eqid}).then(res => {
     //     this.centerPoint = res
     //     this.centerPoint.plotid = "center"
     //     this.centerPoint.starttime = new Date(res.time)
