@@ -229,8 +229,8 @@ import yaan from '@/assets/geoJson/yaan.json'
 import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
-import disasterReservesLogo from '@/assets/images/disasterReservesLogo.jpg';
-import emergencyTeamLogo from '@/assets/images/emergencyTeamLogo.png';
+import emergencyRescueEquipmentLogo from '@/assets/images/emergencyRescueEquipmentLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
@@ -2022,7 +2022,7 @@ export default {
       // 应急物资存储要素图层
       const hasReservesLayer = this.selectedlayersLocal.includes('应急物资存储要素图层');
       if (hasReservesLayer) {
-        this.processPoints(this.disasterReserves, 'reserves', disasterReservesLogo, '应急物资存储');
+        this.processPoints(this.disasterReserves, 'reserves', emergencyRescueEquipmentLogo, '应急物资存储');
       } else {
         this.removeEntitiesByType('reserves');
       }
@@ -2030,7 +2030,7 @@ export default {
       // 救援队伍分布要素图层
       const hasEmergencyTeamLayer = this.selectedlayersLocal.includes('救援队伍分布要素图层');
       if (hasEmergencyTeamLayer) {
-        this.processPoints(this.emergencyTeam, 'emergencyTeam', emergencyTeamLogo, '救援队伍分布');
+        this.processPoints(this.emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, '救援队伍分布');
       } else {
         this.removeEntitiesByType('emergencyTeam');
       }
