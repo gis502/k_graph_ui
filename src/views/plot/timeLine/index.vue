@@ -136,7 +136,7 @@ export default {
     },
 
     go(row, column, cell, event) {
-      this.$router.push({name: 'thdTimeLine', params: {eqid: row.uuid}})
+      this.$router.push({name: 'thdTimeLine', params: {eqid: row.eqid}})
     },
     // 修改table header的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
