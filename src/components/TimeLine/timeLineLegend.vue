@@ -18,6 +18,7 @@
 <script>
 import { getPlotIcon } from "@/api/system/plot.js";
 
+
 export default {
   props: ['activeComponent'],
   data() {
@@ -26,7 +27,7 @@ export default {
     };
   },
   mounted() {
-    this.getPlotPicture();
+    // this.getPlotPicture();
   },
   methods: {
     toggleLegend() {
@@ -107,11 +108,6 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-}
-
-.legend-icon {
-  font-size: 20px;
-  margin-right: 10px;
 }
 
 .legend-label {

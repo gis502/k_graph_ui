@@ -37,6 +37,7 @@
     "jspdf": "^2.5.1",
     "nprogress": "0.2.0",
     "pinia": "2.1.7",
+    "sm-crypto": "^0.3.13",
     "vite-plugin-cesium": "^1.2.22",
     "vue": "3.4.31",
     "vue-cropper": "1.1.1",

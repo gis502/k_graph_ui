@@ -9,10 +9,14 @@ import CesiumWorldTerrain from '@/assets/CesiumWorldTerrain.png'
 // import bingAerial from '@/assets/bingAerial.png'
 
 
-export function initCesium(Cesium) {
+export function initCesium(Cesium,container) {
     // 使用Cesium官方示例中的Token
     Cesium.Ion.defaultAccessToken = CesiumIonDefaultAccessToken || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YmRiNjM4MC1kMDZkLTQ2NDQtYjQ3My0xZDI4MDU0MGJhZDciLCJpZCI6MzIxMzAsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1OTY1MjM4NzZ9.A3FBZ6HjKkTsOGnjwWWeO9L10HQ9c-wcF4c3dtTc4gQ'
-    let viewer = new Cesium.Viewer('cesiumContainer', {
+    // console.log("container----------",container)
+    if(container === undefined){
+        container = 'cesiumContainer'
+    }
+    let viewer = new Cesium.Viewer(container, {
         shouldAnimate: true,
         animation: false, // 是否创建动画小器件，左下角仪表
         baseLayerPicker: true, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文

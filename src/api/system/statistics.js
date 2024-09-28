@@ -10,7 +10,7 @@ export function getAftershockMagnitude(eqid) {
     return request({
         url: '/system/getLatestAftershockMagnitude',
         method: 'get',
-        params: { eqid: eqid.eqid  }
+        params: {eqid: eqid}
     });
 }
 

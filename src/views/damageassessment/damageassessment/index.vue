@@ -30,12 +30,12 @@
               <div class="eqText">
           <span
               class="eqTitle">
-            {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{ eq.magnitude }}级地震
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
-            发震时刻：{{ eq.time }}<br/>
-            参考位置：{{ eq.position }}<br/>
+            发震时刻：{{ eq.occurrenceTime }}<br/>
+            参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
           </span>
@@ -73,12 +73,12 @@
             </el-divider>
             <div style="padding: 1px 20px 10px 20px">
               <!-- 显示选项卡内容 -->
-              <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
-              <p>发震时刻：{{ selectedTabData.time }}</p>
+              <h4>地震名称：{{ selectedTabData.earthquakeName}} {{ selectedTabData.magnitude }}级地震</h4>
+              <p>发震时刻：{{ selectedTabData.occurrenceTime }}</p>
               <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
               <p>地震震级：{{ selectedTabData.magnitude }}</p>
               <p>震源深度：{{ selectedTabData.depth }}千米</p>
-              <p>参考位置：{{ selectedTabData.position }}</p>
+              <p>参考位置：{{ selectedTabData.earthquakeName }}</p>
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -147,7 +147,7 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {addEq, getAllEq, getEqbyId} from "@/api/system/eqlist";
+import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
@@ -209,7 +209,7 @@ export default {
         let resData = res.filter((item) => item.magnitude >= 4.5);
         let data = resData.map((item) => ({
           ...item,
-          time: this.timestampToTime(item.time, "full"),
+          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2),
@@ -232,10 +232,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-          103.0,
-          29.98,
-          500000,
-          new Cesium.Cartographic()
+        103.0,
+        29.98,
+        500000,
+        new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -246,11 +246,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-          "请输入地名进行搜索";
+        "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-          "影像服务";
+        "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-          "地形服务";
+        "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -434,7 +434,7 @@ export default {
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+            text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.position + eq.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -477,13 +477,13 @@ export default {
     filterEq() {
       if (this.title) {
         this.filteredEqData = this.getEqData.filter((eq) => {
-          const dateStr = this.timestampToTime(eq.time, 'date');
-          const positionStr = eq.position;
+          const dateStr = this.timestampToTime(eq.occurrenceTime, 'date');
+          const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-              dateStr.includes(this.title) ||
-              positionStr.includes(this.title) ||
-              magnitudeStr.includes(this.title)
+            dateStr.includes(this.title) ||
+            positionStr.includes(this.title) ||
+            magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -513,8 +513,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-              Number(this.selectedTabData.longitude),
-              Number(this.selectedTabData.latitude)
+            Number(this.selectedTabData.longitude),
+            Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -523,9 +523,9 @@ export default {
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(this.selectedTabData.time, 'date') +
-                this.selectedTabData.position +
-                this.selectedTabData.magnitude + '级地震',
+            text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
+              this.selectedTabData.earthquakeName +
+              this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -565,12 +565,12 @@ export default {
     },
 
     toTab(eq) {
-      this.currentTab = `${eq.position} ${eq.magnitude}级地震`;
+      this.currentTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
       if (this.currentTab !== '震害事件') {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.getEqData.find(
-            eq => `${eq.position} ${eq.magnitude}级地震` === this.currentTab
+          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -693,7 +693,7 @@ export default {
                 label: {
                   show: false,
                   showBackground: true,
-                  text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+                  text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
                   font: '16px sans-serif',
                   fillColor: Cesium.Color.WHITE,
                   style: Cesium.LabelStyle.FILL_AND_OUTLINE,

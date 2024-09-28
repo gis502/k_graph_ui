@@ -203,7 +203,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getEqbyId} from '@/api/system/eqlist'
+import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 
 import centerstar from "@/assets/icons/TimeLine/震中.png";
@@ -226,8 +226,8 @@ import yaan from '@/assets/geoJson/yaan.json'
 import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
 import { TianDiTuToken } from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
-import disasterReservesLogo from '@/assets/images/disasterReservesLogo.jpg';
-import emergencyTeamLogo from '@/assets/images/emergencyTeamLogo.png';
+import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
@@ -480,28 +480,28 @@ export default {
       // 隐藏缩略图视图器的版权信息
       that.smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
-      // 同步主视图器的相机到缩略图视图器
-      function syncCamera() {
-        const camera1 = viewer.scene.camera;
-        const camera2 = that.smallViewer.scene.camera;
+        // 同步主视图器的相机到缩略图视图器
+        function syncCamera() {
+            const camera1 = viewer.scene.camera;
+            const camera2 = smallViewer.scene.camera;
 
-        camera2.setView({
-          destination: camera1.positionWC,
-          orientation: {
-            heading: camera1.heading,
-            pitch: camera1.pitch,
-            roll: camera1.roll
-          }
+            camera2.setView({
+                destination: camera1.positionWC,
+                orientation: {
+                    heading: camera1.heading,
+                    pitch: camera1.pitch,
+                    roll: camera1.roll
+                }
+            });
+        }
+
+        // 监听主视图器的相机变化
+        viewer.scene.camera.changed.addEventListener(syncCamera);
+
+        // 每帧渲染时同步缩略图视图
+        viewer.scene.postRender.addEventListener(function () {
+            smallViewer.scene.requestRender(); // 确保缩略图更新
         });
-      }
-
-      // 监听主视图器的相机变化
-      viewer.scene.camera.changed.addEventListener(syncCamera);
-
-      // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function () {
-        that.smallViewer.scene.requestRender(); // 确保缩略图更新
-      });
 
       // 初始同步
       syncCamera();
@@ -509,12 +509,13 @@ export default {
 
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqbyId({eqid: eqid}).then(res => {
+      getEqById(eqid).then(res => {
+          console.log("thd eqid---------------",eqid)
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
         this.centerPoint.plotid = "center"
-        this.centerPoint.starttime = new Date(res.time)
+        this.centerPoint.starttime = new Date(res.occurrenceTime)
         // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
         //默认结束时间（设置得大一点，防止按时间渲染随时间长度更新消失了）10天
         this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + 10*24*36000*1000);
@@ -604,7 +605,7 @@ export default {
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
-          text: this.centerPoint.position,
+          text: this.centerPoint.earthquakeName,
           show: true,
           font: '14px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
@@ -621,13 +622,12 @@ export default {
       });
 
 
-      let that = this
-      that.smallViewer.entities.removeAll();
-      that.smallViewer.entities.add({
+      smallViewer.entities.removeAll();
+      smallViewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            parseFloat(this.centerPoint.height || 0)
+          parseFloat(this.centerPoint.geom.coordinates[0]),
+          parseFloat(this.centerPoint.geom.coordinates[1]),
+          parseFloat(this.centerPoint.height || 0)
         ),
         billboard: {
           image: centerstar,
@@ -640,7 +640,7 @@ export default {
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
-          text: this.centerPoint.position,
+          text: this.centerPoint.earthquakeName,
           show: true,
           font: '10px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
@@ -2050,7 +2050,7 @@ export default {
       // 应急物资存储要素图层
       const hasReservesLayer = this.selectedlayersLocal.includes('应急物资存储要素图层');
       if (hasReservesLayer) {
-        this.processPoints(this.disasterReserves, 'reserves', disasterReservesLogo, '应急物资存储');
+        this.processPoints(this.disasterReserves, 'reserves', emergencyRescueEquipmentLogo, '应急物资存储');
       } else {
         this.removeEntitiesByType('reserves');
       }
@@ -2058,7 +2058,7 @@ export default {
       // 救援队伍分布要素图层
       const hasEmergencyTeamLayer = this.selectedlayersLocal.includes('救援队伍分布要素图层');
       if (hasEmergencyTeamLayer) {
-        this.processPoints(this.emergencyTeam, 'emergencyTeam', emergencyTeamLogo, '救援队伍分布');
+        this.processPoints(this.emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, '救援队伍分布');
       } else {
         this.removeEntitiesByType('emergencyTeam');
       }

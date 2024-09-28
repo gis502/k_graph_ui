@@ -26,7 +26,9 @@ import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import {getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
+import {getAllEq, getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
+
+const props = defineProps(['eqData']);
 
 // 图例分类
 const eqGroups = ref([
@@ -67,27 +69,31 @@ const initialScaleLength = ref(50); // 假设初始长度为 100 像素
 const initialDistance = ref(100); // 对应 100 公里
 onMounted(() => {
   initEmap();
-  getMapEq();
 });
 
 watch([historyEqData, latestEqData], (newData) => {
   initEmap();
 }, {deep: true});
 
+watch(() => props.eqData, () => {
+  latestEqData.value = [props.eqData[0]];
+  historyEqData.value = props.eqData;
+});
+
 echarts.registerMap('data', data);
 
-const getMapEq = () => {
-  getLatestEq().then(res => {
-    latestEqData.value = res;
-  })
-  getKeyEq().then(res => {
-    historyEqData.value = res;
-  })
-};
+// const getMapEq = () => {
+//   getLatestEq().then(res => {
+//     latestEqData.value = res;
+//   })
+//   getAllEq().then(res => {
+//     historyEqData.value = res;
+//   })
+// };
 
 const initEmap = () => {
   const latestData = latestEqData.value.map(item => ({
-    position: item.position,
+    position: item.earthquakeName,
     magnitude: parseFloat(item.magnitude),
     longitude: item.longitude,
     latitude: item.latitude,
@@ -95,16 +101,16 @@ const initEmap = () => {
     // 但渲染在前端会出现个'T'，
     // 也就变成了2015-01-03T08:16:20，
     // 故以此将其删去
-    time: item.time.replace("T", " "),
+    time: item.occurrenceTime.replace("T", " "),
     depth: item.depth,
   }));
 
   const historyData = historyEqData.value.map(item => ({
-    position: item.position,
+    position: item.earthquakeName,
     magnitude: parseFloat(item.magnitude),
     longitude: item.longitude,
     latitude: item.latitude,
-    time: item.time.replace("T", " "),
+    time: item.occurrenceTime.replace("T", " "),
     depth: item.depth,
   }));
 
