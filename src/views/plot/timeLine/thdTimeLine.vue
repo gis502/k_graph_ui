@@ -29,22 +29,22 @@
         <img class="play-icon" src="../../../assets/icons/TimeLine/前进箭头.png" @click="forward" />
       </div>
 
-        <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
-            <div class="time-ruler-line" @click="jumpToTime">
-                <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
-                <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-            </div>
-            <!-- speedButton 和 chooseSpeed 放在一起 -->
-            <span class="speedButton">{{speedOption}}</span>
-            <div class="chooseSpeed">
-                <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-                    {{ option }}
-                </option>
-            </div>
+      <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true" @mouseleave="isDragging = true">
+        <div class="time-ruler-line" @click="jumpToTime">
+          <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
+          <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
         </div>
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
+        <span class="speedButton">{{speedOption}}</span>
+        <div class="chooseSpeed">
+          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
+            {{ option }}
+          </option>
+        </div>
+      </div>
 
 
-        <!--      时间点-->
+      <!--      时间点-->
       <div class="current-time-info">
         <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>
       </div>
@@ -54,38 +54,38 @@
     </div>
     <!-- 进度条 end-->
 
-<!--    两侧组件-->
-        <!--   应急响应-左上   -->
-      <timeLineEmergencyResponse
-          :currentTime="currentTime"
-          :eqid="eqid"
-      />
-        <!--   人员伤亡-左中   -->
-      <timeLinePersonnelCasualties
-          :currentTime="currentTime"
-          :eqid="eqid"
-      />
-        <!--   救援出队-左下   -->
-      <timeLineRescueTeam
+    <!--    两侧组件-->
+    <!--   应急响应-左上   -->
+    <timeLineEmergencyResponse
         :currentTime="currentTime"
         :eqid="eqid"
-      />
-        <!--  新闻-右上  -->
+    />
+    <!--   人员伤亡-左中   -->
+    <timeLinePersonnelCasualties
+        :currentTime="currentTime"
+        :eqid="eqid"
+    />
+    <!--   救援出队-左下   -->
+    <timeLineRescueTeam
+        :currentTime="currentTime"
+        :eqid="eqid"
+    />
+    <!--  新闻-右上  -->
     <div>
       <news
-              :eqid="eqid"
-              :currentTime="currentTime"
-              @ifShowDialog="ifShowDialog"
-              @detailedNews="detailedNews"
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @ifShowDialog="ifShowDialog"
+          @detailedNews="detailedNews"
       ></news>
     </div>
-      <!--      新闻弹框-->
+    <!--      新闻弹框-->
     <div>
-        <news-dialog
-                :showDetailedNewsDialog="showDetailedNewsDialog"
-                :showingNewsContent="showingNewsContent"
-                @hideNewsDialog="hideNewsDialog"
-        ></news-dialog>
+      <news-dialog
+          :showDetailedNewsDialog="showDetailedNewsDialog"
+          :showingNewsContent="showingNewsContent"
+          @hideNewsDialog="hideNewsDialog"
+      ></news-dialog>
     </div>
     <!--      缩略图-->
     <div>
@@ -96,35 +96,13 @@
         @toggleComponent="toggleComponent"
     ></timeLineLegend>
 
-
-
-<!--    两侧组件 end-->
+    <!--    两侧组件 end-->
 
     <!--报告产出按钮-->
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
-    <!--图件产出-->
-<!--    <div class="draw-button">-->
-<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="drawListChage">图件产出</el-button>-->
-<!--    </div>-->
 
-<!--    <div v-if="dropdownVisible" class="dropdown">-->
-<!--      <el-checkbox-group v-model="selectedItems">-->
-<!--        <el-checkbox label="芦山县行政区划图"></el-checkbox>-->
-<!--        <el-checkbox label="2"></el-checkbox>-->
-<!--        <el-checkbox label="3"></el-checkbox>-->
-<!--      </el-checkbox-group>-->
-
-<!--      <div class="output-button">-->
-<!--        <el-button-->
-<!--            type="primary"-->
-<!--            @click="exportSelected"-->
-<!--        >-->
-<!--          导出-->
-<!--        </el-button>-->
-<!--      </div>-->
-<!--    </div>-->
   </div>
 </template>
 
@@ -157,7 +135,7 @@ import NewsDialog from "@/components/TimeLine/newsDialog.vue";
 
 export default {
   components: {
-      // NewsDialog,
+    // NewsDialog,
     TimeLinePanel,
     News,
     MiniMap,
@@ -205,14 +183,14 @@ export default {
         depth: '',
         plottype: '震中'
       },
-        // 新闻组件
-        showingNewsContent: {
-            id: '',
-            time: '',
-            content: '',
-            img: '',
-        },
-        showDetailedNewsDialog: false,
+      // 新闻组件
+      showingNewsContent: {
+        id: '',
+        time: '',
+        content: '',
+        img: '',
+      },
+      showDetailedNewsDialog: false,
 
       //时间轴时间
       eqstartTime: '',
@@ -223,12 +201,12 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 1,
       intervalId: null,
-        ifShowData: false,
+      ifShowData: false,
       // 倍速
       currentSpeed: 1,
-        showSpeedOptions: false,
-        speedOption: '1X',
-        speedOptions: ['1X','2X','4X'],
+      showSpeedOptions: false,
+      speedOption: '1X',
+      speedOptions: ['1X','2X','4X'],
 
       //是否记载到view上，已经存在则不再添加
       plotisshow: {},
@@ -242,16 +220,7 @@ export default {
 
 
       dropdownVisible: false,
-      drawitems: [
-        // { id: 1, name: '图件1', pdfUrl: 'path/to/pdf1.pdf' },
-        // { id: 2, name: '图件2', pdfUrl: 'path/to/pdf2.pdf' },
-        // { id: 3, name: '图件3', pdfUrl: 'path/to/pdf3.pdf' }
-        { id: '1', name: '芦山县行政区划图', pdfUrl: picUrl1},
-        { id: '2', name: '图件2', pdfUrl: fileUrl },
-        { id: '3', name: '图件3', pdfUrl: fileUrl }
-      ],
-      // selectedItem: null,
-      selectedItems: [],
+
     };
   },
   created() {
@@ -259,10 +228,10 @@ export default {
 
   },
   mounted() {
-      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-          this.ifShowData = true
-      }
-      console.log("this.eqid------------",this.eqid)
+    if (this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b') {
+      this.ifShowData = true
+    }
+    console.log("this.eqid------------", this.eqid)
     this.init()
     this.getEqInfo(this.eqid)
     // this.initTimerLine()
@@ -306,29 +275,29 @@ export default {
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-        let smallViewer = initCesium(Cesium,smallMapContainer)
-        window.smallViewer = smallViewer
-        smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-        let smallOptions = {}
-        smallOptions.enableCompass = false
-        smallOptions.enableZoomControls = false
-        smallOptions.enableDistanceLegend = false
-        smallOptions.enableCompassOuterRing = false
-        smallOptions.geocoder = false
-        smallOptions.homeButton = false
-        smallOptions.sceneModePicker = false
-        smallOptions.timeline = false
-        smallOptions.navigationHelpButton = false
-        smallOptions.animation = false
-        smallOptions.infoBox = false
-        smallOptions.fullscreenButton = false
-        smallOptions.showRenderState = false
-        smallOptions.selectionIndicator = false
-        smallOptions.baseLayerPicker = false
-        smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-        smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-        window.navigation = new CesiumNavigation(smallViewer, smallOptions)
-        smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
+      let smallViewer = initCesium(Cesium, smallMapContainer)
+      window.smallViewer = smallViewer
+      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
+      let smallOptions = {}
+      smallOptions.enableCompass = false
+      smallOptions.enableZoomControls = false
+      smallOptions.enableDistanceLegend = false
+      smallOptions.enableCompassOuterRing = false
+      smallOptions.geocoder = false
+      smallOptions.homeButton = false
+      smallOptions.sceneModePicker = false
+      smallOptions.timeline = false
+      smallOptions.navigationHelpButton = false
+      smallOptions.animation = false
+      smallOptions.infoBox = false
+      smallOptions.fullscreenButton = false
+      smallOptions.showRenderState = false
+      smallOptions.selectionIndicator = false
+      smallOptions.baseLayerPicker = false
+      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
+      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
+      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
+      smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
       // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
       //   // 隐藏所有控件
       //   geocoder: false,
@@ -346,7 +315,7 @@ export default {
       //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
       // });
       // 隐藏缩略图视图器的版权信息
-        smallViewer._cesiumWidget._creditContainer.style.display = 'none';
+      smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
       // 同步主视图器的相机到缩略图视图器
       function syncCamera() {
@@ -376,8 +345,8 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-        getEqById(eqid).then(res => {
-          console.log("getEqById-------",res)
+      getEqById(eqid).then(res => {
+        console.log("getEqById-------", res)
         // //震中标绘点
         this.centerPoint = res
         this.centerPoint.plotid = "center"
@@ -445,7 +414,7 @@ export default {
 
     //更新地图中心视角，更新变量：地震起止时间，渲染点
     updateMapandVariablebeforInit() {
-        console.log("geom---------------------",this.centerPoint.geom.coordinates[0])
+      console.log("geom---------------------", this.centerPoint.geom.coordinates[0])
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
@@ -478,10 +447,6 @@ export default {
           image: centerstar,
           width: 40,
           height: 40,
-          scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.earthquakeName,
@@ -509,10 +474,6 @@ export default {
           image: centerstar,
           width: 30,
           height: 30,
-          scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.earthquakeName,
@@ -547,11 +508,11 @@ export default {
           this.plotisshow[item.plotid] = 0
         })
         //开启时间轴
-          if(this.ifShowData){
-              this.initTimerLine();
-          }else{
-              this.isTimerRunning = false
-          }
+        if (this.ifShowData) {
+          this.initTimerLine();
+        } else {
+          this.isTimerRunning = false
+        }
       })
     },
 
@@ -761,10 +722,6 @@ export default {
               image: item.img,
               width: 30,
               height: 30,
-              scale: 0.8,
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-              depthTest: false,
-              disableDepthTestDistance: Number.POSITIVE_INFINITY
             },
             // label: {
             //   text: item.pointname,
@@ -847,44 +804,44 @@ export default {
         this.initTimerLine();
       }
     },
-      // 前进
-      forward(){
-          this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076
-          let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
-          this.currentTimePosition += tmp;
-          if (this.currentTimePosition >= 100) {
-              this.currentTimePosition = 100;
-              this.currentTime = this.eqendTime
-              this.isTimerRunning = false
-          } else {
-              this.currentTimePosition = this.currentTimePosition % 100
-              // this.currentTime = new Date(this.eqstartTime.getTime()
-              //     + this.currentNodeIndex * currentTime.setMinutes(currentTime.getMinutes() + 5); * 60 * 1000);
-              let newTime = new Date(this.currentTime);
-              this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
-              this.updatePlot()
-          }
-          console.log("========================",this.currentTime)
-      },
-      // 后退
-      backward(){
-          this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
-          let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
-          this.currentTimePosition -= tmp;
-          if (this.currentTimePosition <= 0) {
-              this.currentTimePosition = 0;
-              this.currentTime = this.eqstartTime
-              this.isTimerRunning = false
-          } else {
-              this.currentTimePosition = this.currentTimePosition % 100
-              // this.currentTime = new Date(this.eqstartTime.getTime()
-              //     + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
-              let newTime = new Date(this.currentTime);
-              this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
-              console.log("this.currentTime--",this.currentTime)
-              this.updatePlot()
-          }
-      },
+    // 前进
+    forward() {
+      this.currentNodeIndex = (this.currentNodeIndex + 1) % 2076
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次前进
+      this.currentTimePosition += tmp;
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 100;
+        this.currentTime = this.eqendTime
+        this.isTimerRunning = false
+      } else {
+        this.currentTimePosition = this.currentTimePosition % 100
+        // this.currentTime = new Date(this.eqstartTime.getTime()
+        //     + this.currentNodeIndex * currentTime.setMinutes(currentTime.getMinutes() + 5); * 60 * 1000);
+        let newTime = new Date(this.currentTime);
+        this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
+        this.updatePlot()
+      }
+      console.log("========================", this.currentTime)
+    },
+    // 后退
+    backward() {
+      this.currentNodeIndex = (this.currentNodeIndex - 1) % 2076
+      let tmp = 100.0 / 2076.0 * this.currentSpeed //进度条每次后退
+      this.currentTimePosition -= tmp;
+      if (this.currentTimePosition <= 0) {
+        this.currentTimePosition = 0;
+        this.currentTime = this.eqstartTime
+        this.isTimerRunning = false
+      } else {
+        this.currentTimePosition = this.currentTimePosition % 100
+        // this.currentTime = new Date(this.eqstartTime.getTime()
+        //     + this.currentNodeIndex * this.currentSpeed * 5 * 60 * 1000);
+        let newTime = new Date(this.currentTime);
+        this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
+        console.log("this.currentTime--", this.currentTime)
+        this.updatePlot()
+      }
+    },
     //点击跳转时间对应场景
     jumpToTime(event) {
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
@@ -934,12 +891,12 @@ export default {
       document.body.style.MozUserSelect = 'auto';
       document.body.style.msUserSelect = 'auto';
     },
-      selectSpeed(speed){
-        // this.currentSpeed = speed
-          this.speedOption = speed
-          this.currentSpeed = parseFloat(speed.split(-1))
-          console.log("-----------------------",this.currentSpeed)
-      },
+    selectSpeed(speed) {
+      // this.currentSpeed = speed
+      this.speedOption = speed
+      this.currentSpeed = parseFloat(speed.split(-1))
+      console.log("-----------------------", this.currentSpeed)
+    },
     //时间轴end-------------
 
     drawPolyline(line) {
@@ -1175,27 +1132,7 @@ export default {
     drawListChage() {
       this.dropdownVisible = !this.dropdownVisible;
     },
-    exportSelected() {
-      this.selectedItems.forEach(selectedName => {
-        console.log(selectedName)
-        const item = this.drawitems.find(item => item.name === selectedName);
-        // selectedName
-        console.log(item)
-        if (item) {
-          const link = document.createElement('a');
-          link.href = item.pdfUrl
-          link.download = '芦山县行政区划图.png';
-          link.click();
-        }
-      });
-      // const link = document.createElement('a');
-      // link.href = item.pdfUrl;
-      // link.download = item.name + '.jpg'; // Assuming images are in jpg format
-      // document.body.appendChild(link);
-      // link.click();
-      // document.body.removeChild(link);
-      // this.selectedItems = []; // Clear selections after export
-    },
+
 
 
     //-地震列表-------------------------------------
@@ -1351,14 +1288,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .eqtitle {
   background-color: #0d325f;
   width: 100%;
   height: 33px;
   display: flex;
-  align-items: center;     /* 垂直居中 */
-  font-weight: bold;       /* 文字加粗 */
+  align-items: center; /* 垂直居中 */
+  font-weight: bold; /* 文字加粗 */
 }
 
 .eqtitle-text_eqname {
@@ -1378,7 +1315,7 @@ export default {
 }
 
 #cesiumContainer {
-  height: calc(100vh - 50px)!important;
+  height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1402,6 +1339,7 @@ export default {
 .timelabel {
   color: #ffffff;
 }
+
 /*·························································*/
 .bottom {
   height: 8%;
@@ -1452,33 +1390,34 @@ export default {
 }
 
 .speedButton {
-    position: relative;
-    left: 101%;
-    color: white;
-    top: -50%;
+  position: relative;
+  left: 101%;
+  color: white;
+  top: -50%;
 }
 
 /* 原有的 chooseSpeed 样式 */
 .chooseSpeed {
-    width: 40px;
-    height: 60px;
-    position: absolute;
-    padding: 0 0px 5px;
-    border-radius: 3px;
-    top: -65px;
-    left: 97%;
-    z-index: 30; /* 更高的层级 */
-    background-color: rgba(40, 40, 40, 0.7);
-    color: white;
-    text-align: center;
-    display: none; /* 默认隐藏 */
+  width: 40px;
+  height: 60px;
+  position: absolute;
+  padding: 0 0px 5px;
+  border-radius: 3px;
+  top: -65px;
+  left: 97%;
+  z-index: 30; /* 更高的层级 */
+  background-color: rgba(40, 40, 40, 0.7);
+  color: white;
+  text-align: center;
+  display: none; /* 默认隐藏 */
 }
 
 /* 当 mouse hover speedButton 时显示 chooseSpeed */
 .speedButton:hover + .chooseSpeed,
 .chooseSpeed:hover {
-    display: block;
+  display: block;
 }
+
 .time-ruler-line {
   position: absolute;
   top: 0;
@@ -1529,7 +1468,8 @@ export default {
   top: 6.3%;
   right: 7%;
 }
-.draw-button{
+
+.draw-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
@@ -1537,28 +1477,17 @@ export default {
 }
 
 
-.dropdown{
+.dropdown {
   background-color: #C03639;
   width: 30%;
-  top:10%;
+  top: 10%;
   height: 43%;
   z-index: 30;
-  left:1%;
+  left: 1%;
   position: absolute;
 }
 
 .output-button {
   margin-top: 10px;
 }
-
-:deep(.cesium-baseLayerPicker-dropDown-visible){
-  z-index:100 !important ;
-  background-color: #2b323a;
-}
-:deep(.cesium-baseLayerPicker-dropDown){
-  right: 9px !important;
-  width: 341px !important;
-  height:300px !important;
-}
-
 </style>

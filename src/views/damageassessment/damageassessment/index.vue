@@ -232,10 +232,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        500000,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          500000,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -246,11 +246,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -481,9 +481,9 @@ export default {
           const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -513,8 +513,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
+              Number(this.selectedTabData.longitude),
+              Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -524,8 +524,8 @@ export default {
           },
           label: {
             text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-              this.selectedTabData.earthquakeName +
-              this.selectedTabData.magnitude + '级地震',
+                this.selectedTabData.earthquakeName +
+                this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -570,7 +570,7 @@ export default {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.getEqData.find(
-          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
+            eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -1091,13 +1091,14 @@ export default {
         this.OvalCirclelayer = [];
       }
     },
+
     degree2Radium(deg) { //角度转弧度
       return deg * (Math.PI / 180);
     },
-    radium2Degree(rad) {
+    radium2Degree (rad)  {
       return rad * (180 / Math.PI);
     },
-    getPointsForEllipse(lat1, lon1, xaxis, yaxis, rotation) {
+    getPointsForEllipse (lat1, lon1, xaxis, yaxis, rotation) {
       //axis distance in km
       var rEarth = 6371.01; //# Earth's average radius in km
       var rXaxis = (xaxis * 68) / rEarth;
@@ -1116,7 +1117,7 @@ export default {
       }
       return polygonRings;
     },
-    EllipseDraw(magnitude) {
+    EllipseDraw (magnitude) {
       let longintenArray = []; //长轴烈度
       let shortintenArray = []; //短轴烈度
       let longAxisArray = []; //长轴数组
@@ -1128,7 +1129,7 @@ export default {
 
       //汪素云-四川盆地
       let longAxis = 4.0293 + 1.3003 * magnitude - 3.6404 * Math.log10(R + 10); //长轴的烈度值
-      let shortAxis = 2.3816 + 1.3003 * magnitude - 2.8573 * Math.log10(R + 5); //短轴的烈度值
+      let shortAxis = 2.3816+ 1.3003 * magnitude - 2.8573 * Math.log10(R + 5); //短轴的烈度值
 
       // console.log("longAxis,shortAxis",longAxis,shortAxis)
       for (var i = Math.floor(longAxis); i >= 6; i--) {
@@ -1143,7 +1144,7 @@ export default {
             //     (2.795+1.600 * magnitude - i) /1.637
             // ) -28.497;
             Math.pow(10,
-                (4.0293 + 1.3003 * magnitude - i) / 3.6404
+                ( 4.0293 + 1.3003 * magnitude - i) / 3.6404
             ) - 10;
         // console.log(R)
         longAxisArray.push(R);
@@ -1160,7 +1161,7 @@ export default {
             //     (1.331+1.218 * magnitude - j) /1.381
             // ) -  8.88;
             Math.pow(10,
-                (2.3816 + 1.3003 * magnitude - j) / 2.8573
+                (2.3816+ 1.3003 * magnitude  - j) / 2.8573
             ) - 5;
         shortAxisArray.push(R1);
       }
@@ -1168,8 +1169,8 @@ export default {
         if (longAxisArray[i] != null && shortAxisArray[i] != null) {
           (function (item, index) {
             var xy = new Array();
-            xy[0] = longAxisArray[index] * 1000; //将符合条件每个长轴储存起来
-            xy[1] = shortAxisArray[index] * 1000; //将符合条件每个短轴储存起来
+            xy[0] = longAxisArray[index]*1000; //将符合条件每个长轴储存起来
+            xy[1] = shortAxisArray[index]*1000; //将符合条件每个短轴储存起来
             longAndshort[item] = xy;
           })(numi, i);
           numi++;
@@ -1178,7 +1179,7 @@ export default {
 
       return [longAndshort, longintenArray];
     },
-    angle(lon, lat) {
+    angle (lon, lat) {
       var angle_list = [];
       for (var i = 0; i < fault_zone.length; i++) {
         var length_list = [];
@@ -1196,6 +1197,8 @@ export default {
       var angle_ = fault_zone[angle_list[0][0]].angle;
       return angle_;
     },
+
+
   }
 };
 </script>
