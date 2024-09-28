@@ -797,7 +797,7 @@ export default {
         this.removePoints(this.suppliesList[2]);
         let result = this.supplyList
         let radiusResult = []
-        let countResult = false
+        let countResult = []
         this.selectedSuppliesList = []
         // console.log("result-------------------",result)
         let i = 1.0
@@ -807,14 +807,14 @@ export default {
             // console.log("radiusResult-------------------",radiusResult)
             countResult = this.marchSupplyByCount(radiusResult)
             // console.log("countResult-------------------", countResult);
-            if(countResult){
+            if(countResult.length > 0){
                 flag = true
                 this.marchSupplyRadius = i
             }
             i++
         }
         if(flag){
-            this.selectedSuppliesList = radiusResult
+            this.selectedSuppliesList = countResult
             await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
                 confirmButtonText: '确认',
             });
@@ -822,7 +822,7 @@ export default {
             this.drawSupplyPoint("searchSupplies",this.marchSupplyRadius)
         }else{
             this.selectedSuppliesList = []
-            await ElMessageBox.alert('未匹配到合适的物资。', '提示', {
+            await ElMessageBox.alert('15公里范围内未匹配到合适的物资。', '提示', {
                 confirmButtonText: '确认',
             });
         }
@@ -877,19 +877,49 @@ export default {
         let rainBoots = 0
         let flashlights = 0
         let flag = false
+        let bool1 = this.searchSupplyForm.tents > 0 ? false : true
+        let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
+        let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
+        let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
+        let resultArray = []
+        // console.log("ele--------------------",bool1)
+        // console.log("ele--------------------",bool2)
+        // console.log("ele--------------------",bool3)
+        // console.log("ele--------------------",bool4)
         array.forEach((ele) => {
-            tents += ele.tents;
-            raincoats += ele.raincoats;
-            rainBoots += ele.rainBoots;
-            flashlights += ele.flashlights;
-            if (tents >= this.searchSupplyForm.tents
-                && raincoats >= this.searchSupplyForm.raincoats
-                && rainBoots >= this.searchSupplyForm.rainBoots
-                && flashlights >= this.searchSupplyForm.flashlights) {
-                flag = true;
+            if(ele.tents === 0){
+                bool1 = true
+            }
+            if(ele.raincoats === 0){
+                bool2 = true
+            }
+            if(ele.rainBoots === 0){
+                bool3 = true
+            }
+            if(ele.flashlights === 0){
+                bool4 = true
+            }
+            if(!bool1 || !bool2 || !bool3 || !bool4){
+                tents += ele.tents;
+                raincoats += ele.raincoats;
+                rainBoots += ele.rainBoots;
+                flashlights += ele.flashlights;
+                console.log("rainBoots=====-----",rainBoots)
+                if (tents >= this.searchSupplyForm.tents
+                    && raincoats >= this.searchSupplyForm.raincoats
+                    && rainBoots >= this.searchSupplyForm.rainBoots
+                    && flashlights >= this.searchSupplyForm.flashlights) {
+                    flag = true;
+                }
+                resultArray.push(ele)
             }
         });
-        return flag
+        console.log("flag-----------------",flag)
+        if(flag){
+            return resultArray
+        }else{
+            return []
+        }
     },
       drawSupplyPoint(param,radius) {
         this.total = this.selectedSuppliesList.length;
