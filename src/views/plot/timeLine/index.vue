@@ -20,17 +20,17 @@
       <el-table-column prop="depth" label="深度" header-align="center" align="center"></el-table-column>
     </el-table>
 
-      <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="pageSizes"
-          :page-size="pageSize"
-          style="display: flex; justify-content: center; margin-top: 20px;"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-      >
-      </el-pagination>
+    <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        style="display: flex; justify-content: center; margin-top: 20px;"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+    >
+    </el-pagination>
 
 
   </div>
@@ -74,7 +74,7 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
-          console.log("-----------------",res[7])
+        console.log("-----------------",res[7])
         let resData = res.filter(item=>item.magnitude>=5)
         that.getEqData = resData
         that.total = resData.length
@@ -136,7 +136,7 @@ export default {
     },
 
     go(row, column, cell, event) {
-      this.$router.push({name: 'thdTimeLine', params: {eqid: row.uuid}})
+      this.$router.push({name: 'thdTimeLine', params: {eqid: row.eqid}})
     },
     // 修改table header的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
@@ -148,8 +148,7 @@ export default {
           'background-color': 'rgba(65,159,255,0.19)',
           'border-color': '#f8f8f9',
         }
-      }
-      else{
+      } else {
         return {
           'background-color': 'rgb(255,255,255)',
           'border-color': '#f8f8f9',

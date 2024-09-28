@@ -29,7 +29,9 @@ export default {
       popupPanelData: {},
       popupTitle: '',
       keyMappings: {
+        lon: '经度',
         longitude: '经度',
+        lat: '纬度',
         latitude: '纬度',
         // 物资表
         county: '县（区）',
@@ -164,7 +166,7 @@ export default {
 // 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
-          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type' && key !== 'geom' && key !== 'icon') {
+          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type' && key !== 'geom' && key !== 'icon'&& key !=='uniqueIdentifier') {
             if (key === 'insertionTime' || key === 'insertTime') {
               if (rawPopupData[key] !== null) {
                 const translatedKey = this.keyMappings[key] || key;
@@ -264,4 +266,5 @@ el-button {
   display: block;
   margin: 20px auto 0;
 }
+
 </style>
