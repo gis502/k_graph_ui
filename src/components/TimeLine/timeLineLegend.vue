@@ -27,7 +27,7 @@ export default {
     };
   },
   mounted() {
-    this.getPlotPicture();
+    // this.getPlotPicture();
   },
   methods: {
     toggleLegend() {
