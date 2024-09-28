@@ -2,6 +2,7 @@ import * as Cesium from 'cesium'
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
+import {saveIntensityCircle} from "../../api/system/damageassessment.js";
 
 // 雅安行政区加载
 export function addYaanLayer() {
@@ -308,9 +309,12 @@ export function addOvalCircles(centerPoint) {
     "六", "七", "八", "九", "十", "十一", "十二"
   ];
 
-  // let angle_num = this.angle(parseFloat(centerPoint.longitude), parseFloat(centerPoint.latitude));
   let angle_num_tmp;
-  // let [longAndshort, longintenArray] = this.EllipseDraw(centerPoint.magnitude);
+
+  let lastsemiMajorAxis = 0;//震中
+  let lastsemiMinorAxis = 0;
+  let last_angle_num_tmp = 0; // 椭圆的旋转角度
+  let savecircles = []  //存库信息
 
   for (let i = longAndshort.length - 1; i >= 0; i--) {
     if (longAndshort[i][1] > longAndshort[i][0]) {
@@ -376,8 +380,127 @@ export function addOvalCircles(centerPoint) {
       },
       layername: "烈度圈",
     });
+
+    //计算烈度圈进行存储
+    savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp,centerPoint))
+    console.log("savecircles", savecircles)
+    //内环
+    lastsemiMajorAxis = semiMajorAxis;
+    lastsemiMinorAxis = semiMinorAxis;
+    last_angle_num_tmp = angle_num_tmp; // 旋转角度
+  }
+  console.log("savecircles", savecircles)
+  saveIntensityCircle(savecircles).then(res => {
+  })
+}
+
+function computecircle(majorAxis, minorAxis, rotationAngle, intensity, lastlong, lastshort, lastrotationAngle, centerPoint) {
+  let IntensityCircle = {
+    eqid: centerPoint.eqid,
+    intensity: intensity,
+    geom: '',
+  };
+
+  //外环
+  // // 将角度转换为弧度
+  const rotationAngleRad = rotationAngle * (Math.PI / 180);
+  // 计算椭圆的四个顶点
+  const outlinepoints = [];
+  const angleStep = Math.PI / 2; // 90度的弧度
+  // 长轴和短轴的四个方向
+  const directions = [
+    {angle: rotationAngleRad, type: 'major'},
+    {angle: rotationAngleRad + Math.PI / 2, type: 'minor'},
+    {angle: rotationAngleRad + Math.PI, type: 'major'},
+    {angle: rotationAngleRad + 3 * Math.PI / 2, type: 'minor'},
+    {angle: rotationAngleRad, type: 'major'}, //首位相连，围成环
+  ];
+  directions.forEach(direction => {
+    const angle = direction.angle;
+    const type = direction.type;
+    let distance = type === 'major' ? majorAxis : minorAxis;
+
+    // 计算经度和纬度的增量
+    const deltaX = distance * Math.cos(angle) / 111319.9; // 经度增量，每度约等于111.32公里
+    const deltaY = distance * Math.sin(angle) / 110574; // 纬度增量，每度约等于110.57公里
+    // console.log(deltaX,deltaY)
+    const vertexLongitude = parseFloat(centerPoint.longitude) + deltaX;
+    const vertexLatitude = parseFloat(centerPoint.latitude) + deltaY;
+
+    outlinepoints.push({
+      longitude: vertexLongitude,
+      latitude: vertexLatitude
+    });
+  });
+  console.log("outlinepoints", outlinepoints)
+
+  //内环
+  // 计算椭圆的四个顶点
+  const inlinepoints = [];
+  // // 将角度转换为弧度
+  const rotationAngleRad_in = lastrotationAngle * (Math.PI / 180);
+  // 长轴和短轴的四个方向
+  const directions_in = [
+    {angle: rotationAngleRad_in, type: 'major'},
+    {angle: rotationAngleRad_in + Math.PI / 2, type: 'minor'},
+    {angle: rotationAngleRad_in + Math.PI, type: 'major'},
+    {angle: rotationAngleRad_in + 3 * Math.PI / 2, type: 'minor'},
+    {angle: rotationAngleRad_in, type: 'major'}, //首位相连，围成环
+  ];
+  if (lastlong != 0) {
+    directions_in.forEach(direction => {
+      const angle = direction.angle;
+      const type = direction.type;
+      let distance = type === 'major' ? lastlong : lastshort;
+      // 计算经度和纬度的增量
+      const deltaX = distance * Math.cos(angle) / 111319.9; // 经度增量，每度约等于111.32公里
+      const deltaY = distance * Math.sin(angle) / 110574; // 纬度增量，每度约等于110.57公里
+      // console.log(deltaX,deltaY)
+      const vertexLongitude = parseFloat(centerPoint.longitude) + deltaX;
+      const vertexLatitude = parseFloat(centerPoint.latitude) + deltaY;
+
+      inlinepoints.push({
+        longitude: vertexLongitude,
+        latitude: vertexLatitude
+      });
+    });
   }
 
+  console.log("inlinepoints", inlinepoints)
+  IntensityCircle.geom = buildCurvePolygonString(outlinepoints, inlinepoints)
+  console.log("IntensityCircle", IntensityCircle)
+  return IntensityCircle;
+}
+
+function buildCurvePolygonString(outlinepoints,inlinepoints) {
+  let curvePolygonString=''
+  // 构建CIRCULARSTRING部分
+  let outline = 'CIRCULARSTRING(';
+  outlinepoints.forEach((point, index) => {
+    outline += `${point.longitude} ${point.latitude}`;
+    if (index < outlinepoints.length - 1) {
+      outline += ', ';
+    }
+  });
+  outline += ')';
+  //最高烈度没有内环
+  if(inlinepoints.length==0){
+    // 组合成最终的CURVEPOLYGON字符串
+    curvePolygonString = `CURVEPOLYGON(${outline})`;
+  }
+  else{
+    let inline = 'CIRCULARSTRING(';
+    inlinepoints.forEach((point, index) => {
+      inline += `${point.longitude} ${point.latitude}`;
+      if (index < inlinepoints.length - 1) {
+        inline += ', ';
+      }
+    });
+    inline += ')';
+    // 组合成最终的CURVEPOLYGON字符串
+    curvePolygonString = `CURVEPOLYGON(${outline}, ${inline})`;
+  }
+  return curvePolygonString;
 }
 
 // 时间戳转换
