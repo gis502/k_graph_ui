@@ -14,7 +14,7 @@
     <!--    </div>-->
     <div v-if="activeComponent === 'layerChoose'" class="dropdown">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
+        <el-checkbox v-for="item in layeritems" :key="item.uuid" :label="item.name">{{ item.name }}</el-checkbox>
       </el-checkbox-group>
     </div>
 
@@ -2120,16 +2120,16 @@ export default {
       pointArr = pointArr.filter(e => e.longitude !== null);
 
       pointArr.forEach(element => {
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
           return;
         }
 
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
+          console.error(`id为${element.uuid}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
 
@@ -2140,7 +2140,7 @@ export default {
 
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
-        id: element.id,
+        id: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
         billboard: {
           image: icon,
@@ -2639,6 +2639,13 @@ export default {
 .el-menu-item[data-index="6"] .el-tooltip__popper {
   width: 200px; /* 返回首页的下拉框宽度 */
 }
-
+:deep(.info-item :nth-child(2)) {
+  width: 60%;
+  border-color: rgba(0, 0, 0, 0);
+  /* border-top-style: solid; */
+  //border-top-width: 2px;
+  background-color: #4d546900;
+  margin-bottom: 2px;
+}
 
 </style>
