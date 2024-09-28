@@ -1,8 +1,5 @@
 <template>
   <div id="cesiumContainer">
-    <!--    <el-form class="tool-container">-->
-    <!--    写功能按钮部分-->
-    <!--    </el-form>-->
     <RouterPanel
         :visible="popupVisible"
         :position="popupPosition"
@@ -255,19 +252,18 @@ import {initCesium} from "@/cesium/tool/initCesium.js";
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 import {getEmergency} from "@/api/system/emergency.js";
-import disasterReservesLogo from "@/assets/images/disasterReservesLogo.jpg";
-import disasterSuppliesLogo from "@/assets/images/disasterSuppliesLogo.png";
-import emergencyTeamLogo from "@/assets/images/emergencyTeamLogo.png";
+import emergencyRescueEquipmentLogo from "@/assets/images/emergencyRescueEquipmentLogo.jpg";
+import disasterReliefsuppliesLogo from "@/assets/images/disasterReliefsuppliesLogo.png";
+import rescueTeamsInfoLogo from "@/assets/images/rescueTeamsInfoLogo.png";
 // import bubbleImg from "@/assets/images/bubbles.png";
-// -----
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {Entity} from "cesium";
 import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
-import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
+// import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
-import {searchMaterialData} from "../../api/system/emergency.js";
+// import {searchMaterialData} from "../../api/system/emergency.js";
 import { ElMessageBox, ElMessage } from 'element-plus';
 
 export default {
@@ -502,15 +498,15 @@ export default {
     },
     initPlot() {
       getEmergency().then(res => {
-        let {disasterReserves, disasterSupplies, emergencyTeam} = res;
-        // console.log('获取到的res', res);
-        this.supplyList = disasterReserves
-        this.suppliesList.push(disasterReserves, disasterSupplies, emergencyTeam);
+        let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
+        console.log('获取到的res', res);
+
+        this.suppliesList.push(emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo);
 
         // 调用 `processPoints` 并传递不同的 `tableName`
-        this.processPoints(disasterReserves, 'reserves', disasterReservesLogo, "救灾物资储备");
-        this.processPoints(disasterSupplies, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
-        this.processPoints(emergencyTeam, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
+        this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefsuppliesLogo, "救灾物资储备");
+        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
 
         this.fetSupplyPoints();
       });
@@ -526,17 +522,16 @@ export default {
 
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
           return;
         }
-
         // 检查经度、纬度和高度是否为有效数值
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
+          console.error(`id为${element.uuid}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
 
@@ -550,7 +545,7 @@ export default {
 
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
-        id: element.id,
+        uuid: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
         billboard: {
           image: icon,
@@ -566,8 +561,8 @@ export default {
         properties: {
           tableName: tableName, // 动态传入的表名称
           ...element, // 将element对象展开，自动填充所有属性
-          lon: element.longitude,
-          lat: element.latitude
+          longitude: element.longitude,
+          latitude: element.latitude
         }
       });
     },
@@ -731,12 +726,11 @@ export default {
 
     removePoints(entityArr) {
       entityArr.forEach((entity) => {
-        // console.log("-----",entity.id)
-        let id = entity.id;
-
-        let existingEntity = window.viewer.entities.getById(id);
+        // console.log("-----",entity.uuid)
+        let uuid = entity.uuid;
+        let existingEntity = window.viewer.entities.getById(uuid);
         if (existingEntity) {
-          window.viewer.entities.removeById(id);
+          window.viewer.entities.removeById(uuid);
         } else {
         }
       });

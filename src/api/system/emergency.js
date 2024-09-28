@@ -16,6 +16,7 @@ export function getFeaturesLayer(query) {
     })
 }
 
+
 export function suppliesReservesList() {
     return request({
         url: '/emergencyResources/suppliesReservesList',
