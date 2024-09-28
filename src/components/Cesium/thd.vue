@@ -14,7 +14,7 @@
     <!--    </div>-->
     <div v-if="activeComponent === 'layerChoose'" class="dropdown">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-        <el-checkbox v-for="item in layeritems" :key="item.uuid" :label="item.name">{{ item.name }}</el-checkbox>
+        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
       </el-checkbox-group>
     </div>
 
@@ -54,7 +54,7 @@
     <!--    title-->
     <div class="eqtitle">
       <span
-        class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
+          class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
           this.eqday
         }}日{{ this.centerPoint.position }}{{ this.centerPoint.magnitude }}级地震</span>
     </div>
@@ -62,12 +62,12 @@
 
     <div>
       <el-menu
-        class="el-menu-vertical-demo"
-        mode="horizontal"
-        background-color="#293038"
-        text-color="#fff"
-        active-text-color="#537BB7FF"
-        style="position: absolute;
+          class="el-menu-vertical-demo"
+          mode="horizontal"
+          background-color="#293038"
+          text-color="#fff"
+          active-text-color="#537BB7FF"
+          style="position: absolute;
                   top: 4.3%;z-index: 20;
                   height: 45px;width: 400px;
                   margin: 0;padding: 0;
@@ -87,17 +87,17 @@
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
         <TimeLinePanel
-          :visible="timelinePopupVisible"
-          :position="timelinePopupPosition"
-          :popupData="timelinePopupData"
+            :visible="timelinePopupVisible"
+            :position="timelinePopupPosition"
+            :popupData="timelinePopupData"
         />
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
     <RouterPanel
-      :visible="routerPopupVisible"
-      :position="routerPopupPosition"
-      :popupData="routerPopupData"
+        :visible="routerPopupVisible"
+        :position="routerPopupPosition"
+        :popupData="routerPopupData"
     />
 
     <!-- 进度条-->
@@ -142,34 +142,34 @@
     <!--    两侧组件-->
     <!--   应急响应-左上   -->
     <timeLineEmergencyResponse
-      :eqid="eqid"
-      :currentTime="currentTime"
+        :eqid="eqid"
+        :currentTime="currentTime"
     />
     <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
-      :eqid="eqid"
-      :currentTime="currentTime"
+        :eqid="eqid"
+        :currentTime="currentTime"
     />
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
-      :eqid="eqid"
-      :currentTime="currentTime"
+        :eqid="eqid"
+        :currentTime="currentTime"
     />
     <!--  新闻-右上  -->
     <div>
       <news
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @ifShowDialog="ifShowDialog"
-        @detailedNews="detailedNews"
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @ifShowDialog="ifShowDialog"
+          @detailedNews="detailedNews"
       ></news>
     </div>
     <!--      新闻弹框-->
     <div>
       <news-dialog
-        :showDetailedNewsDialog="showDetailedNewsDialog"
-        :showingNewsContent="showingNewsContent"
-        @hideNewsDialog="hideNewsDialog"
+          :showDetailedNewsDialog="showDetailedNewsDialog"
+          :showingNewsContent="showingNewsContent"
+          @hideNewsDialog="hideNewsDialog"
       ></news-dialog>
     </div>
     <!--      缩略图-->
@@ -178,8 +178,8 @@
     </div>
 
     <timeLineLegend
-      :activeComponent="activeComponent"
-      @toggleComponent="toggleComponent"
+        :activeComponent="activeComponent"
+        @toggleComponent="toggleComponent"
     ></timeLineLegend>
     <!--    两侧组件 end-->
 
@@ -436,73 +436,98 @@ export default {
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
 
+      //经纬度查询
+      let that = this
 
-        // 创建缩略图视图器实例
-        let smallMapContainer = document.getElementById('smallMapContainer');
-        let smallViewer = initCesium(Cesium,smallMapContainer)
-        window.smallViewer = smallViewer
-        smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-        let smallOptions = {}
-        smallOptions.enableCompass = false
-        smallOptions.enableZoomControls = false
-        smallOptions.enableDistanceLegend = false
-        smallOptions.enableCompassOuterRing = false
-        smallOptions.geocoder = false
-        smallOptions.homeButton = false
-        smallOptions.sceneModePicker = false
-        smallOptions.timeline = false
-        smallOptions.navigationHelpButton = false
-        smallOptions.animation = false
-        smallOptions.infoBox = false
-        smallOptions.fullscreenButton = false
-        smallOptions.showRenderState = false
-        smallOptions.selectionIndicator = false
-        smallOptions.baseLayerPicker = false
-        smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-        smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-        window.navigation = new CesiumNavigation(smallViewer, smallOptions)
-        smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-        // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-        //   // 隐藏所有控件
-        //   geocoder: false,
-        //   homeButton: false,
-        //   sceneModePicker: false,
-        //   timeline: false,
-        //   navigationHelpButton: false,
-        //   animation: false,
-        //   infoBox: false,
-        //   fullscreenButton: false,
-        //   showRenderState: false,
-        //   selectionIndicator: false,
-        //   baseLayerPicker: false,
-        //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-        //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-        // });
-        // 隐藏缩略图视图器的版权信息
-        smallViewer._cesiumWidget._creditContainer.style.display = 'none';
-
-        // 同步主视图器的相机到缩略图视图器
-        function syncCamera() {
-            const camera1 = viewer.scene.camera;
-            const camera2 = smallViewer.scene.camera;
-
-            camera2.setView({
-                destination: camera1.positionWC,
-                orientation: {
-                    heading: camera1.heading,
-                    pitch: camera1.pitch,
-                    roll: camera1.roll
-                }
-            });
+      let canvas = viewer.scene.canvas;
+      //具体事件的实现
+      let ellipsoid = viewer.scene.globe.ellipsoid;
+      let handler = new Cesium.ScreenSpaceEventHandler(canvas);
+      handler.setInputAction(function (movement) {
+        //捕获椭球体，将笛卡尔二维平面坐标转为椭球体的笛卡尔三维坐标，返回球体表面的点
+        let cartesian = viewer.camera.pickEllipsoid(movement.position, ellipsoid);
+        if (cartesian) {
+          //将笛卡尔三维坐标转为地图坐标（弧度）
+          let cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+          //将地图坐标（弧度）转为十进制的度数
+          let latString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+          let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+          // 获取相机的海拔高度作为视角高度/km
+          let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
+          console.log(latString);
+          console.log(logString);
+          console.log(altiString);
+          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude),Cesium.Math.toDegrees(cartographic.latitude))
         }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-        // 监听主视图器的相机变化
-        viewer.scene.camera.changed.addEventListener(syncCamera);
 
-        // 每帧渲染时同步缩略图视图
-        viewer.scene.postRender.addEventListener(function () {
-            smallViewer.scene.requestRender(); // 确保缩略图更新
+      // 创建缩略图视图器实例
+      let smallMapContainer = document.getElementById('smallMapContainer');
+      let smallViewer = initCesium(Cesium,smallMapContainer)
+      window.smallViewer = smallViewer
+      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
+      let smallOptions = {}
+      smallOptions.enableCompass = false
+      smallOptions.enableZoomControls = false
+      smallOptions.enableDistanceLegend = false
+      smallOptions.enableCompassOuterRing = false
+      smallOptions.geocoder = false
+      smallOptions.homeButton = false
+      smallOptions.sceneModePicker = false
+      smallOptions.timeline = false
+      smallOptions.navigationHelpButton = false
+      smallOptions.animation = false
+      smallOptions.infoBox = false
+      smallOptions.fullscreenButton = false
+      smallOptions.showRenderState = false
+      smallOptions.selectionIndicator = false
+      smallOptions.baseLayerPicker = false
+      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
+      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
+      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
+      smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
+      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
+      //   // 隐藏所有控件
+      //   geocoder: false,
+      //   homeButton: false,
+      //   sceneModePicker: false,
+      //   timeline: false,
+      //   navigationHelpButton: false,
+      //   animation: false,
+      //   infoBox: false,
+      //   fullscreenButton: false,
+      //   showRenderState: false,
+      //   selectionIndicator: false,
+      //   baseLayerPicker: false,
+      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
+      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
+      // });
+      // 隐藏缩略图视图器的版权信息
+      smallViewer._cesiumWidget._creditContainer.style.display = 'none';
+
+      // 同步主视图器的相机到缩略图视图器
+      function syncCamera() {
+        const camera1 = viewer.scene.camera;
+        const camera2 = smallViewer.scene.camera;
+
+        camera2.setView({
+          destination: camera1.positionWC,
+          orientation: {
+            heading: camera1.heading,
+            pitch: camera1.pitch,
+            roll: camera1.roll
+          }
         });
+      }
+
+      // 监听主视图器的相机变化
+      viewer.scene.camera.changed.addEventListener(syncCamera);
+
+      // 每帧渲染时同步缩略图视图
+      viewer.scene.postRender.addEventListener(function () {
+        smallViewer.scene.requestRender(); // 确保缩略图更新
+      });
 
       // 初始同步
       syncCamera();
@@ -511,7 +536,7 @@ export default {
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
       getEqById(eqid).then(res => {
-          console.log("thd eqid---------------",eqid)
+        console.log("thd eqid---------------",eqid)
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
@@ -568,9 +593,9 @@ export default {
     updateMapandVariablebeforInit() {
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.geom.coordinates[0]),
-          parseFloat(this.centerPoint.geom.coordinates[1]),
-          120000),
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
+            120000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -590,14 +615,19 @@ export default {
         //   describe: this.centerPoint.position,
         // },
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.geom.coordinates[0]),
-          parseFloat(this.centerPoint.geom.coordinates[1]),
-          parseFloat(this.centerPoint.height || 0)
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.height || 0)
         ),
         billboard: {
           image: centerstar,
           width: 40,
           height: 40,
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.earthquakeName,
@@ -606,6 +636,8 @@ export default {
           fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
         },
@@ -618,14 +650,19 @@ export default {
       smallViewer.entities.removeAll();
       smallViewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.geom.coordinates[0]),
-          parseFloat(this.centerPoint.geom.coordinates[1]),
-          parseFloat(this.centerPoint.height || 0)
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.height || 0)
         ),
         billboard: {
           image: centerstar,
-          width: 30,
-          height: 30,
+          width: 40,
+          height: 40,
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.earthquakeName,
@@ -633,6 +670,8 @@ export default {
           font: '10px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -16),
@@ -670,10 +709,15 @@ export default {
     //   }
     // },
 
-    intimexuanran(eqid) {
+    // xuanran 方法
+    xuanran(eqid){
+      this.getPlotwithStartandEndTime(eqid)  //拿渲染点数据
+      this.intimexuanran(eqid)  //定时向数据库请求 每分钟请求一次
+    },
+    intimexuanran(eqid){
       //5分钟一次
-      if (this.realTime < this.tmpeqendTime) {
-        if (!this.isTimerRunning && this.currentTimePosition === 100) {
+      if(this.realTime< this.tmpeqendTime) {
+        if(!this.isTimerRunning&&this.currentTimePosition===100){
           // console.log("gengxin")
           // 检查是否已经有定时器在运行
           if (!this.realtimeinterval) {
@@ -700,7 +744,6 @@ export default {
 
           //当前时间每秒更新
           if (!this.eqendtimeinterval) {
-
             // console.log("!this.eqendtimeinterval")
             this.eqendtimeinterval = setInterval(() => {
               if (this.currentTimePosition !== 100) {
@@ -717,41 +760,6 @@ export default {
         }
       }
     },
-
-// xuanran 方法
-    xuanran(eqid) {
-      this.getPlotwithStartandEndTime(eqid)
-      this.intimexuanran(eqid)
-      //定时向数据库请求 每分钟请求一次
-      // if(this.realTime< this.tmpeqendTime) {
-      //   if(!this.isTimerRunning&&this.currentTimePosition===100){
-      //     console.log("gengxin")
-      //     // 检查是否已经有定时器在运行
-      //     if (!this.realtimeinterval) {
-      //
-      //       console.log("!this.realtimeinterval")
-      //       this.realtimeinterval = setInterval(() => {
-      //         if (this.currentTimePosition !== 100) {
-      //           clearInterval(this.realtimeinterval); // 停止定时器
-      //           this.realtimeinterval = null; // 清除引用
-      //           // this.isTimerRunning = false; // 更新状态
-      //           return; // 跳出当前循环
-      //         }
-      //         //更新开始结束当前时间，时间轴进度条位置，节点数量
-      //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-      //         this.eqendTime = new Date()
-      //         this.currentTime = this.eqendTime
-      //         this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-      //         this.currentNodeIndex = this.timelineAdvancesNumber
-      //         console.log(this.currentNodeIndex, "xuanran this.currentNodeIndex")
-      //         // this.
-      //       }, 5000);
-      //     }
-      //   }
-      // }
-
-    },
-
 
     //取标绘点
     getPlotwithStartandEndTime(eqid) {
@@ -840,9 +848,9 @@ export default {
         polylineArrtmp.forEach(polylineElement => {
           if (polylineElement.plotid === onlyDrawIdItem) {
             positionsArr.push(
-              parseFloat(polylineElement.longitude),
-              parseFloat(polylineElement.latitude),
-              parseFloat(polylineElement.height)
+                parseFloat(polylineElement.longitude),
+                parseFloat(polylineElement.latitude),
+                parseFloat(polylineElement.height)
             );
 
             // 检查 polylineArr 中是否已存在该 plotid 的数据
@@ -879,9 +887,9 @@ export default {
         polygonArrtmp.forEach(polygonElement => {
           if (polygonElement.plotid === onlyDrawIdItem) {
             positionsArr.push(
-              parseFloat(polygonElement.longitude),
-              parseFloat(polygonElement.latitude),
-              // parseFloat(polylineElement.height)
+                parseFloat(polygonElement.longitude),
+                parseFloat(polygonElement.latitude),
+                // parseFloat(polylineElement.height)
             );
             // 检查 polylineArr 中是否已存在该 plotid 的数据
             let existingpolygon = polygonArr.find(p => p.plotid === polygonElement.plotid);
@@ -929,14 +937,20 @@ export default {
             //   // describe: item.pointdescribe,
             // },
             position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(item.longitude),
-              parseFloat(item.latitude),
-              parseFloat(item.height || 0)
+                parseFloat(item.longitude),
+                parseFloat(item.latitude),
+                parseFloat(item.height || 0)
             ),
             billboard: {
               image: item.img,
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
+              eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+              color: Cesium.Color.WHITE.withAlpha(1),
+              scale: 0.8,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              depthTest: false,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
             },
             // label: {
             //   text: item.pointname,
@@ -1309,8 +1323,8 @@ export default {
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
 
-          console.log(99999);
-          console.log(entity._layer);
+          // console.log(99999);
+          // console.log(entity._layer);
 
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
@@ -1358,8 +1372,8 @@ export default {
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.routerPopupData = this.extractDataForRouter(entity);
 
-            console.log(101010)
-            console.log(this.routerPopupData)
+            // console.log(101010)
+            // console.log(this.routerPopupData)
 
             this.timelinePopupVisible = false;
           } else {
@@ -1398,6 +1412,7 @@ export default {
           outlineColor: Cesium.Color.RED,
           outlineWidth: 2,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+
           fill: true,
           clampToGround: true,
           height: 0,
@@ -1426,7 +1441,11 @@ export default {
                 image: eqMark,
                 width: size,
                 height: size,
-                eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+                eyeOffset: new Cesium.Cartesian3(0, 0, -5000),
+                scale: 0.8,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                depthTest: false,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
               },
               label: {
                 show: false,
@@ -1487,15 +1506,15 @@ export default {
       let a = radlat1 - radlat2;
       let b = (lon1 * Math.PI) / 180.0 - (lon2 * Math.PI) / 180.0;
       let s =
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin(a / 2), 2) +
-            Math.cos(radlat1) *
-            Math.cos(radlat2) *
-            Math.pow(Math.sin(b / 2), 2)
-          )
-        );
+          2 *
+          Math.asin(
+              Math.sqrt(
+                  Math.pow(Math.sin(a / 2), 2) +
+                  Math.cos(radlat1) *
+                  Math.cos(radlat2) *
+                  Math.pow(Math.sin(b / 2), 2)
+              )
+          );
       s = s * 6378.137;
       return Math.round(s * 10000) / 10000;
     },
@@ -1509,10 +1528,10 @@ export default {
       fault_zone.forEach((item) => {
         for (let i = 0; i < item.lonlat[0].length; i++) {
           if (
-            this.getLonAndLatDistance([
-              [this.centerPoint.longitude, this.centerPoint.latitude],
-              item.lonlat[0][i],
-            ]) < 200
+              this.getLonAndLatDistance([
+                [this.centerPoint.longitude, this.centerPoint.latitude],
+                item.lonlat[0][i],
+              ]) < 200
           ) {
             faultZoneLines.push(item);
             break;
@@ -1526,9 +1545,9 @@ export default {
         let positionsArr = [];
         for (var i = 0; i + 1 < item.lonlat[0].length; i++) {
           positionsArr.push(
-            parseFloat(item.lonlat[0][i][0]),
-            parseFloat(item.lonlat[0][i][1]),
-            0
+              parseFloat(item.lonlat[0][i][0]),
+              parseFloat(item.lonlat[0][i][1]),
+              0
           );
         }
         // console.log("positionsArr",positionsArr)
@@ -1633,9 +1652,9 @@ export default {
         // 添加显示烈度的标签
         viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude) + offsetX / 111320,
-            parseFloat(this.centerPoint.latitude) + offsetY / 110540,
-            0
+              parseFloat(this.centerPoint.longitude) + offsetX / 111320,
+              parseFloat(this.centerPoint.latitude) + offsetY / 110540,
+              0
           ),
           label: {
             //最多画到6度
@@ -1677,12 +1696,12 @@ export default {
         longintenArray.push(i); //长轴烈度
 
         R =
-          // Math.exp(
-          //     (2.795+1.600 * magnitude - i) /1.637
-          // ) -28.497;
-          Math.pow(10,
-            (4.0293 + 1.3003 * magnitude - i) / 3.6404
-          ) - 10;
+            // Math.exp(
+            //     (2.795+1.600 * magnitude - i) /1.637
+            // ) -28.497;
+            Math.pow(10,
+                (4.0293 + 1.3003 * magnitude - i) / 3.6404
+            ) - 10;
         // console.log(R)
         longAxisArray.push(R);
       }
@@ -1694,12 +1713,12 @@ export default {
         }
         shortintenArray.push(j); //短轴烈度
         let R1 =
-          // Math.exp(
-          //     (1.331+1.218 * magnitude - j) /1.381
-          // ) -  8.88;
-          Math.pow(10,
-            (2.3816 + 1.3003 * magnitude - j) / 2.8573
-          ) - 5;
+            // Math.exp(
+            //     (1.331+1.218 * magnitude - j) /1.381
+            // ) -  8.88;
+            Math.pow(10,
+                (2.3816 + 1.3003 * magnitude - j) / 2.8573
+            ) - 5;
         shortAxisArray.push(R1);
       }
 
@@ -1755,8 +1774,8 @@ export default {
       this.$nextTick(() => {
         if (this.selectedEntityPosition) {
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           if (canvasPosition) {
             this.routerPopupPosition = {
@@ -1856,7 +1875,7 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.tableData = res
-        console.log("that.tableData", that.tableData)
+        // console.log("that.tableData", that.tableData)
       })
     },
 
@@ -1894,7 +1913,9 @@ export default {
           markerColor: Cesium.Color.TRANSPARENT,
           markerSize: 0,
           strokeWidth: 0,
-          clampToGround: true
+          clampToGround: true,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: true,
         });
         geoPromise.then((dataSource) => {
           window.viewer.dataSources.add(dataSource);
@@ -1990,9 +2011,9 @@ export default {
     backcenter() {
       this.removethdRegions()
       const position = Cesium.Cartesian3.fromDegrees(
-        parseFloat(this.centerPoint.longitude),
-        parseFloat(this.centerPoint.latitude),
-        120000,
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          120000,
       );
       viewer.camera.flyTo({destination: position,})
     },
@@ -2011,7 +2032,6 @@ export default {
     },
 
     updateMapLayers() {
-
       // 标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
@@ -2030,6 +2050,14 @@ export default {
       } else {
         this.removethdRegions();
         this.removeDataSourcesLayer('YaanRegionLayer');
+      }
+
+      // 人口密度要素图层
+      const hasPopLayer = this.selectedlayersLocal.includes('人口密度要素图层');
+      if (hasPopLayer) {
+        this.addPopLayer();
+      } else {
+        this.removeImageryLayer('PopLayer');
       }
 
       // 交通网络要素图层
@@ -2095,19 +2123,20 @@ export default {
       //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
       if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
         const position = Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          120000,
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            120000,
         );
         viewer.camera.flyTo({destination: position,})
       } else {
         const position = Cesium.Cartesian3.fromDegrees(
-          103.0,
-          29.98,
-          500000,
+            103.0,
+            29.98,
+            500000,
         );
         viewer.camera.flyTo({destination: position,})
       }
+      //视角跳转 end
 
     },
 
@@ -2120,16 +2149,16 @@ export default {
       pointArr = pointArr.filter(e => e.longitude !== null);
 
       pointArr.forEach(element => {
-        let existingEntity = window.viewer.entities.getById(element.uuid);
+        let existingEntity = window.viewer.entities.getById(element.id);
         if (existingEntity) {
-          console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
+          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
           return;
         }
 
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.uuid}的实体的坐标无效或超出范围`, {longitude, latitude});
+          console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
 
@@ -2140,7 +2169,7 @@ export default {
 
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
-        id: element.uuid,
+        id: element.id,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
         billboard: {
           image: icon,
@@ -2159,10 +2188,7 @@ export default {
           lon: element.longitude,
           lat: element.latitude
         },
-
       });
-      console.log(33)
-      console.log(tableName)
     },
 
     removeEntitiesByType(type) {
@@ -2252,21 +2278,39 @@ export default {
       }
     },
 
+    addPopLayer() {
+      let popLayerexists = this.imageryLayersExists('PopLayer')
+      if (!popLayerexists) {
+        let popLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapServiceImageryProvider({
+              url: 'http://10.16.7.69:9080/geoserver/yaan/wms',
+              layers: 'yaan:pop',
+              parameters: {
+                service: 'WMS',
+                format: 'image/png',
+                transparent: true
+              }
+            })
+        );
+        popLayer.name = "PopLayer"; // 设置名称
+      }
+    },
+
 
     addTrafficLayer() {
       let token = TianDiTuToken;
       let trafficLayerexists = this.imageryLayersExists('TrafficLayer')
       if (!trafficLayerexists) {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url:
-              "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-              token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-          })
+            new Cesium.WebMapTileServiceImageryProvider({
+              url:
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+            })
         );
         trafficLayer.name = "TrafficLayer"; // 设置名称
       }
@@ -2275,21 +2319,20 @@ export default {
       if (!trafficTxtLayerExists) {
         //影像注记
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url:
-              "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-              token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-            show: false,
-          })
+            new Cesium.WebMapTileServiceImageryProvider({
+              url:
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false,
+            })
         )
         traffictxtLayer.name = "TrafficTxtLayer"
       }
     },
-
     removeImageryLayer(layerName) {
       const layers = window.viewer.imageryLayers;
       for (let i = 0; i < layers.length; i++) {
@@ -2332,6 +2375,34 @@ export default {
         }
       }
     },
+
+
+    //人口密度灰度查询
+    getPopDesity(longitude,latitude){
+      const url="http://10.16.7.69:9080/geoserver/yaan/wms"
+      const bboxSize = 0.001
+      const urlParams = new URLSearchParams({
+        service: 'WMS',
+        request: 'GetFeatureInfo',
+        version: '1.1.1',
+        layers: "yaan:pop",
+        query_layers: "yaan:pop",
+        bbox: `${longitude - bboxSize},${latitude - bboxSize},${longitude + bboxSize},${latitude + bboxSize}`,
+        width: 101,
+        height: 101,
+        info_format: 'application/json',
+        x: 50,
+        y: 50,
+        srs:'EPSG:4326',
+      })
+      const fullUrl = `${url}?${urlParams.toString()}`;
+      console.log('GetFeatureInfo URL:', fullUrl);
+      fetch( fullUrl).then(response => response.json()).then(data => {
+        console.log(data.features[0].properties)
+      }).catch(error => {
+        console.error('There was an error!', error);
+      });
+    }
   }
 }
 </script>
@@ -2523,14 +2594,12 @@ export default {
   top: 6.3%;
   left: 20%;
 }
-
-.back-button {
+.back-button{
   position: absolute;
   z-index: 20;
   top: 6.3%;
   right: 21%;
 }
-
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -2639,13 +2708,14 @@ export default {
 .el-menu-item[data-index="6"] .el-tooltip__popper {
   width: 200px; /* 返回首页的下拉框宽度 */
 }
-:deep(.info-item :nth-child(2)) {
-  width: 60%;
-  border-color: rgba(0, 0, 0, 0);
-  /* border-top-style: solid; */
-  //border-top-width: 2px;
-  background-color: #4d546900;
-  margin-bottom: 2px;
-}
 
+:deep(.cesium-baseLayerPicker-dropDown-visible){
+  z-index:100 !important ;
+  background-color: #2b323a;
+}
+:deep(.cesium-baseLayerPicker-dropDown){
+  right: 9px !important;
+  width: 398px !important;
+  height:310px !important;
+}
 </style>

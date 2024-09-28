@@ -153,6 +153,7 @@ import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
+import {saveIntensityCircle} from "@/api/system/damageassessment.js";
 import sichuan from "@/assets/geoJson/sichuan.json";
 export default {
   components: {
@@ -231,10 +232,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        500000,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          500000,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -245,11 +246,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -480,9 +481,9 @@ export default {
           const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -512,8 +513,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
+              Number(this.selectedTabData.longitude),
+              Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -523,8 +524,8 @@ export default {
           },
           label: {
             text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-              this.selectedTabData.earthquakeName +
-              this.selectedTabData.magnitude + '级地震',
+                this.selectedTabData.earthquakeName +
+                this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -569,7 +570,7 @@ export default {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.getEqData.find(
-          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
+            eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -788,15 +789,15 @@ export default {
       let a = radlat1 - radlat2;
       let b = (lon1 * Math.PI) / 180.0 - (lon2 * Math.PI) / 180.0;
       let s =
-        2 *
-        Math.asin(
-          Math.sqrt(
-            Math.pow(Math.sin(a / 2), 2) +
-            Math.cos(radlat1) *
-            Math.cos(radlat2) *
-            Math.pow(Math.sin(b / 2), 2)
-          )
-        );
+          2 *
+          Math.asin(
+              Math.sqrt(
+                  Math.pow(Math.sin(a / 2), 2) +
+                  Math.cos(radlat1) *
+                  Math.cos(radlat2) *
+                  Math.pow(Math.sin(b / 2), 2)
+              )
+          );
       s = s * 6378.137;
       return Math.round(s * 10000) / 10000;
     },
@@ -809,10 +810,10 @@ export default {
         fault_zone.forEach((item) => {
           for (let i = 0; i < item.lonlat[0].length; i++) {
             if (
-              this.getLonAndLatDistance([
-                [this.selectedTabData.longitude, this.selectedTabData.latitude],
-                item.lonlat[0][i],
-              ]) < 200
+                this.getLonAndLatDistance([
+                  [this.selectedTabData.longitude, this.selectedTabData.latitude],
+                  item.lonlat[0][i],
+                ]) < 200
             ) {
               this.faultzonelines.push(item);
               break;
@@ -826,9 +827,9 @@ export default {
           let positionsArr = [];
           for (var i = 0; i + 1 < item.lonlat[0].length; i++) {
             positionsArr.push(
-              parseFloat(item.lonlat[0][i][0]),
-              parseFloat(item.lonlat[0][i][1]),
-              0
+                parseFloat(item.lonlat[0][i][0]),
+                parseFloat(item.lonlat[0][i][1]),
+                0
             );
           }
           // console.log("positionsArr",positionsArr)
@@ -859,6 +860,118 @@ export default {
       }
     },
     //烈度圈------------------------------------------------------------------
+    //存储烈度圈
+    //geom字符串
+    buildCurvePolygonString(outlinepoints,inlinepoints) {
+      let curvePolygonString=''
+      // 构建CIRCULARSTRING部分
+      let outline = 'CIRCULARSTRING(';
+      outlinepoints.forEach((point, index) => {
+        outline += `${point.longitude} ${point.latitude}`;
+        if (index < outlinepoints.length - 1) {
+          outline += ', ';
+        }
+      });
+      outline += ')';
+      //最高烈度没有内环
+      if(inlinepoints.length==0){
+        // 组合成最终的CURVEPOLYGON字符串
+        curvePolygonString = `CURVEPOLYGON(${outline})`;
+      }
+      else{
+        let inline = 'CIRCULARSTRING(';
+        inlinepoints.forEach((point, index) => {
+          inline += `${point.longitude} ${point.latitude}`;
+          if (index < inlinepoints.length - 1) {
+            inline += ', ';
+          }
+        });
+        inline += ')';
+        // 组合成最终的CURVEPOLYGON字符串
+        curvePolygonString = `CURVEPOLYGON(${outline}, ${inline})`;
+      }
+      return curvePolygonString;
+    },
+    //1个烈度
+    computecircle(majorAxis,minorAxis,rotationAngle,intensity,lastlong,lastshort, lastrotationAngle){
+      let IntensityCircle={
+        eqid:this.selectedTabData.eqid,
+        intensity:intensity,
+        geom:'',
+      };
+
+      //外环
+      // // 将角度转换为弧度
+      const rotationAngleRad = this.degree2Radium(rotationAngle);
+      // 计算椭圆的四个顶点
+      const outlinepoints = [];
+      const angleStep = Math.PI / 2; // 90度的弧度
+      // 长轴和短轴的四个方向
+      const directions = [
+        { angle: rotationAngleRad, type: 'major' },
+        { angle: rotationAngleRad + Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad + Math.PI, type: 'major' },
+        { angle: rotationAngleRad + 3 * Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad, type: 'major' }, //首位相连，围成环
+      ];
+      directions.forEach(direction => {
+        const angle = direction.angle;
+        const type = direction.type;
+        let distance = type === 'major' ? majorAxis : minorAxis;
+
+        // 计算经度和纬度的增量
+        const deltaX = distance * Math.cos(angle) / 111319.9; // 经度增量，每度约等于111.32公里
+        const deltaY = distance * Math.sin(angle) / 110574; // 纬度增量，每度约等于110.57公里
+        // console.log(deltaX,deltaY)
+        const vertexLongitude = parseFloat(this.selectedTabData.longitude) + deltaX;
+        const vertexLatitude = parseFloat(this.selectedTabData.latitude) + deltaY;
+
+        outlinepoints.push({
+          longitude: vertexLongitude,
+          latitude: vertexLatitude
+        });
+      });
+      console.log("outlinepoints",outlinepoints)
+
+      //内环
+      // 计算椭圆的四个顶点
+      const inlinepoints = [];
+      // // 将角度转换为弧度
+      const rotationAngleRad_in = this.degree2Radium(lastrotationAngle);
+      // 长轴和短轴的四个方向
+      const directions_in = [
+        { angle: rotationAngleRad_in, type: 'major' },
+        { angle: rotationAngleRad_in + Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad_in + Math.PI, type: 'major' },
+        { angle: rotationAngleRad_in + 3 * Math.PI / 2, type: 'minor' },
+        { angle: rotationAngleRad_in, type: 'major' }, //首位相连，围成环
+      ];
+      if(lastlong!=0){
+        directions_in.forEach(direction => {
+          const angle = direction.angle;
+          const type = direction.type;
+          let distance = type === 'major' ? lastlong : lastshort;
+          // 计算经度和纬度的增量
+          const deltaX = distance * Math.cos(angle) / 111319.9; // 经度增量，每度约等于111.32公里
+          const deltaY = distance * Math.sin(angle) / 110574; // 纬度增量，每度约等于110.57公里
+          // console.log(deltaX,deltaY)
+          const vertexLongitude = parseFloat(this.selectedTabData.longitude) + deltaX;
+          const vertexLatitude = parseFloat(this.selectedTabData.latitude) + deltaY;
+
+          inlinepoints.push({
+            longitude: vertexLongitude,
+            latitude: vertexLatitude
+          });
+        });
+      }
+
+      console.log("inlinepoints",inlinepoints)
+      let curvePolygonString=this.buildCurvePolygonString(outlinepoints,inlinepoints)
+      IntensityCircle.geom=curvePolygonString
+      console.log("IntensityCircle",IntensityCircle)
+      return IntensityCircle;
+    },
+    //烈度圈渲染
     showOvalCircle() {
       this.isshowOvalCircle = !this.isshowOvalCircle;
 
@@ -880,10 +993,17 @@ export default {
 
       if (this.isshowOvalCircle) {
         let angle_num = this.angle(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude));
-        let angle_num_tmp;
         let [longAndshort, longintenArray] = this.EllipseDraw(this.selectedTabData.magnitude);
+        // console.log(longAndshort,longintenArray)
+        let angle_num_tmp;
+        let lastsemiMajorAxis = 0;//震中
+        let lastsemiMinorAxis = 0;
+        let last_angle_num_tmp = 0; // 椭圆的旋转角度
 
-        for (let i = longAndshort.length - 1; i >= 0; i--) {
+
+        let savecircles = []  //存库信息
+        for (let i = 0; i < longAndshort.length; i++) {
+          //渲染 MajorAxis 必须长于 MinorAxis
           if (longAndshort[i][1] > longAndshort[i][0]) {
             let temp = longAndshort[i][0];
             longAndshort[i][0] = longAndshort[i][1];
@@ -898,11 +1018,6 @@ export default {
           const semiMinorAxis = longAndshort[i][1];
           const radius = Math.max(semiMajorAxis, semiMinorAxis) * 0.8; // 标签距离边界的距离
           const offsetAngle = Cesium.Math.toRadians(angle_num_tmp); // 椭圆的旋转角度
-
-          // 计算标签位置
-          const offsetX = radius * Math.cos(offsetAngle);
-          const offsetY = radius * Math.sin(offsetAngle);
-
           // 渲染椭圆
           let ovalEntity = viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude), 0),
@@ -923,16 +1038,19 @@ export default {
             layername: "烈度圈",
           });
 
+          // 计算标签位置
+          const offsetX = radius * Math.cos(offsetAngle);
+          const offsetY = radius * Math.sin(offsetAngle);
           // 添加显示烈度的标签
           let labelEntity = viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.selectedTabData.longitude) + offsetX / 111320,
-              parseFloat(this.selectedTabData.latitude) + offsetY / 110540,
-              0
+                parseFloat(this.selectedTabData.longitude) + offsetX / 111320,
+                parseFloat(this.selectedTabData.latitude) + offsetY / 110540,
+                0
             ),
             label: {
               //最多画到6度
-              text: "烈度 : " + intensityLabels[longintenArray[i] - 6]+" (" + intensityLabelsChinese[longintenArray[i] - 6]+ "度)",
+              text: "烈度 : " + intensityLabels[longintenArray[i] - 6] + " (" + intensityLabelsChinese[longintenArray[i] - 6] + "度)",
               font: '18px Sans-serif',
               style: Cesium.LabelStyle.FILL_AND_OUTLINE,
               outlineWidth: 2,
@@ -948,7 +1066,19 @@ export default {
             oval: ovalEntity,
             label: labelEntity
           });
+          //渲染 end
+
+          //计算烈度圈进行存储
+          savecircles.push(this.computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp))
+          console.log("savecircles", savecircles)
+          //内环
+          lastsemiMajorAxis = semiMajorAxis;
+          lastsemiMinorAxis = semiMinorAxis;
+          last_angle_num_tmp = angle_num_tmp; // 旋转角度
         }
+        console.log("savecircles", savecircles)
+        saveIntensityCircle(savecircles).then(res => {
+        })
 
       } else {
         this.OvalCirclelayer.forEach(item => {
@@ -1010,12 +1140,12 @@ export default {
         longintenArray.push(i); //长轴烈度
 
         R =
-          // Math.exp(
-          //     (2.795+1.600 * magnitude - i) /1.637
-          // ) -28.497;
-          Math.pow(10,
-            ( 4.0293 + 1.3003 * magnitude - i) / 3.6404
-          ) - 10;
+            // Math.exp(
+            //     (2.795+1.600 * magnitude - i) /1.637
+            // ) -28.497;
+            Math.pow(10,
+                ( 4.0293 + 1.3003 * magnitude - i) / 3.6404
+            ) - 10;
         // console.log(R)
         longAxisArray.push(R);
       }
@@ -1027,12 +1157,12 @@ export default {
         }
         shortintenArray.push(j); //短轴烈度
         let R1 =
-          // Math.exp(
-          //     (1.331+1.218 * magnitude - j) /1.381
-          // ) -  8.88;
-          Math.pow(10,
-            (2.3816+ 1.3003 * magnitude  - j) / 2.8573
-          ) - 5;
+            // Math.exp(
+            //     (1.331+1.218 * magnitude - j) /1.381
+            // ) -  8.88;
+            Math.pow(10,
+                (2.3816+ 1.3003 * magnitude  - j) / 2.8573
+            ) - 5;
         shortAxisArray.push(R1);
       }
       for (let i = 0; i <= shortAxisArray.length - 1; i++) {
@@ -1429,4 +1559,12 @@ span {
   display: none;
 }
 
+:deep(.cesium-baseLayerPicker-dropDown-visible) {
+  z-index: 100 !important;
+  background-color: #2b323a;
+}
+
+:deep(.cesium-baseLayerPicker-dropDown) {
+  right: -5px !important;
+}
 </style>

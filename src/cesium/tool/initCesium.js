@@ -142,7 +142,7 @@ function getImageryProviderArr() {
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
             creationFunction: function () {
                 return new Cesium.WebMapServiceImageryProvider({
-                    url: 'http://localhost:9080/geoserver/yaan/wms',
+                    url: 'http://10.16.7.69:9080/geoserver/yaan/wms',
                     layers: 'yaan:yaan',
                     parameters: {
                         service: 'WMS',
@@ -150,6 +150,20 @@ function getImageryProviderArr() {
                         transparent: true
                     }
                 })
+
+
+                // return new Cesium.WebMapTileServiceImageryProvider({
+                //         url : 'http://10.16.7.69/geoserver/gwc/service/wmts/rest/yaan:yaan/{style}/{TileMatrixSet}/{TileMatrixSet}:{TileMatrix}/{TileRow}/{TileCol}?format=image/png',
+                //         layer : 'yaan:yaan',
+                //         style : 'default',
+                //         format : 'image/png',
+                //         tileMatrixSetID : 'EPSG:4326',
+                //         maximumLevel: 20
+                //     })
+
+                // return new Cesium.UrlTemplateImageryProvider({
+                //     url: 'http://localhost:9003/image/wmts/6CGzXm2G/{z}/{x}/{y}',
+                // })
             }
         }),
 
