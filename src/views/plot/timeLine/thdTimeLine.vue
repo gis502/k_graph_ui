@@ -91,7 +91,12 @@
     <div>
       <mini-map></mini-map>
     </div>
-    <timeLineLegend></timeLineLegend>
+    <timeLineLegend
+        :activeComponent="activeComponent"
+        @toggleComponent="toggleComponent"
+    ></timeLineLegend>
+
+
 
 <!--    两侧组件 end-->
 
@@ -164,6 +169,7 @@ export default {
   },
   data: function () {
     return {
+      activeComponent: null,
       //-----------标绘点弹窗-------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -266,6 +272,11 @@ export default {
   },
 
   methods: {
+    //设置组件展开的面板互斥,避免堆叠
+    toggleComponent(component) {
+      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+      this.activeComponent = this.activeComponent === component ? null : component;
+    },
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -442,6 +453,10 @@ export default {
           image: centerstar,
           width: 40,
           height: 40,
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.position,
@@ -470,6 +485,10 @@ export default {
           image: centerstar,
           width: 30,
           height: 30,
+          scale: 0.8,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          depthTest: false,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         label: {
           text: this.centerPoint.position,
@@ -718,6 +737,10 @@ export default {
               image: item.img,
               width: 30,
               height: 30,
+              scale: 0.8,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              depthTest: false,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
             },
             // label: {
             //   text: item.pointname,
