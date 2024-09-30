@@ -598,6 +598,7 @@ export default {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
       this.isshowPersonalCasualty=false;
+      this.PersonalCasualtyNum=0;
       this.removeData()
     },
 
@@ -988,6 +989,7 @@ export default {
       return IntensityCircle;
     },
     //烈度圈渲染
+    //!!!!!!!!!!!!!需要把烈度圈计算存库移到新增地震时触发！！！！！！！！！！！！！！！！！！！
     showOvalCircle() {
       this.isshowOvalCircle = !this.isshowOvalCircle;
 
@@ -1093,6 +1095,7 @@ export default {
           last_angle_num_tmp = angle_num_tmp; // 旋转角度
         }
         console.log("savecircles", savecircles)
+        //!!!!!!!!!!!!!需要把计算存库移到新增地震时触发！！！！！！！！！！！！！！！！！！！
         saveIntensityCircle(savecircles).then(res => {
         })
 
@@ -1215,6 +1218,7 @@ export default {
     },
 
     //人员伤亡评估
+    //!!!!!!!!!!!!!!!!!!!!!需要先点击烈度圈，计算存库，伤亡人数评估依赖与烈度圈内人口密度!!!!!!!!!!!!!!!!!!
     showPersonalCasualty(){
       this.isshowPersonalCasualty=!this.isshowPersonalCasualty
       if(this.isshowPersonalCasualty){
