@@ -86,19 +86,12 @@
             <el-divider content-position="left"> 地震专题</el-divider>
 
             <div class="eqTheme">
-              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
-                   @click="showHistoryEqPoints()"> 历史地震
-              </div>
-              <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
-                   @click="showFaultZone()"> 断裂带
-              </div>
               <div class="button themes circle" :class="{ active: isshowOvalCircle }"
                    @click="showOvalCircle()"> 烈度圈
               </div>
               <div class="button themes region" :class="{ active: isshowRegion }"
                    @click="toggleYaanLayer()"> 行政区划
               </div>
-
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -123,24 +116,7 @@
       <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
         <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
-
-      <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
-      <div class="panel">
-        <historyEqPanel v-if="isHistoryEqPointsShow"
-                        :historyEqData="historyEqData"
-                        :selectedTabData="selectedTabData"
-                        @hidden="hidden"/>
-      </div>
-
-      <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
-           @click="isHistoryEqPointsShow=true, isShow=false">
-        展开专题详情
-      </div>
     </div>
-
-    <!--  断裂带名称div  -->
-    <div id="faultInfo"
-         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
   </div>
 
 </template>
@@ -151,15 +127,11 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
-import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
-import {addFaultZones, addHistoryEqPoints, addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
 
 export default {
   components: {
-    TimeLinePanel,
-    historyEqPanel,
   },
 
   data() {
@@ -174,17 +146,12 @@ export default {
 
       selectedTabData: null,
       selectedEqPoint: null,
-      historyEqData: [],
-      historyEqPoints: [],
 
       title: "",
       isLeftShow: true,
       isFoldShow: true,
       isFoldUnfolding: false,
-      isHistoryEqPointsShow: false,
       isShow: false,
-      isshowFaultZone: false, //断裂带显示隐藏
-      faultzonelines: [], //断裂带线
       isshowOvalCircle: false, //烈度圈显示隐藏
 
       tabs: [],
@@ -257,6 +224,8 @@ export default {
       addYaanLayer()
     },
 
+
+
     toggleYaanLayer() {
       // 切换图层显示与隐藏
       let yaanRegionLayer = window.viewer.dataSources.getByName("YaanRegionLayer")[0];
@@ -295,7 +264,6 @@ export default {
 
     // 鼠标事件监听
     initMouseEvents() {
-      const faultInfoDiv = document.getElementById('faultInfo');
       // 鼠标移动时设置指针样式
       window.viewer.screenSpaceEventHandler.setInputAction((movement) => {
         const pickedObject = window.viewer.scene.pick(movement.endPosition);
@@ -310,51 +278,15 @@ export default {
       window.viewer.screenSpaceEventHandler.setInputAction((click) => {
         const pickedObject = window.viewer.scene.pick(click.position);
 
-        // 与断裂带名称div绑定
-        if (Cesium.defined(pickedObject) && pickedObject.id.polyline) {
-          // 获取断裂带的 name 属性
-          const faultName = pickedObject.id.properties.name._value;
-
-          // 获取点击位置的地理坐标 (Cartesian3)
-          const cartesian = viewer.scene.pickPosition(click.position);
-          if (!Cesium.defined(cartesian)) {
-            return;
-          }
-
-          // 将地理坐标 (Cartesian3) 转换为屏幕坐标 (二维)
-          const screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-
-          // 显示 div 并将其定位到点击位置
-          faultInfoDiv.innerHTML = `${faultName}`;
-          faultInfoDiv.style.display = 'block';
-          faultInfoDiv.style.left = screenPosition.x + 'px';
-          faultInfoDiv.style.top = screenPosition.y + 'px';
-
-          // 监听地图变化，动态更新 div 的位置
-          window.viewer.scene.postRender.addEventListener(() => {
-            const updatedScreenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-            if (updatedScreenPosition) {
-              faultInfoDiv.style.left = updatedScreenPosition.x + 'px';
-              faultInfoDiv.style.top = updatedScreenPosition.y + 'px';
-            }
-          });
-
-        }
-        // 判断点击的是不是地震点
-        else if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
+       if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
           pickedObject.id.label._show._value = !pickedObject.id.label._show._value;
         }
-        // 如果点击其他位置，隐藏所有地震点的标签，并关闭 faultInfoDiv
+        // 如果点击其他位置，隐藏所有地震点的标签
         else {
           this.selectedEqPoint.label._show._value = false;
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
-          this.historyEqPoints.forEach(entity => {
-            entity.label._show._value = false;
-          });
-          // 隐藏 faultInfoDiv
-          faultInfoDiv.style.display = 'none';
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
@@ -547,57 +479,8 @@ export default {
     },
 
     removeData() {
-      this.historyEqPoints = [];
-      this.historyEqData = [];
-      this.removeEntitiesByType("historyEq")
-      this.removeEntitiesByType("faultZone")
       this.removeEntitiesByType("ovalCircle")
-      this.isHistoryEqPointsShow = false;
-      this.isshowFaultZone = false;
-      this.isshowOvalCircle = false;
-      const faultInfoDiv = document.getElementById('faultInfo');
-      faultInfoDiv.style.display = 'none';
-    },
-
-    //历史地震(50km以内)------------------------------------------------------
-    showHistoryEqPoints() {
-
-      this.isHistoryEqPointsShow = !this.isHistoryEqPointsShow; // 切换状态
-      if (this.isHistoryEqPointsShow) {
-
-        addHistoryEqPoints(this.selectedTabData, this.getEqData);
-
-        const semiMinorAxis = 50000.0;
-        const semiMajorAxis = 50000.0;
-        const center = Cesium.Cartesian3.fromDegrees(Number(this.selectedTabData.longitude), Number(this.selectedTabData.latitude));
-
-        this.getEqData.forEach((eq) => {
-          if (eq.eqid !== this.selectedTabData.eqid) {
-            const position = Cesium.Cartesian3.fromDegrees(Number(eq.longitude), Number(eq.latitude));
-
-            const distance = Cesium.Cartesian3.distance(position, center);
-            const radius = Math.max(semiMajorAxis, semiMinorAxis);
-
-            if (distance <= radius) {
-              this.historyEqData.push(eq);
-            }
-          }
-        });
-      } else {
-        this.removeEntitiesByType("historyEq"); // 切换为隐藏时，移除历史地震
-      }
-    },
-
-    //断裂带(200km以内)-------------------------------------------------------
-    showFaultZone() {
-      this.isshowFaultZone = !this.isshowFaultZone;
-      if (this.isshowFaultZone) {
-        addFaultZones(this.selectedTabData)
-      } else {
-        this.removeEntitiesByType("faultZone")
-        const faultInfoDiv = document.getElementById('faultInfo');
-        faultInfoDiv.style.display = 'none';
-      }
+      this.isshowOvalCircle = false
     },
 
     //烈度圈------------------------------------------------------------------
@@ -625,11 +508,6 @@ export default {
     navigateToVisualization(thisEq) {
       const path = `/thd?eqid=${thisEq.eqid}`;
       window.open(path, '_blank');
-    },
-
-    hidden(hidden) {
-      this.isHistoryEqPointsShow = hidden;
-      this.isShow = true;
     },
 
     // 时间戳转换

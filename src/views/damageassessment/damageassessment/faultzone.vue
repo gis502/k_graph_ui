@@ -86,19 +86,12 @@
             <el-divider content-position="left"> 地震专题</el-divider>
 
             <div class="eqTheme">
-              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
-                   @click="showHistoryEqPoints()"> 历史地震
-              </div>
               <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
                    @click="showFaultZone()"> 断裂带
-              </div>
-              <div class="button themes circle" :class="{ active: isshowOvalCircle }"
-                   @click="showOvalCircle()"> 烈度圈
               </div>
               <div class="button themes region" :class="{ active: isshowRegion }"
                    @click="toggleYaanLayer()"> 行政区划
               </div>
-
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -123,19 +116,6 @@
       <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
         <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
-
-      <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
-      <div class="panel">
-        <historyEqPanel v-if="isHistoryEqPointsShow"
-                        :historyEqData="historyEqData"
-                        :selectedTabData="selectedTabData"
-                        @hidden="hidden"/>
-      </div>
-
-      <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
-           @click="isHistoryEqPointsShow=true, isShow=false">
-        展开专题详情
-      </div>
     </div>
 
     <!--  断裂带名称div  -->
@@ -151,15 +131,11 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
-import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
-import {addFaultZones, addHistoryEqPoints, addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addFaultZones, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
 
 export default {
   components: {
-    TimeLinePanel,
-    historyEqPanel,
   },
 
   data() {
@@ -174,18 +150,14 @@ export default {
 
       selectedTabData: null,
       selectedEqPoint: null,
-      historyEqData: [],
-      historyEqPoints: [],
 
       title: "",
       isLeftShow: true,
       isFoldShow: true,
       isFoldUnfolding: false,
-      isHistoryEqPointsShow: false,
       isShow: false,
       isshowFaultZone: false, //断裂带显示隐藏
       faultzonelines: [], //断裂带线
-      isshowOvalCircle: false, //烈度圈显示隐藏
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -257,6 +229,7 @@ export default {
       addYaanLayer()
     },
 
+
     toggleYaanLayer() {
       // 切换图层显示与隐藏
       let yaanRegionLayer = window.viewer.dataSources.getByName("YaanRegionLayer")[0];
@@ -296,6 +269,7 @@ export default {
     // 鼠标事件监听
     initMouseEvents() {
       const faultInfoDiv = document.getElementById('faultInfo');
+
       // 鼠标移动时设置指针样式
       window.viewer.screenSpaceEventHandler.setInputAction((movement) => {
         const pickedObject = window.viewer.scene.pick(movement.endPosition);
@@ -350,19 +324,14 @@ export default {
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
-          this.historyEqPoints.forEach(entity => {
-            entity.label._show._value = false;
-          });
           // 隐藏 faultInfoDiv
           faultInfoDiv.style.display = 'none';
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
 
-
     // 地图渲染查询地震点(根据页码、根据搜索框)
     renderQueryEqPoints() {
-      this.isshowOvalCircle = false
       // 清空之前的点
       this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
       this.listEqPoints = []; // 重置 listEqPoints
@@ -547,45 +516,10 @@ export default {
     },
 
     removeData() {
-      this.historyEqPoints = [];
-      this.historyEqData = [];
-      this.removeEntitiesByType("historyEq")
       this.removeEntitiesByType("faultZone")
-      this.removeEntitiesByType("ovalCircle")
-      this.isHistoryEqPointsShow = false;
       this.isshowFaultZone = false;
-      this.isshowOvalCircle = false;
       const faultInfoDiv = document.getElementById('faultInfo');
       faultInfoDiv.style.display = 'none';
-    },
-
-    //历史地震(50km以内)------------------------------------------------------
-    showHistoryEqPoints() {
-
-      this.isHistoryEqPointsShow = !this.isHistoryEqPointsShow; // 切换状态
-      if (this.isHistoryEqPointsShow) {
-
-        addHistoryEqPoints(this.selectedTabData, this.getEqData);
-
-        const semiMinorAxis = 50000.0;
-        const semiMajorAxis = 50000.0;
-        const center = Cesium.Cartesian3.fromDegrees(Number(this.selectedTabData.longitude), Number(this.selectedTabData.latitude));
-
-        this.getEqData.forEach((eq) => {
-          if (eq.eqid !== this.selectedTabData.eqid) {
-            const position = Cesium.Cartesian3.fromDegrees(Number(eq.longitude), Number(eq.latitude));
-
-            const distance = Cesium.Cartesian3.distance(position, center);
-            const radius = Math.max(semiMajorAxis, semiMinorAxis);
-
-            if (distance <= radius) {
-              this.historyEqData.push(eq);
-            }
-          }
-        });
-      } else {
-        this.removeEntitiesByType("historyEq"); // 切换为隐藏时，移除历史地震
-      }
     },
 
     //断裂带(200km以内)-------------------------------------------------------
@@ -597,17 +531,6 @@ export default {
         this.removeEntitiesByType("faultZone")
         const faultInfoDiv = document.getElementById('faultInfo');
         faultInfoDiv.style.display = 'none';
-      }
-    },
-
-    //烈度圈------------------------------------------------------------------
-    showOvalCircle() {
-      this.isshowOvalCircle = !this.isshowOvalCircle;
-      console.log(this.isshowOvalCircle)
-      if (this.isshowOvalCircle) {
-        addOvalCircles(this.selectedTabData)
-      } else {
-        this.removeEntitiesByType("ovalCircle")
       }
     },
 
@@ -625,11 +548,6 @@ export default {
     navigateToVisualization(thisEq) {
       const path = `/thd?eqid=${thisEq.eqid}`;
       window.open(path, '_blank');
-    },
-
-    hidden(hidden) {
-      this.isHistoryEqPointsShow = hidden;
-      this.isShow = true;
     },
 
     // 时间戳转换
