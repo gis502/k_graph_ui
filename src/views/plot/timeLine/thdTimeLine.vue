@@ -1288,7 +1288,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .eqtitle {
   background-color: #0d325f;
   width: 100%;
@@ -1489,5 +1489,15 @@ export default {
 
 .output-button {
   margin-top: 10px;
+}
+
+:deep(.cesium-baseLayerPicker-dropDown-visible){
+  z-index:100 !important ;
+  background-color: #2b323a;
+}
+:deep(.cesium-baseLayerPicker-dropDown){
+  right: 9px !important;
+  width: 398px !important;
+  height:310px !important;
 }
 </style>
