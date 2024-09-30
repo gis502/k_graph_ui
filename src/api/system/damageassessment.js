@@ -1,10 +1,12 @@
 import request from '@/utils/request'
 
 
-export function getPersonDes(query) {
+export function getPersonDes(eqid) {
     return request({
         url: '/damageassessment/getPersonDes',
-        method: 'get',
+        method: 'post',
+        data: eqid
+        // params:{id:eqId}
     })
 }
 export function saveIntensityCircle(savecircles){

@@ -98,6 +98,9 @@
               <div class="button themes region" :class="{ active: isshowRegion }"
                    @click="toggleYaanLayer()"> 行政区划
               </div>
+              <div class="button themes region" :class="{ active: isshowPersonalCasualty }"
+                   @click="showPersonalCasualty()"> 人员伤亡
+              </div>
 
             </div>
 
@@ -139,7 +142,16 @@
 
     <!--  断裂带名称div  -->
     <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
+
+    <div class="PersonalCasualty" v-if="isshowPersonalCasualty">
+      <span>预估伤亡人数：</span>
+      <span>{{this.PersonalCasualtyNum}}</span>
+      <span>人</span>
+    </div>
+
+
   </div>
+
 
 </template>
 
@@ -153,7 +165,7 @@ import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
-import {saveIntensityCircle} from "@/api/system/damageassessment.js";
+import {saveIntensityCircle,getPersonDes} from "@/api/system/damageassessment.js";
 import sichuan from "@/assets/geoJson/sichuan.json";
 export default {
   components: {
@@ -186,6 +198,9 @@ export default {
       faultzonelines:[], //断裂带线
       isshowOvalCircle:false, //烈度圈显示隐藏
       OvalCirclelayer:[],
+
+      isshowPersonalCasualty:false,
+      PersonalCasualtyNum:0,
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -582,6 +597,7 @@ export default {
     back() {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
+      this.isshowPersonalCasualty=false;
       this.removeData()
     },
 
@@ -1198,6 +1214,42 @@ export default {
       return angle_;
     },
 
+    //人员伤亡评估
+    showPersonalCasualty(){
+      this.isshowPersonalCasualty=!this.isshowPersonalCasualty
+      if(this.isshowPersonalCasualty){
+        console.log(this.selectedTabData.eqid)
+        //获取震中人口密度
+        getPersonDes(this.selectedTabData.eqid).then(res => {
+          console.log("getPersonDes",res)
+          let des=res.peopledes
+          //des=0时认为无人员伤亡
+          if(des!=0){
+            //烈度9度及以上，人员密度加150再套公式
+            if(res.centerintensity>8){
+              des=des+150
+            }
+            console.log(res.centerintensity,des)
+            const centerIntensityLog = Math.log(res.centerintensity);
+            const peopleDesLog = Math.log(des);
+            console.log(centerIntensityLog,peopleDesLog)
+            this.PersonalCasualtyNum= Math.round(
+                Math.exp(
+                  Math.exp(
+                      3.1571892494732325 * centerIntensityLog +
+                      0.34553795677042193 * peopleDesLog -
+                      6.954773954657806
+                  )
+              )
+            );
+
+          }
+
+
+        })
+      }
+    }
+
 
   }
 };
@@ -1423,7 +1475,7 @@ export default {
   margin: 5px 15px 15px 0;
   font-size: 15px;
   height: 34%;
-  width: 44%;
+  width: 28%;
   border: #fff 1px solid;
   cursor: pointer;
 }
@@ -1566,5 +1618,14 @@ span {
 
 :deep(.cesium-baseLayerPicker-dropDown) {
   right: -5px !important;
+}
+
+.PersonalCasualty{
+  position:absolute;
+  background-color:#2b323a;
+  width:13%;
+  height: 10%;
+  top:13%;
+  right:25%;
 }
 </style>
