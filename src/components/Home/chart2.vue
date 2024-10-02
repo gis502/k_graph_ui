@@ -17,6 +17,7 @@ import {getAftershockMagnitude} from "@/api/system/statistics.js";
 
 const chart2 = ref(null);
 const props = defineProps(['lastEq']);
+const updateTime = ref()
 let myChart = null;
 
 // 初始化图表
@@ -87,13 +88,15 @@ const initChart = () => {
 
 // 更新图表数据
 const updateChart = (data) => {
+  console.log("111111")
+  console.log(data)
   if (myChart) {
     myChart.setOption({
       series: [
         {
           data: [
             data.magnitude_3_3_9 || 0,
-            data.mmagnitude_4_4_9 || 0,
+            data.magnitude_4_4_9 || 0,
             data.magnitude_5_5_9 || 0,
             0
           ],
@@ -115,7 +118,10 @@ watch(() => props.lastEq, () => {
   if (props.lastEq) {
     getAftershockMagnitude(props.lastEq.eqid).then((res) => {
       updateChart(res);  // 更新图表数据
+      updateTime.value = res.system_insert_time.replace('T', ' ')
     });
+  }else {
+    updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
   }
 });
 
