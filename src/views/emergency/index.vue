@@ -1,14 +1,11 @@
 <template>
   <div id="cesiumContainer">
-    <!--    <el-form class="tool-container">-->
-    <!--    写功能按钮部分-->
-    <!--    </el-form>-->
     <RouterPanel
         :visible="popupVisible"
         :position="popupPosition"
         :popupData="popupData"
     />
-    <div id="supplies" :class="{ collapsed: !tableVisible }">
+    <div id="supplies" :class="{ collapsed: !tableVisible }" style="width: 70%;">
       <el-form class="eqTable">
         <div style="margin-bottom: 10px; padding: 10px; width: 100%;">
             <el-menu
@@ -70,22 +67,22 @@
               label="联系电话"
           ></el-table-column>
           <el-table-column
-              prop="disasterTentsCount"
+              prop="tents"
               label="帐篷总数量"
               width="100"
           ></el-table-column>
           <el-table-column
-              prop="raincoatsCount"
+              prop="raincoats"
               label="雨衣总数量"
               width="100"
           ></el-table-column>
           <el-table-column
-              prop="rainBootsCount"
+              prop="rainBoots"
               label="雨鞋总数量"
               width="100"
           ></el-table-column>
           <el-table-column
-              prop="flashlightsCount"
+              prop="flashlights"
               label="手电筒总数量"
               width="130"
           ></el-table-column>
@@ -135,7 +132,7 @@
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="区域">
-                        <el-input v-model="searchSupplyForm.country" autocomplete="off" />
+                        <el-input v-model="searchSupplyForm.county" autocomplete="off" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -255,20 +252,20 @@ import {initCesium} from "@/cesium/tool/initCesium.js";
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 import {getEmergency} from "@/api/system/emergency.js";
-import disasterReservesLogo from "@/assets/images/disasterReservesLogo.jpg";
-import disasterSuppliesLogo from "@/assets/images/disasterSuppliesLogo.png";
-import emergencyTeamLogo from "@/assets/images/emergencyTeamLogo.png";
+import emergencyRescueEquipmentLogo from "@/assets/images/emergencyRescueEquipmentLogo.png"; // 抢险救灾设备
+import disasterReliefSuppliesLogo from "@/assets/images/disasterReliefSuppliesLogo.jpg"; // 救灾物资储备
+import rescueTeamsInfoLogo from "@/assets/images/rescueTeamsInfoLogo.png";
 // import bubbleImg from "@/assets/images/bubbles.png";
-// -----
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {Entity} from "cesium";
 import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
-import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
+// import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
-import {searchMaterialData} from "../../api/system/emergency.js";
+// import {searchMaterialData} from "../../api/system/emergency.js";
 import { ElMessageBox, ElMessage } from 'element-plus';
+import {searchMaterialData} from "../../api/system/emergency.js";
 
 export default {
   components: {
@@ -277,7 +274,6 @@ export default {
   name: "index",
   data() {
     return {
-      viewer: null,
       pos: [],
       areas: [],
       RouteTime: " ", //全程所需时间
@@ -317,14 +313,14 @@ export default {
         tel: "",
       },
       searchSupplyForm: {
-        country: "",
+        county: "",
         address: "",
         contactPerson: "",
         contactPhone: "",
-        disasterTentsCount: 0,
-        raincoatsCount: 0,
-        rainBootsCount: 0,
-        flashlightsCount: 0,
+        tents: 0,
+        raincoats: 0,
+        rainBoots: 0,
+        flashlights: 0,
         radius: 0.0,
       },
       inputRadius: "",
@@ -349,34 +345,34 @@ export default {
     computed: {
         displayDisasterTentsCount: {
             get() {
-                return this.searchSupplyForm.disasterTentsCount === 0 ? '' : this.searchSupplyForm.disasterTentsCount;
+                return this.searchSupplyForm.tents === 0 ? '' : this.searchSupplyForm.tents;
             },
             set(value) {
-                this.searchSupplyForm.disasterTentsCount = value === '' ? 0 : Number(value);
+                this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
             }
         },
         displayFlashlightsCount: {
             get() {
-                return this.searchSupplyForm.flashlightsCount === 0 ? '' : this.searchSupplyForm.flashlightsCount;
+                return this.searchSupplyForm.flashlights === 0 ? '' : this.searchSupplyForm.flashlights;
             },
             set(value) {
-                this.searchSupplyForm.flashlightsCount = value === '' ? 0 : Number(value);
+                this.searchSupplyForm.flashlights = value === '' ? 0 : Number(value);
             }
         },
         displayRaincoatsCount: {
             get() {
-                return this.searchSupplyForm.raincoatsCount === 0 ? '' : this.searchSupplyForm.raincoatsCount;
+                return this.searchSupplyForm.raincoats === 0 ? '' : this.searchSupplyForm.raincoats;
             },
             set(value) {
-                this.searchSupplyForm.raincoatsCount = value === '' ? 0 : Number(value);
+                this.searchSupplyForm.raincoats = value === '' ? 0 : Number(value);
             }
         },
         displayRainBootsCount: {
             get() {
-                return this.searchSupplyForm.rainBootsCount === 0 ? '' : this.searchSupplyForm.rainBootsCount;
+                return this.searchSupplyForm.rainBoots === 0 ? '' : this.searchSupplyForm.rainBoots;
             },
             set(value) {
-                this.searchSupplyForm.rainBootsCount = value === '' ? 0 : Number(value);
+                this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
             }
         },
         displayRadius: {
@@ -402,10 +398,10 @@ export default {
       return 2 * 6378137 * Math.asin(Math.sqrt(e));
     },
     sortedSuppliesList() {
-      // 按照 disasterTentsCount 排序
+      // 按照 tents 排序
       this.showSuppliesList = this.showSuppliesList
           .slice()
-          .sort((a, b) => b.disasterTentsCount - a.disasterTentsCount);
+          .sort((a, b) => b.tents - a.tents);
     },
     toggleTable() {
       this.tableVisible = !this.tableVisible;
@@ -502,15 +498,16 @@ export default {
     },
     initPlot() {
       getEmergency().then(res => {
-        let {disasterReserves, disasterSupplies, emergencyTeam} = res;
-        // console.log('获取到的res', res);
-        this.supplyList = disasterReserves
-        this.suppliesList.push(disasterReserves, disasterSupplies, emergencyTeam);
+        let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
+        console.log('获取到的res', res);
+
+        this.supplyList = disasterReliefSupplies
+        this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
 
         // 调用 `processPoints` 并传递不同的 `tableName`
-        this.processPoints(disasterReserves, 'reserves', disasterReservesLogo, "救灾物资储备");
-        this.processPoints(disasterSupplies, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
-        this.processPoints(emergencyTeam, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
+        this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
 
         this.fetSupplyPoints();
       });
@@ -526,17 +523,16 @@ export default {
 
       pointArr.forEach(element => {
         // 检查是否已存在具有相同ID的实体
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
           return;
         }
-
         // 检查经度、纬度和高度是否为有效数值
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
+          console.error(`id为${element.uuid}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
 
@@ -550,7 +546,7 @@ export default {
 
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
-        id: element.id,
+        uuid: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
         billboard: {
           image: icon,
@@ -566,8 +562,8 @@ export default {
         properties: {
           tableName: tableName, // 动态传入的表名称
           ...element, // 将element对象展开，自动填充所有属性
-          lon: element.longitude,
-          lat: element.latitude
+          longitude: element.longitude,
+          latitude: element.latitude
         }
       });
     },
@@ -698,19 +694,18 @@ export default {
     },
 
     fetSupplyPoints() {
-      // console.log("------------", this.suppliesList);
-      this.selectedSuppliesList = this.suppliesList[0].concat(
-          this.suppliesList[1]
-      );
-      this.selectedSuppliesList = this.selectedSuppliesList.concat(
-          this.suppliesList[2]
-      );
+      console.log("------------", this.suppliesList);
+      // this.selectedSuppliesList = this.suppliesList[0].concat(
+      //     this.suppliesList[1]
+      // );
+      // this.selectedSuppliesList = this.selectedSuppliesList.concat(
+      //     this.suppliesList[2]
+      // );
+        this.selectedSuppliesList = this.suppliesList[0]
       this.showIcon = this.selectedSuppliesList;
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       // 在数据更新后进行排序
-      //  this.sortedSuppliesList();
-      // console.log("this.showSuppliesList-", this.showSuppliesList);
     },
 
     showSupplyPoint(row) {
@@ -720,26 +715,25 @@ export default {
       this.removePoints(this.suppliesList[0]);
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
-      if (this.showIcon[0].type === "reserves") {
-          this.processPoints(this.showIcon, 'reserves', disasterReservesLogo, "救灾物资储备");
-      } else if (this.showIcon[0].type === "supplies") {
-          this.processPoints(this.showIcon, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
+      if (this.showIcon[0].type === "supplies") {
+          this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+      } else if (this.showIcon[0].type === "reserves") {
+          this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
       } else {
-          this.processPoints(this.showIcon, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
+          this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
       }
     },
 
     removePoints(entityArr) {
-      entityArr.forEach((entity) => {
-        // console.log("-----",entity.id)
-        let id = entity.id;
-
-        let existingEntity = window.viewer.entities.getById(id);
-        if (existingEntity) {
-          window.viewer.entities.removeById(id);
-        } else {
-        }
-      });
+        entityArr.forEach((entity) => {
+            // console.log("-----", entity);
+            let uuid = entity.uuid;
+            window.viewer.entities.values.forEach((existingEntity) => {
+                if (existingEntity.uuid === uuid) {
+                    window.viewer.entities.remove(existingEntity);
+                }
+            });
+        });
     },
 
     showAllSupplyPoints() {
@@ -773,7 +767,7 @@ export default {
         this.selectedSuppliesList = []
         // 字符串部分到后端查询
         let obj = {
-            country: this.searchSupplyForm.country,
+            county: this.searchSupplyForm.county,
             address: this.searchSupplyForm.address,
             contactPerson: this.searchSupplyForm.contactPerson,
             contactPhone: this.searchSupplyForm.contactPhone,
@@ -803,7 +797,7 @@ export default {
         this.removePoints(this.suppliesList[2]);
         let result = this.supplyList
         let radiusResult = []
-        let countResult = false
+        let countResult = []
         this.selectedSuppliesList = []
         // console.log("result-------------------",result)
         let i = 1.0
@@ -812,15 +806,15 @@ export default {
             radiusResult = await this.marchSupplyByRadius(result,i)
             // console.log("radiusResult-------------------",radiusResult)
             countResult = this.marchSupplyByCount(radiusResult)
-            console.log("countResult-------------------", countResult);
-            if(countResult){
+            // console.log("countResult-------------------", countResult);
+            if(countResult.length > 0){
                 flag = true
                 this.marchSupplyRadius = i
             }
             i++
         }
         if(flag){
-            this.selectedSuppliesList = radiusResult
+            this.selectedSuppliesList = countResult
             await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
                 confirmButtonText: '确认',
             });
@@ -828,91 +822,10 @@ export default {
             this.drawSupplyPoint("searchSupplies",this.marchSupplyRadius)
         }else{
             this.selectedSuppliesList = []
-            await ElMessageBox.alert('未匹配到合适的物资。', '提示', {
+            await ElMessageBox.alert('15公里范围内未匹配到合适的物资。', '提示', {
                 confirmButtonText: '确认',
             });
         }
-        // 移除现有的点
-        // this.removePoints(this.suppliesList[0]);
-        // this.removePoints(this.suppliesList[1]);
-        // this.removePoints(this.suppliesList[2]);
-        // let result = []
-        // let radiusResult = []
-        // let countResult = false
-        // let ifClean = true
-        //
-        // this.selectedSuppliesList = []
-        // // 已添加受灾点
-        // if(this.addSupplyPointCurrently.lat !== 0){
-        //     if(this.searchSupplyForm.radius <= 0){
-        //         // 没填半径，则从5公里往上递增来匹配目标数量物资
-        //         let i = 5.0
-        //         let flag = false
-        //         while (i < 15.0 && !flag){
-        //             radiusResult = this.marchSupplyByRadius(result,i)
-        //             countResult = this.marchSupplyByCount(radiusResult)
-        //             // console.log("-------------------",countResult)
-        //             if(countResult){
-        //                 flag = true
-        //             }
-        //             i++
-        //         }
-        //         if(flag){
-        //             this.selectedSuppliesList = radiusResult
-        //             await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
-        //                 confirmButtonText: '确认',
-        //             });
-        //
-        //         }else{
-        //             this.selectedSuppliesList = []
-        //             // alert('未匹配到合适的物资。');
-        //             await ElMessageBox.alert('未匹配到合适的物资。', '提示', {
-        //                 confirmButtonText: '确认',
-        //             });
-        //         }
-        //         this.searchSupplyForm.radius = i - 1
-        //     }
-        //     else{
-        //         // 填了半径，匹配物资
-        //         countResult = this.marchSupplyByRadius(result,this.searchSupplyForm.radius)
-        //         // 填了物资目标数量，则再该半径范围内计算
-        //         let flag = false
-        //         flag = this.marchSupplyByCount(countResult)
-        //         if(flag){
-        //             this.selectedSuppliesList = countResult
-        //         }else{
-        //             this.selectedSuppliesList = []
-        //         }
-        //     }
-        // }
-        // // 未添加受灾点
-        // else{
-        //     if(this.searchSupplyForm.radius !== 0
-        //         || this.searchSupplyForm.disasterTentsCount !== 0
-        //         || this.searchSupplyForm.raincoatsCount !== 0
-        //         || this.searchSupplyForm.rainBootsCount !== 0
-        //         || this.searchSupplyForm.flashlightsCount !== 0){
-        //         ifClean = false
-        //         await ElMessageBox.alert('请先添加受灾点。', '提示', {
-        //             confirmButtonText: '确认',
-        //         });
-        //     }
-        // }
-        // // console.log("this.selectedSuppliesList-----------",this.selectedSuppliesList)
-        // this.drawSupplyPoint("searchSupplies")
-        // if(ifClean && this.selectedSuppliesList.length > 0){
-        //     this.searchSupplyForm = {
-        //         country: "",
-        //         address: "",
-        //         contactPerson: "",
-        //         contactPhone: "",
-        //         disasterTentsCount: 0,
-        //         raincoatsCount: 0,
-        //         rainBootsCount: 0,
-        //         flashlightsCount: 0,
-        //         radius: 0.0,
-        //     }
-        // }
         this.marchSupplyDialog = false
     },
 
@@ -959,45 +872,54 @@ export default {
     },
     // 通过目标数量匹配物资
     marchSupplyByCount(array){
-        let disasterTentsCount = 0
-        let raincoatsCount = 0
-        let rainBootsCount = 0
-        let flashlightsCount = 0
+        let tents = 0
+        let raincoats = 0
+        let rainBoots = 0
+        let flashlights = 0
         let flag = false
-        // let filteredArray = array.filter((ele) => {
-        //     if (this.searchSupplyForm.disasterTentsCount > 0 && ele.disasterTentsCount === 0) {
-        //         return false;
-        //     }
-        //     if (this.searchSupplyForm.raincoatsCount > 0 && ele.raincoatsCount === 0) {
-        //         return false;
-        //     }
-        //     if (this.searchSupplyForm.rainBootsCount > 0 && ele.rainBootsCount === 0) {
-        //         return false;
-        //     }
-        //     if (this.searchSupplyForm.flashlightsCount > 0 && ele.flashlightsCount === 0) {
-        //         return false;
-        //     }
-        //     return true;
-        // });
-        // console.log("filteredArray-------",filteredArray)
+        let bool1 = this.searchSupplyForm.tents > 0 ? false : true
+        let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
+        let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
+        let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
+        let resultArray = []
+        // console.log("ele--------------------",bool1)
+        // console.log("ele--------------------",bool2)
+        // console.log("ele--------------------",bool3)
+        // console.log("ele--------------------",bool4)
         array.forEach((ele) => {
-            disasterTentsCount += ele.disasterTentsCount;
-            raincoatsCount += ele.raincoatsCount;
-            rainBootsCount += ele.rainBootsCount;
-            flashlightsCount += ele.flashlightsCount;
-            if (disasterTentsCount >= this.searchSupplyForm.disasterTentsCount
-                && raincoatsCount >= this.searchSupplyForm.raincoatsCount
-                && rainBootsCount >= this.searchSupplyForm.rainBootsCount
-                && flashlightsCount >= this.searchSupplyForm.flashlightsCount) {
-                flag = true;
+            if(ele.tents === 0){
+                bool1 = true
+            }
+            if(ele.raincoats === 0){
+                bool2 = true
+            }
+            if(ele.rainBoots === 0){
+                bool3 = true
+            }
+            if(ele.flashlights === 0){
+                bool4 = true
+            }
+            if(!bool1 || !bool2 || !bool3 || !bool4){
+                tents += ele.tents;
+                raincoats += ele.raincoats;
+                rainBoots += ele.rainBoots;
+                flashlights += ele.flashlights;
+                console.log("rainBoots=====-----",rainBoots)
+                if (tents >= this.searchSupplyForm.tents
+                    && raincoats >= this.searchSupplyForm.raincoats
+                    && rainBoots >= this.searchSupplyForm.rainBoots
+                    && flashlights >= this.searchSupplyForm.flashlights) {
+                    flag = true;
+                }
+                resultArray.push(ele)
             }
         });
-        // if(flag){
-        //     return array
-        // }else{
-        //     return []
-        // }
-        return flag
+        console.log("flag-----------------",flag)
+        if(flag){
+            return resultArray
+        }else{
+            return []
+        }
     },
       drawSupplyPoint(param,radius) {
         this.total = this.selectedSuppliesList.length;
@@ -1006,12 +928,12 @@ export default {
         this.showIcon = [];
         this.showIcon = this.selectedSuppliesList;
           // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
-        let reservesArr = [];
-        let suppliesArr = []
+        let reservesArr = []  // 抢险救灾装备
+        let suppliesArr = []  // 救灾物资储备
         let emergencyTeamArr = []
         if(param === 'searchSupplies'){
             this.showIcon.forEach((item) => {
-                reservesArr.push(item)
+                suppliesArr.push(item)
             })
         }else{
             this.showIcon.forEach((item) => {
@@ -1024,9 +946,9 @@ export default {
                 }
             });
         }
-        this.processPoints(reservesArr, 'reserves', disasterReservesLogo, "救灾物资储备");
-        this.processPoints(suppliesArr, 'supplies', disasterSuppliesLogo, "抢险救灾装备");
-        this.processPoints(emergencyTeamArr, 'emergencyTeam', emergencyTeamLogo, "雅安应急队伍");
+        this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
         if(this.ifDrawEllipse){
             this.selectPoints(radius);
         }
@@ -1063,16 +985,16 @@ export default {
       this.canMarkPoint = true;
     },
     handleDisasterTentsInput(value) {
-        this.searchSupplyForm.disasterTentsCount = value === '' ? 0 : Number(value);
+        this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
     },
     handleFlashlightsInput(value) {
-        this.searchSupplyForm.flashlightsCount = value === '' ? 0 : Number(value);
+        this.searchSupplyForm.flashlights = value === '' ? 0 : Number(value);
     },
     handleRaincoatsInput(value) {
-        this.searchSupplyForm.raincoatsCount = value === '' ? 0 : Number(value);
+        this.searchSupplyForm.raincoats = value === '' ? 0 : Number(value);
     },
     handleRainBootsInput(value) {
-        this.searchSupplyForm.rainBootsCount = value === '' ? 0 : Number(value);
+        this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
     },
       handleRadiusInput(value) {
           // 只在输入完成后处理浮点数转换

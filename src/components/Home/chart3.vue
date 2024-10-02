@@ -30,14 +30,19 @@ const props = defineProps(['lastEq'])
 const injuryCount = ref(0);
 const missingCount = ref(0);
 const deathCount = ref(0);
-
+const updateTime = ref()
 
 watch(() => props.lastEq, () => {
   if (props.lastEq){
     getCasualtyStats(props.lastEq.eqid).then((res) => {
-      injuryCount.value = res.injuryCount
-      missingCount.value = res.missingCount
-      deathCount.value = res.deathCount
+      if (res) {
+        injuryCount.value = res.injuryCount
+        missingCount.value = res.missingCount
+        deathCount.value = res.deathCount
+        updateTime.value = res.latestInsertTime.replace('T', ' ')
+      } else {
+        updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
+      }
     })
   }
 });

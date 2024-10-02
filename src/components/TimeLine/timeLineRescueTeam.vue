@@ -31,16 +31,11 @@
           </li>
         </ul>
       </div>
-
-
-
-
       <div class="rescue_team_time_div">
         <div class="title-underline_low"></div>
         <p class="time_text"> 数据更新时间</p>
         <p class="time">{{this.recordtime}}</p>
       </div>
-
     </div>
 
     <div v-show="!rescue_team_isExpanded">
@@ -68,16 +63,18 @@ export default {
     }
   },
   props: [
-    'currentTime','eqid'
+    'currentTime',
+      'eqid'
   ],
   mounted() {
-      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
           this.ifShowData = true
       }
     this.init()
   },
   watch: {
     currentTime(newVal) {
+        // console.log("``````````````````",newVal)
         if(this.ifShowData){
             this.rescue_team_update(newVal)
         }
@@ -86,9 +83,9 @@ export default {
   methods: {
     init() {
         getRescueTeam().then(res => {
-            console.log("res:----",res)
+            // console.log("res:----",res)
+            // console.log("this.ifShowData-----",this.ifShowData)
             this.Responsecontent = res
-            console.log("this.Responsecontent",this.Responsecontent)
         })
       // this.Responsecontent.sort((a, b) => {
       //   if (a.departureDate < b.departureDate) return -1;
@@ -113,11 +110,11 @@ export default {
             return 0;
         });
       if(activities.length>0){
-            console.log("activities", activities)
+            // console.log("activities", activities)
             this.recordtime = this.timestampToTime(activities[activities.length - 1].departureDate)
         activities.forEach((item) => {
           let activity={
-                    recordtime: this.timestampToTime(item.departureDate),
+            recordtime: this.timestampToTime(item.departureDate),
             gotime:'',
             goyear: '',
             gomonth: '',
