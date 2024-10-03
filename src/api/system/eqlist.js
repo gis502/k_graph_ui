@@ -21,7 +21,7 @@ export function deleteeq(query) {
 // 查
 export function getAllEq(query) {
     return request({
-        url: '/system/getEq',
+        url: '/system/geteq',
         method: 'get',
     })
 }
