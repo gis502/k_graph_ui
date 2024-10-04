@@ -56,7 +56,7 @@
       <span
           class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
           this.eqday
-        }}日{{ this.centerPoint.position }}{{ this.centerPoint.magnitude }}级地震</span>
+        }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</span>
     </div>
     <!--    title end-->
 
@@ -129,12 +129,15 @@
 
       <!--      时间点-->
       <div class="current-time-info">
-        <!--        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>-->
-        <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
+        <span class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
       </div>
+
       <div class="end-time-info">
-        <!--        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>-->
-        <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
+        <div class="timelabel">
+          <span>{{ this.timestampToTime(this.currentTime) }}</span>
+            <span> / </span>
+          <span> {{ this.timestampToTime(this.eqendTime) }}</span>
+        </div>
       </div>
     </div>
     <!-- 进度条 end-->
@@ -273,7 +276,8 @@ export default {
       // 震中点数据结构
       centerPoint: {
         plotid: 'center',
-        position: '',
+        earthquakeName:'',
+        // position: '',
         // time:'',
         starttime: '',
         endtime: '',
@@ -539,6 +543,7 @@ export default {
         console.log("thd eqid---------------",eqid)
         //震中标绘点
         this.centerPoint = res
+        // console.log(res)
         // console.log(res)
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
@@ -2426,10 +2431,12 @@ export default {
 .end-time-info {
   position: absolute;
   bottom: 3%;
-  width: 30%;
+  width: 45%;
   right: 0%;
 }
-
+.end-time-info .timelabel span:nth-child(2) {
+  margin: 0 5px; /* 分隔符前后的间隔 */
+}
 .timelabel {
   color: #ffffff;
 }
