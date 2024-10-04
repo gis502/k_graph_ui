@@ -227,26 +227,24 @@ export default class Polygon {
       // 1-3 把数据库同一Plotid的点数据放入此数组
       let polygon = []
       polygonArr.forEach(polygonElement => {
-        if (polygonElement.plotid === onlyPlotidItem) {
+        if (polygonElement.plotId === onlyPlotidItem) {
           polygon.push(polygonElement)
         }
       })
-
       // 1-4 pointLinePoints用来存构成面的点实体
       let pointLinePoints = []
+      let coords = polygon[0].geom.coordinates[0]
+      for (let i = 0; i < coords.length; i++) {
+        let polygonCoords = coords[i]
 
-      for (let i = 0; i < polygon.length; i++) {
         // 转换为Cartesian3坐标
         let cartographic = Cesium.Cartographic.fromDegrees(
-            parseFloat(polygon[i].longitude),
-            parseFloat(polygon[i].latitude),
-            parseFloat(polygon[i].height)
+            parseFloat(polygonCoords[0]),
+            parseFloat(polygonCoords[1]),
+            parseFloat(0)
         );
-
         let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
-
         pointLinePoints.push(cartesian);
-        // console.log("点实体",pointLinePoints)
         // 添加调试输出
         this.viewer.entities.add({
           // id: `${onlyPlotidItem}_Point_${i}`,
@@ -270,7 +268,7 @@ export default class Polygon {
           id: onlyPlotidItem,
           polygon: {
             hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
-            material: polygon[0].img,
+            material: polygon[0].icon,
             stRotation: Cesium.Math.toRadians(polygon[0].angle),
             clampToGround: true,
           },
@@ -280,7 +278,6 @@ export default class Polygon {
             data:polygon //弹出框
           }
         });
-
       }
     })
   }
@@ -289,8 +286,8 @@ export default class Polygon {
   distinguishPolygonId(polygonArr) {
     let polygonIdArr = []
     polygonArr.forEach(element => {
-      if (!polygonIdArr.includes(element.plotid)) {
-        polygonIdArr.push(element.plotid)
+      if (!polygonIdArr.includes(element.plotId)) {
+        polygonIdArr.push(element.plotId)
       }
     })
     // console.log("数据库",polygonIdArr)
