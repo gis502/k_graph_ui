@@ -2,21 +2,21 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 100%; margin-bottom: 5px;height: 18vw"
+        style="width: 100%; margin-bottom: 2px;height: 18vw"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
-        :row-style="{ height: '37.5px' }"
+        :row-style="{ height: '37.5px', fontSize: '13px'}"
         @row-click="go">
       <el-table-column
           prop="earthquakeName"
           label="位置"
-          min-width="140px"
+          min-width="115px"
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
           label="发震时间"
           align="center"
-          min-width="160px"
+          min-width="140px"
           show-overflow-tooltip>
         <template v-slot="scope">
           <span>{{ formatTime(scope.row.occurrenceTime) }}</span>
@@ -25,8 +25,8 @@
       <el-table-column
           prop="magnitude"
           align="center"
-          min-width="56px"
-          label="震级">
+          min-width="70px"
+          label="震级(级)">
         <template #default="scope">
           {{ Number(scope.row.magnitude).toFixed(1) }}
         </template>
@@ -34,8 +34,8 @@
       <el-table-column
           prop="depth"
           align="center"
-          min-width="56px"
-          label="深度"
+          min-width="80px"
+          label="深度(千米)"
           show-overflow-tooltip>
         <template #default="scope">
           {{scope.row.depth}}
@@ -91,6 +91,9 @@ const tableHeaderColor = () => ({
   'background-color': '#293038 !important',
   'color': '#fff',
   'text-align': 'center',
+  'font-size': '13px',
+  'padding': '0',
+  'margin': '0'
 });
 
 const tableColor = ({rowIndex}) => {
@@ -99,10 +102,10 @@ const tableColor = ({rowIndex}) => {
     'border-width':'1px',
     'border-style':'solid',
     'border-color': '#555555',
-    // 'border-color': backgroundColor,
     'background-color': backgroundColor,
     'color': '#fff',
     'padding': '0',
+    'margin': '0'
   };
 };
 
@@ -143,6 +146,9 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
   --el-pagination-item-gap : 6px;
 }
 
+:deep(.el-table--default .cell){
+  padding : 0 4px
+}
 
 .pagination-wrapper {
   display: flex;
@@ -154,7 +160,7 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 .custom-pagination >>> .el-pagination__jump,
 .custom-pagination >>> .el-pagination__right-wrapper {
   color: white;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 

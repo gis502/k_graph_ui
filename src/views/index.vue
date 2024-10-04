@@ -35,7 +35,6 @@
         <div class="center-body">
           <e-map :eq-data="EqAll"/>
         </div>
-
         <div class="right-body">
           <div class="right-top public-bg">
             <dv-border-box7>
@@ -247,7 +246,7 @@ onMounted(() => {
   color: white;
   padding-left: 16px;
   line-height: 30px;
-  font-size: 17px;
+  font-size: 15px;
 }
 
 .public-title:before {
@@ -307,8 +306,8 @@ onMounted(() => {
   height: 100%;
 }
 
-.content .content-con .left-body {
-  width: 22%;
+.left-body {
+  width: 19%;
   height: 100%;
   float: left;
   margin: 0 0.3%;
@@ -316,7 +315,7 @@ onMounted(() => {
 
 .left-body .left-top {
   width: 100%;
-  height: 30%;
+  height: 26%;
 }
 
 .left-body .left-top .top-body {
@@ -364,18 +363,18 @@ onMounted(() => {
 
 .left-body .left-con {
   width: 100%;
-  height: 38%;
+  height: 30%;
   margin-top: 1.6%;
 }
 
 .left-body .left-bottom {
   width: 100%;
-  height: 32%;
+  height: 30%;
   margin-top: 1.6%;
 }
 
 .center-body {
-  width: 45%;
+  width: 48%;
   height: 100%;
   margin: 0 0.3%;
   float: left;

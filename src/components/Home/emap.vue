@@ -3,7 +3,7 @@
   <div class="compassContainer"></div>
   <div ref="eMap" class="eMap"></div>
   <!-- 自制图例 -->
-  <div class="legend">
+  <div class="legend" style="left: 0px">
     <div v-for="(group, groupIndex) in eqGroups" :key="'group-' + groupIndex">
       <div class="row">
         <div
@@ -26,7 +26,6 @@ import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import {getAllEq, getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
 
 const props = defineProps(['eqData']);
 
@@ -82,15 +81,6 @@ watch(() => props.eqData, () => {
 
 echarts.registerMap('data', data);
 
-// const getMapEq = () => {
-//   getLatestEq().then(res => {
-//     latestEqData.value = res;
-//   })
-//   getAllEq().then(res => {
-//     historyEqData.value = res;
-//   })
-// };
-
 const initEmap = () => {
   const latestData = latestEqData.value.map(item => ({
     position: item.earthquakeName,
@@ -141,14 +131,6 @@ const initEmap = () => {
   if (eMapElem) {
     eMapInstance.value = echarts.init(eMapElem);
 
-    // geo3D与map3D是两张地图，
-    // 是因为series中需同时渲染红色区域与散点，
-    // 为了避免重叠，
-    // 故设置其中一张地图show: false，
-    // 鼠标中键拖动地图时会改变geo3D的center属性
-
-    // 初始比例尺长度（像素）和实际距离（公里）
-
     const option = {
       // 点的配置
       geo3D: {
@@ -196,7 +178,6 @@ const initEmap = () => {
         },
       },
       series: [
-        // 地图的配置
         {
           type: 'map3D',
           map: 'data',
@@ -441,16 +422,6 @@ const toggleSeriesVisibility = (groupType, itemType) => {
     }, false, true); // 第三个参数为 true 表示合并更新
   }
 };
-
-const updateScaleBar = () => {
-  console.log(eMapInstance.value)
-  const viewRect = eMapInstance.value.getModel().getComponent('geo3D').coordinateSystem.getViewRect();
-  const scale = viewRect.width / viewRect.height;
-
-  const newDistance = initialDistance.value / scale;
-  console.log(newDistance)
-
-}
 
 </script>
 
