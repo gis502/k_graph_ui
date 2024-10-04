@@ -34,7 +34,7 @@
 ```
 参考链接 `https://gitee.com/y_project/RuoYi-Vue/issues/I5F40M` `淞哥五分钟解决一个bug`
 
-> 访问倾斜模型，因url中+号导致无法获取正常数据
+> 访问倾斜模型，因url中+号导致无法获取正常数据,把URI.js中的所有的+号替换成%2B
 
 修改node_modules/urijs/src/URI.js中
 ```javascript
