@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { getPlotIcon } from "@/api/system/plot.js";
+import { getPlotIcon } from "@/api/system/plot";
 
 
 export default {
@@ -27,16 +27,24 @@ export default {
     };
   },
   mounted() {
-    // this.getPlotPicture();
+    this.getPlotPicture();
   },
+  // created() {
+  //   this.getPlotPicture();
+  // },
   methods: {
     toggleLegend() {
       const newComponent = this.activeComponent === 'legend' ? null : 'legend';
       this.$emit('toggleComponent', newComponent);
     },
     getPlotPicture() {
+      console.log("PlotPicture--------------------")
+      let that = this
       getPlotIcon().then(res => {
-        this.getPicData = res;
+        console.log("PlotPicture--------------------",res)
+        // console.log(res)
+        that.getPicData = res.data;
+        console.log(that.getPicData)
       });
     }
   }

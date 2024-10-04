@@ -391,7 +391,7 @@ export default {
     this.init()
     this.getEqInfo(this.eqid)
 
-    this.initPlot(); // 初始化加载应急数据
+    // this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
@@ -680,34 +680,10 @@ export default {
         plottype: "震中",
       });
 
-      this.xuanran(this.eqid)
+      // this.xuanran(this.eqid)
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
-    // xuanran(eqid){
-    //   this.getPlotwithStartandEndTime(eqid)
-    //   //定时向数据库请求 每分钟请求一次
-    //   if(this.realTime< this.tmpeqendTime) {
-    //     if(!this.isTimerRunning&&this.currentTimePosition===100){
-    //       console.log("gengxin")
-    //       this.realtimeinterval = setInterval(() => {
-    //         if (this.currentTimePosition !== 100) {
-    //           clearInterval(this.realtimeinterval); // 停止定时器
-    //           this.realtimeinterval = null; // 清除引用
-    //           // this.isTimerRunning = false; // 更新状态
-    //           return; // 跳出当前循环
-    //         }
-    //         //更新开始结束当前时间，时间轴进度条位置，节点数量
-    //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-    //         this.eqendTime=new Date()
-    //         this.currentTime=this.eqendTime
-    //         this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-    //         this.currentNodeIndex=this.timelineAdvancesNumber
-    //         console.log(this.currentNodeIndex,"xuanran this.currentNodeIndex")
-    //         // this.
-    //       }, 5000);
-    //     }
-    //   }
-    // },
+
 
     // xuanran 方法
     xuanran(eqid){
@@ -1014,7 +990,6 @@ export default {
           viewer.entities.removeById(item.plotid)
         }
       })
-
 
     },
 
