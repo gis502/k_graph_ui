@@ -348,14 +348,14 @@ export default {
       //------------------按钮下拉框------
       // visible: false,
       districts: [
-        {adcode: 511826, name: "芦山县"},
         {adcode: 511802, name: "雨城区"},
         {adcode: 511803, name: "名山区"},
-        {adcode: 511825, name: "天全县"},
-        {adcode: 511827, name: "宝兴县"},
-        {adcode: 511824, name: "石棉县"},
         {adcode: 511822, name: "荥经县"},
         {adcode: 511823, name: "汉源县"},
+        {adcode: 511824, name: "石棉县"},
+        {adcode: 511825, name: "天全县"},
+        {adcode: 511826, name: "芦山县"},
+        {adcode: 511827, name: "宝兴县"},
       ],
       geojsonData: [],
       labels: [],  // 保存标签实体的引用
