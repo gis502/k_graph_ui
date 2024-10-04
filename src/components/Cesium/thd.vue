@@ -12,11 +12,24 @@
     <!--    <div class="layer-button">-->
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
     <!--    </div>-->
-    <div v-if="activeComponent === 'layerChoose'" class="dropdown">
+    <div v-if="activeComponent === 'layerChoose'" class="dropdown" :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
+        <el-checkbox
+            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 8))"
+            :key="item.id"
+            :label="item.name"
+            style="margin: 5px 0;"
+        >
+          {{ item.name }}
+        </el-checkbox>
       </el-checkbox-group>
+      <div @click="toggleExpand" style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+      </div>
     </div>
+
+
+  </div>
 
     <!--    行政区划-->
     <!--    <div class="regionjump-button">-->
@@ -135,7 +148,7 @@
       <div class="end-time-info">
         <div class="timelabel">
           <span>{{ this.timestampToTime(this.currentTime) }}</span>
-            <span> / </span>
+          <span> / </span>
           <span> {{ this.timestampToTime(this.eqendTime) }}</span>
         </div>
       </div>
@@ -201,7 +214,6 @@
     <div id="faultInfo"
          style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
 
-  </div>
 </template>
 
 <script>
@@ -367,6 +379,7 @@ export default {
 
       activeComponent: null,
       //-----------------图层要素---------------------
+      isExpanded: false,
       layeritems: [
         {id: '0', name: '标绘点图层'},
         {id: '1', name: '行政区划要素图层'},
@@ -404,9 +417,29 @@ export default {
     //     this.ifShowData = true
     // }
   },
+  // 图层要素
   methods: {
+    //图层要素
+    getHeight() {
+      const checkboxHeight = 50; // 每个复选框的高度
+      const margin = 10; // margin 值
+      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
+      console.log(((parseInt(this.layeritems.length/2) + this.layeritems.length%2)  * checkboxHeight) + ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)-1) * margin)
+      return ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)  * checkboxHeight) + ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)-1) * margin;
+    },
+
+    // 图层要素
+    toggleExpand() {
+      console.log("Toggle expand clicked");
+      this.isExpanded = !this.isExpanded;
+    },
     //设置组件展开的面板互斥,避免堆叠
     toggleComponent(component) {
+      // 图层要素
+      // this.activeComponent = this.isActive ? null : 'layerChoose';
+      if (this.activeComponent) {
+        this.initPlot(); // 调用初始化方法
+      }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
       if (this.activeComponent === 'eqList') {
@@ -2702,5 +2735,8 @@ export default {
 }
 :deep(.distance-legend){
   bottom:11% !important;
+}
+.dropdown {
+  overflow: hidden; /* 防止显示滚动条 */
 }
 </style>

@@ -72,11 +72,11 @@ export function updataEq(data) {
     })
 }
 
-export function getEqById(eqId) {
+export function getEqById(data) {
     return request({
         url: '/system/queryEqById',
         method: 'post',
-        params:{id:eqId}
+        params:data
     })
 
 }
