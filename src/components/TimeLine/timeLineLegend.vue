@@ -75,7 +75,7 @@ export default {
 }
 
 .timeLineLegend.open {
-  width: 23%;
+  width: 25%;
   height: 81%;
   bottom: 9%;
   right: 1%;

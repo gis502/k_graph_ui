@@ -69,7 +69,7 @@
           active-text-color="#537BB7FF"
           style="position: absolute;
                   top: 4.3%;z-index: 20;
-                  height: 45px;width: 400px;
+                  height: 45px;width: 25%;
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
       >
