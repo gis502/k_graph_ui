@@ -2693,4 +2693,7 @@ export default {
   width: 398px !important;
   height:310px !important;
 }
+:deep(.distance-legend){
+  bottom:11% !important;
+}
 </style>
