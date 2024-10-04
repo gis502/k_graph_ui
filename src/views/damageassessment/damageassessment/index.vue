@@ -500,6 +500,10 @@ export default {
     back() {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
+      this.isshowPersonalCasualty = false;
+      this.PersonalCasualtyNum = 0;
+      this.yaancasual=false;
+      this.yaanitemcasual=[],
       this.removeData()
     },
 
@@ -688,6 +692,35 @@ export default {
       }
     },
 
+    //人员伤亡评估
+    showPersonalCasualty() {
+      this.isshowPersonalCasualty = !this.isshowPersonalCasualty
+      if (this.isshowPersonalCasualty) {
+        console.log(this.selectedTabData.eqid)
+        //获取震中人口密度
+        getPersonDes(this.selectedTabData.eqid).then(res => {
+          console.log("getPersonDes", res)
+          this.PersonalCasualtyNum = res.casualAll
+          // this.yaancasual=res.yaancasual
+          if(res.yaancasual=="无"){this.yaancasual=false}
+          else{
+            this.yaancasual=true
+            this.yaanitemcasual= [
+              { id:'0',name: "雨城区", num: res.雨城区},
+              { id:'1',name: "名山区", num: res.名山区},
+              { id:'2',name: "荥经县", num: res.荥经县},
+              { id:'3',name: "汉源县", num: res.汉源县},
+              { id:'4',name: "石棉县", num: res.石棉县},
+              { id:'5',name: "天全县", num: res.天全县},
+              { id:'6',name: "芦山县", num: res.芦山县},
+              { id:'7',name: "宝兴县", num: res.宝兴县},
+            ]
+            console.log(this.yaanitemcasual)
+          }
+
+        })
+      }
+    }
 
   }
 };
