@@ -108,7 +108,7 @@ export default class Point {
         id: data.plotid,
         position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
         billboard: {
-          image: data.img,
+          image: data.icon,
           width: 50,//图片宽度,单位px
           height: 50,//图片高度，单位px // 会影响point大小，离谱
           eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
