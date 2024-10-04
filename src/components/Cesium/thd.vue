@@ -56,7 +56,7 @@
       <span
           class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
           this.eqday
-        }}日{{ this.centerPoint.position }}{{ this.centerPoint.magnitude }}级地震</span>
+        }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</span>
     </div>
     <!--    title end-->
 
@@ -69,7 +69,7 @@
           active-text-color="#537BB7FF"
           style="position: absolute;
                   top: 4.3%;z-index: 20;
-                  height: 45px;width: 400px;
+                  height: 45px;width: 25%;
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
       >
@@ -129,12 +129,15 @@
 
       <!--      时间点-->
       <div class="current-time-info">
-        <!--        <span class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.currentTime) }}</span>-->
-        <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
+        <span class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
       </div>
+
       <div class="end-time-info">
-        <!--        <div class="timelabel" v-show="ifShowData">{{ this.timestampToTime(this.eqendTime) }}</div>-->
-        <div class="timelabel">{{ this.timestampToTime(this.eqendTime) }}</div>
+        <div class="timelabel">
+          <span>{{ this.timestampToTime(this.currentTime) }}</span>
+            <span> / </span>
+          <span> {{ this.timestampToTime(this.eqendTime) }}</span>
+        </div>
       </div>
     </div>
     <!-- 进度条 end-->
@@ -273,7 +276,8 @@ export default {
       // 震中点数据结构
       centerPoint: {
         plotid: 'center',
-        position: '',
+        earthquakeName:'',
+        // position: '',
         // time:'',
         starttime: '',
         endtime: '',
@@ -348,14 +352,14 @@ export default {
       //------------------按钮下拉框------
       // visible: false,
       districts: [
-        {adcode: 511826, name: "芦山县"},
         {adcode: 511802, name: "雨城区"},
         {adcode: 511803, name: "名山区"},
-        {adcode: 511825, name: "天全县"},
-        {adcode: 511827, name: "宝兴县"},
-        {adcode: 511824, name: "石棉县"},
         {adcode: 511822, name: "荥经县"},
         {adcode: 511823, name: "汉源县"},
+        {adcode: 511824, name: "石棉县"},
+        {adcode: 511825, name: "天全县"},
+        {adcode: 511826, name: "芦山县"},
+        {adcode: 511827, name: "宝兴县"},
       ],
       geojsonData: [],
       labels: [],  // 保存标签实体的引用
@@ -391,7 +395,7 @@ export default {
     this.init()
     this.getEqInfo(this.eqid)
 
-    this.initPlot(); // 初始化加载应急数据
+    // this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
@@ -540,6 +544,7 @@ export default {
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
+        // console.log(res)
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
         // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
@@ -680,34 +685,10 @@ export default {
         plottype: "震中",
       });
 
-      this.xuanran(this.eqid)
+      // this.xuanran(this.eqid)
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
-    // xuanran(eqid){
-    //   this.getPlotwithStartandEndTime(eqid)
-    //   //定时向数据库请求 每分钟请求一次
-    //   if(this.realTime< this.tmpeqendTime) {
-    //     if(!this.isTimerRunning&&this.currentTimePosition===100){
-    //       console.log("gengxin")
-    //       this.realtimeinterval = setInterval(() => {
-    //         if (this.currentTimePosition !== 100) {
-    //           clearInterval(this.realtimeinterval); // 停止定时器
-    //           this.realtimeinterval = null; // 清除引用
-    //           // this.isTimerRunning = false; // 更新状态
-    //           return; // 跳出当前循环
-    //         }
-    //         //更新开始结束当前时间，时间轴进度条位置，节点数量
-    //         this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-    //         this.eqendTime=new Date()
-    //         this.currentTime=this.eqendTime
-    //         this.timelineAdvancesNumber= ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-    //         this.currentNodeIndex=this.timelineAdvancesNumber
-    //         console.log(this.currentNodeIndex,"xuanran this.currentNodeIndex")
-    //         // this.
-    //       }, 5000);
-    //     }
-    //   }
-    // },
+
 
     // xuanran 方法
     xuanran(eqid){
@@ -1014,7 +995,6 @@ export default {
           viewer.entities.removeById(item.plotid)
         }
       })
-
 
     },
 
@@ -2451,10 +2431,12 @@ export default {
 .end-time-info {
   position: absolute;
   bottom: 3%;
-  width: 30%;
+  width: 45%;
   right: 0%;
 }
-
+.end-time-info .timelabel span:nth-child(2) {
+  margin: 0 5px; /* 分隔符前后的间隔 */
+}
 .timelabel {
   color: #ffffff;
 }
@@ -2717,5 +2699,8 @@ export default {
   right: 9px !important;
   width: 398px !important;
   height:310px !important;
+}
+:deep(.distance-legend){
+  bottom:11% !important;
 }
 </style>

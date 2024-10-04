@@ -86,22 +86,12 @@
             <el-divider content-position="left"> 地震专题</el-divider>
 
             <div class="eqTheme">
-              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
-                   @click="showHistoryEqPoints()"> 历史地震
-              </div>
               <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
                    @click="showFaultZone()"> 断裂带
-              </div>
-              <div class="button themes circle" :class="{ active: isshowOvalCircle }"
-                   @click="showOvalCircle()"> 烈度圈
               </div>
               <div class="button themes region" :class="{ active: isshowRegion }"
                    @click="toggleYaanLayer()"> 行政区划
               </div>
-              <div class="button themes region" :class="{ active: isshowPersonalCasualty }"
-                   @click="showPersonalCasualty()"> 人员伤亡
-              </div>
-
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -126,40 +116,11 @@
       <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
         <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
-
-      <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
-      <div class="panel">
-        <historyEqPanel v-if="isHistoryEqPointsShow"
-                        :historyEqData="historyEqData"
-                        :selectedTabData="selectedTabData"
-                        @hidden="hidden"/>
-      </div>
-
-      <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
-           @click="isHistoryEqPointsShow=true, isShow=false">
-        展开专题详情
-      </div>
     </div>
 
     <!--  断裂带名称div  -->
-    <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
-
-    <div class="PersonalCasualty" v-if="isshowPersonalCasualty">
-      <span>本次地震预估伤亡总数：</span>
-      <span>{{this.PersonalCasualtyNum}}</span>
-      <span>人</span>
-      <P>
-        <span>雅安市预估伤亡情况：</span> <span v-if="!this.yaancasual">无伤亡人员</span>
-      </P>
-      <div v-if="this.yaancasual"></div>
-      <div v-for="item in yaanitemcasual" :key="item.id" :label="item.name">
-          <p>    {{item.name}}:{{item.num}}人</p>
-      </div>
-
-
-    </div>
-
-
+    <div id="faultInfo"
+         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
   </div>
 
 </template>
@@ -170,18 +131,11 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
-import fault_zone from "@/assets/geoJson/line_fault_zone.json";
-import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
-import {saveIntensityCircle,getPersonDes} from "@/api/system/damageassessment.js";
-import sichuan from "@/assets/geoJson/sichuan.json";
-import {addFaultZones, addHistoryEqPoints, addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addFaultZones, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
 
 export default {
   components: {
-    TimeLinePanel,
-    historyEqPanel,
   },
 
   data() {
@@ -196,24 +150,14 @@ export default {
 
       selectedTabData: null,
       selectedEqPoint: null,
-      historyEqData: [],
-      historyEqPoints: [],
 
       title: "",
       isLeftShow: true,
       isFoldShow: true,
       isFoldUnfolding: false,
-      isHistoryEqPointsShow: false,
       isShow: false,
       isshowFaultZone: false, //断裂带显示隐藏
       faultzonelines: [], //断裂带线
-      isshowOvalCircle: false, //烈度圈显示隐藏
-      OvalCirclelayer: [],
-
-      isshowPersonalCasualty: false,
-      PersonalCasualtyNum: 0,
-      yaancasual:false,
-      yaanitemcasual:[],
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -221,8 +165,8 @@ export default {
       listEqPoints: [], // 列表地震点
       area: null,
       // layerVisible: true, // 图层可见性状态
-      isshowRegion:true,//行政区划
-      RegionLabels:[],
+      isshowRegion: true,//行政区划
+      RegionLabels: [],
     };
   },
   mounted() {
@@ -260,10 +204,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-          103.0,
-          29.98,
-          500000,
-          new Cesium.Cartographic()
+        103.0,
+        29.98,
+        500000,
+        new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -274,16 +218,17 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-          "请输入地名进行搜索";
+        "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-          "影像服务";
+        "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-          "地形服务";
+        "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
       addYaanLayer()
     },
+
 
     toggleYaanLayer() {
       // 切换图层显示与隐藏
@@ -314,10 +259,10 @@ export default {
           }
         })
       }
-      if(!this.isshowRegion){ //false
+      if (!this.isshowRegion) { //false
         // this.RegionLabels
         this.RegionLabels.forEach(entity => window.viewer.entities.remove(entity));
-        this.RegionLabels=[]
+        this.RegionLabels = []
       }
     },
 
@@ -379,19 +324,14 @@ export default {
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
-          this.historyEqPoints.forEach(entity => {
-            entity.label._show._value = false;
-          });
           // 隐藏 faultInfoDiv
           faultInfoDiv.style.display = 'none';
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
 
-
     // 地图渲染查询地震点(根据页码、根据搜索框)
     renderQueryEqPoints() {
-      this.isshowOvalCircle = false
       // 清空之前的点
       this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
       this.listEqPoints = []; // 重置 listEqPoints
@@ -500,10 +440,6 @@ export default {
     back() {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
-      this.isshowPersonalCasualty = false;
-      this.PersonalCasualtyNum = 0;
-      this.yaancasual=false;
-      this.yaanitemcasual=[],
       this.removeData()
     },
 
@@ -547,8 +483,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-              Number(this.selectedTabData.longitude),
-              Number(this.selectedTabData.latitude)
+            Number(this.selectedTabData.longitude),
+            Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -558,8 +494,8 @@ export default {
           },
           label: {
             text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-                this.selectedTabData.earthquakeName +
-                this.selectedTabData.magnitude + '级地震',
+              this.selectedTabData.earthquakeName +
+              this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -580,46 +516,10 @@ export default {
     },
 
     removeData() {
-      this.historyEqPoints = [];
-      this.historyEqData = [];
-      this.removeEntitiesByType("historyEq")
       this.removeEntitiesByType("faultZone")
-      this.removeEntitiesByType("ovalCircle")
-      this.isHistoryEqPointsShow = false;
       this.isshowFaultZone = false;
-      this.isshowOvalCircle = false;
       const faultInfoDiv = document.getElementById('faultInfo');
       faultInfoDiv.style.display = 'none';
-    },
-
-
-
-    showHistoryEqPoints(thisEq) {
-      this.isHistoryEqPointsShow = !this.isHistoryEqPointsShow; // 切换状态
-
-      if (this.isHistoryEqPointsShow) {
-
-        addHistoryEqPoints(this.selectedTabData, this.getEqData);
-
-        const semiMinorAxis = 50000.0;
-        const semiMajorAxis = 50000.0;
-        const center = Cesium.Cartesian3.fromDegrees(Number(this.selectedTabData.longitude), Number(this.selectedTabData.latitude));
-
-        this.getEqData.forEach((eq) => {
-          if (eq.eqid !== this.selectedTabData.eqid) {
-            const position = Cesium.Cartesian3.fromDegrees(Number(eq.longitude), Number(eq.latitude));
-
-            const distance = Cesium.Cartesian3.distance(position, center);
-            const radius = Math.max(semiMajorAxis, semiMinorAxis);
-
-            if (distance <= radius) {
-              this.historyEqData.push(eq);
-            }
-          }
-        });
-      } else {
-        this.removeEntitiesByType("historyEq"); // 切换为隐藏时，移除历史地震
-      }
     },
 
     //断裂带(200km以内)-------------------------------------------------------
@@ -631,17 +531,6 @@ export default {
         this.removeEntitiesByType("faultZone")
         const faultInfoDiv = document.getElementById('faultInfo');
         faultInfoDiv.style.display = 'none';
-      }
-    },
-
-    //烈度圈------------------------------------------------------------------
-    showOvalCircle() {
-      this.isshowOvalCircle = !this.isshowOvalCircle;
-      console.log(this.isshowOvalCircle)
-      if (this.isshowOvalCircle) {
-        addOvalCircles(this.selectedTabData)
-      } else {
-        this.removeEntitiesByType("ovalCircle")
       }
     },
 
@@ -659,11 +548,6 @@ export default {
     navigateToVisualization(thisEq) {
       const path = `/thd?eqid=${thisEq.eqid}`;
       window.open(path, '_blank');
-    },
-
-    hidden(hidden) {
-      this.isHistoryEqPointsShow = hidden;
-      this.isShow = true;
     },
 
     // 时间戳转换
@@ -692,35 +576,6 @@ export default {
       }
     },
 
-    //人员伤亡评估
-    showPersonalCasualty() {
-      this.isshowPersonalCasualty = !this.isshowPersonalCasualty
-      if (this.isshowPersonalCasualty) {
-        console.log(this.selectedTabData.eqid)
-        //获取震中人口密度
-        getPersonDes(this.selectedTabData.eqid).then(res => {
-          console.log("getPersonDes", res)
-          this.PersonalCasualtyNum = res.casualAll
-          // this.yaancasual=res.yaancasual
-          if(res.yaancasual=="无"){this.yaancasual=false}
-          else{
-            this.yaancasual=true
-            this.yaanitemcasual= [
-              { id:'0',name: "雨城区", num: res.雨城区},
-              { id:'1',name: "名山区", num: res.名山区},
-              { id:'2',name: "荥经县", num: res.荥经县},
-              { id:'3',name: "汉源县", num: res.汉源县},
-              { id:'4',name: "石棉县", num: res.石棉县},
-              { id:'5',name: "天全县", num: res.天全县},
-              { id:'6',name: "芦山县", num: res.芦山县},
-              { id:'7',name: "宝兴县", num: res.宝兴县},
-            ]
-            console.log(this.yaanitemcasual)
-          }
-
-        })
-      }
-    }
 
   }
 };
@@ -903,7 +758,6 @@ export default {
   bottom: 0;
   width: 327px;
   background-color: #2d3d51;
-  border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
 ::v-deep .pagination .el-pagination__total {
@@ -948,7 +802,7 @@ export default {
   margin: 5px 15px 15px 0;
   font-size: 15px;
   height: 34%;
-  width: 28%;
+  width: 44%;
   border: #fff 1px solid;
   cursor: pointer;
 }
@@ -1084,14 +938,10 @@ span {
   display: none;
 }
 
-:deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 100 !important;
-  background-color: #2b323a;
+::v-deep .cesium-baseLayerPicker-dropDown {
+  z-index: 1000;
 }
 
-:deep(.cesium-baseLayerPicker-dropDown) {
-  right: -5px !important;
-}
 ::v-deep .compass {
   position: absolute;
   top: 20px;
@@ -1104,13 +954,4 @@ span {
   left: 53px;
 }
 
-.PersonalCasualty{
-  position:absolute;
-  z-index:20;
-  background-color:#2b323a;
-  width:17%;
-  height: 50%;
-  top:7.5%;
-  right:22%;
-}
 </style>

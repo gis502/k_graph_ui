@@ -36,7 +36,7 @@ export function updataPlotIcon(data) {
 // 查询全部标绘图片
 export function getPlotIcon(query) {
   return request({
-    url: '/system/ploy/getploticon',
+    url: '/system/ploticon/getploticon',
     method: 'post',
   })
 }
