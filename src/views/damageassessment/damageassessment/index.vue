@@ -903,6 +903,7 @@ export default {
   bottom: 0;
   width: 327px;
   background-color: #2d3d51;
+  border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
 ::v-deep .pagination .el-pagination__total {
