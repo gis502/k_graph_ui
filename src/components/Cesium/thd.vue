@@ -15,7 +15,7 @@
     <div v-if="activeComponent === 'layerChoose'" class="dropdown" :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
-            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 7))"
+            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 8))"
             :key="item.id"
             :label="item.name"
             style="margin: 5px 0;"
@@ -421,9 +421,11 @@ export default {
   methods: {
     //图层要素
     getHeight() {
-      const checkboxHeight = 30; // 每个复选框的高度
+      const checkboxHeight = 50; // 每个复选框的高度
       const margin = 10; // margin 值
-      return (this.layeritems.length * checkboxHeight) + (this.layeritems.length - 1) * margin;
+      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
+      console.log(((parseInt(this.layeritems.length/2) + this.layeritems.length%2)  * checkboxHeight) + ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)-1) * margin)
+      return ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)  * checkboxHeight) + ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)-1) * margin;
     },
 
     // 图层要素
