@@ -221,9 +221,15 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
+    console.log(res)
     EqAll.value = res
     tableData.value = res
     lastEqData.value = res[0]
+
+    // 打印最新的 eqid
+    if (lastEqData.value) {
+      console.log("最新地震的 eqid:", lastEqData.value.eqid);
+    }
   })
 };
 
