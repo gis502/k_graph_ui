@@ -1302,7 +1302,7 @@ export default {
 
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-
+          console.log(entity)
           // console.log(99999);
           // console.log(entity._layer);
 
@@ -1347,7 +1347,8 @@ export default {
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.timelinePopupData = this.extractDataForTimeline(entity);
             this.routerPopupVisible = false;
-          } else if (entity._billboard) {
+          }
+          else if (entity._billboard) {
             this.routerPopupVisible = true;
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.routerPopupData = this.extractDataForRouter(entity);
