@@ -127,9 +127,9 @@ const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 const width = ref([])
 const widthList = {
-  'YaanAftershockStatistics': [300, 200, 100, 100, 200, 120, 100, 100, 100],
-  'YaanRelocationResettlementDisasterReliefGroup': [300, 200, 100, 100, 200, 150, 150, 130, 130, 170, 160],
-  'YaanCasualties': [300, 200, 100, 100, 200, 130, 120, 120, 120, 120, 120, 120, 120]
+  'AftershockInformation': [200, 200, 120, 120, 120, 120, 120, 200],
+  'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200],
+  'CasualtyReport': [200, 200, 100, 200, 120, 120, 120, 120, 120, 120, 200]
 }
 
 /** 监听 */
@@ -167,7 +167,6 @@ const getYaanCasualtiesList = async () => {
     flag: flag.value
   }).then(res => {
     tableData.value = res.data.records
-    console.log(res.data.records)
     total.value = res.data.total
   })
 
@@ -188,14 +187,13 @@ const formatMagnitude = (row, column, cellValue) => {
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
     const label = name.value[index];
-    // const width1 = width.value[index]
-    // console.log(width1)
-    console.log(label)
+    const width1 = width.value[index]
+    // console.log(label)
     return {
       prop: fieldName,
       label: label,
       align: "center",
-      // width: width1
+      width: width1
     };
   });
 };
@@ -213,7 +211,7 @@ const handleDeleteAll = () => {
         // 用户确认后直接删除数据
         deleteData({
           flag: flag.value,
-          requestParams: multipleSelection.value,
+          ids: multipleSelection.value,
         }).then(() => {
           ElMessage({
             type: 'success',
@@ -291,7 +289,7 @@ const generateData = _ => {
 }
 
 const getColumnWidth = (prop) => {
-  const specialColumns = ['地震名称', '地震时间', '统计截止时间'];
+  const specialColumns = ['地震名称', '地震时间', '填报截止时间'];
   if (specialColumns.includes(prop)) {
     return 250;
   }
