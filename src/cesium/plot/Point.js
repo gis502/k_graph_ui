@@ -106,7 +106,9 @@ export default class Point {
     points.forEach(data=>{
       dataSource.entities.add({
         id: data.plotid,
-        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+        plottype: data.plotType,
+        layer: "标绘点",
+        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
         billboard: {
           image: data.icon,
           width: 50,//图片宽度,单位px

@@ -30,7 +30,7 @@ let cesiumPlot= {
   },
 
   drawPoints(points){
-    // console.log("?",pointInfo)
+    console.log("?",points)
     this.point.drawPoints(points)
   },
 
