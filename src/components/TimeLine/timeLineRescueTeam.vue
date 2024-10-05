@@ -24,7 +24,7 @@
                 <span v-if="item.team">{{item.team}}</span>
                 <span v-if="item.personnum">{{item.personnum}}人 </span>
                 <span v-if="item.destination">前往{{item.destination}}</span>
-                <span v-if="!item.destination&&!item.describeThings">前往震区</span>
+                <span v-if="item.team && !item.destination&&!item.describeThings">前往震区</span>
                 <span v-if="item.describeThings">{{item.describeThings}}</span>
                 <div v-if="item.gotime || item.team || item.personnum || item.destination||item.describeThings" class="p-underline"></div>
               </p>
