@@ -54,7 +54,7 @@ const initChart = () => {
         show: true,
         textStyle: {
           color: '#fff',
-          fontSize: 16,
+          fontSize: 13,
         },
         interval: 0,
       },

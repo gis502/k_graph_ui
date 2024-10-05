@@ -9,22 +9,27 @@
         <span id="time">{{ nowTime }}</span>
       </div>
     </div>
+
+
     <div class="content">
       <div class="content-con">
         <div class="left-body">
+
+          <!--    最新地震-->
           <div class="left-top public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震</div>
               <new-info :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
-
+<!--          最新地震受灾人员统计-->
           <div class="left-con public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震受灾人员统计</div>
               <chart3 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
+<!--          最新地震余震情况统计(次)-->
           <div class="left-bottom public-bg">
             <dv-border-box7>
               <div class="public-title">最新地震余震情况统计(次)</div>
@@ -32,11 +37,14 @@
             </dv-border-box7>
           </div>
         </div>
+
+<!--        地图-->
         <div class="center-body">
           <e-map :eq-data="EqAll"/>
         </div>
 
         <div class="right-body">
+<!--          地震列表-->
           <div class="right-top public-bg">
             <dv-border-box7>
               <div class="public-title">
@@ -48,12 +56,14 @@
               <eq-table :eq-data="tableData"/>
             </dv-border-box7>
           </div>
+<!--          历史地震统计-->
           <div class="right-bottom public-bg">
             <dv-border-box7>
               <div class="public-title">历史地震统计(次)</div>
               <chart1 :eq-data="EqAll"/>
             </dv-border-box7>
           </div>
+
         </div>
       </div>
     </div>
@@ -316,7 +326,7 @@ onMounted(() => {
 
 .left-body .left-top {
   width: 100%;
-  height: 30%;
+  height: 26%;
 }
 
 .left-body .left-top .top-body {
@@ -364,13 +374,13 @@ onMounted(() => {
 
 .left-body .left-con {
   width: 100%;
-  height: 38%;
+  height: 30%;
   margin-top: 1.6%;
 }
 
 .left-body .left-bottom {
   width: 100%;
-  height: 32%;
+  height: 30%;
   margin-top: 1.6%;
 }
 
