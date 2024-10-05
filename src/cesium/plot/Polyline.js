@@ -213,7 +213,6 @@ export default class Polyline {
       pointPosArr:this.positions,
       plotid: this.initId
     })
-    console.log("干嘛？",data)
     this.drawEntity = this.viewer.entities.add({
       id: this.initId,
       polyline: {
@@ -275,6 +274,47 @@ export default class Polyline {
         data
       }
     })
+
+//     let startTime = Date.now();
+//     let duration = 10000;  // 动画持续时间为10秒
+//     let isBlurred = false;  // 初始状态是清晰的
+//
+// // 动态修改线的模糊和清晰状态
+//     let animation = () => {
+//       let currentTime = Date.now();
+//       let elapsedTime = currentTime - startTime;
+//
+//       // 计算动画进度（0到1之间）
+//       let progress = (elapsedTime % duration) / duration;
+//
+//       // 根据进度计算模糊程度
+//       if (progress < 0.5) {
+//         // 前5秒，线变模糊
+//         this.drawEntity.polyline.material = new Cesium.PolylineGlowMaterialProperty({
+//           glowPower: 0.5 * progress,  // 增加模糊程度
+//           color: Cesium.Color.WHITE.withAlpha(1.0 - progress)  // 逐渐变得透明
+//         });
+//         isBlurred = true;
+//       } else {
+//         // 后5秒，线变清晰
+//         this.drawEntity.polyline.material = new Cesium.PolylineGlowMaterialProperty({
+//           glowPower: 0.5 * (1 - progress),  // 减少模糊程度
+//           color: Cesium.Color.WHITE.withAlpha(progress)  // 逐渐恢复透明度
+//         });
+//         isBlurred = false;
+//       }
+//
+//       // 继续执行动画
+//       if (elapsedTime < duration) {
+//         requestAnimationFrame(animation);
+//       } else {
+//         // 动画结束，重置材质为初始状态（不变的材质）
+//         this.drawEntity.polyline.material = this.material;
+//       }
+//     };
+//
+// // 开始动画
+//     animation();
   }
 
   // 空间两点距离计算函数
@@ -315,22 +355,24 @@ export default class Polyline {
   getDrawPolyline(polylineArr,getmaterial) {
     // 1-1 根据线的drawid记录有多少条线
     let onlyDrawId = this.distinguishPolylineId(polylineArr)
+
     // 1-2根据drawid来画线
     onlyDrawId.forEach(onlyDrawIdItem => {
         // 1-3 把数据库同一drawid的点数据放入此数组
         let line = []
         polylineArr.forEach(polylineElement => {
-          if (polylineElement.plotid === onlyDrawIdItem) {
+          if (polylineElement.plotId === onlyDrawIdItem) {
             line.push(polylineElement)
           }
         })
         // 1-4 pointLinePoints用来存构成线的点实体
         let pointLinePoints = []
-        for (let i = 0; i < line.length; i++) {
+        for (let i = 0; i < line[0].geom.coordinates.length ; i++) {
+          let coords = line[0].geom.coordinates[i]
           let p = window.viewer.entities.add({
             show: false,
-            position: new Cesium.Cartesian3(line[i].longitude, line[i].latitude, line[i].height),
-            id: line[i].plotid + 'point' + (i + 1),
+            position: new Cesium.Cartesian3(coords[0], coords[1], line[0].elevation),
+            id: line[0].plotId + 'point' + (i + 1),
             point: {
               pixelSize: 0,
               color: Cesium.Color.RED,
@@ -345,12 +387,12 @@ export default class Polyline {
         }
         // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
         let positionsArr = []
-        line.forEach(e => {
+      line[0].geom.coordinates.forEach(e => {
+          console.log("e",e)
           // 线的positions需要数组里的点都是Cartesian3类型
-          positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e.longitude), parseFloat(e.latitude), parseFloat(e.height)))
+          positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
         })
-        let material = getmaterial(line[0].plottype,line[0].img)
-      console.log(line,8888)
+        let material = getmaterial(line[0].plotType,line[0].icon)
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,
@@ -374,8 +416,8 @@ export default class Polyline {
   distinguishPolylineId(polylineArr) {
     let PolylineIdArr = []
     polylineArr.forEach(element => {
-      if (!PolylineIdArr.includes(element.plotid)) {
-        PolylineIdArr.push(element.plotid)
+      if (!PolylineIdArr.includes(element.plotId)) {
+        PolylineIdArr.push(element.plotId)
       }
     })
     return PolylineIdArr

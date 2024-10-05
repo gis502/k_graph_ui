@@ -1,50 +1,60 @@
 <template>
   <div class="historyEqPanel">
-    <div class="panelEqInfo">
-      我将成为地震信息模块
+    <div class="panelTable">
+      <div class="text" style="display: flex;">
+        <div class="hidden button" @click="sendHidden()">—</div>
+        <span style="margin-left: 15px">统计表格</span>
+      </div>
+      <div class="table">
+        <el-table :data="copiedHistoryEqData" :height="180" :max-height="180" stripe
+                  :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
+          <el-table-column prop="occurrenceTime" label="发震时刻" width="100" align="left"></el-table-column>
+          <el-table-column prop="magnitude" label="震级" width="52" align="center"></el-table-column>
+          <el-table-column prop="depth" label="深度" width="52" align="center"></el-table-column>
+          <el-table-column prop="earthquakeName" label="参考位置" width="150" align="left"></el-table-column>
+          <el-table-column prop="distance" label="震中距" width="85" align="center"></el-table-column>
+        </el-table>
+      </div>
+    </div>
+
+
+    <div style="display: flex;width: calc(100% - 30vw)">
+      <div class="panelAssessment">
+        <span>灾害评估</span>
+        <div style="margin-top: 25px"><span>震中</span><span
+          style="font-size: 18px;color: #409eff">50</span><span>公里范围内</span></div>
+        <ul style="padding: 0 10px;" v-if="isNoHistoryEq === false">
+          <li style="display: flex;justify-content: space-between;font-size: 14px">4.5-5.9级地震：<span class="emphasis">{{ type1Eq }}次</span>
+          </li>
+          <li style="display: flex;justify-content: space-between;font-size: 14px">6.0级以上地震：<span class="emphasis">{{ type2Eq }}次</span>
+          </li>
+        </ul>
+        <span v-else>未发生过地震</span>
+      </div>
+
+      <div class="panelChart">
+        <span>历史地震(次)</span>
+        <div ref="chart" style="width: 350px;height: 160px;margin: 0 auto" v-if="isNoHistoryEq === false"></div>
+        <div v-else style="margin-top: 25px;color: #fff">无历史地震</div>
+      </div>
     </div>
 
     <div class="panelLegend">
       <span>图例</span>
-
-      <div style="margin-top: 30px">
-        <ul class="legend">
-          <li><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 15px;height: 15px;"></span><span style="font-size: 15px;margin-left: 5px">4.5-5.9级</span></li>
-          <li><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 20px;height: 20px;"></span><span style="font-size: 15px;margin-left: 5px">6.0级以上</span></li>
-          <li><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 25px;height: 25px;"></span><span style="font-size: 15px;margin-left: 5px">当前地震</span></li>
-        </ul>
-      </div>
-    </div>
-    <div class="panelAssessment">
-      <span>灾害评估</span>
-      <div style="margin-top: 25px"><span>震中</span><span style="font-size: 20px;color: #409eff">50</span><span>公里范围内</span></div>
-      <ul style="padding: 0 10px;" v-if="isNoHistoryEq === false">
-        <li style="display: flex;justify-content: space-between;font-size: 14px">4.5-5.9级地震：<span class="emphasis">{{type1Eq}}次</span></li>
-        <li style="display: flex;justify-content: space-between;font-size: 14px">6.0级以上地震：<span class="emphasis">{{type2Eq}}次</span></li>
-      </ul>
-      <span v-else>未发生过地震</span>
+      <div class="legend"><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 15px;height: 15px;"></span><span style="font-size: 15px;margin-left: 5px">4.5-5.9级</span></div>
+      <div class="legend"><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 20px;height: 20px;"></span><span style="font-size: 15px;margin-left: 5px">6.0级以上</span></div>
+      <div class="legend"><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 25px;height: 25px;"></span><span style="font-size: 15px;margin-left: 5px">当前地震</span></div>
     </div>
 
-    <div class="panelChart">
-      <span>历史地震(次)</span>
-      <div ref="chart" style="width: 280px;height: 230px;" v-if="isNoHistoryEq === false"></div>
-      <div v-else style="margin-top: 25px;color: #fff">无历史地震</div>
-    </div>
+  </div>
 
-    <div class="panelTable">
-      <div class="text" style="display: flex;justify-content: space-between;">
-        <span>统计表格</span>
-        <div class="hidden button" @click="sendHidden()">—</div>
-      </div>
-      <div class="table">
-        <el-table :data="copiedHistoryEqData" :height="180" :max-height="180" stripe :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
-          <el-table-column prop="time" label="发震时刻" width="150" align="center"></el-table-column>
-          <el-table-column prop="magnitude" label="震级" width="55" align="center"></el-table-column>
-          <el-table-column prop="depth" label="深度" width="55" align="center"></el-table-column>
-          <el-table-column prop="position" label="参考位置" width="210" align="left"></el-table-column>
-          <el-table-column prop="distance" label="震中距" align="center"></el-table-column>
-        </el-table>
-      </div>
+  <div class="panelEqInfo">
+    <span style="color: #409eff;font-size: 18px">{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</span>
+    <div style="padding: 1px 20px 10px 20px">
+      <p>发震时刻：{{ selectedTabData.time }}</p>
+      <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
+      <p>地震震级：{{ selectedTabData.magnitude }}</p>
+      <p>震源深度：{{ selectedTabData.depth }}千米</p>
     </div>
   </div>
 </template>
@@ -126,7 +136,7 @@ export default {
                 },
               },
               label: {
-                formatter: '{b}\n{c}次', // 正常状态下的显示
+                formatter: '{b}：{c}次', // 正常状态下的显示
               },
             },
           ],
@@ -168,13 +178,13 @@ export default {
 
       this.historyEqData.forEach(eq => {
         const magnitude = parseFloat(eq.magnitude);
-        if(magnitude >= 4.5 && magnitude < 6.0) {
+        if (magnitude >= 4.5 && magnitude < 6.0) {
           this.type1Eq += 1;
-        } else if(magnitude >= 6.0) {
+        } else if (magnitude >= 6.0) {
           this.type2Eq += 1;
         }
       });
-      if(this.type1Eq === 0 && this.type2Eq === 0) {
+      if (this.type1Eq === 0 && this.type2Eq === 0) {
         this.showNoData();
       }
 
@@ -192,8 +202,8 @@ export default {
 
     tableHeaderColor() {
       return {
-        'border-width':'1px',
-        'border-style':'solid',
+        'border-width': '1px',
+        'border-style': 'solid',
         'border-color': '#555555',
         'background-color': '#293038 !important',
         'color': '#fff',
@@ -205,8 +215,8 @@ export default {
     tableColor({row, column, rowIndex, columnIndex}) {
       if (rowIndex % 2 === 1) {
         return {
-          'border-width':'1px',
-          'border-style':'solid',
+          'border-width': '1px',
+          'border-style': 'solid',
           'border-color': '#555555',
           'background-color': '#313a44',
           'color': '#fff',
@@ -214,8 +224,8 @@ export default {
         }
       } else {
         return {
-          'border-width':'1px',
-          'border-style':'solid',
+          'border-width': '1px',
+          'border-style': 'solid',
           'border-color': '#555555',
           'background-color': '#304156',
           'color': '#fff',
@@ -230,43 +240,66 @@ export default {
 <style scoped>
 .historyEqPanel {
   height: 250px;
-  display: flex;
+  width: calc(100% - 333px);
   background-color: rgba(45, 61, 81, 0.8);
   z-index: 1;
 }
 
 .panelEqInfo {
+  position: absolute;
+  right: 0;
+  bottom: 0;
   width: 333px;
-  height: 100%;
+  height: 250px;
+  z-index: 2;
+  background-color: rgba(45, 61, 81, 0.8);
+  border-left: #000 2px solid;
 }
 
-.panelLegend {
-  width: 8%;
-}
 
 .legend {
+  display: flex;
+  margin-left: 60px;
   list-style-type: none;
   padding-left: 0;
 }
 
 .image {
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
   width: 25px;
   height: 25px;
 }
 
 .panelAssessment {
-  width: 12%;
+  float: left;
+  min-width: 200px;
+  height: 200px;
 }
 
 .panelChart {
-  width: 270px;
+  float: left;
+  width: calc(100% - 200px);
+  padding: 10px;
+  height: 200px;
+}
+
+.panelLegend {
+  float: right;
+  display: flex;
+  width: calc(100% - 30vw);
+  height: 100%;
+  padding: 10px;
+  border-top: #000 2px solid;
 }
 
 .panelTable {
-  width: calc(100% - 333px - 270px - 8% - 12%);
+  float: left;
+  width: 30vw
 }
 
-.panelEqInfo, .panelLegend, .panelAssessment, .panelChart, .panelTable {
+.panelAssessment, .panelTable, .panelEqInfo {
   padding: 10px;
   border-right: #000 2px solid;
 }
@@ -299,6 +332,7 @@ export default {
 
 span {
   color: #fff;
+  font-size: 14px;
 }
 
 li {
@@ -308,8 +342,13 @@ li {
   color: #fff;
 }
 
+p {
+  color: #fff;
+}
+
 ::v-deep .el-scrollbar__view {
   background-color: #2d3d51;
 }
+
 
 </style>

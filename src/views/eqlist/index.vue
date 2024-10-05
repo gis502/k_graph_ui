@@ -20,8 +20,8 @@
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="time" label="发震时间" width="200"></el-table-column>
-      <el-table-column prop="position" label="位置" width="300"></el-table-column>
+      <el-table-column prop="occurrenceTime" label="发震时间" width="200"></el-table-column>
+      <el-table-column prop="earthquakeName" label="位置" width="300"></el-table-column>
       <el-table-column prop="magnitude" label="震级"></el-table-column>
       <el-table-column prop="longitude" label="经度"></el-table-column>
       <el-table-column prop="latitude" label="纬度"></el-table-column>
@@ -48,7 +48,7 @@
       <el-row>
         <el-col :span="13">
           <el-form-item label="震发位置：">
-            <el-input v-model="dialogContent.position" placeholder="请输入内容"></el-input>
+            <el-input v-model="dialogContent.earthquakeName" placeholder="请输入内容"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -56,7 +56,7 @@
         <el-col :span="18">
           <el-form-item label="发震时间：">
             <el-date-picker
-                v-model="dialogContent.time"
+                v-model="dialogContent.occurrenceTime"
                 type="datetime"
                 placeholder="选择日期时间"
                 value-format="x"
@@ -106,11 +106,11 @@
     >
       <el-form :inline="true" :model="formValue">
         <el-form-item label="地震位置">
-          <el-input v-model="formValue.position" style="width: 23vw;" placeholder="地震位置" clearable/>
+          <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-              v-model="formValue.time"
+              v-model="formValue.occurrenceTime"
               type="daterange"
               unlink-panels
               range-separator="至"
@@ -122,14 +122,16 @@
           />
         </el-form-item>
         <el-form-item label="地震震级">
-          <el-input v-model="formValue.startMagnitude" style="width: 2.5vw;"/>
+          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endMagnitude" style="width: 2.5vw;"/>
+          <el-input v-model="formValue.endMagnitude" style="width: 5vw;"/>
+          <span style="margin: 0 10px">(里氏)</span>
         </el-form-item>
-        <el-form-item label="地震深度(千米)">
-          <el-input v-model="formValue.startDepth" style="width: 2.5vw"/>
+        <el-form-item label="地震深度">
+          <el-input v-model="formValue.startDepth" style="width: 5vw"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endDepth" style="width: 2.5vw"/>
+          <el-input v-model="formValue.endDepth" style="width: 5vw"/>
+          <span style="margin: 0 10px">(千米)</span>
         </el-form-item>
       </el-form>
 
@@ -157,8 +159,8 @@ export default {
       dialogShow: false,
       dialogTitle: null,
       dialogContent: {
-        position: '',
-        time: [],
+        earthquakeName: '',
+        occurrenceTime: [],
         magnitude: '',
         longitude: '',
         latitude: '',
@@ -170,8 +172,8 @@ export default {
       requestParams: '',
       queryFormVisible: false,
       formValue: {
-        position: '',
-        time: '',
+        earthquakeName: '',
+        occurrenceTime: '',
         startMagnitude: '',
         endMagnitude: '',
         startDepth: '',
@@ -223,19 +225,19 @@ export default {
   },
   methods: {
     onSubmit() {
-      const {position, time, startMagnitude, endMagnitude, startDepth, endDepth} = this.formValue;
+      const {earthquakeName, occurrenceTime, startMagnitude, endMagnitude, startDepth, endDepth} = this.formValue;
 
       // 如果时间范围选择为空，将其设为null
       let startTime = null;
       let endTime = null;
-      if (time && time.length === 2) {
-        startTime = new Date(time[0]).getTime();
-        endTime = new Date(time[1]).getTime();
+      if (occurrenceTime && occurrenceTime.length === 2) {
+        startTime = new Date(occurrenceTime[0]).getTime();
+        endTime = new Date(occurrenceTime[1]).getTime();
       }
 
       // 构建查询对象
       const queryParams = {
-        position: position || undefined,
+        earthquakeName: earthquakeName || undefined,
         startTime: startTime || undefined,
         endTime: endTime || undefined,
         startMagnitude: startMagnitude || undefined,
@@ -249,7 +251,7 @@ export default {
         // 处理返回的数据
         this.getEqData = res.map(item => ({
           ...item,
-          time: this.timestampToTime(item.time),
+          occurrenceTime: this.timestampToTime(item.occurrenceTime),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2)
@@ -257,7 +259,6 @@ export default {
         this.total = this.getEqData.length;
         this.tableData = this.getPageArr();
       });
-
       // 隐藏筛选表单
       this.queryFormVisible = false;
     },
@@ -291,7 +292,7 @@ export default {
         let data = []
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.time = that.timestampToTime(item.time)
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -302,10 +303,25 @@ export default {
     },
     // 删除单条地震
     handleDelete(row) {
-      let that = this
-      deleteeq({eqid: row.eqid}).then(res => {
-        that.getEq()
-      })
+      let that = this;
+      this.$confirm('确定要删除这条地震记录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteeq({eqid: row.eqid}).then(res => {
+          that.getEq();
+          that.$message({
+            type: 'success',
+            message: '删除成功'
+          });
+        });
+      }).catch(() => {
+        that.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
     // 点击新增或修改打开dialog对话框
     handleOpen(title, row) {
@@ -334,7 +350,7 @@ export default {
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
           ...item,
-          time: this.timestampToTime(item.time),
+          occurrenceTime: this.timestampToTime(item.occurrenceTime),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2)
@@ -359,15 +375,15 @@ export default {
       let that = this
       if (this.dialogTitle === "新增") {
         this.dialogContent.eqid = this.guid()
-        // console.log("this.dialogContent.time新增：",this.dialogContent.time)
+        // console.log("this.dialogContent.time新增：",this.dialogContent.occurrenceTime)
         addEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false
           this.clearDialogContent()
         })
       } else {
-        this.dialogContent.time = new Date(this.dialogContent.time).getTime();  // 将日期转换为时间戳
-        // console.log("this.dialogContent.time更新：",this.dialogContent.time)
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).getTime();  // 将日期转换为时间戳
+        // console.log("this.dialogContent.time更新：",this.dialogContent.occurrenceTime)
         updataEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false

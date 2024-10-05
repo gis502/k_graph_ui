@@ -1,130 +1,165 @@
 <template>
-  <div id="cesiumContainer" class="situation_cesiumContainer">
-<!--    <div v-if="this.FaultZonePopupVisible" :style="styleObject">{{this.FaultZonepopupData}}-->
-    <div v-if="this.FaultZonePopupVisible">111111111111111{{this.FaultZonepopupData}}
-    </div>
-    <!-- 左侧表单 -->
-    <div class="eqTable" v-show="isLeftShow">
+  <div>
+    <div id="cesiumContainer" class="situation_cesiumContainer">
+      <!--  小组件  -->
+      <!--    <div class="layers">-->
+      <!--      <div class="layer" title="雅安市行政区划" @click="toggleYaanLayer"><img src="../../../assets/images/DamageAssessment/yaanRegion.png"></div>-->
+      <!--    </div>-->
 
-      <div class="eqListContent" v-if="currentTab === '震害事件'">
-        <div style="display: flex">
-          <!-- 搜索框 -->
-          <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
-          </el-input>
-        </div>
-        <!-- 地震列表 -->
-        <div class="eqList">
-          <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
-            <!-- 圆圈震级 -->
-            <div style="width: 60px">
-              <div class="eqMagnitude"
-                   :style="{ backgroundColor: eq.magnitude >= 4.5 && eq.magnitude < 6.0 ? '#f0aa2e' : 'red' }">
-                {{ eq.magnitude }}
+      <!-- 左侧表单 -->
+      <div class="eqTable" v-show="isLeftShow">
+
+        <div class="eqListContent" v-if="currentTab === '震害事件'">
+          <div style="display: flex">
+            <!-- 搜索框 -->
+            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+            </el-input>
+          </div>
+          <!-- 地震列表 -->
+          <div class="eqList">
+            <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
+              <!-- 圆圈震级 -->
+              <div style="width: 55px">
+                <div class="eqMagnitude"
+                     :style="{ backgroundColor: eq.magnitude >= 4.5 && eq.magnitude < 6.0 ? '#f0aa2e' : 'red' }">
+                  {{ eq.magnitude }}
+                </div>
               </div>
-            </div>
 
-            <!-- 地震名称与简要信息 -->
-            <div class="eqText" style="width: 320px;">
+              <!-- 地震名称与简要信息 -->
+              <div class="eqText">
           <span
-            style="width: 320px;color: #409eff; font-size: 15px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;  ">
-            {{ timestampToTime(eq.time, 'date') }}{{ eq.position }}{{ eq.magnitude }}级地震
+            class="eqTitle">
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{ eq.magnitude }}级地震
           </span>
-              <br/>
-              <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
-            发震时刻：{{ eq.time }}<br/>
-            参考位置：{{ eq.position }}<br/>
+                <br/>
+                <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
+            发震时刻：{{ eq.occurrenceTime }}<br/>
+            参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
           </span>
-            </div>
+              </div>
 
-            <!-- 详情按钮 -->
-            <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
+              <!-- 详情按钮 -->
+              <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
+            </div>
+          </div>
+
+          <!-- 分页 -->
+          <div class="pagination">
+            <el-pagination
+              small
+              layout="total, prev, pager, next"
+              :total="filteredEqData.length"
+              :page-size="pageSize"
+              :current-page.sync="currentPage"
+              @current-change="handleCurrentChange"
+              style="margin: 0 20px"
+            />
           </div>
         </div>
 
-        <!-- 分页 -->
-        <div class="pagination">
-          <el-pagination
-            small
-            layout="total, prev, pager, next"
-            :total="filteredEqData.length"
-            :page-size="pageSize"
-            :current-page.sync="currentPage"
-            @current-change="handleCurrentChange"
-            style="margin: 0 20px"
-          />
+        <!--   指定地震   -->
+        <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
+          <div class="eqInfo">
+            <div style="height: 30px;display: flex;align-items: center">
+              <div class="button return" @click="back()">返回</div>
+            </div>
+            <div style="height: 10px;background-color: #054576"></div>
+            <el-divider content-position="left">
+              <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
+              地震信息
+            </el-divider>
+            <div style="padding: 1px 20px 10px 20px">
+              <!-- 显示选项卡内容 -->
+              <h4>地震名称：{{ selectedTabData.earthquakeName }} {{ selectedTabData.magnitude }}级地震</h4>
+              <p>发震时刻：{{ selectedTabData.occurrenceTime }}</p>
+              <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
+              <p>地震震级：{{ selectedTabData.magnitude }}</p>
+              <p>震源深度：{{ selectedTabData.depth }}千米</p>
+              <p>参考位置：{{ selectedTabData.earthquakeName }}</p>
+            </div>
+
+            <div style="height: 10px;background-color: #054576"></div>
+
+            <el-divider content-position="left"> 地震专题</el-divider>
+
+            <div class="eqTheme">
+              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
+                   @click="showHistoryEqPoints()"> 历史地震
+              </div>
+              <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"
+                   @click="showFaultZone()"> 断裂带
+              </div>
+              <div class="button themes circle" :class="{ active: isshowOvalCircle }"
+                   @click="showOvalCircle()"> 烈度圈
+              </div>
+              <div class="button themes region" :class="{ active: isshowRegion }"
+                   @click="toggleYaanLayer()"> 行政区划
+              </div>
+              <div class="button themes region" :class="{ active: isshowPersonalCasualty }"
+                   @click="showPersonalCasualty()"> 人员伤亡
+              </div>
+
+            </div>
+
+            <div style="height: 10px;background-color: #054576"></div>
+
+            <el-divider content-position="left"> 大屏展示</el-divider>
+
+            <div class="eqVisible">
+              <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
+                src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+              </div>
+            </div>
+
+          </div>
         </div>
+
+      </div>
+      <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
+           @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
+        <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
+             style="height: 60%;width: 60%;">
+      </div>
+      <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
+        <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
 
-      <!--   指定地震   -->
-      <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
-        <div class="eqInfo">
-          <div style="height: 30px;display: flex;align-items: center">
-            <div class="button return" @click="back()">返回</div>
-          </div>
-          <div style="height: 10px;background-color: #054576"></div>
-          <el-divider content-position="left">
-            <!--            <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 15px; width: 15px;">-->
-            地震信息
-          </el-divider>
-          <div style="padding: 1px 20px 10px 20px">
-            <!-- 显示选项卡内容 -->
-            <h4>地震名称：{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</h4>
-            <p>发震时刻：{{ selectedTabData.time }}</p>
-            <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
-            <p>地震震级：{{ selectedTabData.magnitude }}</p>
-            <p>震源深度：{{ selectedTabData.depth }}千米</p>
-            <p>参考位置：{{ selectedTabData.position }}</p>
-          </div>
-
-          <div style="height: 10px;background-color: #054576"></div>
-
-          <el-divider content-position="left"> 地震专题</el-divider>
-
-          <div class="eqTheme">
-            <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
-                 @click="showHistoryEqPoints(this.selectedTabData)"> 历史地震
-            </div>
-            <div class="button themes history" :class="{ active: isshowFaultZone }"
-                 @click=" showFaultZone(this.selectedTabData)"> 断裂带
-            </div>
-          </div>
-
-          <div style="height: 10px;background-color: #054576"></div>
-
-          <el-divider content-position="left"> 大屏展示</el-divider>
-
-          <div class="eqVisible">
-            <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
-              src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
-            </div>
-          </div>
-
-        </div>
+      <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
+      <div class="panel">
+        <historyEqPanel v-if="isHistoryEqPointsShow"
+                        :historyEqData="historyEqData"
+                        :selectedTabData="selectedTabData"
+                        @hidden="hidden"/>
       </div>
 
-    </div>
-    <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
-         @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
-      <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" v-if="isFoldUnfolding" style="height: 60%;width: 60%;">
-    </div>
-    <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
-      <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 60%;width: 60%;cursor: pointer">
+      <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
+           @click="isHistoryEqPointsShow=true, isShow=false">
+        展开专题详情
+      </div>
     </div>
 
-    <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
-    <div class="panel">
-      <historyEqPanel v-if="isHistoryEqPointsShow"
-                      :historyEqData="historyEqData"
-                      :selectedTabData="selectedTabData"
-                      @hidden="hidden"/>
+    <!--  断裂带名称div  -->
+    <div id="faultInfo" style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
+
+    <div class="PersonalCasualty" v-if="isshowPersonalCasualty">
+      <span>本次地震预估伤亡总数：</span>
+      <span>{{this.PersonalCasualtyNum}}</span>
+      <span>人</span>
+      <P>
+        <span>雅安市预估伤亡情况：</span> <span v-if="!this.yaancasual">无伤亡人员</span>
+      </P>
+      <div v-if="this.yaancasual"></div>
+      <div v-for="item in yaanitemcasual" :key="item.id" :label="item.name">
+          <p>    {{item.name}}:{{item.num}}人</p>
+      </div>
+
+
     </div>
 
-    <div class="button showPanel" v-if="!isHistoryEqPointsShow && isShow"
-         @click="isHistoryEqPointsShow=true, isShow=false">
-      展开专题详情
-    </div>
+
   </div>
 
 </template>
@@ -138,7 +173,11 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-// import fault_zone from "@/assets/geoJson/fault_zone.json";
+import yaan from "@/assets/geoJson/yaan.json";
+import {saveIntensityCircle,getPersonDes} from "@/api/system/damageassessment.js";
+import sichuan from "@/assets/geoJson/sichuan.json";
+import {addFaultZones, addHistoryEqPoints, addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+
 export default {
   components: {
     TimeLinePanel,
@@ -166,28 +205,29 @@ export default {
       isFoldUnfolding: false,
       isHistoryEqPointsShow: false,
       isShow: false,
-      //烈度圈
-      isshowFaultZone:false,
-      FaultZonePopupVisible: false,
-      FaultZonePopupPosition: { x: 0, y: 0 },
-      FaultZonepopupData: '', // 弹窗内容，传值给子组件
+      isshowFaultZone: false, //断裂带显示隐藏
+      faultzonelines: [], //断裂带线
+      isshowOvalCircle: false, //烈度圈显示隐藏
+      OvalCirclelayer: [],
 
+      isshowPersonalCasualty: false,
+      PersonalCasualtyNum: 0,
+      yaancasual:false,
+      yaanitemcasual:[],
 
       tabs: [],
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
 
       listEqPoints: [], // 列表地震点
       area: null,
-      // FaultZonelayer:null,
-      faultzonelines:[],
+      // layerVisible: true, // 图层可见性状态
+      isshowRegion:true,//行政区划
+      RegionLabels:[],
     };
   },
   mounted() {
     this.init();
     this.getEq();
-    // // 生成实体点击事件的handler
-    // this.entitiesClickPonpHandler()
-    // this.watchTerrainProviderChanged()
   },
 
   methods: {
@@ -197,7 +237,7 @@ export default {
         let resData = res.filter((item) => item.magnitude >= 4.5);
         let data = resData.map((item) => ({
           ...item,
-          time: this.timestampToTime(item.time, "full"),
+          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2),
@@ -206,7 +246,7 @@ export default {
         this.getEqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
-        console.log("data:", data)
+        // console.log("data:", data)
       });
     },
 
@@ -216,10 +256,13 @@ export default {
       viewer._cesiumWidget._creditContainer.style.display = "none";
       window.viewer = viewer;
       let options = {};
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
+      });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
           103.0,
           29.98,
-          1500,
+          500000,
           new Cesium.Cartographic()
       );
       options.enableCompass = true;
@@ -239,10 +282,50 @@ export default {
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
+      addYaanLayer()
+    },
+
+    toggleYaanLayer() {
+      // 切换图层显示与隐藏
+      let yaanRegionLayer = window.viewer.dataSources.getByName("YaanRegionLayer")[0];
+      if (yaanRegionLayer) {
+        this.isshowRegion = !this.isshowRegion;
+        yaanRegionLayer.show = this.isshowRegion; // 根据 isshowRegion 的值显示或隐藏图层
+        yaan.features.forEach((feature) => {
+          let center = feature.properties.center;
+
+          if (center && center.length === 2) {
+            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+            let regionlabel = viewer.entities.add(new Cesium.Entity({
+              position: position,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name,
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                pixelOffset: new Cesium.Cartesian2(0, 0)
+              })
+            }));
+            this.RegionLabels.push(regionlabel)
+          }
+        })
+      }
+      if(!this.isshowRegion){ //false
+        // this.RegionLabels
+        this.RegionLabels.forEach(entity => window.viewer.entities.remove(entity));
+        this.RegionLabels=[]
+      }
     },
 
     // 鼠标事件监听
     initMouseEvents() {
+      const faultInfoDiv = document.getElementById('faultInfo');
+
+      // 鼠标移动时设置指针样式
       window.viewer.screenSpaceEventHandler.setInputAction((movement) => {
         const pickedObject = window.viewer.scene.pick(movement.endPosition);
         if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
@@ -251,11 +334,47 @@ export default {
           document.body.style.cursor = 'default';
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+      // 鼠标点击事件
       window.viewer.screenSpaceEventHandler.setInputAction((click) => {
         const pickedObject = window.viewer.scene.pick(click.position);
-        if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
+
+        // 与断裂带名称div绑定
+        if (Cesium.defined(pickedObject) && pickedObject.id.polyline) {
+          // 获取断裂带的 name 属性
+          const faultName = pickedObject.id.properties.name._value;
+
+          // 获取点击位置的地理坐标 (Cartesian3)
+          const cartesian = viewer.scene.pickPosition(click.position);
+          if (!Cesium.defined(cartesian)) {
+            return;
+          }
+
+          // 将地理坐标 (Cartesian3) 转换为屏幕坐标 (二维)
+          const screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
+
+          // 显示 div 并将其定位到点击位置
+          faultInfoDiv.innerHTML = `${faultName}`;
+          faultInfoDiv.style.display = 'block';
+          faultInfoDiv.style.left = screenPosition.x + 'px';
+          faultInfoDiv.style.top = screenPosition.y + 'px';
+
+          // 监听地图变化，动态更新 div 的位置
+          window.viewer.scene.postRender.addEventListener(() => {
+            const updatedScreenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
+            if (updatedScreenPosition) {
+              faultInfoDiv.style.left = updatedScreenPosition.x + 'px';
+              faultInfoDiv.style.top = updatedScreenPosition.y + 'px';
+            }
+          });
+
+        }
+        // 判断点击的是不是地震点
+        else if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
           pickedObject.id.label._show._value = !pickedObject.id.label._show._value;
-        } else {
+        }
+        // 如果点击其他位置，隐藏所有地震点的标签，并关闭 faultInfoDiv
+        else {
           this.selectedEqPoint.label._show._value = false;
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
@@ -263,12 +382,16 @@ export default {
           this.historyEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
+          // 隐藏 faultInfoDiv
+          faultInfoDiv.style.display = 'none';
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
 
+
     // 地图渲染查询地震点(根据页码、根据搜索框)
     renderQueryEqPoints() {
+      this.isshowOvalCircle = false
       // 清空之前的点
       this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
       this.listEqPoints = []; // 重置 listEqPoints
@@ -279,10 +402,11 @@ export default {
           billboard: {
             image: eqMark,
             width: 20,
-            height: 20
+            height: 20,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
+            text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.position + eq.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -291,25 +415,109 @@ export default {
             show: false,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,  // 左侧对齐
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,   // 底部对齐
+            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           id: eq.eqid
         });
+        yaan.features.forEach((feature) => {
+          let center = feature.properties.center;
 
+          if (center && center.length === 2) {
+            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+            let regionlabel = viewer.entities.add(new Cesium.Entity({
+              position: position,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name,
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                pixelOffset: new Cesium.Cartesian2(0, 0)
+              })
+            }));
+            this.RegionLabels.push(regionlabel)
+          }
+        })
         this.listEqPoints.push(entity);  // 保存实体到 listEqPoints
       });
+    },
+
+    locateEq(eq) {
+      this.pickEqPoint(eq);
+      this.renderQueryEqPoints();
+
+      // 提取地震的经纬度
+      const longitude = parseFloat(eq.longitude);
+      const latitude = parseFloat(eq.latitude);
+
+      // 设置相机的飞行动作
+      window.viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 200000), // 目标位置
+        orientation: {
+          heading: Cesium.Math.toRadians(0.0), // 朝向 (0度)
+          pitch: Cesium.Math.toRadians(-90.0), // 俯仰角 (-45度)
+          roll: Cesium.Math.toRadians(0.0) // 翻滚角 (0度)
+        },
+      });
+    },
+
+    toTab(eq) {
+      this.currentTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
+      if (this.currentTab !== '震害事件') {
+
+        // 查找与选项卡名称匹配的地震数据
+        this.selectedTabData = this.getEqData.find(
+          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
+        );
+        // 如果找到对应数据，调用定位函数
+        if (this.selectedTabData) {
+          this.selectEqPoint();
+        }
+      }
+    },
+
+    // 分页数据更新
+    updatePagedEqData() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = this.currentPage * this.pageSize;
+      this.pagedEqData = this.filteredEqData.slice(start, end);
+      // console.log("pagedEqData:", this.pagedEqData)
+
+      // 清除之前的点并重新添加
+      viewer.entities.removeAll();
+      this.renderQueryEqPoints();
+    },
+
+    // 分页改变事件
+    handleCurrentChange(page) {
+      this.currentPage = page;
+      this.updatePagedEqData();
+    },
+
+    back() {
+      this.currentTab = '震害事件';
+      this.selectedTabData = null;
+      this.isshowPersonalCasualty = false;
+      this.PersonalCasualtyNum = 0;
+      this.yaancasual=false;
+      this.yaanitemcasual=[],
+      this.removeData()
     },
 
     // 模糊匹配地震时间、位置和震级
     filterEq() {
       if (this.title) {
         this.filteredEqData = this.getEqData.filter((eq) => {
-          const dateStr = this.timestampToTime(eq.time, 'date');
-          const positionStr = eq.position;
+          const dateStr = this.timestampToTime(eq.occurrenceTime, 'date');
+          const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-              dateStr.includes(this.title) ||
-              positionStr.includes(this.title) ||
-              magnitudeStr.includes(this.title)
+            dateStr.includes(this.title) ||
+            positionStr.includes(this.title) ||
+            magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -322,7 +530,7 @@ export default {
     pickEqPoint(eq) {
       this.listEqPoints.forEach(entity => {
         entity.label._show._value = entity._id === eq.eqid;
-        console.log(entity.label)
+        // console.log(entity.label)
       })
     },
 
@@ -346,10 +554,11 @@ export default {
             image: eqMark,
             width: 25,
             height: 25,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(this.selectedTabData.time, 'date') +
-                this.selectedTabData.position +
+            text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
+                this.selectedTabData.earthquakeName +
                 this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
@@ -358,165 +567,92 @@ export default {
             show: true, // 显示 label
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           id: this.selectedTabData.id
         });
 
         // 渲染 selectedEqPoint
-        console.log("Selected Eq Point:", this.selectedEqPoint);
+        // console.log("Selected Eq Point:", this.selectedEqPoint);
       } else {
         console.warn("No selectedTabData available");
       }
     },
 
-    locateEq(eq) {
-      this.pickEqPoint(eq);
-      this.renderQueryEqPoints();
-
-      // 提取地震的经纬度
-      const longitude = parseFloat(eq.longitude);
-      const latitude = parseFloat(eq.latitude);
-
-      // 设置相机的飞行动作
-      window.viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 200000), // 目标位置
-        orientation: {
-          heading: Cesium.Math.toRadians(0.0), // 朝向 (0度)
-          pitch: Cesium.Math.toRadians(-90.0), // 俯仰角 (-45度)
-          roll: Cesium.Math.toRadians(0.0) // 翻滚角 (0度)
-        },
-      });
+    removeData() {
+      this.historyEqPoints = [];
+      this.historyEqData = [];
+      this.removeEntitiesByType("historyEq")
+      this.removeEntitiesByType("faultZone")
+      this.removeEntitiesByType("ovalCircle")
+      this.isHistoryEqPointsShow = false;
+      this.isshowFaultZone = false;
+      this.isshowOvalCircle = false;
+      const faultInfoDiv = document.getElementById('faultInfo');
+      faultInfoDiv.style.display = 'none';
     },
 
-    toTab(eq) {
-      this.currentTab = `${eq.position} ${eq.magnitude}级地震`;
-      if (this.currentTab !== '震害事件') {
 
-        // 查找与选项卡名称匹配的地震数据
-        this.selectedTabData = this.getEqData.find(
-            eq => `${eq.position} ${eq.magnitude}级地震` === this.currentTab
-        );
-        // 如果找到对应数据，调用定位函数
-        if (this.selectedTabData) {
-          this.selectEqPoint();
-        }
-      }
-    },
-
-    back() {
-      this.currentTab = '震害事件';
-      this.selectedTabData = null;
-    },
-
-    // 分页数据更新
-    updatePagedEqData() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = this.currentPage * this.pageSize;
-      this.pagedEqData = this.filteredEqData.slice(start, end);
-      console.log("pagedEqData:", this.pagedEqData)
-
-      // 清除之前的点并重新添加
-      viewer.entities.removeAll();
-      this.renderQueryEqPoints();
-    },
-
-    // 分页改变事件
-    handleCurrentChange(page) {
-      this.currentPage = page;
-      this.updatePagedEqData();
-    },
 
     showHistoryEqPoints(thisEq) {
       this.isHistoryEqPointsShow = !this.isHistoryEqPointsShow; // 切换状态
 
       if (this.isHistoryEqPointsShow) {
 
-        if (this.area) {
-          window.viewer.entities.remove(this.area);
-          this.area = null;
-        }
+        addHistoryEqPoints(this.selectedTabData, this.getEqData);
 
-        // 添加圆圈
-        this.area = window.viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(Number(thisEq.longitude), Number(thisEq.latitude)),
-          ellipse: {
-            semiMinorAxis: 50000.0,
-            semiMajorAxis: 50000.0,
-            material: Cesium.Color.YELLOW.withAlpha(0.2),
-            outline: true,
-            outlineColor: Cesium.Color.RED,
-            outlineWidth: 2,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            fill: true,
-            clampToGround: true,
-            height: 0,
-            extrudedHeight: 0,
-            rotation: 0,
-          },
-        });
+        const semiMinorAxis = 50000.0;
+        const semiMajorAxis = 50000.0;
+        const center = Cesium.Cartesian3.fromDegrees(Number(this.selectedTabData.longitude), Number(this.selectedTabData.latitude));
 
-        this.historyEqPoints.forEach(point => window.viewer.entities.remove(point));
-        this.historyEqPoints = [];
-        this.historyEqData = []; // 清空之前的数据
-
-        const center = Cesium.Cartesian3.fromDegrees(Number(thisEq.longitude), Number(thisEq.latitude));
-
-        // 渲染在圆圈内的地震点，并存储原始数据
         this.getEqData.forEach((eq) => {
-          if (eq.eqid !== thisEq.eqid) {
+          if (eq.eqid !== this.selectedTabData.eqid) {
             const position = Cesium.Cartesian3.fromDegrees(Number(eq.longitude), Number(eq.latitude));
 
-            if (this.isPointInEllipse(position, center, 50000.0, 50000.0)) {
-              // 根据震级设置不同的图标大小
-              const size = parseFloat(eq.magnitude) >= 6.0 ? 20 : 15;
+            const distance = Cesium.Cartesian3.distance(position, center);
+            const radius = Math.max(semiMajorAxis, semiMinorAxis);
 
-              const point = window.viewer.entities.add({
-                position: position,
-                billboard: {
-                  image: eqMark,
-                  width: size,
-                  height: size,
-                },
-                label: {
-                  show: false,
-                  showBackground: true,
-                  text: this.timestampToTime(eq.time, 'date') + eq.position + eq.magnitude + '级地震',
-                  font: '16px sans-serif',
-                  fillColor: Cesium.Color.WHITE,
-                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                  horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
-                  verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                },
-              });
-
-              this.historyEqPoints.push(point);
-              this.historyEqData.push(eq);  // 存储原始数据
+            if (distance <= radius) {
+              this.historyEqData.push(eq);
             }
           }
         });
       } else {
-        if (this.area) {
-          window.viewer.entities.remove(this.area);
-          this.area = null;
-        }
-
-        this.historyEqPoints.forEach(point => window.viewer.entities.remove(point));
-        this.historyEqPoints = [];
-        this.historyEqData = []; // 清空数据
+        this.removeEntitiesByType("historyEq"); // 切换为隐藏时，移除历史地震
       }
     },
 
+    //断裂带(200km以内)-------------------------------------------------------
+    showFaultZone() {
+      this.isshowFaultZone = !this.isshowFaultZone;
+      if (this.isshowFaultZone) {
+        addFaultZones(this.selectedTabData)
+      } else {
+        this.removeEntitiesByType("faultZone")
+        const faultInfoDiv = document.getElementById('faultInfo');
+        faultInfoDiv.style.display = 'none';
+      }
+    },
 
-    // 判断点是否在椭圆内部的方法
-    isPointInEllipse(point, center, semiMinorAxis, semiMajorAxis) {
-      // 计算点到中心的距离
-      const distance = Cesium.Cartesian3.distance(point, center);
+    //烈度圈------------------------------------------------------------------
+    showOvalCircle() {
+      this.isshowOvalCircle = !this.isshowOvalCircle;
+      console.log(this.isshowOvalCircle)
+      if (this.isshowOvalCircle) {
+        addOvalCircles(this.selectedTabData)
+      } else {
+        this.removeEntitiesByType("ovalCircle")
+      }
+    },
 
-      // 半径取最大值
-      const radius = Math.max(semiMajorAxis, semiMinorAxis);
-
-      // 判断点是否在圆内
-      return distance <= radius;
+    //根据类型移除实体
+    removeEntitiesByType(type) {
+      let entities = window.viewer.entities.values;
+      for (let i = entities.length - 1; i >= 0; i--) {
+        if (entities[i].properties?.type?.getValue() === type) {
+          window.viewer.entities.remove(entities[i]);
+        }
+      }
     },
 
     // 跳转至指挥大屏
@@ -556,217 +692,35 @@ export default {
       }
     },
 
-    //断裂带--------------------------------------------------------------------------------------
-    //两条断裂带之间的距离
-    getLonAndLatDistance(lonAndlat) {
-      let [coordinate1, coordinate2] = lonAndlat;
-      let [lon1, lat1] = [
-        parseFloat(coordinate1[0]),
-        parseFloat(coordinate1[1]),
-      ];
-      let [lon2, lat2] = [
-        parseFloat(coordinate2[0]),
-        parseFloat(coordinate2[1]),
-      ];
-      let [radlat1, radlat2] = [
-        (lat1 * Math.PI) / 180.0,
-        (lat2 * Math.PI) / 180.0,
-      ];
-      let a = radlat1 - radlat2;
-      let b = (lon1 * Math.PI) / 180.0 - (lon2 * Math.PI) / 180.0;
-      let s =
-          2 *
-          Math.asin(
-              Math.sqrt(
-                  Math.pow(Math.sin(a / 2), 2) +
-                  Math.cos(radlat1) *
-                  Math.cos(radlat2) *
-                  Math.pow(Math.sin(b / 2), 2)
-              )
-          );
-      s = s * 6378.137;
-      return Math.round(s * 10000) / 10000;
-    },
-    //断裂带加载
-    showFaultZone() {
-      this.isshowFaultZone = !this.isshowFaultZone;
-      if (this.isshowFaultZone) {
-        // let lines = []
-        this.faultzonelines = []
-        fault_zone.forEach((item) => {
-          for (let i = 0; i < item.lonlat[0].length; i++) {
-            if (
-                this.getLonAndLatDistance([
-                  [this.selectedTabData.longitude, this.selectedTabData.latitude],
-                  item.lonlat[0][i],
-                ]) < 200
-            ) {
-              this.faultzonelines.push(item);
-              break;
-            }
+    //人员伤亡评估
+    showPersonalCasualty() {
+      this.isshowPersonalCasualty = !this.isshowPersonalCasualty
+      if (this.isshowPersonalCasualty) {
+        console.log(this.selectedTabData.eqid)
+        //获取震中人口密度
+        getPersonDes(this.selectedTabData.eqid).then(res => {
+          console.log("getPersonDes", res)
+          this.PersonalCasualtyNum = res.casualAll
+          // this.yaancasual=res.yaancasual
+          if(res.yaancasual=="无"){this.yaancasual=false}
+          else{
+            this.yaancasual=true
+            this.yaanitemcasual= [
+              { id:'0',name: "雨城区", num: res.雨城区},
+              { id:'1',name: "名山区", num: res.名山区},
+              { id:'2',name: "荥经县", num: res.荥经县},
+              { id:'3',name: "汉源县", num: res.汉源县},
+              { id:'4',name: "石棉县", num: res.石棉县},
+              { id:'5',name: "天全县", num: res.天全县},
+              { id:'6',name: "芦山县", num: res.芦山县},
+              { id:'7',name: "宝兴县", num: res.宝兴县},
+            ]
+            console.log(this.yaanitemcasual)
           }
-        })
 
-        console.log("faultzonelines", this.faultzonelines)
-
-        this.faultzonelines.forEach((item) => {
-          let positionsArr = [];
-          for (var i = 0; i + 1 < item.lonlat[0].length; i++) {
-            positionsArr.push(
-                parseFloat(item.lonlat[0][i][0]),
-                parseFloat(item.lonlat[0][i][1]),
-                0
-            );
-          }
-          // console.log("positionsArr",positionsArr)
-          window.viewer.entities.add({
-            id: item.line,
-            polyline: {
-              status: 1,
-              positions: Cesium.Cartesian3.fromDegreesArrayHeights(positionsArr),
-              width: 5,
-              material: Cesium.Color.RED,
-              depthFailMaterial: Cesium.Color.YELLOW,
-              clampToGround: true,
-            },
-            properties: {
-              name: item.name
-            },
-            layer: "断裂带"
-          })
         })
-      } else {
-        this.faultzonelines.forEach(item => {
-          const entity = viewer.entities.getById(item.line);
-          if (entity._layer === "断裂带") {
-            viewer.entities.removeById(item.line)
-          }
-        })
-        this.faultzonelines = []
       }
-    },
-    // 所有entity实体类型点击事件的handler
-    // 所有entity实体类型点击事件的handler（billboard、polyline、polygon）
-    // entitiesClickPonpHandler() {
-    //   let that = this
-    //   window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-    //     // 1-1 获取点击点的信息（包括）
-    //     let pickedEntity = window.viewer.scene.pick(click.position);
-    //     window.selectedEntity = pickedEntity?.id
-    //     console.log("window.selectedEntity pickedEntity",pickedEntity)
-    //     this.FaultZonePopupVisible = false;
-    //     if (Cesium.defined(pickedEntity)) {
-    //       console.log("window.selectedEntity pickedEntity111",pickedEntity)
-    //       let entity = window.selectedEntity;
-    //       if (entity._layer === "断裂带") {
-    //         console.log("window.selectedEntity entity",entity)
-    //         // 2-2 获取点击点的经纬度
-    //         let ray = viewer.camera.getPickRay(click.position)
-    //         let position = viewer.scene.globe.pick(ray, viewer.scene)
-    //         // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
-    //         let cartographic = Cesium.Cartographic.fromCartesian(position);
-    //         let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-    //         let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-    //
-    //         // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
-    //         let height = 0
-    //         that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
-    //         // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
-    //         if (this.isTerrainLoaded()) {
-    //           const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
-    //           let l = Cesium.Cartographic.fromCartesian(position)
-    //           let lon = Cesium.Math.toDegrees(l.longitude)
-    //           let lat = Cesium.Math.toDegrees(l.latitude)
-    //           let hei = l.height
-    //           let height
-    //           // 将笛卡尔坐标转换为地理坐标角度
-    //           let cartographic = Cesium.Cartographic.fromCartesian(position);
-    //           // 将地理坐标角度换为弧度
-    //           let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-    //           let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-    //           height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
-    //           // 将经纬度和高度生成新的笛卡尔坐标
-    //           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
-    //           // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
-    //         }
-    //
-    //         this.FaultZonePopupVisible = true; // 显示弹窗
-    //         // this.FaultZonePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-    //         this.updatePopupPosition(); // 更新弹窗的位置
-    //         this.FaultZonePopupData = "1111111111111";
-    //       }
-    //       else {
-    //         this.FaultZonePopupVisible = false; // 隐藏弹窗
-    //       }
-    //     }
-    //   }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
-    //
-    //   // 必须有这个，拖动地图弹窗位置才会跟着移动
-    //   window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-    //     if (that.FaultZonePopupVisible && window.selectedEntity) {
-    //       that.updatePopupPosition(); // 更新弹窗的位置
-    //     }
-    //   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    // },
-    // // 更新弹窗的位置
-    // updatePopupPosition() {
-    //   // 笛卡尔3转笛卡尔2（屏幕坐标）
-    //   const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, this.selectedEntityHighDiy)
-    //   if (canvasPosition) {
-    //     this.FaultZonePopupPosition = {
-    //       x: canvasPosition.x,//+ 20,
-    //       y: canvasPosition.y //- 60 // 假设弹窗应该在图标上方 50px 的位置
-    //     };
-    //   }
-    // },
-    //
-    // // 调整弹框位置
-    // styleObject() {
-    //   return {
-    //     FaultZonePopupPosition: "absolute",
-    //     left: `${this.FaultZonePopupPosition.x}px`,
-    //     top: `${this.FaultZonePopupPosition.y}px`
-    //   };
-    // },
-    // // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
-    // // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
-    // isTerrainLoaded() {
-    //   let terrainProvider = window.viewer.terrainProvider;
-    //   if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-    //     // console.log("地形未加载")
-    //     return false;
-    //   } else if (Cesium.defined(terrainProvider)) {
-    //     // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
-    //     // 则表示已经设置了其他地形提供者
-    //     // console.log("地形已加载")
-    //     return true;
-    //   }
-    //   // console.log("地形未加载")
-    //   return false;
-    // },
-    // watchTerrainProviderChanged() {
-    //   let that = this
-    //   window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-    //     this.popupVisible = false // 地形改变时关闭弹窗
-    //     let tzs = []
-    //     if (that.modelName === 1) {
-    //       tzs[0] = 9
-    //       tzs[1] = -567
-    //     } else {
-    //       tzs[0] = 15
-    //       tzs[1] = -557
-    //     }
-    //     if (that.isTerrainLoaded()) {
-    //       // that.changeHeight(tzs[0])
-    //       // that.tz = tzs[0]
-    //       // that.find()
-    //     } else {
-    //       // that.changeHeight(tzs[1])
-    //       // that.tz = tzs[1]
-    //       // that.find()
-    //     }
-    //   });
-    // },
+    }
 
   }
 };
@@ -784,8 +738,10 @@ export default {
 // 左侧地震面板
 .eqTable {
   position: absolute;
+  right: 0;
+  bottom: 0;
   width: 333px;
-  height: 100%;
+  height: calc(100% - 50px);
   z-index: 3;
   background-color: #2d3d51;
 }
@@ -825,7 +781,8 @@ export default {
 // 开关
 .fold {
   position: absolute;
-  left: 323px;
+  top: 50px;
+  right: 323px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -833,8 +790,8 @@ export default {
   width: 10px;
   height: 50px;
   background-color: #2d3d51;
-  -webkit-border-top-right-radius: 10px;
-  -webkit-border-bottom-right-radius: 10px;
+  -webkit-border-top-left-radius: 10px;
+  -webkit-border-bottom-left-radius: 10px;
   cursor: pointer;
   z-index: 4;
   transition: width 0.3s ease; /* 宽度过渡动画 */
@@ -842,11 +799,14 @@ export default {
 
 .unfold {
   position: absolute;
+  top: 50px;
+  right: 0;
   width: 30px;
   height: 40px;
   background-color: rgba(48, 65, 86, 0.5);
   cursor: pointer;
   z-index: 2;
+  margin: 0;
 }
 
 // 搜索框
@@ -877,19 +837,42 @@ export default {
 // 圆圈震级
 .eqMagnitude {
   display: flex;
-  height: 40px;
-  width: 40px;
+  height: 35px;
+  width: 35px;
   margin: 10px;
   border-radius: 50%;
   justify-content: center;
   align-items: center;
   color: #fff;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 // 地震简要文本信息
 .eqText {
   padding-top: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.eqTitle {
+  display: inline-block;
+  max-width: 260px;
+  position: relative;
+  transform: translateX(0);
+  will-change: transform;
+  color: #409eff;
+  font-size: 15px;
+}
+
+.eqText .eqTitle:hover {
+  transform: translateX(-50%);
+  transition: transform 5.0s ease;
+}
+
+.eqText .eqTitle {
+  transition: none;
 }
 
 // 详情按钮
@@ -920,6 +903,7 @@ export default {
   bottom: 0;
   width: 327px;
   background-color: #2d3d51;
+  border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
 ::v-deep .pagination .el-pagination__total {
@@ -942,7 +926,9 @@ export default {
   border: #fff 1px solid;
   border-radius: 8px;
   font-size: 12px;
+  margin-left: auto; /* 使按钮靠右 */
 }
+
 .return:hover {
   border-color: #409eff;
   color: #409eff;
@@ -951,14 +937,18 @@ export default {
 
 .eqTheme {
   height: 150px;
-  padding: 0 30px;
+  padding-left: 30px;
+  margin: 0 auto;
+  clear: both;
 }
 
 .themes {
-  margin-top: 20px;
-  font-size: 18px;
-  height: 50px;
-  width: 100px;
+  float: left;
+  position: relative;
+  margin: 5px 15px 15px 0;
+  font-size: 15px;
+  height: 34%;
+  width: 28%;
   border: #fff 1px solid;
   cursor: pointer;
 }
@@ -1009,7 +999,7 @@ export default {
 
 .showPanel {
   position: absolute;
-  right: 10px;
+  left: 10px;
   bottom: 0;
   width: 120px;
   height: 40px;
@@ -1062,5 +1052,65 @@ p {
 
 span {
   color: #fff;
+}
+
+
+.layers {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 4;
+}
+
+.layer {
+  width: 25px;
+  height: 25px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+::v-deep .el-scrollbar {
+  background-color: #2d3d51;
+}
+
+::v-deep .el-table__header-wrapper {
+  background-color: #2d3d51;
+}
+
+::v-deep .el-table__inner-wrapper::before {
+  display: none;
+}
+
+:deep(.cesium-baseLayerPicker-dropDown-visible) {
+  z-index: 100 !important;
+  background-color: #2b323a;
+}
+
+:deep(.cesium-baseLayerPicker-dropDown) {
+  right: -5px !important;
+}
+::v-deep .compass {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+::v-deep .navigation-controls {
+  position: absolute;
+  top: 120px;
+  left: 53px;
+}
+
+.PersonalCasualty{
+  position:absolute;
+  z-index:20;
+  background-color:#2b323a;
+  width:17%;
+  height: 50%;
+  top:7.5%;
+  right:22%;
 }
 </style>

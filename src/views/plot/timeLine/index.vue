@@ -13,24 +13,24 @@
         </template>
       </el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
-      <el-table-column prop="position" label="位置" width="300" align="center"></el-table-column>
+      <el-table-column prop="earthquakeName" label="位置" width="300" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
       <el-table-column prop="longitude" label="经度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="depth" label="深度" header-align="center" align="center"></el-table-column>
     </el-table>
 
-      <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="pageSizes"
-          :page-size="pageSize"
-          style="display: flex; justify-content: center; margin-top: 20px;"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-      >
-      </el-pagination>
+    <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        style="display: flex; justify-content: center; margin-top: 20px;"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+    >
+    </el-pagination>
 
 
   </div>
@@ -74,13 +74,14 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+        console.log("-----------------",res[7])
         let resData = res.filter(item=>item.magnitude>=5)
         that.getEqData = resData
         that.total = resData.length
         let data = []
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.time = that.timestampToTime(item.time)
+          item.time = that.timestampToTime(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -147,8 +148,7 @@ export default {
           'background-color': 'rgba(65,159,255,0.19)',
           'border-color': '#f8f8f9',
         }
-      }
-      else{
+      } else {
         return {
           'background-color': 'rgb(255,255,255)',
           'border-color': '#f8f8f9',
