@@ -12,31 +12,31 @@ export function getPloy(query) {
 // 新增标绘图片
 export function addPlotIcon(data) {
   return request({
-    url: '/system/ploy/addploticon',
+    url: '/system/ploticon/addploticon',
     method: 'post',
     data: data
   })
 }
 // 删除单个标绘图片
-export function deletePlotIcon(query) {
+export function deletePlotIcon(uuid) {
   return request({
-    url: '/system/ploy/deleteploticon',
-    method: 'get',
-    params: query
+    url: `/system/ploticon/deleteploticon/${uuid}`,
+    method: 'post',
   })
 }
 // 新增标绘图片
 export function updataPlotIcon(data) {
   return request({
-    url: '/system/ploy/updataploticon',
+    url: '/system/ploticon/updataploticon',
     method: 'post',
     data: data
   })
 }
+
 // 查询全部标绘图片
 export function getPlotIcon(query) {
   return request({
-    url: '/system/ploy/getploticon',
+    url: '/system/ploticon/getploticon',
     method: 'post',
   })
 }
@@ -44,7 +44,7 @@ export function getPlotIcon(query) {
 // 查询全部标绘图片
 export function searchploticon(menuName) {
   return request({
-    url: '/system/ploy/searchploticon',
+    url: '/system/ploticon/searchploticon',
     method: 'post',
     params: { menuName }
   })

@@ -13,14 +13,14 @@
             </template>
           </el-table-column>
           <el-table-column prop="time" label="发震时间" width="160"/>
-          <el-table-column prop="position" label="位置">
+          <el-table-column prop="earthquakeName" label="位置">
             <template #default="scope">
-              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.position.length>=10">
-                <div>{{ scope.row.position }}</div>
+              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
+                <div>{{ scope.row.earthquakeName }}</div>
                 <template #reference>
                   <div>
                     <span class="posInfo">
-                      {{ scope.row.position }}
+                      {{ scope.row.earthquakeName }}
                     </span>
                   </div>
                 </template>
@@ -244,7 +244,7 @@ export default {
       // 震中点数据结构
       centerPoint: {
         plotid: 'center',
-        position: '',
+        earthquakeName: '',
         // time:'',
         starttime: '',
         endtime: '',
@@ -332,40 +332,33 @@ export default {
         let points = []
         pointArr.forEach(item => {
           let point = {
-            eqid: item.eqid,
-            plotid: item.plotid,
-            time: item.time,
-            plottype: item.plottype,
+            earthquakeId: item.earthquakeId,
+            plotid: item.plotId,
+            time: item.creationTime.replace("T"," "),
+            plotType: item.plotType,
             drawtype: item.drawtype,
             latitude: item.latitude,
             longitude: item.longitude,
-            height: item.height,
-            img: item.img,
+            height: item.elevation,
+            icon: item.icon,
           }
           points.push(point)
         })
         that.drawPoints(points)
-        console.log(window.viewer.dataSources)
         let polylineArr = data.filter(e => e.drawtype === 'polyline')
         cesiumPlot.getDrawPolyline(polylineArr)
         // 处理多边形数据
         let polygonArr = data.filter(e => e.drawtype === 'polygon');
-        // console.log('index.polygonArr', polygonArr)
         let polygonMap = {};
         polygonArr.forEach(item => {
-          if (!polygonMap[item.plotid]) {
-            polygonMap[item.plotid] = [];
+          if (!polygonMap[item.plotId]) {
+            polygonMap[item.plotId] = [];
           }
-          polygonMap[item.plotid].push(item);
+          polygonMap[item.plotId].push(item);
         });
-        Object.keys(polygonMap).forEach(plotid => {
-          let polygonData = polygonMap[plotid];
-          if (polygonData.length === 4) { // 确保有四个点
-            that.getDrawPolygonInfo(polygonData);
-            // console.log("数据库数据",polygonData)
-          } else {
-            console.warn(`多边形 ${plotid} 数据点数量不正确`);
-          }
+        Object.keys(polygonMap).forEach(plotId => {
+          let polygonData = polygonMap[plotId];
+          that.getDrawPolygonInfo(polygonData);
         });
         // that.entityclustering()
       })
@@ -385,19 +378,14 @@ export default {
         let polygonMap = {};
 
         polygonArr.forEach(item => {
-          if (!polygonMap[item.plotid]) {
-            polygonMap[item.plotid] = [];
+          if (!polygonMap[item.plotId]) {
+            polygonMap[item.plotId] = [];
           }
-          polygonMap[item.plotid].push(item);
+          polygonMap[item.plotId].push(item);
         });
-        Object.keys(polygonMap).forEach(plotid => {
-          let polygonData = polygonMap[plotid];
-          if (polygonData.length === 4) { // 确保有四个点
-            that.getDrawPolygonInfo(polygonData);
-            // console.log("数据库数据",polygonData)
-          } else {
-            console.warn(`多边形 ${plotid} 数据点数量不正确`);
-          }
+        Object.keys(polygonMap).forEach(plotId => {
+          let polygonData = polygonMap[plotId];
+          that.getDrawPolygonInfo(polygonData);
         });
       })
     },
@@ -418,7 +406,7 @@ export default {
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
-          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换data为弧度
           let cartographic = Cesium.Cartographic.fromCartesian(position);
           let latitude = Cesium.Math.toDegrees(cartographic.latitude);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude);
@@ -581,7 +569,7 @@ export default {
       let that = this
       getPlotIcon().then(res => {
         // console.log(res)
-        that.plotPicture = res
+        that.plotPicture = res.data
         // 设置plotTree初始样式
         // that.plotTreeClassification = res.filter(item=>item.type==="I类（次生地质灾害）")
       })
@@ -594,7 +582,7 @@ export default {
       this.eqid = row.eqid
       this.websock.eqid = this.eqid
       this.initPlot(row.eqid)
-      this.title = row.time + row.position + row.magnitude
+      this.title = row.occurrenceTime + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
         orientation: {
@@ -615,7 +603,7 @@ export default {
         let data = []
         for (let i = 0; i < resData.length; i++) {
           let item = resData[i]
-          item.time = that.timestampToTime(resData[i].time)
+          item.time = resData[i].occurrenceTime.replace("T"," ")
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -625,7 +613,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].time + that.tableData[0].position + that.tableData[0].magnitude
+        that.title = that.tableData[0].occurrenceTime.replace("T"," ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -648,13 +636,13 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-        getEqById({eqid: eqid}).then(res => {
+        getEqById({id: eqid}).then(res => {
         //震中标绘点
-
+          console.log("res",res)
         this.centerPoint = res
         this.centerPoint.plotid = "center"
-        this.centerPoint.starttime = new Date(res.time)
-        this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
+        this.centerPoint.starttime = new Date(res.occurrenceTime)
+        this.centerPoint.endtime = new Date(res.occurrenceTime + (7 * 24 * 60 * 60 * 1000 + 1000));
 
         //变量初始化
         this.eqstartTime = this.centerPoint.starttime
@@ -676,7 +664,7 @@ export default {
         // properties: {
         //   type: "震中",
         //   time: this.centerPoint.time,
-        //   name: this.centerPoint.position,
+        //   name: this.centerPoint.earthquakeName,
         //   lat: this.centerPoint.latitude,
         //   lon: this.centerPoint.longitude,
         //   describe: this.centerPoint.position,
@@ -695,7 +683,7 @@ export default {
           disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
         },
         label: {
-          text: this.centerPoint.position + parseFloat(this.centerPoint.magnitude).toFixed(1) + "级",
+          text: this.centerPoint.earthquakeName + parseFloat(this.centerPoint.magnitude).toFixed(1) + "级",
           show: true,
           font: '20px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
@@ -1037,7 +1025,6 @@ export default {
     },
     //获取数据库数据绘制面
     getDrawPolygonInfo(info) {
-      // console.log(info, "面")
       cesiumPlot.getDrawPolygon(info)
     },
     resetPolygon() {
