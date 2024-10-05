@@ -8,7 +8,7 @@ export const CesiumIonDefaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 export const TianDiTuToken = 'e64cb3f2a11eff8a366abdd692a776bf'
 
 // export const TianDiTuToken = '0b583bb1e5e6d2a461535ef92d3c23b0'
-export const TianDiTuToken = 'a1418113598cd03e04912204871d9459'
+// export const TianDiTuToken = 'a1418113598cd03e04912204871d9459'
 // export const TianDiTuToken = '628bc0823005489e4b9a2acebb04c950'
 // export const TianDiTuToken = '88055d3d7f13f8f7e6e8eeb67cf6d78a'
 

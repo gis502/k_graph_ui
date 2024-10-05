@@ -46,7 +46,7 @@ const initChart = () => {
         },
         interval: 0,
       },
-      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级', '6级及以上']
+      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级', '6.0级及以上']
     },
     yAxis: {
       type: 'value',
@@ -88,8 +88,6 @@ const initChart = () => {
 
 // 更新图表数据
 const updateChart = (data) => {
-  console.log("111111")
-  console.log(data)
   if (myChart) {
     myChart.setOption({
       series: [
@@ -118,10 +116,12 @@ watch(() => props.lastEq, () => {
   if (props.lastEq) {
     getAftershockMagnitude(props.lastEq.eqid).then((res) => {
       updateChart(res);  // 更新图表数据
-      updateTime.value = res.system_insert_time.replace('T', ' ')
+      if (!res.submissionDeadline){
+        updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
+      }else{
+        updateTime.value = res.submissionDeadline.replace('T', ' ')
+      }
     });
-  }else {
-    updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
   }
 });
 

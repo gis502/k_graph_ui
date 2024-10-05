@@ -127,9 +127,9 @@ const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 const width = ref([])
 const widthList = {
-  'AftershockInformation': [200, 200, 120, 120, 120, 120, 120, 200],
-  'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200],
-  'CasualtyReport': [200, 200, 100, 200, 120, 120, 120, 120, 120, 120, 200]
+  'AftershockInformation': [200, 200, 120, 120, 200, 120, 120, 120,120,120],
+  'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200,200],
+  'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120,200]
 }
 
 /** 监听 */

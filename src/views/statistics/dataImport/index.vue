@@ -416,6 +416,7 @@ export default {
         "username":this.name
       }).then((res) => {
         this.tableData = res.data
+        console.log(res.data)
         this.total = res.data.length
         this.addCount = res.data.reduce((total, log) => {
           const data = JSON.parse(log.jsonResult);
