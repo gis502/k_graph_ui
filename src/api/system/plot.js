@@ -12,47 +12,43 @@ export function getPloy(query) {
 // 新增标绘图片
 export function addPlotIcon(data) {
   return request({
-    url: '/system/ploy/addploticon',
+    url: '/system/ploticon/addploticon',
     method: 'post',
     data: data
   })
 }
 // 删除单个标绘图片
-export function deletePlotIcon(query) {
+export function deletePlotIcon(uuid) {
   return request({
-    url: '/system/ploy/deleteploticon',
+    url: `/system/ploticon/deleteploticon/${uuid}`,
     method: 'post',
-    params: query
   })
 }
 // 新增标绘图片
 export function updataPlotIcon(data) {
   return request({
-    url: '/system/ploy/updataploticon',
+    url: '/system/ploticon/updataploticon',
     method: 'post',
     data: data
   })
 }
+
 // 查询全部标绘图片
 export function getPlotIcon(query) {
   return request({
-    url: '/system/ploy/getploticon',
+    url: '/system/ploticon/getploticon',
     method: 'post',
   })
 }
 
-// 查询当前页的标绘图片
-export function getPagePlotIcon(currentPage,pageSize) {
+// 查询全部标绘图片
+export function searchploticon(menuName) {
   return request({
-    url: '/system/ploy/getpageploticon',
-    method: 'get',
-    params: {
-      currentPage,
-      pageSize
-    }
+    url: '/system/ploticon/searchploticon',
+    method: 'post',
+    params: { menuName }
   })
 }
-
 //-------------------------------------------------------------
 export function insertPlotAndInfo(data){
   return request({
@@ -118,16 +114,6 @@ export function updataPlotInfo(data){
   })
 }
 
-export function getLastPlotInfoofCurrentTime(plotid, currentTime){
-  return request({
-    url: '/system/ploy/getLastPlotInfoofCurrentTime' ,
-    method: 'post',
-    params: {
-      plotid: plotid,
-      currentTime: currentTime
-    }
-  })
-}
 
 export function getPlotwithStartandEndTime(data){
   return request({

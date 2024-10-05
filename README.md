@@ -1,8 +1,8 @@
 ## 雅安项目前端
 ### 开发过程中的遇到问题
-> cesium1.89版本直接安装无法正常使用
+> cesium直接安装无法正常使用
 
-首先使用`npm i cesium@1.99 vite-plugin-cesium`命令，再将`package.json`中的cesium版本改到1.89（多安装了`vite-plugin-cesium`插件）。
+首先使用`npm i cesium@1.105 vite-plugin-cesium`命令，再将`package.json`中的cesium版本改到1.105（多安装了`vite-plugin-cesium`插件）。
 安装过后在vite.config.js中找到`plugins`属性对值（指向`plugins\index.js`），在文件中添加对应的cesium插件。
 
 > 开发完组件，在页面中切换菜单中页面时显示空白页面
@@ -14,9 +14,9 @@
   <div>
     ....
   </div>
-<!--  <div>-->
-<!--    ...-->
-<!--  </div>-->
+  <div>
+    ....
+  </div>
 </template>>
 ```
 可以修改成下面这种，再套一个div，或者直接把注释删除。
@@ -34,7 +34,7 @@
 ```
 参考链接 `https://gitee.com/y_project/RuoYi-Vue/issues/I5F40M` `淞哥五分钟解决一个bug`
 
-> 访问倾斜模型，因url中+号导致无法获取正常数据
+> 访问倾斜模型，因url中+号导致无法获取正常数据,把URI.js中的所有的+号替换成%2B
 
 修改node_modules/urijs/src/URI.js中
 ```javascript

@@ -1,78 +1,78 @@
 <template>
-    <div class="app-container">
-      <el-form-item label="应急物资存储" >
-        <el-input
-            v-model="queryParams"
-            placeholder="请输入物资存储信息"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-        />
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-        <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
-      </el-form-item>
+  <div class="app-container">
+    <el-form-item label="应急避难场所" >
+      <el-input
+          v-model="queryParams"
+          placeholder="请输入避难场所信息"
+          clearable
+          style="width: 200px"
+          @keyup.enter="handleQuery"
+      />
+      <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+      <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+      <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+    </el-form-item>
 
-        <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-            <el-table-column label="序号" width="60" fixed="left">
-                <template #default="{ row, column, $index }">
-                    {{ ($index + 1) + (currentPage - 1) * pageSize }}
-                </template>
-            </el-table-column>
+    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+      <el-table-column label="序号" width="60" fixed="left">
+        <template #default="{ row, column, $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
 
-          <!-- 遍历每个表头，创建表格列 -->
-          <el-table-column
-              v-for="(header, index) in headersArr"
-              :key="index"
-              :prop="header.prop"
-              :label="header.label"
-              :width="header.width"
-              show-overflow-tooltip
-          >
-            <!-- 为表格单元格内容定义默认模板 -->
-            <template #default="scope">
-              <!-- 对特定表头，使用Popover显示完整信息 -->
-              <div v-if="header.label === '地址'">
-                <el-popover placement="top" :width="200" trigger="hover">
-                  <div style="text-align: left">{{ scope.row[header.prop] }}</div>
-                  <!-- 定义触发Popover显示的参考元素 -->
-                  <template #reference>
-                    <div
-                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"
-                    >
-                      <!-- 在参考元素内显示截断的字段值 -->
-                      <span class="myNote" style="text-align: left">
-                                             {{ scope.row[header.prop] }}
-                                         </span>
-                    </div>
-                  </template>
-                </el-popover>
-              </div>
-              <!-- 对其他表头，直接显示字段值 -->
-              <div v-else>
-                {{ scope.row[header.prop] }}
-              </div>
-            </template>
-          </el-table-column>
+      <!-- 遍历每个表头，创建表格列 -->
+      <el-table-column
+          v-for="(header, index) in headersArr"
+          :key="index"
+          :prop="header.prop"
+          :label="header.label"
+          :width="header.width"
+          show-overflow-tooltip
+      >
+        <!-- 为表格单元格内容定义默认模板 -->
+        <!--            <template #default="scope">-->
+        <!--              &lt;!&ndash; 对特定表头，使用Popover显示完整信息 &ndash;&gt;-->
+        <!--              <div v-if="header.label === '地址'">-->
+        <!--                <el-popover placement="top" :width="200" trigger="hover">-->
+        <!--                  <div style="text-align: left">{{ scope.row[header.prop] }}</div>-->
+        <!--                  &lt;!&ndash; 定义触发Popover显示的参考元素 &ndash;&gt;-->
+        <!--                  <template #reference>-->
+        <!--                    <div-->
+        <!--                        :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"-->
+        <!--                    >-->
+        <!--                      &lt;!&ndash; 在参考元素内显示截断的字段值 &ndash;&gt;-->
+        <!--                      <span class="myNote" style="text-align: left">-->
+        <!--                                             {{ scope.row[header.prop] }}-->
+        <!--                                         </span>-->
+        <!--                    </div>-->
+        <!--                  </template>-->
+        <!--                </el-popover>-->
+        <!--              </div>-->
+        <!--              &lt;!&ndash; 对其他表头，直接显示字段值 &ndash;&gt;-->
+        <!--              <div v-else>-->
+        <!--                {{ scope.row[header.prop] }}-->
+        <!--              </div>-->
+        <!--            </template>-->
+      </el-table-column>
 
-            <el-table-column label="操作" align="center" width="150" fixed="right">
-                <template #default="scope">
-                    <el-button type="text" icon="Edit" @click="handleOpen('修改',scope.row)">修改</el-button>
-                    <el-button type="text" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <el-pagination
-                style="justify-content: center"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-sizes="pageSizes"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-        </el-pagination>
-    </div>
+      <el-table-column label="操作" align="center" width="150" fixed="right">
+        <template #default="scope">
+          <el-button type="text" icon="Edit" @click="handleOpen('修改',scope.row)">修改</el-button>
+          <el-button type="text" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+        style="justify-content: center"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+    </el-pagination>
+  </div>
 </template>
 
 <script>
@@ -101,7 +101,6 @@ export default {
         { prop: 'address', label: '地址', width: 450 },
         { prop: 'emergencyMobile', label: '应急手机', width: 150 },
         { prop: 'affiliatedOrganization', label: '隶属组织', width: 140 },
-        { prop: 'startUsingDate', label: '启用日期', width: 180 },
         { prop: 'designUsageYears', label: '设计使用年限', width: 120 },
         { prop: 'dataSourceUnit', label: '数据来源单位', width: 180 },
         { prop: 'longitude', label: '经度', width: 120 },
@@ -109,9 +108,10 @@ export default {
         { prop: 'emergencyPhone', label: '应急电话', width: 120 },
         { prop: 'placeType', label: '地点类型', width: 120 },
         { prop: 'levelName', label: '级别名称', width: 120 },
-        { prop: 'secrecyLevel', label: '保密级别', width: 120 },
+        { prop: 'secretLevel', label: '保密级别', width: 120 },
         { prop: 'basicInformation', label: '基本信息', width: 150 },
         { prop: 'seismicIntensity', label: '地震烈度', width: 150 },
+        { prop: 'shelterTypeName', label: '场所类型名称', width: 150 },
         { prop: 'remarks', label: '备注', width: 300 },
       ],
       // 查询功能

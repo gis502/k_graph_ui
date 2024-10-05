@@ -2,7 +2,6 @@
   <div>
     <div class="eqtitle">
       <span class="eqtitle-text_eqname">{{ this.title }}级地震</span>
-      <el-button type="primary" @click="drawStraightArrow">直线箭头</el-button>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
@@ -14,14 +13,14 @@
             </template>
           </el-table-column>
           <el-table-column prop="time" label="发震时间" width="160"/>
-          <el-table-column prop="position" label="位置">
+          <el-table-column prop="earthquakeName" label="位置">
             <template #default="scope">
-              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.position.length>=10">
-                <div>{{ scope.row.position }}</div>
+              <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
+                <div>{{ scope.row.earthquakeName }}</div>
                 <template #reference>
                   <div>
                     <span class="posInfo">
-                      {{ scope.row.position }}
+                      {{ scope.row.earthquakeName }}
                     </span>
                   </div>
                 </template>
@@ -130,7 +129,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlot, getPlotIcon} from '@/api/system/plot'
-import {getAllEq, getEqbyId} from '@/api/system/eqlist'
+import {getAllEq, getEqById} from '@/api/system/eqlist'
 import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
@@ -157,7 +156,7 @@ export default {
       addPolygonDialogFormVisible: false,// mian标绘信息填写对话框的显示和隐藏
       showMarkCollection: false, // 点标绘控件的显示和隐藏
       openAddStatus: true, // 用来控制添加billboard按钮的状态，点一次后只有添加完点才能再点击
-        ifPointAnimate: false, // 说明是否为新标绘的点
+      ifPointAnimate: false, // 说明是否为新标绘的点
       //-----------弹窗部分--------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -245,7 +244,7 @@ export default {
       // 震中点数据结构
       centerPoint: {
         plotid: 'center',
-        position: '',
+        earthquakeName: '',
         // time:'',
         starttime: '',
         endtime: '',
@@ -273,10 +272,6 @@ export default {
     this.websock.close()
   },
   methods: {
-    drawStraightArrow() {
-      Arrow.draw("straightArrow");
-      console.log(13)
-    },
     // 初始化控件等
     init() {
       let viewer = initCesium(Cesium)
@@ -337,45 +332,38 @@ export default {
         let points = []
         pointArr.forEach(item => {
           let point = {
-            eqid: item.eqid,
-            plotid: item.plotid,
-            time: item.time,
-            plottype: item.plottype,
+            earthquakeId: item.earthquakeId,
+            plotid: item.plotId,
+            time: item.creationTime.replace("T"," "),
+            plotType: item.plotType,
             drawtype: item.drawtype,
             latitude: item.latitude,
             longitude: item.longitude,
-            height: item.height,
-            img: item.img,
+            height: item.elevation,
+            icon: item.icon,
           }
           points.push(point)
         })
         that.drawPoints(points)
-        console.log(window.viewer.dataSources)
         let polylineArr = data.filter(e => e.drawtype === 'polyline')
         cesiumPlot.getDrawPolyline(polylineArr)
         // 处理多边形数据
         let polygonArr = data.filter(e => e.drawtype === 'polygon');
-        // console.log('index.polygonArr', polygonArr)
         let polygonMap = {};
         polygonArr.forEach(item => {
-          if (!polygonMap[item.plotid]) {
-            polygonMap[item.plotid] = [];
+          if (!polygonMap[item.plotId]) {
+            polygonMap[item.plotId] = [];
           }
-          polygonMap[item.plotid].push(item);
+          polygonMap[item.plotId].push(item);
         });
-        Object.keys(polygonMap).forEach(plotid => {
-          let polygonData = polygonMap[plotid];
-          if (polygonData.length === 4) { // 确保有四个点
-            that.getDrawPolygonInfo(polygonData);
-            // console.log("数据库数据",polygonData)
-          } else {
-            console.warn(`多边形 ${plotid} 数据点数量不正确`);
-          }
+        Object.keys(polygonMap).forEach(plotId => {
+          let polygonData = polygonMap[plotId];
+          that.getDrawPolygonInfo(polygonData);
         });
         // that.entityclustering()
       })
     },
-    entityclustering(){
+    entityclustering() {
       // window.viewer.dataSource.cl
       let dataSource = new Cesium.CustomDataSource("myData");
       dataSource.entities.add()
@@ -390,19 +378,14 @@ export default {
         let polygonMap = {};
 
         polygonArr.forEach(item => {
-          if (!polygonMap[item.plotid]) {
-            polygonMap[item.plotid] = [];
+          if (!polygonMap[item.plotId]) {
+            polygonMap[item.plotId] = [];
           }
-          polygonMap[item.plotid].push(item);
+          polygonMap[item.plotId].push(item);
         });
-        Object.keys(polygonMap).forEach(plotid => {
-          let polygonData = polygonMap[plotid];
-          if (polygonData.length === 4) { // 确保有四个点
-            that.getDrawPolygonInfo(polygonData);
-            // console.log("数据库数据",polygonData)
-          } else {
-            console.warn(`多边形 ${plotid} 数据点数量不正确`);
-          }
+        Object.keys(polygonMap).forEach(plotId => {
+          let polygonData = polygonMap[plotId];
+          that.getDrawPolygonInfo(polygonData);
         });
       })
     },
@@ -423,7 +406,7 @@ export default {
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
-          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换data为弧度
           let cartographic = Cesium.Cartographic.fromCartesian(position);
           let latitude = Cesium.Math.toDegrees(cartographic.latitude);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude);
@@ -462,7 +445,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗
@@ -544,7 +527,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue():""
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -586,7 +569,7 @@ export default {
       let that = this
       getPlotIcon().then(res => {
         // console.log(res)
-        that.plotPicture = res
+        that.plotPicture = res.data
         // 设置plotTree初始样式
         // that.plotTreeClassification = res.filter(item=>item.type==="I类（次生地质灾害）")
       })
@@ -599,7 +582,7 @@ export default {
       this.eqid = row.eqid
       this.websock.eqid = this.eqid
       this.initPlot(row.eqid)
-      this.title = row.time + row.position + row.magnitude
+      this.title = row.occurrenceTime + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
         orientation: {
@@ -620,7 +603,7 @@ export default {
         let data = []
         for (let i = 0; i < resData.length; i++) {
           let item = resData[i]
-          item.time = that.timestampToTime(resData[i].time)
+          item.time = resData[i].occurrenceTime.replace("T"," ")
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -630,7 +613,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].time + that.tableData[0].position + that.tableData[0].magnitude
+        that.title = that.tableData[0].occurrenceTime.replace("T"," ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -653,13 +636,13 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqbyId({eqid: eqid}).then(res => {
+        getEqById({id: eqid}).then(res => {
         //震中标绘点
-
+          console.log("res",res)
         this.centerPoint = res
         this.centerPoint.plotid = "center"
-        this.centerPoint.starttime = new Date(res.time)
-        this.centerPoint.endtime = new Date(res.time + (7 * 24 * 60 * 60 * 1000 + 1000));
+        this.centerPoint.starttime = new Date(res.occurrenceTime)
+        this.centerPoint.endtime = new Date(res.occurrenceTime + (7 * 24 * 60 * 60 * 1000 + 1000));
 
         //变量初始化
         this.eqstartTime = this.centerPoint.starttime
@@ -681,7 +664,7 @@ export default {
         // properties: {
         //   type: "震中",
         //   time: this.centerPoint.time,
-        //   name: this.centerPoint.position,
+        //   name: this.centerPoint.earthquakeName,
         //   lat: this.centerPoint.latitude,
         //   lon: this.centerPoint.longitude,
         //   describe: this.centerPoint.position,
@@ -700,7 +683,7 @@ export default {
           disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
         },
         label: {
-          text: this.centerPoint.position + parseFloat(this.centerPoint.magnitude).toFixed(1) + "级",
+          text: this.centerPoint.earthquakeName + parseFloat(this.centerPoint.magnitude).toFixed(1) + "级",
           show: true,
           font: '20px sans-serif',
           fillColor: Cesium.Color.RED,        //字体颜色
@@ -837,14 +820,21 @@ export default {
     },
 
     treeItemClick(item) {
+      console.log(item)
       let that = this
       if (item.plotType === '点图层') {
         this.openPointPop(item.name, item.img)
+      } else if (item.name === '直线箭头') {
+        Arrow.draw("straightArrow");
+      } else if (item.name === '攻击箭头') {
+        Arrow.draw("attackArrow");
+      } else if (item.name === '钳击箭头') {
+        Arrow.draw("pincerArrow");
       } else if (item.plotType === '线图层') {
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
-        }).then((res)=>{
+        }).then((res) => {
           let situationPlotData = []// situationplot表中的线数据
           for (let i = 0; i < res.pointPosArr.length; i++) {
             let cartographic = Cesium.Cartographic.fromCartesian(res.pointPosArr[i]);
@@ -919,7 +909,7 @@ export default {
           duration: 0
         })
         // 1-3 生成点标注的handler
-        cesiumPlot.initPointHandler(type, img, this.eqid,true).then(res => {
+        cesiumPlot.initPointHandler(type, img, this.eqid, true).then(res => {
           that.addMarkDialogFormVisible = true
           this.message.close(that.addMarkDialogFormVisible)
         })
@@ -927,18 +917,18 @@ export default {
     },
     // 画点
     drawPoint(pointInfo) {
-        if(this.ifPointAnimate){
-            cesiumPlot.drawPoint(pointInfo,true)
-        }else{
-            cesiumPlot.drawPoint(pointInfo)
-        }
+      if (this.ifPointAnimate) {
+        cesiumPlot.drawPoint(pointInfo, true)
+      } else {
+        cesiumPlot.drawPoint(pointInfo)
+      }
     },
     drawPoints(pointInfo) {
       cesiumPlot.drawPoints(pointInfo)
     },
-      ifPointAnimation(val){
-        this.ifPointAnimate = val
-      },
+    ifPointAnimation(val) {
+      this.ifPointAnimate = val
+    },
     // 重置标绘信息填写的绑定数据
     resetAddMarkCollection() {
       let cesiumStore = useCesiumStore()
@@ -1029,13 +1019,12 @@ export default {
         // })
       }
     },
-    drawPolygon(info,resolve) {
+    drawPolygon(info, resolve) {
       // console.log(info, "面")
-      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid,resolve)
+      cesiumPlot.drawActivatePolygon(info.name, info.img, this.eqid, resolve)
     },
     //获取数据库数据绘制面
     getDrawPolygonInfo(info) {
-      // console.log(info, "面")
       cesiumPlot.getDrawPolygon(info)
     },
     resetPolygon() {

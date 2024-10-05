@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="center-body">
-          <e-map/>
+          <e-map :eq-data="EqAll"/>
         </div>
 
         <div class="right-body">
@@ -41,7 +41,6 @@
             <dv-border-box7>
               <div class="public-title">
                 地震列表
-
                 <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
                 <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
                 <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
@@ -67,11 +66,11 @@
     >
       <el-form :inline="true" :model="formValue">
         <el-form-item label="地震位置">
-          <el-input v-model="formValue.position" style="width: 23vw;" placeholder="地震位置" clearable/>
+          <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-              v-model="formValue.time"
+              v-model="formValue.occurrenceTime"
               type="daterange"
               unlink-panels
               range-separator="至"
@@ -105,10 +104,7 @@
 </template>
 
 <script setup>
-import {
-  BorderBox7 as DvBorderBox7,
-  Decoration5 as DvDecoration5
-} from '@kjgl77/datav-vue3'
+import {BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5} from '@kjgl77/datav-vue3'
 import {onMounted, ref} from 'vue';
 import eMap from '@/components/Home/emap.vue';
 import eqTable from '@/components/Home/eqtable.vue';
@@ -166,8 +162,8 @@ const shortcuts = [
 ]
 
 const formValue = reactive({
-  position: "",
-  time: "",
+  earthquakeName: "",
+  occurrenceTime: "",
   startMagnitude: "",
   endMagnitude: "",
   startDepth: "",
@@ -175,12 +171,12 @@ const formValue = reactive({
 })
 
 const onSubmit = () => {
-  if (formValue.time !== "") {
-    const [startTime, endTime] = formValue.time;
+  if (formValue.occurrenceTime !== "") {
+    const [startTime, endTime] = formValue.occurrenceTime;
     const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
     const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
 
-    formValue.time = `${startDate} 至 ${endDate}`;
+    formValue.occurrenceTime = `${startDate} 至 ${endDate}`;
   }
   fromEq(formValue).then(res => {
     tableData.value = res;
@@ -225,11 +221,16 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
+    console.log(res)
     EqAll.value = res
     tableData.value = res
     lastEqData.value = res[0]
+
+    // 打印最新的 eqid
+    if (lastEqData.value) {
+      console.log("最新地震的 eqid:", lastEqData.value.eqid);
+    }
   })
-  ;
 };
 
 onMounted(() => {
@@ -237,6 +238,7 @@ onMounted(() => {
   getEq();
 });
 </script>
+
 <style scoped>
 .public-bg {
   background: rgba(12, 26, 63, 0.3);

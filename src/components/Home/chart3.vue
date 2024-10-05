@@ -23,8 +23,8 @@
 </template>
 
 <script setup>
-import {ref, watch} from 'vue';
-
+import {ref, watch } from 'vue';
+import { getCasualtyStats } from '@/api/system/casualtystats.js'; // 引入之前定义的 API 方法
 const props = defineProps(['lastEq'])
 
 const injuryCount = ref(0);
@@ -33,14 +33,20 @@ const deathCount = ref(0);
 const updateTime = ref()
 
 watch(() => props.lastEq, () => {
-  initNewEq();
+  if (props.lastEq){
+    getCasualtyStats(props.lastEq.eqid).then((res) => {
+      if (res) {
+        injuryCount.value = res.injuryCount
+        missingCount.value = res.missingCount
+        deathCount.value = res.deathCount
+        updateTime.value = res.latestInsertTime.replace('T', ' ')
+      } else {
+        updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
+      }
+    })
+  }
 });
 
-const initNewEq = () => {
-
-  updateTime.value = props.lastEq.time.replace('T', ' ');
-
-}
 </script>
 
 <style scoped>

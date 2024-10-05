@@ -3,7 +3,7 @@ import request from '@/utils/request'
 //增
 export function addEq(data) {
     return request({
-        url: '/system/addeq',
+        url: '/system/addEq',
         method: 'post',
         data: data
     })
@@ -12,7 +12,7 @@ export function addEq(data) {
 // 删
 export function deleteeq(query) {
     return request({
-        url: '/system/deleteeq',
+        url: '/system/deleteEq',
         method: 'get',
         params: query
     })
@@ -51,7 +51,7 @@ export function getKeyEq(query) {
 
 export function getLatestEq(query) {
     return request({
-        url: '/system/getLatesteq',
+        url: '/system/getLatestEq',
         method: 'get',
     })
 }
@@ -72,11 +72,11 @@ export function updataEq(data) {
     })
 }
 
-export function getEqbyId(data) {
+export function getEqById(data) {
     return request({
-        url: '/system/geteqbyid',
+        url: '/system/queryEqById',
         method: 'post',
-        params: data
+        params:data
     })
 
 }

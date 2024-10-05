@@ -17,7 +17,7 @@ const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
   baseURL: import.meta.env.VITE_APP_BASE_API,
   // 超时
-  timeout: 10000
+  timeout: 60000
 })
 
 // request拦截器
@@ -48,22 +48,24 @@ service.interceptors.request.use(config => {
       console.warn(`[${config.url}]: ` + '请求数据大小超出允许的5M限制，无法进行防重复提交验证。')
       return config;
     }
-    const sessionObj = cache.session.getJSON('sessionObj')
-    if (sessionObj === undefined || sessionObj === null || sessionObj === '') {
-      cache.session.setJSON('sessionObj', requestObj)
-    } else {
-      const s_url = sessionObj.url;                // 请求地址
-      const s_data = sessionObj.data;              // 请求数据
-      const s_time = sessionObj.time;              // 请求时间
-      const interval = 1000;                       // 间隔时间(ms)，小于此时间视为重复提交
-      if (s_data === requestObj.data && requestObj.time - s_time < interval && s_url === requestObj.url) {
-        const message = '数据正在处理，请勿重复提交';
-        console.warn(`[${s_url}]: ` + message)
-        return Promise.reject(new Error(message))
-      } else {
-        cache.session.setJSON('sessionObj', requestObj)
-      }
-    }
+    // const sessionObj = cache.session.getJSON('sessionObj')
+    // if (sessionObj === undefined || sessionObj === null || sessionObj === '') {
+    //   cache.session.setJSON('sessionObj', requestObj)
+    // } else {
+    //   const s_url = sessionObj.url;                // 请求地址
+    //   const s_data = sessionObj.data;              // 请求数据
+    //   const s_time = sessionObj.time;              // 请求时间
+    //   const interval = 1000;                       // 间隔时间(ms)，小于此时间视为重复提交
+    //   if (s_data === requestObj.data && requestObj.time - s_time < interval && s_url === requestObj.url) {
+    //     const message = '数据正在处理，请勿重复提交';
+    //     console.warn(`[${s_url}]: ` + message)
+    //     return Promise.reject(new Error(message))
+    //   } else {
+    //     cache.session.setJSON('sessionObj', requestObj)
+    //   }
+    // }
+    // 此处去掉对 sessionObj 的检查以及重复提交的提示逻辑
+    cache.session.setJSON('sessionObj', requestObj);
   }
   return config
 }, error => {
