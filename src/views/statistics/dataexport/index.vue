@@ -263,7 +263,7 @@ const getTableField = () => {
 
 // 表格翻页选中（需要设置row-key）
 function getRowKey(row) {
-  return row.id
+  return row.uuid
 }
 
 // 分页函数
@@ -310,7 +310,7 @@ const exportStatistics = () => {
     })
   } else {
 
-    const ids = multipleSelection.value.map(item => item.id);
+    const ids = multipleSelection.value.map(item => item.uuid);
 
     exportExcel({
       fields: value.value,
