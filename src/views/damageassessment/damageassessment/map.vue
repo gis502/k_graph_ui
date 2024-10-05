@@ -119,13 +119,13 @@
       </div>
     </div>
 
-    <div v-if="isshowImage" class="preview-container">
+    <div v-if="isshowImage">
 <!--    <div class="preview-container">-->
-      <img class="preview-image" :src=showtmp alt=""/>
+<!--      <img class="preview-image" :src=showtmp alt=""/>-->
 
-<!--            <MapPreview-->
-<!--          :showtmp="showtmp"-->
-<!--      ></MapPreview>-->
+            <MapPreview
+          :showtmp="showtmp"
+      ></MapPreview>
     </div>
   </div>
 
