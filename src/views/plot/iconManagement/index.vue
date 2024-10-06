@@ -262,8 +262,8 @@ export default {
     getPlotPicture() {
       let that = this
       getPlotIcon().then(res => {
-        that.getPicData = res
-        that.total = res.length
+        that.getPicData = res.data
+        that.total = res.data.length
         that.tableData = that.getPageArr()
       })
     },
@@ -300,7 +300,7 @@ export default {
     // 删除单个标绘图片
     handleDelete(row) {
       let that = this
-      deletePlotIcon({id: row.id}).then(res => {
+      deletePlotIcon(row.uuid).then(res => {
         that.getPlotPicture()
       })
     },
