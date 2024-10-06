@@ -436,6 +436,7 @@ export default {
     back() {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
+      this.isshowImagetype=null;
       this.removeData()
     },
 
@@ -560,22 +561,33 @@ export default {
     },
     exportCesiumScene(type) {
       this.isshowImagetype = this.isshowImagetype === type ? null : type;
-      console.log(this.selectedTabData.eqid)
+      // console.log(this.selectedTabData.eqid)
 
       // if(this.)
 
 
-      // if (type == "history") {
+      // // if (type == "history") {
         const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
         // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
         this.imgurlFromDate = selectedData.url
         // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
         this.imgName=selectedData.name
 
-      console.log(this.imgurlFromDate, this.imgNames)
+        console.log(this.imgurlFromDate, this.imgName)
         this.getAssetsFile()
-      // }
 
+      // if (type == "history") {
+      //
+      // // const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
+      // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
+      // // this.imgurlFromDate = selectedData.url
+      // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
+      // // this.imgName=selectedData.name
+      //
+      // console.log(this.imgurlFromDate, this.imgName)
+      // this.getAssetsFile()
+      // }
+      //
       // else if(type == "FaultZone"){
       //   this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
       //   this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].name

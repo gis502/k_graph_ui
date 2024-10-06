@@ -14,10 +14,9 @@
 export default {
   data(){
     return {
-      imgshowURL:'',
-      fileUrl:'',
-      imgName:'',
-      imgurlFromDate:'',
+      imgshowURLLocal:'',
+      imgurlFromDateLocal:'',
+      imgNameLocal:'',
     }
   },
   props: [
@@ -26,17 +25,19 @@ export default {
   watch: {
     imgshowURL(newVal) {
       // console.log("newVal",newVal)
-      this.imgshowURL=this.getAssetsFile(newVal)
+      this.imgshowURLLocal=this.getAssetsFile(newVal)
     },
-    imgurlFromDate(newVal){
-      this.imgurlFromDate=newVal
+    imgurlFromDate(){
+      this.imgurlFromDateLocal= this.imgurlFromDate
     },
-    imgName(newVal){
-      this.imgName=newVal
+    imgName(){
+      this.imgNameLocal=this.imgName
     }
   },
   mounted() {
-    this.imgshowURL=this.getAssetsFile(this.imgshowURL)
+    this.imgshowURLLocal=this.getAssetsFile(this.imgshowURLLocal)
+    this.imgurlFromDateLocal= this.imgurlFromDate
+    this.imgNameLocal=this.imgName
   },
   methods:{
     getAssetsFile(imgshowURL) {
@@ -45,9 +46,9 @@ export default {
     async downloadImage() {
 
       const link = document.createElement('a');
-      link.download = this.imgName+'.jpg';
-      console.log(this.imgurlFromDate,"this.imgurlFromDate")
-      const imgModule = await import(this.imgurlFromDate);
+      link.download = this.imgNameLocal+'.jpg';
+      console.log(this.imgurlFromDateLocal,"this.imgurlFromDateLocal")
+      const imgModule = await import(this.imgurlFromDateLocal);
       console.log(imgModule)
 
       link.href = imgModule.default;
