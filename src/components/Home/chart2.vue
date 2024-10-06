@@ -30,7 +30,7 @@ const initChart = () => {
       trigger: 'axis'
     },
     grid: {
-      left: '3%',
+      left: '2%',
       right: '4%',
       top: '20%',
       bottom: '30%',
@@ -42,17 +42,17 @@ const initChart = () => {
         show: true,
         textStyle: {
           color: '#fff',
-          fontSize: 14,
+          fontSize: 13,
         },
         interval: 0,
       },
-      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级', '6.0级及以上']
+      data: ['3-3.9级', '4-4.9级', '5-5.9级', '6.0级及以上']
     },
     yAxis: {
       type: 'value',
       nameTextStyle: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 13,
       },
       axisLabel: {
         show: true,
@@ -77,7 +77,7 @@ const initChart = () => {
           show: true,
           position: 'top',
           color: '#fff',
-          fontSize: 16,
+          fontSize: 13,
         },
       }
     ]

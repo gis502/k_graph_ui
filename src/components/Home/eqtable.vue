@@ -160,7 +160,7 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 .custom-pagination >>> .el-pagination__jump,
 .custom-pagination >>> .el-pagination__right-wrapper {
   color: white;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 

@@ -18,9 +18,9 @@
         >
 
           {{ item.label }}<span
-              :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
-              @click="toggleSeriesVisibility('latest', item.type)"
-          ></span>
+            :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
+            @click="toggleSeriesVisibility('latest', item.type)"
+        ></span>
         </div>
       </div>
 
@@ -32,29 +32,29 @@
             :key="'history-' + itemIndex"
         >
           {{ item.label }}<span
-              :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
-              @click="toggleSeriesVisibility('history', item.type)"
-          ></span>
+            :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
+            @click="toggleSeriesVisibility('history', item.type)"
+        ></span>
         </div>
       </div>
     </div>
-<!--    &lt;!&ndash;    遍历分组&ndash;&gt;-->
-<!--    <div v-for="(group, groupIndex) in eqGroups" :key="'group-' + groupIndex">-->
-<!--      <div class="row">-->
+    <!--    &lt;!&ndash;    遍历分组&ndash;&gt;-->
+    <!--    <div v-for="(group, groupIndex) in eqGroups" :key="'group-' + groupIndex">-->
+    <!--      <div class="row">-->
 
-<!--        <div-->
-<!--            class="line"-->
-<!--            v-for="(item, itemIndex) in group.items"-->
-<!--            :key="group.type + '-' + itemIndex"-->
-<!--        >-->
-<!--          &lt;!&ndash;点&ndash;&gt;-->
-<!--          <span-->
-<!--              :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"-->
-<!--              @click="toggleSeriesVisibility(group.type, item.type)"-->
-<!--          ></span>{{ item.label }}-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
+    <!--        <div-->
+    <!--            class="line"-->
+    <!--            v-for="(item, itemIndex) in group.items"-->
+    <!--            :key="group.type + '-' + itemIndex"-->
+    <!--        >-->
+    <!--          &lt;!&ndash;点&ndash;&gt;-->
+    <!--          <span-->
+    <!--              :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"-->
+    <!--              @click="toggleSeriesVisibility(group.type, item.type)"-->
+    <!--          ></span>{{ item.label }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -63,7 +63,6 @@ import {onMounted, ref, watch} from 'vue';
 import * as echarts from 'echarts';
 import 'echarts-gl';
 import data from '@/assets/geoJson/data.json';
-import {getAllEq, getKeyEq, getLatestEq} from "@/api/system/eqlist.js";
 
 const props = defineProps(['eqData']);
 
@@ -182,7 +181,6 @@ const initEmap = () => {
   dataGroups.forEach(group => {
     group.push(defaultPoint);
   });
-
 
   // ECharts 实例初始化
   const eMapElem = eMap.value;
@@ -361,7 +359,7 @@ const initEmap = () => {
           coordinateSystem: 'geo3D',  // 使用的坐标系为 3D 地理坐标系
           show: false,  // 设置系列是否显示，值为 true 表示显示
           symbol: 'circle',  // 数据点的符号形状，这里设置为圆形
-          zlevel:10,  // 设置该系列图层的层次等级，数值越大，图层越高
+          zlevel: 10,  // 设置该系列图层的层次等级，数值越大，图层越高
           data: latestSlight.map(item => ({
             name: `Magnitude: ${item.magnitude}`,  //为每个地震事件生成一个名称字符串，格式为 Magnitude: X。X 是该事件的震级（item.magnitude）。
             value: [item.longitude, item.latitude],  //[经度, 纬度]定位散点的位置
@@ -571,7 +569,6 @@ const blinkPoints = (seriesName) => {
 };
 
 
-
 // 根据地图当前的视图比例动态调整比例尺长度
 const updateScaleBar = () => {
   console.log(eMapInstance.value)
@@ -595,80 +592,12 @@ const updateScaleBar = () => {
 .legend {
   position: absolute;
   bottom: 0;
-  left: 20px;
-  /*right: 31%;*/
+  left: 10px;
   z-index: 20;
   background-color: transparent;
   width: 510px;
   height: 70px;
 }
-
-/*原来*/
-/*.row {*/
-/*  display: flex;*/
-/*  float: right;*/
-/*  margin-top: 5px;*/
-/*}*/
-
-
-/*.line {*/
-/*  display: flex;*/
-/*  align-items: center;*/
-/*  width: 141px;*/
-/*  color: white;*/
-/*}*/
-
-
-/*两列，没管位置*/
-/*.row {*/
-/*  display: flex;*/
-/*  flex-wrap: wrap; !* 允许换行 *!*/
-/*  margin-top: 5px;*/
-/*  width: 100%; !* 确保每行占满宽度 *!*/
-/*}*/
-
-
-
-/*.line {*/
-/*  display: flex;*/
-/*  align-items: center;*/
-/*  width: 50%; !* 每个项目占据父容器的50%，即两列 *!*/
-/*  color: white;*/
-/*  margin-bottom: 5px; !* 给每行下方添加一些间距 *!*/
-/*}*/
-
-
-
-/*.history {*/
-/*  display: inline-block;*/
-/*  z-index: 20;*/
-/*  border-radius: 50%;*/
-/*  background-color: #f0a72e;*/
-/*  margin-right: 10px;*/
-/*}*/
-
-/*.latest {*/
-/*  display: inline-block;*/
-/*  z-index: 20;*/
-/*  border-radius: 50%;*/
-/*  background-color: #ed2a2a;*/
-/*  margin-right: 10px;*/
-/*}*/
-
-/*.slight {*/
-/*  width: 10px;*/
-/*  height: 10px;*/
-/*}*/
-
-/*.moderate {*/
-/*  width: 15px;*/
-/*  height: 15px;*/
-/*}*/
-
-/*.major {*/
-/*  width: 20px;*/
-/*  height: 20px;*/
-/*}*/
 
 /* 添加“inactive”类用于设置灰色 */
 .inactive {
@@ -693,21 +622,14 @@ const updateScaleBar = () => {
   width: 20%;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-}
-
 .line {
   display: flex;
-  align-items: center; /* 垂直居中 */
-  width: 141px;
-  /*justify-content: center; !* 水平居中 *!*/
+  align-items: center; /* 圆点与文本垂直居中对齐 */
+  width: 130px;
   color: white;
-    /*margin-bottom: 5px; !* 给每行下方添加一些间距 *!*/
-  margin-bottom: 5px;
+  margin-top: 8px; /* 添加间距 */
+  font-size: 14px;
 }
-
 
 .line span {
   display: flex;
@@ -725,42 +647,13 @@ const updateScaleBar = () => {
   background-color: #f0a72e; /* 黄色 */
 }
 
-.slight {
-  width: 10px;
-  height: 10px;
-}
-
-.moderate {
-  width: 15px;
-  height: 15px;
-}
-
-.major {
-  width: 20px;
-  height: 20px;
-}
-
 .inactive {
   background-color: #888 !important; /* 灰色 */
-}
-
-
-.line {
-  display: flex;
-  align-items: center; /* 圆点与文本垂直居中对齐 */
-  width: 141px;
-  color: white;
-  margin-top: 5px; /* 添加间距 */
-  font-size: 14px;
 }
 
 .line span {
   display: inline-flex; /* 使用 inline-flex 使得文本与圆点在一行 */
   align-items: center; /* 垂直居中 */
-}
-
-.line .slight, .line .moderate, .line .major {
-  line-height: 1; /* 调整行高，使文本和圆点对齐 */
 }
 
 .line .slight {
@@ -779,12 +672,12 @@ const updateScaleBar = () => {
   margin-right: 10px; /* 圆点和文本之间的间距 */
 }
 
-.line .major {
+.major {
   width: 20px; /* 大点的宽度 */
   height: 20px; /* 大点的高度 */
   border-radius: 50%; /* 圆形 */
   margin-left: 15px;
-  margin-right: 13px; /* 圆点和文本之间的间距 */
+  margin-right: 1px; /* 圆点和文本之间的间距 */
 }
 
 
