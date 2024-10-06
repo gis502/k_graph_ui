@@ -101,6 +101,26 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path:'/thd',
+    component: () =>import('@/components/Cesium/thd'),
+    hidden: true
+  },
+
+  // {
+  //   // path:'/thdTimeLine',
+  //   path: '/thdTimeLine/:eqid',
+  //   component: () =>import('@/components/Cesium/thdTimeLine.vue'),
+  //   name:'thdTimeLine',
+  //   props: true
+  //
+  //   // hidden: true
+  // },
+  {
+    path: '/statistics/pic/:flag',
+    component: () => import('@/views/statistics/pic/datapic.vue'),
+    name: 'Pic',
+  }
 ]
 
 // 动态路由，基于用户权限动态去加载

@@ -12,11 +12,24 @@
     <!--    <div class="layer-button">-->
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
     <!--    </div>-->
-    <div v-if="activeComponent === 'layerChoose'" class="dropdown">
+    <div v-if="activeComponent === 'layerChoose'" class="dropdown" :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-        <el-checkbox v-for="item in layeritems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
+        <el-checkbox
+            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 8))"
+            :key="item.id"
+            :label="item.name"
+            style="margin: 5px 0;"
+        >
+          {{ item.name }}
+        </el-checkbox>
       </el-checkbox-group>
+      <div @click="toggleExpand" style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+      </div>
     </div>
+
+
+  </div>
 
     <!--    行政区划-->
     <!--    <div class="regionjump-button">-->
@@ -37,13 +50,6 @@
           <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
         </div>
       </div>
-    </div>
-
-    <!--    专题图-->
-    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown">
-      <el-checkbox-group v-model="selectedDownloadMap" @change="" class="grid-container">
-        <el-checkbox v-for="item in thematicMapItems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
-      </el-checkbox-group>
     </div>
 
     <!--报告产出按钮-->
@@ -84,8 +90,7 @@
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
         <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
-        </el-menu-item>
+        <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
         <el-menu-item index="6">返回首页</el-menu-item>
       </el-menu>
     </div>
@@ -209,7 +214,6 @@
     <div id="faultInfo"
          style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
 
-  </div>
 </template>
 
 <script>
@@ -220,6 +224,7 @@ import {getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 
+import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import newsDialog from "@/components/TimeLine/newsDialog.vue";
@@ -284,7 +289,7 @@ export default {
       // 震中点数据结构
       centerPoint: {
         plotid: 'center',
-        earthquakeName: '',
+        earthquakeName:'',
         // position: '',
         // time:'',
         starttime: '',
@@ -375,6 +380,7 @@ export default {
 
       activeComponent: null,
       //-----------------图层要素---------------------
+      isExpanded: false,
       layeritems: [
         {id: '0', name: '标绘点图层'},
         {id: '1', name: '行政区划要素图层'},
@@ -392,26 +398,6 @@ export default {
       emergencyTeam: [],
       emergencyShelters: [],
 
-      //专题图下载预览
-      thematicMapItems:[
-        // {id: '0', name: '震中与主要城市距离分布图'},
-        // {id: '1', name: '震中附近居民点分布图'},
-        // {id: '2', name: '震区人口公里格网分布图'},
-        // {id: '3', name: '震中附近救援队伍分布图'},
-        // {id: '4', name: '震区交通图'},
-        // {id: '5', name: '震中附近地震台站分布图'},
-        // {id: '6', name: '震区医院分布图'},
-        // {id: '7', name: '震区学校分布图'},
-        // {id: '8', name: '震中附近旅游景点分布图'},
-        // {id: '9', name: '震中附近文物单位分布图'},
-        // {id: '10', name: '震区水库分布图'},
-        // {id: '11', name: '震区历史地震分布图'},
-        // {id: '12', name: '震中附近活动断裂图'},
-        // {id: '13', name: '地震影响估计范围分布图'},
-        // {id: '14', name: '滑坡风险评估图'},
-        // {id: '15', name: '震区潜在地质灾害分布图'},
-      ],
-      selectedDownloadMap: [],  //选择的
       //请求防抖
       isRequesting: false,
     };
@@ -432,9 +418,29 @@ export default {
     //     this.ifShowData = true
     // }
   },
+  // 图层要素
   methods: {
+    //图层要素
+    getHeight() {
+      const checkboxHeight = 50; // 每个复选框的高度
+      const margin = 10; // margin 值
+      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
+      console.log(((parseInt(this.layeritems.length/2) + this.layeritems.length%2)  * checkboxHeight) + ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)-1) * margin)
+      return ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)  * checkboxHeight) + ((parseInt(this.layeritems.length/2) + this.layeritems.length%2)-1) * margin;
+    },
+
+    // 图层要素
+    toggleExpand() {
+      console.log("Toggle expand clicked");
+      this.isExpanded = !this.isExpanded;
+    },
     //设置组件展开的面板互斥,避免堆叠
     toggleComponent(component) {
+      // 图层要素
+      // this.activeComponent = this.isActive ? null : 'layerChoose';
+      if (this.activeComponent) {
+        this.initPlot(); // 调用初始化方法
+      }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
       if (this.activeComponent === 'eqList') {
@@ -486,17 +492,17 @@ export default {
           let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
           // 获取相机的海拔高度作为视角高度/km
           let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
-          console.log(latString);
-          console.log(logString);
-          console.log(altiString);
-          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude))
+          // console.log(latString);
+          // console.log(logString);
+          // console.log(altiString);
+          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude),Cesium.Math.toDegrees(cartographic.latitude))
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
+      let smallViewer = initCesium(Cesium,smallMapContainer)
       window.smallViewer = smallViewer
       smallViewer._cesiumWidget._creditContainer.style.display = 'none'
       let smallOptions = {}
@@ -567,8 +573,8 @@ export default {
 
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqById(eqid).then(res => {
-        console.log("thd eqid---------------", eqid)
+      getEqById({id: eqid}).then(res => {
+        console.log("thd eqid---------------",eqid)
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
@@ -603,6 +609,7 @@ export default {
         this.updateMapandVariablebeforInit()
 
       })
+
     },
     timestampToTime(timestamp) {
       let DateObj = new Date(timestamp)
@@ -713,20 +720,20 @@ export default {
         plottype: "震中",
       });
 
-      // this.xuanran(this.eqid)
+      this.xuanran(this.eqid)
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
 
 
     // xuanran 方法
-    xuanran(eqid) {
+    xuanran(eqid){
       this.getPlotwithStartandEndTime(eqid)  //拿渲染点数据
       this.intimexuanran(eqid)  //定时向数据库请求 每分钟请求一次
     },
-    intimexuanran(eqid) {
+    intimexuanran(eqid){
       //5分钟一次
-      if (this.realTime < this.tmpeqendTime) {
-        if (!this.isTimerRunning && this.currentTimePosition === 100) {
+      if(this.realTime< this.tmpeqendTime) {
+        if(!this.isTimerRunning&&this.currentTimePosition===100){
           // console.log("gengxin")
           // 检查是否已经有定时器在运行
           if (!this.realtimeinterval) {
@@ -775,15 +782,15 @@ export default {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
 
         //显示标记，追加新的点 （增）
-        // console.log(res,"res")
+        console.log(res,"res")
         res.forEach(item => {
-          const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
+          const plotexists = this.plots.some(plot => plot.plotId === item.plotId);
           if (!plotexists) {
-            this.plotisshow[item.plotid] = 0;
+            this.plotisshow[item.plotId] = 0;
           }
         })
         //删除的点删除  （删）
-        const currentPlotIds = new Set(res.map(item => item.plotid)); //当前请求中返回的有哪些图标
+        const currentPlotIds = new Set(res.map(item => item.plotId)); //当前请求中返回的有哪些图标
         // 移除不再存在的 plotid
         for (const plotId in this.plotisshow) {
           if (!currentPlotIds.has(plotId)) {
@@ -798,12 +805,12 @@ export default {
         //更新数组信息（包括点的起止时间、属性信息） （改）
         this.plots = res
         this.plots.forEach(item => {
-          if (!item.endtime) {
+          if (!item.endTime) {
             // item.endtime = new Date(this.eqendTime.getTime() + 5000);
-            item.endtime = new Date(this.eqstartTime.getTime() + 10 * 24 * 36000 * 1000);
+            item.endTime = new Date(this.eqstartTime.getTime() + 10 * 24 * 36000 * 1000);
           }
-          if (!item.starttime) {
-            item.starttime = this.eqstartTime;
+          if (!item.startTime) {
+            item.startTime = this.eqstartTime;
           }
         })
         // 将 item 添加到 this.plots
@@ -838,194 +845,144 @@ export default {
       })
     },
     //更新标绘点
-    updatePlot() {
+     updatePlot() {
       // console.log(this.plots)
       let that = this
-      //一个点线面一条数据
       //点
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
-      // console.log(pointArr)
+      console.log("点渲染",pointArr)
 
-      //线
-      let polylineArrtmp = this.plots.filter(e => e.drawtype === 'polyline')
-      let polylineId = this.distinguishPolylineId(polylineArrtmp)
-      let polylineArr = []  // id, 开始时间, 结束时间
-      polylineId.forEach(onlyDrawIdItem => {
-        let positionsArr = [];
-        let polylinetmp = {};
+      let points = [];
 
-        polylineArrtmp.forEach(polylineElement => {
-          if (polylineElement.plotid === onlyDrawIdItem) {
-            positionsArr.push(
-                parseFloat(polylineElement.longitude),
-                parseFloat(polylineElement.latitude),
-                parseFloat(polylineElement.height)
-            );
-
-            // 检查 polylineArr 中是否已存在该 plotid 的数据
-            let existingPolyline = polylineArr.find(p => p.plotid === polylineElement.plotid);
-            if (existingPolyline) {
-              // 更新已存在的数据
-              // existingPolyline.endtime = polylineElement.endtime;
-              existingPolyline.positionsArr = positionsArr;
-            } else {
-              // 创建新的数据对象并添加到 polylineArr
-              polylinetmp = {
-                plotid: polylineElement.plotid,
-                drawtype: "polyline",
-                endtime: polylineElement.endtime,
-                starttime: polylineElement.starttime,
-                plottype: polylineElement.plottype,
-                img: polylineElement.img,
-                positionsArr: positionsArr,
-              };
-              polylineArr.push(polylinetmp);
-            }
-          }
-        });
-      });
-      // console.log("polylineArr",polylineArr)
-
-      // 面
-      let polygonArrtmp = this.plots.filter(e => e.drawtype === 'polygon')
-      let polygonId = this.distinguishPolylineId(polygonArrtmp)
-      let polygonArr = []  // id, 开始时间, 结束时间
-      polygonId.forEach(onlyDrawIdItem => {
-        let positionsArr = [];
-        let polygontmp = {};
-        polygonArrtmp.forEach(polygonElement => {
-          if (polygonElement.plotid === onlyDrawIdItem) {
-            positionsArr.push(
-                parseFloat(polygonElement.longitude),
-                parseFloat(polygonElement.latitude),
-                // parseFloat(polylineElement.height)
-            );
-            // 检查 polylineArr 中是否已存在该 plotid 的数据
-            let existingpolygon = polygonArr.find(p => p.plotid === polygonElement.plotid);
-            if (existingpolygon) {
-              // 更新已存在的数据
-              // existingPolyline.endtime = polylineElement.endtime;
-              existingpolygon.positionsArr = positionsArr;
-            } else {
-              // 创建新的数据对象并添加到 polylineArr
-              polygontmp = {
-                plotid: polygonElement.plotid,
-                drawtype: "polygon",
-                endtime: polygonElement.endtime,
-                starttime: polygonElement.starttime,
-                plottype: polygonElement.plottype,
-                img: polygonElement.img,
-                positionsArr: positionsArr,
-                angle: polygonElement.angle,
-              };
-              polygonArr.push(polygontmp);
-            }
-          }
-        });
-      });
-      // console.log("polygonArr",polygonArr)
-
-
-      //渲染
       pointArr.forEach(item => {
         const currentDate = new Date(this.currentTime);
-        const startDate = new Date(item.starttime);
-        const endDate = new Date(item.endtime);
-        // console.log(item.plotid,startDate,endDate,currentDate)
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-          this.plotisshow[item.plotid] = 1
-          // console.log(item.plotid,"add")
-          viewer.entities.add({
-            // properties: {
-            //   id: item.plotid,
-            //   // type: item.drawtype,
-            //   // // time: item.timestamp,
-            //   // // name: item.pointname,
-            //   // lat: item.latitude,
-            //   // lon: item.longitude,
-            //   // describe: item.pointdescribe,
-            // },
-            position: Cesium.Cartesian3.fromDegrees(
-                parseFloat(item.longitude),
-                parseFloat(item.latitude),
-                parseFloat(item.height || 0)
-            ),
-            billboard: {
-              image: item.img,
-              width: 40,
-              height: 40,
-              eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-              color: Cesium.Color.WHITE.withAlpha(1),
-              scale: 0.8,
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-              depthTest: false,
-              disableDepthTestDistance: Number.POSITIVE_INFINITY
-            },
-            // label: {
-            //   text: item.pointname,
-            //   show: true,
-            //   font: '14px sans-serif',
-            //   style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            //   outlineWidth: 2,
-            //   verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            //   pixelOffset: new Cesium.Cartesian2(0, -16),
-            // },
-            id: item.plotid,
-            plottype: item.plottype,
-            layer: "标绘点"
-          });
+        const startDate = new Date(item.startTime);
+        const endDate = new Date(item.endTime);
+
+        // 如果点应该显示
+        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+          this.plotisshow[item.plotId] = 1;
+
+          // 创建点数据
+          let point = {
+            earthquakeId: item.earthquakeId,
+            plotid: item.plotId,
+            time: item.creationTime.replace("T", " "),
+            plotType: item.plotType,
+            drawtype: item.drawtype,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            height: item.elevation,
+            icon: item.icon
+          };
+
+          points.push(point); // 收集点数据
         }
-        //消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-          this.plotisshow[item.plotid] = 0
-          // console.log(item.plotid,"end")
-          viewer.entities.removeById(item.plotid)
+
+        // 如果点应该消失
+        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0;
+          viewer.entities.removeById(item.plotId); // 移除点
         }
       });
-      polylineArr.forEach(item => {
-        // that.drawPolyline(item)
-        const currentDate = new Date(this.currentTime);
-        const startDate = new Date(item.starttime);
-        const endDate = new Date(item.endtime);
-        // console.log("line",item.plotid,startDate,endDate,currentDate)
+      // 批量渲染点
+      if (points.length > 0) {
+        cesiumPlot.drawPoints(points);
+      }
 
 
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-          this.plotisshow[item.plotid] = 1
-          this.drawPolyline(item)
-        }
-        //消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-          this.plotisshow[item.plotid] = 0
-          // console.log(item.plotid,"end")
-          viewer.entities.removeById(item.plotid)
-        }
+      //线
+      let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
+      console.log("polylineArr",polylineArr)
 
-      })
-      polygonArr.forEach(item => {
-        // console.log(item)
-        // that.getDrawPolygon(item);
+       let filteredPolylineArr = []; // 用于存储符合条件的线条数据
 
-        const currentDate = new Date(this.currentTime);
-        const startDate = new Date(item.starttime);
-        const endDate = new Date(item.endtime);
-        // console.log("line",item.plotid,startDate,endDate,currentDate)
+       polylineArr.forEach(item => {
+         // that.drawPolyline(item)
+         const currentDate = new Date(this.currentTime);
+         console.log(currentDate)
+         const startDate = new Date(item.startTime);
+         const endDate = new Date(item.endTime);
+         // console.log("line",item.plotId,startDate,endDate,currentDate)
+         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+           this.plotisshow[item.plotId] = 1
+           filteredPolylineArr.push(item); // 收集符合条件的线条
 
+         }
+         //消失
+         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+           this.plotisshow[item.plotId] = 0
+           // console.log(item.plotId,"end")
+           viewer.entities.removeById(item.plotId)
+         }
 
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-          this.plotisshow[item.plotid] = 1
-          this.getDrawPolygon(item)
-        }
-        //消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-          this.plotisshow[item.plotid] = 0
-          // console.log(item.plotid,"end")
-          viewer.entities.removeById(item.plotid)
-        }
-      })
+       })
+       console.log("filteredPolylineArr",filteredPolylineArr)
+       cesiumPlot.getDrawPolyline(filteredPolylineArr)
+      // // 面
+      // let polygonArrtmp = this.plots.filter(e => e.drawtype === 'polygon')
+      // let polygonId = this.distinguishPolylineId(polygonArrtmp)
+      // let polygonArr = []  // id, 开始时间, 结束时间
+      // polygonId.forEach(onlyDrawIdItem => {
+      //   let positionsArr = [];
+      //   let polygontmp = {};
+      //   polygonArrtmp.forEach(polygonElement => {
+      //     if (polygonElement.plotid === onlyDrawIdItem) {
+      //       positionsArr.push(
+      //           parseFloat(polygonElement.longitude),
+      //           parseFloat(polygonElement.latitude),
+      //           // parseFloat(polylineElement.height)
+      //       );
+      //       // 检查 polylineArr 中是否已存在该 plotid 的数据
+      //       let existingpolygon = polygonArr.find(p => p.plotid === polygonElement.plotid);
+      //       if (existingpolygon) {
+      //         // 更新已存在的数据
+      //         // existingPolyline.endtime = polylineElement.endtime;
+      //         existingpolygon.positionsArr = positionsArr;
+      //       } else {
+      //         // 创建新的数据对象并添加到 polylineArr
+      //         polygontmp = {
+      //           plotid: polygonElement.plotid,
+      //           drawtype: "polygon",
+      //           endtime: polygonElement.endtime,
+      //           starttime: polygonElement.starttime,
+      //           plottype: polygonElement.plottype,
+      //           img: polygonElement.img,
+      //           positionsArr: positionsArr,
+      //           angle: polygonElement.angle,
+      //         };
+      //         polygonArr.push(polygontmp);
+      //       }
+      //     }
+      //   });
+      // });
+      // // console.log("polygonArr",polygonArr)
+      //
+
+      //
+      // polygonArr.forEach(item => {
+      //   // console.log(item)
+      //   // that.getDrawPolygon(item);
+      //
+      //   const currentDate = new Date(this.currentTime);
+      //   const startDate = new Date(item.starttime);
+      //   const endDate = new Date(item.endtime);
+      //   // console.log("line",item.plotid,startDate,endDate,currentDate)
+      //
+      //
+      //   if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
+      //     this.plotisshow[item.plotid] = 1
+      //     this.getDrawPolygon(item)
+      //   }
+      //   //消失
+      //   if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
+      //     this.plotisshow[item.plotid] = 0
+      //     // console.log(item.plotid,"end")
+      //     viewer.entities.removeById(item.plotid)
+      //   }
+      // })
 
     },
-
 
     //时间轴操作-----------------------------------------------
     //暂停播放切换
@@ -1243,66 +1200,6 @@ export default {
       })
       return PolylineIdArr
     },
-    // 选择当前线的material
-    getMaterial(type, img) {
-      if (type === "量算") {
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.CYAN,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-      if (type === "地裂缝" || type === "可用供水管网" || type === "不可用供水管网") {
-        let PICTURELINE = new Cesium.ImageMaterialProperty({
-          image: img,
-          repeat: new Cesium.Cartesian2(3, 1),
-        })
-        return PICTURELINE
-      }
-      if (type === "可通行公路" || type === "限制通行公路" || type === "不可通行公路") {
-        let color = null
-        if (type === "可通行公路") {
-          color = Cesium.Color.fromBytes(158, 202, 181)
-        } else if (type === "限制通行公路") {
-          color = Cesium.Color.fromBytes(206, 184, 157)
-        } else {
-          color = Cesium.Color.fromBytes(199, 151, 149)
-        }
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: color,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-      if (type === "可通行铁路" || type === "不可通行铁路") {
-        let gapColor
-        if (type === "可通行铁路") {
-          gapColor = Cesium.Color.BLACK
-        } else {
-          gapColor = Cesium.Color.RED
-        }
-        let DASHLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.WHITE,
-          gapColor: gapColor,
-          dashLength: 100
-        })
-        return DASHLINE
-      }
-      if (type === "可用输电线路" || type === "不可用输电线路") {
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.CYAN,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-      if (type === "可用输气管线" || type === "不可用输气管线") {
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.CYAN,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-    },
     getDrawPolygon(polygon) {
       // console.log("polygon111111111",polygon)
       viewer.entities.add({
@@ -1330,7 +1227,7 @@ export default {
 
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-          console.log(entity)
+
           // console.log(99999);
           // console.log(entity._layer);
 
@@ -1883,6 +1780,9 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.tableData = res
+        // 初始化标绘所需的viewer、ws、pinia
+        let cesiumStore = useCesiumStore()
+        cesiumPlot.init(window.viewer, this.websock, cesiumStore)
         // console.log("that.tableData", that.tableData)
       })
     },
@@ -2386,8 +2286,8 @@ export default {
 
 
     //人口密度灰度查询
-    getPopDesity(longitude, latitude) {
-      const url = "http://10.16.7.69:9080/geoserver/yaan/wms"
+    getPopDesity(longitude,latitude){
+      const url="http://10.16.7.69:9080/geoserver/yaan/wms"
       const bboxSize = 0.001
       const urlParams = new URLSearchParams({
         service: 'WMS',
@@ -2401,11 +2301,11 @@ export default {
         info_format: 'application/json',
         x: 50,
         y: 50,
-        srs: 'EPSG:4326',
+        srs:'EPSG:4326',
       })
       const fullUrl = `${url}?${urlParams.toString()}`;
       console.log('GetFeatureInfo URL:', fullUrl);
-      fetch(fullUrl).then(response => response.json()).then(data => {
+      fetch( fullUrl).then(response => response.json()).then(data => {
         console.log(data.features[0].properties)
       }).catch(error => {
         console.error('There was an error!', error);
@@ -2462,11 +2362,9 @@ export default {
   width: 45%;
   right: 0%;
 }
-
 .end-time-info .timelabel span:nth-child(2) {
   margin: 0 5px; /* 分隔符前后的间隔 */
 }
-
 .timelabel {
   color: #ffffff;
 }
@@ -2606,14 +2504,12 @@ export default {
   top: 6.3%;
   left: 20%;
 }
-
-.back-button {
+.back-button{
   position: absolute;
   z-index: 20;
   top: 6.3%;
   right: 21%;
 }
-
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -2699,9 +2595,8 @@ export default {
 /*弹窗样式*/
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(1, 1fr); /* 创建2列，等宽 */
-  gap: 8px; /* 行间距 */
-  left: 2px;
+  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
+  gap: 8px; /* 列间距 */
 }
 
 /*图层要素选项颜色改为白色*/
@@ -2724,18 +2619,19 @@ export default {
   width: 200px; /* 返回首页的下拉框宽度 */
 }
 
-:deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 100 !important;
+:deep(.cesium-baseLayerPicker-dropDown-visible){
+  z-index:100 !important ;
   background-color: #2b323a;
 }
-
-:deep(.cesium-baseLayerPicker-dropDown) {
+:deep(.cesium-baseLayerPicker-dropDown){
   right: 9px !important;
   width: 398px !important;
-  height: 310px !important;
+  height:310px !important;
 }
-
-:deep(.distance-legend) {
-  bottom: 11% !important;
+:deep(.distance-legend){
+  bottom:11% !important;
+}
+.dropdown {
+  overflow: hidden; /* 防止显示滚动条 */
 }
 </style>
