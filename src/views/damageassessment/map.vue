@@ -111,11 +111,11 @@
       </div>
       <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
            @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
-        <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
+        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
              style="height: 60%;width: 60%;">
       </div>
       <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
-        <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
+        <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
     </div>
 
@@ -135,13 +135,13 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {getAllEq} from "@/api/system/eqlist";
+import {getAllEq} from "@/api/system/eqlist.js";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import {addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addYaanLayer} from "../../cesium/plot/eqThemes.js";
 
 import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
-import thematicMapPreview from "@/components/ThematicMap/ThematicMap/thematicMapPreview.vue";
+import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import News from "@/components/TimeLine/news.vue";
 
 export default {
