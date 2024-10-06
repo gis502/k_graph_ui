@@ -69,10 +69,13 @@ export default {
       'eqid'
   ],
   mounted() {
-      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-          this.ifShowData = true
-      }
     this.init()
+    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
+      this.ifShowData = true
+    }
+    // if(this.ifShowData){
+    //   this.rescue_team_update(this.currentTime)
+    // }
   },
   watch: {
     currentTime(newVal) {
@@ -88,6 +91,7 @@ export default {
             // console.log("res:----",res)
             // console.log("this.ifShowData-----",this.ifShowData)
             this.RescueTeamInfo = res
+          this.rescue_team_update(this.currentTime)
         })
       // this.RescueTeamInfo.sort((a, b) => {
       //   if (a.recordTime < b.recordTime) return -1;
@@ -140,7 +144,6 @@ export default {
           this.showRescueTeam.unshift(activity)
         })
       }
-
     },
 
       timestampToTime(timestamp) {
