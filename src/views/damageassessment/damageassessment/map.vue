@@ -80,10 +80,10 @@
             <el-divider content-position="left"> 地震专题</el-divider>
 
             <div class="eqTheme">
-              <div class="button themes history" :class="{ active: isshowImage==='history' }"
+              <div class="button themes history" :class="{ active: isshowImagetype==='history' }"
                    @click="exportCesiumScene('history')"> 历史地震
               </div>
-              <div class="button themes FaultZone" :class="{ active: isshowImage==='FaultZone' }"
+              <div class="button themes FaultZone" :class="{ active: isshowImagetype==='FaultZone' }"
                    @click="exportCesiumScene('FaultZone')"> 断裂带
               </div>
               <!--              <div class="button themes circle" :class="{ active: isshowOvalCircle }"-->
@@ -119,13 +119,13 @@
       </div>
     </div>
 
-    <div v-if="isshowImage">
-<!--    <div class="preview-container">-->
-<!--      <img class="preview-image" :src=showtmp alt=""/>-->
-
-            <MapPreview
-          :type="type"
-      ></MapPreview>
+    <div v-if="isshowImagetype">
+      <thematicMapPreview
+          @ifShowDialog="ifShowDialog"
+          :imgshowURL="imgshowURL"
+          :imgurlFromDate="imgurlFromDate"
+          :imgName="imgName"
+      ></thematicMapPreview>
     </div>
   </div>
 
@@ -140,18 +140,12 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {addYaanLayer} from "../../../cesium/plot/eqThemes.js";
 
-
-import imageurl from "@/assets/images/ThematicMap/震区历史地震分布图-专业版-A3-横版.jpg"
-
 import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
-// import.meta.globEager('@/assets/images/ThematicMap/*.jpg');
+import thematicMapPreview from "@/components/ThematicMap/ThematicMap/thematicMapPreview.vue";
+import News from "@/components/TimeLine/news.vue";
 
-// impprt mapPic from "@/assets/images/ThematicMap"
-import newsData from "@/assets/json/TimeLine/sorted_data.json";
-import MapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
-// const imageUrl = getAssetsFile('example.png');
 export default {
-  components: {MapPreview},
+  components: {News, thematicMapPreview},
   data() {
     return {
       total: 0,
@@ -190,12 +184,13 @@ export default {
       // layerVisible: true, // 图层可见性状态
       isshowRegion: true,//行政区划
       RegionLabels: [],
-      isshowImage: '',
-      imgurl: "",
 
-      showtmp:null,
-      type:'',
 
+      isshowImagetype: '',
+      imgurlFromDate: "",
+
+      imgshowURL:null,
+      imgName:'',
     }
   },
 
@@ -206,7 +201,7 @@ export default {
 
   methods: {
     getAssetsFile() {
-      this.showtmp=new URL(this.imgurl, import.meta.url).href
+      this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
     },
     // 获取地震列表并渲染
     getEq() {
@@ -563,19 +558,25 @@ export default {
       }
     },
     exportCesiumScene(type) {
-      // this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
-      this.isshowImage = this.isshowImage === type ? null : type;
-      console.log("type",type)
-      this.type=type
+      this.isshowImagetype = this.isshowImagetype === type ? null : type;
       if (type == "history") {
-        this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
-      this.getAssetsFile()
+        this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
+        this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
+        this.getAssetsFile()
       }
 
-      else{
-        this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
-      this.getAssetsFile()
+      else if(type == "FaultZone"){
+        this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
+        this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].name
+        this.getAssetsFile()
       }
+      else{
+
+      }
+    },
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.isshowImagetype = val
     },
   }
 };
