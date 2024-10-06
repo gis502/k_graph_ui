@@ -2020,7 +2020,7 @@ export default {
 }
 
 #box {
-  height: 100%;
+  height: calc(100vh - 33px);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -2321,7 +2321,7 @@ export default {
 }
 
 :deep(.distance-legend) {
-  bottom: 11% !important;
+  bottom: 1% !important;
 }
 
 
