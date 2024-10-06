@@ -83,15 +83,15 @@
               <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
                    @click="exportCesiumScene('history')"> 历史地震
               </div>
-              <!--              <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"-->
-              <!--                   @click="showFaultZone()"> 断裂带-->
-              <!--              </div>-->
-              <!--              <div class="button themes circle" :class="{ active: isshowOvalCircle }"-->
-              <!--                   @click="showOvalCircle()"> 烈度圈-->
-              <!--              </div>-->
-              <!--              <div class="button themes region" :class="{ active: isshowPersonalCasualty }"-->
-              <!--                   @click="showPersonalCasualty()"> 人员伤亡-->
-              <!--              </div>-->
+<!--                            <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"-->
+<!--                                 @click="showFaultZone()"> 断裂带-->
+<!--                            </div>-->
+<!--                            <div class="button themes circle" :class="{ active: isshowOvalCircle }"-->
+<!--                                 @click="showOvalCircle()"> 烈度圈-->
+<!--                            </div>-->
+<!--                            <div class="button themes region" :class="{ active: isshowPersonalCasualty }"-->
+<!--                                 @click="showPersonalCasualty()"> 人员伤亡-->
+<!--                            </div>-->
 
             </div>
 
