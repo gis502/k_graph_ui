@@ -477,6 +477,7 @@ export default {
     getTableName() {
       getField().then(res => {
         this.files = res.data
+        console.log(res.data)
         if (res.data === null) {
           ElMessage.error("该用户无导表权限")
         }
