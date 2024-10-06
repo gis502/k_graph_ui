@@ -232,15 +232,35 @@
   <div id="faultInfo"
        style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
   </div>
-
-    <div v-if="this.isshowThematicMapPreview">
-      <thematicMapPreview
-          @ifShowThematicMapDialog="ifShowThematicMapDialog"
-          :imgshowURL="imgshowURL"
-          :imgurlFromDate="imgurlFromDate"
-          :imgName="imgName"
-      ></thematicMapPreview>
-    </div>
+<!--    <thematicMapPreview-->
+<!--        @ifShowThematicMapDialog="ifShowMapPreview"-->
+<!--        :imgshowURL="imgshowURL"-->
+<!--        :imgurlFromDate="imgurlFromDate"-->
+<!--        :imgName="imgName"-->
+<!--        :ifShowMapPreview="ifShowMapPreview"-->
+<!--    ></thematicMapPreview>-->
+<!--    <thematicMapPreview-->
+<!--        @ifShowThematicMapDialog="ifShowMapPreview"-->
+<!--        :imgshowURL="imgshowURL"-->
+<!--        :imgurlFromDate="imgurlFromDate"-->
+<!--        :imgName="imgName"-->
+<!--        :ifShowMapPreview="ifShowMapPreview"-->
+<!--    ></thematicMapPreview>-->
+    <thematicMapPreview
+        @ifShowThematicMapDialog="ifShowThematicMapDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
+    ></thematicMapPreview>
+<!--    <div v-if="this.isshowThematicMapPreview">-->
+<!--      <thematicMapPreview-->
+<!--          @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
+<!--          :imgshowURL="imgshowURL"-->
+<!--          :imgurlFromDate="imgurlFromDate"-->
+<!--          :imgName="imgName"-->
+<!--      ></thematicMapPreview>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -437,6 +457,7 @@ export default {
       imgshowURL:'',
       imgurlFromDate:'',
       imgName:'',
+      ifShowMapPreview: false, // 是否预览专题图
 
       //请求防抖
       isRequesting: false,
@@ -2043,7 +2064,7 @@ export default {
 
     //专题图下载
     updatethematicMap(){
-      // console.log("11111")
+      console.log("11111")
       //   this.isshowThematicMapPreview=this.isshowThematicMapPreview===this.selectthematicMap?null:this.selectthematicMap;
       //
       //   if(!this.isshowThematicMapPreview){ this.selectthematicMap=null;}
@@ -2053,8 +2074,8 @@ export default {
       if(this.selectthematicMap){
 
         // this.isshowImagetype = this.isshowImagetype === type ? null : type;
-        this.isshowThematicMapPreview=this.selectthematicMap
-
+        // this.isshowThematicMapPreview=this.selectthematicMap
+        this.ifShowMapPreview=true
         // console.log(this.isshowThematicMapPreview)
         const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name===this.selectthematicMap);
         console.log(selectedData)
@@ -2065,13 +2086,16 @@ export default {
         console.log(this.imgshowURL)
       }
      else{
-        this.isshowThematicMapPreview=null
+        this.ifShowMapPreview=false
+        // this.isshowThematicMapPreview=null
+        // this.ifShowMapPreview=false
       }
 
     },
     ifShowThematicMapDialog(val) {
-      this.isshowThematicMapPreview = val
-      if( !this.isshowThematicMapPreview){this.selectthematicMap=null}
+      // this.isshowThematicMapPreview = val
+      this.ifShowMapPreview= val // 是否预览专题图 = val
+      if( !val){this.selectthematicMap=null}
     },
   }
 }
