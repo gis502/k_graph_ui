@@ -29,16 +29,15 @@
         <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
+
     <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
          :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
-<!--      <el-radio-group v-model="selectthematicMap" class="grid-container">-->
         <el-radio
-            v-for="item in (thematicMapitems ? thematicMapitems : thematicMapitems.slice(0, 6))"
+            v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
             :key="item.id"
             :label="item.name"
             style="margin: 1px 0;color:white"
-            @click="changeifShowThematicMap"
         >
           {{ item.name }}
         </el-radio>
@@ -479,11 +478,10 @@ export default {
     },
     //设置组件展开的面板互斥,避免堆叠
     toggleComponent(component) {
+      this.isExpanded=false; //图层要素收起
+      this.isshowThematicMapPreview=null
+      this.selectthematicMap=null
       // 图层要素
-      // this.activeComponent = this.isActive ? null : 'layerChoose';
-      // if (this.activeComponent==='layerChoose') {
-      //   this.initPlot(); // 调用初始化方法
-      // }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
       if (this.activeComponent === 'eqList') {
@@ -2042,11 +2040,7 @@ export default {
       });
     },
 
-    changeifShowThematicMap(){
-      console.log("changeifShowThematicMap",this.selectthematicMap)
-      this.isshowThematicMapPreview=this.isshowThematicMapPreview===this.selectthematicMap?null:this.selectthematicMap;
-      if(!this.isshowThematicMapPreview){ this.selectthematicMap=null;}
-    },
+
     //专题图下载
     updatethematicMap(){
       // console.log("11111")
