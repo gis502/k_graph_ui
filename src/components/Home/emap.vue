@@ -367,7 +367,6 @@ const initEmap = () => {
             value: [item.longitude, item.latitude],  //[经度, 纬度]定位散点的位置
             itemStyle: {color: '#ed2a2a'},  //点颜色
             symbolSize: 10, //点大小
-
           })),
           emphasis: {  //悬浮时显示标签
             label: {
@@ -413,8 +412,6 @@ const initEmap = () => {
             },
           },
         },
-
-
       ],
 
 
@@ -457,7 +454,7 @@ const initEmap = () => {
 
 
     // 加载数据后，让最新的红点持续闪烁
-    blinkPoints('最新4.5级以下地震'); // 用你的数据对应的系列名称替换
+    // blinkPoints('最新4.5级以下地震'); // 用你的数据对应的系列名称替换
 
 
     //将配置好的选项传递给 ECharts 实例以进行渲染。
@@ -693,7 +690,7 @@ const updateScaleBar = () => {
 .row {
   display: flex;
   justify-content: space-between; /* 左右分列 */
-  width: 64%;
+  width: 20%;
 }
 
 .column {
@@ -754,6 +751,7 @@ const updateScaleBar = () => {
   width: 141px;
   color: white;
   margin-top: 5px; /* 添加间距 */
+  font-size: 14px;
 }
 
 .line span {
