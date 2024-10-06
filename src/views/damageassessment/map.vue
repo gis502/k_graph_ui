@@ -140,7 +140,7 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {addYaanLayer} from "../../cesium/plot/eqThemes.js";
 
-// import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
+
 import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import News from "@/components/TimeLine/news.vue";

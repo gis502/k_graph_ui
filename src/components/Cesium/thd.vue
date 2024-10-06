@@ -16,10 +16,10 @@
          :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
-            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 8))"
+            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
             :key="item.id"
             :label="item.name"
-            style="margin: 5px 0;"
+            style="margin: 1px 0;"
         >
           {{ item.name }}
         </el-checkbox>
@@ -29,9 +29,24 @@
         <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
+    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
+         :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
+      <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
+        <el-radio
+            v-for="item in (thematicMapitems ? thematicMapitems : thematicMapitems.slice(0, 6))"
+            :key="item.id"
+            :label="item.name"
+            style="margin: 1px 0;color:white"
+        >
+          {{ item.name }}
+        </el-radio>
+      </el-radio-group>
+      <div @click="toggleExpand"
+           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+      </div>
+    </div>
 
-
-  </div>
 
   <!--    行政区划-->
   <!--    <div class="regionjump-button">-->
@@ -92,7 +107,7 @@
       <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
       <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
       <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
-      <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
+      <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
       <el-menu-item index="6">返回首页</el-menu-item>
     </el-menu>
   </div>
@@ -214,8 +229,9 @@
 
   <!--   断裂带名称div   -->
   <div id="faultInfo"
-       style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
-
+       style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
+  </div>
+  </div>
 </template>
 
 <script>
@@ -255,6 +271,8 @@ import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
+//专题图
+import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
 export default {
   components: {
     RouterPanel,
@@ -401,18 +419,22 @@ export default {
       emergencyTeam: [],
       emergencyShelters: [],
 
+      thematicMapitems:[],
+      selectthematicMap:'',
       //请求防抖
       isRequesting: false,
     };
   },
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
+    this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
+    // console.log(this.thematicMapitems);
   },
   mounted() {
     this.init()
     this.getEqInfo(this.eqid)
 
-    // this.initPlot(); // 初始化加载应急数据
+    this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
@@ -441,9 +463,9 @@ export default {
     toggleComponent(component) {
       // 图层要素
       // this.activeComponent = this.isActive ? null : 'layerChoose';
-      if (this.activeComponent) {
-        this.initPlot(); // 调用初始化方法
-      }
+      // if (this.activeComponent==='layerChoose') {
+      //   this.initPlot(); // 调用初始化方法
+      // }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
       if (this.activeComponent === 'eqList') {
@@ -736,6 +758,7 @@ export default {
     intimexuanran(eqid) {
       //5分钟一次
       if (this.realTime < this.tmpeqendTime) {
+        console.log("还在更新的地震")
         if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // console.log("gengxin")
           // 检查是否已经有定时器在运行
@@ -778,6 +801,10 @@ export default {
           }
         }
       }
+      else{
+        console.log("过去的地震")
+      }
+
     },
 
     //取标绘点
@@ -1614,9 +1641,7 @@ export default {
       );
       viewer.camera.flyTo({destination: position,})
     },
-    layerChoose() {
-      this.iflayerChoose = !this.iflayerChoose;
-    },
+
     // 图层要素
     initPlot() {
       getFeaturesLayer().then(res => {
@@ -1624,11 +1649,12 @@ export default {
         this.disasterReserves = disasterReserves;
         this.emergencyTeam = emergencyTeam;
         this.emergencyShelters = emergencyShelters;
-        this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
+        // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
 
     updateMapLayers() {
+      // this.initPlot()
       // 标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       if (hasDrawingLayer) {
@@ -1743,16 +1769,16 @@ export default {
       pointArr = pointArr.filter(e => e.longitude !== null);
 
       pointArr.forEach(element => {
-        let existingEntity = window.viewer.entities.getById(element.id);
+        let existingEntity = window.viewer.entities.getById(element.uuid);
         if (existingEntity) {
-          console.warn(`id为${element.id}的实体已存在。跳过此实体`);
+          console.warn(`uuid为${element.uuid}的实体已存在。跳过此实体`);
           return;
         }
 
         let longitude = Number(element.longitude);
         let latitude = Number(element.latitude);
         if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.id}的实体的坐标无效或超出范围`, {longitude, latitude});
+          console.error(`uuid为${element.uuid}的实体的坐标无效或超出范围`, {longitude, latitude});
           return;
         }
 
@@ -1763,7 +1789,7 @@ export default {
 
     addEntity(element, icon, tableName, longitude, latitude) {
       window.viewer.entities.add({
-        id: element.id,
+        id: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
         billboard: {
           image: icon,
