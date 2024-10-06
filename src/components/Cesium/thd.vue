@@ -845,10 +845,9 @@ export default {
       })
     },
     //更新标绘点
-    updatePlot() {
+     updatePlot() {
       // console.log(this.plots)
       let that = this
-      //一个点线面一条数据
       //点
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
       console.log("点渲染",pointArr)
@@ -892,46 +891,34 @@ export default {
       }
 
 
-      // //线
-      // let polylineArrtmp = this.plots.filter(e => e.drawtype === 'polyline')
-      // let polylineId = this.distinguishPolylineId(polylineArrtmp)
-      // let polylineArr = []  // id, 开始时间, 结束时间
-      // polylineId.forEach(onlyDrawIdItem => {
-      //   let positionsArr = [];
-      //   let polylinetmp = {};
-      //
-      //   polylineArrtmp.forEach(polylineElement => {
-      //     if (polylineElement.plotid === onlyDrawIdItem) {
-      //       positionsArr.push(
-      //           parseFloat(polylineElement.longitude),
-      //           parseFloat(polylineElement.latitude),
-      //           parseFloat(polylineElement.height)
-      //       );
-      //
-      //       // 检查 polylineArr 中是否已存在该 plotid 的数据
-      //       let existingPolyline = polylineArr.find(p => p.plotid === polylineElement.plotid);
-      //       if (existingPolyline) {
-      //         // 更新已存在的数据
-      //         // existingPolyline.endtime = polylineElement.endtime;
-      //         existingPolyline.positionsArr = positionsArr;
-      //       } else {
-      //         // 创建新的数据对象并添加到 polylineArr
-      //         polylinetmp = {
-      //           plotid: polylineElement.plotId,
-      //           drawtype: "polyline",
-      //           endtime: polylineElement.endTime,
-      //           starttime: polylineElement.startTime,
-      //           plottype: polylineElement.plottype,
-      //           img: polylineElement.icon,
-      //           positionsArr: positionsArr,
-      //         };
-      //         polylineArr.push(polylinetmp);
-      //       }
-      //     }
-      //   });
-      // });
-      // // console.log("polylineArr",polylineArr)
-      //
+      //线
+      let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
+      console.log("polylineArr",polylineArr)
+
+       let filteredPolylineArr = []; // 用于存储符合条件的线条数据
+
+       polylineArr.forEach(item => {
+         // that.drawPolyline(item)
+         const currentDate = new Date(this.currentTime);
+         console.log(currentDate)
+         const startDate = new Date(item.startTime);
+         const endDate = new Date(item.endTime);
+         // console.log("line",item.plotId,startDate,endDate,currentDate)
+         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+           this.plotisshow[item.plotId] = 1
+           filteredPolylineArr.push(item); // 收集符合条件的线条
+
+         }
+         //消失
+         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+           this.plotisshow[item.plotId] = 0
+           // console.log(item.plotId,"end")
+           viewer.entities.removeById(item.plotId)
+         }
+
+       })
+       console.log("filteredPolylineArr",filteredPolylineArr)
+       cesiumPlot.getDrawPolyline(filteredPolylineArr)
       // // 面
       // let polygonArrtmp = this.plots.filter(e => e.drawtype === 'polygon')
       // let polygonId = this.distinguishPolylineId(polygonArrtmp)
@@ -971,26 +958,7 @@ export default {
       // });
       // // console.log("polygonArr",polygonArr)
       //
-      // polylineArr.forEach(item => {
-      //   // that.drawPolyline(item)
-      //   const currentDate = new Date(this.currentTime);
-      //   const startDate = new Date(item.starttime);
-      //   const endDate = new Date(item.endtime);
-      //   // console.log("line",item.plotid,startDate,endDate,currentDate)
-      //
-      //
-      //   if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-      //     this.plotisshow[item.plotid] = 1
-      //     this.drawPolyline(item)
-      //   }
-      //   //消失
-      //   if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-      //     this.plotisshow[item.plotid] = 0
-      //     // console.log(item.plotid,"end")
-      //     viewer.entities.removeById(item.plotid)
-      //   }
-      //
-      // })
+
       //
       // polygonArr.forEach(item => {
       //   // console.log(item)
@@ -1231,66 +1199,6 @@ export default {
         }
       })
       return PolylineIdArr
-    },
-    // 选择当前线的material
-    getMaterial(type, img) {
-      if (type === "量算") {
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.CYAN,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-      if (type === "地裂缝" || type === "可用供水管网" || type === "不可用供水管网") {
-        let PICTURELINE = new Cesium.ImageMaterialProperty({
-          image: img,
-          repeat: new Cesium.Cartesian2(3, 1),
-        })
-        return PICTURELINE
-      }
-      if (type === "可通行公路" || type === "限制通行公路" || type === "不可通行公路") {
-        let color = null
-        if (type === "可通行公路") {
-          color = Cesium.Color.fromBytes(158, 202, 181)
-        } else if (type === "限制通行公路") {
-          color = Cesium.Color.fromBytes(206, 184, 157)
-        } else {
-          color = Cesium.Color.fromBytes(199, 151, 149)
-        }
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: color,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-      if (type === "可通行铁路" || type === "不可通行铁路") {
-        let gapColor
-        if (type === "可通行铁路") {
-          gapColor = Cesium.Color.BLACK
-        } else {
-          gapColor = Cesium.Color.RED
-        }
-        let DASHLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.WHITE,
-          gapColor: gapColor,
-          dashLength: 100
-        })
-        return DASHLINE
-      }
-      if (type === "可用输电线路" || type === "不可用输电线路") {
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.CYAN,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
-      if (type === "可用输气管线" || type === "不可用输气管线") {
-        let NORMALLINE = new Cesium.PolylineDashMaterialProperty({
-          color: Cesium.Color.CYAN,
-          dashPattern: parseInt("110000001111", 1),
-        })
-        return NORMALLINE
-      }
     },
     getDrawPolygon(polygon) {
       // console.log("polygon111111111",polygon)
