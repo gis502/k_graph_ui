@@ -201,9 +201,7 @@ export default {
   },
 
   methods: {
-    getAssetsFile() {
-      this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
-    },
+
     // 获取地震列表并渲染
     getEq() {
       getAllEq().then((res) => {
@@ -561,44 +559,13 @@ export default {
     },
     exportCesiumScene(type) {
       this.isshowImagetype = this.isshowImagetype === type ? null : type;
-      // console.log(this.selectedTabData.eqid)
-
-      // if(this.)
-
-
-      // // if (type == "history") {
-        const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
-        // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
-        this.imgurlFromDate = selectedData.url
-        // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
-        this.imgName=selectedData.name
-
-        console.log(this.imgurlFromDate, this.imgName)
-        this.getAssetsFile()
-
-      // if (type == "history") {
-      //
-      // // const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
-      // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
-      // // this.imgurlFromDate = selectedData.url
-      // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
-      // // this.imgName=selectedData.name
-      //
-      // console.log(this.imgurlFromDate, this.imgName)
-      // this.getAssetsFile()
-      // }
-      //
-      // else if(type == "FaultZone"){
-      //   this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
-      //   this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].name
-      //   this.getAssetsFile()
-      // }
-      // else{
-      //
-      // }
+      const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
+      this.imgurlFromDate = selectedData.url
+      this.imgName=selectedData.name
+      console.log(this.imgurlFromDate, this.imgName)
+      this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
     },
     ifShowDialog(val) {
-      // console.log("ifShowDialog-----",val)
       this.isshowImagetype = val
     },
   }
