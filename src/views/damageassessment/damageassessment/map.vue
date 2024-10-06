@@ -124,7 +124,7 @@
 <!--      <img class="preview-image" :src=showtmp alt=""/>-->
 
             <MapPreview
-          :showtmp="showtmp"
+          :type="type"
       ></MapPreview>
     </div>
   </div>
@@ -148,7 +148,7 @@ import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
 
 // impprt mapPic from "@/assets/images/ThematicMap"
 import newsData from "@/assets/json/TimeLine/sorted_data.json";
-import MapPreview from "@/components/ThematicMap/MapPreview.vue";
+import MapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 // const imageUrl = getAssetsFile('example.png');
 export default {
   components: {MapPreview},
@@ -194,6 +194,7 @@ export default {
       imgurl: "",
 
       showtmp:null,
+      type:'',
 
     }
   },
@@ -205,23 +206,7 @@ export default {
 
   methods: {
     getAssetsFile() {
-      // if (type == "history") {
-      //   this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
-        // this.getAssetsFile()
-      // }
-
-      // else{
-      //   this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
-        // this.getAssetsFile()
-      // }
-      // this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
-      // console.log(this.imgurl)
-      // console.log(new URL(this.imgurl, import.meta.url).href)
-      // return new URL(this.imgurl, import.meta.url).href
-      // return new URL(this.imgurl, import.meta.url).href
       this.showtmp=new URL(this.imgurl, import.meta.url).href
-      // this.showImg= new URL(this.imgurl, import.meta.url).href
-      // console.log(this.showImg)
     },
     // 获取地震列表并渲染
     getEq() {
@@ -580,6 +565,8 @@ export default {
     exportCesiumScene(type) {
       // this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
       this.isshowImage = this.isshowImage === type ? null : type;
+      console.log("type",type)
+      this.type=type
       if (type == "history") {
         this.imgurl = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
       this.getAssetsFile()
