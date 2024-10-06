@@ -1,13 +1,94 @@
-<template>
 
+<template>
+  <div class="preview-container">
+    <h3 style="color: white">图片预览</h3>
+    <img class="preview-image" :src=imgshowURL alt=""/>
+    <div class="preview-buttons">
+      <button @click="downloadImage" class="download-button">下载图片</button>
+      <button @click="closePreview" class="cancel-button">取消</button>
+    </div>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "thematicMapPreview"
+export default {
+  data(){
+    return {
+      imgshowURLLocal:'',
+      imgurlFromDateLocal:'',
+      imgNameLocal:'',
     }
-</script>
+  },
+  props: [
+    'imgshowURL','imgurlFromDate','imgName'
+  ],
+  watch: {
+    imgshowURL(newVal) {
+      // console.log("newVal",newVal)
+      this.imgshowURLLocal=this.getAssetsFile(newVal)
+    },
+    imgurlFromDate(){
+      this.imgurlFromDateLocal= this.imgurlFromDate
+    },
+    imgName(){
+      this.imgNameLocal=this.imgName
+    }
+  },
+  mounted() {
+    this.imgshowURLLocal=this.getAssetsFile(this.imgshowURLLocal)
+    this.imgurlFromDateLocal= this.imgurlFromDate
+    this.imgNameLocal=this.imgName
+  },
+  methods:{
+    getAssetsFile(imgshowURL) {
+      return new URL(imgshowURL, import.meta.url).href
+    },
+    async downloadImage() {
 
+      const link = document.createElement('a');
+      link.download = this.imgNameLocal+'.jpg';
+      console.log(this.imgurlFromDateLocal,"this.imgurlFromDateLocal")
+      const imgModule = await import(this.imgurlFromDateLocal);
+      console.log(imgModule)
+
+      link.href = imgModule.default;
+      link.click();
+      this.$emit('ifShowDialog', null);
+    },
+    closePreview() {
+      this.$emit('ifShowDialog', null);
+    },
+  }
+}
+</script>
 <style scoped>
 
+.preview-container {
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 55%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+.preview-image {
+  max-width: 100%;
+  height: auto;
+}
+.download-button,
+.cancel-button {
+  margin: 5px;
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 </style>

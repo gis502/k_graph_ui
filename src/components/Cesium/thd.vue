@@ -39,6 +39,13 @@
       </div>
     </div>
 
+    <!--    专题图-->
+    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown">
+      <el-checkbox-group v-model="selectedDownloadMap" @change="" class="grid-container">
+        <el-checkbox v-for="item in thematicMapItems" :key="item.id" :label="item.name">{{ item.name }}</el-checkbox>
+      </el-checkbox-group>
+    </div>
+
     <!--报告产出按钮-->
     <!--    <div class="button-container">-->
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
@@ -77,7 +84,8 @@
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
         <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
-        <el-menu-item index="5" style="width: 90px;">专题图下载</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
+        </el-menu-item>
         <el-menu-item index="6">返回首页</el-menu-item>
       </el-menu>
     </div>
@@ -135,7 +143,7 @@
       <div class="end-time-info">
         <div class="timelabel">
           <span>{{ this.timestampToTime(this.currentTime) }}</span>
-            <span> / </span>
+          <span> / </span>
           <span> {{ this.timestampToTime(this.eqendTime) }}</span>
         </div>
       </div>
@@ -276,7 +284,7 @@ export default {
       // 震中点数据结构
       centerPoint: {
         plotid: 'center',
-        earthquakeName:'',
+        earthquakeName: '',
         // position: '',
         // time:'',
         starttime: '',
@@ -384,6 +392,26 @@ export default {
       emergencyTeam: [],
       emergencyShelters: [],
 
+      //专题图下载预览
+      thematicMapItems:[
+        // {id: '0', name: '震中与主要城市距离分布图'},
+        // {id: '1', name: '震中附近居民点分布图'},
+        // {id: '2', name: '震区人口公里格网分布图'},
+        // {id: '3', name: '震中附近救援队伍分布图'},
+        // {id: '4', name: '震区交通图'},
+        // {id: '5', name: '震中附近地震台站分布图'},
+        // {id: '6', name: '震区医院分布图'},
+        // {id: '7', name: '震区学校分布图'},
+        // {id: '8', name: '震中附近旅游景点分布图'},
+        // {id: '9', name: '震中附近文物单位分布图'},
+        // {id: '10', name: '震区水库分布图'},
+        // {id: '11', name: '震区历史地震分布图'},
+        // {id: '12', name: '震中附近活动断裂图'},
+        // {id: '13', name: '地震影响估计范围分布图'},
+        // {id: '14', name: '滑坡风险评估图'},
+        // {id: '15', name: '震区潜在地质灾害分布图'},
+      ],
+      selectedDownloadMap: [],  //选择的
       //请求防抖
       isRequesting: false,
     };
@@ -461,14 +489,14 @@ export default {
           console.log(latString);
           console.log(logString);
           console.log(altiString);
-          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude),Cesium.Math.toDegrees(cartographic.latitude))
+          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude))
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium,smallMapContainer)
+      let smallViewer = initCesium(Cesium, smallMapContainer)
       window.smallViewer = smallViewer
       smallViewer._cesiumWidget._creditContainer.style.display = 'none'
       let smallOptions = {}
@@ -540,7 +568,7 @@ export default {
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
       getEqById(eqid).then(res => {
-        console.log("thd eqid---------------",eqid)
+        console.log("thd eqid---------------", eqid)
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
@@ -691,14 +719,14 @@ export default {
 
 
     // xuanran 方法
-    xuanran(eqid){
+    xuanran(eqid) {
       this.getPlotwithStartandEndTime(eqid)  //拿渲染点数据
       this.intimexuanran(eqid)  //定时向数据库请求 每分钟请求一次
     },
-    intimexuanran(eqid){
+    intimexuanran(eqid) {
       //5分钟一次
-      if(this.realTime< this.tmpeqendTime) {
-        if(!this.isTimerRunning&&this.currentTimePosition===100){
+      if (this.realTime < this.tmpeqendTime) {
+        if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // console.log("gengxin")
           // 检查是否已经有定时器在运行
           if (!this.realtimeinterval) {
@@ -1347,8 +1375,7 @@ export default {
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.timelinePopupData = this.extractDataForTimeline(entity);
             this.routerPopupVisible = false;
-          }
-          else if (entity._billboard) {
+          } else if (entity._billboard) {
             this.routerPopupVisible = true;
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.routerPopupData = this.extractDataForRouter(entity);
@@ -2359,8 +2386,8 @@ export default {
 
 
     //人口密度灰度查询
-    getPopDesity(longitude,latitude){
-      const url="http://10.16.7.69:9080/geoserver/yaan/wms"
+    getPopDesity(longitude, latitude) {
+      const url = "http://10.16.7.69:9080/geoserver/yaan/wms"
       const bboxSize = 0.001
       const urlParams = new URLSearchParams({
         service: 'WMS',
@@ -2374,11 +2401,11 @@ export default {
         info_format: 'application/json',
         x: 50,
         y: 50,
-        srs:'EPSG:4326',
+        srs: 'EPSG:4326',
       })
       const fullUrl = `${url}?${urlParams.toString()}`;
       console.log('GetFeatureInfo URL:', fullUrl);
-      fetch( fullUrl).then(response => response.json()).then(data => {
+      fetch(fullUrl).then(response => response.json()).then(data => {
         console.log(data.features[0].properties)
       }).catch(error => {
         console.error('There was an error!', error);
@@ -2435,9 +2462,11 @@ export default {
   width: 45%;
   right: 0%;
 }
+
 .end-time-info .timelabel span:nth-child(2) {
   margin: 0 5px; /* 分隔符前后的间隔 */
 }
+
 .timelabel {
   color: #ffffff;
 }
@@ -2577,12 +2606,14 @@ export default {
   top: 6.3%;
   left: 20%;
 }
-.back-button{
+
+.back-button {
   position: absolute;
   z-index: 20;
   top: 6.3%;
   right: 21%;
 }
+
 .draw-button {
   position: absolute;
   z-index: 20;
@@ -2668,8 +2699,9 @@ export default {
 /*弹窗样式*/
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
-  gap: 8px; /* 列间距 */
+  grid-template-columns: repeat(1, 1fr); /* 创建2列，等宽 */
+  gap: 8px; /* 行间距 */
+  left: 2px;
 }
 
 /*图层要素选项颜色改为白色*/
@@ -2692,16 +2724,18 @@ export default {
   width: 200px; /* 返回首页的下拉框宽度 */
 }
 
-:deep(.cesium-baseLayerPicker-dropDown-visible){
-  z-index:100 !important ;
+:deep(.cesium-baseLayerPicker-dropDown-visible) {
+  z-index: 100 !important;
   background-color: #2b323a;
 }
-:deep(.cesium-baseLayerPicker-dropDown){
+
+:deep(.cesium-baseLayerPicker-dropDown) {
   right: 9px !important;
   width: 398px !important;
-  height:310px !important;
+  height: 310px !important;
 }
-:deep(.distance-legend){
-  bottom:11% !important;
+
+:deep(.distance-legend) {
+  bottom: 11% !important;
 }
 </style>

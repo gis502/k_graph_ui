@@ -80,28 +80,28 @@
             <el-divider content-position="left"> 地震专题</el-divider>
 
             <div class="eqTheme">
-              <div class="button themes history" :class="{ active: isHistoryEqPointsShow }"
+              <div class="button themes history" :class="{ active: isshowImagetype==='history' }"
                    @click="exportCesiumScene('history')"> 历史地震
               </div>
-<!--                            <div class="button themes FaultZone" :class="{ active: isshowFaultZone }"-->
-<!--                                 @click="showFaultZone()"> 断裂带-->
-<!--                            </div>-->
-<!--                            <div class="button themes circle" :class="{ active: isshowOvalCircle }"-->
-<!--                                 @click="showOvalCircle()"> 烈度圈-->
-<!--                            </div>-->
-<!--                            <div class="button themes region" :class="{ active: isshowPersonalCasualty }"-->
-<!--                                 @click="showPersonalCasualty()"> 人员伤亡-->
-<!--                            </div>-->
+              <div class="button themes FaultZone" :class="{ active: isshowImagetype==='FaultZone' }"
+                   @click="exportCesiumScene('FaultZone')"> 断裂带
+              </div>
+              <!--              <div class="button themes circle" :class="{ active: isshowOvalCircle }"-->
+              <!--                   @click="showOvalCircle()"> 烈度圈-->
+              <!--              </div>-->
+              <!--              <div class="button themes region" :class="{ active: isshowPersonalCasualty }"-->
+              <!--                   @click="showPersonalCasualty()"> 人员伤亡-->
+              <!--              </div>-->
 
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
 
-            <el-divider content-position="left"> 大屏展示</el-divider>
+            <el-divider content-position="left"> 报告产出</el-divider>
 
             <div class="eqVisible">
-              <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
-                  src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+              <div class="button exportDownload" :class="{ active: isHistoryEqPointsShow }"
+                   @click=""> 灾害损失预评估报告下载
               </div>
             </div>
 
@@ -111,27 +111,21 @@
       </div>
       <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
            @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
-        <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
+        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
              style="height: 60%;width: 60%;">
       </div>
       <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
-        <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
+        <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
       </div>
     </div>
 
-    <div v-if="previewImage" class="preview-container">
-      <h3 style="color: white">图片预览</h3>
-
-      <img class="preview-image" src="../../../assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg" />
-
-<!--            <img class="preview-image" :src=this.previewImage />-->
-      <div class="export-info">
-        <!--        <p>{{ exportTitle }}</p>-->
-      </div>
-      <!--      <div class="preview-buttons">-->
-      <!--        <button @click="downloadImage" class="download-button">下载图片</button>-->
-      <!--        <button @click="closePreview" class="cancel-button">取消</button>-->
-      <!--      </div>-->
+    <div v-if="isshowImagetype">
+      <thematicMapPreview
+          @ifShowDialog="ifShowDialog"
+          :imgshowURL="imgshowURL"
+          :imgurlFromDate="imgurlFromDate"
+          :imgName="imgName"
+      ></thematicMapPreview>
     </div>
   </div>
 
@@ -141,12 +135,18 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {getAllEq} from "@/api/system/eqlist";
+import {getAllEq} from "@/api/system/eqlist.js";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import {addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addYaanLayer} from "../../cesium/plot/eqThemes.js";
+
+// import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
+import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
+import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+import News from "@/components/TimeLine/news.vue";
 
 export default {
+  components: {News, thematicMapPreview},
   data() {
     return {
       total: 0,
@@ -187,15 +187,23 @@ export default {
       RegionLabels: [],
 
 
-      previewImage: true, // 保存预览图片的 URL
-    };
+      isshowImagetype: '',
+      imgurlFromDate: "",
+
+      imgshowURL:null,
+      imgName:'',
+    }
   },
+
   mounted() {
     this.init();
     this.getEq();
   },
 
   methods: {
+    getAssetsFile() {
+      this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+    },
     // 获取地震列表并渲染
     getEq() {
       getAllEq().then((res) => {
@@ -428,6 +436,7 @@ export default {
     back() {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
+      this.isshowImagetype=null;
       this.removeData()
     },
 
@@ -551,16 +560,47 @@ export default {
       }
     },
     exportCesiumScene(type) {
+      this.isshowImagetype = this.isshowImagetype === type ? null : type;
+      // console.log(this.selectedTabData.eqid)
 
-      if (type == "history") {
-        // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
-        // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
-        // console.log("11111111111111111history")
-        // this.previewImage = finalCanvas.toDataURL('震区历史地震分布图-专业版-A3-横版.jpg');
-      }
-    }
+      // if(this.)
 
 
+      // // if (type == "history") {
+        const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
+        // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
+        this.imgurlFromDate = selectedData.url
+        // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
+        this.imgName=selectedData.name
+
+        console.log(this.imgurlFromDate, this.imgName)
+        this.getAssetsFile()
+
+      // if (type == "history") {
+      //
+      // // const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
+      // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
+      // // this.imgurlFromDate = selectedData.url
+      // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
+      // // this.imgName=selectedData.name
+      //
+      // console.log(this.imgurlFromDate, this.imgName)
+      // this.getAssetsFile()
+      // }
+      //
+      // else if(type == "FaultZone"){
+      //   this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
+      //   this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].name
+      //   this.getAssetsFile()
+      // }
+      // else{
+      //
+      // }
+    },
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.isshowImagetype = val
+    },
   }
 };
 </script>
@@ -803,29 +843,7 @@ export default {
 }
 
 // 大屏展示
-.eqVisible {
-  display: flex;
-  height: 80px;
-  width: 100%;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-}
 
-.toVisible {
-  margin-bottom: 0;
-  width: 200px;
-  height: 50px;
-  border: #fff 1px solid;
-  border-radius: 25px;
-  font-size: 18px;
-}
-
-.toVisible:hover {
-  color: #409eff;
-  border-color: #409eff;
-  transition: all 0.3s;
-}
 
 // 底部面板
 .panel {
@@ -969,14 +987,39 @@ span {
 
 }
 
-.preview-image {
-  max-width: 100%;
-  height: auto;
-}
+
 
 .preview-buttons {
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+.eqVisible {
+  display: flex;
+  height: 80px;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+.exportDownload {
+  margin-bottom: 23px;
+  width: 200px;
+  height: 50px;
+  border: #fff 1px solid;
+  border-radius: 25px;
+  font-size: 18px;
+}
+
+.exportDownload:hover {
+  color: #409eff;
+  border-color: #409eff;
+  transition: all 0.3s;
+}
+.preview-image {
+  max-width: 100%;
+  height: auto;
 }
 </style>
