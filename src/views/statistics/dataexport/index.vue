@@ -24,7 +24,7 @@
       <el-col :span="1.5">
         <el-select
             v-model="flag"
-            placeholder="Select"
+            placeholder="S elect"
             size="large"
             style="width: 240px"
         >
@@ -130,7 +130,8 @@ const widthList = {
   'AftershockInformation': [200, 200, 120, 120, 200, 120, 120, 120,120,120],
   'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200,200],
   'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120,200],
-  'Meetings':[200, 200, 120, 200, 200, 120, 120, 120, 120]
+  'Meetings':[200, 200, 120, 200, 200, 120, 120, 120, 120],
+  'CommunicationFacilityDamageRepairStatus':[200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200]
 }
 
 /** 监听 */
@@ -317,13 +318,18 @@ const exportStatistics = () => {
       flag: flag.value
     }).then(res => {
       let fileName;
-      if (flag.value === 'YaanRelocationResettlementDisasterReliefGroup') {
+      if (flag.value === 'TransferSettlementInfo') {
         fileName = '震情伤亡-转移安置统计表.xlsx';
-      } else if (flag.value === 'YaanAftershockStatistics') {
+      } else if (flag.value === 'AftershockInformation') {
         fileName = '震情伤亡-震情灾情统计表.xlsx';
-      } else if (flag.value === 'YaanCasualties'){
+      } else if (flag.value === 'CasualtyReport'){
         fileName = '震情伤亡-人员伤亡统计表.xlsx'; // 默认文件名
       }
+      else if (flag.value === 'Meetings'){
+        fileName = '震情伤亡-文会情况统计表.xlsx'; // 默认文件名
+    } else if (flag.value === 'CommunicationFacilityDamageRepairStatus'){
+      fileName = '交通电力通信-通信设施损毁及抢修情况统计表.xlsx'; // 默认文件名
+    }
       const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
       const link = document.createElement('a');
       link.href = url;
