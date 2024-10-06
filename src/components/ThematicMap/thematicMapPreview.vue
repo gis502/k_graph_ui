@@ -1,6 +1,5 @@
-
 <template>
-  <div class="preview-container">
+  <div class="preview-container" v-show="ifShow">
     <h3 style="color: white">图片预览</h3>
     <img class="preview-image" :src=imgshowURL alt=""/>
     <div class="preview-buttons">
@@ -17,10 +16,12 @@ export default {
       imgshowURLLocal:'',
       imgurlFromDateLocal:'',
       imgNameLocal:'',
+        ifShow: false,
     }
   },
   props: [
-    'imgshowURL','imgurlFromDate','imgName'
+    'imgshowURL','imgurlFromDate','imgName',
+      'ifShowMapPreview',
   ],
   watch: {
     imgshowURL(newVal) {
@@ -32,7 +33,11 @@ export default {
     },
     imgName(){
       this.imgNameLocal=this.imgName
-    }
+    },
+      ifShowMapPreview(bool){
+          // console.log("ifShowMapPreview---------",bool)
+        this.ifShow = bool
+      }
   },
   mounted() {
     this.imgshowURLLocal=this.getAssetsFile(this.imgshowURLLocal)
@@ -47,16 +52,17 @@ export default {
 
       const link = document.createElement('a');
       link.download = this.imgNameLocal+'.jpg';
-      console.log(this.imgurlFromDateLocal,"this.imgurlFromDateLocal")
+      // console.log(this.imgurlFromDateLocal,"this.imgurlFromDateLocal")
       const imgModule = await import(this.imgurlFromDateLocal);
       console.log(imgModule)
 
       link.href = imgModule.default;
       link.click();
-      this.$emit('ifShowDialog', null);
+      this.$emit('ifShowThematicMapDialog', null);
     },
     closePreview() {
-      this.$emit('ifShowDialog', null);
+      this.$emit('ifShowThematicMapDialog', null);
+      this.ifShow = false
     },
   }
 }
