@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; align-items: center; padding-left: 10px; box-sizing: border-box;">
     <span
-        style="font-size: 13px;color: white; padding-left: 5px; background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); width: 100%;">
+        style="color: white; padding-left: 5px; background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); width: 100%;">
       更新时间：{{ updateTime }}
     </span>
   </div>
@@ -17,7 +17,7 @@ import {getAftershockMagnitude} from "@/api/system/statistics.js";
 
 const chart2 = ref(null);
 const props = defineProps(['lastEq']);
-const updateTime = ref("2024-09-14 09:16:36")
+const updateTime = ref()
 let myChart = null;
 
 // 初始化图表
@@ -42,17 +42,17 @@ const initChart = () => {
         show: true,
         textStyle: {
           color: '#fff',
-          fontSize: 13,
+          fontSize: 14,
         },
         interval: 0,
       },
-      data: ['3-3.9级', '4-4.9级', '5-5.9级', '6级及以上']
+      data: ['3 - 3.9级', '4 - 4.9级', '5 - 5.9级', '6.0级及以上']
     },
     yAxis: {
       type: 'value',
       nameTextStyle: {
         color: '#fff',
-        fontSize: 13,
+        fontSize: 14,
       },
       axisLabel: {
         show: true,
@@ -77,7 +77,7 @@ const initChart = () => {
           show: true,
           position: 'top',
           color: '#fff',
-          fontSize: 13,
+          fontSize: 16,
         },
       }
     ]
@@ -88,8 +88,6 @@ const initChart = () => {
 
 // 更新图表数据
 const updateChart = (data) => {
-  console.log("111111")
-  console.log(data)
   if (myChart) {
     myChart.setOption({
       series: [
@@ -118,10 +116,12 @@ watch(() => props.lastEq, () => {
   if (props.lastEq) {
     getAftershockMagnitude(props.lastEq.eqid).then((res) => {
       updateChart(res);  // 更新图表数据
-      updateTime.value = res.system_insert_time.replace('T', ' ')
+      if (!res.submissionDeadline){
+        updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
+      }else{
+        updateTime.value = res.submissionDeadline.replace('T', ' ')
+      }
     });
-  }else {
-    updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
   }
 });
 
