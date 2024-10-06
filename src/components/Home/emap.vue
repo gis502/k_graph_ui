@@ -338,7 +338,7 @@ const initEmap = () => {
           coordinateSystem: 'geo3D',
           show: false,
           symbol: 'circle',
-          zlevel: 5,
+          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
           data: historyMajor.map(item => ({
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
@@ -351,22 +351,20 @@ const initEmap = () => {
             },
           },
         },
-
-
         {
           name: '最新4.5级以下地震',
           type: 'scatter3D',   // 指定类型为 3D 散点图，用于显示地震点
           coordinateSystem: 'geo3D',  // 使用的坐标系为 3D 地理坐标系
           show: false,  // 设置系列是否显示，值为 true 表示显示
           symbol: 'circle',  // 数据点的符号形状，这里设置为圆形
-          zlevel: 10,  // 设置该系列图层的层次等级，数值越大，图层越高
+          zlevel: 2,  // 设置该系列图层的层次等级，数值越大，图层越高
           data: latestSlight.map(item => ({
             name: `Magnitude: ${item.magnitude}`,  //为每个地震事件生成一个名称字符串，格式为 Magnitude: X。X 是该事件的震级（item.magnitude）。
             value: [item.longitude, item.latitude],  //[经度, 纬度]定位散点的位置
-            itemStyle: {color: '#ed2a2a'},  //点颜色
+            itemStyle: {color: '#ef0909'},  //点颜色
             symbolSize: 10, //点大小
           })),
-          emphasis: {  //悬浮时显示标签
+          emphasis: {
             label: {
               show: false,
             },
@@ -378,11 +376,11 @@ const initEmap = () => {
           coordinateSystem: 'geo3D',
           show: true,
           symbol: 'circle',
-          zlevel: 15,
+          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
           data: latestModerate.map(item => ({
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
-            itemStyle: {color: '#ed2a2a'},
+            itemStyle: {color: '#ef0909'},
             symbolSize: 15
           })),
           emphasis: {
@@ -397,11 +395,11 @@ const initEmap = () => {
           coordinateSystem: 'geo3D',
           show: true,
           symbol: 'circle',
-          zlevel: 20,
+          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
           data: latestMajor.map(item => ({
             name: `Magnitude: ${item.magnitude}`,
             value: [item.longitude, item.latitude],
-            itemStyle: {color: '#ed2a2a'},
+            itemStyle: {color: '#ef0909'},
             symbolSize: 20
           })),
           emphasis: {
