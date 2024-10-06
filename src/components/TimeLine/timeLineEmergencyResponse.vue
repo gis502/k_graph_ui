@@ -71,13 +71,14 @@ export default {
         getEmergencyResponse().then(res => {
           this.EmergencyResponseResponsecontent = res
             // console.log("ifShowData---------------",this.ifShowData)
-          // console.log("EmergencyResponse------",this.EmergencyResponseResponsecontent)
+          console.log("EmergencyResponse------",this.EmergencyResponseResponsecontent)
           this.updateEmergencyResponse(this.currentTime)
         })
+
       // this.EmergencyResponseResponsecontent = [...EmergencyResponse]
     },
     async updateEmergencyResponse(currentTime){
-      console.log("this.EmergencyResponseResponsecontent",this.EmergencyResponseResponsecontent)
+      console.log( "this.EmergencyResponseResponsecontent",this.EmergencyResponseResponsecontent)
       const activities =await this.EmergencyResponseResponsecontent.filter((activity) => {
         return (
             new Date(activity.responseTime) <= currentTime

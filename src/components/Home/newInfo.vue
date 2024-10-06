@@ -17,7 +17,7 @@
     </el-col>
     <el-col>
       <div class="newColCommon">
-        地震震级：{{ Number(magnitude).toFixed(1) }}
+        地震震级：{{ Number(magnitude).toFixed(1) }} 级
       </div>
     </el-col>
     <el-col>
@@ -67,15 +67,16 @@ const initNewEq = () => {
   color: #fff;
   width: 100%;
   height: 100%;
-  line-height: 3.4vh;
+  line-height: 2.7vh;
 }
 
 .newColCommon {
   padding-left: 10px;
+  font-size: 13px;
 }
 
 .eqName {
   margin-left: 10px;
-  font-size: 18px;
+  font-size: 14px;
 }
 </style>
