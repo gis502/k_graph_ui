@@ -16,7 +16,8 @@ export default {
     return {
       imgshowURL:'',
       fileUrl:'',
-
+      imgName:'',
+      imgurlFromDate:'',
     }
   },
   props: [

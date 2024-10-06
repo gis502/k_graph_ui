@@ -140,7 +140,8 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {addYaanLayer} from "../../cesium/plot/eqThemes.js";
 
-import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
+// import PicAndLocal from "@/assets/json/thematicMap/PicNameandLocal.js"
+import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import News from "@/components/TimeLine/news.vue";
 
@@ -559,20 +560,30 @@ export default {
     },
     exportCesiumScene(type) {
       this.isshowImagetype = this.isshowImagetype === type ? null : type;
-      if (type == "history") {
-        this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
-        this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
-        this.getAssetsFile()
-      }
+      console.log(this.selectedTabData.eqid)
 
-      else if(type == "FaultZone"){
-        this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
-        this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].name
-        this.getAssetsFile()
-      }
-      else{
+      // if(this.)
 
-      }
+
+      // if (type == "history") {
+        const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
+        // this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].url
+        this.imgurlFromDate = selectedData.url
+        // this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[0].name
+        this.imgName=selectedData.name
+
+      console.log(this.imgurlFromDate, this.imgNames)
+        this.getAssetsFile()
+      // }
+
+      // else if(type == "FaultZone"){
+      //   this.imgurlFromDate = PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].url
+      //   this.imgName=PicAndLocal.be3a5ea48dfda0a2251021845f17960b[1].name
+      //   this.getAssetsFile()
+      // }
+      // else{
+      //
+      // }
     },
     ifShowDialog(val) {
       // console.log("ifShowDialog-----",val)
