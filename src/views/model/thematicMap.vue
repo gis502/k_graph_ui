@@ -5,6 +5,7 @@
             <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
             <EarthquakeList
                     @imag-selected="onImagSelected"
+                    @selectEq="selectEq"
             ></EarthquakeList>
 
             <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
@@ -90,7 +91,7 @@
                 RegionLabels: [],
 
 
-                previewImage: true, // 保存预览图片的 URL
+                previewImage: false, // 保存预览图片的 URL
                 previewImagePath: '',
             };
         },
@@ -411,6 +412,10 @@
             // 地震列表组件传回专题图路径
             onImagSelected(imagPath){
                 console.log("imagPath------------------",imagPath)
+            },
+
+            selectEq(eq){
+                this.locateEq(eq)
             },
 
             removeData() {

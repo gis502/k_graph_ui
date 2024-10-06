@@ -83,15 +83,6 @@
                 </div>
 
                 <div style="height: 10px;background-color: #054576"></div>
-
-<!--                <el-divider content-position="left"> 大屏展示</el-divider>-->
-
-<!--                <div class="eqVisible">-->
-<!--                    <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img-->
-<!--                            src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示-->
-<!--                    </div>-->
-<!--                </div>-->
-
             </div>
         </div>
 
@@ -162,11 +153,15 @@
 
                 // 清除之前的点并重新添加
                 viewer.entities.removeAll();
-                // this.renderQueryEqPoints();
+                this.renderQueryEqPoints();
             },
 
-            locateEq(){
+            renderQueryEqPoints(){
 
+            },
+
+            locateEq(eq){
+                this.$emit('selectEq', eq);
             },
 
             // 模糊匹配地震时间、位置和震级
