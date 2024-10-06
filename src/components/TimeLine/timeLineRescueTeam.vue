@@ -69,7 +69,6 @@ export default {
       'eqid'
   ],
   mounted() {
-
     this.init()
     if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
       this.ifShowData = true
@@ -77,8 +76,6 @@ export default {
     if(this.ifShowData){
       this.rescue_team_update(this.currentTime)
     }
-
-
   },
   watch: {
     currentTime(newVal) {
@@ -147,7 +144,6 @@ export default {
           this.showRescueTeam.unshift(activity)
         })
       }
-
     },
 
       timestampToTime(timestamp) {
