@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; align-items: center; padding-left: 10px; box-sizing: border-box;">
     <span
-        style="color: white; padding-left: 5px; background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); width: 100%;">
+        style="font-size: 13px;color: white; padding-left: 5px; background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); width: 100%;">
       更新时间：{{ updateTime }}
     </span>
   </div>
