@@ -1,0 +1,13 @@
+[
+  { "name": "震区交通图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/EarthquakeZoneTrafficMap.jpg" },
+  { "name": "人口公路分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/PopulationGridMap.jpg" },
+  { "name": "水库分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/ReservoirsMap.jpg" },
+  { "name": "学校分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/SchoolsMap.jpg" },
+  { "name": "医院分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/HospitalsMap.jpg" },
+  { "name": "附近台站分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/NearbySeismicStationsMap.jpg" },
+  { "name": "附近救援队伍分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/NearbyRescueTeamsMap.jpg" },
+  { "name": "附近居民点分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/NearbyResidentialAreasMap.jpg" },
+  { "name": "附近旅游景点分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/NearbyTouristAttractionsMap.jpg" },
+  { "name": "附近文物单位分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/NearbyHeritageSitesMap.jpg" },
+  { "name": "震中与主要城市距离分布图", "path": "../../images/ThematicMap/TwoAndThreeDIntegration/EpicenterToCitiesDistanceMap.jpg" }
+]

@@ -158,12 +158,12 @@ export default {
       handler() {
         // 转换 popupData,避免嵌套Proxy
         const rawPopupData = toRaw(this.popupData);
-        console.log(rawPopupData, 'data----');
+        // console.log(rawPopupData, 'data----');
         // 获取 popupTitle表头
         this.popupTitle = rawPopupData.tableName;
-        console.log(this.popupTitle, 'title----');
+        // console.log(this.popupTitle, 'title----');
 
-// 将 key 转换为中文
+      // 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
           if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type' && key !== 'geom' && key !== 'icon'&& key !=='uniqueIdentifier') {
@@ -179,6 +179,8 @@ export default {
           }
         }
         this.popupPanelData = translatedData;
+
+        // console.log(" this.popupPanelData RouterPannel", this.popupPanelData)
       }
     },
     position() {
