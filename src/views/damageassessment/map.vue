@@ -560,10 +560,13 @@ export default {
     exportCesiumScene(type) {
       this.isshowImagetype = this.isshowImagetype === type ? null : type;
       const selectedData = MapPicUrl.find(item => item.eqid === this.selectedTabData.eqid && item.type===type);
-      this.imgurlFromDate = selectedData.url
+      // const selectedData ={id:'1',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "s震区交通图", path: '../../assets/images/ThematicMap/芦山/震区历史地震分布图-专业版-A3-横版.jpg' };
+      console.log(selectedData)
+      this.imgurlFromDate = selectedData.path
       this.imgName=selectedData.name
-      console.log(this.imgurlFromDate, this.imgName)
+      console.log(this.imgurlFromDate, this.imgName,"2222222")
       this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+      console.log(this.imgshowURL)
     },
     ifShowDialog(val) {
       this.isshowImagetype = val

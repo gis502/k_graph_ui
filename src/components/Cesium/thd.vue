@@ -32,11 +32,13 @@
     <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
          :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
+<!--      <el-radio-group v-model="selectthematicMap" class="grid-container">-->
         <el-radio
             v-for="item in (thematicMapitems ? thematicMapitems : thematicMapitems.slice(0, 6))"
             :key="item.id"
             :label="item.name"
             style="margin: 1px 0;color:white"
+            @click="changeifShowThematicMap"
         >
           {{ item.name }}
         </el-radio>
@@ -231,6 +233,15 @@
   <div id="faultInfo"
        style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
   </div>
+
+    <div v-if="this.isshowThematicMapPreview">
+      <thematicMapPreview
+          @ifShowThematicMapDialog="ifShowThematicMapDialog"
+          :imgshowURL="imgshowURL"
+          :imgurlFromDate="imgurlFromDate"
+          :imgName="imgName"
+      ></thematicMapPreview>
+    </div>
   </div>
 </template>
 
@@ -273,8 +284,10 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/pl
 
 //专题图
 import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
+import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 export default {
   components: {
+    thematicMapPreview,
     RouterPanel,
     TimeLinePanel,
     News,
@@ -421,6 +434,11 @@ export default {
 
       thematicMapitems:[],
       selectthematicMap:'',
+      isshowThematicMapPreview:'',
+      imgshowURL:'',
+      imgurlFromDate:'',
+      imgName:'',
+
       //请求防抖
       isRequesting: false,
     };
@@ -2022,7 +2040,45 @@ export default {
       }).catch(error => {
         // console.error('There was an error!', error);
       });
-    }
+    },
+
+    changeifShowThematicMap(){
+      console.log("changeifShowThematicMap",this.selectthematicMap)
+      this.isshowThematicMapPreview=this.isshowThematicMapPreview===this.selectthematicMap?null:this.selectthematicMap;
+      if(!this.isshowThematicMapPreview){ this.selectthematicMap=null;}
+    },
+    //专题图下载
+    updatethematicMap(){
+      // console.log("11111")
+      //   this.isshowThematicMapPreview=this.isshowThematicMapPreview===this.selectthematicMap?null:this.selectthematicMap;
+      //
+      //   if(!this.isshowThematicMapPreview){ this.selectthematicMap=null;}
+
+      // console.log("this.selectthematicMap",this.selectthematicMap)
+
+      if(this.selectthematicMap){
+
+        // this.isshowImagetype = this.isshowImagetype === type ? null : type;
+        this.isshowThematicMapPreview=this.selectthematicMap
+
+        // console.log(this.isshowThematicMapPreview)
+        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name===this.selectthematicMap);
+        console.log(selectedData)
+        this.imgurlFromDate = selectedData.path
+        this.imgName=selectedData.name
+        console.log("11111",this.imgurlFromDate, this.imgName)
+        this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+        console.log(this.imgshowURL)
+      }
+     else{
+        this.isshowThematicMapPreview=null
+      }
+
+    },
+    ifShowThematicMapDialog(val) {
+      this.isshowThematicMapPreview = val
+      if( !this.isshowThematicMapPreview){this.selectthematicMap=null}
+    },
   }
 }
 </script>
