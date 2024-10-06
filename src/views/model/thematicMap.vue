@@ -6,33 +6,27 @@
             <EarthquakeList
                     @imag-selected="onImagSelected"
                     @selectEq="selectEq"
+                    :thematicMapClass="thematicMapClass"
             ></EarthquakeList>
 
             <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"
                  @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">
-                <img src="../../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
+                <img src="../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"
                      style="height: 60%;width: 60%;">
             </div>
             <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">
-                <img src="../../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
+                <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">
             </div>
         </div>
+        <!--    准提图预览组件    -->
+        <thematicMapPreview
+                @ifShowThematicMapDialog="ifShowDialog"
+                :imgshowURL="imgshowURL"
+                :imgurlFromDate="imgurlFromDate"
+                :imgName="imgName"
+                :ifShowMapPreview="ifShowMapPreview"
+        ></thematicMapPreview>
 
-        <div v-if="previewImage" class="preview-container">
-            <h3 style="color: white">图片预览</h3>
-
-<!--            <img class="preview-image" src="../../assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg" />-->
-            <img class="preview-image" src="../../assets/images/ThematicMap/TwoAndThreeDIntegration/EarthquakeZoneTrafficMap.jpg" />
-
-            <!--            <img class="preview-image" :src=this.previewImage />-->
-            <div class="export-info">
-                <!--        <p>{{ exportTitle }}</p>-->
-            </div>
-            <div class="preview-buttons">
-              <button @click="downloadImage" class="download-button">下载图片</button>
-              <button @click="closePreview" class="cancel-button">取消</button>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -45,11 +39,13 @@
     import yaan from "@/assets/geoJson/yaan.json";
     import {addYaanLayer} from "../../cesium/plot/eqThemes.js";
     import EarthquakeList from "../../components/ThematicMap/earthquakeList.vue";
+    import ThematicMapPreview from "../../components/ThematicMap/thematicMapPreview.vue";
 
     export default {
         name: "thematicMap",
         components:{
-            EarthquakeList
+            EarthquakeList,
+            ThematicMapPreview
         },
         data() {
             return {
@@ -91,8 +87,14 @@
                 RegionLabels: [],
 
 
+                isshowImagetype: false,
+                ifShowMapPreview: false, // 是否预览专题图
                 previewImage: false, // 保存预览图片的 URL
                 previewImagePath: '',
+                imgshowURL:null,
+                imgurlFromDate: "",
+                imgName:'',
+                thematicMapClass: 'TwoAndThreeDIntegration', // 二三维一体化的专题图
             };
         },
         mounted() {
@@ -409,9 +411,23 @@
                 }
             },
 
+            getAssetsFile() {
+                this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+            },
+
             // 地震列表组件传回专题图路径
-            onImagSelected(imagPath){
-                console.log("imagPath------------------",imagPath)
+            onImagSelected(imagData){
+                console.log("imagData------------------",imagData)
+                this.imgurlFromDate = imagData.path
+                this.imgName = imagData.name
+                this.ifShowMapPreview = true
+                this.getAssetsFile()
+            },
+
+            ifShowDialog(val) {
+                // console.log("ifShowDialog-----",val)
+                this.isshowImagetype = val
+                this.ifShowMapPreview = false
             },
 
             selectEq(eq){
