@@ -1,12 +1,12 @@
 <template>
-  <div class="economicLossPanel">
+  <div class="personalCasualtyPanel">
 
     <div class="panelLegend">
-      <span>图例（元）</span>
+      <span>图例（人数）</span>
       <ul>
         <li v-for="(item, index) in legendItems" :key="index">
           <span
-            :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '40px', height: '20px' }"></span>
+            :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '40px', height: '15px' }"></span>
           {{ item.label }}
         </li>
       </ul>
@@ -16,16 +16,15 @@
       <div class="text" style="display: flex; justify-content: space-between; align-items: center;">
         <span>统计表格</span>
         <span style="margin-right: 0">
-          <span>地震造成建筑破坏共计约</span>
-          <span class="emphasis">{{ total }}平方公里</span>
+          <span>本次地震预估伤亡总数：</span>
+          <span class="emphasis">{{ personalCasualtyData.PersonalCasualtyNum }}</span> 人
         </span>
-
       </div>
       <div class="table">
-        <el-table :data="copiedbuildingDamageData" :height="180" :max-height="180" stripe
+        <el-table :data="tableData" :height="180" :max-height="180" stripe
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
-          <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
-          <el-table-column prop="size" label="建筑破坏 / km²" align="center"></el-table-column>
+          <el-table-column prop="name" label="地区" align="center"></el-table-column>
+          <el-table-column prop="num" label="伤亡人数" align="center"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -48,63 +47,65 @@
 </template>
 
 <script>
-import * as echarts from 'echarts';
+import * as echarts from "echarts";
 
 export default {
   props: {
-    buildingDamageData: Array,
-    selectedTabData: {},
+    personalCasualtyData: {
+      type: Object,
+      required: true,
+    },
+    selectedTabData: Object,
   },
-
   data() {
     return {
-      copiedbuildingDamageData: [],
-      total: 0,
+      tableData: [], // 存储表格数据
       legendItems: [
-        {color: '(232, 236, 248)', label: '< 1km²'},
-        {color: '(188, 197, 228)', label: '1~5km²'},
-        {color: '(114, 143, 199)', label: '5~10km²'},
-        {color: '(84, 127, 195)', label: '10~20km²'},
-        {color: '(55, 109, 185)', label: '20~50km²'},
-        {color: '(28, 96, 174)', label: '50~100km²'},
-        {color: '(0, 84, 165)', label: '> 100km²'},
+        {color: '(254, 204, 203)', label: '1-5人'},
+        {color: '(255, 177, 167)', label: '6-10人'},
+        {color: '(254, 151, 134)', label: '11-20人'},
+        {color: '(253, 128, 106)', label: '21-50人'},
+        {color: '(245, 101, 75)', label: '51-100人'},
+        {color: '(240, 78, 53)', label: '101-250人'},
+        {color: '(231, 50, 31)', label: '251-500人'},
+        {color: '(218, 0, 0)', label: '> 500人'},
       ],
-
-      isNoData: false,
-    }
+    };
   },
   mounted() {
-    this.settleData()
+    this.loadTableData();
+    this.initChart();
+  },
+  watch: {
+    personalCasualtyData: {
+      handler() {
+        this.loadTableData();
+      },
+      immediate: true,
+      deep: true,
+    },
   },
   methods: {
 
-    settleData() {
-      this.copiedbuildingDamageData = [...this.buildingDamageData];
+    initChart() {
+      // 检查是否有数据
+      if (!this.personalCasualtyData || !this.personalCasualtyData.yaanitemcasual) {
+        return;
+      }
 
-      this.total = parseFloat(this.copiedbuildingDamageData.reduce((acc, cur) => acc + cur.size, 0).toFixed(2));
-
-      // 提取county:Size对象
-      const countySizeMap = this.copiedbuildingDamageData.reduce((acc, cur) => {
-        acc[cur.county] = cur.size;
-        return acc;
-      }, {});
-
-      this.initChart(countySizeMap)
-    },
-
-    initChart(countySizeMap) {
       // 获取图表 DOM 元素
       const chartDom = this.$refs.chart;
       const myChart = echarts.init(chartDom);
 
       // 准备数据
-      const counties = Object.keys(countySizeMap);
-      const values = Object.values(countySizeMap);
+      const tableData = this.personalCasualtyData.yaanitemcasual;
+      const counties = tableData.map(item => item.name);
+      const values = tableData.map(item => item.num);
 
       // 设置图表配置项
       const option = {
         title: {
-          text: '建筑破坏',
+          text: '人员伤亡',
           left: 'center',
           textStyle: {
             color: '#fff', // 设置标题颜色为白色
@@ -120,7 +121,7 @@ export default {
         xAxis: {
           type: 'category',
           data: counties,
-          name: '区县',
+          name: '地区',
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
           },
@@ -130,10 +131,8 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '损坏/km²',
+          name: '伤亡人数',
           min: 0,
-          max: 100,
-          interval: 20,
           axisLabel: {
             color: '#fff', // 设置Y轴标签颜色为白色
           },
@@ -143,11 +142,11 @@ export default {
         },
         series: [
           {
-            name: '建筑破坏',
+            name: '伤亡人数',
             type: 'bar',
             data: values,
             itemStyle: {
-              color: '#376db9',
+              color: '#f04e35',
             },
             barWidth: 30,
             barGap: 10,
@@ -165,10 +164,19 @@ export default {
       myChart.setOption(option);
     },
 
+    loadTableData() {
+      if (this.personalCasualtyData && this.personalCasualtyData.yaanitemcasual) {
+        this.tableData = this.personalCasualtyData.yaanitemcasual.length
+          ? this.personalCasualtyData.yaanitemcasual.sort((a, b) => b.num - a.num)
+          : [{ name: '暂无数据', num: '0' }];
+      } else {
+        this.tableData = [{ name: '暂无数据', num: '0' }];
+      }
+    },
+
     convertColor(colorString) {
       return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
     },
-
     tableHeaderColor() {
       return {
         'border-width': '1px',
@@ -178,10 +186,9 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-      }
+      };
     },
-    // 修改table的背景色
-    tableColor({row, column, rowIndex, columnIndex}) {
+    tableColor({ rowIndex }) {
       if (rowIndex % 2 === 1) {
         return {
           'border-width': '1px',
@@ -190,7 +197,7 @@ export default {
           'background-color': '#313a44',
           'color': '#fff',
           'padding': '10',
-        }
+        };
       } else {
         return {
           'border-width': '1px',
@@ -199,7 +206,7 @@ export default {
           'background-color': '#304156',
           'color': '#fff',
           'padding': '10',
-        }
+        };
       }
     },
   },
@@ -207,7 +214,7 @@ export default {
 </script>
 
 <style scoped>
-.economicLossPanel {
+.personalCasualtyPanel {
   height: 250px;
   width: calc(100% - 333px);
   background-color: rgba(45, 61, 81, 0.8);
@@ -230,10 +237,11 @@ export default {
   width: calc(100% - 450px - 150px);
 }
 
-.panelAssessment {
+.panelLegend {
   float: left;
-  width: 100px;
+  width: 150px;
   height: 100%;
+  padding: 5px 0 0 10px;
 }
 
 .panelChart {
@@ -242,28 +250,13 @@ export default {
   height: 100%;
 }
 
-
-.panelLegend {
-  float: left;
-  width: 150px;
-  height: 100%;
-  padding: 5px 0 0 10px;
-}
-
-.panelAssessment, .panelLegend, .panelTable, .panelEqInfo {
+.panelLegend, .panelTable, .panelEqInfo {
   padding: 10px;
   border-right: #000 2px solid;
 }
 
 .table {
   margin-top: 10px;
-}
-
-.button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
 }
 
 .emphasis {
@@ -287,17 +280,11 @@ li {
   margin: 10px 0;
   color: #fff;
   width: 100%;
-  height: 20px;
+  height: 15px;
   font-size: 14px;
 }
 
 p {
   color: #fff;
 }
-
-::v-deep .el-scrollbar__view {
-  background-color: #2d3d51;
-}
-
-
 </style>

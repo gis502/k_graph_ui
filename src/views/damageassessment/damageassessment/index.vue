@@ -154,6 +154,13 @@
           />
       </div>
 
+      <div class="panel" v-if="eqPanel.isPersonalCasualtyPanelShow">
+        <personalCasualtyPanel
+          :personalCasualtyData="{ PersonalCasualtyNum: PersonalCasualtyNum, yaancasual: yaancasual, yaanitemcasual: yaanitemcasual }"
+          :selectedTabData="selectedTabData"
+        />
+      </div>
+
       <div class="button showPanel" v-if="!eqPanel.isHistoryEqPanelShow && isShow"
            @click="unfoldInfo(this.currentTab)">
         展开专题详情
@@ -163,19 +170,6 @@
     <!--  断裂带名称div  -->
     <div id="faultInfo"
          style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;"></div>
-
-    <div class="PersonalCasualty" v-if="eqThemes.isshowPersonalCasualty">
-      <span>本次地震预估伤亡总数：</span>
-      <span>{{ this.PersonalCasualtyNum }}</span>
-      <span>人</span>
-      <P>
-        <span>雅安市预估伤亡情况：</span> <span v-if="!this.yaancasual">无伤亡人员</span>
-      </P>
-      <div v-if="this.yaancasual"></div>
-      <div v-for="item in yaanitemcasual" :key="item.id" :label="item.name">
-        <p> {{ item.name }}:{{ item.num }}人</p>
-      </div>
-    </div>
 
     <!--  选项卡  -->
     <div class="tabs" v-if="shouldShowTabs">
@@ -199,7 +193,8 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
+import HistoryEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
+import PersonalCasualtyPanel from "../../../components/DamageAssessment/personalCasualtyPanel.vue";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
 import {getBuildingDamage, getPersonDes} from "@/api/system/damageassessment.js";
@@ -211,10 +206,11 @@ import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
 
 export default {
   components: {
+    PersonalCasualtyPanel,
     EconomicLossPanel,
     BuildingDamagePanel,
     TimeLinePanel,
-    historyEqPanel,
+    HistoryEqPanel,
   },
 
   data() {
@@ -236,6 +232,7 @@ export default {
 
       economicLossData: [],
       buildingDamageData: [],
+      personalCasualtyData: [],
 
       title: "",
       isLeftShow: true,
@@ -260,7 +257,8 @@ export default {
       eqPanel: {
         isHistoryEqPanelShow: false,
         isBuildingDamagePanelShow: false,
-        isEconomicLossPanelShow: false
+        isEconomicLossPanelShow: false,
+        isPersonalCasualtyPanelShow: false
       },
 
       PersonalCasualtyNum: 0,
@@ -300,7 +298,20 @@ export default {
         '(0, 84, 165)',
       ],
 
-    }
+      //人员伤亡personalCasualty
+      pcData: {},
+      pcLegendColor: [
+        '(255, 255, 255, 0)',
+        '(254, 204, 203)',
+        '(255, 177, 167)',
+        '(254, 151, 134)',
+        '(253, 128, 106)',
+        '(245, 101, 75)',
+        '(240, 78, 53)',
+        '(231, 50, 31)',
+        '(218, 0, 0)',
+      ],
+    };
   },
 
   mounted() {
@@ -314,7 +325,8 @@ export default {
       return (
         this.eqPanel.isHistoryEqPanelShow ||
         this.eqPanel.isBuildingDamagePanelShow ||
-        this.eqPanel.isEconomicLossPanelShow
+        this.eqPanel.isEconomicLossPanelShow ||
+        this.eqPanel.isPersonalCasualtyPanelShow
       );
     }
   },
@@ -335,7 +347,6 @@ export default {
 
     // 切换选项卡
     changeTab(tabName) {
-
       //tabName为中文，tab为英文属性
       this.currentTab = tabName;
       const tab = this.transferTab(tabName)[0]
@@ -366,6 +377,11 @@ export default {
         this.bddData = {}
         this.removeEntitiesByType('buildingDamage')
         let sichuanLayer = window.viewer.dataSources.getByName("BuildingDamageLayer")[0]
+        window.viewer.dataSources.remove(sichuanLayer);
+      }else if (tabName === '人员伤亡') {
+        this.pcData = {}
+        this.removeEntitiesByType('personalCasualty')
+        let sichuanLayer = window.viewer.dataSources.getByName("PersonalCasualtyLayer")[0]
         window.viewer.dataSources.remove(sichuanLayer);
       }
 
@@ -406,6 +422,8 @@ export default {
         return ['isBuildingDamagePanelShow', 'isshowBuildingDamage']
       } else if (tabName === "经济损失") {
         return ['isEconomicLossPanelShow', 'isshowEconomicLoss']
+      } else if (tabName === "人员伤亡") {
+        return ['isPersonalCasualtyPanelShow', 'isshowPersonalCasualty']
       }
     },
 
@@ -793,6 +811,9 @@ export default {
     },
 
     removeData() {
+      this.economicLossData = []
+      this.buildingDamageData = []
+
       this.historyEqPoints = [];
       this.historyEqData = [];
       this.removeEntitiesByType("historyEq")
@@ -801,10 +822,14 @@ export default {
       this.eqThemes.isshowHistoryEqPoints = false;
       this.eqThemes.isshowFaultZone = false;
       this.eqThemes.isshowOvalCircle = false;
+      this.eqThemes.isshowEconomicLoss = false;
+      this.eqThemes.isshowBuildingDamage = false;
+      this.eqThemes.isshowPersonalCasualty = false;
       // 注：这里需要改除了行政区划以外所有面板显示
       this.eqPanel.isHistoryEqPanelShow = false;
       this.eqPanel.isBuildingDamagePanelShow = false;
       this.eqPanel.isEconomicLossPanelShow = false;
+      this.eqPanel.isPersonalCasualtyPanelShow = false;
       const faultInfoDiv = document.getElementById('faultInfo');
       faultInfoDiv.style.display = 'none';
     },
@@ -868,6 +893,7 @@ export default {
 
     //建筑破坏----------------------------------------------------------------
     async showBuildingDamage() {
+
       const tabName = "建筑破坏"
       const type = "BuildingDamage";
       if (!this.tabs.includes(tabName)) {
@@ -908,6 +934,7 @@ export default {
 
     //经济损失----------------------------------------------------------------
     async showEconomicLoss() {
+
       const tabName = "经济损失";
       const type = "EconomicLoss";
       if (!this.tabs.includes(tabName)) {
@@ -947,6 +974,67 @@ export default {
         window.viewer.dataSources.remove(sichuanLayer);
         this.removeEntitiesByType("economicLoss")
         this.ecoData = {}
+      }
+    },
+
+    // 人员伤亡评估------------------------------------------------------------------
+    async showPersonalCasualty() {
+      const tabName = "人员伤亡";
+      const type = "PersonalCasualty";
+
+      // 如果选项卡不存在，则添加
+      if (!this.tabs.includes(tabName)) {
+        this.addTab(tabName);
+        console.log(this.selectedTabData.eqid);
+        this.eqThemes.isshowPersonalCasualty = !this.eqThemes.isshowPersonalCasualty;
+
+        // 获取震中人口密度
+        const res = await getPersonDes(this.selectedTabData.eqid);
+
+        this.PersonalCasualtyNum = res.casualAll;
+        this.yaancasual = res.yaancasual !== "无";
+        this.yaanitemcasual = this.yaancasual ? [
+          { id: '0', name: "雨城区", num: res["雨城区"] || 0 },
+          { id: '1', name: "名山区", num: res["名山区"] || 0 },
+          { id: '2', name: "荥经县", num: res["荥经县"] || 0 },
+          { id: '3', name: "汉源县", num: res["汉源县"] || 0 },
+          { id: '4', name: "石棉县", num: res["石棉县"] || 0 },
+          { id: '5', name: "天全县", num: res["天全县"] || 0 },
+          { id: '6', name: "芦山县", num: res["芦山县"] || 0 },
+          { id: '7', name: "宝兴县", num: res["宝兴县"] || 0 },
+        ] : [];
+
+        console.log(this.yaanitemcasual);
+        console.log('预估伤亡总数', this.PersonalCasualtyNum);
+        console.log('地区伤亡情况', this.yaanitemcasual);
+
+        // 将人员伤亡数据整理为适合的格式
+        this.pcData = {
+          "雨城区": res["雨城区"] || 0,
+          "名山区": res["名山区"] || 0,
+          "荥经县": res["荥经县"] || 0,
+          "汉源县": res["汉源县"] || 0,
+          "石棉县": res["石棉县"] || 0,
+          "天全县": res["天全县"] || 0,
+          "芦山县": res["芦山县"] || 0,
+          "宝兴县": res["宝兴县"] || 0,
+        };
+
+        // 添加主题图层并等待其完成
+        await this.addThemeLayer(this.pcData, type);
+
+        this.eqThemes.isshowRegion = false;
+        const yaanRegionLayer = window.viewer.dataSources.getByName("YaanRegionLayer")[0];
+        yaanRegionLayer.show = false;
+        this.RegionLabels.forEach(entity => window.viewer.entities.remove(entity));
+        this.RegionLabels = [];
+      } else {
+        const index = this.tabs.indexOf(tabName);
+        this.removeTab(tabName, index);
+        const personalCasualtyLayer = window.viewer.dataSources.getByName("PersonalCasualtyLayer")[0];
+        window.viewer.dataSources.remove(personalCasualtyLayer);
+        this.removeEntitiesByType("personalCasualty");
+        this.pcData = {};
       }
     },
 
@@ -1004,7 +1092,8 @@ export default {
 
               // 设置填充颜色
               entity.polygon.material = Cesium.Color.fromBytes(rgb[0], rgb[1], rgb[2], 200);
-              entity.polygon.outline = false;
+              entity.polygon.outline = true; // 显示边线
+              entity.polygon.outlineColor = Cesium.Color.WHITE; // 将边线颜色设置为白色
               // 获取中心坐标并添加标签
               const center = entity._properties._center._value; // 从实体中获取中心坐标
 
@@ -1062,7 +1151,8 @@ export default {
 
               // 设置填充颜色
               entity.polygon.material = Cesium.Color.fromBytes(rgb[0], rgb[1], rgb[2], 200);
-              entity.polygon.outline = false;
+              entity.polygon.outline = true; // 显示边线
+              entity.polygon.outlineColor = Cesium.Color.WHITE; // 将边线颜色设置为白色
               // 获取中心坐标并添加标签
               const center = entity._properties._center._value; // 从实体中获取中心坐标
 
@@ -1086,6 +1176,72 @@ export default {
                   ),
                   properties: {
                     type: "buildingDamage"
+                  }
+                }));
+              }
+            }
+            // 人员伤亡
+            else if (type === 'PersonalCasualty') {
+              // 根据数字大小选择合适的颜色
+              let colorIndex;
+              if (number < 1) { // 当该区域死亡人数为0时，不显色
+                // colorIndex = 0; 第一个颜色
+                entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0); // 设置为透明
+                // entity.polygon.outline = false; // 不显示边线
+                return; // 直接返回，不做后续处理
+              } else if (number >= 1 && number < 5) {
+                colorIndex = 1;
+              } else if (number >= 5 && number < 10) {
+                colorIndex = 2;
+              } else if (number >= 10 && number < 20) {
+                colorIndex = 3;
+              } else if (number >= 20 && number < 50) {
+                colorIndex = 4;
+              } else if (number >= 50 && number < 100) {
+                colorIndex = 5;
+              }else if (number >= 100 && number < 250) {
+                colorIndex = 6;
+              }else if (number >= 250 && number < 500) {
+                colorIndex = 7;
+              } else {
+                colorIndex = 8;
+              }
+
+              // 将字符串颜色解析为 Cesium 的 Color 对象
+              const colorString = this.pcLegendColor[colorIndex];
+              const rgb = colorString
+                .replace('(', '')
+                .replace(')', '')
+                .split(',')
+                .map((c) => parseInt(c.trim()));
+
+              // 设置填充颜色
+              entity.polygon.material = Cesium.Color.fromBytes(rgb[0], rgb[1], rgb[2], 200);
+              entity.polygon.outline = true; // 显示边线
+              entity.polygon.outlineColor = Cesium.Color.WHITE; // 将边线颜色设置为白色
+              // 获取中心坐标并添加标签
+              const center = entity._properties._center._value; // 从实体中获取中心坐标
+
+              if (center && center.length === 2) {
+                let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+                viewer.entities.add(new Cesium.Entity({
+                  position: position,
+                  label: new Cesium.LabelGraphics({
+                      text: countyName, // 显示的县区名称
+                      scale: 1,
+                      font: '18px Sans-serif',
+                      style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                      outlineWidth: 2,
+                      verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                      horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                      fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                      pixelOffset: new Cesium.Cartesian2(0, 0),
+                      eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                      distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
+                    },
+                  ),
+                  properties: {
+                    type: "personalCasualty"
                   }
                 }));
               }
@@ -1120,6 +1276,7 @@ export default {
       this.eqPanel.isHistoryEqPanelShow = false;
       this.eqPanel.isBuildingDamagePanelShow = false;
       this.eqPanel.isEconomicLossPanelShow = false;
+      this.eqPanel.isPersonalCasualtyPanelShow = false;
       this.isShow = true;
     },
 
@@ -1148,37 +1305,6 @@ export default {
         return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
       }
     },
-
-    //人员伤亡评估
-    showPersonalCasualty() {
-      this.eqThemes.isshowPersonalCasualty = !this.eqThemes.isshowPersonalCasualty
-      if (this.eqThemes.isshowPersonalCasualty) {
-        // console.log(this.selectedTabData.eqid)
-        //获取震中人口密度
-        getPersonDes(this.selectedTabData.eqid).then(res => {
-          // console.log("getPersonDes", res)
-          this.PersonalCasualtyNum = res.casualAll
-          // this.yaancasual=res.yaancasual
-          if (res.yaancasual == "无") {
-            this.yaancasual = false
-          } else {
-            this.yaancasual = true
-            this.yaanitemcasual = [
-              {id: '0', name: "雨城区", num: res.雨城区},
-              {id: '1', name: "名山区", num: res.名山区},
-              {id: '2', name: "荥经县", num: res.荥经县},
-              {id: '3', name: "汉源县", num: res.汉源县},
-              {id: '4', name: "石棉县", num: res.石棉县},
-              {id: '5', name: "天全县", num: res.天全县},
-              {id: '6', name: "芦山县", num: res.芦山县},
-              {id: '7', name: "宝兴县", num: res.宝兴县},
-            ]
-            // console.log(this.yaanitemcasual)
-          }
-
-        })
-      }
-    }
 
   }
 };

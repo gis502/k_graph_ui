@@ -151,6 +151,12 @@ export default {
             },
             barWidth: 30,
             barGap: 10,
+            label: {
+              show: true,
+              position: 'top',
+              color: '#fff',  // 设置数字的颜色
+              fontSize: 12,   // 设置字体大小
+            },
           },
 
         ],

@@ -65,7 +65,6 @@ export default {
   props: {
     historyEqData: Array,
     selectedTabData: {},
-
   },
   data() {
     return {
