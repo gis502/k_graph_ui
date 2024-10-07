@@ -107,9 +107,9 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
 
 
-import { getTotal as getAfterShockInformation } from "../../api/system/statistics";
-import { gettotal as getInjuredCountData } from "../../api/system/casualtystats" ;
-import { getTotal as getTransferPoints} from "../../api/system/relocation";
+// import { getTotal as getAfterShockInformation } from "../../api/system/statistics";
+// import { gettotal as getInjuredCountData } from "../../api/system/casualtystats" ;
+// import { getTotal as getTransferPoints} from "../../api/system/relocation";
 
 
 export default {
