@@ -150,13 +150,13 @@ const arrow = {
         attackArrow.startDraw(data);
         this.drawArr.push(attackArrow);
     },
-    drawPincerArrow: function () {
+    drawPincerArrow: function (data) {
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var pincerArrow = new PincerArrow(this.viewer);
         pincerArrow.disable();
-        pincerArrow.startDraw();
+        pincerArrow.startDraw(data);
         this.drawArr.push(pincerArrow);
     },
     nowArrowObj: null,
