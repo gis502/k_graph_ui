@@ -821,16 +821,17 @@ export default {
 
     treeItemClick(item) {
       console.log(item)
+
       let that = this
-      if (item.plotType === '点图层') {
+      if (item.plottype === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
-        Arrow.draw("straightArrow");
+        Arrow.drawStraightArrow()
       } else if (item.name === '攻击箭头') {
-        Arrow.draw("attackArrow");
+        Arrow.drawAttackArrow()
       } else if (item.name === '钳击箭头') {
-        Arrow.draw("pincerArrow");
-      } else if (item.plotType === '线图层') {
+        Arrow.drawPincerArrow()
+      } else if (item.plottype === '线图层') {
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
