@@ -1,39 +1,14 @@
 <template>
   <div class="personalCasualtyPanel">
     <div class="panelLegend">
-      <span id="title" style="font-size: 15px; font-weight: bold; margin-bottom: 10px;">图例</span>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(254, 204, 203); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">1-5人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(255, 177, 167); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">6-10人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(254, 151, 134); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">11-20人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(253, 128, 106); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">21-50人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(245, 101, 75); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">51-100人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(240, 78, 53); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">101-250人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(231, 50, 31); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">251-500人</span>
-      </div>
-      <div class="legend">
-        <span class="color" style="background-color: rgb(218, 0, 0); width: 15px; height: 15px; display: inline-block;"></span>
-        <span style="font-size: 15px; margin-left: 10px;">&gt;500人</span>
-      </div>
+      <span id="title">图例</span>
+      <ul>
+        <li v-for="(item, index) in legendItems" :key="index" :style="{ color: 'white' }">
+      <span
+          :style="{ backgroundColor: `rgb${item.color}`, width: '40px', height: '20px', display: 'inline-block' }"></span>
+          {{ item.label }}
+        </li>
+      </ul>
     </div>
 
 
@@ -82,6 +57,16 @@ export default {
   data() {
     return {
       tableData: [],  // 存储表格数据
+      legendItems: [
+        {color: '(254, 204, 203)', label: '1-5人'},
+        {color: '(255, 177, 167)', label: '6-10人'},
+        {color: '(254, 151, 134)', label: '11-20人'},
+        {color: '(253, 128, 106)', label: '21-50人'},
+        {color: '(245, 101, 75)', label: '51-100人'},
+        {color: '(240, 78, 53)', label: '101-250人'},
+        {color: '(231, 50, 31)', label: '251-500人'},
+        {color: '(218, 0, 0)', label: '> 500人'},
+      ],
     };
   },
   mounted() {
@@ -107,6 +92,9 @@ export default {
         this.tableData = [{ name: '暂无数据', num: '0' }];
       }
     },
+    // convertColor(colorString) {
+    //   return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
+    // },
     sendHidden() {
       const isPersonalCasualtyPanelShow = false;
       this.$emit('hidden', isPersonalCasualtyPanelShow);
@@ -139,27 +127,28 @@ export default {
   padding: 10px;
 }
 .panelLegend {
-  padding: 10px;
-  display: flex;
-  flex-direction: column; /* 垂直排列内部元素 */
-  width: calc(100% - 56vw); /* 宽度根据计算结果调整 */
-  height: auto; /* 高度根据内容自动调整 */
   border-right: 2px solid #000;
+  float: left;
+  width: 150px;
+  height: 100%;
+  padding: 5px 0 0 10px;
+}
+ul {
+  list-style: none;
+  padding: 0;
 }
 
-.legend {
-  display: flex; /* 将颜色块和文本水平排列 */
-  align-items: center; /* 颜色块和文本垂直居中对齐 */
-  margin: 5px 0;
+li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
 }
 
-.color {
-  width: 15px;
-  height: 15px;
-  display: inline-block; /* 保持颜色方块的块级显示 */
-  border-radius: 2px; /* 可选：如果你想让方块有圆角 */
+span {
+  margin-right: 10px;
+  color: #fff;
+  font-size: 14px;
 }
-
 #title {
   font-weight: bold;
   font-size: 15px;
@@ -184,11 +173,6 @@ export default {
   justify-content: center;
   align-items: center;
   color: #fff;
-}
-
-span {
-  color: #fff;
-  font-size: 14px;
 }
 
 //表格样式如下
@@ -234,147 +218,3 @@ span {
   background-color: #0C2442; /* 偶数行（斑马线）的默认背景色 */
 }
 </style>
-
-
-
-<!--<template>-->
-<!--  <div class="personalCasualtyPanel">-->
-<!--    <div class="panelTable">-->
-<!--      <div class="text" style="display: flex;">-->
-<!--        <div class="hidden button" @click="sendHidden()">—</div>-->
-<!--        <span style="margin-left: 15px">统计表格</span>-->
-<!--      </div>-->
-<!--      <div class="table">-->
-<!--        <span>本次地震预估伤亡总数：</span>-->
-<!--        <span>{{ personalCasualtyData.PersonalCasualtyNum }}</span>-->
-<!--        <span>人</span>-->
-<!--        <p>-->
-<!--          <span>雅安市预估伤亡情况：</span>-->
-<!--          <span v-if="!personalCasualtyData.yaancasual">无伤亡人员</span>-->
-<!--        </p>-->
-<!--        <table>-->
-<!--          <thead>-->
-<!--          <tr>-->
-<!--            <th>地区</th>-->
-<!--            <th>伤亡人数</th>-->
-<!--          </tr>-->
-<!--          </thead>-->
-<!--          <tbody>-->
-<!--          <template v-if="personalCasualtyData.yaancasual">-->
-<!--            <template v-for="item in personalCasualtyData.yaanitemcasual" :key="item.id">-->
-<!--              <tr>-->
-<!--                <td>{{ item.name }}</td>-->
-<!--                <td>{{ item.num }}人</td>-->
-<!--              </tr>-->
-<!--            </template>-->
-<!--          </template>-->
-<!--          </tbody>-->
-<!--        </table>-->
-<!--      </div>-->
-<!--    </div>-->
-
-
-<!--    <div style="display: flex; width: calc(100% - 30vw)">-->
-<!--      &lt;!&ndash; 评估和图表面板 &ndash;&gt;-->
-<!--    </div>-->
-
-<!--    <div class="panelLegend">-->
-<!--&lt;!&ndash;      <span>图例</span>&ndash;&gt;-->
-<!--&lt;!&ndash;      <div class="legend"><span class="image"><img src="../../assets/images/DamageAssessment/eqMark.png" style="width: 25px;height: 25px;"></span><span style="font-size: 15px;margin-left: 5px">当前地震</span></div>&ndash;&gt;-->
-<!--    </div>-->
-<!--  </div>-->
-
-<!--  <div class="panelEqInfo">-->
-<!--    &lt;!&ndash; 地震信息面板 &ndash;&gt;-->
-<!--  </div>-->
-<!--</template>-->
-
-<!--<script>-->
-<!--export default {-->
-<!--  props: {-->
-<!--    personalCasualtyData: {-->
-<!--      type: Object,-->
-<!--      required: true,-->
-<!--    },-->
-<!--    selectedTabData: Object,-->
-<!--  },-->
-<!--  data() {-->
-<!--    return {-->
-<!--      PersonalCasualtyNum: 0,  // 预估总伤亡人数-->
-<!--      yaancasual: false,  // 是否有雅安市的伤亡情况-->
-<!--      yaanitemcasual: [],  // 雅安市各区县伤亡人数列表-->
-<!--    };-->
-<!--  },-->
-<!--  mounted() {-->
-<!--    // 生命周期钩子，可以用于初始化数据-->
-<!--  },-->
-<!--  methods: {-->
-<!--    sendHidden() {-->
-<!--      const isPersonalCasualtyPanelShow = false;-->
-<!--      this.$emit('hidden', isPersonalCasualtyPanelShow);-->
-<!--    },-->
-<!--  },-->
-<!--};-->
-<!--</script>-->
-<!--<style scoped>-->
-<!--.personalCasualtyPanel {-->
-<!--  height: 250px;-->
-<!--  width: calc(100% - 333px);-->
-<!--  background-color: rgba(45, 61, 81, 0.8);-->
-<!--  z-index: 1;-->
-<!--}-->
-
-<!--.panelEqInfo {-->
-<!--  position: absolute;-->
-<!--  right: 0;-->
-<!--  bottom: 0;-->
-<!--  width: 333px;-->
-<!--  height: 250px;-->
-<!--  z-index: 2;-->
-<!--  background-color: rgba(45, 61, 81, 0.8);-->
-<!--  border-left: #000 2px solid;-->
-<!--}-->
-
-<!--.panelTable, .panelEqInfo {-->
-<!--  padding: 10px;-->
-<!--  border-right: #000 2px solid;-->
-<!--}-->
-
-<!--.table {-->
-<!--  overflow-x: auto; /* 使表格可以横向滚动 */-->
-<!--  width: 30%;-->
-<!--}-->
-
-<!--table {-->
-<!--  width: 100%; /* 表格宽度 */-->
-<!--  border-collapse: collapse; /* 合并边框 */-->
-<!--}-->
-
-<!--th, td {-->
-<!--  padding: 10px; /* 单元格内边距 */-->
-<!--  text-align: left; /* 左对齐 */-->
-<!--  border: 1px solid #fff; /* 边框 */-->
-<!--}-->
-
-<!--.hidden {-->
-<!--  height: 30px;-->
-<!--  width: 30px;-->
-<!--  border: #2a2b36 2px solid;-->
-<!--  border-radius: 3px;-->
-<!--  font-weight: bold;-->
-<!--  font-size: 18px;-->
-<!--}-->
-
-<!--.button {-->
-<!--  display: flex;-->
-<!--  justify-content: center;-->
-<!--  align-items: center;-->
-<!--  color: #fff;-->
-<!--}-->
-
-<!--span {-->
-<!--  color: #fff;-->
-<!--  font-size: 14px;-->
-<!--}-->
-<!--</style>-->
-
