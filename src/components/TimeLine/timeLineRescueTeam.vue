@@ -24,20 +24,23 @@
                 <span v-if="item.team">{{item.team}}</span>
                 <span v-if="item.personnum">{{item.personnum}}人 </span>
                 <span v-if="item.destination">前往{{item.destination}}</span>
-                <span v-if="!item.destination&&!item.describeThings">前往震区</span>
-                <span v-if="item.describeThings">{{item.describeThings}}</span>
-                <div v-if="item.gotime || item.team || item.personnum || item.destination||item.describeThings" class="p-underline"></div>
+                <div v-if="item.gotime || item.team || item.personnum || item.destination" class="p-underline"></div>
               </p>
 
             </div>
           </li>
         </ul>
       </div>
+
+
+
+
       <div class="rescue_team_time_div">
         <div class="title-underline_low"></div>
         <p class="time_text"> 数据更新时间</p>
         <p class="time">{{this.recordtime}}</p>
       </div>
+
     </div>
 
     <div v-show="!rescue_team_isExpanded">
@@ -57,7 +60,7 @@ import {getRescueTeam} from "../../api/system/timeLine.js";
 export default {
   data() {
     return {
-      RescueTeamInfo:'',
+      Responsecontent:'',
       showRescueTeam:[],
       rescue_team_isExpanded:'true',
       recordtime: '',
@@ -65,18 +68,16 @@ export default {
     }
   },
   props: [
-    'currentTime',
-      'eqid'
+    'currentTime','eqid'
   ],
   mounted() {
-      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
+      if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
           this.ifShowData = true
       }
     this.init()
   },
   watch: {
     currentTime(newVal) {
-        // console.log("``````````````````",newVal)
         if(this.ifShowData){
             this.rescue_team_update(newVal)
         }
@@ -85,39 +86,38 @@ export default {
   methods: {
     init() {
         getRescueTeam().then(res => {
-            // console.log("res:----",res)
-            // console.log("this.ifShowData-----",this.ifShowData)
-            this.RescueTeamInfo = res
+            console.log("res:----",res)
+            this.Responsecontent = res
+            console.log("this.Responsecontent",this.Responsecontent)
         })
-      // this.RescueTeamInfo.sort((a, b) => {
-      //   if (a.recordTime < b.recordTime) return -1;
-      //   if (a.recordTime > b.recordTime) return 1;
+      // this.Responsecontent.sort((a, b) => {
+      //   if (a.departureDate < b.departureDate) return -1;
+      //   if (a.departureDate > b.departureDate) return 1;
       //   return 0;
       // });
     },
 
     async rescue_team_update(currentTime) {
       this.showRescueTeam=[]
-      console.log("救援出队 res",this.RescueTeamInfo)
+      // console.log("rescue_team_update",this.Responsecontent)
       // console.log(currentTime)
-      //筛选用记录时间
-      const activities = await this.RescueTeamInfo.filter((activity) => {
+        const activities = await this.Responsecontent.filter((activity) => {
         return (
-                new Date(activity.recordTime) <= currentTime
+                new Date(activity.departureDate) <= currentTime
+            // new Date(activity[0]) <= currentTime && new Date(activity[0]) > new Date(currentTime.getTime()-5*60*1000)
         );
       });
-      activities.sort((a, b) => {
-            if (a.recordTime < b.recordTime) return -1;
-            if (a.recordTime > b.recordTime) return 1;
+        activities.sort((a, b) => {
+            if (a.departureDate < b.departureDate) return -1;
+            if (a.departureDate > b.departureDate) return 1;
             return 0;
         });
       if(activities.length>0){
-        this.recordtime = this.timestampToTime(activities[activities.length - 1].recordTime)
-
-        //内容用行动时间
+            console.log("activities", activities)
+            this.recordtime = this.timestampToTime(activities[activities.length - 1].departureDate)
         activities.forEach((item) => {
           let activity={
-            recordtime: this.timestampToTime(item.departureDate),
+                    recordtime: this.timestampToTime(item.departureDate),
             gotime:'',
             goyear: '',
             gomonth: '',
@@ -127,7 +127,6 @@ export default {
             team: item.teamName,
             personnum: item.personnelCount,
             destination: item.plannedRescueArea,
-            describeThings:item.describeThings
           }
             if (item.departureDate) {
                 activity.gotime = new Date(item.departureDate)
@@ -140,9 +139,7 @@ export default {
           this.showRescueTeam.unshift(activity)
         })
       }
-
     },
-
       timestampToTime(timestamp) {
           let DateObj = new Date(timestamp)
           // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
