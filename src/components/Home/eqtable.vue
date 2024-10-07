@@ -68,6 +68,7 @@ const pageSize = ref(6);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
+
 const router = useRouter();
 
 watch(() => props.eqData, () => {
@@ -125,7 +126,6 @@ const handleCurrentChange = (val) => {
 };
 
 const formatTime = (time) => time ? time.replace('T', ' ') : '';
-
 </script>
 
 <style scoped>

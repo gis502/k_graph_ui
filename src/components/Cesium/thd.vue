@@ -950,6 +950,7 @@ export default {
         * 更新标绘点
         * */
         updatePlot() {
+            // 原始代码：console.log(this.plots)
             // 创建一个指向当前上下文的变量，用于在闭包中访问this
             let that = this
             // --------------------------点绘制------------------------------
