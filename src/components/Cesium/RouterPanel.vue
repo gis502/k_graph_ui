@@ -3,7 +3,7 @@
     <div class="ponpTitle">{{ this.popupTitle }}</div>
     <div class="ponpTable">
       <div class="info-item" v-for="(value, key) in popupPanelData" :key="key">
-        <div class="info-label">{{ keyToChinese(key)  }}</div>
+        <div class="info-label">{{ keyToChinese(key) }}</div>
         <div class="info-value">
           <!-- 如果键是插入时间，则格式化显示 -->
           <span v-if="key === keyMappings.insertTime">{{ formatInsertTime(value) }}</span>
@@ -18,7 +18,7 @@
 
 <script>
 
-import { toRaw } from 'vue'
+import {toRaw} from 'vue'
 import dayjs from 'dayjs'; // 引入dayjs库进行时间格式化
 
 export default {
@@ -35,33 +35,33 @@ export default {
         latitude: '纬度',
         // 物资表
         county: '县（区）',
-        storagePointsCount : '储备库点数量（个）',
+        storagePointsCount: '储备库点数量（个）',
         totalItemsCount: '合计总件套数',
-        tents : '救灾帐篷（顶）',
-        quilts : '棉被（床）',
-        otherBlankets : '其他被子（床）',
-        cottonClothing : '棉衣裤（套）',
-        cottonCoats : '棉大衣（件）',
-        otherClothing : '其他衣物（套、件）',
-        blankets : '毛毯（床）',
-        foldingBeds : '折叠床（张）',
-        bunkBeds : '高低床（套）',
-        tarpaulins : '彩条布（包）',
-        moistureProofPads : '防潮垫（张）',
-        generators : '发电机（台）',
-        lightingFixtures : '照明灯具（个）',
-        lightingSets : '照明灯组（套）',
-        flashlights : '手电筒（支）',
-        raincoats : '雨衣（件）',
-        rainBoots : '雨靴（双）',
-        otherEquipment : '其他装备数量（个）',
+        tents: '救灾帐篷（顶）',
+        quilts: '棉被（床）',
+        otherBlankets: '其他被子（床）',
+        cottonClothing: '棉衣裤（套）',
+        cottonCoats: '棉大衣（件）',
+        otherClothing: '其他衣物（套、件）',
+        blankets: '毛毯（床）',
+        foldingBeds: '折叠床（张）',
+        bunkBeds: '高低床（套）',
+        tarpaulins: '彩条布（包）',
+        moistureProofPads: '防潮垫（张）',
+        generators: '发电机（台）',
+        lightingFixtures: '照明灯具（个）',
+        lightingSets: '照明灯组（套）',
+        flashlights: '手电筒（支）',
+        raincoats: '雨衣（件）',
+        rainBoots: '雨靴（双）',
+        otherEquipment: '其他装备数量（个）',
         address: '地址',
         geom: '位置',
         contactPerson: '联系人',
         contactPhone: '联系电话',
         insertTime: '插入时间',
         other: '其他',
-        reliefFamiliesBox : '赈济家庭箱',
+        reliefFamiliesBox: '赈济家庭箱',
         uuid: 'UUID',
         // 装备表
         totalItems: '合计总件套数',
@@ -71,41 +71,41 @@ export default {
         hydraulicCuttingPliers: '液压剪切钳',
         rockDrill: '凿岩机',
         pryBar: '撬棍（把）',
-        rebarCutter : '钢筋速断器',
-        manualHydraulicJack : '手动液压千斤顶',
-        glowStick : '发光棒',
-        fuel : '油料（升）',
-        tensionWire : '抗拉索',
-        rescueRope : '救援绳（米）',
-        ropeThrower : '抛绳器',
-        foldingLadder : '折叠梯（个）',
-        shovelPickHookForkHammer : '锹/镐/钩/叉/锤',
-        foldingShovel : '折叠铲（把）',
-        whistle : '口哨（个）',
-        helmet : '头盔（顶）',
-        gloves : '手套（双）',
-        lifeline : '救生缆索（米）',
-        drainagePump : '排水泵（台）',
-        windFireExtinguisher : '风力灭火机（个）',
-        shovel : '铁锹（把）',
-        lifeJacket : '救生衣（件）',
-        lifebuoy : '救生圈（个）',
-        warningTape : '警示带（米）',
-        walkieTalkie : '对讲机（台）',
-        megaphone : '扩音器（个）',
-        gong : '锣（个）',
-        headlamp : '头灯（个）',
-        portableLight : '手提照明灯（个）',
-        firstAidKit : '医疗急救箱',
-        excavator : '挖掘机',
-        loader : '装载机（推土机）',
-        waterPump : '抽水泵',
-        relayWaterPump : '接力水泵',
-        mobileWaterBag : '移动水囊（个）',
-        backpackSprayer : '背负式喷水灭火抢',
-        chainsaw : '油锯（个）',
-        hose : '水带（米）',
-        fireTruck : '消防水车',
+        rebarCutter: '钢筋速断器',
+        manualHydraulicJack: '手动液压千斤顶',
+        glowStick: '发光棒',
+        fuel: '油料（升）',
+        tensionWire: '抗拉索',
+        rescueRope: '救援绳（米）',
+        ropeThrower: '抛绳器',
+        foldingLadder: '折叠梯（个）',
+        shovelPickHookForkHammer: '锹/镐/钩/叉/锤',
+        foldingShovel: '折叠铲（把）',
+        whistle: '口哨（个）',
+        helmet: '头盔（顶）',
+        gloves: '手套（双）',
+        lifeline: '救生缆索（米）',
+        drainagePump: '排水泵（台）',
+        windFireExtinguisher: '风力灭火机（个）',
+        shovel: '铁锹（把）',
+        lifeJacket: '救生衣（件）',
+        lifebuoy: '救生圈（个）',
+        warningTape: '警示带（米）',
+        walkieTalkie: '对讲机（台）',
+        megaphone: '扩音器（个）',
+        gong: '锣（个）',
+        headlamp: '头灯（个）',
+        portableLight: '手提照明灯（个）',
+        firstAidKit: '医疗急救箱',
+        excavator: '挖掘机',
+        loader: '装载机（推土机）',
+        waterPump: '抽水泵',
+        relayWaterPump: '接力水泵',
+        mobileWaterBag: '移动水囊（个）',
+        backpackSprayer: '背负式喷水灭火抢',
+        chainsaw: '油锯（个）',
+        hose: '水带（米）',
+        fireTruck: '消防水车',
         insertionTime: '插入时间',
         // 雅安应急队伍表
         affiliatedAgency: '所属机构',
@@ -142,8 +142,13 @@ export default {
         seismicIntensity: '抗震设防烈度',
         dataSourceUnit: '数据来源单位',
         remarks: '备注',
-        geometry: '位置'
+        geometry: '位置',
 
+        // 来自历史地震
+        historyEqTime: '发震时间',
+        position: '位置',
+        magnitude: '震级',
+        depth: '震源深度'
       },
     }
   },
@@ -158,15 +163,15 @@ export default {
       handler() {
         // 转换 popupData,避免嵌套Proxy
         const rawPopupData = toRaw(this.popupData);
-        console.log(rawPopupData, 'data----');
+        // console.log(rawPopupData, 'data----');
         // 获取 popupTitle表头
         this.popupTitle = rawPopupData.tableName;
-        console.log(this.popupTitle, 'title----');
+        // console.log(this.popupTitle, 'title----');
 
-// 将 key 转换为中文
+      // 将 key 转换为中文
         const translatedData = {};
         for (const key in rawPopupData) {
-          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type' && key !== 'geom' && key !== 'icon'&& key !=='uniqueIdentifier') {
+          if (rawPopupData.hasOwnProperty(key) && key !== 'tableName' && key !== 'uuid' && key !== 'uniqueId' && key !== 'type' && key !== 'geom' && key !== 'icon' && key !== 'uniqueIdentifier') {
             if (key === 'insertionTime' || key === 'insertTime') {
               if (rawPopupData[key] !== null) {
                 const translatedKey = this.keyMappings[key] || key;
@@ -179,6 +184,8 @@ export default {
           }
         }
         this.popupPanelData = translatedData;
+
+        // console.log(" this.popupPanelData RouterPannel", this.popupPanelData)
       }
     },
     position() {

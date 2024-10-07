@@ -416,6 +416,7 @@ export default {
         "username":this.name
       }).then((res) => {
         this.tableData = res.data
+        console.log(res.data)
         this.total = res.data.length
         this.addCount = res.data.reduce((total, log) => {
           const data = JSON.parse(log.jsonResult);
@@ -476,6 +477,7 @@ export default {
     getTableName() {
       getField().then(res => {
         this.files = res.data
+        console.log(res.data)
         if (res.data === null) {
           ElMessage.error("该用户无导表权限")
         }

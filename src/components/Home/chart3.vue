@@ -55,17 +55,17 @@ watch(() => props.lastEq, () => {
   display: flex;
   flex-direction: column;
   margin: 0;
+  font-size: 13px;
   padding: 0 1vh;
 }
 
 .row {
   margin: 0.5vh 0;
-  height: 8vh;
+  height: 4.8vh;
   display: flex;
   align-items: center;
-  font-size: 16px;
-  font-weight: bold;
-  padding-left: 20px; /* Move text 10px to the right */
+  font-size: 13px;
+  padding-left: 5px; /* Move text 10px to the right */
   border-left-width: 0.1vw; /* Add a border on the left */
   border-left-style: solid; /* Style the left border */
   position: relative;
@@ -74,7 +74,7 @@ watch(() => props.lastEq, () => {
 .count {
   font-size: 25px; /* Larger font size for the numbers */
   color: rgb(248, 150, 150);
-  margin-left: 9vw; /* Pushes count to the right */
+  margin-left: 7vw; /* Pushes count to the right */
 }
 
 .suffix {

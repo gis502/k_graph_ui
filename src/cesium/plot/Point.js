@@ -106,7 +106,9 @@ export default class Point {
     points.forEach(data=>{
       dataSource.entities.add({
         id: data.plotid,
-        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+        plottype: data.plotType,
+        layer: "标绘点",
+        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
         billboard: {
           image: data.icon,
           width: 50,//图片宽度,单位px
@@ -123,6 +125,9 @@ export default class Point {
         }
       })
     })
+    // 存储 dataSource 到对象上，便于后续操作
+    window.pointDataSource = dataSource;
+    // console.log("window.pointDataSource",window.pointDataSource)
     const dataSourcePromise = window.viewer.dataSources.add(dataSource)
     console.log(dataSourcePromise)
     dataSourcePromise.then(function (dataSource) {

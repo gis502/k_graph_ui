@@ -44,11 +44,13 @@ const arrow = {
         break;
       case "attackArrow":
         var attackArrow = new AttackArrow(this.viewer);
+        attackArrow.disable()
         attackArrow.startDraw();
         this.drawArr.push(attackArrow);
         break;
       case "pincerArrow":
         var pincerArrow = new PincerArrow(this.viewer);
+        pincerArrow.disable()
         pincerArrow.startDraw();
         this.drawArr.push(pincerArrow);
       default:
@@ -73,6 +75,7 @@ const arrow = {
       }
     }
     console.log("保存的数据：" + JSON.stringify(jsonData));
+
   },
   showData: function (jsonData) { //展示用户保存的数据
     if (!jsonData) return;
@@ -101,6 +104,45 @@ const arrow = {
       this.drawArr.push(pincerArrow);
     }
 
+  },
+  showStraightArrow: function(data){
+    var straightArrow = new StraightArrow(this.viewer);
+    straightArrow.createByData(data);
+  },
+  showAttackArrow: function(data){
+    var attackArrow = new AttackArrow(this.viewer);
+    attackArrow.createByData(data);
+  },
+  showPincerArrow: function(data){
+    var pincerArrow = new PincerArrow(this.viewer);
+    pincerArrow.createByData(data);
+  },
+  drawStraightArrow: function(){
+    for (var i = 0; i < this.drawArr.length; i++) {
+      this.drawArr[i].disableHandler();
+    }
+    var straightArrow = new StraightArrow(this.viewer);
+    straightArrow.disable();
+    straightArrow.startDraw();
+    this.drawArr.push(straightArrow);
+  },
+  drawAttackArrow: function(){
+    for (var i = 0; i < this.drawArr.length; i++) {
+      this.drawArr[i].disableHandler();
+    }
+    var attackArrow = new AttackArrow(this.viewer);
+    attackArrow.disable();
+    attackArrow.startDraw();
+    this.drawArr.push(attackArrow);
+  },
+  drawPincerArrow: function(){
+    for (var i = 0; i < this.drawArr.length; i++) {
+      this.drawArr[i].disableHandler();
+    }
+    var pincerArrow = new PincerArrow(this.viewer);
+    pincerArrow.disable();
+    pincerArrow.startDraw();
+    this.drawArr.push(pincerArrow);
   },
   nowArrowObj: null,
   bindEdit: function () {

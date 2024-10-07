@@ -24,7 +24,7 @@
       <el-col :span="1.5">
         <el-select
             v-model="flag"
-            placeholder="Select"
+            placeholder="S elect"
             size="large"
             style="width: 240px"
         >
@@ -127,9 +127,11 @@ const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 const width = ref([])
 const widthList = {
-  'YaanAftershockStatistics': [300, 200, 100, 100, 200, 120, 100, 100, 100],
-  'YaanRelocationResettlementDisasterReliefGroup': [300, 200, 100, 100, 200, 150, 150, 130, 130, 170, 160],
-  'YaanCasualties': [300, 200, 100, 100, 200, 130, 120, 120, 120, 120, 120, 120, 120]
+  'AftershockInformation': [200, 200, 120, 120, 200, 120, 120, 120,120,120],
+  'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200,200],
+  'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120,200],
+  'Meetings':[200, 200, 120, 200, 200, 120, 120, 120, 120],
+  'CommunicationFacilityDamageRepairStatus':[200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200]
 }
 
 /** 监听 */
@@ -167,7 +169,6 @@ const getYaanCasualtiesList = async () => {
     flag: flag.value
   }).then(res => {
     tableData.value = res.data.records
-    console.log(res.data.records)
     total.value = res.data.total
   })
 
@@ -188,14 +189,13 @@ const formatMagnitude = (row, column, cellValue) => {
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
     const label = name.value[index];
-    // const width1 = width.value[index]
-    // console.log(width1)
-    console.log(label)
+    const width1 = width.value[index]
+    // console.log(label)
     return {
       prop: fieldName,
       label: label,
       align: "center",
-      // width: width1
+      width: width1
     };
   });
 };
@@ -213,7 +213,7 @@ const handleDeleteAll = () => {
         // 用户确认后直接删除数据
         deleteData({
           flag: flag.value,
-          requestParams: multipleSelection.value,
+          ids: multipleSelection.value,
         }).then(() => {
           ElMessage({
             type: 'success',
@@ -263,7 +263,7 @@ const getTableField = () => {
 
 // 表格翻页选中（需要设置row-key）
 function getRowKey(row) {
-  return row.id
+  return row.uuid
 }
 
 // 分页函数
@@ -291,7 +291,7 @@ const generateData = _ => {
 }
 
 const getColumnWidth = (prop) => {
-  const specialColumns = ['地震名称', '地震时间', '统计截止时间'];
+  const specialColumns = ['地震名称', '地震时间', '填报截止时间'];
   if (specialColumns.includes(prop)) {
     return 250;
   }
@@ -310,7 +310,7 @@ const exportStatistics = () => {
     })
   } else {
 
-    const ids = multipleSelection.value.map(item => item.id);
+    const ids = multipleSelection.value.map(item => item.uuid);
 
     exportExcel({
       fields: value.value,
@@ -318,13 +318,18 @@ const exportStatistics = () => {
       flag: flag.value
     }).then(res => {
       let fileName;
-      if (flag.value === 'YaanRelocationResettlementDisasterReliefGroup') {
+      if (flag.value === 'TransferSettlementInfo') {
         fileName = '震情伤亡-转移安置统计表.xlsx';
-      } else if (flag.value === 'YaanAftershockStatistics') {
+      } else if (flag.value === 'AftershockInformation') {
         fileName = '震情伤亡-震情灾情统计表.xlsx';
-      } else if (flag.value === 'YaanCasualties'){
+      } else if (flag.value === 'CasualtyReport'){
         fileName = '震情伤亡-人员伤亡统计表.xlsx'; // 默认文件名
       }
+      else if (flag.value === 'Meetings'){
+        fileName = '震情伤亡-文会情况统计表.xlsx'; // 默认文件名
+    } else if (flag.value === 'CommunicationFacilityDamageRepairStatus'){
+      fileName = '交通电力通信-通信设施损毁及抢修情况统计表.xlsx'; // 默认文件名
+    }
       const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
       const link = document.createElement('a');
       link.href = url;
