@@ -261,7 +261,7 @@ import end from "@/assets/end.svg";
 import {Entity} from "cesium";
 import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
-// import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
+import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
 // import {searchMaterialData} from "../../api/system/emergency.js";
 import { ElMessageBox, ElMessage } from 'element-plus';
@@ -1199,29 +1199,6 @@ export default {
             this.RouteGuilde = pathName;
           })
 
-
-          // getWay({pathWay: that.pos, hardAreas: that.areas}).then((res) => {
-          //   console.log("true")
-          //   console.log(res.path)
-          //   that.polylineD(res.path, propertiesId);
-          //   that.pos = [];
-          //   this.cartime = res.carTime;
-          //   this.humantime = res.humanTime;
-          //   this.driveStyle();
-          //   this.walkStyle();
-          //   this.totalRoute = res.distance.substring(0, 6);
-          //   let list = [];
-          //   for (let i = 1; i < res.instructions.length; i++) {
-          //     if (res.instructions[i].name === "")
-          //       res.instructions[i].name = "无名氏路";
-          //     list.push({
-          //       from: res.instructions[i - 1].name,
-          //       to: res.instructions[i].name,
-          //       dist: Math.floor(res.instructions[i - 1].distance),
-          //     });
-          //   }
-          //   this.RouteGuilde = list;
-          // });
           that.showTips = true;
           //路径规划好后弹出气泡框
           // this.bubbleTips(position);

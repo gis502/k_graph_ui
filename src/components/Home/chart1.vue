@@ -54,7 +54,7 @@ const initChart = () => {
         show: true,
         textStyle: {
           color: '#fff',
-          fontSize: 16,
+          fontSize: 13,
         },
         interval: 0,
       },
@@ -64,12 +64,12 @@ const initChart = () => {
       type: 'value',
       nameTextStyle: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 13,
       },
       axisLabel: {
         show: true,
         textStyle: {
-          fontSize: 15,
+          fontSize: 13,
           color: '#fff'
         }
       },
@@ -91,7 +91,7 @@ const initChart = () => {
           show: true,
           position: 'top',
           color: '#fff',
-          fontSize: 16,
+          fontSize: 13,
         }
       }
     ]

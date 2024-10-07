@@ -119,7 +119,7 @@ export default {
       deep: true,
       handler() {
         this.popupPanelData = this.popupData
-        console.log(this.popupPanelData)
+        console.log("this.popupPanelData",this.popupPanelData)
         this.plotInfoActivities = []
         // 必须把生成对应标绘的html模板代码（下面的for循环），写在watch的popupData中，不能写在visible中。
         // 在执行顺序上，visible比popupData快。导致在判断this.popupPanelData.plottype === plotType[item].name时，
@@ -159,13 +159,13 @@ export default {
       let that = this
       if(plotid=="center"){
         let item = {
-          starttime: this.timestampToTime(this.popupPanelData.centerPoint.time),
+          starttime: this.timestampToTime(this.popupPanelData.centerPoint.occurrenceTime),
           endtime: "",
           info: "",
           id: "centerinfo",
           aditStatus: true,
         }
-        let infostr = `{"name":"震中","position":{"type":"text","name":"位置","value":"${this.popupPanelData.centerPoint.position}"},"latitude":{"type":"text","name":"纬度","value":"${this.popupPanelData.centerPoint.latitude}"},"longitude":{"type":"text","name":"经度","value":"${this.popupPanelData.centerPoint.longitude}"},"magnitude":{"type":"text","name":"震级","value":"${this.popupPanelData.centerPoint.magnitude}"},"depth":{"type":"text","name":"震源深度","value":"${this.popupPanelData.centerPoint.depth}"}}`;
+        let infostr = `{"name":"震中","position":{"type":"text","name":"位置","value":"${this.popupPanelData.centerPoint.earthquakeName}"},"latitude":{"type":"text","name":"纬度","value":"${this.popupPanelData.centerPoint.latitude}"},"longitude":{"type":"text","name":"经度","value":"${this.popupPanelData.centerPoint.longitude}"},"magnitude":{"type":"text","name":"震级","value":"${this.popupPanelData.centerPoint.magnitude}"},"depth":{"type":"text","name":"震源深度","value":"${this.popupPanelData.centerPoint.depth}"}}`;
         item.info = JSON.parse(infostr)
         // this.plotInfoActivities.push(item)
         // console.log("plotInfoActivities",this.plotInfoActivities)
