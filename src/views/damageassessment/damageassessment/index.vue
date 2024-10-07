@@ -811,8 +811,12 @@ export default {
     },
 
     removeData() {
+
+      this.tabs = []
+
       this.economicLossData = []
       this.buildingDamageData = []
+      this.personalCasualtyData = []
 
       this.historyEqPoints = [];
       this.historyEqData = [];
@@ -832,6 +836,22 @@ export default {
       this.eqPanel.isPersonalCasualtyPanelShow = false;
       const faultInfoDiv = document.getElementById('faultInfo');
       faultInfoDiv.style.display = 'none';
+
+      this.removeEntitiesByType("economicLoss")
+      let ecoLayer = window.viewer.dataSources.getByName("EconomicLossLayer")[0]
+      window.viewer.dataSources.remove(ecoLayer);
+      this.ecoData = {}
+
+      this.removeEntitiesByType("buildingDamage")
+      let bddLayer = window.viewer.dataSources.getByName("BuildingDamageLayer")[0]
+      window.viewer.dataSources.remove(bddLayer);
+      this.bddData = {}
+
+      this.removeEntitiesByType("personalCasualty")
+      let pcLayer = window.viewer.dataSources.getByName("PersonalCasualtyLayer")[0]
+      window.viewer.dataSources.remove(pcLayer);
+      this.pcData = {}
+
     },
 
     showHistoryEqPoints() {
