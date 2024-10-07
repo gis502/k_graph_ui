@@ -347,13 +347,14 @@ export default {
 
       // 发送搜索请求
       queryEq({queryValue: searchKey}).then(res => {
+        console.log("检查返回的数据",res); // 检查返回的数据
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
           ...item,
           occurrenceTime: this.timestampToTime(item.occurrenceTime),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2)
+          longitude: Number(item.longitude).toFixed(2),
         }));
         // 搜索之后更新数据
         this.getEqData = filteredData;
@@ -472,7 +473,12 @@ export default {
       });
     },
     timestampToTime(timestamp) {
+      console.log("转换前的时间戳:", timestamp);
       let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
       // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
       let year = DateObj.getFullYear()
       let month = DateObj.getMonth() + 1
