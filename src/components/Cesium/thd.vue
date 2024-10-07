@@ -13,13 +13,13 @@
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
     <!--    </div>-->
     <div v-if="activeComponent === 'layerChoose'" class="dropdown"
-         :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
+         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
             v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
             :key="item.id"
             :label="item.name"
-            style="margin: 1px 0;"
+            style="margin:0 0;"
         >
           {{ item.name }}
         </el-checkbox>
@@ -31,13 +31,30 @@
     </div>
 
     <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
-         :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
+         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
       <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
         <el-radio
             v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
             :key="item.id"
             :label="item.name"
-            style="margin: 1px 0;color:white"
+            style="margin: 0 0;color:white"
+        >
+          {{ item.name }}
+        </el-radio>
+      </el-radio-group>
+      <div @click="toggleExpand"
+           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+      </div>
+    </div>
+    <div v-if="activeComponent === 'reportDownload'" class="dropdown"
+         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+      <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
+        <el-radio
+            v-for="item in (isExpanded ? reportItems : reportItems.slice(0, 6))"
+            :key="item.id"
+            :label="item.name"
+            style="margin: 0 0;color:white"
         >
           {{ item.name }}
         </el-radio>
@@ -107,7 +124,8 @@
       <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
       <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
       <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>
+<!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
+      <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
       <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
       <el-menu-item index="6">返回首页</el-menu-item>
     </el-menu>
@@ -280,7 +298,7 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
-import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
+import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 export default {
   components: {
@@ -438,11 +456,17 @@ export default {
       imgName:'',
       ifShowMapPreview: false, // 是否预览专题图
       //专题图下载end
+
+      //报告产出
+      reportItems:[],
+      selectReportItem:'',
+
     };
   },
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
+    this.reportItems=ReportUrl.filter(item => item.eqid === this.eqid);
     // console.log(this.thematicMapitems);
   },
   mounted() {
@@ -479,6 +503,7 @@ export default {
       this.isExpanded=false; //图层要素收起
       this.isshowThematicMapPreview=null
       this.selectthematicMap=null
+      this.selectReportItem=null
       // 图层要素
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
@@ -2001,6 +2026,26 @@ export default {
       this.ifShowMapPreview= val // 是否预览专题图 = val
       if( !val){this.selectthematicMap=null}
     },
+    //专题图 end
+
+    //报告产出
+    updateReportItem(){
+      if(this.selectReportItem){
+        console.log(this.selectReportItem)
+        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name===this.selectReportItem);
+        const link = document.createElement('a');
+        link.href = selectedData.path;
+        link.download = selectedData.name; // 指定下载的文件名
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => {
+          this.selectReportItem = null;
+        }, 1000); // 1000 毫秒后执行
+      }
+    }
+
+
   }
 }
 </script>
