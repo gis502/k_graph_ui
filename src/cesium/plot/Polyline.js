@@ -388,7 +388,7 @@ export default class Polyline {
         // 1-5 把数据库同一drawid的点数据转化成Cartesian3类型的数组
         let positionsArr = []
       line[0].geom.coordinates.forEach(e => {
-          console.log("e",e)
+          // console.log("e",e)
           // 线的positions需要数组里的点都是Cartesian3类型
           positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
         })
@@ -396,6 +396,8 @@ export default class Polyline {
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,
+          plottype: line[0].plotType,
+          layer: "标绘点",
           polyline: {
             positions: positionsArr,
             width: 5,

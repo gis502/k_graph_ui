@@ -40,7 +40,7 @@
             <dv-border-box7>
               <div class="public-title">
                 地震列表
-                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams"></el-input>
+                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams" @keyup.enter="query()"></el-input>
                 <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
                 <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
               </div>

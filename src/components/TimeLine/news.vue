@@ -73,6 +73,7 @@ export default {
       if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
           this.ifShowData = true
           this.fetchData()
+
       }
       // console.log("ifShowData---------------",this.ifShowData)
 
@@ -88,6 +89,7 @@ export default {
     },
     async fetchData() {
       this.newsData = newsData
+      this.updateNews(this.currentTime)
     },
     hideNews() {
       this.showRightButton = false
@@ -98,6 +100,7 @@ export default {
       this.showLeftButton = false
     },
     async updateNews(currentTime) {
+      // console.log("this.newsData",this.newsData)
       const activities = await this.newsData.filter((activity) => {
         return (
             new Date(activity.publish_time) <= currentTime

@@ -125,6 +125,9 @@ export default class Point {
         }
       })
     })
+    // 存储 dataSource 到对象上，便于后续操作
+    window.pointDataSource = dataSource;
+    // console.log("window.pointDataSource",window.pointDataSource)
     const dataSourcePromise = window.viewer.dataSources.add(dataSource)
     console.log(dataSourcePromise)
     dataSourcePromise.then(function (dataSource) {

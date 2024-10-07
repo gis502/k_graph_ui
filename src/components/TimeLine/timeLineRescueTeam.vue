@@ -17,18 +17,18 @@
               v-for="item in showRescueTeam"
           >
             <div class="sub-content">
-              <p class="rescue_team_p">
-                <span v-if="item.gotime && item.gotime!==''">{{item.goyear}}年{{item.gomonth}}月{{item.goday}}日</span>
-                <span v-if="item.gohour">{{item.gohour}}:{{item.gominute}}</span>
-                <span v-if="item.gotime">，</span>
-                <span v-if="item.team">{{item.team}}</span>
-                <span v-if="item.personnum">{{item.personnum}}人 </span>
-                <span v-if="item.destination">前往{{item.destination}}</span>
-                <span v-if="!item.destination&&!item.describeThings">前往震区</span>
-                <span v-if="item.describeThings">{{item.describeThings}}</span>
-                <div v-if="item.gotime || item.team || item.personnum || item.destination||item.describeThings" class="p-underline"></div>
-              </p>
-
+<!--              <p class="rescue_team_p">-->
+<!--                <span v-if="item.gotime && item.gotime!==''">{{item.goyear}}年{{item.gomonth}}月{{item.goday}}日</span>-->
+<!--                <span v-if="item.gohour">{{item.gohour}}:{{item.gominute}}</span>-->
+<!--                <span v-if="item.gotime">，</span>-->
+<!--                <span v-if="item.team">{{item.team}}</span>-->
+<!--                <span v-if="item.personnum">{{item.personnum}}人 </span>-->
+<!--                <span v-if="item.destination">前往{{item.destination}}</span>-->
+<!--                <span v-if="item.team && !item.destination&&!item.describeThings">前往震区</span>-->
+<!--                <span v-if="item.describeThings">{{item.describeThings}}</span>-->
+<!--                <div v-if="item.gotime || item.team || item.personnum || item.destination||item.describeThings" class="p-underline"></div>-->
+<!--              </p>-->
+                <p class="rescue_team_p">{{item}}</p>
             </div>
           </li>
         </ul>
@@ -69,10 +69,13 @@ export default {
       'eqid'
   ],
   mounted() {
-      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-          this.ifShowData = true
-      }
     this.init()
+    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
+      this.ifShowData = true
+    }
+    // if(this.ifShowData){
+    //   this.rescue_team_update(this.currentTime)
+    // }
   },
   watch: {
     currentTime(newVal) {
@@ -85,9 +88,10 @@ export default {
   methods: {
     init() {
         getRescueTeam().then(res => {
-            // console.log("res:----",res)
+            console.log("res:----",res)
             // console.log("this.ifShowData-----",this.ifShowData)
             this.RescueTeamInfo = res
+          this.rescue_team_update(this.currentTime)
         })
       // this.RescueTeamInfo.sort((a, b) => {
       //   if (a.recordTime < b.recordTime) return -1;
@@ -96,9 +100,47 @@ export default {
       // });
     },
 
+      showContent(item){
+          // console.log("========================",item)
+        let result = ""
+        if(item.gotime !== "" && item.gotime !== undefined && item.gotime !== null){
+            result = item.goyear + '年' + item.gomonth + '月' + item.goday + '日' + ' '
+                + item.gohour + ':' + item.gominute + '，'
+        }else{
+            result = item.goRecordyear + '年' + item.goRecordmonth + '月' + item.goRecordday + '日' + ' '
+                + item.goRecordhour + ':' + item.goRecordminute + '，'
+        }
+        let flag = true
+        if(item.team !== "" && item.team !== undefined && item.team !== null){
+            result = result + item.team
+            flag = false
+        }
+        if(item.personnum !== "" && item.personnum !== undefined && item.personnum !== null){
+              result = result + item.personnum + '人'
+            flag = false
+        }
+        if(item.destination !== "" && item.destination !== undefined && item.destination !== null){
+            result = result + '前往' + item.destination + '。'
+        }else{
+            if(!flag){
+                result = result + '前往震区' + '。'
+            }
+        }
+        if(flag){
+            if(item.describeThings.endsWith('。')){
+                result = result + item.describeThings
+            }else{
+                result = result + item.describeThings + '。'
+            }
+        }
+
+          // console.log("===================",result)
+        return result
+      },
+
     async rescue_team_update(currentTime) {
       this.showRescueTeam=[]
-      console.log("救援出队 res",this.RescueTeamInfo)
+      // console.log("救援出队 res",this.RescueTeamInfo)
       // console.log(currentTime)
       //筛选用记录时间
       const activities = await this.RescueTeamInfo.filter((activity) => {
@@ -137,10 +179,18 @@ export default {
                 activity.gohour = String(new Date(item.departureDate).getHours()).padStart(2, '0');
                 activity.gominute = String(new Date(item.departureDate).getMinutes()).padStart(2, '0');
             }
-          this.showRescueTeam.unshift(activity)
+            if(item.recordTime){
+                activity.goRecordtime = new Date(item.recordTime)
+                activity.goRecordyear = activity.goRecordtime.getFullYear()
+                activity.goRecordmonth = activity.goRecordtime.getMonth() + 1
+                activity.goRecordday = activity.goRecordtime.getDate()
+                activity.goRecordhour = String(new Date(item.recordTime).getHours()).padStart(2, '0');
+                activity.goRecordminute = String(new Date(item.recordTime).getMinutes()).padStart(2, '0');
+            }
+            let result = this.showContent(activity)
+          this.showRescueTeam.unshift(result)
         })
       }
-
     },
 
       timestampToTime(timestamp) {

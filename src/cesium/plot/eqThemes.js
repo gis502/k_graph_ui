@@ -126,17 +126,14 @@ export function addFaultZones(centerPoint) {
       layer: "断裂带",
     });
   });
-
-  console.log(faultZoneLines);
 }
 
 // 绘制历史地震点
 export function addHistoryEqPoints(centerPoint, eqData) {
-
-  console.log(eqData)
   // 圆圈的大小
   const semiMinorAxis = 50000.0;
   const semiMajorAxis = 50000.0;
+  // console.log(eqData)
 
   // 添加圆圈
   viewer.entities.add({
@@ -192,9 +189,9 @@ export function addHistoryEqPoints(centerPoint, eqData) {
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           properties: {
-            tableName: `${timestampToTime(eq.time, 'date')} ${eq.position} ${eq.magnitude}级地震`,
-            historyEqTime: eq.time,
-            position: eq.position,
+            tableName: `${timestampToTime(eq.occurrenceTime, 'date')} ${eq.earthquakeName} ${eq.magnitude}级地震`,
+            historyEqTime: eq.occurrenceTime.replace('T', ' '),
+            position: eq.earthquakeName,
             lon: eq.longitude,
             lat: eq.latitude,
             magnitude: eq.magnitude,
@@ -383,13 +380,11 @@ export function addOvalCircles(centerPoint) {
 
     //计算烈度圈进行存储
     savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp,centerPoint))
-    console.log("savecircles", savecircles)
     //内环
     lastsemiMajorAxis = semiMajorAxis;
     lastsemiMinorAxis = semiMinorAxis;
     last_angle_num_tmp = angle_num_tmp; // 旋转角度
   }
-  console.log("savecircles", savecircles)
   saveIntensityCircle(savecircles).then(res => {
   })
 }
@@ -432,7 +427,6 @@ function computecircle(majorAxis, minorAxis, rotationAngle, intensity, lastlong,
       latitude: vertexLatitude
     });
   });
-  console.log("outlinepoints", outlinepoints)
 
   //内环
   // 计算椭圆的四个顶点
@@ -466,9 +460,7 @@ function computecircle(majorAxis, minorAxis, rotationAngle, intensity, lastlong,
     });
   }
 
-  console.log("inlinepoints", inlinepoints)
   IntensityCircle.geom = buildCurvePolygonString(outlinepoints, inlinepoints)
-  console.log("IntensityCircle", IntensityCircle)
   return IntensityCircle;
 }
 
