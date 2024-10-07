@@ -16,3 +16,19 @@ export function saveIntensityCircle(savecircles){
         data: savecircles
     })
 }
+
+export function getBuildingDamage(eqid){
+  return request({
+    url: '/damageassessment/getBuildingDamageByEqid',
+    method: 'get',
+    params: { eqid }
+  })
+}
+
+export function getEconomicLoss(eqid){
+  return request({
+    url: '/damageassessment/getEconomicLossByEqid',
+    method: 'get',
+    params: { eqid }
+  })
+}
