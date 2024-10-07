@@ -100,7 +100,7 @@ export default {
       this.showLeftButton = false
     },
     async updateNews(currentTime) {
-      console.log("this.newsData",this.newsData)
+      // console.log("this.newsData",this.newsData)
       const activities = await this.newsData.filter((activity) => {
         return (
             new Date(activity.publish_time) <= currentTime

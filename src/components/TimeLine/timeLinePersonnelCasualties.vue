@@ -95,7 +95,7 @@ export default {
       // console.log(this.Responsecontent)
     },
     async personnel_casualties_update(currentTime) {
-      console.log("personnel_casualties_update",this.Responsecontent)
+      // console.log("personnel_casualties_update",this.Responsecontent)
       // console.log(currentTime)
       const activities =await this.Responsecontent.filter((activity) => {
         return (

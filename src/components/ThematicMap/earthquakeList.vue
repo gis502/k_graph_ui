@@ -51,6 +51,7 @@
             </div>
         </div>
 
+
         <!--   指定地震   -->
         <div class="thisEq" v-if="currentTab !== '震害事件' && selectedTabData">
             <div class="eqInfo">
