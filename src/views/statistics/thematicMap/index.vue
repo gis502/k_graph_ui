@@ -106,6 +106,12 @@ import yaan from '@/assets/geoJson/yaan.json'
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
 
+
+import { getTotal as getAfterShockInformation } from "../../api/system/statistics";
+import { gettotal as getInjuredCountData } from "../../api/system/casualtystats" ;
+import { getTotal as getTransferPoints} from "../../api/system/relocation";
+
+
 export default {
   data() {
     return {
@@ -313,20 +319,55 @@ export default {
     },
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     //获取echarts展示的数据
-    getAfterShockInformation(eqid) {
-      console.log(`Fetching aftershock information for eqid: ${eqid}`)
+    getAfterShock(eqid) {
+      getAfterShockInformation(eqid).then(res =>{
+        console.log("getAfterShockInformation",res)
+      })
+      // console.log(`Fetching aftershock information for eqid: ${eqid}`)
     },
 
-    //获取受灾人数数据，对应板块的颜色
-    getInjuredCountData(eqid) {
-      console.log(`Fetching injured count data for eqid: ${eqid}`);
+    //获取受灾人数数据，对应板块颜色
+    getInjuredCount(eqid) {
+      getInjuredCountData(eqid).then(res =>{
+        console.log("getInjuredCountData",res)
+      })
+      // console.log(`Fetching injured count data for eqid: ${eqid}`);
     },
 
     //获取转移安置人数数据
-    getTransferPoints(eqid) {
+    getTransfer(eqid) {
+      getTransferPoints(eqid).then(res => {
+        console.log("getTransferPoints",res)
+      })
       console.log(`Fetching transfer points for eqid: ${eqid}`)
     },
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // 销毁所有已创建的 ECharts 实例
     clearMultipleECharts() {
