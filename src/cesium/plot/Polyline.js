@@ -396,6 +396,8 @@ export default class Polyline {
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,
+          plottype: line[0].plotType,
+          layer: "标绘点",
           polyline: {
             positions: positionsArr,
             width: 5,

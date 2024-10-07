@@ -915,7 +915,7 @@ export default {
     updatePlot() {
       // console.log(this.plots)
       let that = this
-      //点
+       //--------------------------点绘制------------------------------
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
       console.log("点渲染", pointArr)
 
@@ -945,11 +945,19 @@ export default {
 
           points.push(point); // 收集点数据
         }
-
         // 如果点应该消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
-          viewer.entities.removeById(item.plotId); // 移除点
+          console.log(item.plotId, "end");
+
+          // 从 dataSource 中删除点
+          if (window.pointDataSource) {
+            const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+            console.log("entityToRemove",entityToRemove)
+            if (entityToRemove) {
+              window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            }
+          }
         }
       });
       // 批量渲染点
@@ -957,97 +965,77 @@ export default {
         cesiumPlot.drawPoints(points);
       }
 
-
-      //线
+      //--------------------------线绘制------------------------------
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
       console.log("polylineArr", polylineArr)
 
       let filteredPolylineArr = []; // 用于存储符合条件的线条数据
 
-      polylineArr.forEach(item => {
-        // that.drawPolyline(item)
+       polylineArr.forEach(item => {
+         console.log("isshow",this.plotisshow)
+         // that.drawPolyline(item)
+         const currentDate = new Date(this.currentTime);
+         console.log(currentDate)
+         const startDate = new Date(item.startTime);
+         const endDate = new Date(item.endTime);
+         // console.log("line",item.plotId,startDate,endDate,currentDate)
+         if ( startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+           this.plotisshow[item.plotId] = 1
+           filteredPolylineArr.push(item); // 收集符合条件的线条
+         }
+         //消失
+         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+           this.plotisshow[item.plotId] = 0
+           // console.log(item.plotId,"end")
+           viewer.entities.removeById(item.plotId)
+           /*因为封装好渲染线的函数中，将每个点都进行了渲染，清除时也要将每个点清除*/
+           for (let i = 0; i < item.geom.coordinates.length; i++) {
+             viewer.entities.removeById(item.plotId + 'point' + (i + 1))
+           }
+         }
+
+       })
+       // console.log("filteredPolylineArr",filteredPolylineArr)
+       cesiumPlot.getDrawPolyline(filteredPolylineArr)
+
+       //--------------------------面绘制------------------------------
+      let polygonArr = this.plots.filter(e => e.drawtype === 'polygon')
+       let filteredPolygonArr = []; // 用于存储符合条件的面数据
+      polygonArr.forEach(item => {
         const currentDate = new Date(this.currentTime);
-        console.log(currentDate)
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
         // console.log("line",item.plotId,startDate,endDate,currentDate)
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
           this.plotisshow[item.plotId] = 1
-          filteredPolylineArr.push(item); // 收集符合条件的线条
-
+          filteredPolygonArr.push(item);// 收集符合条件的面
         }
         //消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
-          // console.log(item.plotId,"end")
+          console.log(item.geom.coordinates,"endPOlygon")
           viewer.entities.removeById(item.plotId)
+          /*因为封装好渲染面的函数中，将每个点都进行了渲染，清除时也要将每个点清除*/
+          // let coords = item.geom.coordinates[0]
+          // for (let i = 0; i < coords.length; i++) {
+          //   console.log(i)
+          //   viewer.entities.removeById(item.plotId + 'point' + (i + 1))
+          //   console.log("wanchan")
+          // }
         }
-
       })
-      console.log("filteredPolylineArr", filteredPolylineArr)
-      cesiumPlot.getDrawPolyline(filteredPolylineArr)
-      // // 面
-      // let polygonArrtmp = this.plots.filter(e => e.drawtype === 'polygon')
-      // let polygonId = this.distinguishPolylineId(polygonArrtmp)
-      // let polygonArr = []  // id, 开始时间, 结束时间
-      // polygonId.forEach(onlyDrawIdItem => {
-      //   let positionsArr = [];
-      //   let polygontmp = {};
-      //   polygonArrtmp.forEach(polygonElement => {
-      //     if (polygonElement.plotid === onlyDrawIdItem) {
-      //       positionsArr.push(
-      //           parseFloat(polygonElement.longitude),
-      //           parseFloat(polygonElement.latitude),
-      //           // parseFloat(polylineElement.height)
-      //       );
-      //       // 检查 polylineArr 中是否已存在该 plotid 的数据
-      //       let existingpolygon = polygonArr.find(p => p.plotid === polygonElement.plotid);
-      //       if (existingpolygon) {
-      //         // 更新已存在的数据
-      //         // existingPolyline.endtime = polylineElement.endtime;
-      //         existingpolygon.positionsArr = positionsArr;
-      //       } else {
-      //         // 创建新的数据对象并添加到 polylineArr
-      //         polygontmp = {
-      //           plotid: polygonElement.plotid,
-      //           drawtype: "polygon",
-      //           endtime: polygonElement.endtime,
-      //           starttime: polygonElement.starttime,
-      //           plottype: polygonElement.plottype,
-      //           img: polygonElement.img,
-      //           positionsArr: positionsArr,
-      //           angle: polygonElement.angle,
-      //         };
-      //         polygonArr.push(polygontmp);
-      //       }
-      //     }
-      //   });
-      // });
-      // // console.log("polygonArr",polygonArr)
-      //
-
-      //
-      // polygonArr.forEach(item => {
-      //   // console.log(item)
-      //   // that.getDrawPolygon(item);
-      //
-      //   const currentDate = new Date(this.currentTime);
-      //   const startDate = new Date(item.starttime);
-      //   const endDate = new Date(item.endtime);
-      //   // console.log("line",item.plotid,startDate,endDate,currentDate)
-      //
-      //
-      //   if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotid] === 0) {
-      //     this.plotisshow[item.plotid] = 1
-      //     this.getDrawPolygon(item)
-      //   }
-      //   //消失
-      //   if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotid] === 1) {
-      //     this.plotisshow[item.plotid] = 0
-      //     // console.log(item.plotid,"end")
-      //     viewer.entities.removeById(item.plotid)
-      //   }
-      // })
+       let polygonMap = {};
+       filteredPolygonArr.forEach(item => {
+         if (!polygonMap[item.plotId]) {
+           polygonMap[item.plotId] = [];
+         }
+         polygonMap[item.plotId].push(item);
+       });
+       Object.keys(polygonMap).forEach(plotId => {
+         let polygonData = polygonMap[plotId];
+         console.log("polygonData",polygonData)
+         cesiumPlot.getDrawPolygon(polygonData)
+       });
 
     },
 
@@ -1235,54 +1223,7 @@ export default {
     },
     //时间轴end-------------
 
-    //线面渲染-------------------------------------------------
-    drawPolyline(line) {
-      let material = this.getMaterial(line.plottype, line.img)
-      // 1-6 画线
-      window.viewer.entities.add({
-        id: line.plotid,
-        plottype: line.plottype,
-        polyline: {
-          status: 1,
-          // positions: positionsArr,
-          positions: Cesium.Cartesian3.fromDegreesArrayHeights(line.positionsArr),
-          width: 5,
-          material: material,
-          // material: Cesium.Color.YELLOW,
-          depthFailMaterial: Cesium.Color.YELLOW,
-          clampToGround: true,
-        },
-        properties: {
-          // pointPosition: pointLinePoints,
-        },
-        layer: "标绘点"
-      })
-    },
-    distinguishPolylineId(polylineArr) {
-      let PolylineIdArr = []
-      polylineArr.forEach(element => {
-        if (!PolylineIdArr.includes(element.plotid)) {
-          PolylineIdArr.push(element.plotid)
-        }
-      })
-      return PolylineIdArr
-    },
-    getDrawPolygon(polygon) {
-      // console.log("polygon111111111",polygon)
-      viewer.entities.add({
-        id: polygon.plotid,
-        plottype: polygon.plottype,
-        polygon: {
-          show: true,
-          hierarchy: Cesium.Cartesian3.fromDegreesArray(polygon.positionsArr),
-          height: 0,
-          material: polygon.img,
-          stRotation: Cesium.Math.toRadians(parseFloat(polygon.angle)),
-          clampToGround: true,
-        },
-        layer: "标绘点"
-      })
-    },
+
 // 所有entity实体类型点击事件的handler
     entitiesClickPonpHandler() {
       let that = this;
@@ -2008,10 +1949,10 @@ export default {
     //标绘图层清除-->
     MarkingLayerRemove() {
       this.plots.forEach(item => {
-        const entity = viewer.entities.getById(item.plotid);
+        const entity = viewer.entities.getById(item.plotId);
         if (entity) {
-          viewer.entities.removeById(item.plotid);
-          this.plotisshow[item.plotid] = 0
+          viewer.entities.removeById(item.plotId);
+          this.plotisshow[item.plotId] = 0
         }
       })
     },
