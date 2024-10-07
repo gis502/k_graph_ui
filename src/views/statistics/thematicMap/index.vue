@@ -105,8 +105,12 @@ import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
-import { getTotal } from '@/api/system/relocation.js'
-import { gettotal } from '@/api/system/casualtystats.js'
+
+
+import { getTotal as getAfterShockInformation } from "../../api/system/statistics";
+import { gettotal as getInjuredCountData } from "../../api/system/casualtystats" ;
+import { getTotal as getTransferPoints} from "../../api/system/relocation";
+
 
 export default {
   data() {
@@ -267,12 +271,15 @@ export default {
       const selectedEqId = value;
 
       // 销毁所有已创建的 ECharts 实例
-      this.destroyECharts();
+      // this.clearMultipleECharts();
 
       // 删除旧的实体
-      this.clearTransferPoints();
+      // this.clearTransferPoints();
 
-      this.getAfterShockInformation(selectedEqId)
+      // this.getAfterShockInformation(selectedEqId)
+
+// 假设 dataSource 是在某个地方初始化的，确保传递正确的数据源
+//       this.resetDistrictColors(this.viewer.dataSources.get(0));  // 示例：从 Cesium viewer 获取数据源
 
       // 调用获取人员伤亡数据的方法
       this.getInjuredCountData(selectedEqId);
@@ -312,44 +319,121 @@ export default {
     },
 
 
-    //获取echarts展示的数据
-    getAfterShockInformation(eqid) {
-      console.log(`Fetching aftershock information for eqid: ${eqid}`)
 
+
+
+
+
+
+
+
+
+
+
+
+
+    //获取echarts展示的数据
+    getAfterShock(eqid) {
+      getAfterShockInformation(eqid).then(res =>{
+        console.log("getAfterShockInformation",res)
+      })
+      // console.log(`Fetching aftershock information for eqid: ${eqid}`)
     },
 
     //获取受灾人数数据，对应板块颜色
-    getInjuredCountData(eqid) {
-      gettotal("87947dac-f577-481c-a7bf-904cbaad02df").then(res=>{
-        console.log(" 早找浪花",res)
+    getInjuredCount(eqid) {
+      getInjuredCountData(eqid).then(res =>{
+        console.log("getInjuredCountData",res)
       })
-      console.log(`Fetching injured count data for eqid: ${eqid}`);
+      // console.log(`Fetching injured count data for eqid: ${eqid}`);
     },
 
     //获取转移安置人数数据
-    getTransferPoints(eqid) {
-      getTotal("87947dac-f577-481c-a7bf-904cbaad02df").then(res=>{
-        console.log(" 早找浪花",res)
+    getTransfer(eqid) {
+      getTransferPoints(eqid).then(res => {
+        console.log("getTransferPoints",res)
       })
       console.log(`Fetching transfer points for eqid: ${eqid}`)
     },
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     // 销毁所有已创建的 ECharts 实例
-    destroyECharts() {
-// 假设你有保存每个 ECharts 实例的引用
-      this.echartsInstances.forEach(instance => {
-        if (instance) {
-          instance.dispose(); // 销毁图表
+    clearMultipleECharts() {
+      // 停止 Cesium 场景渲染后的 ECharts 更新同步
+      if (this.syncEChartsWithCesium) {
+        this.viewer.scene.postRender.removeEventListener(this.syncEChartsWithCesium);
+      }
+
+      // 遍历每个 ECharts 实例并销毁它们
+      this.echartsInstances.forEach(echart => {
+        if (echart) {
+          echart.dispose();  // 销毁 ECharts 实例，释放资源
         }
       });
-      this.echartsInstances = []; // 清空已保存的图表引用
+
+      // 清空 ECharts 实例数组
+      this.echartsInstances = [];
+
+      // 清空 ECharts 容器
+      const chartContainers = this.$refs.echartsContainer;
+      if (chartContainers) {
+        chartContainers.forEach(container => {
+          container.innerHTML = '';  // 移除容器中的所有 ECharts 元素
+        });
+      }
     },
 
+
     clearTransferPoints() {
-      // 假设所有转移安置点实体都有特定的 ID，可以通过 ID 移除相关实体
-      this.viewer.entities.values.forEach(entity => {
-        if (this.transferLocations.some(location => location.name === entity.id)) {
+      // 遍历 transferData 并移除对应的实体
+      const transferData = [
+        {name: '宝兴县', count: 120},
+        {name: '雨城区', count: 95},
+        {name: '名山区', count: 110},
+        {name: '荥经县', count: 85},
+        {name: '汉源县', count: 75},
+        {name: '石棉县', count: 130},
+        {name: '天全县', count: 140},
+        {name: '芦山县', count: 100},
+      ];
+
+      // 遍历 transferData 并根据 name 查找并移除实体
+      transferData.forEach(item => {
+        const entity = this.viewer.entities.getById(item.name); // 获取与 name 对应的实体
+
+        if (entity) {
           this.viewer.entities.remove(entity); // 移除实体
+        }
+      });
+    },
+
+
+    resetDistrictColors(dataSource) {
+      // 检查 dataSource 是否存在并且 entities 属性已定义
+      if (!dataSource || !dataSource.entities) {
+        console.warn('dataSource or entities is undefined');
+        return;
+      }
+
+      // 遍历每个实体，将其颜色恢复为默认状态或清除颜色
+      dataSource.entities.values.forEach(entity => {
+        // 检查是否存在 polygon 并且已设置了颜色
+        if (entity.polygon && entity.polygon.material) {
+          // 这里将颜色重置为 Cesium 默认颜色或透明色
+          const defaultColor = Cesium.Color.WHITE.withAlpha(0.0);  // 可以根据需求设置默认颜色
+          entity.polygon.material = new Cesium.ColorMaterialProperty(defaultColor);  // 恢复颜色
         }
       });
     },
@@ -495,14 +579,14 @@ export default {
 
       //这里是模拟的获取的后端的数据
       const districtData = [
-        {name: '宝兴县', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
+        {name: '宝兴县', '3.0-3.9级': 5, '4.0-4.9级': 4, '5.0-5.9级': 2},
         {name: '雨城区', '3.0-3.9级': 3, '4.0-4.9级': 7, '5.0-5.9级': 4},
-        {name: '名山区', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
-        {name: '荥经县', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
-        {name: '汉源县', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
-        {name: '石棉县', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
-        {name: '天全县', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
-        {name: '芦山县', '3.0-3.9级': 5, '4.0-4.9级': 10, '5.0-5.9级': 2},
+        {name: '名山区', '3.0-3.9级': 2, '4.0-4.9级': 6, '5.0-5.9级': 2},
+        {name: '荥经县', '3.0-3.9级': 5, '4.0-4.9级': 2, '5.0-5.9级': 1},
+        {name: '汉源县', '3.0-3.9级': 4, '4.0-4.9级': 6, '5.0-5.9级': 0},
+        {name: '石棉县', '3.0-3.9级': 5, '4.0-4.9级': 2, '5.0-5.9级': 1},
+        {name: '天全县', '3.0-3.9级': 1, '4.0-4.9级': 3, '5.0-5.9级': 2},
+        {name: '芦山县', '3.0-3.9级': 3, '4.0-4.9级': 1, '5.0-5.9级': 2},
       ];
 
       locations.forEach((location, index) => {
