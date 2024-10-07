@@ -29,11 +29,12 @@
         <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
+
     <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
          :style="{ height: isExpanded ? getHeight() + 'px' : 'auto',  transition: 'height 0.3s ease' }">
       <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
         <el-radio
-            v-for="item in (thematicMapitems ? thematicMapitems : thematicMapitems.slice(0, 6))"
+            v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
             :key="item.id"
             :label="item.name"
             style="margin: 1px 0;color:white"
@@ -231,6 +232,13 @@
   <div id="faultInfo"
        style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
   </div>
+    <thematicMapPreview
+        @ifShowThematicMapDialog="ifShowThematicMapDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
+    ></thematicMapPreview>
   </div>
 </template>
 
@@ -273,8 +281,10 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/pl
 
 //专题图
 import MapPicUrl from "@/assets/json/thematicMap/PicNameandLocal.js"
+import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 export default {
   components: {
+    thematicMapPreview,
     RouterPanel,
     TimeLinePanel,
     News,
@@ -419,10 +429,15 @@ export default {
       emergencyTeam: [],
       emergencyShelters: [],
 
+      //专题图下载
       thematicMapitems:[],
       selectthematicMap:'',
-      //请求防抖
-      isRequesting: false,
+      isshowThematicMapPreview:'',
+      imgshowURL:'',
+      imgurlFromDate:'',
+      imgName:'',
+      ifShowMapPreview: false, // 是否预览专题图
+      //专题图下载end
     };
   },
   created() {
@@ -461,11 +476,10 @@ export default {
     },
     //设置组件展开的面板互斥,避免堆叠
     toggleComponent(component) {
+      this.isExpanded=false; //图层要素收起
+      this.isshowThematicMapPreview=null
+      this.selectthematicMap=null
       // 图层要素
-      // this.activeComponent = this.isActive ? null : 'layerChoose';
-      // if (this.activeComponent==='layerChoose') {
-      //   this.initPlot(); // 调用初始化方法
-      // }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
       if (this.activeComponent === 'eqList') {
@@ -1963,7 +1977,30 @@ export default {
       }).catch(error => {
         // console.error('There was an error!', error);
       });
-    }
+    },
+
+
+    //专题图下载
+    updatethematicMap(){
+      if(this.selectthematicMap){
+        this.ifShowMapPreview=true
+        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name===this.selectthematicMap);
+        console.log(selectedData)
+        this.imgurlFromDate = selectedData.path
+        this.imgName=selectedData.name
+        // console.log("11111",this.imgurlFromDate, this.imgName)
+        this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+        // console.log(this.imgshowURL)
+      }
+     else{
+        this.ifShowMapPreview=false
+      }
+
+    },
+    ifShowThematicMapDialog(val) {
+      this.ifShowMapPreview= val // 是否预览专题图 = val
+      if( !val){this.selectthematicMap=null}
+    },
   }
 }
 </script>

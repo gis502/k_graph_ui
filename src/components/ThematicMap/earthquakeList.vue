@@ -76,13 +76,27 @@
 
                 <el-divider content-position="left"> 专题图</el-divider>
 
-                <div class="eqTheme">
-                    <div class="button themes history" v-for="item in thematicMapData" :key="item.name"
-                         @click="previewMap(item)"> {{item.name}}
+                <div style="height: 420px">
+                    <div class="eqTheme">
+                        <div class="button themes history"
+                             style="width: 120px;"
+                             v-for="item in thematicMapData"
+                             :key="item.name"
+                             @click="previewMap(item)"> {{item.name}}
+                        </div>
                     </div>
                 </div>
 
                 <div style="height: 10px;background-color: #054576"></div>
+                <el-divider content-position="left"> 灾情报告</el-divider>
+                <div class="eqTheme">
+                    <div class="button themes history"
+                         v-for="item in reportData"
+                         style="width: 120px;"
+                         @click="exportCesiumScene(item)"
+                         >{{item.name}}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -90,23 +104,38 @@
 </template>
 
 <script>
-    import imageData from "../../assets/images/ThematicMap/TwoAndThreeDIntegration/imageData.json"
+    import DisasterDamageAssessmentImageData from "../../assets/images/ThematicMap/DisasterDamageAssessment/LuShan/DisasterDamageAssessmentImageData.json"
+    import TwoAndThreeDIntegrationImageData from "../../assets/images/ThematicMap/TwoAndThreeDIntegration/LuShan/TwoAndThreeDIntegrationImageData.json"
     import {getAllEq} from "../../api/system/eqlist.js";
 
     export default {
         name: "earthquakeList",
+        props:[
+            'thematicMapClass'
+        ],
         data(){
             return{
                 isLeftShow: true,
                 isHistoryEqPointsShow: false,
                 currentTab: '震害事件', // 默认选项卡设置为『震害事件』
                 title: "",
-                // thematicMapData: [
-                //     {name: '震区交通图',path: '../../assets/images/ThematicMap/TwoAndThreeDIntegration/EarthquakeZoneTrafficMap.jpg'},
-                //     // '人口公路分布图', '水库分布图', '学校分布图', '医院分布图', '附近台站分布图',
-                //     // '附近救援队伍分布图','附近居民点分布图', '附近旅游景点分布图', '附近文物单位分布图', '震中与主要城市距离分布图'
-                // ],
                 thematicMapData: [],
+                reportData: [],
+                disasterDamageAssessmentReport: [
+                    {
+                        name:'2020年地震灾害预评估与处置工作报告',
+                        path:'/ThematicMap/DisasterDamageAssessment/LuShan/workReport.pdf'
+                    }],
+                twoAndThreeDIntegrationReport: [
+                    {
+                        name:'灾情简报',
+                        path:'/ThematicMap/TwoAndThreeDIntegration/LuShan/DisasterBriefing.pdf'
+                    },
+                    {
+                        name:'震区基本情况报告',
+                        path:'/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'
+                    }
+                ],
                 filteredEqData: [],
                 pagedEqData: [],
                 getEqData: [],
@@ -124,7 +153,26 @@
         methods:{
             // 根据父组件传值来判断调用哪些专题图
             fetch(){
-                this.thematicMapData = imageData
+                if(this.thematicMapClass === 'DisasterDamageAssessment'){
+                    this.thematicMapData = DisasterDamageAssessmentImageData
+                    this.reportData = this.disasterDamageAssessmentReport
+                }else{
+                    this.thematicMapData = TwoAndThreeDIntegrationImageData
+                    this.reportData = this.twoAndThreeDIntegrationReport
+                }
+            },
+            exportCesiumScene(item) {
+                if(item.path){
+                    const link = document.createElement('a');
+                    link.href = item.path;
+                    link.download = item.name; // 指定下载的文件名
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            },
+            getAssetsFile() {
+                this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
             },
             // 获取地震列表并渲染
             getEq() {
@@ -186,7 +234,7 @@
 
             // 将选中的专题图信息传给父组件
             previewMap(item){
-                this.$emit('imag-selected', item.path);
+                this.$emit('imag-selected', item);
             },
 
             back() {
@@ -251,7 +299,7 @@
         bottom: 0;
         width: 333px;
         height: calc(100% - 50px);
-        z-index: 3;
+        z-index: 100;
         background-color: #2d3d51;
     }
     .query {
@@ -344,7 +392,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        text-align: center;
         color: #fff;
+        margin-top: 2px;
+        width: 60px;
     }
     .return {
         width: 40px;
@@ -361,8 +412,8 @@
         transition: all 0.3s;
     }
     .eqTheme {
-        height: 150px;
-        padding-left: 30px;
+        height: 170px;
+        padding-left: 40px;
         margin: 0 auto;
         clear: both;
     }
@@ -371,7 +422,7 @@
         position: relative;
         margin: 5px 15px 15px 0;
         font-size: 15px;
-        height: 34%;
+        height: 30%;
         width: 28%;
         border: #fff 1px solid;
         cursor: pointer;
