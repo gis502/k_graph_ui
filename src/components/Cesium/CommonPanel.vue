@@ -260,7 +260,7 @@ export default {
         // popupPanelData是空，判断一定时false，造成第一次点击弹窗无法渲染对应标绘的html模板。
         // 可能时因为开启深度监听的原因（deep: true）。
         if (this.visiblePanel) {
-          if (this.popupPanelData.drawtype === 'straight'){
+          if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
 
           } else if (this.popupPanelData.drawtype) {
             this.getPlotInfo(this.popupPanelData.plotId)
@@ -324,6 +324,8 @@ export default {
     },
     // 删除标绘点
     deletePlot() {
+      let arraw = false
+
       let data = {
         plotId: null,
         plotType: null
@@ -333,6 +335,15 @@ export default {
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
       } else if (this.popupPanelData.drawtype === 'straight') {
+        arraw = true
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else if (this.popupPanelData.drawtype === 'attack') {
+        arraw = true
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else if (this.popupPanelData.drawtype === 'pincer') {
+        arraw = true
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
       } else {
@@ -347,8 +358,9 @@ export default {
 
       deletePlotInfo(data).then(res => {
         window.viewer.entities.removeById(data.plotId)
-        arrow.clearStraightArrow(data.plotId)
-        console.log(window.viewer.entities)
+        if (arraw) {
+          arrow.clearById(data.plotId)
+        }
         this.$emit('closePlotPop')
       })
     },

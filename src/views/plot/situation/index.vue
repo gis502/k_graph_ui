@@ -362,6 +362,10 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight')
         Arrow.showStraightArrow(straightArr)
+        let attackArrow = data.filter(e => e.drawtype === 'attack')
+        Arrow.showAttackArrow(attackArrow)
+        let pincerArr = data.filter(e => e.drawtype === 'pincer')
+        Arrow.showPincerArrow(pincerArr)
         // that.entityclustering()
       })
     },
