@@ -1,5 +1,17 @@
 <template>
   <div class="app-container">
+    <el-form-item label="时间轴" >
+      <el-input
+          v-model="queryParams"
+          placeholder="请输入时间轴信息"
+          clearable
+          style="width: 200px"
+          @keyup.enter="handleQuery"
+      />
+      <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+      <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+      <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+    </el-form-item>
     <el-table :data="tableData"
               height="600px"
               @row-click="go"
@@ -12,12 +24,12 @@
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="occurrenceTime" label="发震时间" header-align="center" align="center"></el-table-column>
       <el-table-column prop="earthquakeName" label="位置" width="300" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
       <el-table-column prop="longitude" label="经度" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度" header-align="center" align="center"></el-table-column>
-      <el-table-column prop="depth" label="深度" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="depth" label="深度(千米)" header-align="center" align="center"></el-table-column>
     </el-table>
 
     <el-pagination
@@ -37,7 +49,8 @@
 </template>
 
 <script>
-import {getAllEq, deleteeq} from '@/api/system/eqlist'
+import {getAllEq, deleteeq,queryEq,updataEq,fromEq,addEq} from '@/api/system/eqlist'
+import {searchEmergencyShelters} from "../../../api/system/emergency.js";
 
 export default {
   name: "timelineeqlist",
@@ -62,26 +75,65 @@ export default {
         eqid: '',
         // istimeLine:'',
       },
+      // 查询功能
+      queryParams: '',   // 搜索关键字
     }
   },
   mounted() {
     this.getEq()
   },
   methods: {
+    // 搜索功能
+    handleQuery() {
+      // 获取搜索关键字
+      const searchKey = this.queryParams.trim();
+
+      // 如果搜索关键字为空，恢复为原始数据
+      if (searchKey === "") {
+        this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
+        return;
+      }
+
+      // 发送搜索请求
+      queryEq({queryValue: searchKey}).then(res => {
+        console.log("检查返回的数据",res); // 检查返回的数据
+        // 处理并格式化返回的数据
+        const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
+          ...item,
+          occurrenceTime: this.timestampToTime(item.occurrenceTime),
+          magnitude: Number(item.magnitude).toFixed(1),
+          latitude: Number(item.latitude).toFixed(2),
+          longitude: Number(item.longitude).toFixed(2)
+        }));
+        // 搜索之后更新数据
+        this.getEqData = filteredData;
+        this.total = filteredData.length;  // 更新总数
+        // 使用更新后的数据更新分页
+        this.tableData = this.getPageArr(filteredData);  // 传入处理后的数据
+      }).catch(error => {
+        console.error("搜索时出现错误:", error);
+      });
+    },
+
+    // 重置功能
+    resetQuery() {
+      this.queryParams = '';  // 清空搜索输入框
+      this.getEq();  // 重新加载所有数据
+    },
+
     typeIndex(row, column, cellValue, index) {
       return (this.currentPage - 1) * this.pageSize + index + 1;
     },
     getEq() {
       let that = this
       getAllEq().then(res => {
-        console.log("-----------------",res[7])
-        let resData = res.filter(item=>item.magnitude>=5)
+        let resData = res.filter(item => item.magnitude >= 3)
         that.getEqData = resData
         that.total = resData.length
         let data = []
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.time = that.timestampToTime(item.occurrenceTime)
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -91,7 +143,12 @@ export default {
       })
     },
     timestampToTime(timestamp) {
+      console.log("转换前的时间戳:", timestamp);
       let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
       // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
       let year = DateObj.getFullYear()
       let month = DateObj.getMonth() + 1
