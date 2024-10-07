@@ -318,7 +318,7 @@ export default {
       console.log(`Fetching aftershock information for eqid: ${eqid}`)
     },
 
-    //获取受灾人数数据，对应板块颜色
+    //获取受灾人数数据，对应板块的颜色
     getInjuredCountData(eqid) {
       console.log(`Fetching injured count data for eqid: ${eqid}`);
     },
