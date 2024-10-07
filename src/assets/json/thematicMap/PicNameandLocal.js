@@ -27,7 +27,5 @@ const MapPicUrl=[
     {id:'13',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b', name: "震中附近活动断裂图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/EpicenterFaults.jpg" },
     {id:'14',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b', name: "震区历史地震分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/HistoricalQuakeDistribution.jpg" },
     {id:'15',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b', name: "震区潜在地质灾害分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/PotentialHazardDistribution.jpg" }
-
-
 ]
 export default MapPicUrl;
