@@ -1,5 +1,6 @@
 <template>
   <div class="preview-container" v-show="ifShow">
+<!--  <div class="preview-container">-->
     <h3 style="color: white">图片预览</h3>
     <img class="preview-image" :src=imgshowURL alt=""/>
     <div class="preview-buttons">
@@ -16,12 +17,12 @@ export default {
       imgshowURLLocal:'',
       imgurlFromDateLocal:'',
       imgNameLocal:'',
-        ifShow: false,
+      ifShow: false,
     }
   },
   props: [
     'imgshowURL','imgurlFromDate','imgName',
-      'ifShowMapPreview',
+    'ifShowMapPreview',
   ],
   watch: {
     imgshowURL(newVal) {
@@ -34,10 +35,10 @@ export default {
     imgName(){
       this.imgNameLocal=this.imgName
     },
-      ifShowMapPreview(bool){
-          // console.log("ifShowMapPreview---------",bool)
-        this.ifShow = bool
-      }
+    ifShowMapPreview(bool){
+      // console.log("ifShowMapPreview---------",bool)
+      this.ifShow = bool
+    }
   },
   mounted() {
     this.imgshowURLLocal=this.getAssetsFile(this.imgshowURLLocal)
@@ -73,7 +74,7 @@ export default {
   position: absolute;
   top: 50%;
   left: 40%;
-  width: 55%;
+  width: 44%;
   transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.6);
   padding: 20px;
@@ -81,7 +82,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-
+    z-index: 30;
 }
 .preview-image {
   max-width: 100%;

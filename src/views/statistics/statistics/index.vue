@@ -36,7 +36,7 @@
       <!-- 动态组件显示 -->
     </el-row>
     <div class="container-center">
-      <component :is="selectedComponent" />
+      <component :is="selectedComponent" :newEqId="newEqId" />
     </div>
   </div>
 </template>
@@ -49,6 +49,11 @@ import {getField, getData} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
+
+
+
+
+
 
 // 选项数据
 const options = [
@@ -85,10 +90,13 @@ const eqlistName = ref('')
 const tableNameOptions = ref([])
 const eqlists = ref([])
 const FieldName = ref([])
+
 const form = reactive({
   tableName: '',
   eqId: ''
 });
+
+// const selectedEqid = ref(''); // 新增变量用于保存选中的 eqid
 
 /** 监听 */
 watch(flag, (newFlag) => {
@@ -106,6 +114,24 @@ watch(flag, (newFlag) => {
   // getYaanCasualtiesList();
 
 });
+
+
+const newEqId = ref('');
+console.log()
+watch(eqlistName, (newValue) => {  // 修改为 newValue
+  newEqId.value = newValue
+  console.log("爷爷",newEqId.value)
+  // const selectedOption = tableNameOptions.value?.find(option => option.label === newValue);
+  // if (selectedOption) {
+  //   const part = selectedOption.value.split(" - "); // 根据 " - " 分割字符串
+  //   selectedEqid.value = part[0].trim(); // 获取对应的 eqid
+  //   console.log("Selected eqid:", selectedEqid.value); // 打印 eqid
+  //   // 向后端请求数据
+  // } else {
+  //   console.warn('No matching option found for the selected label:', newValue);
+  // }
+});
+
 
 onMounted(() => {
   getTableField()
@@ -154,20 +180,24 @@ const getTableField = () => {
 //获取地震列表
 const getEarthquake = () => {
   getExcelUploadEarthquake().then(res => {
+
     eqlists.value = res
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
     }
     tableNameOptions.value = eqlists.value.map(file => {
       const eqid = file.split(' - ')[0]?.trim();
-      const details = file.split(' - ')[1]?.trim();
-      // 提取 `-` 后面的部分
+        const details = file.split(' - ')[1]?.trim();
+        // 提取 `-` 后面的部分
       return {
         label: details, // 使用提取的部分作为标签
         value: eqid// 选择值为 ID
       }}
       )
-    eqlistName.value = tableNameOptions.value[0].label
+    // console.log(tableNameOptions.value)
+
+    // eqlistName.value = tableNameOptions.value[0].label
+
   })
 }
 

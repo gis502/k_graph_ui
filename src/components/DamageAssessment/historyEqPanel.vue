@@ -2,7 +2,6 @@
   <div class="historyEqPanel">
     <div class="panelTable">
       <div class="text" style="display: flex;">
-        <div class="hidden button" @click="sendHidden()">—</div>
         <span style="margin-left: 15px">统计表格</span>
       </div>
       <div class="table">
@@ -12,7 +11,7 @@
           <el-table-column prop="magnitude" label="震级" width="52" align="center"></el-table-column>
           <el-table-column prop="depth" label="深度" width="52" align="center"></el-table-column>
           <el-table-column prop="earthquakeName" label="参考位置" width="150" align="left"></el-table-column>
-          <el-table-column prop="distance" label="震中距" width="85" align="center"></el-table-column>
+          <el-table-column prop="distance" label="震中距/km" width="90" align="center"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -49,7 +48,7 @@
   </div>
 
   <div class="panelEqInfo">
-    <span style="color: #409eff;font-size: 18px">{{ selectedTabData.position }} {{ selectedTabData.magnitude }}级地震</span>
+    <span style="color: #409eff;font-size: 18px">{{ selectedTabData.earthquakeName }} {{ selectedTabData.magnitude }}级地震</span>
     <div style="padding: 1px 20px 10px 20px">
       <p>发震时刻：{{ selectedTabData.time }}</p>
       <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
@@ -66,7 +65,6 @@ export default {
   props: {
     historyEqData: Array,
     selectedTabData: {},
-
   },
   data() {
     return {
@@ -172,7 +170,7 @@ export default {
 
         return {
           ...eq,
-          distance: `${distance} km`, // 将距离加到数据中
+          distance: `${distance}`, // 将距离加到数据中
         };
       });
 
@@ -192,12 +190,6 @@ export default {
 
     showNoData() {
       this.isNoHistoryEq = true;
-      console.log('No Data')
-    },
-
-    sendHidden() {
-      const isHistoryEqPointsShow = false;
-      this.$emit('hidden', isHistoryEqPointsShow);
     },
 
     tableHeaderColor() {
