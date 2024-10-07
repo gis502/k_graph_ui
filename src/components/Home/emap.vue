@@ -3,7 +3,7 @@
   <!--指南针-->
   <div class="compassContainer"></div>
   <!--四川地图-->
-  <div ref="eMap" class="eMap"></div>
+  <div ref="eMap" class="eMap" style="width: 768px; height: 770px;"></div>
 
   <!-- 自制图例 -->
   <div class="legend">
