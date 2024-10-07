@@ -5,18 +5,18 @@
         :position="popupPosition"
         :popupData="popupData"
     />
-    <div id="supplies" :class="{ collapsed: !tableVisible }" style="width: 70%;">
+    <div id="supplies" :class="{ collapsed: !tableVisible }" style="width: 93.5%;">
       <el-form class="eqTable">
-        <div style="margin-bottom: 10px; padding: 10px; width: 100%;">
+        <div style="margin-bottom: 10px; padding: 10px; width: 100.6%;">
             <el-menu
                     :default-active="1"
                     class="el-menu-demo"
                     mode="horizontal"
                     background-color="#293038"
                     text-color="#fff"
-                    active-text-color="#537BB7FF"
+                    active-text-color="#409eff"
             >
-                <el-sub-menu index="1">
+                <el-sub-menu index="1" >
                     <template #title>路径规划</template>
                     <el-menu-item index="1-1" @click="route">路径规划</el-menu-item>
                     <el-menu-item index="1-2" @click="addArea">添加障碍区域</el-menu-item>
@@ -24,7 +24,7 @@
                     <el-menu-item index="1-3" @click="removePoint">删除障碍区域</el-menu-item>
                     <el-menu-item index="1-3" @click="removePolyline">删除路径规划</el-menu-item>
                 </el-sub-menu>
-                <el-sub-menu index="2">
+                <el-sub-menu index="2" >
                     <template #title>物资匹配</template>
                     <el-menu-item index="2-1" @click="addDisasterPoint">添加受灾点</el-menu-item>
                     <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
@@ -32,7 +32,7 @@
                     <el-menu-item index="2-4" @click="searchSuppliesByRadius">半径查询</el-menu-item>
                     <el-menu-item index="2-5" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
                 </el-sub-menu>
-                <el-menu-item index="4" @click="toggleTable">{{ toolValue }}</el-menu-item>
+                <el-menu-item index="3" style="width: 140px;" @click="toggleTable">{{ toolValue }}</el-menu-item>
             </el-menu>
         </div>
         <el-table
@@ -1456,11 +1456,33 @@ export default {
 </script>
 
 <style scoped>
-.route-tool-container {
+:deep(.cesium-baseLayerPicker-dropDown-visible ){
+  transform: translate(0, 0);
+  /*天地图换地图优先级最高，避免被物资搜索框遮盖*/
+  z-index: 100;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+:deep(.cesium-viewer-toolbar) {
+  display: block;
+  /*搜索按钮优先级最高，避免被物资搜索框遮盖*/
+  z-index: 100;
   position: absolute;
-  padding: 15px;
-  border-radius: 5px;
-  /*width: 500px;*/
+  top: 5px;
+  right: 5px;
+}
+.el-sub-menu {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+  /* width: 33%; */
+}
+.route-tool-container {
+ position: absolute;
+ padding: 15px;
+ border-radius: 5px;
+ /*width: 500px;*/
   /*height: 200px;*/
   top: 10px;
   left: 10px;
@@ -1510,7 +1532,7 @@ export default {
 }
 
 #supplies.collapsed {
-  width: 80vw; /* 收缩时的宽度 */
+  width: 30% !important; /* 收缩时的宽度 */
 }
 
 .pagination1 {
@@ -1558,4 +1580,5 @@ canvas {
 .el-form-item__label {
     text-align: center; /* 标签文字右对齐 */
 }
+
 </style>
