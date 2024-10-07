@@ -101,7 +101,7 @@ export function deletePlotAndInfo(query) {
 export function deletePlotInfo(query) {
   return request({
     url: '/system/ploy/deleteplotinfo',
-    method: 'get',
+    method: 'delete',
     params: query
   })
 }

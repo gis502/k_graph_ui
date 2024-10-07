@@ -219,6 +219,7 @@
 import {Delete, Edit} from '@element-plus/icons-vue'
 import {plotType} from '@/cesium/plot/plotType.js'
 import {getPlotInfos, addPlotInfo, deletePlotAndInfo, deletePlotInfo, updataPlotInfo} from '@/api/system/plot.js'
+import arrow from "@/cesium/drawArrow/drawPlot.js";
 
 export default {
   data() {
@@ -252,21 +253,24 @@ export default {
       handler() {
         this.popupPanelData = this.popupData
         this.plotInfoActivities = []
+        console.log(12)
+        console.log(this.popupPanelData)
         // 必须把生成对应标绘的html模板代码（下面的for循环），写在watch的popupData中，不能写在visible中。
         // 在执行顺序上，visible比popupData快。导致在判断this.popupPanelData.plottype === plotType[item].name时，
         // popupPanelData是空，判断一定时false，造成第一次点击弹窗无法渲染对应标绘的html模板。
         // 可能时因为开启深度监听的原因（deep: true）。
         if (this.visiblePanel) {
-          // console.log(this.popupPanelData, 1222)
-          if (this.popupPanelData.drawtype) {
-            this.getPlotInfo(this.popupPanelData.plotid)
+          if (this.popupPanelData.drawtype === 'straight'){
+
+          } else if (this.popupPanelData.drawtype) {
+            this.getPlotInfo(this.popupPanelData.plotId)
           } else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotid)
-            }else {
+              this.getPlotInfo(this.popupPanelData[0].plotId)
+            } else {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotid)
+              this.getPlotInfo(this.popupPanelData[0].plotId)
             }
           }
         }
@@ -320,21 +324,30 @@ export default {
     },
     // 删除标绘点
     deletePlot() {
-      let plotid
+      let data = {
+        plotId: null,
+        plotType: null
+      }
 
-      if(this.popupPanelData.drawtype==='point'){
-        plotid = this.popupPanelData.plotid
-      }else {
-        if(this.popupPanelData[0].drawtype==='polyline'){
-          plotid = this.popupPanelData[0].plotid
-          // console.log(this.popupPanelData,123)
-        }else {
-          plotid = this.popupPanelData[0].plotid
+      if (this.popupPanelData.drawtype === 'point') {
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else if (this.popupPanelData.drawtype === 'straight') {
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else {
+        if (this.popupPanelData[0].drawtype === 'polyline') {
+          data.plotId = this.popupPanelData[0].plotId
+          data.plotType = this.popupPanelData.plotType
+        } else {
+          data.plotId = this.popupPanelData[0].plotId
+          data.plotType = this.popupPanelData.plotType
         }
       }
-      console.log(this.popupPanelData,1234)
-      deletePlotAndInfo({plotid}).then(res => {
-        window.viewer.entities.removeById(plotid)
+
+      deletePlotInfo(data).then(res => {
+        window.viewer.entities.removeById(data.plotId)
+        arrow.clearStraightArrow(data.plotId)
         console.log(window.viewer.entities)
         this.$emit('closePlotPop')
       })

@@ -360,6 +360,8 @@ export default {
           let polygonData = polygonMap[plotId];
           that.getDrawPolygonInfo(polygonData);
         });
+        let straightArr = data.filter(e => e.drawtype === 'straight')
+        Arrow.showStraightArrow(straightArr)
         // that.entityclustering()
       })
     },
@@ -396,6 +398,7 @@ export default {
         // 1-1 获取点击点的信息（包括）
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
+
         if (window.selectedEntity === undefined) {
           this.popupVisible = false
           this.popupData = {}
@@ -485,6 +488,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
+
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
@@ -494,6 +498,7 @@ export default {
         }
         // 4-1选中线时触发
         if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined && window.selectedEntity.properties.data && that.polylineStatus === 0) {
+
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -820,17 +825,37 @@ export default {
     },
 
     treeItemClick(item) {
-      console.log(item)
+      let data = {
+        plot: {
+          earthquakeId: this.eqid,
+          plotId: null,
+          drawtype: null,
+          icon: null,
+          severity: null,
+          plotType: null,
+          angle: null,
+          creationTime: this.timestampToTime(new Date()).replace(" ", "T"),
+          elevation: null,
+          startTime: null,
+          endTime: null,
+          isDeleted: false,
+          geom: {
+            type: "MultiPoint",
+            coordinates: null
+          }
+        },
+        plotinfo: null
+      }
 
       let that = this
       if (item.plottype === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
-        Arrow.drawStraightArrow()
+        Arrow.drawStraightArrow(data)
       } else if (item.name === '攻击箭头') {
-        Arrow.drawAttackArrow()
+        Arrow.drawAttackArrow(data)
       } else if (item.name === '钳击箭头') {
-        Arrow.drawPincerArrow()
+        Arrow.drawPincerArrow(data)
       } else if (item.plottype === '线图层') {
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)
