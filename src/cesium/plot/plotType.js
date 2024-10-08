@@ -955,7 +955,7 @@ const plotType = {
     },
     basicallyIntactBuildings:{
         name:"基本完好建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -974,7 +974,7 @@ const plotType = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -1048,7 +1048,7 @@ const plotType = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -1077,7 +1077,7 @@ const plotType = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
@@ -1096,17 +1096,12 @@ const plotType = {
                 },
             ]
         },
-        disposalProcess:{
-            type:"partText",
-            name:"处置过程",
-            value:""
-        },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
@@ -1114,7 +1109,7 @@ const plotType = {
     },
     moderatelyDamagedBuildings:{
         name:"中等破坏建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -1133,7 +1128,7 @@ const plotType = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -1207,7 +1202,7 @@ const plotType = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -1236,7 +1231,7 @@ const plotType = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
@@ -1255,17 +1250,12 @@ const plotType = {
                 },
             ]
         },
-        disposalProcess:{
-            type:"partText",
-            name:"处置过程",
-            value:""
-        },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
@@ -1273,7 +1263,7 @@ const plotType = {
     },
     seriousDamageBuildings:{
         name:"严重破坏建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -1292,7 +1282,7 @@ const plotType = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -1366,7 +1356,7 @@ const plotType = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -1395,7 +1385,7 @@ const plotType = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
@@ -1414,17 +1404,12 @@ const plotType = {
                 },
             ]
         },
-        disposalProcess:{
-            type:"partText",
-            name:"处置过程",
-            value:""
-        },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
@@ -1432,7 +1417,7 @@ const plotType = {
     },
     destructionCollapseBuildings:{
         name:"毁坏或倒塌建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -1451,7 +1436,7 @@ const plotType = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -1525,7 +1510,7 @@ const plotType = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -1554,7 +1539,7 @@ const plotType = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
@@ -1573,22 +1558,18 @@ const plotType = {
                 },
             ]
         },
-        disposalProcess:{
-            type:"partText",
-            name:"处置过程",
-            value:""
-        },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
         },
     },
+
     restrictedHighway: {
         name: "限制通行公路",
         roadName: {
