@@ -16,7 +16,7 @@
          :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
-            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
+            v-for="item in layeritems"
             :key="item.id"
             :label="item.name"
             style="margin:0 0;"
