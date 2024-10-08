@@ -231,8 +231,9 @@ export default {
       let startTime = null;
       let endTime = null;
       if (occurrenceTime && occurrenceTime.length === 2) {
-        startTime = new Date(occurrenceTime[0]).getTime();
-        endTime = new Date(occurrenceTime[1]).getTime();
+        startTime = new Date(occurrenceTime[0]).toISOString();  // 转换为 ISO 格式
+        endTime = new Date(occurrenceTime[1]).toISOString();    // 转换为 ISO 格式
+
       }
 
       // 构建查询对象
@@ -258,9 +259,10 @@ export default {
         }));
         this.total = this.getEqData.length;
         this.tableData = this.getPageArr();
+        // 隐藏筛选表单
+        this.queryFormVisible = false;
       });
-      // 隐藏筛选表单
-      this.queryFormVisible = false;
+
     },
     openQueryForm() {
       this.queryFormVisible = true
@@ -376,15 +378,15 @@ export default {
       let that = this
       if (this.dialogTitle === "新增") {
         this.dialogContent.eqid = this.guid()
-        // console.log("this.dialogContent.time新增：",this.dialogContent.occurrenceTime)
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString(); // 转换为ISO 8601格式
         addEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false
           this.clearDialogContent()
         })
       } else {
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).getTime();  // 将日期转换为时间戳
-        // console.log("this.dialogContent.time更新：",this.dialogContent.occurrenceTime)
+        // 将日期转换为ISO 8601格式的字符串
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
         updataEq(this.dialogContent).then(res => {
           that.getEq()
           that.dialogShow = false
@@ -392,6 +394,7 @@ export default {
         })
       }
     },
+
     // 关闭dialog对话框
     cancel() {
       this.dialogShow = false
@@ -473,7 +476,7 @@ export default {
       });
     },
     timestampToTime(timestamp) {
-      console.log("转换前的时间戳:", timestamp);
+      // console.log("转换前的时间戳:", timestamp);
       let DateObj = new Date(timestamp)
       if (isNaN(DateObj.getTime())) {
         console.error("无效的时间戳:", timestamp);
