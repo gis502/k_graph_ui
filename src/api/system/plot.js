@@ -76,7 +76,7 @@ export function getPlot(query) {
 
 export function getPlotInfos(query) {
   return request({
-    url: '/system/ploy/getplotinfos',
+    url: '/system/ploy/getplotinfo',
     method: 'get',
     params: query
   })
@@ -106,10 +106,11 @@ export function deletePlotInfo(query) {
   })
 }
 
-export function updataPlotInfo(data){
+export function updataPlotInfo(params,data){
   return request({
     url: '/system/ploy/updataplotinfo',
-    method: 'post',
+    method: 'put',
+    params: params,
     data: data
   })
 }

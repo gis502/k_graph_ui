@@ -203,7 +203,190 @@ export function addHistoryEqPoints(centerPoint, eqData) {
     }
   });
 }
+//计算烈度圈
+export function computeOvalCircles(centerPoint) {
 
+  // 计算椭圆长短轴------------------------------------------------------------------------------------------------------
+
+  let lon = centerPoint.longitude;
+  let lat = centerPoint.latitude;
+
+  let longintenArray = []; //长轴烈度
+  let shortintenArray = []; //短轴烈度
+  let longAxisArray = []; //长轴数组
+  let shortAxisArray = []; //短轴数组
+  let longAndshort = []; //最终的长短轴数组，单位：千米
+  var numi = 0;
+  let R = 0 //震源到目标区域的距离，因为只需要震中的烈度，所以令其为零
+
+  //汪素云-四川盆地
+  let longAxis = 4.0293 + 1.3003 * centerPoint.magnitude - 3.6404 * Math.log10(R + 10); //长轴的烈度值
+  let shortAxis = 2.3816 + 1.3003 * centerPoint.magnitude - 2.8573 * Math.log10(R + 5); //短轴的烈度值
+
+  for (var i = Math.floor(longAxis); i >= 6; i--) {
+    // console.log(i)
+    if (longAxisArray.length >= 6) {
+      break;
+    }
+    longintenArray.push(i); //长轴烈度
+
+    R =
+        // Math.exp(
+        //     (2.795+1.600 * centerPoint.magnitude - i) /1.637
+        // ) -28.497;
+        Math.pow(10,
+            (4.0293 + 1.3003 * centerPoint.magnitude - i) / 3.6404
+        ) - 10;
+    // console.log(R)
+    longAxisArray.push(R);
+  }
+  for (var j = Math.floor(shortAxis); j >= 6; j--) {
+    //计算烈度衰减圈的每一圈距离
+    //限制最多显示的烈度圈数
+    if (shortAxisArray.length >= 6) {
+      break;
+    }
+    shortintenArray.push(j); //短轴烈度
+    let R1 =
+        // Math.exp(
+        //     (1.331+1.218 * centerPoint.magnitude - j) /1.381
+        // ) -  8.88;
+        Math.pow(10,
+            (2.3816 + 1.3003 * centerPoint.magnitude - j) / 2.8573
+        ) - 5;
+    shortAxisArray.push(R1);
+  }
+
+  for (let i = 0; i <= shortAxisArray.length - 1; i++) {
+    if (longAxisArray[i] != null && shortAxisArray[i] != null) {
+      (function (item, index) {
+        var xy = new Array();
+        xy[0] = longAxisArray[index] * 1000; //将符合条件每个长轴储存起来
+        xy[1] = shortAxisArray[index] * 1000; //将符合条件每个短轴储存起来
+        longAndshort[item] = xy;
+      })(numi, i);
+      numi++;
+    }
+  }
+
+  // 计算角度------------------------------------------------------------------------------------------------------------
+  var angle_list = [];
+  for (var i = 0; i < fault_zone.length; i++) {
+    var length_list = [];
+    for (var line = 0; line < fault_zone[i].lonlat[0].length; line++) { //////算出每一个断裂带的坐标与当前震中坐标的距离（单位：度数）
+      length_list.push(Math.sqrt(Math.pow(lon - parseFloat(fault_zone[i].lonlat[0][line][0]), 2) + Math.pow(lat - parseFloat(fault_zone[i].lonlat[0][line][1]), 2)))
+    }
+    length_list.sort(function (a, b) {
+      return a - b
+    });
+    angle_list.push([i, length_list[0]])
+  }
+  angle_list.sort(function (a, b) {
+    return a[1] - b[1]
+  })
+  var angle_num = fault_zone[angle_list[0][0]].angle;
+
+
+  // 绘制烈度圈----------------------------------------------------------------------------------------------------------
+
+  // let colorIntensity = [
+  //   "#990000",
+  //   "#cc0000",
+  //   "#ff0000",
+  //   "#ff6600",
+  //   "#FF9900",
+  //   "#ffcc00",
+  // ];
+
+  let intensityLabels = [
+    "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "X", "XI", "XII"
+  ];
+  let intensityLabelsChinese = [
+    "六", "七", "八", "九", "十", "十一", "十二"
+  ];
+
+  let angle_num_tmp;
+
+  let lastsemiMajorAxis = 0;//震中
+  let lastsemiMinorAxis = 0;
+  let last_angle_num_tmp = 0; // 椭圆的旋转角度
+  let savecircles = []  //存库信息
+
+  for (let i = longAndshort.length - 1; i >= 0; i--) {
+    if (longAndshort[i][1] > longAndshort[i][0]) {
+      let temp = longAndshort[i][0];
+      longAndshort[i][0] = longAndshort[i][1];
+      longAndshort[i][1] = temp;
+      angle_num_tmp = angle_num + 90;
+    } else {
+      angle_num_tmp = angle_num;
+    }
+
+    // 计算椭圆边界的内部位置
+    const semiMajorAxis = longAndshort[i][0];
+    const semiMinorAxis = longAndshort[i][1];
+    const radius = Math.max(semiMajorAxis, semiMinorAxis) * 0.8; // 标签距离边界的距离
+    const offsetAngle = Cesium.Math.toRadians(angle_num_tmp); // 椭圆的旋转角度
+
+    // 计算标签位置
+    const offsetX = radius * Math.cos(offsetAngle);
+    const offsetY = radius * Math.sin(offsetAngle);
+
+    // 渲染椭圆
+    // viewer.entities.add({
+    //   position: Cesium.Cartesian3.fromDegrees(parseFloat(centerPoint.longitude), parseFloat(centerPoint.latitude), 0),
+    //   ellipse: {
+    //     semiMinorAxis: semiMinorAxis,
+    //     semiMajorAxis: semiMajorAxis,
+    //     material: new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString(colorIntensity[i]).withAlpha(0.5)),
+    //     outline: true,
+    //     outlineColor: Cesium.Color.fromCssColorString(colorIntensity[i]),
+    //     outlineWidth: 9,
+    //     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    //     fill: true,
+    //     clampToGround: true,
+    //     rotation: Cesium.Math.toRadians(angle_num_tmp),
+    //   },
+    //   properties: {
+    //     type: 'ovalCircle'  // 设置 type 属性
+    //   },
+    //   layername: "烈度圈",
+    // });
+
+    // 添加显示烈度的标签
+    // viewer.entities.add({
+    //   position: Cesium.Cartesian3.fromDegrees(
+    //       parseFloat(centerPoint.longitude) + offsetX / 111320,
+    //       parseFloat(centerPoint.latitude) + offsetY / 110540,
+    //       0
+    //   ),
+    //   label: {
+    //     //最多画到6度
+    //     text: "烈度 : " + intensityLabels[longintenArray[i] - 6] + " (" + intensityLabelsChinese[longintenArray[i] - 6] + "度)",
+    //     font: '18px Sans-serif',
+    //     style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+    //     outlineWidth: 2,
+    //     verticalOrigin: Cesium.VerticalOrigin.CENTER,
+    //     horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+    //     show: true,
+    //     eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+    //   },
+    //   properties: {
+    //     type: 'ovalCircle'  // 设置 type 属性
+    //   },
+    //   layername: "烈度圈",
+    // });
+
+    //计算烈度圈进行存储
+    savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp,centerPoint))
+    //内环
+    lastsemiMajorAxis = semiMajorAxis;
+    lastsemiMinorAxis = semiMinorAxis;
+    last_angle_num_tmp = angle_num_tmp; // 旋转角度
+  }
+  saveIntensityCircle(savecircles).then(res => {
+  })
+}
 // 绘制烈度圈
 export function addOvalCircles(centerPoint) {
 
@@ -385,8 +568,8 @@ export function addOvalCircles(centerPoint) {
     lastsemiMinorAxis = semiMinorAxis;
     last_angle_num_tmp = angle_num_tmp; // 旋转角度
   }
-  saveIntensityCircle(savecircles).then(res => {
-  })
+  // saveIntensityCircle(savecircles).then(res => {
+  // })
 }
 
 function computecircle(majorAxis, minorAxis, rotationAngle, intensity, lastlong, lastshort, lastrotationAngle, centerPoint) {

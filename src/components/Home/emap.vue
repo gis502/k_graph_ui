@@ -172,8 +172,8 @@ const initEmap = () => {
   // 还有别的办法吗？
   const defaultPoint = {
     magnitude: 0,  //震级，默认值设置为 0。
-    longitude: 1,  //经度，默认值设置为 1。
-    latitude: 1,  //纬度，默认值设置为 1。
+    longitude: 140,  //经度，默认值设置为 1。
+    latitude: 140,  //纬度，默认值设置为 1。
   };
 
   // 为分类后的数据添加默认点
