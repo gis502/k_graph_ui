@@ -20,6 +20,13 @@ export function gettotal(eqid) {
     });
 }
 
+export function getCasualty(eqid) {
+    return request({
+        url: '/casualty/getCasualty', // 对应的后台接口
+        method: 'get',
+        params: { eqid } // 传递参数
+    });
+}
 
 
 
