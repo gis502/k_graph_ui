@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form-item label="地震信息" >
+    <el-form-item label="地震信息">
       <el-input
           v-model="queryParams"
           placeholder="请输入地震信息"
@@ -22,9 +22,9 @@
       </el-table-column>
       <el-table-column prop="occurrenceTime" label="发震时间" width="200"></el-table-column>
       <el-table-column prop="earthquakeName" label="位置" width="300"></el-table-column>
-      <el-table-column prop="magnitude" label="震级"></el-table-column>
-      <el-table-column prop="longitude" label="经度"></el-table-column>
-      <el-table-column prop="latitude" label="纬度"></el-table-column>
+      <el-table-column prop="magnitude" label="震级(级)"></el-table-column>
+      <el-table-column prop="longitude" label="经度(度分)"></el-table-column>
+      <el-table-column prop="latitude" label="纬度(度分)"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)"></el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
@@ -45,54 +45,55 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
-      <el-row>
-        <el-col :span="13">
-          <el-form-item label="震发位置：">
-            <el-input v-model="dialogContent.earthquakeName" placeholder="请输入内容"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="18">
-          <el-form-item label="发震时间：">
-            <el-date-picker
-                v-model="dialogContent.occurrenceTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="x"
-                size="large">
-            </el-date-picker>
-          </el-form-item>
-        </el-col>
-      </el-row>
 
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-form-item label="震级：">
-            <el-input v-model="dialogContent.magnitude" placeholder="请输入内容"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="深度：">
-            <el-input v-model="dialogContent.depth" placeholder="请输入内容"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
+        <el-row >
+          <el-col :span="13">
+            <el-form-item label="震发位置：" prop="earthquakeName">
+              <el-input v-model="dialogContent.earthquakeName" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18">
+            <el-form-item label="发震时间："  prop="occurrenceTime">
+              <el-date-picker
+                  v-model="dialogContent.occurrenceTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="x"
+                  size="large">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-form-item label="经度：">
-            <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="纬度：">
-            <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="震级(级)：" prop="magnitude">
+              <el-input v-model="dialogContent.magnitude" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="深度(千米)：" prop="depth">
+              <el-input v-model="dialogContent.depth" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-      <span slot="footer" class="dialog-footer">
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="经度(度分)：" prop="longitude">
+              <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="纬度(度分)：" prop="latitude">
+              <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="commit">确 定</el-button>
       </span>
@@ -122,15 +123,15 @@
           />
         </el-form-item>
         <el-form-item label="地震震级">
-          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"/>
+          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"  placeholder="起始震级"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endMagnitude" style="width: 5vw;"/>
-          <span style="margin: 0 10px">(里氏)</span>
+          <el-input v-model="formValue.endMagnitude" style="width: 5vw;" placeholder="结束震级"/>
+          <span style="margin: 0 10px">(级)</span>
         </el-form-item>
         <el-form-item label="地震深度">
-          <el-input v-model="formValue.startDepth" style="width: 5vw"/>
+          <el-input v-model="formValue.startDepth" style="width: 5vw"  placeholder="起始深度"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endDepth" style="width: 5vw"/>
+          <el-input v-model="formValue.endDepth" style="width: 5vw"   placeholder="结束深度"/>
           <span style="margin: 0 10px">(千米)</span>
         </el-form-item>
       </el-form>
@@ -227,12 +228,17 @@ export default {
     onSubmit() {
       const {earthquakeName, occurrenceTime, startMagnitude, endMagnitude, startDepth, endDepth} = this.formValue;
 
+      console.log("接收，occurrenceTime：", this.formValue.occurrenceTime)
       // 如果时间范围选择为空，将其设为null
       let startTime = null;
       let endTime = null;
+      // 如果 occurrenceTime 有效，则转换为时间戳并使用 timestampToTime 进行格式化
       if (occurrenceTime && occurrenceTime.length === 2) {
-        startTime = new Date(occurrenceTime[0]).getTime();
-        endTime = new Date(occurrenceTime[1]).getTime();
+        startTime = new Date(occurrenceTime[0]).toISOString();  // 转换为 ISO 格式
+        endTime = new Date(occurrenceTime[1]).toISOString();    // 转换为 ISO 格式
+
+        console.log("转换后的开始时间:", startTime);
+        console.log("转换后的结束时间:", endTime);
       }
 
       // 构建查询对象
@@ -248,6 +254,11 @@ export default {
 
       // 发送请求
       fromEq(queryParams).then(res => {
+        // 打印每条记录的 occurrenceTime
+        res.forEach(item => {
+          console.log("返回的数据 occurrenceTime:", item.occurrenceTime);
+        });
+
         // 处理返回的数据
         this.getEqData = res.map(item => ({
           ...item,
@@ -259,6 +270,7 @@ export default {
         this.total = this.getEqData.length;
         this.tableData = this.getPageArr();
       });
+      console.log("请求发送结束，occurrenceTime：", this.occurrenceTime)
       // 隐藏筛选表单
       this.queryFormVisible = false;
     },
@@ -298,6 +310,7 @@ export default {
           item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
+
         that.tableData = this.getPageArr()
       })
     },
@@ -347,7 +360,7 @@ export default {
 
       // 发送搜索请求
       queryEq({queryValue: searchKey}).then(res => {
-        console.log("检查返回的数据",res); // 检查返回的数据
+        console.log("检查返回的数据", res); // 检查返回的数据
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
           ...item,
@@ -371,27 +384,34 @@ export default {
       this.queryParams = '';  // 清空搜索输入框
       this.getEq();  // 重新加载所有数据
     },
-    // 确认提交修改或新增
+
+    //新增
     commit() {
-      let that = this
+      let that = this;
       if (this.dialogTitle === "新增") {
-        this.dialogContent.eqid = this.guid()
-        // console.log("this.dialogContent.time新增：",this.dialogContent.occurrenceTime)
+        this.dialogContent.eqid = this.guid();
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
+
+        // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
         addEq(this.dialogContent).then(res => {
-          that.getEq()
-          that.dialogShow = false
-          this.clearDialogContent()
-        })
+          that.getEq();
+          that.dialogShow = false;
+          this.clearDialogContent();
+        });
       } else {
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).getTime();  // 将日期转换为时间戳
-        // console.log("this.dialogContent.time更新：",this.dialogContent.occurrenceTime)
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
+
+        // console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
         updataEq(this.dialogContent).then(res => {
-          that.getEq()
-          that.dialogShow = false
-          this.clearDialogContent()
-        })
+          that.getEq();
+          that.dialogShow = false;
+          this.clearDialogContent();
+        });
       }
     },
+
     // 关闭dialog对话框
     cancel() {
       this.dialogShow = false
@@ -449,6 +469,7 @@ export default {
           // 'color': '#fff',
           'padding-top': '10px',
           'padding-bottom': '10px',
+          'height': '60px',
           'text-align': 'center',
           'font-size': '16px',
         }
@@ -473,7 +494,7 @@ export default {
       });
     },
     timestampToTime(timestamp) {
-      console.log("转换前的时间戳:", timestamp);
+      // console.log("转换前的时间戳:", timestamp);
       let DateObj = new Date(timestamp)
       if (isNaN(DateObj.getTime())) {
         console.error("无效的时间戳:", timestamp);
@@ -491,8 +512,16 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
+
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      // 创建格式化的时间字符串
+      const formattedTime = `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+
+      // 打印转换后的时间
+      console.log("转换后的时间:", formattedTime);
+
+      return formattedTime;
+
     },
   },
 }
@@ -520,4 +549,8 @@ export default {
   position: relative;
   margin: 0 auto;
 }
+
+
+
+
 </style>
