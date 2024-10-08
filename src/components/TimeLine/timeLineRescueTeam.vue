@@ -28,7 +28,7 @@
 <!--                <span v-if="item.describeThings">{{item.describeThings}}</span>-->
 <!--                <div v-if="item.gotime || item.team || item.personnum || item.destination||item.describeThings" class="p-underline"></div>-->
 <!--              </p>-->
-                <p class="rescue_team_p">{{item}}</p>
+                <p class="rescue_team_p">{{showContent(item)}}</p>
             </div>
           </li>
         </ul>
@@ -126,7 +126,7 @@ export default {
                 result = result + '前往震区' + '。'
             }
         }
-        if(flag){
+        if(flag && item.describeThings !== null){
             if(item.describeThings.endsWith('。')){
                 result = result + item.describeThings
             }else{
@@ -187,8 +187,7 @@ export default {
                 activity.goRecordhour = String(new Date(item.recordTime).getHours()).padStart(2, '0');
                 activity.goRecordminute = String(new Date(item.recordTime).getMinutes()).padStart(2, '0');
             }
-            let result = this.showContent(activity)
-          this.showRescueTeam.unshift(result)
+          this.showRescueTeam.unshift(activity)
         })
       }
     },
