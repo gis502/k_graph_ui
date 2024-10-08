@@ -333,13 +333,13 @@ export default {
         pointArr.forEach(item => {
           let point = {
             earthquakeId: item.earthquakeId,
-            plotid: item.plotId,
-            time: item.creationTime.replace("T"," "),
+            plotId: item.plotId,
+            creationTime: item.creationTime.replace("T"," "),
             plotType: item.plotType,
             drawtype: item.drawtype,
             latitude: item.latitude,
             longitude: item.longitude,
-            height: item.elevation,
+            elevation: item.elevation,
             icon: item.icon,
           }
           points.push(point)
@@ -362,6 +362,10 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight')
         Arrow.showStraightArrow(straightArr)
+        let attackArrow = data.filter(e => e.drawtype === 'attack')
+        Arrow.showAttackArrow(attackArrow)
+        let pincerArr = data.filter(e => e.drawtype === 'pincer')
+        Arrow.showPincerArrow(pincerArr)
         // that.entityclustering()
       })
     },
@@ -402,7 +406,6 @@ export default {
         if (window.selectedEntity === undefined) {
           this.popupVisible = false
           this.popupData = {}
-
         }
         // 2-1 判断点击物体是否为点实体（billboard）
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
