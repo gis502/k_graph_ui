@@ -6,7 +6,7 @@ const plotTypeCopy = {
             name: "队伍名称",
             value: ""
         },
-        personnelNumber: {
+        personnelCount: {
             type: "text",
             name: "人员数量",
             value: ""
@@ -86,7 +86,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -99,24 +99,23 @@ const plotTypeCopy = {
             name: "队伍名称",
             value: ""
         },
-        teamLocation: {
-            province: {
-                type: "text",
-                name: "省",
-                value: ""
-            },
-            city: {
-                type: "text",
-                name: "市（州）",
-                value: ""
-            },
-            county: {
-                type: "text",
-                name: "县（市、区）",
-                value: ""
-            }
+        stationProvince: {
+            type: "text",
+            name: "省",
+            value: ""
         },
-        personnelNumber: {
+        stationCity: {
+            type: "text",
+            name: "市（州）",
+            value: ""
+        },
+        stationCounty: {
+            type: "text",
+            name: "县（市、区）",
+            value: ""
+        }
+        ,
+        personnelCount: {
             type: "text",
             name: "人员数量",
             value: ""
@@ -201,7 +200,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -214,7 +213,7 @@ const plotTypeCopy = {
             name: "队伍名称",
             value: ""
         },
-        personnelNumber: {
+        personnelCount: {
             type: "text",
             name: "人员数量",
             value: ""
@@ -289,7 +288,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        rescueArea: {
+        plannedRescueArea: {
             type: "text",
             name: "抢险救援区域",
             value: ""
@@ -299,25 +298,26 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
         }
     },
+
     unsearchedArea: {
         name:"未搜索区域",
-        location: {
+        rescueAreaLocation: {
             type: "text",
             name: "搜索区域位置",
             value: ""
         },
-        area: {
+        rescueAreaSizeKm2: {
             type: "text",
-            name: "搜索区域位置",
+            name: "未搜索区域面积",
             value: ""
         },
-        numberOfStaff: {
+        rescueTeamAndPersonnelCount: {
             type: "text",
             name: "所需搜索人员数量",
             value: ""
@@ -327,7 +327,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -336,17 +336,17 @@ const plotTypeCopy = {
     },
     searchedArea: {
         name:"搜索区域位置",
-        location: {
+        rescueAreaLocation: {
             type: "text",
             name: "搜索区域位置",
             value: ""
         },
-        area: {
+        rescueAreaSizeKm2: {
             type: "text",
             name: "已搜索区域面积",
             value: ""
         },
-        numberOfStaff: {
+        rescueTeamAndPersonnelCount: {
             type: "text",
             name: "参与搜索队伍及人员数量",
             value: ""
@@ -356,36 +356,37 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
         }
 
     },
+
     unrescuedArea: {
-        name:"未营救区域",
-        location: {
+        name:"营救区域位置",
+        rescueAreaLocation: {
             type: "text",
             name: "营救区域位置",
             value: ""
         },
-        area: {
+        rescueAreaSizeKm2: {
             type: "text",
             name: "营救区域面积",
             value: ""
         },
-        numberOfStaff: {
+        rescueTeamAndPersonnelCount: {
             type: "text",
             name: "所需营救人员数量",
             value: ""
         },
-        typeOfRescueRequired: {
+        contactPerson: {
             type: "text",
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -417,30 +418,30 @@ const plotTypeCopy = {
                 }
             ]
         },
-        },
+    },
     rescuedArea: {
         name:"已营救区域",
-        location: {
+        rescueAreaLocation: {
             type: "text",
             name: "营救区域位置",
             value: ""
         },
-        area: {
+        rescueAreaSizeKm2: {
             type: "text",
             name: "营救区域面积",
             value: ""
         },
-        numberOfStaff: {
+        rescueTeamAndPersonnelCount: {
             type: "text",
             name: "营救队伍及人员数量",
             value: ""
         },
-        typeOfRescueRequired: {
+        contactPerson: {
             type: "text",
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -475,17 +476,17 @@ const plotTypeCopy = {
     },
     rescueArea: {
         name:"正在营救区域",
-        location: {
+        rescueAreaLocation: {
             type: "text",
             name: "营救区域位置",
             value: ""
         },
-        area: {
+        rescueAreaSizeKm2: {
             type: "text",
             name: "营救区域面积",
             value: ""
         },
-        numberOfStaff: {
+        rescueTeamAndPersonnelCount: {
             type: "text",
             name: "营救队伍及人员数量",
             value: ""
@@ -555,30 +556,36 @@ const plotTypeCopy = {
                 }
             ]
         },
-        typeOfRescueRequired: {
+        contactPerson: {
             type: "text",
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
         },
     },
+
     missingPersons: {
         name:"失踪人员",
-        newMissingPersons: {
+        missingLocation: {
+            type: "text",
+            name: "失联位置",
+            value: ""
+        },
+        newMissingCount: {
             type: "text",
             name: "新增失踪人数",
             value: ""
         },
-        totalMumberOfMissingPersons: {
+        totalMissingCount: {
             type: "text",
             name: "累计失踪人数",
             value: ""
         },
-        ReasonForLossOfContact: {
+        missingReason: {
             type: "select",
             name: "失联原因",
             value: "",
@@ -607,7 +614,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -622,7 +629,7 @@ const plotTypeCopy = {
             value: ""
         },
 
-        injuryStatus: {
+        casualtyStatus: {
             type: "select",
             name: "人员伤亡状态",
             value: "",
@@ -732,7 +739,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -746,7 +753,7 @@ const plotTypeCopy = {
             value: ""
         },
 
-        injuryStatus: {
+        casualtyStatus: {
             type: "select",
             name: "人员伤亡状态",
             value: "",
@@ -856,7 +863,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -870,7 +877,7 @@ const plotTypeCopy = {
             value: ""
         },
 
-        injuryStatus: {
+        casualtyStatus: {
             type: "select",
             name: "人员伤亡状态",
             value: "",
@@ -980,7 +987,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -994,7 +1001,7 @@ const plotTypeCopy = {
             value: ""
         },
 
-        injuryStatus: {
+        casualtyStatus: {
             type: "select",
             name: "人员伤亡状态",
             value: "",
@@ -1060,7 +1067,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -1069,22 +1076,22 @@ const plotTypeCopy = {
 
     collapse: {
         name: "崩塌",
-        length: {
+        lengthM: {
             type: "text",
             name: "长度 (m)",
             value: ""
         },
-        width: {
+        widthM: {
             type: "text",
             name: "宽度 (m)",
             value: ""
         },
-        averageThickness: {
+        averageThicknessM: {
             type: "text",
             name: "平均厚度 (m)",
             value: ""
         },
-        volume: {
+        volumeM3: {
             type: "text",
             name: "体积 (m³)",
             value: ""
@@ -1103,7 +1110,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        threatObjects: {
+        threatenedObjects: {
             type: "select",
             name: "威胁对象",
             value: [],
@@ -1144,7 +1151,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -1159,7 +1166,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -1167,22 +1174,22 @@ const plotTypeCopy = {
     },
     landslide: {
         name: "滑坡",
-        length: {
+        lengthM: {
             type: "text",
             name: "长度 (m)",
             value: ""
         },
-        width: {
+        widthM: {
             type: "text",
             name: "宽度 (m)",
             value: ""
         },
-        averageThickness: {
+        averageThicknessM: {
             type: "text",
             name: "平均厚度 (m)",
             value: ""
         },
-        volume: {
+        volumeM3: {
             type: "text",
             name: "体积 (m³)",
             value: ""
@@ -1201,7 +1208,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        threatObjects: {
+        threatenedObjects: {
             type: "select",
             name: "威胁对象",
             value: [],
@@ -1242,7 +1249,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -1257,7 +1264,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -1265,54 +1272,137 @@ const plotTypeCopy = {
     },
     mudslide: {
         name: "泥石流",
-        slope: {
-            type: "select",
-            name: "河沟坡度",
-            value: "",
-            options: [
-                { value: "riverSlope", label: "陡峭" },
-                { value: "riverSlope", label: "中等" },
-                { value: "riverSlope", label: "平缓" }
-            ]
-        },
+        riverSlope: {
+                type: "select",
+                name: "河沟坡度",
+                value: "",
+                content: [
+                    { value: "riverSlope", label: "陡峭" },
+                    { value: "riverSlope", label: "中等" },
+                    { value: "riverSlope", label: "平缓" }
+                ]
+            },
         vegetationCoverage: {
-            type: "select",
-            name: "植被覆盖率",
-            value: "",
+                type: "select",
+                name: "植被覆盖率",
+                value: "",
             content: [
-                { value: "vegetationCoverage", label: "低" },
-                { value: "vegetationCoverage", label: "中" },
-                { value: "vegetationCoverage", label: "高" }
-            ]
-        },
+                    { value: "vegetationCoverage", label: "低" },
+                    { value: "vegetationCoverage", label: "中" },
+                    { value: "vegetationCoverage", label: "高" }
+                ]
+            },
         flowSpeed: {
-            type: "select",
-            name: "流速",
-            value: "",
-            content: [
-                { value: "flowSpeed", label: "快" },
-                { value: "flowSpeed", label: "中" },
-                { value: "flowSpeed", label: "慢" }
-            ]
+                type: "select",
+                name: "流速",
+                value: "",
+                options: [
+                    { value: "flowSpeed", label: "快" },
+                    { value: "flowSpeed", label: "中" },
+                    { value: "flowSpeed", label: "慢" }
+                ]
+            },
+        accumulationArea: {
+            area: {
+                type: "text",
+                name: "面积 (m²)",
+                value: ""
+            },
+            averageThickness: {
+                type: "text",
+                name: "平均厚度 (m)",
+                value: ""
+            },
+            materialComposition: {
+                type: "select",
+                name: "物质组成",
+                value: "",
+                options: [
+                    { value: "materialComposition", label: "泥流" },
+                    { value: "materialComposition", label: "泥石流" },
+                    { value: "materialComposition", label: "水石流" }
+                ]
+            },
+            currentStabilityStatus: {
+                type: "select",
+                name: "目前稳定状况",
+                value: "",
+                options: [
+                    { value: "currentStabilityStatus", label: "基本稳定" },
+                    { value: "currentStabilityStatus", label: "不稳定" }
+                ]
+            },
+            casualties: {
+                type: "select",
+                name: "人员伤亡",
+                value: "",
+                options: [
+                    { value: "casualties", label: "无" },
+                    { value: "casualties", label: "有" }
+                ]
+            },
+            threatenedObjects: {
+                type: "selectMultiple",
+                name: "威胁对象",
+                value: [],
+                options: [
+                    { value: "threatenedObjects", label: "地表建筑" },
+                    { value: "threatenedObjects", label: "交通线路" },
+                    { value: "threatenedObjects", label: "通讯电力设施" },
+                    { value: "threatenedObjects", label: "水库电站" },
+                    { value: "threatenedObjects", label: "管网工程" },
+                    { value: "threatenedObjects", label: "其他设施" }
+                ]
+            },
+            disposalTeam: {
+                type: "text",
+                name: "处置队伍",
+                value: ""
+            },
+            disposalMeasures: {
+                type: "text",
+                name: "处置措施",
+                value: ""
+            },
+            initialDisposalPhase: {
+                type: "select",
+                name: "先期处置阶段",
+                value: "",
+                options: [
+                    { value: "initialDisposalPhase", label: "暂未处置" },
+                    { value: "initialDisposalPhase", label: "正在处置" },
+                    { value: "initialDisposalPhase", label: "完成处置" }
+                ]
+            },
+            contactPerson: {
+                type: "text",
+                name: "联系人员",
+                value: ""
+            },
+            contactPhone: {
+                type: "text",
+                name: "联系电话",
+                value: ""
+            }
         }
     },
     groundFissure: {
         name: "地裂缝",
-            length: {
-                type: "text",
-                name: "长度 (m)",
-                value: ""
-            },
-            width: {
-                type: "text",
-                name: "宽度 (m)",
-                value: ""
-            },
-            depth: {
-                type: "text",
-                name: "深度 (m)",
-                value: ""
-            },
+        length: {
+            type: "text",
+            name: "长度 (m)",
+            value: ""
+        },
+        width: {
+            type: "text",
+            name: "宽度 (m)",
+            value: ""
+        },
+        depth: {
+            type: "text",
+            name: "深度 (m)",
+            value: ""
+        },
         activityStatus: {
             type: "select",
             name: "活动性",
@@ -1331,7 +1421,7 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        threatObjects: {
+        threatenedObjects: {
             type: "select",
             name: "威胁对象",
             value: [],
@@ -1369,7 +1459,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -1377,7 +1467,7 @@ const plotTypeCopy = {
     },
     landSubsidence: {
         name:"地面沉降",
-        settlementArea: {
+        affectedArea: {
             type: "text",
             name: "沉降面积 (m²)",
             value: ""
@@ -1387,7 +1477,7 @@ const plotTypeCopy = {
             name: "累计沉降量 (h) (m)",
             value: ""
         },
-        developmentStatus: {
+        developmentChange: {
             type: "select",
             name: "发展变化",
             value: "",
@@ -1405,7 +1495,7 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        threatObjects: {
+        threatenedTarget: {
             type: "selectMultiple",
             name: "威胁对象",
             value: "",
@@ -1418,12 +1508,12 @@ const plotTypeCopy = {
                 { value: "threatenedTarget", label: "其他设施" }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasures: {
             type: "text",
             name: "处置措施",
             value: ""
@@ -1443,25 +1533,26 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
         }
     },
+
     groundCollapse: {
         name: "地面塌陷",
-        impactArea: {
+        affectedArea: {
             type: "text",
             name: "影响范围面积 (m²)",
             value: ""
         },
-        collapsePitDiameter: {
+        cumulativeSettlement: {
             type: "text",
             name: "塌陷坑直径 (m)",
             value: ""
         },
-        developmentStatus: {
+        developmentChange: {
             type: "select",
             name: "发展变化",
             value: "",
@@ -1479,7 +1570,7 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        threatObjects: {
+        threatenedTarget: {
             type: "selectMultiple",
             name: "威胁对象",
             value: [],
@@ -1492,12 +1583,12 @@ const plotTypeCopy = {
                 { value: "threatenedTarget", label: "其他设施" }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasures: {
             type: "text",
             name: "处置措施",
             value: ""
@@ -1517,74 +1608,74 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
         }},
 
     minorDamageToBuildings: {
-            name: "轻微破坏建筑物",
-            casualties: {
-                type: "select",
-                name: "人员伤亡",
-                value: "",
-                content: [
-                    { value: "casualties", label: "无" },
-                    { value: "casualties", label: "有（10人及以下）" },
-                    { value: "casualties", label: "有（10人以上）" }
-                ]
-            },
-            usageNature: {
-                type: "select",
-                name: "使用性质",
-                value: "",
-                content: [
-                    { value: "usageType", label: "住宅楼" },
-                    { value: "usageType", label: "自建房" },
-                    { value: "usageType", label: "办公楼" },
-                    { value: "usageType", label: "学校" },
-                    { value: "usageType", label: "医院" },
-                    { value: "usageType", label: "厂房" },
-                    { value: "usageType", label: "仓库" },
-                    { value: "usageType", label: "体育馆" },
-                    { value: "usageType", label: "展览馆" },
-                    { value: "usageType", label: "其它" }
-                ]
-            },
-            structureType: {
-                type: "select",
-                name: "结构类型",
-                value: "",
-                options: [
-                    { value: "structureType", label: "砖木结构" },
-                    { value: "structureType", label: "砖混结构" },
-                    { value: "structureType", label: "钢筋混凝土结构" },
-                    { value: "structureType", label: "钢结构" },
-                    { value: "structureType", label: "其它" }
-                ]
-            },
-            damageForm: {
-                type: "selectMultiple",
-                name: "破坏形式",
-                value: [],
-                options: [
-                    { value: "damageForm", label: "振动破坏（地面振动通过基础传递到建筑物导致）" },
-                    { value: "damageForm", label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）" },
-                    { value: "damageForm", label: "次生效应破坏（如震后滑坡、崩塌等导致）" }
-                ]
-            },
-            disposalTeam: {
-                type: "text",
-                name: "处置队伍",
-                value: ""
-            },
-            disposalMeasures: {
-                type: "text",
-                name: "处置措施",
-                value: ""
-            },
-        initialDisposalStage: {
+        name: "轻微破坏建筑物",
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            content: [
+                { value: "casualties", label: "无" },
+                { value: "casualties", label: "有（10人及以下）" },
+                { value: "casualties", label: "有（10人以上）" }
+            ]
+        },
+        usageType: {
+            type: "select",
+            name: "使用性质",
+            value: "",
+            content: [
+                { value: "usageType", label: "住宅楼" },
+                { value: "usageType", label: "自建房" },
+                { value: "usageType", label: "办公楼" },
+                { value: "usageType", label: "学校" },
+                { value: "usageType", label: "医院" },
+                { value: "usageType", label: "厂房" },
+                { value: "usageType", label: "仓库" },
+                { value: "usageType", label: "体育馆" },
+                { value: "usageType", label: "展览馆" },
+                { value: "usageType", label: "其它" }
+            ]
+        },
+        structureType: {
+            type: "select",
+            name: "结构类型",
+            value: "",
+            options: [
+                { value: "structureType", label: "砖木结构" },
+                { value: "structureType", label: "砖混结构" },
+                { value: "structureType", label: "钢筋混凝土结构" },
+                { value: "structureType", label: "钢结构" },
+                { value: "structureType", label: "其它" }
+            ]
+        },
+        damageForm: {
+            type: "selectMultiple",
+            name: "破坏形式",
+            value: [],
+            options: [
+                { value: "damageForm", label: "振动破坏（地面振动通过基础传递到建筑物导致）" },
+                { value: "damageForm", label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）" },
+                { value: "damageForm", label: "次生效应破坏（如震后滑坡、崩塌等导致）" }
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -1599,7 +1690,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -1607,7 +1698,7 @@ const plotTypeCopy = {
     },
     moderatelyDamagedBuildings:{
         name:"中等破坏建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -1626,7 +1717,7 @@ const plotTypeCopy = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -1700,7 +1791,7 @@ const plotTypeCopy = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -1729,101 +1820,100 @@ const plotTypeCopy = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
             content:[
                 {
-                    value:"disposalMeasures",
+                    value:"initialDisposalPhase",
                     label:"暂未处置"
                 },
                 {
-                    value:"disposalMeasures",
+                    value:"initialDisposalPhase",
                     label:"正在处置"
                 },
                 {
-                    value:"disposalMeasures",
+                    value:"initialDisposalPhase",
                     label:"完成处置"
                 },
             ]
         },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
         },
     },
-
     basicallyIntactBuildings:{
         name:"基本完好建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
             content:[
                 {
-                    value:"hasCasualties",
+                    value:"casualties",
                     label:"有（10人以上）"
                 },
                 {
-                    value:"noHasCasualties",
+                    value:"casualties",
                     label:"有（10人以下）"
                 },
                 {
-                    value:"noHasCasualties",
+                    value:"casualties",
                     label:"无"
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
             content:[
                 {
-                    value:"residentialBuilding",
+                    value:"usageType",
                     label:"住宅楼"
                 },
                 {
-                    value:"selfBuiltHouses",
+                    value:"usageType",
                     label:"自建房"
                 },
                 {
-                    value:"officeBuilding",
+                    value:"usageType",
                     label:"办公楼"
                 },
                 {
-                    value:"school",
+                    value:"usageType",
                     label:"学校"
                 },
                 {
-                    value:"hospital",
+                    value:"usageType",
                     label:"医院"
                 },
                 {
-                    value:"workshop",
+                    value:"usageType",
                     label:"厂房"
                 },
                 {
-                    value:"warehouse",
+                    value:"usageType",
                     label:"仓库"
                 },
                 {
-                    value:"gymnasium",
+                    value:"usageType",
                     label:"体育馆"
                 },
                 {
-                    value:"exhibitionHall",
+                    value:"usageType",
                     label:"展览馆"
                 },
                 {
-                    value:"other",
+                    value:"usageType",
                     label:"其它"
                 },
             ]
@@ -1834,42 +1924,42 @@ const plotTypeCopy = {
             value:"",
             content:[
                 {
-                    value:"brickAndWoodStructure",
+                    value:"structureType",
                     label:"砖木结构"
                 },
                 {
-                    value:"brickConcreteStructure",
+                    value:"structureType",
                     label:"砖混结构"
                 },
                 {
-                    value:"reinforcedConcreteStructure ",
+                    value:"structureType ",
                     label:"钢筋混凝土结构"
                 },
                 {
-                    value:"steelStructure",
+                    value:"structureType",
                     label:"钢结构"
                 },
                 {
-                    value:"other",
+                    value:"structureType",
                     label:"其它"
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
             content:[
                 {
-                    value:"vibrationDamage",
+                    value:"damageForm",
                     label:"振动破坏（地面振动通过基础传递到建筑物导致）"
                 },
                 {
-                    value:"foundationFailure",
+                    value:"damageForm",
                     label:"地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
                 },
                 {
-                    value:"secondaryEffectDamage",
+                    value:"damageForm",
                     label:"次生效应破坏（如震后滑坡、崩塌等导致）"
                 },
             ]
@@ -1884,31 +1974,31 @@ const plotTypeCopy = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
             content:[
                 {
-                    value:"notYetProcessed",
+                    value:"initialDisposalPhase",
                     label:"暂未处置"
                 },
                 {
-                    value:"processing",
+                    value:"initialDisposalPhase",
                     label:"正在处置"
                 },
                 {
-                    value:"completeDisposal",
+                    value:"initialDisposalPhase",
                     label:"完成处置"
                 },
             ]
         },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
@@ -1916,7 +2006,7 @@ const plotTypeCopy = {
     },
     seriousDamageBuildings:{
         name:"严重破坏建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -1935,7 +2025,7 @@ const plotTypeCopy = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -2009,7 +2099,7 @@ const plotTypeCopy = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -2038,7 +2128,7 @@ const plotTypeCopy = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
@@ -2058,25 +2148,21 @@ const plotTypeCopy = {
             ]
         },
 
-        disposalProcess:{
-            type:"partText",
-            name:"处置过程",
-            value:""
-        },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
         },
     },
+
     destructionCollapseBuildings:{
         name:"毁坏或倒塌建筑物",
-        personnelCasualties:{
+        casualties:{
             type:"select",
             name:"人员伤亡",
             value:"",
@@ -2095,7 +2181,7 @@ const plotTypeCopy = {
                 },
             ]
         },
-        natureOfUse:{
+        usageType:{
             type:"select",
             name:"使用性质",
             value:"",
@@ -2169,7 +2255,7 @@ const plotTypeCopy = {
                 },
             ]
         },
-        damageModel:{
+        damageForm:{
             type:"select",
             name:"破坏模式",
             value:"",
@@ -2198,7 +2284,7 @@ const plotTypeCopy = {
             name:"处置措施",
             value:""
         },
-        disposalPhase:{
+        initialDisposalPhase:{
             type:"select",
             name:"处置阶段",
             value:"",
@@ -2217,12 +2303,12 @@ const plotTypeCopy = {
                 },
             ]
         },
-        contactStaff:{
+        contactPerson:{
             type:"text",
             name:"联系人员",
             value:""
         },
-        contactNumber:{
+        contactPhone:{
             type:"text",
             name:"联系电话",
             value:""
@@ -2487,73 +2573,31 @@ const plotTypeCopy = {
             value: ""
         }
     },
-    railwayDamagePoints: {
-        name: "铁路破坏点",
-        tunnelName: {
+    impassableRailways: {
+        name: "不可通行铁路",
+        railwayName: {
             type: "text",
-            name: "隧道名称",
+            name: "铁路名称",
             value: ""
         },
-        lineName: {
-            type: "text",
-            name: "所在线路",
-            value: ""
-        },
-        tunnelType: {
-            type: "select",
-            name: "隧道类型",
-            value: "",
-            content: [
-                {
-                    value: "tunnelType",
-                    label: "短隧道（≤0.5km）"
-                },
-                {
-                    value: "tunnelType",
-                    label: "中隧道（0.5-3km）"
-                },
-                {
-                    value: "tunnelType",
-                    label: "长隧道（3-10km）"
-                },
-                {
-                    value: "tunnelType",
-                    label: "特长隧道（＞10km）"
-                }
-            ]
-        },
-        personnelCasualties: {
+        casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            content: [
-                {
-                    value: "casualties",
-                    label: "无"
-                },
-                {
-                    value: "casualties",
-                    label: "有"
-                }
+            options: [
+                { value: "casualties", label: "无" },
+                { value: "casualties", label: "有（10人及以下）" },
+                { value: "casualties", label: "有（10人以上）" }
             ]
         },
-        damageType: {
+        railwayLevel: {
             type: "select",
-            name: "破坏形式",
+            name: "铁路等级",
             value: "",
-            content: [
-                {
-                    value: "damageForm",
-                    label: "衬砌破坏（如开裂、剥落、移位、坍塌等）"
-                },
-                {
-                    value: "damageForm",
-                    label: "底板破坏（如底板开裂、隆起等）"
-                },
-                {
-                    value: "damageForm",
-                    label: "洞口破坏（洞口塌方、洞门裂损等）"
-                }
+            options: [
+                { value: "passengerDedicatedLine", label: "客运专线" },
+                { value: "mixedPassengerFreight", label: "客货共线" },
+                { value: "freightDedicatedLine", label: "货运专线" }
             ]
         },
         disposalTeam: {
@@ -2566,60 +2610,16 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        disposalPhase: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            content: [
-                {
-                    value: "initialResponseStage",
-                    label: "暂未处置"
-                },
-                {
-                    value: "initialResponseStage",
-                    label: "正在处置"
-                },
-                {
-                    value: "initialResponseStage",
-                    label: "完成处置"
-                }
-            ],
-            initialDisposalStage: {
-                type: "select",
-                name: "先期处置阶段",
-                value: "",
-                options: [
-                    { value: "initialDisposalPhase", label: "暂未处置" },
-                    { value: "initialDisposalPhase", label: "正在处置" },
-                    { value: "initialDisposalPhase", label: "完成处置" }
-                ]
-            },
-            contactPerson: {
-                type: "text",
-                name: "联系人员",
-                value: ""
-            },
-            contactPhoneNumber: {
-                type: "text",
-                name: "联系电话",
-                value: ""
-            }
+            options: [
+                { value: "notDisposed", label: "暂未处置" },
+                { value: "inProcess", label: "正在处置" },
+                { value: "completed", label: "完成处置" }
+            ]
         },
-        // initialDisposalTime: {
-        //     type: "text",
-        //     name: "先期处置时间",
-        //     value: ""
-        // },
-        // estimatedDisposalTime: {
-        //     type: "text",
-        //     name: "预计处置时间",
-        //     value: ""
-        // },
-        // actualDisposalTime: {
-        //     type: "text",
-        //     name: "实际处置时间",
-        //     value: ""
-        // },
         contactPerson: {
             type: "text",
             name: "联系人员",
@@ -2631,7 +2631,64 @@ const plotTypeCopy = {
             value: ""
         }
     },
-    // 后端 少字段 飞行区等级没有
+    railwayDamagePoints: {
+        name: "铁路破坏点",
+        railwayName: {
+            type: "text",
+            name: "铁路名称",
+            value: ""
+        },
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            options: [
+                { value: "casualties", label: "无" },
+                { value: "casualties", label: "有（10人及以下）" },
+                { value: "casualties", label: "有（10人以上）" }
+            ]
+        },
+        railwayLevel: {
+            type: "select",
+            name: "铁路等级",
+            value: "",
+            options: [
+                { value: "passengerDedicatedLine", label: "客运专线" },
+                { value: "mixedPassengerFreight", label: "客货共线" },
+                { value: "freightDedicatedLine", label: "货运专线" }
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
+            type: "select",
+            name: "先期处置阶段",
+            value: "",
+            options: [
+                { value: "notDisposed", label: "暂未处置" },
+                { value: "inProcess", label: "正在处置" },
+                { value: "completed", label: "完成处置" }
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
+        }
+    },
     availableAirport: {
         name: "可用机场",
         airportName: {
@@ -2648,7 +2705,7 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        flightAreaLevel: {
+        airportLevel: {
             type: "select",
             name: "飞行区等级",
             value: "",
@@ -2670,7 +2727,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -2685,7 +2742,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -2729,7 +2786,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -2744,7 +2801,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -2782,7 +2839,7 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        damageType: {
+        damageForm: {
             type: "select",
             name: "破坏形式",
             value: "",
@@ -2792,17 +2849,17 @@ const plotTypeCopy = {
                 { value: "damageForm", label: "支承连接件破坏（支座移位、倾倒、脱落，锚固螺栓拔出、剪断等）" }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialResponsePhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -2817,7 +2874,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -2855,7 +2912,7 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        damageType: {
+        damageForm: {
             type: "select",
             name: "破坏形式",
             value: "",
@@ -2865,17 +2922,17 @@ const plotTypeCopy = {
                 { value: "damageForm", label: "支承连接件破坏（支座移位、倾倒、脱落，锚固螺栓拔出、剪断等）" }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialResponsePhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -2890,7 +2947,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -2903,7 +2960,7 @@ const plotTypeCopy = {
             name: "隧道名称",
             value: ""
         },
-        lineName: {
+        line: {
             type: "text",
             name: "所在线路",
             value: ""
@@ -2931,7 +2988,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        personnelCasualties: {
+        casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
@@ -2946,7 +3003,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        damageType: {
+        damageForm: {
             type: "select",
             name: "破坏形式",
             value: "",
@@ -2965,17 +3022,17 @@ const plotTypeCopy = {
                 }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasures: {
             type: "text",
             name: "处置措施",
             value: ""
         },
-        disposalPhase: {
+        initialResponseStage: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -2993,7 +3050,7 @@ const plotTypeCopy = {
                     label: "完成处置"
                 }
             ],
-            initialDisposalStage: {
+            initialDisposalPhase: {
                 type: "select",
                 name: "先期处置阶段",
                 value: "",
@@ -3008,7 +3065,7 @@ const plotTypeCopy = {
                 name: "联系人员",
                 value: ""
             },
-            contactPhoneNumber: {
+            contactPhone: {
                 type: "text",
                 name: "联系电话",
                 value: ""
@@ -3029,25 +3086,15 @@ const plotTypeCopy = {
         //     name: "实际处置时间",
         //     value: ""
         // },
-        contactPerson: {
-            type: "text",
-            name: "联系人员",
-            value: ""
-        },
-        contactPhone: {
-            type: "text",
-            name: "联系电话",
-            value: ""
-        }
     },
     unavailableWaterSupplyNetwork: {
         name: "不可用供水管网",
-        supplyArea: {
+        waterSupplyArea: {
             type: "text",
             name: "供水区域",
             value: ""
         },
-        supplyNetworkType: {
+        waterSupplyNetworkType: {
             type: "select",
             name: "供水管网类型",
             value: "",
@@ -3064,7 +3111,7 @@ const plotTypeCopy = {
             type: "selectMultiple",
             name: "破坏形式",
             value: [],
-            options: [
+            content: [
                 { value: "damageForm", label: "连接破坏" },
                 { value: "damageForm", label: "接口破坏" },
                 { value: "damageForm", label: "管体破坏" }
@@ -3075,7 +3122,7 @@ const plotTypeCopy = {
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        disposalMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
@@ -3095,7 +3142,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3168,6 +3215,7 @@ const plotTypeCopy = {
             value: ""
         }
     },
+
     unusableGasPipeline: {
         name: "不可用输气管线",
         supplyArea: {
@@ -3175,7 +3223,7 @@ const plotTypeCopy = {
             name: "供气区域",
             value: ""
         },
-        pipelineClassification: {
+        pipeType: {
             type: "select",
             name: "管道分类",
             value: "",
@@ -3195,7 +3243,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3217,7 +3265,7 @@ const plotTypeCopy = {
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        disposalMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
@@ -3242,7 +3290,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3250,27 +3298,27 @@ const plotTypeCopy = {
     },
     barrierLake: {
         name: "堰塞湖",
-        waterSystem: {
+        riverSystem: {
             type: "text",
             name: "所在水系",
             value: ""
         },
-        length: {
+        damScaleLength: {
             type: "text",
             name: "顺河长度 (m)",
             value: ""
         },
-        width: {
+        damScaleWidth: {
             type: "text",
             name: "宽度 (m)",
             value: ""
         },
-        height: {
+        damScaleHeight: {
             type: "text",
             name: "高度 (m)",
             value: ""
         },
-        barrierRisk: {
+        estimatedDanger: {
             type: "select",
             name: "堰塞体危险性",
             value: "",
@@ -3293,7 +3341,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        estimatedStorage: {
+        estimatedStorageCapacity: {
             type: "select",
             name: "预估库容",
             value: "",
@@ -3316,7 +3364,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        floodImpactArea: {
+        area: {
             type: "select",
             name: "淹没和溃决影响区",
             value: "",
@@ -3339,17 +3387,17 @@ const plotTypeCopy = {
                 }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasures: {
             type: "text",
             name: "处置措施",
             value: ""
         },
-        disposalPhase: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3419,7 +3467,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3434,7 +3482,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3480,7 +3528,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3495,7 +3543,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3541,7 +3589,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3556,7 +3604,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3569,7 +3617,7 @@ const plotTypeCopy = {
             name: "所在水系",
             value: ""
         },
-        floodControlStandard: {
+        floodStandard: {
             type: "select",
             name: "防洪标准",
             value: "",
@@ -3581,7 +3629,7 @@ const plotTypeCopy = {
                 { value: "floodStandard", label: "5级" }
             ]
         },
-        constructionMaterials: {
+        constructionMaterial: {
             type: "select",
             name: "建筑材料",
             value: "",
@@ -3602,7 +3650,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3617,7 +3665,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3630,7 +3678,7 @@ const plotTypeCopy = {
             name: "所在水系",
             value: ""
         },
-        floodControlStandard: {
+        floodStandard: {
             type: "select",
             name: "防洪标准",
             value: "",
@@ -3642,7 +3690,7 @@ const plotTypeCopy = {
                 { value: "floodStandard", label: "5级" }
             ]
         },
-        constructionMaterials: {
+        constructionMaterial: {
             type: "select",
             name: "建筑材料",
             value: "",
@@ -3663,7 +3711,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3678,7 +3726,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3691,7 +3739,7 @@ const plotTypeCopy = {
             name: "所在水系",
             value: ""
         },
-        floodControlStandard: {
+        floodStandard: {
             type: "select",
             name: "防洪标准",
             value: "",
@@ -3703,7 +3751,7 @@ const plotTypeCopy = {
                 { value: "floodStandard", label: "5级" }
             ]
         },
-        constructionMaterials: {
+        constructionMaterial: {
             type: "select",
             name: "建筑材料",
             value: "",
@@ -3724,7 +3772,7 @@ const plotTypeCopy = {
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3739,7 +3787,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3776,17 +3824,17 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialResponseStage: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3801,7 +3849,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3809,7 +3857,7 @@ const plotTypeCopy = {
     },
     fireDisaster: {
         name: "火灾",
-        enterpriseName: {
+        companyName: {
             type: "text",
             name: "企业（单位）名称",
             value: ""
@@ -3845,17 +3893,17 @@ const plotTypeCopy = {
                 { value: "casualties", label: "有" }
             ]
         },
-        disposalTeam: {
+        responseTeam: {
             type: "text",
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        responseMeasures: {
             type: "text",
             name: "处置措施",
             value: ""
         },
-        initialDisposalStage: {
+        initialResponsePhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -3870,7 +3918,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3893,7 +3941,7 @@ const plotTypeCopy = {
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        disposalMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
@@ -3913,7 +3961,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -3926,7 +3974,7 @@ const plotTypeCopy = {
             name: "处置队伍",
             value: ""
         },
-        disposalMeasures: {
+        disposalMeasure: {
             type: "text",
             name: "处置措施",
             value: ""
@@ -3946,7 +3994,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactPhoneNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -4025,7 +4073,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        capacity: {
+        shelterCapacity: {
             type: "select",
             name: "避难人员数量",
             value: "",
@@ -4062,7 +4110,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -4140,7 +4188,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        capacity: {
+        shelterCapacity: {
             type: "select",
             name: "避难人员数量",
             value: "",
@@ -4177,7 +4225,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -4217,7 +4265,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        functionalArea: {
+        functionArea: {
             type: "select",
             name: "功能区",
             value: "",
@@ -4256,7 +4304,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        basicSupport: {
+        basicFacilities: {
             type: "select",
             name: "基础保障",
             value: "",
@@ -4312,7 +4360,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -4344,7 +4392,7 @@ const plotTypeCopy = {
                 }
             ]
         },
-        basicSupport: {
+        basicFacilities: {
             type: "select",
             name: "基础保障",
             value: "",
@@ -4400,7 +4448,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
@@ -4408,17 +4456,17 @@ const plotTypeCopy = {
     },
     disasterReliefSuppliesWarehouse: {
         name: "救灾物资储备库",
-        WarehouseName: {
+        depotName: {
             type: "text",
             name: "储备库名称",
             value: ""
         },
-        location: {
+        depotLocation: {
             type: "text",
             name: "储备库位置",
             value: ""
         },
-        warehouseLevel: {
+        depotLevel: {
             type: "select",
             name: "储备库级别",
             value: "",
@@ -4474,7 +4522,7 @@ const plotTypeCopy = {
             name: "联系人员",
             value: ""
         },
-        contactNumber: {
+        contactPhone: {
             type: "text",
             name: "联系电话",
             value: ""
