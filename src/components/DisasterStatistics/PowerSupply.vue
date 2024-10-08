@@ -44,13 +44,18 @@ export default {
 
     const option1 = {
       tooltip: {
-        trigger: 'item'
+        trigger: 'item',
+        formatter: function (params) {
+          const color = params.color; // 获取当前项的颜色
+          return `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${color};border-radius:50%;"></span>
+              ${params.name}: ${params.value} 站`;
+        }
       },
       legend: {
         top: '5%',
         left: 'center',
         textStyle: {
-          color: '#ffffff' // 设置图例文字颜色为白色
+          color: '#ffffff'
         },
       },
       series: [
@@ -75,29 +80,35 @@ export default {
           },
           data: [
             {
-              value: 1048,
+              value: 18,
               name: '已恢复变站',
-              itemStyle: { color: '#389af4' } // 设置颜色
+              itemStyle: { color: '#389af4' }
             },
             {
-              value: 735,
+              value: 35,
               name: '待修复变站',
-              itemStyle: { color: '#dfeaff' } // 设置颜色
+              itemStyle: { color: '#dfeaff' }
             }
           ]
         }
       ]
     };
 
+// 对其他图表的 option 进行类似修改
     const option2 = {
       tooltip: {
-        trigger: 'item'
+        trigger: 'item',
+        formatter: function (params) {
+          const color = params.color; // 获取当前项的颜色
+          return `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${color};border-radius:50%;"></span>
+              ${params.name}: ${params.value} 条`;
+        }
       },
       legend: {
         top: '5%',
         left: 'center',
         textStyle: {
-          color: '#ffffff' // 设置图例文字颜色为白色
+          color: '#ffffff'
         },
       },
       series: [
@@ -120,17 +131,16 @@ export default {
           labelLine: {
             show: false
           },
-          // #ff8c37", "#ffdcc3
           data: [
             {
-              value: 800,
+              value: 80,
               name: '已恢复线路',
-              itemStyle: { color: ' #ff8c37' } // 设置颜色
+              itemStyle: { color: '#ff8c37' }
             },
             {
-              value: 600,
+              value: 60,
               name: '待恢复线路',
-              itemStyle: { color: '#ffdcc3' } // 设置颜色
+              itemStyle: { color: '#ffdcc3' }
             }
           ]
         }
@@ -139,15 +149,20 @@ export default {
 
     const option3 = {
       tooltip: {
-        trigger: 'item'
+        trigger: 'item',
+        formatter: function (params) {
+          const color = params.color; // 获取当前项的颜色
+          return `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${color};border-radius:50%;"></span>
+              ${params.name}: ${params.value} 户`;
+        }
       },
       legend: {
         top: '5%',
         left: 'center',
         textStyle: {
-          color: '#ffffff' // 设置图例文字颜色为白色
+          color: '#ffffff'
         },
-        padding: [0,0,0,0]
+        padding: [0, 0, 0, 0]
       },
       series: [
         {
@@ -171,14 +186,14 @@ export default {
           },
           data: [
             {
-              value: 800,
+              value: 80,
               name: '累计主网停电用户数',
-              itemStyle: { color: '#ffc257' } // 设置颜色
+              itemStyle: { color: '#ffc257' }
             },
             {
-              value: 600,
+              value: 60,
               name: '已恢复主网停电用户数',
-              itemStyle: { color: '#ffedcc' } // 设置颜色
+              itemStyle: { color: '#ffedcc' }
             }
           ]
         }
