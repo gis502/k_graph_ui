@@ -198,7 +198,7 @@ import PersonalCasualtyPanel from "../../../components/DamageAssessment/personal
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan.json";
 import {getBuildingDamage, getPersonDes} from "@/api/system/damageassessment.js";
-import {addFaultZones, addHistoryEqPoints, addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addFaultZones, addHistoryEqPoints,computeOvalCircles, addOvalCircles, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
 import BuildingDamagePanel from "../../../components/DamageAssessment/buildingDamagePanel.vue";
 import {getEconomicLoss} from "../../../api/system/damageassessment.js";
 import EconomicLossPanel from "../../../components/DamageAssessment/economicLossPanel.vue";
@@ -317,6 +317,7 @@ export default {
   mounted() {
     this.init();
     this.getEq();
+
   },
 
   computed: {
@@ -711,6 +712,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
+          this.computeIntensityCircle();  //计算烈度圈
         }
       }
     },
@@ -733,6 +735,10 @@ export default {
       this.updatePagedEqData();
     },
 
+    computeIntensityCircle() {
+      console.log("computeOvalCircles")
+      computeOvalCircles(this.selectedTabData)
+    },
     back() {
       this.thisTab = '震害事件';
       this.selectedTabData = null;
