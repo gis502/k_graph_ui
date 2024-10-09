@@ -2,46 +2,42 @@ import {ref, reactive, computed} from "vue";
 
 export const useCesiumStore = defineStore('cesium', () => {
         const pointInfo = reactive({
-            eqid: null,
-            plotid: null,
+            earthquakeId: null,
+            plotId: null,
             time: null,
-            plottype: null,
-            latitude: null,
-            longitude: null,
-            height: null,
-            img: null,
+            plotType: null,
+            geom: null,
+            elevation: null,
+            icon: null,
         })
 
         function getPointInfo1() {
             return {
-                eqid: pointInfo.eqid,
-                plotid: pointInfo.plotid,
-                plottype: pointInfo.plottype,
-                latitude: pointInfo.latitude,
-                longitude: pointInfo.longitude,
-                height: pointInfo.height,
-                img: pointInfo.img,
+                earthquakeId: pointInfo.earthquakeId,
+                plotId: pointInfo.plotId,
+                plotType: pointInfo.plotType,
+                geom: pointInfo.geom,
+                elevation: pointInfo.elevation,
+                icon: pointInfo.icon,
             }
         }
 
         function setPointInfo1(info) {
-            pointInfo.eqid = info.eqid
-            pointInfo.plotid = info.plotid
-            pointInfo.plottype = info.plottype
-            pointInfo.latitude = info.latitude
-            pointInfo.longitude = info.longitude
-            pointInfo.height = info.height
-            pointInfo.img = info.img
+            pointInfo.earthquakeId = info.earthquakeId
+            pointInfo.plotId = info.plotId
+            pointInfo.plotType = info.plotType
+            pointInfo.geom = info.geom
+            pointInfo.elevation = info.elevation
+            pointInfo.icon = info.icon
         }
 
         function clearData() {
-            pointInfo.eqid = null
-            pointInfo.plotid = null
-            pointInfo.plottype = null
-            pointInfo.latitude = null
-            pointInfo.longitude = null
-            pointInfo.height = null
-            pointInfo.img = null
+            pointInfo.earthquakeId = null
+            pointInfo.plotId = null
+            pointInfo.plotType = null
+            pointInfo.geom = null
+            pointInfo.elevation = null
+            pointInfo.icon = null
         }
 
         const polyilneInfo = reactive({

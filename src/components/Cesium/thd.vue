@@ -8,26 +8,27 @@
             <eqTable :eqData="tableData"/>
         </div>
 
-        <!--   图层要素-->
-        <!--    <div class="layer-button">-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
-        <!--    </div>-->
-        <div v-if="activeComponent === 'layerChoose'" class="dropdown"
-             :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
-            <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-                <el-checkbox
-                        v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
-                        :key="item.id"
-                        :label="item.name"
-                        style="margin:0 0;">
-                    {{ item.name }}
-                </el-checkbox>
-            </el-checkbox-group>
-            <div @click="toggleExpand"
-                 style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-                <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
-            </div>
-        </div>
+    <!--   图层要素-->
+    <!--    <div class="layer-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
+    <!--    </div>-->
+    <div v-if="activeComponent === 'layerChoose'" class="dropdown"
+         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+      <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
+        <el-checkbox
+            v-for="item in layeritems"
+            :key="item.id"
+            :label="item.name"
+            style="margin:0 0;"
+        >
+          {{ item.name }}
+        </el-checkbox>
+      </el-checkbox-group>
+      <div @click="toggleExpand"
+           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+      </div>
+    </div>
 
         <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
              :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
@@ -118,21 +119,16 @@
                   height: 45px;width: 25%;
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
-            >
-                <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
-                <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素
-                </el-menu-item>
-                <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转
-                </el-menu-item>
-                <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-                <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
-                </el-menu-item>
-                <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">
-                    专题图下载
-                </el-menu-item>
-                <el-menu-item index="6">返回首页</el-menu-item>
-            </el-menu>
-        </div>
+    >
+      <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
+      <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
+      <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
+<!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
+      <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+      <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
+      <el-menu-item index="6">返回首页</el-menu-item>
+    </el-menu>
+  </div>
 
         <!--    box包裹地图，截图需要-->
         <div id="box" ref="box">
@@ -287,19 +283,18 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-import {getPloy} from "@/api/system/plot"
+
 import eqTable from '@/components/Home/eqtable.vue'
-import geojsonmap from '@/assets/geoJson/map.json'
+
 import yaan from '@/assets/geoJson/yaan.json'
-import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
+
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-import fault_zone from "@/assets/geoJson/line_fault_zone.json";
-import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
+
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 //时间轴
 import {TimerLineFunc} from '@/cesium/plot/timeLine.js'
@@ -455,31 +450,31 @@ export default {
             emergencyTeam: [],
             emergencyShelters: [],
 
-            //专题图下载
-            thematicMapitems: [],
-            selectthematicMap: '',
-            isshowThematicMapPreview: '',
-            imgshowURL: '',
-            imgurlFromDate: '',
-            imgName: '',
-            ifShowMapPreview: false, // 是否预览专题图
-            //专题图下载end
+      //专题图下载
+      thematicMapitems:[],
+      selectthematicMap:'',
+      isshowThematicMapPreview:'',
+      imgshowURL:'',
+      imgurlFromDate:'',
+      imgName:'',
+      ifShowMapPreview: false, // 是否预览专题图
+      //专题图下载end
 
-            //报告产出
-            reportItems: [],
-            selectReportItem: '',
+      //报告产出
+      reportItems:[],
+      selectReportItem:'',
 
-        };
-    },
-    created() {
-        this.eqid = new URLSearchParams(window.location.search).get('eqid')
-        this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-        this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
-        // console.log(this.thematicMapitems);
-    },
-    mounted() {
-        this.init()
-        this.getEqInfo(this.eqid)
+    };
+  },
+  created() {
+    this.eqid = new URLSearchParams(window.location.search).get('eqid')
+    this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
+    this.reportItems=ReportUrl.filter(item => item.eqid === this.eqid);
+    // console.log(this.thematicMapitems);
+  },
+  mounted() {
+    this.init()
+    this.getEqInfo(this.eqid)
 
         this.initPlot(); // 初始化加载应急数据
         // // ---------------------------------------------------
@@ -1827,6 +1822,9 @@ export default {
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
+                    clampToGround: true,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    depthTest: true,
                 });
                 // 处理加载成功的GeoJSON数据
                 geoPromise.then((dataSource) => {

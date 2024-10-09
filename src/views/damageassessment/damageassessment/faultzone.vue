@@ -12,7 +12,7 @@
         <div class="eqListContent" v-if="currentTab === '震害事件'">
           <div style="display: flex">
             <!-- 搜索框 -->
-            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq" clearable>
             </el-input>
           </div>
           <!-- 地震列表 -->
@@ -283,36 +283,30 @@ export default {
       // 鼠标点击事件
       window.viewer.screenSpaceEventHandler.setInputAction((click) => {
         const pickedObject = window.viewer.scene.pick(click.position);
-
+        this.selectedEntityPosition = this.calculatePosition(click.position);
         // 与断裂带名称div绑定
         if (Cesium.defined(pickedObject) && pickedObject.id.polyline) {
           // 获取断裂带的 name 属性
           const faultName = pickedObject.id.properties.name._value;
 
-          // 获取点击位置的地理坐标 (Cartesian3)
-          const cartesian = viewer.scene.pickPosition(click.position);
-          if (!Cesium.defined(cartesian)) {
-            return;
-          }
-
-          // 将地理坐标 (Cartesian3) 转换为屏幕坐标 (二维)
-          const screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-
-          // 显示 div 并将其定位到点击位置
-          faultInfoDiv.innerHTML = `${faultName}`;
-          faultInfoDiv.style.display = 'block';
-          faultInfoDiv.style.left = screenPosition.x + 'px';
-          faultInfoDiv.style.top = screenPosition.y + 'px';
-
-          // 监听地图变化，动态更新 div 的位置
-          window.viewer.scene.postRender.addEventListener(() => {
-            const updatedScreenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-            if (updatedScreenPosition) {
-              faultInfoDiv.style.left = updatedScreenPosition.x + 'px';
-              faultInfoDiv.style.top = updatedScreenPosition.y + 'px';
+          if (faultName) {
+            // 获取点击位置的地理坐标 (Cartesian3)
+            const cartesian = viewer.scene.pickPosition(click.position);
+            if (!Cesium.defined(cartesian)) {
+              return;
             }
-          });
 
+            // 更新 faultInfo 的位置和内容
+            this.updateFaultInfoPosition(faultName);
+
+            // 显示 faultInfo
+            faultInfoDiv.style.display = 'block';
+
+            // 监听地图变化，动态更新 div 的位置
+            window.viewer.scene.postRender.addEventListener(() => {
+              this.updateFaultInfoPosition(faultName);
+            });
+          }
         }
         // 判断点击的是不是地震点
         else if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
@@ -324,10 +318,56 @@ export default {
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
+          this.historyEqPoints.forEach(entity => {
+            entity.label._show._value = false;
+          });
           // 隐藏 faultInfoDiv
           faultInfoDiv.style.display = 'none';
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    },
+
+    calculatePosition(clickPosition) {
+      let ray = viewer.camera.getPickRay(clickPosition);
+      let position = viewer.scene.globe.pick(ray, viewer.scene);
+      let cartographic = Cesium.Cartographic.fromCartesian(position);
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      let height = this.isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
+
+      return {
+        x: longitude, // 经度
+        y: latitude,  // 纬度
+        z: height     // 高度
+      };
+    },
+
+    isTerrainLoaded() {
+      let terrainProvider = window.viewer.terrainProvider;
+      if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
+        // console.log("地形未加载")
+        return false;
+      } else if (Cesium.defined(terrainProvider)) {
+        return true;
+      }
+      return false;
+    },
+
+    updateFaultInfoPosition(faultName) {
+      this.$nextTick(() => {
+        if (this.selectedEntityPosition) {
+          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
+            window.viewer.scene,
+            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+          );
+          if (canvasPosition) {
+            const faultInfoDiv = document.getElementById('faultInfo');
+            faultInfoDiv.style.left = canvasPosition.x + 'px';
+            faultInfoDiv.style.top = canvasPosition.y + 'px';
+            faultInfoDiv.innerHTML = `${faultName}`; // 更新内容
+          }
+        }
+      });
     },
 
     // 地图渲染查询地震点(根据页码、根据搜索框)
