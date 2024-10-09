@@ -255,6 +255,7 @@ export default {
         // 在执行顺序上，visible比popupData快。导致在判断this.popupPanelData.plottype === plotType[item].name时，
         // popupPanelData是空，判断一定时false，造成第一次点击弹窗无法渲染对应标绘的html模板。
         // 可能时因为开启深度监听的原因（deep: true）。
+        // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
           if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
 
@@ -263,10 +264,10 @@ export default {
           } else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData.plotType)
+              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }else {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData.plotType)
+              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }
           }
         }
@@ -351,10 +352,10 @@ export default {
       } else {
         if (this.popupPanelData[0].drawtype === 'polyline') {
           data.plotId = this.popupPanelData[0].plotId
-          data.plotType = this.popupPanelData.plotType
+          data.plotType = this.popupPanelData[0].plotType
         } else {
           data.plotId = this.popupPanelData[0].plotId
-          data.plotType = this.popupPanelData.plotType
+          data.plotType = this.popupPanelData[0].plotType
         }
       }
 
@@ -413,12 +414,11 @@ export default {
     },
     // 点击标绘点后获取此标绘点的所有标绘信息
     getPlotInfo(plotId,plotType) {
+      // console.log("点击获取",plotId,plotType)
       let that = this;
-
       // 1. 请求获取标绘点信息
       getPlotInfos({ plotId, plotType }).then(res => {
-        console.log("获取到的", res);
-
+        // console.log("点击获取",res)
         // 2. 初始化 item 对象，存储标绘信息
         let item = {
           starttime: null,
