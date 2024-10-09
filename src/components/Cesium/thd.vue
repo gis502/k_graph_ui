@@ -8,62 +8,60 @@
             <eqTable :eqData="tableData"/>
         </div>
 
-    <!--   图层要素-->
-    <!--    <div class="layer-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
-    <!--    </div>-->
-    <div v-if="activeComponent === 'layerChoose'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
-      <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-        <el-checkbox
-            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
-            :key="item.id"
-            :label="item.name"
-            style="margin:0 0;"
-        >
-          {{ item.name }}
-        </el-checkbox>
-      </el-checkbox-group>
-      <div @click="toggleExpand"
-           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
-      </div>
-    </div>
+        <!--   图层要素-->
+        <!--    <div class="layer-button">-->
+        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
+        <!--    </div>-->
+        <div v-if="activeComponent === 'layerChoose'" class="dropdown"
+             :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+            <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
+                <el-checkbox
+                        v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
+                        :key="item.id"
+                        :label="item.name"
+                        style="margin:0 0;">
+                    {{ item.name }}
+                </el-checkbox>
+            </el-checkbox-group>
+            <div @click="toggleExpand"
+                 style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+                <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+            </div>
+        </div>
 
-    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
-      <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
-        <el-radio
-            v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
-            :key="item.id"
-            :label="item.name"
-            style="margin: 0 0;color:white"
-        >
-          {{ item.name }}
-        </el-radio>
-      </el-radio-group>
-      <div @click="toggleExpand"
-           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
-      </div>
-    </div>
-    <div v-if="activeComponent === 'reportDownload'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
-      <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
-        <el-radio
-            v-for="item in (isExpanded ? reportItems : reportItems.slice(0, 6))"
-            :key="item.id"
-            :label="item.name"
-            style="margin: 0 0;color:white"
-        >
-          {{ item.name }}
-        </el-radio>
-      </el-radio-group>
-      <div @click="toggleExpand"
-           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
-      </div>
-    </div>
+        <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
+             :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+            <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
+                <el-radio
+                        v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
+                        :key="item.id"
+                        :label="item.name"
+                        style="margin: 0 0;color:white"
+                >
+                    {{ item.name }}
+                </el-radio>
+            </el-radio-group>
+            <div @click="toggleExpand"
+                 style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+                <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+            </div>
+        </div>
+        <div v-if="activeComponent === 'reportDownload'" class="dropdown"
+             :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+            <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
+                <el-radio
+                        v-for="item in (isExpanded ? reportItems : reportItems.slice(0, 6))"
+                        :key="item.id"
+                        :label="item.name"
+                        style="margin: 0 0;color:white">
+                    {{ item.name }}
+                </el-radio>
+            </el-radio-group>
+            <div @click="toggleExpand"
+                 style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+                <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
+            </div>
+        </div>
 
 
         <!--    行政区划-->
@@ -120,16 +118,21 @@
                   height: 45px;width: 25%;
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
-    >
-      <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
-      <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
-      <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-<!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-      <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
-      <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-      <el-menu-item index="6">返回首页</el-menu-item>
-    </el-menu>
-  </div>
+            >
+                <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
+                <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素
+                </el-menu-item>
+                <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转
+                </el-menu-item>
+                <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
+                <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
+                </el-menu-item>
+                <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">
+                    专题图下载
+                </el-menu-item>
+                <el-menu-item index="6">返回首页</el-menu-item>
+            </el-menu>
+        </div>
 
         <!--    box包裹地图，截图需要-->
         <div id="box" ref="box">
@@ -190,6 +193,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 进度条 end-->
 
         <!--    两侧组件-->
@@ -297,10 +301,13 @@ import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
+//时间轴
+import {TimerLineFunc} from '@/cesium/plot/timeLine.js'
 
 //专题图
-import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
+import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+
 export default {
     components: {
         thematicMapPreview,
@@ -448,31 +455,31 @@ export default {
             emergencyTeam: [],
             emergencyShelters: [],
 
-      //专题图下载
-      thematicMapitems:[],
-      selectthematicMap:'',
-      isshowThematicMapPreview:'',
-      imgshowURL:'',
-      imgurlFromDate:'',
-      imgName:'',
-      ifShowMapPreview: false, // 是否预览专题图
-      //专题图下载end
+            //专题图下载
+            thematicMapitems: [],
+            selectthematicMap: '',
+            isshowThematicMapPreview: '',
+            imgshowURL: '',
+            imgurlFromDate: '',
+            imgName: '',
+            ifShowMapPreview: false, // 是否预览专题图
+            //专题图下载end
 
-      //报告产出
-      reportItems:[],
-      selectReportItem:'',
+            //报告产出
+            reportItems: [],
+            selectReportItem: '',
 
-    };
-  },
-  created() {
-    this.eqid = new URLSearchParams(window.location.search).get('eqid')
-    this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-    this.reportItems=ReportUrl.filter(item => item.eqid === this.eqid);
-    // console.log(this.thematicMapitems);
-  },
-  mounted() {
-    this.init()
-    this.getEqInfo(this.eqid)
+        };
+    },
+    created() {
+        this.eqid = new URLSearchParams(window.location.search).get('eqid')
+        this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
+        this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
+        // console.log(this.thematicMapitems);
+    },
+    mounted() {
+        this.init()
+        this.getEqInfo(this.eqid)
 
         this.initPlot(); // 初始化加载应急数据
         // // ---------------------------------------------------
@@ -504,65 +511,65 @@ export default {
             return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
         },
 
-      /**
-       * 图层要素 切换展开状态
-       *
-       * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
-       *
-       * @returns {void} 无返回值
-       */
-    toggleExpand() {
-      console.log("Toggle expand clicked");
-      this.isExpanded = !this.isExpanded;
-    },
+        /**
+         * 图层要素 切换展开状态
+         *
+         * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
+         *
+         * @returns {void} 无返回值
+         */
+        toggleExpand() {
+            console.log("Toggle expand clicked");
+            this.isExpanded = !this.isExpanded;
+        },
 
-      /**
-       * 设置组件展开的面板互斥,避免堆叠
-       * 切换组件的显示状态
-       * @param {String} component - 要切换的组件名称
-       */
-      toggleComponent(component) {
-          // 收起图层要素
-          this.isExpanded = false;
-          // 清除主题地图预览的显示状态
-          this.isshowThematicMapPreview = null;
-          // 清除选择的主题地图
-          this.selectthematicMap = null;
+        /**
+         * 设置组件展开的面板互斥,避免堆叠
+         * 切换组件的显示状态
+         * @param {String} component - 要切换的组件名称
+         */
+        toggleComponent(component) {
+            // 收起图层要素
+            this.isExpanded = false;
+            // 清除主题地图预览的显示状态
+            this.isshowThematicMapPreview = null;
+            // 清除选择的主题地图
+            this.selectthematicMap = null;
 
-          // 如果点击的是当前活动组件，则关闭它，否则打开新组件
-          this.activeComponent = this.activeComponent === component ? null : component;
+            // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+            this.activeComponent = this.activeComponent === component ? null : component;
 
-          // 如果激活的组件是地震列表，则获取地震数据
-          if (this.activeComponent === 'eqList') {
-              this.getEq();
-          }
-      },
-    // 初始化控件等
-    init() {
-      // console.log(this.eqid)
-      let viewer = initCesium(Cesium)
-      viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-      window.viewer = viewer
-      // this.viewer=window.viewer
-      let options = {}
-      // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
-      // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
-      // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
-      options.enableCompass = false
-      // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
-      options.enableZoomControls = false
-      // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
-      options.enableDistanceLegend = true
-      // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
-      options.enableCompassOuterRing = false
-      options.resetTooltip = "重置视图";
-      options.zoomInTooltip = "放大";
-      options.zoomOutTooltip = "缩小";
-      //新版必须new  CesiumNavigation ,可以查看作者github
-      window.navigation = new CesiumNavigation(viewer, options)
-      document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+            // 如果激活的组件是地震列表，则获取地震数据
+            if (this.activeComponent === 'eqList') {
+                this.getEq();
+            }
+        },
+        // 初始化控件等
+        init() {
+            // console.log(this.eqid)
+            let viewer = initCesium(Cesium)
+            viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+            window.viewer = viewer
+            // this.viewer=window.viewer
+            let options = {}
+            // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
+            // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
+            // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
+            options.enableCompass = false
+            // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
+            options.enableZoomControls = false
+            // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
+            options.enableDistanceLegend = true
+            // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
+            options.enableCompassOuterRing = false
+            options.resetTooltip = "重置视图";
+            options.zoomInTooltip = "放大";
+            options.zoomOutTooltip = "缩小";
+            //新版必须new  CesiumNavigation ,可以查看作者github
+            window.navigation = new CesiumNavigation(viewer, options)
+            document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
+            document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
+            document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
 
             //经纬度查询
             let that = this
@@ -2564,47 +2571,78 @@ export default {
          * 更新主题地图的预览
          * 当选择了一个主题地图后，显示地图的预览图；如果没有选择，则隐藏预览图
          */
-    updatethematicMap(){
-      if(this.selectthematicMap){
-        this.ifShowMapPreview=true
-        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name===this.selectthematicMap);
-        console.log(selectedData)
-        this.imgurlFromDate = selectedData.path
-        this.imgName=selectedData.name
-        // console.log("11111",this.imgurlFromDate, this.imgName)
-        this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
-        // console.log(this.imgshowURL)
-      }
-     else{
-        this.ifShowMapPreview=false
-      }
+        updatethematicMap() {
+            if (this.selectthematicMap) {
+                this.ifShowMapPreview = true
+                const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name === this.selectthematicMap);
+                console.log(selectedData)
+                this.imgurlFromDate = selectedData.path
+                this.imgName = selectedData.name
+                // console.log("11111",this.imgurlFromDate, this.imgName)
+                this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+                // console.log(this.imgshowURL)
+            } else {
+                this.ifShowMapPreview = false
+            }
 
-    },
-    ifShowThematicMapDialog(val) {
-      this.ifShowMapPreview= val // 是否预览专题图 = val
-      if( !val){this.selectthematicMap=null}
-    },
-    //专题图 end
+        },
 
-    //报告产出
-    updateReportItem(){
-      if(this.selectReportItem){
-        console.log(this.selectReportItem)
-        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name===this.selectReportItem);
-        const link = document.createElement('a');
-        link.href = selectedData.path;
-        link.download = selectedData.name; // 指定下载的文件名
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => {
-          this.selectReportItem = null;
-        }, 1000); // 1000 毫秒后执行
-      }
+        /**
+         * 控制主题图预览对话框的显示状态
+         *
+         * @param {boolean} val - 是否显示主题图预览对话框的标志
+         */
+        ifShowThematicMapDialog(val) {
+            this.ifShowMapPreview = val // 是否预览专题图 = val
+            if (!val) {
+                this.selectthematicMap = null
+            } // 如果不预览主题图，则重置选择的主题图为null
+        },
+        //专题图 end
+
+
+        /**
+         * 报告产出
+         * 当选择了一个报告项并且该报告项存在时，生成一个链接用于下载该报告项
+         */
+        updateReportItem() {
+            // 检查是否有选中的报告项
+            if (this.selectReportItem) {
+                // 在控制台输出选中的报告项信息
+                console.log(this.selectReportItem)
+
+                // 从ReportUrl数组中查找匹配的项
+                // 查找依据是eqid和报告项名称同时匹配
+                const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name === this.selectReportItem);
+
+                // 创建一个<a>元素用于下载
+                const link = document.createElement('a');
+
+                // 设置链接的href属性为找到的报告项的路径
+                link.href = selectedData.path;
+
+                // 设置下载的文件名为找到的报告项的名称
+                link.download = selectedData.name;
+
+                // 将链接元素添加到body中
+                document.body.appendChild(link);
+
+                // 触发链接点击事件，开始下载
+                link.click();
+
+                // 从body中移除链接元素
+                document.body.removeChild(link);
+
+                // 1秒后重置selectReportItem为null
+                // 这是为了在下载后清除选中状态
+                setTimeout(() => {
+                    this.selectReportItem = null;
+                }, 1000); // 1000 毫秒后执行
+            }
+        }
+
+
     }
-
-
-  }
 }
 </script>
 
