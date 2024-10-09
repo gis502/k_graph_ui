@@ -1810,6 +1810,7 @@ export default {
             if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
                 // 加载雅安行政区划的GeoJSON数据，并设置显示样式
                 let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+                    clampToGround: true, //贴地显示
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
@@ -1836,8 +1837,8 @@ export default {
                     markerColor: Cesium.Color.TRANSPARENT,
                     markerSize: 0,
                     strokeWidth: 0,
-                    clampToGround: true,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    clampToGround: true, //贴地显示
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     depthTest: true,
                 });
                 // 处理加载成功的透明GeoJSON数据
@@ -1891,6 +1892,7 @@ export default {
                 // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
                 // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
                 let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
+                    clampToGround: true, //贴地显示
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
@@ -2278,6 +2280,7 @@ export default {
             if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
                 // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
                 let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+                    clampToGround: true, //贴地显示
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
