@@ -969,12 +969,12 @@ export default {
 
       //--------------------------线绘制------------------------------
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
-      console.log("polylineArr", polylineArr)
+      // console.log("polylineArr", polylineArr)
 
       let filteredPolylineArr = []; // 用于存储符合条件的线条数据
 
        polylineArr.forEach(item => {
-         console.log("isshow",this.plotisshow)
+         // console.log("isshow",this.plotisshow)
          // that.drawPolyline(item)
          const currentDate = new Date(this.currentTime);
          console.log(currentDate)
@@ -1015,7 +1015,7 @@ export default {
         //消失
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
-          console.log(item.geom.coordinates,"endPOlygon")
+          // console.log(item.geom.coordinates,"endPOlygon")
           viewer.entities.removeById(item.plotId)
           /*因为封装好渲染面的函数中，将每个点都进行了渲染，清除时也要将每个点清除*/
           // let coords = item.geom.coordinates[0]
@@ -1035,10 +1035,9 @@ export default {
        });
        Object.keys(polygonMap).forEach(plotId => {
          let polygonData = polygonMap[plotId];
-         console.log("polygonData",polygonData)
+         // console.log("polygonData",polygonData)
          cesiumPlot.getDrawPolygon(polygonData)
        });
-
     },
 
     //时间轴操作-----------------------------------------------
@@ -1428,9 +1427,7 @@ export default {
       link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
       link.click();
     },
-    backToHome() {
-
-    },
+    backToHome() {},
 
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）

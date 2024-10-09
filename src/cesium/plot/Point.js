@@ -102,7 +102,7 @@ export default class Point {
   }
 
   drawPoints(points){
-    let dataSource = new Cesium.CustomDataSource("pointData")
+
     points.forEach(data=>{
       dataSource.entities.add({
         id: data.plotid,
@@ -125,6 +125,7 @@ export default class Point {
         }
       })
     })
+
     // 存储 dataSource 到对象上，便于后续操作
     window.pointDataSource = dataSource;
     // console.log("window.pointDataSource",window.pointDataSource)
