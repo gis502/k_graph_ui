@@ -25,6 +25,13 @@ export default class Polygon {
     this.beforeDraggedPoint = null;
     //===========下面是下面的属性用于将面整体拖拽与点拖拽转换的逻辑===========
     this.selectPoint = null;
+    //===========绘制区域面的代码================
+    this._dataSource = null; //存储entities
+    this._tempPositions = []; //存储点集合
+    this._mousePos = null; //移动点
+    this._drawType = null; //类型
+    // 定义全局变量
+    window.isDrawingPolygon = false;
   }
 
   //激活
@@ -45,6 +52,8 @@ export default class Polygon {
     // this.entityCount = 0;
     this.type = type;
     this.img = img;
+    this._dataSource = new Cesium.CustomDataSource("_dataSource");
+    this.viewer.dataSources.add(this._dataSource);
     this.deactivate()
     this.clear();
     this.registerEvents();
@@ -67,6 +76,10 @@ export default class Polygon {
 
   //清空绘制
   clear() {
+    if (this._dataSource){
+      // 删除整个数据源
+      this.viewer.dataSources.remove(this._dataSource);
+    }
     if (this.polygonEntity) {
       this.viewer.entities.remove(this.polygonEntity);
       this.polygonEntity = undefined;
@@ -75,44 +88,278 @@ export default class Polygon {
 
   /*注册事件*/
   registerEvents() {
-    this.handler.setInputAction((click) => this.leftClickEvent(click), Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    this.handler.setInputAction((click) => this.rightClickEvent(click), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-    this.handler.setInputAction(() => this.leftReleaseEvent(), Cesium.ScreenSpaceEventType.LEFT_UP);
-    this.handler.setInputAction((movement) => this.mouseMoveEvent(movement), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    switch (this.type){
+      case  "标绘面":{
+        this.handler.setInputAction((click) => this.leftClickEvent(click), Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        this.handler.setInputAction((click) => this.rightClickEvent(click), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+        this.handler.setInputAction(() => this.leftReleaseEvent(), Cesium.ScreenSpaceEventType.LEFT_UP);
+        this.handler.setInputAction((movement) => this.mouseMoveEvent(movement), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        break;
+      }
+      case "区域面":{
+        this._leftClickEventForPolygon();
+        this._mouseMoveEventForPolygon();
+        this._rightClickEventForPolygon();
+        break;
+      }
+    }
+
   }
+
+//绘制结束 触发结束事件
+  drawEnd() {
+    switch (this.type){
+      case "标绘面":{
+        let data = {
+          timestampArr:this.timestampArr,
+          pointPosArr:this._tempPositions,
+          plotId: this.initId,
+          time: this.time,
+          angle: this.angle,
+          icon: this.img,
+          earthquakeId:this.eqid,
+          plotType: this.name
+        }
+        this.resolve(data)
+        this.polygonPointEntity = []
+        this.polygonEntity.remove = () => {
+          this.viewer.entities.remove(this.polygonEntity);
+        }
+
+        break;
+      }
+      case "区域面":{
+        let data = {
+          timestampArr:this.timestampArr,
+          pointPosArr:this._tempPositions,
+          plotId: this.initId,
+          time: this.time,
+          angle: this.angle,
+          icon: this.img,
+          earthquakeId:this.eqid,
+          plotType: this.name
+        }
+        this.resolve(data)
+        console.log("绘制结束传得面",data)
+        // 3秒后清除所有 dataSources
+        setTimeout(() => {
+          window.viewer.dataSources.removeAll();
+        }, 3000); // 3000 毫秒 = 3 秒
+        break;
+      }
+    }
+    this._tempPositions = []
+    this.status = 0
+    this.timestampArr = []
+    this.deactivate();
+    this.enableCameraControls()
+  }
+  //-----------------绘制区域面-----------------
+  /**
+   * 鼠标事件之绘制面的左击事件
+   * @private
+   */
+
+  _leftClickEventForPolygon() {
+    this.handler.setInputAction((e) => {
+      window.isDrawingPolygon = true;  // 启用标志位
+      console.log("21",window.isDrawingPolygon)
+      let ray = viewer.camera.getPickRay(e.position)
+      let p = viewer.scene.globe.pick(ray, viewer.scene)
+      if (!p) return;
+      this._tempPositions.push(p);
+      console.log(p)
+      this._addPolygon();
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }
+
+  /**
+   * 鼠标事件之绘制面的移动事件
+   * @private
+   */
+  _mouseMoveEventForPolygon() {
+    this.handler.setInputAction((e) => {
+      let ray = viewer.camera.getPickRay(e.endPosition)
+      let p = viewer.scene.globe.pick(ray, viewer.scene)
+      if (!p) return;
+      this._mousePos = p;
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  }
+
+  /**
+   * 鼠标事件之绘制面的右击事件
+   * @private
+   */
+  _rightClickEventForPolygon() {
+    // 阻止默认的右键菜单
+    window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
+      return false;
+    }
+    this.handler.setInputAction((e) => {
+      let ray = viewer.camera.getPickRay(e.position)
+      let p = viewer.scene.globe.pick(ray, viewer.scene)
+      if (!p) return;
+      this._tempPositions.push(this._tempPositions[0]);
+      this.unRegisterEvents();
+      this._dataSource.entities.removeAll();
+      this.imgMaterial = new Cesium.ImageMaterialProperty({
+        image: this.img
+      });
+      this._dataSource.entities.add({
+        id: this.initId,
+        polyline: {
+          positions: this._tempPositions,
+          clampToGround: true, //贴地
+          width: 3,
+          material: new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.YELLOW,
+          }),
+          depthFailMaterial: new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.YELLOW,
+          }),
+        },
+        polygon: {
+          hierarchy: this._tempPositions,
+          extrudedHeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          // material: Cesium.Color.RED.withAlpha(0.4),
+          material: this.imgMaterial,
+          clampToGround: true,
+        },
+      });
+      this.drawEnd();
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+  }
+  /**
+   * 画面
+   * @private
+   */
+  _addPolygon() {
+    if (this._tempPositions.length == 1) {
+      this.imgMaterial = new Cesium.ImageMaterialProperty({
+        image: this.img
+      });
+      //一个顶点+移动点
+      this._dataSource.entities.add({
+        id: this.initId,
+        polyline: {
+          positions: new Cesium.CallbackProperty(() => {
+            let c = Array.from(this._tempPositions);
+            if (this._mousePos) {
+              c.push(this._mousePos);
+            }
+            return c;
+          }, false),
+          clampToGround: true, //贴地
+          width: 3,
+          material: this.imgMaterial,
+          // depthFailMaterial: new Cesium.PolylineDashMaterialProperty({
+          //   color: Cesium.Color.YELLOW,
+          // }),
+          depthFailMaterial:this.imgMaterial,
+        },
+      });
+    } else {
+      this._dataSource.entities.removeAll();
+      this.imgMaterial = new Cesium.ImageMaterialProperty({
+        image: this.img
+      });
+      //两个顶点+移动点
+      this._dataSource.entities.add({
+        id: this.initId,
+        polygon: {
+          hierarchy: new Cesium.CallbackProperty(() => {
+            let poss = Array.from(this._tempPositions);
+            if (this._mousePos) {
+              poss.push(this._mousePos);
+            }
+            return new Cesium.PolygonHierarchy(poss);
+          }, false),
+          extrudedHeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          material:this.imgMaterial,
+          clampToGround: true,
+        },
+        polyline: {
+          positions: new Cesium.CallbackProperty(() => {
+            let c = Array.from(this._tempPositions);
+            if (this._mousePos) {
+              c.push(this._mousePos);
+              c.push(c[0]); //与第一个点相连
+            }
+            return c;
+          }, false),
+          clampToGround: true, //贴地
+          width: 3,
+          material: new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.YELLOW,
+          }),
+          depthFailMaterial: new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.YELLOW,
+          }),
+        },
+      });
+    }
+  }
+
+
+  // 删除面
+  deletePolygon(polygon) {
+    this.angle = 0;
+    this.positions = [];
+    this.polygonPointEntity = [];
+    this.polygonEntity = null
+    // 向 WebSocket 发送删除多边形的消息
+    this.ws.send(JSON.stringify({
+      type: "polygon",
+      operate: "delete",
+      id: polygon.id
+    }));
+
+    // 获取多边形的顶点坐标
+    let polygonPosition = polygon.properties.pointPosition;
+
+    // 移除多边形的顶点和多边形本身
+    polygonPosition.forEach((position) => {
+      let pointEntity = this.viewer.entities.getById(position.id);
+      if (pointEntity) {
+        this.viewer.entities.remove(pointEntity);
+      }
+    });
+    this.viewer.entities.remove(polygon);
+  }
+
 
   leftClickEvent(click) {
     if (this.isDragging) return; // 如果在拖动，不执行添加点的逻辑
     let ray = this.viewer.camera.getPickRay(click.position);
     let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
-      if (position) {
-          this.centerPoint = null;
-          this.centerPoint = position;
-        this.beforeDraggedPoint = null;
-          this.afterDraggedPoint = null;
-          // 移除现有的正方形和相关点实体
-          this.viewer.entities.remove(this.polygonEntity);
-          this.polygonEntity = null;
-          this.polygonPointEntity.forEach(pointEntity => {
-            this.viewer.entities.remove(pointEntity);
-          });
-          this.polygonPointEntity = [];
-          this.positions = [];
-          // 绘制新的正方形
-          this.drawSquare(position);
+    if (position) {
+      this.centerPoint = null;
+      this.centerPoint = position;
+      this.beforeDraggedPoint = null;
+      this.afterDraggedPoint = null;
+      // 移除现有的正方形和相关点实体
+      this.viewer.entities.remove(this.polygonEntity);
+      this.polygonEntity = null;
+      this.polygonPointEntity.forEach(pointEntity => {
+        this.viewer.entities.remove(pointEntity);
+      });
+      this.polygonPointEntity = [];
+      this.positions = [];
+      // 绘制新的正方形
+      this.drawSquare(position);
     }
   }
 
   rightClickEvent(click) {
-      this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-      this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-      this.enableVertexDragging();
-      if (this.type === "标绘面"){
-        //这里加个这个判定是因为，如果不这样，量算面积，右键完再右键，会调用这个往后端传数据的方法
-        // 右键后显示输入详细信息的弹窗
-        this.handler.setInputAction((event) => this.showDetailInputPopup(event), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-      }
+    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    this.enableVertexDragging();
+    if (this.type === "标绘面"){
+      //这里加个这个判定是因为，如果不这样，量算面积，右键完再右键，会调用这个往后端传数据的方法
+      // 右键后显示输入详细信息的弹窗
+      this.handler.setInputAction((event) => this.showDetailInputPopup(event), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     }
+  }
 
   showDetailInputPopup(event) {
     // console.log("点实体",this.polygonPointEntity)
@@ -165,56 +412,6 @@ export default class Polygon {
       // this.updateEntityCount();
     }
   }
-//绘制结束 触发结束事件
-  drawEnd() {
-    let data = {
-      timestampArr:this.timestampArr,
-      pointPosArr:this.positions,
-      plotid: this.initId,
-      time: this.time,
-      angle: this.angle,
-      img: this.img,
-      eqid:this.eqid,
-      name: this.name
-    }
-    this.resolve(data)
-    // console.log("SAAS",this.resolve)
-    this.status = 0
-    this.polygonPointEntity = []
-    this.polygonEntity.remove = () => {
-      this.viewer.entities.remove(this.polygonEntity);
-    }
-    this.timestampArr = []
-    this.deactivate();
-    this.enableCameraControls()
-  }
-
-
-  // 删除面
-  deletePolygon(polygon) {
-    this.angle = 0;
-    this.positions = [];
-    this.polygonPointEntity = [];
-    this.polygonEntity = null
-    // 向 WebSocket 发送删除多边形的消息
-    this.ws.send(JSON.stringify({
-      type: "polygon",
-      operate: "delete",
-      id: polygon.id
-    }));
-
-    // 获取多边形的顶点坐标
-    let polygonPosition = polygon.properties.pointPosition;
-
-    // 移除多边形的顶点和多边形本身
-    polygonPosition.forEach((position) => {
-      let pointEntity = this.viewer.entities.getById(position.id);
-      if (pointEntity) {
-        this.viewer.entities.remove(pointEntity);
-      }
-    });
-    this.viewer.entities.remove(polygon);
-  }
 
   //=======================绘制数据库中的面==================
   // 根据数据库中数据绘制面
@@ -234,6 +431,7 @@ export default class Polygon {
       // 1-4 pointLinePoints用来存构成面的点实体
       let pointLinePoints = []
       let coords = polygon[0].geom.coordinates[0]
+      console.log("coords",coords)
       for (let i = 0; i < coords.length; i++) {
         let polygonCoords = coords[i]
 
@@ -269,7 +467,7 @@ export default class Polygon {
           polygon: {
             hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
             material: polygon[0].icon,
-            stRotation: Cesium.Math.toRadians(polygon[0].angle),
+            // stRotation: Cesium.Math.toRadians(polygon[0].angle),
             clampToGround: true,
           },
           properties: {
@@ -509,29 +707,29 @@ export default class Polygon {
 
   /*启用点拖拽功能*/
   enableVertexDragging() {
-      // 遍历多边形点实体数组，为每个点实体添加鼠标事件
-      // console.log("polygonPointEntity", this.polygonPointEntity)
-      this.polygonPointEntity.forEach((pointEntity, index) => {
-        pointEntity.point.color = Cesium.Color.RED; // 更改顶点颜色以示区别
-        let handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-        this.vertexHandlers.push(handler);
+    // 遍历多边形点实体数组，为每个点实体添加鼠标事件
+    // console.log("polygonPointEntity", this.polygonPointEntity)
+    this.polygonPointEntity.forEach((pointEntity, index) => {
+      pointEntity.point.color = Cesium.Color.RED; // 更改顶点颜色以示区别
+      let handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+      this.vertexHandlers.push(handler);
 
-        handler.setInputAction((click) => {
-          let pickedObject = this.viewer.scene.pick(click.position);
+      handler.setInputAction((click) => {
+        let pickedObject = this.viewer.scene.pick(click.position);
 
-          if (Cesium.defined(pickedObject) && pickedObject.id === pointEntity) {
-            this.isDragging = true;
-            this.draggedPointIndex = index;
-            this.draggedPoint = pointEntity;
-            this.selectPoint = pointEntity;
-            if (this.type !== "量算面积") {
-              this.type = "标绘面";
-            }
-            this.beforeDraggedPoint = this.draggedPoint;
-            this.disableCameraControls();
+        if (Cesium.defined(pickedObject) && pickedObject.id === pointEntity) {
+          this.isDragging = true;
+          this.draggedPointIndex = index;
+          this.draggedPoint = pointEntity;
+          this.selectPoint = pointEntity;
+          if (this.type !== "量算面积") {
+            this.type = "标绘面";
           }
-        }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-      });
+          this.beforeDraggedPoint = this.draggedPoint;
+          this.disableCameraControls();
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+    });
 
   }
 

@@ -1,5 +1,6 @@
 import * as Cesium from "cesium"
 import {xp} from "./algorithm"
+import {insertPlotAndInfo} from "@/api/system/plot.js";
 
 function guid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -87,7 +88,7 @@ StraightArrow.prototype = {
             this.modifyHandler = null;
         }
     },
-    startDraw: function () {
+    startDraw: function (data) {
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) { //单机开始绘制
@@ -104,27 +105,14 @@ StraightArrow.prototype = {
             if ($this.positions.length == 3) {
                 $this.firstPoint.show = false;
                 $this.floatPoint.show = false;
-                var data = {
-                    plot: {
-                        earthquakeId: "be3a5ea4-8dfd-a0a2-2510-21845f17960b",
-                        plotId: $this.objId,
-                        drawtype: "straight",
-                        icon: null,
-                        severity: null,
-                        plotType: "直线箭头",
-                        angle: null,
-                        creationTime: this.timestampToTime(new Date()),
-                        elevation: null,
-                        startTime: null,
-                        endTime: null,
-                        isDeleted: false,
-                        geom: {
-                            type: "MultiPoint",
-                            coordinates: $this.getLnglats()
-                        }
-                    },
-                    plotinfo: null
-                }
+
+                data.plot.plotId = $this.objId
+                data.plot.drawtype = "straight"
+                data.plot.plotType = "直线箭头"
+                data.plot.geom.coordinates = $this.getLnglats();
+                insertPlotAndInfo(data).then(res => {
+                    console.log(data)
+                })
 
                 $this.handler.destroy();
                 $this.arrowEntity.objId = $this.objId;
@@ -142,7 +130,7 @@ StraightArrow.prototype = {
             if ($this.positions.length >= 2) {
                 if (!Cesium.defined($this.arrowEntity)) {
                     $this.positions.push(cartesian);
-                    $this.arrowEntity = $this.showArrowOnMap($this.positions);
+                    $this.arrowEntity = $this.showArrowOnMap($this.positions, data.plot);
                 } else {
                     $this.positions.pop();
                     $this.positions.push(cartesian);
@@ -205,11 +193,12 @@ StraightArrow.prototype = {
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     createByData: function (data) { //通过传入的经纬度数组 构建箭头
+        let geom = data.geom.coordinates
         this.state = -1;
         this.positions = [];
         var arr = [];
-        for (var i = 0; i < data.length; i++) {
-            var cart3 = Cesium.Cartesian3.fromDegrees(data[i][0], data[i][1]);
+        for (var i = 0; i < geom.length; i++) {
+            var cart3 = Cesium.Cartesian3.fromDegrees(geom[i][0], geom[i][1]);
             arr.push(cart3);
         }
         this.positions = arr;
@@ -217,7 +206,7 @@ StraightArrow.prototype = {
         this.firstPoint.type = "firstPoint";
         this.floatPoint = this.creatPoint(this.positions[2]);
         this.floatPoint.type = "floatPoint";
-        this.arrowEntity = this.showArrowOnMap(this.positions);
+        this.arrowEntity = this.showArrowOnMap(this.positions,data.plot);
         this.firstPoint.show = false;
         this.floatPoint.show = false;
         this.arrowEntity.objId = this.objId;
@@ -253,7 +242,7 @@ StraightArrow.prototype = {
         point.attr = "editPoint";
         return point;
     },
-    showArrowOnMap: function (positions) {
+    showArrowOnMap: function (positions,data) {
         var $this = this;
         var update = function () {
             if (positions.length < 2) {
@@ -273,13 +262,17 @@ StraightArrow.prototype = {
             }
             return new Cesium.PolygonHierarchy(arrow);
         }
-        return this.viewer.entities.add({
+
+        return window.viewer.entities.add({
             polygon: new Cesium.PolygonGraphics({
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
                 material: $this.fillMaterial
-            })
+            }),
+            properties: {
+                data
+            }
         });
     },
     cartesianToLatlng: function (cartesian) {
@@ -351,7 +344,7 @@ AttackArrow.prototype = {
             this.modifyHandler = null;
         }
     },
-    startDraw: function () {
+    startDraw: function (data) {
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) { //单机开始绘制
@@ -386,7 +379,7 @@ AttackArrow.prototype = {
             if ($this.positions.length >= 2) {
                 if (!Cesium.defined($this.arrowEntity)) {
                     $this.positions.push(cartesian);
-                    $this.arrowEntity = $this.showArrowOnMap($this.positions);
+                    $this.arrowEntity = $this.showArrowOnMap($this.positions,data.plot);
                     $this.arrowEntity.objId = $this.objId;
                 } else {
                     $this.positions.pop();
@@ -411,10 +404,20 @@ AttackArrow.prototype = {
             point.show = false;
             point.wz = $this.positions.length;
             $this.pointArr.push(point);
+
+            data.plot.plotId = $this.objId
+            data.plot.drawtype = "attack"
+            data.plot.plotType = "攻击箭头"
+            data.plot.geom.coordinates = $this.getLnglats();
+            insertPlotAndInfo(data).then(res => {
+                console.log(data)
+            })
+
             $this.handler.destroy();
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     },
     createByData: function (data) { //根据传入的数据构建箭头
+        let geom = data.geom.coordinates
         this.positions = []; //控制点
         this.state = -1; //state用于区分当前的状态 0 为删除 1为添加 2为编辑
         this.floatPoint = null;
@@ -423,8 +426,8 @@ AttackArrow.prototype = {
         this.clickStep = 0; //用于控制点的移动结束
         this.modifyHandler = null;
         var arr = [];
-        for (var i = 0; i < data.length; i++) {
-            var cart3 = Cesium.Cartesian3.fromDegrees(data[i][0], data[i][1]);
+        for (var i = 0; i < geom.length; i++) {
+            var cart3 = Cesium.Cartesian3.fromDegrees(geom[i][0], geom[i][1]);
             arr.push(cart3);
         }
         this.positions = arr;
@@ -435,7 +438,7 @@ AttackArrow.prototype = {
             point.wz = i + 1;
             this.pointArr.push(point);
         }
-        this.arrowEntity = this.showArrowOnMap(this.positions);
+        this.arrowEntity = this.showArrowOnMap(this.positions, data);
         this.arrowEntity.objId = this.objId;
     },
     startModify: function () { //修改箭头
@@ -523,7 +526,7 @@ AttackArrow.prototype = {
         point.attr = "editPoint";
         return point;
     },
-    showArrowOnMap: function (positions) {
+    showArrowOnMap: function (positions,data) {
         var $this = this;
         var update = function () {
             //计算面
@@ -547,7 +550,10 @@ AttackArrow.prototype = {
                 show: true,
                 fill: true,
                 material: $this.fillMaterial
-            })
+            }),
+            properties: {
+                data
+            }
         });
     },
     cartesianToLatlng: function (cartesian) {
@@ -618,7 +624,7 @@ PincerArrow.prototype = {
             this.modifyHandler = null;
         }
     },
-    startDraw: function () {
+    startDraw: function (data) {
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) {
@@ -645,6 +651,13 @@ PincerArrow.prototype = {
                     $this.viewer.entities.remove($this.floatPoint);
                     $this.floatPoint = null;
                 }
+                data.plot.plotId = $this.objId
+                data.plot.drawtype = "pincer"
+                data.plot.plotType = "钳击箭头"
+                data.plot.geom.coordinates = $this.getLnglats();
+                insertPlotAndInfo(data).then(res => {
+                    console.log(data)
+                })
                 $this.handler.destroy();
                 return;
             } else {
@@ -671,7 +684,7 @@ PincerArrow.prototype = {
             if ($this.positions.length >= 2) {
                 if (!Cesium.defined($this.arrowEntity)) {
                     $this.positions.push(cartesian);
-                    $this.arrowEntity = $this.showArrowOnMap($this.positions);
+                    $this.arrowEntity = $this.showArrowOnMap($this.positions, data.plot);
                     $this.arrowEntity.objId = $this.objId;
                 } else {
                     $this.positions.pop();
@@ -682,6 +695,7 @@ PincerArrow.prototype = {
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     createByData: function (data) { //根据传入的数据构建箭头
+        let geom = data.geom.coordinates
         this.positions = []; //控制点
         this.state = -1; //state用于区分当前的状态 0 为删除 1为添加 2为编辑
         this.floatPoint = null;
@@ -690,8 +704,8 @@ PincerArrow.prototype = {
         this.clickStep = 0; //用于控制点的移动结束
         this.modifyHandler = null;
         var arr = [];
-        for (var i = 0; i < data.length; i++) {
-            var cart3 = Cesium.Cartesian3.fromDegrees(data[i][0], data[i][1]);
+        for (var i = 0; i < geom.length; i++) {
+            var cart3 = Cesium.Cartesian3.fromDegrees(geom[i][0], geom[i][1]);
             arr.push(cart3);
         }
         this.positions = arr;
@@ -702,7 +716,7 @@ PincerArrow.prototype = {
             point.wz = i + 1;
             this.pointArr.push(point);
         }
-        this.arrowEntity = this.showArrowOnMap(this.positions);
+        this.arrowEntity = this.showArrowOnMap(this.positions, data);
         this.arrowEntity.objId = this.objId;
     },
     startModify: function () { //修改箭头
@@ -787,7 +801,7 @@ PincerArrow.prototype = {
             }
         });
     },
-    showArrowOnMap: function (positions) {
+    showArrowOnMap: function (positions, data) {
         var $this = this;
         var update = function () {
             //计算面
@@ -811,7 +825,10 @@ PincerArrow.prototype = {
                 show: true,
                 fill: true,
                 material: $this.fillMaterial
-            })
+            }),
+            properties: {
+                data
+            }
         });
     },
     cartesianToLatlng: function (cartesian) {

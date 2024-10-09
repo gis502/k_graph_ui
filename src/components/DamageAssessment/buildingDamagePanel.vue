@@ -2,7 +2,7 @@
   <div class="economicLossPanel">
 
     <div class="panelLegend">
-      <span>图例（元）</span>
+      <span>图例（平方千米）</span>
       <ul>
         <li v-for="(item, index) in legendItems" :key="index">
           <span
@@ -73,9 +73,26 @@ export default {
       isNoData: false,
     }
   },
+
   mounted() {
     this.settleData()
   },
+
+  watch: {
+    buildingDamageData: {
+      handler() {
+        this.settleData();
+      },
+      deep: true,
+    },
+    selectedTabData: {
+      handler() {
+        this.settleData();
+      },
+      deep: true,
+    },
+  },
+
   methods: {
 
     settleData() {

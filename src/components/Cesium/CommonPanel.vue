@@ -1,8 +1,6 @@
 <template>
   <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
     <div v-if="!showStatus">
-
-
       <div class="header-div">
         <span>
           <span>态势标绘信息</span>
@@ -217,8 +215,9 @@
 </template>
 <script>
 import {Delete, Edit} from '@element-plus/icons-vue'
-import {plotType} from '@/cesium/plot/plotType.js'
+import {plotType as plotTypeDialog } from '@/cesium/plot/plotType.js'
 import {getPlotInfos, addPlotInfo, deletePlotAndInfo, deletePlotInfo, updataPlotInfo} from '@/api/system/plot.js'
+import arrow from "@/cesium/drawArrow/drawPlot.js";
 
 export default {
   data() {
@@ -256,17 +255,19 @@ export default {
         // 在执行顺序上，visible比popupData快。导致在判断this.popupPanelData.plottype === plotType[item].name时，
         // popupPanelData是空，判断一定时false，造成第一次点击弹窗无法渲染对应标绘的html模板。
         // 可能时因为开启深度监听的原因（deep: true）。
+        // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
-          // console.log(this.popupPanelData, 1222)
-          if (this.popupPanelData.drawtype) {
-            this.getPlotInfo(this.popupPanelData.plotid)
+          if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
+
+          } else if (this.popupPanelData.drawtype) {
+            this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
           } else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotid)
+              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }else {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotid)
+              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }
           }
         }
@@ -297,22 +298,28 @@ export default {
     },
     // 提交修改的标绘信息
     updataPlotInfo(activity) {
+      console.log("activity",activity)
       let that = this
-      activity.aditStatus = !activity.aditStatus
-      let data = {
-        // plotid: this.popupPanelData.plotid,
-        starttime: new Date(activity.starttime).getTime(),//转成时间轴
-        endtime: new Date(activity.endtime).getTime(),//转成时间轴
-        info: JSON.stringify(activity.info),
-        id: activity.id
+      // 创建一个新的对象，只保留字段和它们的 value 值
+      let typeInfoValues = {};
+      if (activity.info) {
+        for (let key in activity.info) {
+          if (activity.info.hasOwnProperty(key) && activity.info[key].hasOwnProperty('value')) {
+            typeInfoValues[key] = activity.info[key].value;
+          }
+        }
       }
-      updataPlotInfo(data).then(res => {
-        that.getPlotInfo(that.popupPanelData.plotid)
-      })
+      activity.aditStatus = !activity.aditStatus
+      let plotId = activity.plotId
+      let plotType = activity.plotType
+
+      updataPlotInfo({ plotId, plotType }, typeInfoValues).then(res => {
+        that.getPlotInfo(plotId,plotType);
+      });
     },
     // 删除标绘信息
     deletePlotInfo(activity) {
-      let id = activity.id
+      let id = activity.uuid
       let that = this
       deletePlotInfo({id}).then(res => {
         that.getPlotInfo(that.popupPanelData.plotid)
@@ -320,22 +327,51 @@ export default {
     },
     // 删除标绘点
     deletePlot() {
-      let plotid
+      let arraw = false
 
-      if(this.popupPanelData.drawtype==='point'){
-        plotid = this.popupPanelData.plotid
-      }else {
-        if(this.popupPanelData[0].drawtype==='polyline'){
-          plotid = this.popupPanelData[0].plotid
-          // console.log(this.popupPanelData,123)
-        }else {
-          plotid = this.popupPanelData[0].plotid
+      let data = {
+        plotId: null,
+        plotType: null
+      }
+
+      if (this.popupPanelData.drawtype === 'point') {
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else if (this.popupPanelData.drawtype === 'straight') {
+        arraw = true
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else if (this.popupPanelData.drawtype === 'attack') {
+        arraw = true
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else if (this.popupPanelData.drawtype === 'pincer') {
+        arraw = true
+        data.plotId = this.popupPanelData.plotId
+        data.plotType = this.popupPanelData.plotType
+      } else {
+        if (this.popupPanelData[0].drawtype === 'polyline') {
+          data.plotId = this.popupPanelData[0].plotId
+          data.plotType = this.popupPanelData[0].plotType
+        } else {
+          data.plotId = this.popupPanelData[0].plotId
+          data.plotType = this.popupPanelData[0].plotType
         }
       }
-      console.log(this.popupPanelData,1234)
-      deletePlotAndInfo({plotid}).then(res => {
-        window.viewer.entities.removeById(plotid)
-        console.log(window.viewer.entities)
+
+      deletePlotInfo(data).then(res => {
+        // 从 dataSource 中删除点
+        window.viewer.entities.removeById(data.plotId)
+        if (window.pointDataSource) {
+          const entityToRemove = window.pointDataSource.entities.getById(data.plotId);
+          console.log("entityToRemove", entityToRemove)
+          if (entityToRemove) {
+            window.pointDataSource.entities.remove(entityToRemove); // 移除点
+          }
+        }
+        if (arraw) {
+          arrow.clearById(data.plotId)
+        }
         this.$emit('closePlotPop')
       })
     },
@@ -349,10 +385,10 @@ export default {
         aditStatus: false,
         id: this.guid()
       }
-      for (let item in plotType) {
-        if (this.popupPanelData.plottype === plotType[item].name) {
+      for (let item in plotTypeDialog) {
+        if (this.popupPanelData.plottype === plotTypeDialog[item].name) {
           // 深拷贝
-          data.info = JSON.parse(JSON.stringify(plotType[item]))
+          data.info = JSON.parse(JSON.stringify(plotTypeDialog[item]))
           break;
         }
       }
@@ -377,33 +413,62 @@ export default {
       })
     },
     // 点击标绘点后获取此标绘点的所有标绘信息
-    getPlotInfo(plotid) {
-      let that = this
-      getPlotInfos({plotid}).then(res => {
-        for (let i = 0; i < res.length; i++) {
-          // 这个item一定要写在for循环里面，否则使用push(item)会造成整个plotInfoActivities都是最后一个item
-          // 因为push到plotInfoActivities里的是item的地址。（浅拷贝）
-          let item = {
-            starttime: null,
-            endtime: null,
-            info: null,
-            id: null,
-            aditStatus: true,
-          }
+    getPlotInfo(plotId,plotType) {
+      // console.log("点击获取",plotId,plotType)
+      let that = this;
+      // 1. 请求获取标绘点信息
+      getPlotInfos({ plotId, plotType }).then(res => {
+        // console.log("点击获取",res)
+        // 2. 初始化 item 对象，存储标绘信息
+        let item = {
+          starttime: null,
+          endtime: null,
+          info: null,
+          uuid: null,
+          aditStatus: true,
+          plotId: null,
+          plotType:null
+        };
 
-          item.starttime = that.timestampToTime(res[i].starttime)
-          if (res[i].endtime === null) {
-            item.endtime = ""
-          } else {
-            item.endtime = that.timestampToTime(res[i].endtime)
+        // 3. 处理标绘点的开始和结束时间
+        item.starttime = that.timestampToTime(res.plotInfo.startTime);
+        item.endtime = res.plotInfo.endTime ? that.timestampToTime(res.plotInfo.endTime) : "";
+        item.plotId = plotId;
+        item.plotType = plotType;
+        // 4. 初始化类型信息
+        let typeInfo = {};
+
+        // 5. 根据 plotType 生成对应类型的 dialog
+        for (let key in plotTypeDialog) {
+          if (res.plotInfo.plotType === plotTypeDialog[key].name) {
+            // 深拷贝 plotTypeDialog 中的对应类型到 typeInfo
+            typeInfo = JSON.parse(JSON.stringify(plotTypeDialog[key]));
+            break; // 找到对应类型后跳出循环
           }
-          item.info = JSON.parse(res[i].info)
-          item.id = res[i].id
-          that.plotInfoActivities.push(item)
         }
-        that.plotInfoNew = that.plotInfoActivities[0]
-      })
 
+        // 6. 将获取到的 plotTypeInfo 值赋给 typeInfo
+        if (res.plotTypeInfo) {
+          for (let key in typeInfo) {
+            // 如果 plotTypeInfo 中存在对应字段，则直接赋值
+            if (res.plotTypeInfo[key] !== undefined) {
+              typeInfo[key].value = res.plotTypeInfo[key]; // 直接赋值
+            }
+          }
+        }
+
+        // 7. 将处理后的 typeInfo 赋值给 item.info
+        item.info = typeInfo;
+
+        // 8. 设置 item.id
+        item.uuid = res.plotTypeInfo.uuid;
+
+        // 9. 将 item 添加到 plotInfoActivities 数组中
+        that.plotInfoActivities.push(item);
+
+        // 10. 更新 plotInfoNew 为最新的标绘信息
+        that.plotInfoNew = that.plotInfoActivities[0];
+      })
     },
     // 删除标注
     deletePoint() {
