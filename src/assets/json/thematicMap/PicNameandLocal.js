@@ -27,5 +27,7 @@ const ReportUrl=[
     {id:'1',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'灾情简报', path:'/ThematicMap/TwoAndThreeDIntegration/LuShan/DisasterBriefing.pdf'},
     {id:'2',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'震区基本情况报告', path:'/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'},
     {id:'3',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'灾害预评估与处置工作报告', path:'/ThematicMap/DisasterDamageAssessment/LuShan/workReport.pdf'},
+    {id:'4',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'人员伤亡态势专题报告', path:'/ThematicMap/芦山地震人员伤亡态势专题报告.pdf'},
+
 ]
 export {MapPicUrl,ReportUrl};
