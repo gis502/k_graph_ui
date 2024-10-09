@@ -230,7 +230,6 @@ export default {
 .personalCasualtyPanel {
   height: 250px;
   width: calc(100% - 333px);
-  background-color: rgba(45, 61, 81, 0.8);
   z-index: 1;
 }
 

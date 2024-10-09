@@ -1620,6 +1620,7 @@ export default {
   height: 250px;
   bottom: 0;
   z-index: 2;
+  background-color: rgba(45, 61, 81, 0.8);
 }
 
 .showPanel {
