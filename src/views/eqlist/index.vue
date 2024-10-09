@@ -138,6 +138,7 @@
       </el-form>
 
       <div class="dialog-footer">
+        <el-button @click="Cancel">取 消</el-button>
         <el-button type="primary" @click="onSubmit">筛选</el-button>
       </div>
     </el-dialog>
@@ -211,7 +212,7 @@ export default {
               }
               callback();
             },
-            trigger: 'blur',
+            trigger: 'change',
           },
         ],
         latitude: [
@@ -230,7 +231,7 @@ export default {
               }
               callback();
             },
-            trigger: 'blur',
+            trigger: 'change',
           },
         ],
       },
@@ -550,10 +551,23 @@ export default {
       this.$refs.from.resetFields(); // 重置表单
       this.$refs.from.clearValidate(); // 清除验证状态
     },
+    // 关闭dialog对话框
+    Cancel() {
+      this.queryFormVisible = false;
+      this.clearFormValue()
+      this.$refs.formValue.resetFields(); // 重置表单
+      this.$refs.formValue.clearValidate(); // 清除验证状态
+    },
     // 清除DialogContent中的数据
     clearDialogContent() {
       Object.keys(this.dialogContent).forEach(key => {
         this.dialogContent[key] = ''
+      });
+    },
+    // 清除formValue中的数据
+    clearFormValue() {
+      Object.keys(this.formValue).forEach(key => {
+        this.formValue[key] = ''
       });
     },
     // 对数据库获取到的标绘图片数组切片
@@ -675,7 +689,10 @@ export default {
   position: relative;
   margin: 0 auto;
 }
-
+:deep(.el-dialog__headerbtn .el-dialog__close) {
+  color: #ffffff;
+  font-size: inherit;
+}
 :deep(.formValue) {
   padding-bottom: 13px;
 }
