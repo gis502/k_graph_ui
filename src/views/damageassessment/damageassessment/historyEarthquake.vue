@@ -12,7 +12,7 @@
         <div class="eqListContent" v-if="currentTab === '震害事件'">
           <div style="display: flex">
             <!-- 搜索框 -->
-            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq" clearable>
             </el-input>
           </div>
           <!-- 地震列表 -->
