@@ -137,11 +137,14 @@ export default class Polyline {
     if(that.typeName==="地裂缝"||that.typeName==="可用供水管网"||that.typeName==="不可用供水管网"){
       img = this.img
     }
+
     let data = {
       timestampArr:this.timestampArr,
       pointPosArr:this.positions,
-      plotid: this.initId
+      plotId: this.initId,
+      plotType :this.typeName
     }
+    // console.log("绘制结束后组装的数据",data)
     this.resolve(data)
     // this.ws.send(JSON.stringify({
     //   type: "polyline",
@@ -184,25 +187,20 @@ export default class Polyline {
   }
 
   noNo(data){
+    // console.log("data",data)
     let situationPlotData = []// situationplot表中的线数据
-    for(let i=0;i<data.pointPosArr.length;i++){
-      let cartographic = Cesium.Cartographic.fromCartesian(data.pointPosArr[i]);
-      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-      let height = Cesium.Math.toDegrees(cartographic.height);
-      let plotItem = {
-        // eqid: that.eqid,
-        plotid:data.plotid,
-        // time: data.timestampArr[i],
-        // plottype: item.name,
-        drawtype: "polyline",
-        // img:item.img,
-        // latitude,
-        // longitude,
-        // height,
-      }
-      situationPlotData.push(plotItem)
+    let plotItem = {
+      // eqid: that.eqid,
+      plotId:data.plotId,
+      // time: data.timestampArr[i],
+      plotType: data.plotType,
+      drawtype: "polyline",
+      // img:item.img,
+      // latitude,
+      // longitude,
+      // height,
     }
+    situationPlotData.push(plotItem)
     return situationPlotData
   }
 
@@ -211,7 +209,8 @@ export default class Polyline {
     let data = this.noNo({
       timestampArr:this.timestampArr,
       pointPosArr:this.positions,
-      plotid: this.initId
+      plotId: this.initId,
+      plotType: this.typeName
     })
     this.drawEntity = this.viewer.entities.add({
       id: this.initId,

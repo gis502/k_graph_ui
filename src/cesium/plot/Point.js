@@ -78,6 +78,7 @@ export default class Point {
         }
       });
     } else {
+      let coords = data.geom.coordinates
       window.viewer.entities.add({
         id: data.plotId,
         position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
@@ -101,8 +102,10 @@ export default class Point {
   }
 
   drawPoints(points){
+    // console.log("points",points)
     let dataSource = new Cesium.CustomDataSource("pointData")
     points.forEach(data=>{
+      // console.log("point",data)
       dataSource.entities.add({
         id: data.plotId,
         plottype: data.plotType,
@@ -128,7 +131,7 @@ export default class Point {
     window.pointDataSource = dataSource;
     // console.log("window.pointDataSource",window.pointDataSource)
     const dataSourcePromise = window.viewer.dataSources.add(dataSource)
-    console.log(dataSourcePromise)
+    // console.log("dataSourcePromises",dataSourcePromise)
     dataSourcePromise.then(function (dataSource) {
       console.log(dataSource)
       const pixelRange = 10;
