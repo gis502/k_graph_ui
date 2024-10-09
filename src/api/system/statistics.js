@@ -21,7 +21,6 @@ export function getTotal(eqid) {
         method: 'get',
         params: {eqid: eqid}
     });
-
 }
 
 
