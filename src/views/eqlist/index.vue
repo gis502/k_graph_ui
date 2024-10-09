@@ -45,7 +45,7 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
-
+      <el-form  ref="from" :model="dialogContent"  :rules="rules"   >
         <el-row >
           <el-col :span="13">
             <el-form-item label="震发位置：" prop="earthquakeName">
@@ -93,10 +93,11 @@
           </el-col>
         </el-row>
 
-      <span slot="footer" class="dialog-footer">
+        <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="commit">确 定</el-button>
       </span>
+        </el-form >
     </el-dialog>
 
     <el-dialog
@@ -105,7 +106,7 @@
         width="30vw"
         style="top:20vh"
     >
-      <el-form :inline="true" :model="formValue">
+      <el-form :inline="true" :model="formValue"  ref="formValue"  :rules="formValuerules">
         <el-form-item label="地震位置">
           <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
@@ -122,13 +123,13 @@
               value-format="x"
           />
         </el-form-item>
-        <el-form-item label="地震震级">
+        <el-form-item label="地震震级"  prop="magnitude" class="formValue">
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;"  placeholder="起始震级"/>
           <span style="margin: 0 10px"> 至 </span>
           <el-input v-model="formValue.endMagnitude" style="width: 5vw;" placeholder="结束震级"/>
           <span style="margin: 0 10px">(级)</span>
         </el-form-item>
-        <el-form-item label="地震深度">
+        <el-form-item label="地震深度"  prop="depth" class="formValue">
           <el-input v-model="formValue.startDepth" style="width: 5vw"  placeholder="起始深度"/>
           <span style="margin: 0 10px"> 至 </span>
           <el-input v-model="formValue.endDepth" style="width: 5vw"   placeholder="结束深度"/>
@@ -149,7 +150,136 @@ import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq} from '@/api/system
 export default {
   name: "index",
   data() {
+
     return {
+      rules: {
+        earthquakeName: [
+          {required: true, message: '请输入震发位置', trigger: 'blur'},
+        ],
+        occurrenceTime: [
+          {required: true, message: '请选择发震时间', trigger: 'blur'},
+        ],
+        magnitude: [
+          {required: true, message: '请输入震级(级)', trigger: 'blur'},
+          { validator: (rule, value, callback) => {
+              if (!value) {
+                return callback(new Error('震级不能为空'));
+              }
+              const num = Number(value);
+              if (isNaN(num)) {
+                return callback(new Error('震级必须为数字'));
+              }
+              if (num < 0 || num > 10) {
+                return callback(new Error('震级必须在 0 到 10 之间'));
+              }
+              callback();
+            }, trigger: 'blur' },
+
+        ],
+        depth: [
+          {required: true, message: '请输入深度(千米)', trigger: 'blur'},
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                return callback(new Error('深度不能为空'));
+              }
+              const num = Number(value);
+              if (isNaN(num)) {
+                return callback(new Error('深度必须为数字'));
+              }
+              if (num < 0) {
+                return callback(new Error('深度不能为负数'));
+              }
+              callback();
+            },
+            trigger: 'blur',
+          },
+        ],
+        longitude: [
+          {required: true, message: '请输入经度(度分)', trigger: 'blur'},
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                return callback(new Error('经度不能为空'));
+              }
+              const num = Number(value);
+              if (isNaN(num)) {
+                return callback(new Error('经度必须为数字'));
+              }
+              if (num < -180 || num > 180) {
+                return callback(new Error('经度应在-180到180之间'));
+              }
+              callback();
+            },
+            trigger: 'blur',
+          },
+        ],
+        latitude: [
+          {required: true, message: '请输入纬度(度分)', trigger: 'blur'},
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                return callback(new Error('纬度不能为空'));
+              }
+              const num = Number(value);
+              if (isNaN(num)) {
+                return callback(new Error('纬度必须为数字'));
+              }
+              if (num < -90 || num > 90) {
+                return callback(new Error('纬度应在-90到90之间'));
+              }
+              callback();
+            },
+            trigger: 'blur',
+          },
+        ],
+      },
+      formValuerules: {
+        magnitude: [
+          {
+            validator: (rule, value, callback) => {
+              const { startMagnitude, endMagnitude } = this.formValue;
+
+              // 检查两个值是否都存在
+              if (!startMagnitude || !endMagnitude) {
+                callback(); // 直接通过，不进行验证
+                return;
+              }
+
+              // 进行震级比较
+              if (Number(startMagnitude) > Number(endMagnitude)) {
+                callback(new Error('起始震级必须小于等于结束震级'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ],
+        depth: [
+          {
+            validator: (rule, value, callback) => {
+              const { startDepth, endDepth } = this.formValue;
+
+              // 检查两个值是否都存在
+              if (!startDepth || !endDepth) {
+                callback(); // 直接通过，不进行验证
+                return;
+              }
+
+              // 进行深度比较
+              if (Number(startDepth) > Number(endDepth)) {
+                callback(new Error('起始深度必须小于等于结束深度'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ]
+      },
+
+
       getEqData: [],
       tableData: [],
       total: 0,
@@ -231,13 +361,12 @@ export default {
       // 如果时间范围选择为空，将其设为null
       let startTime = null;
       let endTime = null;
-      // 如果 occurrenceTime 有效，则转换为时间戳并使用 timestampToTime 进行格式化
       if (occurrenceTime && occurrenceTime.length === 2) {
         startTime = new Date(occurrenceTime[0]).toISOString();  // 转换为 ISO 格式
         endTime = new Date(occurrenceTime[1]).toISOString();    // 转换为 ISO 格式
 
-        console.log("转换后的开始时间:", startTime);
-        console.log("转换后的结束时间:", endTime);
+        // console.log("转换后的开始时间:", startTime);
+        // console.log("转换后的结束时间:", endTime);
       }
 
       // 构建查询对象
@@ -377,8 +506,18 @@ export default {
       this.queryParams = '';  // 清空搜索输入框
       this.getEq();  // 重新加载所有数据
     },
-    // 确认提交修改或新增
+
+    //新增
     commit() {
+      this.$refs.from.validate((valid) => {
+        if (valid) {
+          // 发送请求
+        } else {
+          // this.$message.error('表单验证失败，请检查输入！');
+        }
+      });
+
+
       let that = this;
       if (this.dialogTitle === "新增") {
         this.dialogContent.eqid = this.guid();
@@ -403,10 +542,13 @@ export default {
         });
       }
     },
+
     // 关闭dialog对话框
     cancel() {
       this.dialogShow = false
       this.clearDialogContent()
+      this.$refs.from.resetFields(); // 重置表单
+      this.$refs.from.clearValidate(); // 清除验证状态
     },
     // 清除DialogContent中的数据
     clearDialogContent() {
@@ -460,6 +602,7 @@ export default {
           // 'color': '#fff',
           'padding-top': '10px',
           'padding-bottom': '10px',
+          'height': '60px',
           'text-align': 'center',
           'font-size': '16px',
         }
@@ -502,6 +645,7 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
+
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
@@ -518,7 +662,7 @@ export default {
 
 .dialog-footer {
   position: relative;
-  bottom: 0;
+  bottom: -5px;
   right: 0;
   padding: 5px; /* 调整按钮与对话框边缘的距离 */
   text-align: right; /* 右对齐按钮 */
@@ -530,5 +674,32 @@ export default {
   top: 15%;
   position: relative;
   margin: 0 auto;
+}
+
+:deep(.formValue) {
+  padding-bottom: 13px;
+}
+
+
+:deep(.el-form) {
+  padding-bottom: 6px;
+}
+
+
+:deep(.el-form-item--default .el-form-item__error) {
+  font-size: 14px !important; /* 字体大小 */
+  padding-top: 5px !important;
+}
+
+:deep(.el-form--inline .el-form-item ){
+  padding-bottom: 8px;
+}
+
+.el-row {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  padding: 10px !important;
 }
 </style>
