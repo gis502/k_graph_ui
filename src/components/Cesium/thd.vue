@@ -16,7 +16,7 @@
          :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
-            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
+            v-for="item in layeritems"
             :key="item.id"
             :label="item.name"
             style="margin:0 0;"
@@ -283,19 +283,18 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-import {getPloy} from "@/api/system/plot"
+
 import eqTable from '@/components/Home/eqtable.vue'
-import geojsonmap from '@/assets/geoJson/map.json'
+
 import yaan from '@/assets/geoJson/yaan.json'
-import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
+
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-import fault_zone from "@/assets/geoJson/line_fault_zone.json";
-import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
+
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
@@ -1820,6 +1819,9 @@ export default {
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
+                    clampToGround: true,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    depthTest: true,
                 });
                 // 处理加载成功的GeoJSON数据
                 geoPromise.then((dataSource) => {

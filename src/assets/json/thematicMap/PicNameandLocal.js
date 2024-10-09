@@ -1,15 +1,3 @@
-// const be3a5ea48dfda0a2251021845f17960b = [
-//     {name:'震区历史地震分布图',url:'../../assets/images/ThematicMap/芦山/震区历史地震分布图-专业版-A3-横版.jpg'},
-//     {name:'断裂带',url:'../../assets/images/ThematicMap/芦山/滑坡风险评估图-专业版-A3-横版.jpg'}
-//
-// ];
-//
-// const be3a5ea48dfda0a2251021845f17960c = [
-//     {name:'震区历史地震分布图',url:'../../../assets/images/ThematicMap/芦山/震区历史地震分布图-专业版-A3-横版.jpg'}
-// ];
-// export default {be3a5ea48dfda0a2251021845f17960b,be3a5ea48dfda0a2251021845f17960c};
-
-
 const MapPicUrl=[
 
     {id:'1',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震区交通图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/EarthquakeZoneTrafficMap.jpg" },
@@ -22,15 +10,24 @@ const MapPicUrl=[
     {id:'8',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "附近居民点分布图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/NearbyResidentialAreasMap.jpg" },
     {id:'9',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "附近旅游景点分布图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/NearbyTouristAttractionsMap.jpg" },
     {id:'10',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "附近文物单位分布图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/NearbyHeritageSitesMap.jpg" },
-    {id:'11',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "地震影响估计范围分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/EarthquakeImpactRange.jpg" },
-    {id:'12',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "滑坡风险评估图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/LandslideRisk.jpg" },
-    {id:'13',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震中附近活动断裂图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/EpicenterFaults.jpg" },
-    {id:'14',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震区历史地震分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/HistoricalQuakeDistribution.jpg" },
-    {id:'15',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震区潜在地质灾害分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/PotentialHazardDistribution.jpg" }
+
+    {id:'11',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震区历史地震分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/HistoricalQuakeDistribution.jpg" },
+    {id:'12',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震中附近活动断裂图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/EpicenterFaults.jpg" },
+    {id:'13',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "地震影响估计范围分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/EarthquakeImpactRange.jpg" },
+    {id:'14',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "人员伤亡评估图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/PersonalCasualty.jpg" },
+    {id:'15',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "建筑物损失评估图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/BuildingDamage.jpg" },
+    {id:'16',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "经济损失评估图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/EconomicLoss.jpg" },
+    {id:'17',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "滑坡风险评估图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/LandslideRisk.jpg" },
+    {id:'18',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震区潜在地质灾害分布图", path: "/ThematicMap/DisasterDamageAssessment/LuShan/PotentialHazardDistribution.jpg" },
+
+    {id:'19',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震情伤亡信息图", path: "/ThematicMap/DisasterSituationTable/SeismicCasualtyInformationThematicMap.jpg" },
+
 ]
 const ReportUrl=[
     {id:'1',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'灾情简报', path:'/ThematicMap/TwoAndThreeDIntegration/LuShan/DisasterBriefing.pdf'},
     {id:'2',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'震区基本情况报告', path:'/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'},
     {id:'3',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'灾害预评估与处置工作报告', path:'/ThematicMap/DisasterDamageAssessment/LuShan/workReport.pdf'},
+    {id:'4',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name:'人员伤亡态势专题报告', path:'/ThematicMap/芦山地震人员伤亡态势专题报告.pdf'},
+
 ]
 export {MapPicUrl,ReportUrl};

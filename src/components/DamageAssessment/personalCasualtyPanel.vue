@@ -17,13 +17,15 @@
         <span>统计表格</span>
         <span style="margin-right: 0">
           <span>本次地震预估伤亡总数：</span>
-          <span class="emphasis">{{ personalCasualtyData.PersonalCasualtyNum }}</span> 人
+          <span class="emphasis">{{ personalCasualtyData.PersonalCasualtyNum }}</span> 人<br/>
+          <span>雅安地区预估伤亡总数：</span>
+          <span class="emphasis">{{ totalCasualtyNum }}</span> 人
         </span>
       </div>
       <div class="table">
         <el-table :data="tableData" :height="180" :max-height="180" stripe
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
-          <el-table-column prop="name" label="地区" align="center"></el-table-column>
+          <el-table-column prop="name" label="雅安市地区" align="center"></el-table-column>
           <el-table-column prop="num" label="伤亡人数" align="center"></el-table-column>
         </el-table>
       </div>
@@ -60,36 +62,41 @@ export default {
   data() {
     return {
       tableData: [], // 存储表格数据
+      totalCasualtyNum: 0, // 伤亡人数之和
       legendItems: [
-        {color: '(254, 204, 203)', label: '1-5人'},
-        {color: '(255, 177, 167)', label: '6-10人'},
-        {color: '(254, 151, 134)', label: '11-20人'},
-        {color: '(253, 128, 106)', label: '21-50人'},
-        {color: '(245, 101, 75)', label: '51-100人'},
-        {color: '(240, 78, 53)', label: '101-250人'},
-        {color: '(231, 50, 31)', label: '251-500人'},
-        {color: '(218, 0, 0)', label: '> 500人'},
+        { color: '(254, 204, 203)', label: '1-5人' },
+        { color: '(255, 177, 167)', label: '6-10人' },
+        { color: '(254, 151, 134)', label: '11-20人' },
+        { color: '(253, 128, 106)', label: '21-50人' },
+        { color: '(245, 101, 75)', label: '51-100人' },
+        { color: '(240, 78, 53)', label: '101-250人' },
+        { color: '(231, 50, 31)', label: '251-500人' },
+        { color: '(218, 0, 0)', label: '> 500人' },
       ],
     };
   },
   mounted() {
     this.loadTableData();
-    this.initChart();
+    this.$nextTick(() => {
+      this.initChart();
+    });
   },
   watch: {
     personalCasualtyData: {
       handler() {
         this.loadTableData();
+        this.$nextTick(() => {
+          this.initChart();
+        });
       },
       immediate: true,
       deep: true,
     },
   },
   methods: {
-
     initChart() {
-      // 检查是否有数据
-      if (!this.personalCasualtyData || !this.personalCasualtyData.yaanitemcasual) {
+      // 检查是否有数据和chart DOM
+      if (!this.personalCasualtyData || !this.personalCasualtyData.yaanitemcasual || !this.$refs.chart) {
         return;
       }
 
@@ -105,7 +112,7 @@ export default {
       // 设置图表配置项
       const option = {
         title: {
-          text: '人员伤亡',
+          text: '雅安市人员伤亡',
           left: 'center',
           textStyle: {
             color: '#fff', // 设置标题颜色为白色
@@ -142,7 +149,7 @@ export default {
         },
         series: [
           {
-            name: '伤亡人数',
+            name: '雅安市伤亡人数',
             type: 'bar',
             data: values,
             itemStyle: {
@@ -166,11 +173,16 @@ export default {
 
     loadTableData() {
       if (this.personalCasualtyData && this.personalCasualtyData.yaanitemcasual) {
-        this.tableData = this.personalCasualtyData.yaanitemcasual.length
-          ? this.personalCasualtyData.yaanitemcasual.sort((a, b) => b.num - a.num)
-          : [{ name: '暂无数据', num: '0' }];
+        const yaanitemcasual = this.personalCasualtyData.yaanitemcasual;
+        this.tableData = yaanitemcasual.length
+          ? yaanitemcasual.sort((a, b) => b.num - a.num)
+          : [{name: '暂无数据', num: '0'}];
+
+        // 计算伤亡人数之和
+        this.totalCasualtyNum = yaanitemcasual.reduce((sum, item) => sum + item.num, 0);
       } else {
-        this.tableData = [{ name: '暂无数据', num: '0' }];
+        this.tableData = [{name: '暂无数据', num: '0'}];
+        this.totalCasualtyNum = 0;
       }
     },
 
@@ -188,7 +200,7 @@ export default {
         'text-align': 'center',
       };
     },
-    tableColor({ rowIndex }) {
+    tableColor({rowIndex}) {
       if (rowIndex % 2 === 1) {
         return {
           'border-width': '1px',
@@ -213,11 +225,11 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .personalCasualtyPanel {
   height: 250px;
   width: calc(100% - 333px);
-  background-color: rgba(45, 61, 81, 0.8);
   z-index: 1;
 }
 

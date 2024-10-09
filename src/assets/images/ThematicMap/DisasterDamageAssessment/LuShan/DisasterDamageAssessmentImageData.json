@@ -1,12 +1,10 @@
 [
-  { "name": "地震影响估计范围分布图",
-    "path": "/ThematicMap/DisasterDamageAssessment/LuShan/EarthquakeImpactRange.jpg" },
-  { "name": "滑坡风险评估图",
-    "path": "/ThematicMap/DisasterDamageAssessment/LuShan/LandslideRisk.jpg" },
-  { "name": "震中附近活动断裂图",
-    "path": "/ThematicMap/DisasterDamageAssessment/LuShan/EpicenterFaults.jpg" },
-  { "name": "震区历史地震分布图",
-    "path": "/ThematicMap/DisasterDamageAssessment/LuShan/HistoricalQuakeDistribution.jpg" },
-  { "name": "震区潜在地质灾害分布图",
-    "path": "/ThematicMap/DisasterDamageAssessment/LuShan/PotentialHazardDistribution.jpg" }
+  { "name": "震区历史地震分布图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/HistoricalQuakeDistribution.jpg" },
+  { "name": "震中附近活动断裂图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/EpicenterFaults.jpg" },
+  { "name": "地震影响估计范围分布图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/EarthquakeImpactRange.jpg" },
+  { "name": "人员伤亡评估图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/PersonalCasualty.jpg" },
+  { "name": "建筑物损失评估图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/BuildingDamage.jpg" },
+  { "name": "经济损失评估图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/EconomicLoss.jpg" },
+  { "name": "滑坡风险评估图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/LandslideRisk.jpg" },
+  { "name": "震区潜在地质灾害分布图", "path": "/ThematicMap/DisasterDamageAssessment/LuShan/PotentialHazardDistribution.jpg" }
 ]

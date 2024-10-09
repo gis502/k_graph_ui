@@ -14,10 +14,10 @@
       </el-table-column>
       <el-table-column prop="time" label="发震时间" header-align="center" align="center"></el-table-column>
       <el-table-column prop="earthquakeName" label="位置" width="300" align="center"></el-table-column>
-      <el-table-column prop="magnitude" label="震级" header-align="center" align="center"></el-table-column>
-      <el-table-column prop="longitude" label="经度" header-align="center" align="center"></el-table-column>
-      <el-table-column prop="latitude" label="纬度" header-align="center" align="center"></el-table-column>
-      <el-table-column prop="depth" label="深度" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="magnitude" label="震级（级）" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="longitude" label="经度（°E）" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="latitude" label="纬度（°N）" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="depth" label="深度（千米）" header-align="center" align="center"></el-table-column>
     </el-table>
 
     <el-pagination
