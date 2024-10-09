@@ -1819,6 +1819,9 @@ export default {
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
+                    clampToGround: true,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    depthTest: true,
                 });
                 // 处理加载成功的GeoJSON数据
                 geoPromise.then((dataSource) => {
