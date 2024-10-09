@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form-item label="地震信息">
+    <el-form-item label="地震信息" >
       <el-input
           v-model="queryParams"
           placeholder="请输入地震信息"
@@ -93,7 +93,7 @@
           </el-col>
         </el-row>
 
-        <span slot="footer" class="dialog-footer">
+      <span slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="commit">确 定</el-button>
       </span>
@@ -228,7 +228,6 @@ export default {
     onSubmit() {
       const {earthquakeName, occurrenceTime, startMagnitude, endMagnitude, startDepth, endDepth} = this.formValue;
 
-      console.log("接收，occurrenceTime：", this.formValue.occurrenceTime)
       // 如果时间范围选择为空，将其设为null
       let startTime = null;
       let endTime = null;
@@ -254,11 +253,6 @@ export default {
 
       // 发送请求
       fromEq(queryParams).then(res => {
-        // 打印每条记录的 occurrenceTime
-        res.forEach(item => {
-          console.log("返回的数据 occurrenceTime:", item.occurrenceTime);
-        });
-
         // 处理返回的数据
         this.getEqData = res.map(item => ({
           ...item,
@@ -269,10 +263,10 @@ export default {
         }));
         this.total = this.getEqData.length;
         this.tableData = this.getPageArr();
+        // 隐藏筛选表单
+        this.queryFormVisible = false;
       });
-      console.log("请求发送结束，occurrenceTime：", this.occurrenceTime)
-      // 隐藏筛选表单
-      this.queryFormVisible = false;
+
     },
     openQueryForm() {
       this.queryFormVisible = true
@@ -310,7 +304,6 @@ export default {
           item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
-
         that.tableData = this.getPageArr()
       })
     },
@@ -384,8 +377,7 @@ export default {
       this.queryParams = '';  // 清空搜索输入框
       this.getEq();  // 重新加载所有数据
     },
-
-    //新增
+    // 确认提交修改或新增
     commit() {
       let that = this;
       if (this.dialogTitle === "新增") {
@@ -411,7 +403,6 @@ export default {
         });
       }
     },
-
     // 关闭dialog对话框
     cancel() {
       this.dialogShow = false
@@ -469,7 +460,6 @@ export default {
           // 'color': '#fff',
           'padding-top': '10px',
           'padding-bottom': '10px',
-          'height': '60px',
           'text-align': 'center',
           'font-size': '16px',
         }
@@ -512,16 +502,8 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      // 创建格式化的时间字符串
-      const formattedTime = `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
-
-      // 打印转换后的时间
-      console.log("转换后的时间:", formattedTime);
-
-      return formattedTime;
-
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
   },
 }
@@ -549,8 +531,4 @@ export default {
   position: relative;
   margin: 0 auto;
 }
-
-
-
-
 </style>
