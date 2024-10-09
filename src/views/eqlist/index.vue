@@ -44,7 +44,7 @@
         :total="total">
     </el-pagination>
 
-    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" >
       <el-form  ref="from" :model="dialogContent"  :rules="rules"   >
         <el-row >
           <el-col :span="13">
@@ -106,7 +106,7 @@
         width="30vw"
         style="top:20vh"
     >
-      <el-form :inline="true" :model="formValue"  ref="formValue"  :rules="formValuerules">
+      <el-form :inline="true" :model="formValue"  ref="formValue"  :rules="formValuerules"  :show-close="false">
         <el-form-item label="地震位置">
           <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
@@ -139,7 +139,7 @@
 
       <div class="dialog-footer">
         <el-button @click="Cancel">取 消</el-button>
-        <el-button type="primary" @click="onSubmit">筛选</el-button>
+        <el-button type="primary" @click="onSubmit">筛 选</el-button>
       </div>
     </el-dialog>
   </div>
@@ -395,6 +395,7 @@ export default {
         this.tableData = this.getPageArr();
         // 隐藏筛选表单
         this.queryFormVisible = false;
+        this.clearFormValue();
       });
 
     },
@@ -690,8 +691,9 @@ export default {
   margin: 0 auto;
 }
 :deep(.el-dialog__headerbtn .el-dialog__close) {
-  color: #ffffff;
+  color: #262259;
   font-size: inherit;
+  /*display: none;*/
 }
 :deep(.formValue) {
   padding-bottom: 13px;
