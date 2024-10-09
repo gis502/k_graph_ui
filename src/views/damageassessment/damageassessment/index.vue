@@ -86,8 +86,9 @@
             <el-divider content-position="left"> 地震专题</el-divider>
 
             <div class="eqTheme">
-              <div class="button themes region" :class="{ active: eqThemes.show.isshowRegion }"
-                   @click="toggleYaanLayer()"> 行政区划
+              <div class="button themes region"
+                   :class="{ active: eqThemes.show.isshowRegion }"
+                   @click="handleToggleYaanLayer"> 行政区划
               </div>
               <div class="button themes history" :class="{ active: eqThemes.show.isshowHistoryEqPoints }"
                    @click="showHistoryEqPoints()"> 历史地震
@@ -344,7 +345,6 @@ export default {
   mounted() {
     this.init();
     this.getEq();
-
   },
 
   computed: {
@@ -355,6 +355,18 @@ export default {
   },
 
   methods: {
+    handleToggleYaanLayer() {
+      const { isshowPersonalCasualty, isshowBuildingDamage, isshowEconomicLoss, isshowRegion } = this.eqThemes.show;
+
+      // 检查条件并调用相应的 toggleYaanLayer 方法
+      if (isshowRegion) {
+        this.toggleYaanLayer('remove');
+      } else if (isshowPersonalCasualty || isshowBuildingDamage || isshowEconomicLoss) {
+        this.toggleYaanLayer('none');
+      } else {
+        this.toggleYaanLayer('colorful');
+      }
+    },
 
     // 专门用来渲染指定图层，同时去掉（隐藏/销毁）其他图层
     renderLayers(layerToRender) {
@@ -466,6 +478,7 @@ export default {
       else if (this.tabs.length === 1) {
         this.eqPanel[panel] = false;
         this.eqThemes.show[info] = false;
+        this.toggleYaanLayer('colorful')
       }
       this.tabs.splice(index, 1);
     },
@@ -534,79 +547,44 @@ export default {
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
-      this.toggleYaanLayer()
+      this.toggleYaanLayer('colorful')
     },
 
-    toggleYaanLayer() {
-      // 切换图层显示与隐藏
-      let yaanRegionLayer = window.viewer.dataSources.getByName("YaanRegionLayer")[0];
-      this.eqThemes.show.isshowRegion = !this.eqThemes.show.isshowRegion;
+    toggleYaanLayer(require) {
 
-      const { isshowPersonalCasualty, isshowBuildingDamage, isshowEconomicLoss } = this.eqThemes.show;
-      const isAnyLayerActive = isshowPersonalCasualty || isshowBuildingDamage || isshowEconomicLoss;
 
-      if (yaanRegionLayer) {
-        window.viewer.dataSources.remove(yaanRegionLayer);
-        yaan.features.forEach((feature) => {
-          let center = feature.properties.center;
 
-          if (center && center.length === 2) {
-            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-            let regionlabel = viewer.entities.add(new Cesium.Entity({
-              position: position,
-              label: new Cesium.LabelGraphics({
-                text: feature.properties.name,
-                scale: 1,
-                font: '18px Sans-serif',
-                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                outlineWidth: 2,
-                verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                pixelOffset: new Cesium.Cartesian2(0, 0),
-                eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
-              })
-            }));
-            this.RegionLabels.push(regionlabel);
-          }
-        });
-      } else {
-        // 雅安行政区加载
+      if (require === "colorful") {
+
+        console.log(111)
+        this.removeLayers(['YaanRegionLayer'])
+
+        this.eqThemes.show.isshowRegion = true;
+
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
           stroke: Cesium.Color.RED,
           fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
           strokeWidth: 4,
         });
-
         geoPromise.then((dataSource) => {
           window.viewer.dataSources.add(dataSource);
           dataSource.name = 'YaanRegionLayer';
 
           const colors = [
-            { color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区' },
-            { color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区' },
-            { color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县' },
-            { color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县' },
-            { color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县' },
-            { color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县' },
-            { color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县' },
-            { color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县' },
+            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+            {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+            {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+            {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+            {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+            {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+            {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+            {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
           ];
-
           dataSource.entities.values.forEach((entity, index) => {
-            // 根据条件决定是否渲染颜色
-            if (!isAnyLayerActive) {
-              const colorIndex = index % colors.length;
-              entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 设置填充颜色
-              entity.polygon.outline = true;
-              entity.polygon.outlineColor = Cesium.Color.WHITE;
-            } else {
-              entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0); // 不渲染颜色
-              entity.polygon.outline = true;
-              entity.polygon.outlineColor = Cesium.Color.WHITE;
-            }
+            const colorIndex = index % colors.length;
+            entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color);
           });
-
           yaan.features.forEach((feature) => {
             let center = feature.properties.center;
 
@@ -623,22 +601,79 @@ export default {
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  pixelOffset: new Cesium.Cartesian2(0, 0),
-                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  pixelOffset: new Cesium.Cartesian2(0, 0)
                 })
               }));
-              this.RegionLabels.push(regionlabel);
+              this.RegionLabels.push(regionlabel)
             }
-          });
-        });
-      }
+          })
+          //雅安行政区加载 end
+        })
+      } else if (require === "none") {
 
-      if (!this.eqThemes.show.isshowRegion) {
-        this.RegionLabels.forEach(entity => window.viewer.entities.remove(entity));
-        this.RegionLabels = [];
+        console.log(222)
+        this.eqThemes.show.isshowRegion = true;
+
+        this.removeLayers(['YaanRegionLayer'])
+
+        this.RegionLabels.forEach(label => {
+          window.viewer.entities.remove(label);
+        })
+        this.RegionLabels = []
+
+        console.log(window.viewer.dataSources)
+
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+          strokeWidth: 4,
+        });
+        geoPromise.then((dataSource) => {
+          window.viewer.dataSources.add(dataSource);
+          dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
+
+          dataSource.entities.values.forEach((entity, index) => {
+
+            // 使用 ColorMaterialProperty 包装颜色
+            entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0);
+            entity.polygon.outline = true; // 显示边框
+            entity.polygon.outlineColor = Cesium.Color.WHITE;
+          });
+          yaan.features.forEach((feature) => {
+            let center = feature.properties.center;
+
+            if (center && center.length === 2) {
+              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+              let regionlabel = viewer.entities.add(new Cesium.Entity({
+                position: position,
+                label: new Cesium.LabelGraphics({
+                  text: feature.properties.name,
+                  scale: 1,
+                  font: '18px Sans-serif',
+                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                  outlineWidth: 2,
+                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                  pixelOffset: new Cesium.Cartesian2(0, 0)
+                })
+              }));
+              this.RegionLabels.push(regionlabel)
+            }
+          })
+          //雅安行政区加载 end
+        })
+      } else if (require === "remove") {
+        console.log(333)
+        this.eqThemes.show.isshowRegion = false;
+        this.removeLayers(['YaanRegionLayer'])
+
+        this.RegionLabels.forEach(label => {
+          window.viewer.entities.remove(label);
+        })
+        this.RegionLabels = []
       }
     },
-
 
     // 鼠标事件监听
     initMouseEvents() {
@@ -712,7 +747,7 @@ export default {
             const faultInfoDiv = document.getElementById('faultInfo');
             faultInfoDiv.style.left = canvasPosition.x + 'px';
             faultInfoDiv.style.top = canvasPosition.y + 'px';
-            faultInfoDiv.innerHTML = `${faultName}`; // 更新内容
+            faultInfoDiv.innerHTML = `${faultName}`;
           }
         }
       });
@@ -727,9 +762,9 @@ export default {
       let height = this.isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
 
       return {
-        x: longitude, // 经度
-        y: latitude,  // 纬度
-        z: height     // 高度
+        x: longitude,
+        y: latitude,
+        z: height
       };
     },
 
@@ -940,7 +975,7 @@ export default {
       this.historyEqPoints = [];
       this.historyEqData = [];
       this.removeEntitiesByType(["historyEq", "faultZone", "ovalCircle"])
-      this.toggleYaanLayer()
+      this.toggleYaanLayer('remove')
 
       Object.keys(this.eqThemes.show).forEach(key => {
         this.eqThemes.show[key] = false;
@@ -954,7 +989,7 @@ export default {
       faultInfoDiv.style.display = 'none';
 
       this.renderLayers([])
-      this.toggleYaanLayer()
+      this.toggleYaanLayer('colorful')
 
     },
 
@@ -1032,21 +1067,14 @@ export default {
           }, {});
 
           this.addThemeLayer(this.layerData.bddData, type)
-          const dataSource = window.viewer.dataSources.getByName('YaanRegionLayer')[0];
 
-          if (dataSource) {
-            dataSource.entities.values.forEach((entity) => {
-              // 设置填充颜色为透明
-              entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
-              entity.polygon.outline = true; // 确保边框显示
-              entity.polygon.outlineColor = Cesium.Color.WHITE; // 设置边框颜色
-            });
-          } else {
-            console.warn("YaanRegionLayer data source not found.");
+          if (this.eqThemes.show.isshowRegion) {
+            this.toggleYaanLayer('none');
           }
         });
 
       } else {
+        this.eqThemes.show.isshowBuildingDamage = !this.eqThemes.show.isshowBuildingDamage;
         const index = this.tabs.indexOf(tabName);
         this.removeTab(tabName, index);
         let sichuanLayer = window.viewer.dataSources.getByName("buildingDamage")[0];
@@ -1055,6 +1083,11 @@ export default {
         }
         this.removeEntitiesByType(["buildingDamage"]);
         this.layerData.bddData = {};
+
+        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
+          this.toggleYaanLayer('colorful')
+        }
+
       }
     },
 
@@ -1078,18 +1111,13 @@ export default {
 
           // 添加主题图层并等待其完成
           this.addThemeLayer(this.layerData.ecoData, type)
-          const dataSource = window.viewer.dataSources.getByName('YaanRegionLayer')[0];
 
-          if (dataSource) {
-            dataSource.entities.values.forEach((entity) => {
-              // 设置填充颜色为透明
-              entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
-              entity.polygon.outline = true; // 确保边框显示
-              entity.polygon.outlineColor = Cesium.Color.WHITE; // 设置边框颜色
-            });
+          if (this.eqThemes.show.isshowRegion) {
+            this.toggleYaanLayer('none');
           }
         });
       } else {
+        this.eqThemes.show.isshowEconomicLoss = !this.eqThemes.show.isshowEconomicLoss;
         const index = this.tabs.indexOf(tabName);
         this.removeTab(tabName, index);
         let sichuanLayer = window.viewer.dataSources.getByName("economicLoss")[0];
@@ -1098,6 +1126,10 @@ export default {
         }
         this.removeEntitiesByType(["economicLoss"]);
         this.layerData.ecoData = {};
+
+        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
+          this.toggleYaanLayer('colorful')
+        }
       }
 
     },
@@ -1143,21 +1175,17 @@ export default {
 
           // 添加主题图层并等待其完成
           this.addThemeLayer(this.layerData.pcData, type)
-          const dataSource = window.viewer.dataSources.getByName('YaanRegionLayer')[0];
-          if (dataSource) {
-            dataSource.entities.values.forEach((entity) => {
-              // 设置填充颜色为透明
-              entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT);
-              entity.polygon.outline = true; // 确保边框显示
-              entity.polygon.outlineColor = Cesium.Color.WHITE; // 设置边框颜色
-            });
-          } else {
-            console.warn("YaanRegionLayer data source not found.");
+
+          // console.log("region:",this.eqThemes.show.isshowRegion)
+
+          if (this.eqThemes.show.isshowRegion) {
+            this.toggleYaanLayer('none');
           }
 
         });
 
       } else {
+        this.eqThemes.show.isshowPersonalCasualty = !this.eqThemes.show.isshowPersonalCasualty;
         const index = this.tabs.indexOf(tabName);
         this.removeTab(tabName, index);
         const personalCasualty = window.viewer.dataSources.getByName("personalCasualty")[0];
@@ -1166,6 +1194,10 @@ export default {
         }
         this.removeEntitiesByType(["personalCasualty"]);
         this.layerData.pcData = {};
+
+        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
+          this.toggleYaanLayer('colorful')
+        }
       }
     },
 
