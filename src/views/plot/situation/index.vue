@@ -270,6 +270,19 @@ export default {
     // 获取标绘图片
     this.getPlotPicture()
   },
+  beforeDestroy() {
+    if (window.viewer){
+      let viewer=window.viewer
+      let gl=viewer.scene.context._gl
+      viewer.entities.removeAll()
+      // viewer.scene.primitives.removeAll()
+      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+      viewer.destroy()
+      gl.getExtension("WEBGL_lose_context").loseContext();
+      gl=null
+      window.viewer = null;
+    }
+  },
   destroyed() {
     this.websock.close()
   },
@@ -1017,8 +1030,8 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo) {
-      cesiumPlot.drawPoints(pointInfo)
+    drawPoints(pointInfo,bool) {
+      cesiumPlot.drawPoints(pointInfo,bool)
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
