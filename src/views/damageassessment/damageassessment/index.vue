@@ -1135,6 +1135,7 @@ export default {
 
     // 10.6 渲染图层
     addThemeLayer(layerData, type) {
+
       this.renderLayers("");
 
       const entries = Object.entries(layerData);
