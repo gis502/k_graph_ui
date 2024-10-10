@@ -25,13 +25,13 @@ let cesiumPlot= {
     return this.point.initPointHandlder(pointType,img,eqid)
   },
 
-  drawPoint(pointInfo,bool){
-    this.point.drawPoint(pointInfo,bool)
+  drawPoint(pointInfo){
+    this.point.drawPoint(pointInfo)
   },
 
-  drawPoints(points){
+  drawPoints(points,bool){
     console.log("?",points)
-    this.point.drawPoints(points)
+    this.point.drawPoints(points,bool)
   },
 
   deletePoint(point){

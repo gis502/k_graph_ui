@@ -1017,8 +1017,8 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo) {
-      cesiumPlot.drawPoints(pointInfo)
+    drawPoints(pointInfo,bool) {
+      cesiumPlot.drawPoints(pointInfo,bool)
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val

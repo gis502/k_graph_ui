@@ -101,30 +101,107 @@ export default class Point {
 
   }
 
-  drawPoints(points){
+  drawPoints(points,bool){
+    // console.log("------------------------------------------",bool)
+    let dataSource = new Cesium.CustomDataSource("pointData");
+    if(bool){
+      points.forEach(data => {
+        let colorFactor = 1.0;
+        const intervalTime1 = 500;
+        const intervalTime2 = 10;
+        const animationDuration = 20000;
 
-    points.forEach(data=>{
-      dataSource.entities.add({
-        id: data.plotid,
-        plottype: data.plotType,
-        layer: "标绘点",
-        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
-        billboard: {
-          image: data.icon,
-          width: 50,//图片宽度,单位px
-          height: 50,//图片高度，单位px // 会影响point大小，离谱
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
-          color: Cesium.Color.WHITE.withAlpha(1),//颜色
-          scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-          depthTest: false,//禁止深度测试但是没有下面那句有用
-          disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-        },
-        properties: {
-          data
-        }
+        let minR = 100;
+        let maxR = 100;
+
+        const intervalId1 = setInterval(() => {
+          colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
+        }, intervalTime1);
+        const intervalId2 = setInterval(() => {
+          if (minR <= 5000) {
+            minR += 50;
+          } else {
+            minR = 100;
+          }
+          if (maxR <= 5000) {
+            maxR += 50;
+          } else {
+            maxR = 100;
+          }
+        }, intervalTime2);
+
+        // 添加标绘点
+        dataSource.entities.add({
+          id: data.plotid,
+          plottype: data.plotType,
+          layer: "标绘点",
+          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
+          billboard: {
+            image: data.icon,
+            width: 50, // 图片宽度,单位px
+            height: 50, // 图片高度，单位px
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+            color: new Cesium.CallbackProperty(() => {
+              return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+            }, false),
+            scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+            depthTest: false, // 禁止深度测试
+            disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
+          },
+          properties: {
+            data
+          }
+        });
+
+        // 为椭圆实体指定唯一的 id，方便之后移除
+        dataSource.entities.add({
+          id: data.plotid + '_ellipse', // 赋予椭圆实体一个唯一的 id
+          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
+          name: '圆形',
+          ellipse: {
+            semiMinorAxis: new Cesium.CallbackProperty(() => minR, false),
+            semiMajorAxis: new Cesium.CallbackProperty(() => maxR, false),
+            material: Cesium.Color.fromCssColorString('#ADD8E6').withAlpha(0.5),
+            outlineColor: Cesium.Color.BLUE
+          }
+        });
+        setTimeout(() => {
+          clearInterval(intervalId1);
+          colorFactor = 1.0;
+        }, animationDuration);
+        setTimeout(() => {
+          clearInterval(intervalId2);
+          // 移除椭圆实体
+          dataSource.entities.removeById(data.plotid + '_ellipse'); // 使用指定的 id 来移除椭圆实体
+        }, animationDuration);
+      });
+    }else{
+      points.forEach(data=>{
+        dataSource.entities.add({
+          id: data.plotid,
+          plottype: data.plotType,
+          layer: "标绘点",
+          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
+          billboard: {
+            image: data.icon,
+            width: 50,//图片宽度,单位px
+            height: 50,//图片高度，单位px // 会影响point大小，离谱
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
+            color: Cesium.Color.WHITE.withAlpha(1),//颜色
+            scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+            depthTest: false,//禁止深度测试但是没有下面那句有用
+            disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
+          },
+          properties: {
+            data
+          }
+        })
       })
-    })
+    }
+
+
 
     // 存储 dataSource 到对象上，便于后续操作
     window.pointDataSource = dataSource;

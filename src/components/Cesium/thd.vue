@@ -955,16 +955,20 @@ export default {
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
             console.log("entityToRemove",entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            }
+            if(ellipseEntityToRemove){
+                window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
             }
           }
         }
       });
       // 批量渲染点
       if (points.length > 0) {
-        cesiumPlot.drawPoints(points);
+        cesiumPlot.drawPoints(points,true);
       }
 
       //--------------------------线绘制------------------------------
