@@ -104,16 +104,17 @@ export default class Point {
   drawPoints(points,bool){
     // console.log("------------------------------------------",bool)
     let dataSource = new Cesium.CustomDataSource("pointData");
+    // 传来bool判断是否要添加动画，若为true则添加
     if(bool){
       points.forEach(data => {
         let colorFactor = 1.0;
         const intervalTime1 = 500;
         const intervalTime2 = 10;
         const animationDuration = 20000;
-
         let minR = 100;
         let maxR = 100;
 
+        // 设置动画逻辑
         const intervalId1 = setInterval(() => {
           colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
         }, intervalTime1);
@@ -154,9 +155,9 @@ export default class Point {
           }
         });
 
-        // 为椭圆实体指定唯一的 id，方便之后移除
+        // 添加标绘点对应的椭圆实体
         dataSource.entities.add({
-          id: data.plotid + '_ellipse', // 赋予椭圆实体一个唯一的 id
+          id: data.plotid + '_ellipse', // 椭圆唯一id，移除标绘点的时候同时移除椭圆
           position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
           name: '圆形',
           ellipse: {
@@ -166,14 +167,15 @@ export default class Point {
             outlineColor: Cesium.Color.BLUE
           }
         });
+        // 恢复标会点正常的清晰度
         setTimeout(() => {
           clearInterval(intervalId1);
           colorFactor = 1.0;
         }, animationDuration);
+        // 动画结束移除椭圆
         setTimeout(() => {
           clearInterval(intervalId2);
-          // 移除椭圆实体
-          dataSource.entities.removeById(data.plotid + '_ellipse'); // 使用指定的 id 来移除椭圆实体
+          dataSource.entities.removeById(data.plotid + '_ellipse');
         }, animationDuration);
       });
     }else{
