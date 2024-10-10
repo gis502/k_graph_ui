@@ -297,7 +297,6 @@ import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 //时间轴
-import {TimerLineFunc} from '@/cesium/plot/timeLine.js'
 
 //专题图
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
