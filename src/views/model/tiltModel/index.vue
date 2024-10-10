@@ -195,6 +195,19 @@ onMounted(() => {
   initModelTable()
 })
 
+onBeforeUnmount(()=>{
+  if (window.viewer !=null ){
+    let viewer=window.viewer
+    let gl=viewer.scene.context._gl
+    viewer.entities.removeAll()
+    // viewer.scene.primitives.removeAll()
+    viewer.destroy()
+    gl.getExtension("WEBGL_lose_context").loseContext();
+    gl=null
+    window.viewer = null;
+  }
+})
+
 // 初始化控件等
 function init() {
   let viewer = initCesium(Cesium)
@@ -368,6 +381,7 @@ function initModel(modelName) {
   tileset.zIndex = -1;
   tileset.readyPromise.then(function () {
     window.viewer.scene.primitives.add(tileset);
+    window.viewer.scene.primitives.add(window.modelObject);
     console.log("模型已加载")
     if (isTerrainLoaded()) {
       changeHeight(modelInfo.tze)
