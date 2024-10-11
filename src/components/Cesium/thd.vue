@@ -989,7 +989,6 @@ export default {
             console.log("点渲染", pointArr)
 
             let points = [];
-
             // 遍历点数组，处理每个点的绘制或删除
             pointArr.forEach(item => {
                 // 获取当前时间
@@ -1005,7 +1004,7 @@ export default {
                     // 创建点数据
                     let point = {
                         earthquakeId: item.earthquakeId,
-                        plotid: item.plotId,
+                        plotId: item.plotId,
                         time: item.creationTime.replace("T", " "),
                         plotType: item.plotType,
                         drawtype: item.drawtype,
@@ -1014,32 +1013,32 @@ export default {
                         height: item.elevation,
                         icon: item.icon
                     };
-
                     points.push(point); // 收集点数据
                 }
                 // 如果点应该消失
                 if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
                     this.plotisshow[item.plotId] = 0;
-                    console.log(item.plotId, "end");
+                    // console.log(item.plotId, "end");
 
-          // 从 dataSource 中删除点
-          if (window.pointDataSource) {
-            const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-            console.log("entityToRemove",entityToRemove)
-            if (entityToRemove) {
-              window.pointDataSource.entities.remove(entityToRemove); // 移除点
+                // 从 dataSource 中删除点
+                if (window.pointDataSource) {
+                  const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+                  const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
+                  console.log("entityToRemove",entityToRemove)
+                  if (entityToRemove) {
+                    window.pointDataSource.entities.remove(entityToRemove); // 移除点
+                  }
+                  if(ellipseEntityToRemove){
+                      window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+                  }
+                }
+              }
+            });
+            // 批量渲染点
+            if (points.length > 0) {
+              console.log("")
+              cesiumPlot.drawPoints(points,true);
             }
-            if(ellipseEntityToRemove){
-                window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
-            }
-          }
-        }
-      });
-      // 批量渲染点
-      if (points.length > 0) {
-        cesiumPlot.drawPoints(points,true);
-      }
 
             //--------------------------线绘制------------------------------
             // 根据当前时间和显示状态过滤并更新线条数据
@@ -1074,7 +1073,10 @@ export default {
             })
             // console.log("filteredPolylineArr",filteredPolylineArr)
             // 将过滤后的线条数据传递给绘制函数
+          if (points.length > 0) {
             cesiumPlot.getDrawPolyline(filteredPolylineArr)
+          }
+
 
             //--------------------------面绘制------------------------------
             // 过滤出绘制类型为多边形的数据
@@ -1116,13 +1118,14 @@ export default {
                 }
                 polygonMap[item.plotId].push(item);
             });
-
+          if (points.length > 0) {
             // 遍历分组后的多边形数据，调用绘制多边形的函数进行渲染
             Object.keys(polygonMap).forEach(plotId => {
-                let polygonData = polygonMap[plotId];
-                console.log("polygonData", polygonData)
-                cesiumPlot.getDrawPolygon(polygonData)
+              let polygonData = polygonMap[plotId];
+              console.log("polygonData", polygonData)
+              cesiumPlot.getDrawPolygon(polygonData)
             });
+          }
         },
 
         //时间轴操作-----------------------------------------------
@@ -2495,14 +2498,24 @@ export default {
         MarkingLayerRemove() {
             // 遍历所有plot
             this.plots.forEach(item => {
-                // 获取指定plotId的实体
-                const entity = viewer.entities.getById(item.plotId);
-                // 如果实体存在，则移除该实体
-                if (entity) {
-                    viewer.entities.removeById(item.plotId);
-                    // 标记该plotId对应的图层为隐藏状态
-                    this.plotisshow[item.plotId] = 0
+              console.log("item",item)
+              // 从 dataSource 中删除点
+              if (window.pointDataSource) {
+                const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+                const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
+                console.log("entityToRemove",entityToRemove)
+                if (entityToRemove) {
+                  window.pointDataSource.entities.remove(entityToRemove); // 移除点
                 }
+                if(ellipseEntityToRemove){
+                  window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+                }
+              }
+
+              viewer.entities.removeById(item.plotId);
+                    // 标记该plotId对应的图层为隐藏状态
+              this.plotisshow[item.plotId] = 0
+
             })
         },
 
