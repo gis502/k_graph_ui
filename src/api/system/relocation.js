@@ -18,3 +18,11 @@ export function getTotal(eqid) {
         params: { eqid } // 传递参数
     });
 }
+
+export function getTransferInfo(eqid) {
+    return request({
+        url: 'transfer/getTransferInfo', // 对应的后台接口
+        method: 'get',
+        params: { eqid } // 传递参数
+    });
+}
