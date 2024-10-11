@@ -113,8 +113,7 @@ const plotType = {
             type: "text",
             name: "县（市、区）",
             value: ""
-        }
-        ,
+        },
         personnelCount: {
             type: "text",
             name: "人员数量",
