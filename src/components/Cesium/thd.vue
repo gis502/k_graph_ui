@@ -232,14 +232,31 @@
 
 
         <!--   行政区划要素图层图例   -->
-        <div id="legend"
-             style="display: none;position: absolute;
+<!--        <div id="legend"-->
+<!--             style="display: none;position: absolute;-->
+<!--           z-index:20; bottom: 100px;-->
+<!--           right: 450px; color: #FFFFFF;-->
+<!--           background-color: rgba(0, 0, 0, 0.5);-->
+<!--           padding: 10px; border-radius: 5px;text-align: center;">-->
+    <div id="legend" v-show="isShowYaanRegionLegend"
+         style="position: absolute;
            z-index:20; bottom: 100px;
            right: 450px; color: #FFFFFF;
            background-color: rgba(0, 0, 0, 0.5);
            padding: 10px; border-radius: 5px;text-align: center;">
-            <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>
+      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index" >
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+          <div
+              style="width: 20px; height: 20px; margin-right: 10px;"
+              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
+          </div>
+          <span>{{ colorItem.name }}</span>
         </div>
+        </div>
+      </div>
+
+<!--            <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>-->
+<!--        </div>-->
 
         <!--   断裂带名称div   -->
         <div id="faultInfo"
@@ -440,7 +457,20 @@ export default {
             disasterReserves: [],
             emergencyTeam: [],
             emergencyShelters: [],
+            isShowYaanRegionLegend:false, //雅安行政区划图例
 
+            // 定义雅安各区县的颜色和名称
+            YaanLegendcolors : [
+              {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+              {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+              {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+              {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+              {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+              {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+              {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+              {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+              {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+            ],
       //专题图下载
       thematicMapitems:[],
       selectthematicMap:'',
@@ -1983,14 +2013,17 @@ export default {
                 window.viewer.dataSources.remove(window.regionLayer111, true);
                 // 清空regionLayer111的引用，以便垃圾回收
                 window.regionLayer111 = null;
+
+
                 // console.log("图层已移除");
             }
+          this.isShowYaanRegionLegend=false;
             // 获取图例容器，准备清空其内容
-            const legend = document.getElementById('legend');
+            // const legend = document.getElementById('legend');
             // 循环移除图例容器中的所有子元素
-            while (legend.firstChild) {
-                legend.removeChild(legend.firstChild);
-            }
+            // while (legend.firstChild) {
+            //     legend.removeChild(legend.firstChild);
+            // }
             // 遍历标签数组，移除每个标签实体
             this.labels.forEach(label => {
                 window.viewer.entities.remove(label);
@@ -2064,7 +2097,7 @@ export default {
             const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
             // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
             if (hasYaanRegionLayer) {
-                this.removethdRegions();
+                // this.removethdRegions();
                 this.addYaanRegion();
             } else {
                 // 如果未选定行政区划要素图层，则移除其他区域图层和雅安行政区划图层
@@ -2344,33 +2377,34 @@ export default {
                     // console.log("dataSource--------------", dataSource.entities.values.length)
 
                     // 生成图例
-                    const legend = document.getElementById('legend');
-                    legend.style.display = 'block';
-                    colors.forEach((colorItem, index) => {
-                        if (index > 0) {
-                            const colorBox = document.createElement('div');
-                            colorBox.style.display = 'flex';
-                            colorBox.style.alignItems = 'center';
-                            colorBox.style.marginBottom = '5px';
-
-                            // 创建颜色方块
-                            const colorSquare = document.createElement('div');
-                            colorSquare.style.width = '20px';
-                            colorSquare.style.height = '20px';
-                            colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
-                            colorSquare.style.marginRight = '10px';
-
-                            // 创建颜色名称标签
-                            const colorLabel = document.createElement('span');
-                            colorLabel.textContent = colorItem.name;
-
-                            // 将颜色方块和名称加入到图例中
-                            colorBox.appendChild(colorSquare);
-                            colorBox.appendChild(colorLabel);
-                            legend.appendChild(colorBox);
-                        }
-
-                    });
+                  this.isShowYaanRegionLegend=true;
+                    // const legend = document.getElementById('legend');
+                    // legend.style.display = 'block';
+                    // colors.forEach((colorItem, index) => {
+                    //     if (index > 0) {
+                    //         const colorBox = document.createElement('div');
+                    //         colorBox.style.display = 'flex';
+                    //         colorBox.style.alignItems = 'center';
+                    //         colorBox.style.marginBottom = '5px';
+                    //
+                    //         // 创建颜色方块
+                    //         const colorSquare = document.createElement('div');
+                    //         colorSquare.style.width = '20px';
+                    //         colorSquare.style.height = '20px';
+                    //         colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
+                    //         colorSquare.style.marginRight = '10px';
+                    //
+                    //         // 创建颜色名称标签
+                    //         const colorLabel = document.createElement('span');
+                    //         colorLabel.textContent = colorItem.name;
+                    //
+                    //         // 将颜色方块和名称加入到图例中
+                    //         colorBox.appendChild(colorSquare);
+                    //         colorBox.appendChild(colorLabel);
+                    //         legend.appendChild(colorBox);
+                    //     }
+                    //
+                    // });
                 }).catch((error) => {
                     // 如果加载数据源失败，则输出错误信息
                     console.error("加载GeoJSON数据失败:", error);
