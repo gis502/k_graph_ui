@@ -170,8 +170,8 @@ export default {
               if (isNaN(num)) {
                 return callback(new Error('震级必须为数字'));
               }
-              if (num < 0 || num > 10) {
-                return callback(new Error('震级必须在 0 到 10 之间'));
+              if (num < 3 || num > 10) {
+                return callback(new Error('震级必须在 3 到 10 之间'));
               }
               callback();
             }, trigger: 'blur' },
