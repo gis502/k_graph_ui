@@ -266,6 +266,7 @@ import axios from "axios"
 // import {searchMaterialData} from "../../api/system/emergency.js";
 import { ElMessageBox, ElMessage } from 'element-plus';
 import {searchMaterialData} from "../../api/system/emergency.js";
+import {getRouteData } from "@/api/system/PathPlanningRoute.js"
 
 export default {
   components: {
@@ -1166,51 +1167,108 @@ export default {
 
           let from = wgs84togcj02(that.pos[0][0], that.pos[0][1])
           let end = wgs84togcj02(that.pos[1][0], that.pos[1][1])
-          let avoidArea = ""
-          if (that.areas.length > 0) {
-            let area = JSON.parse(JSON.stringify(that.areas))
+          // 转换为字符串格式（如 "经度,纬度"）
+          let fromString = `${from[0]},${from[1]}`;
+          let endString = `${end[0]},${end[1]}`;
+
+          let areas = []; // 初始化为一个数组
+
+          if (that.areas && that.areas.length > 0) {
+            let area = JSON.parse(JSON.stringify(that.areas));
             for (let i = 0; i < area.length; i++) {
+              let coords = []; // 用于存储当前 area 的坐标
               for (let j = 0; j < area[i].area.length; j += 2) {
-                avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";"
+                coords.push(wgs84togcj02(area[i].area[j][0], area[i].area[j][1])); // 添加坐标
               }
-              avoidArea += "|"
+              areas.push(coords); // 将当前 area 的坐标添加到 areas
             }
-            avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
+          // let avoidArea = ""
+          // if (that.areas.length > 0) {
+          //   let area = JSON.parse(JSON.stringify(that.areas))
+          //   for (let i = 0; i < area.length; i++) {
+          //     for (let j = 0; j < area[i].area.length; j += 2) {
+          //       avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";"
+          //     }
+          //     avoidArea += "|"
+          //   }
+          //   avoidArea = avoidArea.substring(0, avoidArea.length - 1);
+          // }
 
-          axios.get("https://restapi.amap.com/v3/direction/driving?origin=" + from + "&destination=" + end + "&extensions=base&strategy=0&avoidpolygons=" + avoidArea + "&key=7b0b64174ef6951cc6ee669de03e4f59", {}).then(res => {
+          getRouteData(fromString, endString, areas, '7b0b64174ef6951cc6ee669de03e4f59')
+              .then(res => {
+                this.loading = false; // 关闭加载状态
+                // 检查响应数据是否有效
+                if (res && Array.isArray(res) && res.length > 0) {
+                  const pathSegments = res[0]; // 假设第一项是路径段
+                  const pathInstructions = res[1]; // 假设第二项是指示
+                  const totalDistance = res[2]; // 假设第三项是总距离
+                  const driveTime = res[3]; // 假设第四项是驾驶时间
+                  const humanTime = res[4]; // 假设第五项是人行时间
 
-            pathM += parseInt(res.data.route.paths[0].distance)
-            res.data.route.paths[0].steps.map(step => {
-                  pathName.push(step.instruction)
-                  path += (step.polyline + ";")
+
+                  // 处理路径段，转换为适合绘制的格式
+                  const processedSegments = pathSegments.map(segment => gcj02towgs84(segment[0], segment[1]));
+
+                  // 在 pathSegments 数组开头插入起点
+                  processedSegments.unshift(this.pos[0]);
+
+                  // 在 pathSegments 数组结尾添加终点
+                  processedSegments.push(this.pos[1]);
+
+                  // 清空 pos
+                  this.pos = [];
+
+                  // 处理路径线条
+                  this.polylineD(processedSegments, propertiesId);
+
+                  // 更新时间和距离
+                  this.cartime = (driveTime).toFixed(2); // 驾驶时间
+                  this.humantime = (humanTime).toFixed(2); // 人行时间
+                  this.totalRoute = totalDistance; // 总距离
+                  this.RouteGuilde = pathInstructions; // 路径指示
+                } else {
+                  console.error("Response data is not in the expected format", res);
                 }
-            )
-
-            let pathSegments = path.split(";")
-                .map(segment =>
-                    segment
-                        .replace(/"/g, "")  // 去除双引号
-                        .split(",")  // 按逗号分割成经纬度数组
-                        .map(Number)  // 将字符串转换为数字
-                        .filter(seg => !isNaN(seg))  // 去除无效数字
-                )
-                .filter(segment => segment.length === 2)
-                .map(segment => gcj02towgs84(segment[0], segment[1]))
-// 在pathSegments数组开头插入起点
-            pathSegments.unshift(that.pos[0]);
-
-// 在pathSegments数组结尾添加终点
-            pathSegments.push(that.pos[1]);
-            that.pos = [];
-            that.polylineD(pathSegments, propertiesId);
-            this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
-            this.humantime = (pathM * 0.7 / 60).toFixed(2);
-            this.driveStyle();
-            this.walkStyle();
-            this.totalRoute = pathM;
-            this.RouteGuilde = pathName;
-          })
+              })
+              .catch(error => {
+                this.loading = false; // 关闭加载状态
+                console.error("Error fetching route data:", error);
+              });
+        console.log("from",from,"end",end)
+//           axios.get("https://restapi.amap.com/v3/direction/driving?origin=" + from + "&destination=" + end + "&extensions=base&strategy=0&avoidpolygons=" + avoidArea + "&key=7b0b64174ef6951cc6ee669de03e4f59", {}).then(res => {
+//
+//             pathM += parseInt(res.data.route.paths[0].distance)
+//             res.data.route.paths[0].steps.map(step => {
+//                   pathName.push(step.instruction)
+//                   path += (step.polyline + ";")
+//                 }
+//             )
+//
+//             let pathSegments = path.split(";")
+//                 .map(segment =>
+//                     segment
+//                         .replace(/"/g, "")  // 去除双引号
+//                         .split(",")  // 按逗号分割成经纬度数组
+//                         .map(Number)  // 将字符串转换为数字
+//                         .filter(seg => !isNaN(seg))  // 去除无效数字
+//                 )
+//                 .filter(segment => segment.length === 2)
+//                 .map(segment => gcj02towgs84(segment[0], segment[1]))
+// // 在pathSegments数组开头插入起点
+//             pathSegments.unshift(that.pos[0]);
+//
+// // 在pathSegments数组结尾添加终点
+//             pathSegments.push(that.pos[1]);
+//             that.pos = [];
+//             that.polylineD(pathSegments, propertiesId);
+//             this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
+//             this.humantime = (pathM * 0.7 / 60).toFixed(2);
+//             this.driveStyle();
+//             this.walkStyle();
+//             this.totalRoute = pathM;
+//             this.RouteGuilde = pathName;
+//           })
 
           that.showTips = true;
           //路径规划好后弹出气泡框
