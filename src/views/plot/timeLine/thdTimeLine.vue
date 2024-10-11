@@ -899,7 +899,7 @@ export default {
           // 创建点数据
           let point = {
             earthquakeId: item.earthquakeId,
-            plotid: item.plotId,
+            plotId: item.plotId,
             time: item.creationTime.replace("T", " "),
             plotType: item.plotType,
             drawtype: item.drawtype,
