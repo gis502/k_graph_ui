@@ -180,7 +180,7 @@ export function addHistoryEqPoints(centerPoint, eqData) {
           label: {
             show: false,
             showBackground: true,
-            text: `${timestampToTime(eq.time, 'date')} ${eq.position} ${eq.magnitude}级地震`,
+            text: `${timestampToTime(eq.occurrenceTime, 'date')} ${eq.earthquakeName} ${eq.magnitude}级地震`,
             font: '16px sans-serif',
             fillColor: Cesium.Color.WHITE,
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
