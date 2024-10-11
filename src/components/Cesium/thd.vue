@@ -1484,7 +1484,10 @@ export default {
                     if (entity._layer === "标绘点") {
                         this.timelinePopupVisible = true;
                         this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-                        this.timelinePopupData = this.extractDataForTimeline(entity);
+                        this.timelinePopupData={}
+                        this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+
+                      // this.timelinePopupData = this.extractDataForTimeline(entity);
                         this.routerPopupVisible = false;
                     } else if (entity._billboard) {
                         // 如果点击的是路标
