@@ -436,7 +436,7 @@ export default {
                 {id: '8', name: '断裂带要素图层'},
             ],
             selectedlayersLocal: ['标绘点图层'],
-            isMarkingLayerLocal: false,
+            isMarkingLayerLocal: true,
             disasterReserves: [],
             emergencyTeam: [],
             emergencyShelters: [],
@@ -1190,7 +1190,7 @@ export default {
                 // 根据当前节点索引计算实际时间
                 this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
                 // 根据是否需要显示标绘层来更新图层
-                if (this.isMarkingLayer) {
+                if (this.isMarkingLayerLocal) {
                     this.updatePlot()
                 } else {
                     this.MarkingLayerRemove()
