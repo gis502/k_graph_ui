@@ -10,7 +10,7 @@
         <DisasterStatistics :eqid="eqid"/>
       </dv-border-box-13>
       <dv-border-box-12 class="model2">人员伤亡信息统计
-        <div ref="chart" style="width:100%; height:270px;margin-top: 30px" ></div>
+        <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
       </dv-border-box-12>
     </div>
   </div>

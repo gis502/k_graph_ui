@@ -104,7 +104,7 @@ import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
-import {getAfterShockInformation} from "@/api/system/statistics";
+import {getAfterShockInformation,getTotal} from "@/api/system/statistics";
 import {getCasualty} from "@/api/system/casualtystats" ;
 import {getTransferInfo} from "@/api/system/relocation";
 
@@ -307,7 +307,7 @@ export default {
 
     //获取echarts展示的数据
     getAfterShock(eqid) {
-      getAfterShockInformation(eqid).then(res => {
+      getTotal(eqid).then(res => {
         this.updateMultipleECharts(res)
       })
     },

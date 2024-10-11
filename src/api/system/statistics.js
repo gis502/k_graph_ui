@@ -24,4 +24,11 @@ export function getAfterShockInformation(eqid) {
 
 }
 
+export function getTotal(eqid) {
+    return request({
+        url: '/system/getAftershock',
+        method: 'get',
+        params: {eqid: eqid}
+    });
+}
 
