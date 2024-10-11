@@ -436,7 +436,7 @@ export default {
                 {id: '8', name: '断裂带要素图层'},
             ],
             selectedlayersLocal: ['标绘点图层'],
-            isMarkingLayerLocal: false,
+            isMarkingLayerLocal: true,
             disasterReserves: [],
             emergencyTeam: [],
             emergencyShelters: [],
@@ -1190,7 +1190,7 @@ export default {
                 // 根据当前节点索引计算实际时间
                 this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
                 // 根据是否需要显示标绘层来更新图层
-                if (this.isMarkingLayer) {
+                if (this.isMarkingLayerLocal) {
                     this.updatePlot()
                 } else {
                     this.MarkingLayerRemove()
@@ -1484,7 +1484,10 @@ export default {
                     if (entity._layer === "标绘点") {
                         this.timelinePopupVisible = true;
                         this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-                        this.timelinePopupData = this.extractDataForTimeline(entity);
+                        this.timelinePopupData={}
+                        this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+
+                      // this.timelinePopupData = this.extractDataForTimeline(entity);
                         this.routerPopupVisible = false;
                     } else if (entity._billboard) {
                         // 如果点击的是路标

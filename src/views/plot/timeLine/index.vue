@@ -17,7 +17,7 @@
               @row-click="go"
               :stripe="true"
               :header-cell-style="{  }"
-              :cell-style="{ }"
+              :cell-style="tableColor"
               :row-style="{ height: '7.4vh' }">
       <el-table-column label="序号" width="60">
         <template #default="{ row, column, $index }">
@@ -196,7 +196,7 @@ export default {
     },
     // 修改table header的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
-      // console.log(row.magnitude)
+      // console.log(row,"row")
       if (row.magnitude > 5) {
         // console.log('>')
         return {
