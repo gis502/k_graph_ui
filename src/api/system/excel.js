@@ -50,7 +50,7 @@ export function getPicEqData(flag, eqId, time) {
     });
 }
 
-export function deleteData(data) {
+export function deleteData(data) {8
     return request({
         url: '/excel/deleteData',
         method: 'delete',
