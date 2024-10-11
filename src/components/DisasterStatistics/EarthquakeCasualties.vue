@@ -2,15 +2,15 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-13 class="model1">转移安置信息统计
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
+        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <ResettlementGraph :eqid="eqid"/>
       </dv-border-box-13>
       <dv-border-box-13 class="model1">人员伤亡信息统计<br>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
+        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <DisasterStatistics :eqid="eqid"/>
       </dv-border-box-13>
       <dv-border-box-12 class="model2">地震震情灾情信息统计
-        <div ref="chart" style="width:100%; height:270px;margin-top: 30px" ></div>
+        <div ref="chart" style="width:100%; height:270px;margin-top: 30px"></div>
       </dv-border-box-12>
     </div>
   </div>
@@ -26,11 +26,7 @@ import DisasterStatistics from "@/components/DisasterStatistics/DisasterStatisti
 import ResettlementGraph from "@/components/DisasterStatistics/ResettlementGraph.vue";
 
 
-
-
-
-
-import { defineProps } from 'vue';
+import {defineProps} from 'vue';
 import {getTotal} from "../../api/system/statistics";
 
 const props = defineProps({
@@ -42,31 +38,24 @@ const props = defineProps({
 
 const eqid = ref('')
 watch(() => props.newEqId, (newValue) => {
-  eqid.value = newValue
-  console.log("儿子中的新 eqId:", eqid.value); // 确认更新后的值
-  // 其他处理逻辑
-  getTotal(eqid.value).then(res =>{
-    console.log(res)
-    // 得到后端数据开始操作：
-
-
-    const formattedData = processData(res);
-    console.log("处理后的数据",formattedData)
-    updateChart(formattedData);
-
-
-
-
-  })
-});
-
-
-
-
+      if (newValue) {
+        eqid.value = newValue
+        console.log("儿子中的新 eqId:", eqid.value); // 确认更新后的值
+        // 其他处理逻辑
+        getTotal(eqid.value).then(res => {
+          console.log(res)
+          // 得到后端数据开始操作：
+          const formattedData = processData(res);
+          console.log("处理后的数据", formattedData)
+          updateChart(formattedData);
+        })
+      }
+    }
+);
 
 
 const flag = ref()
-const currentPage = ref(1 )
+const currentPage = ref(1)
 const pageSize = ref(10)
 const requestParams = ref("")
 
@@ -84,7 +73,6 @@ const eqlistName = ref('')
 const tableNameOptions = ref([])
 const eqlists = ref([])
 const FieldName = ref([])
-
 
 
 /** 监听 */
@@ -106,13 +94,6 @@ watch(flag, (newFlag) => {
 });
 
 
-
-
-
-
-
-
-
 // 格式化数据
 const processData = (data) => {
   const areas = ['天全县', '石棉县', '名山区', '雨城区', '荥经县', '汉源县', '芦山县', '宝兴县']; // 所有需要统计的县区
@@ -120,7 +101,7 @@ const processData = (data) => {
     const entry = data.find(item => item.affected_area === area);
     return {
       affected_area: area,
-      total_aftershocks:entry ? entry.total_aftershocks : 0,
+      total_aftershocks: entry ? entry.total_aftershocks : 0,
       magnitude_3_3_9: entry ? entry.magnitude_3_3_9 : 0,
       magnitude_4_4_9: entry ? entry.magnitude_4_4_9 : 0,
       magnitude_5_5_9: entry ? entry.magnitude_5_5_9 : 0,
@@ -168,7 +149,7 @@ const updateChart = (data) => {
       }
     },
     legend: {
-      data:FieldName.value,
+      data: FieldName.value,
       align: 'right',
       right: 10,
       textStyle: {
@@ -199,8 +180,8 @@ const updateChart = (data) => {
         itemStyle: {
           normal: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#008cff' },
-              { offset: 1, color: '#005193' }
+              {offset: 0, color: '#008cff'},
+              {offset: 1, color: '#005193'}
             ]),
             opacity: 1
           }
@@ -253,30 +234,6 @@ const updateChart = (data) => {
     chartInstance.resize();
   });
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 const times = [
@@ -343,7 +300,7 @@ const getTableField = () => {
     name.value = Array.from(map.values())
     data.value = generateData();
     columns.value = generateColumnConfig();
-    FieldName.value = name.value.filter(item =>  item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
+    FieldName.value = name.value.filter(item => item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
     console.log(FieldName.value)
 
@@ -373,7 +330,7 @@ const getTableField = () => {
         }
       },
       legend: {
-        data:FieldName.value,
+        data: FieldName.value,
         align: 'right',
         right: 10,
         textStyle: {
@@ -452,8 +409,8 @@ const getTableField = () => {
           itemStyle: {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: '#008cff' },
-                { offset: 1, color: '#005193' }
+                {offset: 0, color: '#008cff'},
+                {offset: 1, color: '#005193'}
               ]),
               opacity: 1
             }
@@ -462,12 +419,12 @@ const getTableField = () => {
         {
           name: '3.0-3.9级',
           type: 'bar',
-          data: [1,2,4,2,4,3,2,4,2,3],
+          data: [1, 2, 4, 2, 4, 3, 2, 4, 2, 3],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
             normal: {
-              color:'#ffeb2f',
+              color: '#ffeb2f',
               // color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               //   { offset: 0, color: '#00da9c' },
               //   { offset: 1, color: '#007a55' }
@@ -479,12 +436,12 @@ const getTableField = () => {
         {
           name: '4.0-4.9级',
           type: 'bar',
-          data: [0,2,3,2,2,2,2,2,1,2],
+          data: [0, 2, 3, 2, 2, 2, 2, 2, 1, 2],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
             normal: {
-              color:'#ffa500',
+              color: '#ffa500',
               //   new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               // { offset: 0, color: '#c4e300' },
               // { offset: 1, color: '#728400' }
@@ -496,12 +453,12 @@ const getTableField = () => {
         {
           name: '5.0-5.9级',
           type: 'bar',
-          data: [1,1,1,1,2,1,1,2,1,1],
+          data: [1, 1, 1, 1, 2, 1, 1, 2, 1, 1],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
             normal: {
-              color:'#f81919',
+              color: '#f81919',
               opacity: 1
             }
           }
@@ -574,7 +531,7 @@ const clearSelection = () => {
   background-image: url("@/assets/bg1.png");
   background-size: 100% 100%;
   position: absolute;
-  padding-right:40px;
+  padding-right: 40px;
 
 }
 
@@ -594,6 +551,7 @@ const clearSelection = () => {
   color: #FFFFFF;
   padding-top: 10px;
 }
+
 .model2 {
   width: 100%;
   height: 50%;
@@ -602,7 +560,7 @@ const clearSelection = () => {
   float: left;
   text-align: center;
   color: #FFFFFF;
-  padding-top:10px;
+  padding-top: 10px;
 }
 
 ::v-deep .el-transfer-panel {

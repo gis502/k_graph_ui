@@ -132,31 +132,31 @@ const arrow = {
             this.drawArr.push(pincerArrow);
         }
     },
-    drawStraightArrow: function (data) {
+    drawStraightArrow: function (data, resolve) {
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var straightArrow = new StraightArrow(this.viewer);
         straightArrow.disable();
-        straightArrow.startDraw(data);
+        straightArrow.startDraw(data, resolve);
         this.drawArr.push(straightArrow);
     },
-    drawAttackArrow: function (data) {
+    drawAttackArrow: function (data,resolve) {
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var attackArrow = new AttackArrow(this.viewer);
         attackArrow.disable();
-        attackArrow.startDraw(data);
+        attackArrow.startDraw(data,resolve);
         this.drawArr.push(attackArrow);
     },
-    drawPincerArrow: function (data) {
+    drawPincerArrow: function (data, resolve) {
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var pincerArrow = new PincerArrow(this.viewer);
         pincerArrow.disable();
-        pincerArrow.startDraw(data);
+        pincerArrow.startDraw(data, resolve);
         this.drawArr.push(pincerArrow);
     },
     nowArrowObj: null,
@@ -207,6 +207,7 @@ const arrow = {
         for (var i = 0; i < $this.drawArr.length; i++) {
             if (id === $this.drawArr[i].objId) {
                 $this.drawArr[i].clear();
+                console.log($this.drawArr)
                 $this.drawArr.splice(i, 1);
                 break;
             }
