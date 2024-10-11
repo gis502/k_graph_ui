@@ -25,13 +25,13 @@ let cesiumPlot= {
     return this.point.initPointHandlder(pointType,img,eqid)
   },
 
-  drawPoint(pointInfo,bool){
-    this.point.drawPoint(pointInfo,bool)
+  drawPoint(pointInfo){
+    this.point.drawPoint(pointInfo)
   },
 
-  drawPoints(points){
+  drawPoints(points,bool){
     console.log("?",points)
-    this.point.drawPoints(points)
+    this.point.drawPoints(points,bool)
   },
 
   deletePoint(point){
@@ -120,7 +120,9 @@ let cesiumPlot= {
   drawActivatePolygon(type,img,eqid,obj) {
     let name = type
     if(type==="崩塌"||type==="滑坡"||type==="泥石流"||type==="地面塌陷"){
-      type = "标绘面"
+      type = "区域面"
+    }else if(type==="未搜索区域"||type==="已搜索区域"||type==="未营救区域"||type==="已营救区域"||type==="正在营救区域") {
+      type = "区域面"
     }
     this.polygon.activate(name,type,img,eqid,obj)
   },

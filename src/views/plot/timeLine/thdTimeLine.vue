@@ -368,9 +368,27 @@ export default {
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
   },
+  beforeDestroy() {
+    if (window.viewer){
+      this.clearResource(window.viewer)
+      window.viewer = null;
+    }
+    if (window.smallViewer){
+      this.clearResource(window.smallViewer)
+      window.smallViewer = null;
+    }
+  },
   // 图层要素
   methods: {
-
+    clearResource(viewer){
+      let gl=viewer.scene.context._gl
+      viewer.entities.removeAll()
+      // viewer.scene.primitives.removeAll()
+      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+      viewer.destroy()
+      gl.getExtension("WEBGL_lose_context").loseContext();
+      gl=null
+    },
     /**
      * 计算复选框列表的高度
      * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
@@ -422,6 +440,7 @@ export default {
         this.getEq();
       }
     },
+
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -880,7 +899,7 @@ export default {
           // 创建点数据
           let point = {
             earthquakeId: item.earthquakeId,
-            plotid: item.plotId,
+            plotId: item.plotId,
             time: item.creationTime.replace("T", " "),
             plotType: item.plotType,
             drawtype: item.drawtype,
@@ -900,16 +919,20 @@ export default {
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
             console.log("entityToRemove", entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            }
+            if(ellipseEntityToRemove){
+                window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
             }
           }
         }
       });
       // 批量渲染点
       if (points.length > 0) {
-        cesiumPlot.drawPoints(points);
+        cesiumPlot.drawPoints(points,true);
       }
 
       //--------------------------线绘制------------------------------

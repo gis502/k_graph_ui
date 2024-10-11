@@ -3,7 +3,7 @@
              :close-on-click-modal="false" :destroy-on-close="true" :show-close="false">
     <el-form :model="this.form" :inline="true">
       <el-form-item label="标注类型" :label-width="120">
-        <el-input placeholder="请输入内容" v-model="form.plottype" :disabled="true" size="large"/>
+        <el-input placeholder="请输入内容" v-model="form.plotType" :disabled="true" size="large"/>
       </el-form-item>
       <el-form-item label="经度" :label-width="120">
         <el-input v-model="form.longitude" autocomplete="off" size="large"/>
