@@ -462,7 +462,6 @@ export default {
             // 定义雅安各区县的颜色和名称
             YaanLegendcolors : [
               {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-              {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
               {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
               {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
               {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
