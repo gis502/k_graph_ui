@@ -3,7 +3,7 @@
         <div class="eqListContent" v-if="currentTab === '震害事件'">
             <div style="display: flex">
                 <!-- 搜索框 -->
-                <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+                <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq" clearable>
                 </el-input>
             </div>
             <!-- 地震列表 -->
@@ -108,6 +108,8 @@
     import DisasterDamageAssessmentImageData from "../../assets/images/ThematicMap/DisasterDamageAssessment/LuShan/DisasterDamageAssessmentImageData.json"
     import TwoAndThreeDIntegrationImageData from "../../assets/images/ThematicMap/TwoAndThreeDIntegration/LuShan/TwoAndThreeDIntegrationImageData.json"
     import {getAllEq} from "../../api/system/eqlist.js";
+    import * as Cesium from "cesium";
+    import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 
     export default {
         name: "earthquakeList",
@@ -145,6 +147,7 @@
                 total: 0,
                 pageSize: 10,
                 currentPage: 1,
+                selectedEqPoint: '',
             }
         },
         mounted() {
@@ -254,10 +257,46 @@
                     );
                     // 如果找到对应数据，调用定位函数
                     if (this.selectedTabData) {
-                        // this.selectEqPoint();
+                        this.selectEqPoint();
                     }
                 }
             },
+
+          selectEqPoint() {
+            if (this.selectedTabData) {
+
+              // 避免选择同一选项卡时重复生成实体导致重叠
+              window.viewer.entities.remove(this.selectedEqPoint);
+
+              // 提取 selectedEqPoint
+              this.selectedEqPoint = window.viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(
+                  Number(this.selectedTabData.longitude),
+                  Number(this.selectedTabData.latitude)
+                ),
+                billboard: {
+                  image: eqMark,
+                  width: 25,
+                  height: 25,
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+                },
+                label: {
+                  text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
+                    this.selectedTabData.earthquakeName +
+                    this.selectedTabData.magnitude + '级地震',
+                  font: '18px sans-serif',
+                  fillColor: Cesium.Color.WHITE,
+                  outlineColor: Cesium.Color.BLACK,
+                  showBackground: true,
+                  show: true,
+                  horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+                  verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+                },
+                id: this.selectedTabData.id
+              });
+            }
+          },
 
             // 分页改变事件
             handleCurrentChange(page) {
