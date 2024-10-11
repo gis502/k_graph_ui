@@ -124,7 +124,7 @@
                 reportData: [],
                 disasterDamageAssessmentReport: [
                     {
-                        name:'2020年地震灾害预评估与处置工作报告',
+                        name:'地震灾害预评估与处置工作报告',
                         path:'/ThematicMap/DisasterDamageAssessment/LuShan/workReport.pdf'
                     }],
                 twoAndThreeDIntegrationReport: [
