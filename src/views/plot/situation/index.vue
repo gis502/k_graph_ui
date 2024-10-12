@@ -949,21 +949,33 @@ export default {
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
         new Promise((resolve, reject) => {
+          window.isDrawingPolygon = true;
           Arrow.drawStraightArrow(data, resolve)
         }).then((res) => {
+          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
+        }).catch(() => {
+          window.isDrawingPolygon = false;
         })
       } else if (item.name === '攻击箭头') {
         new Promise((resolve, reject) => {
+          window.isDrawingPolygon = true;
           Arrow.drawAttackArrow(data, resolve)
         }).then((res) => {
+          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
+        }).catch(() => {
+          window.isDrawingPolygon = false;
         })
       } else if (item.name === '钳击箭头') {
         new Promise((resolve, reject) => {
+          window.isDrawingPolygon = true;
           Arrow.drawPincerArrow(data, resolve)
         }).then((res) => {
+          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
+        }).catch(() => {
+          window.isDrawingPolygon = false;
         })
       } else if (item.plottype === '线图层') {
         new Promise((resolve, reject) => {

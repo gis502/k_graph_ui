@@ -259,6 +259,12 @@ export default class Point {
                 cluster.billboard.verticalOrigin =
                     Cesium.VerticalOrigin.BOTTOM;
 
+                // 设置 Billboard 高度引用地形
+                cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+
+                // 禁用深度测试，使 Billboard 不会被地形遮挡
+                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+
                 if (clusteredEntities.length >= 1000) {
                   cluster.billboard.image = pin1000;
                 } else if (clusteredEntities.length >= 500) {
