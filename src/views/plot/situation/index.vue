@@ -402,10 +402,10 @@ export default {
               points.push(point)
             }
           })
-          console.log("weixuanran",points)
+
           that.drawPoints(points)
           let polylineArr = data.filter(e => e.drawtype === 'polyline');
-          console.log("polylineArr",polylineArr)
+
           // 过滤掉已经渲染的项
           let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -418,6 +418,15 @@ export default {
           if (unrenderedPolylineArr.length > 0) {
             cesiumPlot.getDrawPolyline(unrenderedPolylineArr); // 只绘制当前未渲染的线条
           }
+
+          let straightArr = data.filter(e => e.drawtype === 'straight');
+          Arrow.showStraightArrow(straightArr)
+
+          let attackArr = data.filter(e => e.drawtype === 'attack');
+          Arrow.showAttackArrow(attackArr)
+
+          let pincerArr = data.filter(e => e.drawtype === 'pincer');
+          Arrow.showPincerArrow(pincerArr)
 
           // 处理多边形数据
           let polygonArr = data.filter(e => e.drawtype === 'polygon');
@@ -534,6 +543,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
+
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
@@ -549,6 +559,7 @@ export default {
           let cartographic = Cesium.Cartographic.fromCartesian(position);
           let latitude = Cesium.Math.toDegrees(cartographic.latitude);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
 
           // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
           let height = 0
@@ -574,7 +585,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-
+          console.log(window.selectedEntity)
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
@@ -940,11 +951,35 @@ export default {
       if (item.plottype === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
-        Arrow.drawStraightArrow(data)
+        new Promise((resolve, reject) => {
+          window.isDrawingPolygon = true;
+          Arrow.drawStraightArrow(data, resolve)
+        }).then((res) => {
+          window.isDrawingPolygon = false;
+          this.openPolygonPop(res.plot.plotType, res.plot)
+        }).catch(() => {
+          window.isDrawingPolygon = false;
+        })
       } else if (item.name === '攻击箭头') {
-        Arrow.drawAttackArrow(data)
+        new Promise((resolve, reject) => {
+          window.isDrawingPolygon = true;
+          Arrow.drawAttackArrow(data, resolve)
+        }).then((res) => {
+          window.isDrawingPolygon = false;
+          this.openPolygonPop(res.plot.plotType, res.plot)
+        }).catch(() => {
+          window.isDrawingPolygon = false;
+        })
       } else if (item.name === '钳击箭头') {
-        Arrow.drawPincerArrow(data)
+        new Promise((resolve, reject) => {
+          window.isDrawingPolygon = true;
+          Arrow.drawPincerArrow(data, resolve)
+        }).then((res) => {
+          window.isDrawingPolygon = false;
+          this.openPolygonPop(res.plot.plotType, res.plot)
+        }).catch(() => {
+          window.isDrawingPolygon = false;
+        })
       } else if (item.plottype === '线图层') {
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)

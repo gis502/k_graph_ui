@@ -1,5 +1,5 @@
 <template>
-  <div ref="chart" style="width: 100%; height: 275px;" class="container-left"></div>
+  <div ref="chart" style="width: 100%; height: 200px;" class="container-left"></div>
 </template>
 
 <script>
@@ -15,7 +15,7 @@ export default {
           name: '目前道路中断村（个）',
           itemStyle: {
             normal: {
-              color: 'black',
+              color: '#ffc258',
             },
           },
         },
@@ -24,7 +24,7 @@ export default {
           name: '目前主网供电中断村（个）',
           itemStyle: {
             normal: {
-              color: '#ffa500',
+              color: '#ff8d39',
             },
           },
         },
@@ -33,7 +33,7 @@ export default {
           name: '目前通信中断村（个）',
           itemStyle: {
             normal: {
-              color: '#f81919',
+              color: '#3a9bf4',
             },
           },
         },
@@ -79,8 +79,8 @@ export default {
           },
           legend: {
             orient: 'vertical',
-            x: 'left',
-            y: '10',
+            x: '0',
+            y: '30',
             itemWidth: 20,
             itemHeight: 16,
             textStyle: {
