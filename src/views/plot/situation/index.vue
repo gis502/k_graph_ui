@@ -325,138 +325,146 @@ export default {
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {
       let that = this
-      // getPlot({eqid}).then(res => {
-      //   let data = res
-      //   let pointArr = data.filter(e => e.drawtype === 'point')
-      //   let points = []
-      //   pointArr.forEach(item => {
-      //     if (!that.renderedPlotIds.has(item.plotId)) { // 检查是否已经渲染
-      //       let point = {
-      //         earthquakeId: item.earthquakeId,
-      //         plotId: item.plotId,
-      //         time: item.creationTime.replace("T"," "),
-      //         plotType: item.plotType,
-      //         drawtype: item.drawtype,
-      //         latitude: item.latitude,
-      //         longitude: item.longitude,
-      //         height: item.elevation,
-      //         icon: item.icon,
-      //       }
-      //       points.push(point)
-      //     }
-      //   })
-      //   console.log("weixuanran",points)
-      //   that.drawPoints(points)
-      //   let polylineArr = data.filter(e => e.drawtype === 'polyline');
-      //   console.log("polylineArr",polylineArr)
-      //   // 过滤掉已经渲染的项
-      //   let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
-      //
-      //   // 标记未渲染的项为已渲染
-      //   unrenderedPolylineArr.forEach(item => {
-      //     that.renderedPlotIds.add(item.plotId); // 标记为已渲染
-      //   });
-      //
-      //   // 只绘制未渲染的线条
-      //   if (unrenderedPolylineArr.length > 0) {
-      //     cesiumPlot.getDrawPolyline(unrenderedPolylineArr); // 只绘制当前未渲染的线条
-      //   }
-      //
-      //   // 处理多边形数据
-      //   let polygonArr = data.filter(e => e.drawtype === 'polygon');
-      //   // console.log('index.polygonArr', polygonArr)
-      //   let polygonMap = {};
-      //   polygonArr.forEach(item => {
-      //     if (!polygonMap[item.plotId]) {
-      //       polygonMap[item.plotId] = [];
-      //     }
-      //     polygonMap[item.plotId].push(item);
-      //   });
-      //   Object.keys(polygonMap).forEach(plotId => {
-      //     let polygonData = polygonMap[plotId];
-      //     that.getDrawPolygonInfo(polygonData);
-      //   });
-      //   // 长轮询逻辑：等待一段时间后继续请求
-      //   setTimeout(() => {
-      //     fetchData(); // 递归调用以实现长轮询
-      //   }, 5000); // 设置 5 秒的轮询间隔（可以根据需求调整）
-      // })
-      const fetchData = () => {
-        getPlot({eqid}).then(res => {
-          let data = res
-          let pointArr = data.filter(e => e.drawtype === 'point')
-          let points = []
-          pointArr.forEach(item => {
-            if (!that.renderedPlotIds.has(item.plotId)) { // 检查是否已经渲染
-              let point = {
-                earthquakeId: item.earthquakeId,
-                plotId: item.plotId,
-                time: item.creationTime.replace("T"," "),
-                plotType: item.plotType,
-                drawtype: item.drawtype,
-                latitude: item.latitude,
-                longitude: item.longitude,
-                height: item.elevation,
-                icon: item.icon,
-              }
-              points.push(point)
+      getPlot({eqid}).then(res => {
+        let data = res
+        let pointArr = data.filter(e => e.drawtype === 'point')
+        let points = []
+        pointArr.forEach(item => {
+          if (!that.renderedPlotIds.has(item.plotId)) { // 检查是否已经渲染
+            let point = {
+              earthquakeId: item.earthquakeId,
+              plotId: item.plotId,
+              time: item.creationTime.replace("T"," "),
+              plotType: item.plotType,
+              drawtype: item.drawtype,
+              latitude: item.latitude,
+              longitude: item.longitude,
+              height: item.elevation,
+              icon: item.icon,
             }
-          })
-
-          that.drawPoints(points)
-          let polylineArr = data.filter(e => e.drawtype === 'polyline');
-
-          // 过滤掉已经渲染的项
-          let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
-
-          // 标记未渲染的项为已渲染
-          unrenderedPolylineArr.forEach(item => {
-            that.renderedPlotIds.add(item.plotId); // 标记为已渲染
-          });
-
-          // 只绘制未渲染的线条
-          if (unrenderedPolylineArr.length > 0) {
-            cesiumPlot.getDrawPolyline(unrenderedPolylineArr); // 只绘制当前未渲染的线条
+            points.push(point)
           }
-
-          let straightArr = data.filter(e => e.drawtype === 'straight');
-          Arrow.showStraightArrow(straightArr)
-
-          let attackArr = data.filter(e => e.drawtype === 'attack');
-          Arrow.showAttackArrow(attackArr)
-
-          let pincerArr = data.filter(e => e.drawtype === 'pincer');
-          Arrow.showPincerArrow(pincerArr)
-
-          // 处理多边形数据
-          let polygonArr = data.filter(e => e.drawtype === 'polygon');
-          // console.log('index.polygonArr', polygonArr)
-          let polygonMap = {};
-          polygonArr.forEach(item => {
-            if (!polygonMap[item.plotId]) {
-              polygonMap[item.plotId] = [];
-            }
-            polygonMap[item.plotId].push(item);
-          });
-          Object.keys(polygonMap).forEach(plotId => {
-            let polygonData = polygonMap[plotId];
-            that.getDrawPolygonInfo(polygonData);
-          });
-          // 长轮询逻辑：等待一段时间后继续请求
-          setTimeout(() => {
-            fetchData(); // 递归调用以实现长轮询
-          }, 5000); // 设置 5 秒的轮询间隔（可以根据需求调整）
         })
-        .catch((error) => {
-          console.error("获取数据失败:", error);
-          // 如果发生错误，等待一段时间后重新尝试
-          setTimeout(() => {
-            fetchData();
-          }, 10000); // 10 秒后重试
+        console.log("weixuanran",points)
+        that.drawPoints(points)
+        let polylineArr = data.filter(e => e.drawtype === 'polyline');
+        console.log("polylineArr",polylineArr)
+        // 过滤掉已经渲染的项
+        let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
+
+        // 标记未渲染的项为已渲染
+        unrenderedPolylineArr.forEach(item => {
+          that.renderedPlotIds.add(item.plotId); // 标记为已渲染
         });
-      };
-      // 开始长轮询
-      fetchData();
+
+        // 只绘制未渲染的线条
+        if (unrenderedPolylineArr.length > 0) {
+          cesiumPlot.getDrawPolyline(unrenderedPolylineArr); // 只绘制当前未渲染的线条
+        }
+
+        // 处理多边形数据
+        let polygonArr = data.filter(e => e.drawtype === 'polygon');
+        // console.log('index.polygonArr', polygonArr)
+        let polygonMap = {};
+        polygonArr.forEach(item => {
+          if (!polygonMap[item.plotId]) {
+            polygonMap[item.plotId] = [];
+          }
+          polygonMap[item.plotId].push(item);
+        });
+        Object.keys(polygonMap).forEach(plotId => {
+          let polygonData = polygonMap[plotId];
+          that.getDrawPolygonInfo(polygonData);
+        });
+        let straightArr = data.filter(e => e.drawtype === 'straight');
+        Arrow.showStraightArrow(straightArr)
+
+        let attackArr = data.filter(e => e.drawtype === 'attack');
+        Arrow.showAttackArrow(attackArr)
+
+        let pincerArr = data.filter(e => e.drawtype === 'pincer');
+        Arrow.showPincerArrow(pincerArr)
+        // // 长轮询逻辑：等待一段时间后继续请求
+        // setTimeout(() => {
+        //   fetchData(); // 递归调用以实现长轮询
+        // }, 5000); // 设置 5 秒的轮询间隔（可以根据需求调整）
+      })
+      // const fetchData = () => {
+      //   getPlot({eqid}).then(res => {
+      //     let data = res
+      //     let pointArr = data.filter(e => e.drawtype === 'point')
+      //     let points = []
+      //     pointArr.forEach(item => {
+      //       if (!that.renderedPlotIds.has(item.plotId)) { // 检查是否已经渲染
+      //         let point = {
+      //           earthquakeId: item.earthquakeId,
+      //           plotId: item.plotId,
+      //           time: item.creationTime.replace("T"," "),
+      //           plotType: item.plotType,
+      //           drawtype: item.drawtype,
+      //           latitude: item.latitude,
+      //           longitude: item.longitude,
+      //           height: item.elevation,
+      //           icon: item.icon,
+      //         }
+      //         points.push(point)
+      //       }
+      //     })
+      //
+      //     that.drawPoints(points)
+      //     let polylineArr = data.filter(e => e.drawtype === 'polyline');
+      //
+      //     // 过滤掉已经渲染的项
+      //     let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
+      //
+      //     // 标记未渲染的项为已渲染
+      //     unrenderedPolylineArr.forEach(item => {
+      //       that.renderedPlotIds.add(item.plotId); // 标记为已渲染
+      //     });
+      //
+      //     // 只绘制未渲染的线条
+      //     if (unrenderedPolylineArr.length > 0) {
+      //       cesiumPlot.getDrawPolyline(unrenderedPolylineArr); // 只绘制当前未渲染的线条
+      //     }
+      //
+      //     let straightArr = data.filter(e => e.drawtype === 'straight');
+      //     Arrow.showStraightArrow(straightArr)
+      //
+      //     let attackArr = data.filter(e => e.drawtype === 'attack');
+      //     Arrow.showAttackArrow(attackArr)
+      //
+      //     let pincerArr = data.filter(e => e.drawtype === 'pincer');
+      //     Arrow.showPincerArrow(pincerArr)
+      //
+      //     // 处理多边形数据
+      //     let polygonArr = data.filter(e => e.drawtype === 'polygon');
+      //     // console.log('index.polygonArr', polygonArr)
+      //     let polygonMap = {};
+      //     polygonArr.forEach(item => {
+      //       if (!polygonMap[item.plotId]) {
+      //         polygonMap[item.plotId] = [];
+      //       }
+      //       polygonMap[item.plotId].push(item);
+      //     });
+      //     Object.keys(polygonMap).forEach(plotId => {
+      //       let polygonData = polygonMap[plotId];
+      //       that.getDrawPolygonInfo(polygonData);
+      //     });
+      //     // 长轮询逻辑：等待一段时间后继续请求
+      //     setTimeout(() => {
+      //       fetchData(); // 递归调用以实现长轮询
+      //     }, 5000); // 设置 5 秒的轮询间隔（可以根据需求调整）
+      //   })
+      //   .catch((error) => {
+      //     console.error("获取数据失败:", error);
+      //     // 如果发生错误，等待一段时间后重新尝试
+      //     setTimeout(() => {
+      //       fetchData();
+      //     }, 10000); // 10 秒后重试
+      //   });
+      // };
+      // // 开始长轮询
+      // fetchData();
     },
     entityclustering() {
       // window.viewer.dataSource.cl
@@ -559,7 +567,6 @@ export default {
           let cartographic = Cesium.Cartographic.fromCartesian(position);
           let latitude = Cesium.Math.toDegrees(cartographic.latitude);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-
 
           // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
           let height = 0
@@ -731,8 +738,6 @@ export default {
         this.initWebsocket()
         // that.websock.eqid = that.eqid
         this.initPlot(that.eqid)
-
-
         this.getEqInfo(that.eqid)
         // 初始化标绘所需的viewer、ws、pinia
         let cesiumStore = useCesiumStore()
@@ -925,6 +930,7 @@ export default {
     },
 
     treeItemClick(item) {
+      console.log("item",item)
       let data = {
         plot: {
           earthquakeId: this.eqid,
@@ -946,39 +952,26 @@ export default {
         },
         plotinfo: null
       }
-
       let that = this
       if (item.plottype === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
         new Promise((resolve, reject) => {
-          window.isDrawingPolygon = true;
           Arrow.drawStraightArrow(data, resolve)
         }).then((res) => {
-          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
-        }).catch(() => {
-          window.isDrawingPolygon = false;
         })
       } else if (item.name === '攻击箭头') {
         new Promise((resolve, reject) => {
-          window.isDrawingPolygon = true;
           Arrow.drawAttackArrow(data, resolve)
         }).then((res) => {
-          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
-        }).catch(() => {
-          window.isDrawingPolygon = false;
         })
       } else if (item.name === '钳击箭头') {
         new Promise((resolve, reject) => {
-          window.isDrawingPolygon = true;
           Arrow.drawPincerArrow(data, resolve)
         }).then((res) => {
-          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
-        }).catch(() => {
-          window.isDrawingPolygon = false;
         })
       } else if (item.plottype === '线图层') {
         new Promise((resolve, reject) => {
@@ -1031,6 +1024,7 @@ export default {
           delete plotItem.pointPosArr;
 
           situationPlotData.push(plotItem)
+          console.log("situationPlotData",situationPlotData)
           that.polygonStatus = cesiumPlot.drawPolygonStatus()
           this.openPolygonPop(res.plotType, situationPlotData)
         })
@@ -1157,6 +1151,7 @@ export default {
         // })
         // console.log("situationPlotData",plotType,situationPlotData)
         cesiumStore.setPolygonInfo({plotType, situationPlotData})
+        console.log("123",situationPlotData)
         that.addPolygonDialogFormVisible = true
         // 1-3 生成点标注的handler
         // cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {

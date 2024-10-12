@@ -1,6 +1,6 @@
 const plotType = {
     standbyTeam: {
-        name:"待命队伍",
+        name: "待命队伍",
         teamName: {
             type: "text",
             name: "队伍名称",
@@ -304,8 +304,62 @@ const plotType = {
         }
     },
 
+    straightArrows: {
+        name: "直线箭头",
+        startingPoint: {
+            type: "text",
+            name: "起始点",
+            value: ""
+        },
+        targetPoint: {
+            type: "text",
+            name: "目标点",
+            value: ""
+        },
+        actionContent: {
+            type: "text",
+            name: "行动内容",
+            value: ""
+        },
+    },
+    attackArrows: {
+        name: "攻击箭头",
+        startingPoint: {
+            type: "text",
+            name: "起始点",
+            value: ""
+        },
+        targetPoint: {
+            type: "text",
+            name: "目标点",
+            value: ""
+        },
+        actionContent: {
+            type: "text",
+            name: "行动内容",
+            value: ""
+        },
+    },
+    pincerArrows: {
+        name: "钳击箭头",
+        startingPoint: {
+            type: "text",
+            name: "起始点",
+            value: ""
+        },
+        targetPoint: {
+            type: "text",
+            name: "目标点",
+            value: ""
+        },
+        actionContent: {
+            type: "text",
+            name: "行动内容",
+            value: ""
+        },
+    },
     unsearchedArea: {
-        name:"未搜索区域",
+        name: "未搜索区域",
         rescueAreaLocation: {
             type: "text",
             name: "搜索区域位置",
@@ -334,7 +388,7 @@ const plotType = {
 
     },
     searchedArea: {
-        name:"已搜索区域",
+        name: "已搜索区域",
         rescueAreaLocation: {
             type: "text",
             name: "搜索区域位置",
@@ -364,7 +418,7 @@ const plotType = {
     },
 
     unrescuedArea: {
-        name:"未营救区域",
+        name: "未营救区域",
         rescueAreaLocation: {
             type: "text",
             name: "营救区域位置",
@@ -419,7 +473,7 @@ const plotType = {
         },
     },
     rescuedArea: {
-        name:"已营救区域",
+        name: "已营救区域",
         rescueAreaLocation: {
             type: "text",
             name: "营救区域位置",
@@ -474,7 +528,7 @@ const plotType = {
         },
     },
     rescueArea: {
-        name:"正在营救区域",
+        name: "正在营救区域",
         rescueAreaLocation: {
             type: "text",
             name: "营救区域位置",
@@ -1156,9 +1210,9 @@ const plotType = {
             name: "先期处置阶段",
             value: "",
             content: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -1203,7 +1257,8 @@ const plotType = {
                     value: "casualties",
                     label: "无"
                 },
-                { value: "casualties",
+                {
+                    value: "casualties",
                     label: "有"
                 }
             ]

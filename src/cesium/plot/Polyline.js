@@ -371,7 +371,7 @@ export default class Polyline {
           let p = window.viewer.entities.add({
             show: false,
             position: new Cesium.Cartesian3(coords[0], coords[1], line[0].elevation),
-            id: line[0].plotId + 'point' + (i + 1),
+            // id: line[0].plotId + 'point' + (i + 1),
             point: {
               pixelSize: 0,
               color: Cesium.Color.RED,

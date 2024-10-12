@@ -12,8 +12,7 @@
     <!--    <div class="layer-button">-->
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
     <!--    </div>-->
-    <div v-if="activeComponent === 'layerChoose'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+    <div v-if="activeComponent === 'layerChoose'" class="dropdown expanded">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
             v-for="item in layeritems"
@@ -26,15 +25,13 @@
       </el-checkbox-group>
       <div @click="toggleExpand"
            style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
 
-    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown expanded">
       <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
         <el-radio
-            v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
+            v-for="item in thematicMapitems"
             :key="item.id"
             :label="item.name"
             style="margin: 0 0;color:white"
@@ -44,23 +41,21 @@
       </el-radio-group>
       <div @click="toggleExpand"
            style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
-    <div v-if="activeComponent === 'reportDownload'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+    <div v-if="activeComponent === 'reportDownload'" class="dropdown expanded">
       <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
         <el-radio
-            v-for="item in (isExpanded ? reportItems : reportItems.slice(0, 6))"
+            v-for="item in reportItems"
             :key="item.id"
             :label="item.name"
-            style="margin: 0 0;color:white">
+            style="margin: 0 0;color:white"
+        >
           {{ item.name }}
         </el-radio>
       </el-radio-group>
       <div @click="toggleExpand"
            style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
 
@@ -69,7 +64,7 @@
     <!--    <div class="regionjump-button">-->
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
     <!--    </div>-->
-    <div class="dropdown" v-if="activeComponent === 'Regionjump'">
+    <div v-if="activeComponent === 'Regionjump'" class="dropdown expanded">
       <div class="district-buttons">
         <div class="city-button">
           <el-button @click="addYaanImageryDistrict">雅安市</el-button>
@@ -123,44 +118,42 @@
         <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-        <!--<el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
-        </el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
-        </el-menu-item>
+        <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
+        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
         <el-menu-item index="6">返回首页</el-menu-item>
       </el-menu>
     </div>
 
-    <!--    box包裹地图，截图需要-->
-    <div id="box" ref="box">
-      <div id="cesiumContainer">
-        <!-- TimeLinePanel 弹窗 -->
-        <TimeLinePanel
-            :visible="timelinePopupVisible"
-            :position="timelinePopupPosition"
-            :popupData="timelinePopupData"
+        <!--    box包裹地图，截图需要-->
+        <div id="box" ref="box">
+            <div id="cesiumContainer">
+                <!-- TimeLinePanel 弹窗 -->
+                <TimeLinePanel
+                        :visible="timelinePopupVisible"
+                        :position="timelinePopupPosition"
+                        :popupData="timelinePopupData"
+                />
+            </div>
+        </div>
+        <!-- RouterPanel 弹窗 -->
+        <RouterPanel
+                :visible="routerPopupVisible"
+                :position="routerPopupPosition"
+                :popupData="routerPopupData"
         />
-      </div>
-    </div>
-    <!-- RouterPanel 弹窗 -->
-    <RouterPanel
-        :visible="routerPopupVisible"
-        :position="routerPopupPosition"
-        :popupData="routerPopupData"
-    />
 
-    <!-- 进度条-->
-    <div class="bottom">
-      <!--      播放暂停按钮-->
-      <div class="play">
-        <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
-             @click="toggleTimer"/>
-        <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
-             @click="toggleTimer"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
-      </div>
+        <!-- 进度条-->
+        <div class="bottom">
+            <!--      播放暂停按钮-->
+            <div class="play">
+                <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
+                <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
+                     @click="toggleTimer"/>
+                <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
+                     @click="toggleTimer"/>
+                <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
+            </div>
 
       <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true"
            @mouseleave="isDragging = true">
@@ -178,86 +171,105 @@
         </div>
       </div>
 
-      <!--      时间点-->
-      <div class="current-time-info">
-        <span style="margin-left: 55px;" class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
-      </div>
+            <!--      时间点-->
+            <div class="current-time-info">
+                <span class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
+            </div>
 
-      <div class="end-time-info">
-        <div class="timelabel">
-          <span>{{ this.timestampToTime(this.currentTime) }}</span>
-          <span> / </span>
-          <span> {{ this.timestampToTime(this.eqendTime) }}</span>
+            <div class="end-time-info">
+                <div class="timelabel">
+                    <span>{{ this.timestampToTime(this.currentTime) }}</span>
+                    <span> / </span>
+                    <span> {{ this.timestampToTime(this.eqendTime) }}</span>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
+        <!-- 进度条 end-->
 
-    <!-- 进度条 end-->
+        <!--    两侧组件-->
+        <!--   应急响应-左上   -->
+        <timeLineEmergencyResponse
+                :eqid="eqid"
+                :currentTime="currentTime"
+        />
+        <!--   人员伤亡-左中   -->
+        <timeLinePersonnelCasualties
+                :eqid="eqid"
+                :currentTime="currentTime"
+        />
+        <!--   救援出队-左下   -->
+        <timeLineRescueTeam
+                :eqid="eqid"
+                :currentTime="currentTime"
+        />
+        <!--  新闻-右上  -->
+        <div>
+            <news
+                    :eqid="eqid"
+                    :currentTime="currentTime"
+                    @ifShowDialog="ifShowDialog"
+                    @detailedNews="detailedNews"
+            ></news>
+        </div>
+        <!--      新闻弹框-->
+        <div>
+            <news-dialog
+                    :showDetailedNewsDialog="showDetailedNewsDialog"
+                    :showingNewsContent="showingNewsContent"
+                    @hideNewsDialog="hideNewsDialog"
+            ></news-dialog>
+        </div>
+        <!--      缩略图-->
+        <div>
+            <mini-map></mini-map>
+        </div>
 
-    <!--    两侧组件-->
-    <!--   应急响应-左上   -->
-    <timeLineEmergencyResponse
-        :eqid="eqid"
-        :currentTime="currentTime"
-    />
-    <!--   人员伤亡-左中   -->
-    <timeLinePersonnelCasualties
-        :eqid="eqid"
-        :currentTime="currentTime"
-    />
-    <!--   救援出队-左下   -->
-    <timeLineRescueTeam
-        :eqid="eqid"
-        :currentTime="currentTime"
-    />
-    <!--  新闻-右上  -->
-    <div>
-      <news
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @ifShowDialog="ifShowDialog"
-          @detailedNews="detailedNews"
-      ></news>
-    </div>
-    <!--      新闻弹框-->
-    <div>
-      <news-dialog
-          :showDetailedNewsDialog="showDetailedNewsDialog"
-          :showingNewsContent="showingNewsContent"
-          @hideNewsDialog="hideNewsDialog"
-      ></news-dialog>
-    </div>
-    <!--      缩略图-->
-    <div>
-      <mini-map></mini-map>
-    </div>
-
-    <timeLineLegend :activeComponent="activeComponent" @toggleComponent="toggleComponent"></timeLineLegend>
-    <!--    两侧组件 end-->
+        <timeLineLegend
+                :activeComponent="activeComponent"
+                @toggleComponent="toggleComponent"
+        ></timeLineLegend>
+        <!--    两侧组件 end-->
 
 
-    <!--   行政区划要素图层图例   -->
-    <div id="legend"
-         style="display: none;position: absolute;
+        <!--   行政区划要素图层图例   -->
+<!--        <div id="legend"-->
+<!--             style="display: none;position: absolute;-->
+<!--           z-index:20; bottom: 100px;-->
+<!--           right: 450px; color: #FFFFFF;-->
+<!--           background-color: rgba(0, 0, 0, 0.5);-->
+<!--           padding: 10px; border-radius: 5px;text-align: center;">-->
+    <div id="legend" v-show="isShowYaanRegionLegend"
+         style="position: absolute;
            z-index:20; bottom: 100px;
            right: 450px; color: #FFFFFF;
            background-color: rgba(0, 0, 0, 0.5);
            padding: 10px; border-radius: 5px;text-align: center;">
-      <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>
-    </div>
+      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index" >
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+          <div
+              style="width: 20px; height: 20px; margin-right: 10px;"
+              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
+          </div>
+          <span>{{ colorItem.name }}</span>
+        </div>
+        </div>
+      </div>
 
-    <!--   断裂带名称div   -->
-    <div id="faultInfo"
-         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
+<!--            <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>-->
+<!--        </div>-->
+
+        <!--   断裂带名称div   -->
+        <div id="faultInfo"
+             style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
+        </div>
+        <thematicMapPreview
+                @ifShowThematicMapDialog="ifShowThematicMapDialog"
+                :imgshowURL="imgshowURL"
+                :imgurlFromDate="imgurlFromDate"
+                :imgName="imgName"
+                :ifShowMapPreview="ifShowMapPreview"
+        ></thematicMapPreview>
     </div>
-    <thematicMapPreview
-        @ifShowThematicMapDialog="ifShowThematicMapDialog"
-        :imgshowURL="imgshowURL"
-        :imgurlFromDate="imgurlFromDate"
-        :imgName="imgName"
-        :ifShowMapPreview="ifShowMapPreview"
-    ></thematicMapPreview>
-  </div>
 </template>
 
 <script>
@@ -295,248 +307,276 @@ import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
-//时间轴
 
 //专题图
-import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
+import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
-
 export default {
-  components: {
-    thematicMapPreview,
-    RouterPanel,
-    TimeLinePanel,
-    News,
-    MiniMap,
-    timeLineEmergencyResponse,
-    timeLinePersonnelCasualties,
-    timeLineRescueTeam,
-    timeLineLegend,
-    newsDialog,
-    commonPanel,
-    eqTable,
-  },
-  data: function () {
-    return {
+    components: {
+        thematicMapPreview,
+        RouterPanel,
+        TimeLinePanel,
+        News,
+        MiniMap,
+        timeLineEmergencyResponse,
+        timeLinePersonnelCasualties,
+        timeLineRescueTeam,
+        timeLineLegend,
+        newsDialog,
+        commonPanel,
+        eqTable,
+    },
+    data: function () {
+        return {
 // -----------弹窗们的状态变量-------------
-      selectedEntityHighDiy: null, // 存储弹窗的位置
-      routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
-      routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
-      routerPopupData: {}, // RouterPanel弹窗的数据
+            selectedEntityHighDiy: null, // 存储弹窗的位置
+            routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
+            routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
+            routerPopupData: {}, // RouterPanel弹窗的数据
 
-      timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
-      timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
-      timelinePopupData: {}, // TimeLinePanel弹窗的数据
-      //----------------------------------
-      eqid: '',
-      // viewer: '',
-      store: '',
-      //地震时间年月日
-      eqyear: '',
-      eqmonth: '',
-      eqday: '',
+            timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
+            timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
+            timelinePopupData: {}, // TimeLinePanel弹窗的数据
+            //----------------------------------
+            eqid: '',
+            // viewer: '',
+            store: '',
+            //地震时间年月日
+            eqyear: '',
+            eqmonth: '',
+            eqday: '',
 
-      // 震中点数据结构
-      centerPoint: {
-        plotid: 'center',
-        earthquakeName: '',
-        // position: '',
-        // time:'',
-        starttime: '',
-        endtime: '',
-        magnitude: '',
-        longitude: '',
-        latitude: '',
-        height: '',
-        depth: '',
-        plottype: '震中'
-      },
+            // 震中点数据结构
+            centerPoint: {
+                plotid: 'center',
+                earthquakeName: '',
+                // position: '',
+                // time:'',
+                starttime: '',
+                endtime: '',
+                magnitude: '',
+                longitude: '',
+                latitude: '',
+                height: '',
+                depth: '',
+                plottype: '震中'
+            },
 
-      // 新闻组件
-      showingNewsContent: {
-        id: '',
-        time: '',
-        content: '',
-        img: '',
-      },
-      showDetailedNewsDialog: false,
+            // 新闻组件
+            showingNewsContent: {
+                id: '',
+                time: '',
+                content: '',
+                img: '',
+            },
+            showDetailedNewsDialog: false,
 
-      //时间轴时间
-      // ifShowData: false,
-      // timelineTotalDurationMinutes:10380,
-      timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
-      eqstartTime: '',
-      currentTime: '',
-      eqendTime: '',
-      tmpeqendTime: '',//默认的地震结束时间
-      realTime: new Date(),
-      //时间轴当前进度条节点位置
-      // currentTimePosition: 0,
-      currentTimePosition: 100,
-      //时间轴当前前进步
-      currentNodeIndex: 2076,
-      realtimeinterval: null,
-      intervalId: null,
-      eqendtimeinterval: null,
-      // 倍速
-      currentSpeed: 1,
-      showSpeedOptions: false,
-      speedOption: '1X',
-      speedOptions: ['1X', '2X', '4X'],
+            //时间轴时间
+            // ifShowData: false,
+            // timelineTotalDurationMinutes:10380,
+            timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
+            eqstartTime: '',
+            currentTime: '',
+            eqendTime: '',
+            tmpeqendTime: '',//默认的地震结束时间
+            realTime: new Date(),
+            //时间轴当前进度条节点位置
+            // currentTimePosition: 0,
+            currentTimePosition: 100,
+            //时间轴当前前进步
+            currentNodeIndex: 2076,
+            realtimeinterval: null,
+            intervalId: null,
+            eqendtimeinterval: null,
+            // 倍速
+            currentSpeed: 1,
+            showSpeedOptions: false,
+            speedOption: '1X',
+            speedOptions: ['1X', '2X', '4X'],
 
-      //是否记载到view上，已经存在则不再添加
-      plotisshow: {},
-      //包括最早出现时间，最晚结束时间的标绘点信息
-      plots: [],
-      //时间轴暂停播放状态
-      isTimerRunning: false,
-      //时间轴拖拽
-      isDragging: false,
-      dragStartX: 0,
+            //是否记载到view上，已经存在则不再添加
+            plotisshow: {},
+            //包括最早出现时间，最晚结束时间的标绘点信息
+            plots: [],
+            //时间轴暂停播放状态
+            isTimerRunning: false,
+            //时间轴拖拽
+            isDragging: false,
+            dragStartX: 0,
 
-      smallViewer: null,
+            smallViewer: null,
 
-      //-------------ws---------------------
-      websock: null,
-      //-----------------地震列表---------------------
-      // eqListShow: false,
-      //-地震列表---------------------------------
-      total: 0,
-      pageSize: 6,
-      currentPage: 1,
-      tableData: [],
-      //-----------------图层---------------------
-      // iflayerChoose: false,
-      isMarkingLayer: true,
-      showlayers: [],
-      //-----------------图层---------------------
-      LRDLStatus: false, // 路网
-      // districtLayer: null,
-      //------------------按钮下拉框------
-      // visible: false,
-      districts: [
-        {adcode: 511802, name: "雨城区"},
-        {adcode: 511803, name: "名山区"},
-        {adcode: 511822, name: "荥经县"},
-        {adcode: 511823, name: "汉源县"},
-        {adcode: 511824, name: "石棉县"},
-        {adcode: 511825, name: "天全县"},
-        {adcode: 511826, name: "芦山县"},
-        {adcode: 511827, name: "宝兴县"},
-      ],
-      geojsonData: [],
-      labels: [],  // 保存标签实体的引用
-      regionLayer111: null,
+            //-------------ws---------------------
+            websock: null,
+            //-----------------地震列表---------------------
+            // eqListShow: false,
+            //-地震列表---------------------------------
+            total: 0,
+            pageSize: 6,
+            currentPage: 1,
+            tableData: [],
+            //-----------------图层---------------------
+            // iflayerChoose: false,
+            isMarkingLayer: true,
+            showlayers: [],
+            //-----------------图层---------------------
+            LRDLStatus: false, // 路网
+            // districtLayer: null,
+            //------------------按钮下拉框------
+            // visible: false,
+            districts: [
+                {adcode: 511802, name: "雨城区"},
+                {adcode: 511803, name: "名山区"},
+                {adcode: 511822, name: "荥经县"},
+                {adcode: 511823, name: "汉源县"},
+                {adcode: 511824, name: "石棉县"},
+                {adcode: 511825, name: "天全县"},
+                {adcode: 511826, name: "芦山县"},
+                {adcode: 511827, name: "宝兴县"},
+            ],
+            geojsonData: [],
+            labels: [],  // 保存标签实体的引用
+            regionLayer111: null,
 
-      activeComponent: null,
-      //-----------------图层要素---------------------
-      isExpanded: false,
-      layeritems: [
-        {id: '0', name: '标绘点图层'},
-        {id: '1', name: '行政区划要素图层'},
-        {id: '2', name: '人口密度要素图层'},
-        {id: '3', name: '交通网络要素图层'},
-        {id: '4', name: '避难场所要素图层'},
-        {id: '5', name: '救援队伍分布要素图层'},
-        {id: '6', name: '应急物资存储要素图层'},
-        {id: '7', name: '历史地震要素图层'},
-        {id: '8', name: '断裂带要素图层'},
-      ],
-      selectedlayersLocal: ['标绘点图层'],
-      isMarkingLayerLocal: false,
-      disasterReserves: [],
-      emergencyTeam: [],
-      emergencyShelters: [],
+            activeComponent: null,
+            //-----------------图层要素---------------------
+            isExpanded: false,
+            layeritems: [
+                {id: '0', name: '标绘点图层'},
+                {id: '1', name: '行政区划要素图层'},
+                {id: '2', name: '人口密度要素图层'},
+                {id: '3', name: '交通网络要素图层'},
+                {id: '4', name: '避难场所要素图层'},
+                {id: '5', name: '救援队伍分布要素图层'},
+                {id: '6', name: '应急物资存储要素图层'},
+                {id: '7', name: '历史地震要素图层'},
+                {id: '8', name: '断裂带要素图层'},
+            ],
+            selectedlayersLocal: ['标绘点图层'],
+            isMarkingLayerLocal: true,
+            disasterReserves: [],
+            emergencyTeam: [],
+            emergencyShelters: [],
+            isShowYaanRegionLegend:false, //雅安行政区划图例
 
+            // 定义雅安各区县的颜色和名称
+            YaanLegendcolors : [
+              {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+              {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+              {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+              {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+              {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+              {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+              {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+              {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+            ],
       //专题图下载
-      thematicMapitems: [],
-      selectthematicMap: '',
-      isshowThematicMapPreview: '',
-      imgshowURL: '',
-      imgurlFromDate: '',
-      imgName: '',
+      thematicMapitems:[],
+      selectthematicMap:'',
+      isshowThematicMapPreview:'',
+      imgshowURL:'',
+      imgurlFromDate:'',
+      imgName:'',
       ifShowMapPreview: false, // 是否预览专题图
       //专题图下载end
 
       //报告产出
-      reportItems: [],
-      selectReportItem: '',
+      reportItems:[],
+      selectReportItem:'',
 
     };
   },
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-    this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
+    this.reportItems=ReportUrl.filter(item => item.eqid === this.eqid);
     // console.log(this.thematicMapitems);
   },
   mounted() {
     this.init()
     this.getEqInfo(this.eqid)
 
-    this.initPlot(); // 初始化加载应急数据
-    // // ---------------------------------------------------
-    // // 生成实体点击事件的handler
-    this.entitiesClickPonpHandler()
-    this.watchTerrainProviderChanged()
-    // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
-    //     this.ifShowData = true
-    // }
-  },
-  // 图层要素
-  methods: {
-
-    /**
-     * 计算复选框列表的高度
-     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
-     *
-     * @returns {number} 返回复选框列表的总高度
-     */
-    getHeight() {
-      // 每个复选框的高度
-      const checkboxHeight = 50;
-      // 复选框之间的间距值
-      const margin = 10;
-      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
-      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
-      console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
-      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
-      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
+        this.initPlot(); // 初始化加载应急数据
+        // // ---------------------------------------------------
+        // // 生成实体点击事件的handler
+        this.entitiesClickPonpHandler()
+        this.watchTerrainProviderChanged()
+        // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
+        //     this.ifShowData = true
+        // }
     },
+  beforeDestroy() {
+    if (window.viewer){
+      this.clearResource(window.viewer)
+      window.viewer = null;
+    }
+    if (window.smallViewer){
+      this.clearResource(window.smallViewer)
+      window.smallViewer = null;
+    }
+  },
+    // 图层要素
+    methods: {
+      clearResource(viewer){
+        let gl=viewer.scene.context._gl
+        viewer.entities.removeAll()
+        // viewer.scene.primitives.removeAll()
+        // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+        viewer.destroy()
+        gl.getExtension("WEBGL_lose_context").loseContext();
+        gl=null
+      },
+        /**
+         * 计算复选框列表的高度
+         * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
+         *
+         * @returns {number} 返回复选框列表的总高度
+         */
+        getHeight() {
+            // 每个复选框的高度
+            const checkboxHeight = 50;
+            // 复选框之间的间距值
+            const margin = 10;
+            // console.log(this.layeritems.length/2 , this.layeritems.length%2)
+            // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
+            console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
+            // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
+            return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
+        },
 
-    /**
-     * 图层要素 切换展开状态
-     *
-     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
-     *
-     * @returns {void} 无返回值
-     */
+      /**
+       * 图层要素 切换展开状态
+       *
+       * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
+       *
+       * @returns {void} 无返回值
+       */
     toggleExpand() {
       console.log("Toggle expand clicked");
       this.isExpanded = !this.isExpanded;
     },
 
-    /**
-     * 设置组件展开的面板互斥,避免堆叠
-     * 切换组件的显示状态
-     * @param {String} component - 要切换的组件名称
-     */
-    toggleComponent(component) {
-      // 收起图层要素
-      this.isExpanded = false;
-      // 清除主题地图预览的显示状态
-      this.isshowThematicMapPreview = null;
-      // 清除选择的主题地图
-      this.selectthematicMap = null;
+      /**
+       * 设置组件展开的面板互斥,避免堆叠
+       * 切换组件的显示状态
+       * @param {String} component - 要切换的组件名称
+       */
+      toggleComponent(component) {
+          // 收起图层要素
+          this.isExpanded = false;
+          // 清除主题地图预览的显示状态
+          this.isshowThematicMapPreview = null;
+          // 清除选择的主题地图
+          this.selectthematicMap = null;
 
-      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
-      this.activeComponent = this.activeComponent === component ? null : component;
+          // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+          this.activeComponent = this.activeComponent === component ? null : component;
 
-      // 如果激活的组件是地震列表，则获取地震数据
-      if (this.activeComponent === 'eqList') {
-        this.getEq();
-      }
-    },
+          // 如果激活的组件是地震列表，则获取地震数据
+          if (this.activeComponent === 'eqList') {
+              this.getEq();
+          }
+      },
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -564,307 +604,311 @@ export default {
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
 
-      //经纬度查询
-      let that = this
+            //经纬度查询
+            let that = this
 
-      let canvas = viewer.scene.canvas;
-      //具体事件的实现
-      let ellipsoid = viewer.scene.globe.ellipsoid;
-      let handler = new Cesium.ScreenSpaceEventHandler(canvas);
-      handler.setInputAction(function (movement) {
-        //捕获椭球体，将笛卡尔二维平面坐标转为椭球体的笛卡尔三维坐标，返回球体表面的点
-        let cartesian = viewer.camera.pickEllipsoid(movement.position, ellipsoid);
-        if (cartesian) {
-          //将笛卡尔三维坐标转为地图坐标（弧度）
-          let cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
-          //将地图坐标（弧度）转为十进制的度数
-          let latString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
-          let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
-          // 获取相机的海拔高度作为视角高度/km
-          let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
-          // console.log(latString);
-          // console.log(logString);
-          // console.log(altiString);
-          that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude))
-        }
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+            let canvas = viewer.scene.canvas;
+            //具体事件的实现
+            let ellipsoid = viewer.scene.globe.ellipsoid;
+            let handler = new Cesium.ScreenSpaceEventHandler(canvas);
+            handler.setInputAction(function (movement) {
+                //捕获椭球体，将笛卡尔二维平面坐标转为椭球体的笛卡尔三维坐标，返回球体表面的点
+                let cartesian = viewer.camera.pickEllipsoid(movement.position, ellipsoid);
+                if (cartesian) {
+                    //将笛卡尔三维坐标转为地图坐标（弧度）
+                    let cartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+                    //将地图坐标（弧度）转为十进制的度数
+                    let latString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+                    let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+                    // 获取相机的海拔高度作为视角高度/km
+                    let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
+                    // console.log(latString);
+                    // console.log(logString);
+                    // console.log(altiString);
+                    that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude))
+                }
+            }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 
-      // 创建缩略图视图器实例
-      let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
-      window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
-      smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   // 隐藏所有控件
-      //   geocoder: false,
-      //   homeButton: false,
-      //   sceneModePicker: false,
-      //   timeline: false,
-      //   navigationHelpButton: false,
-      //   animation: false,
-      //   infoBox: false,
-      //   fullscreenButton: false,
-      //   showRenderState: false,
-      //   selectionIndicator: false,
-      //   baseLayerPicker: false,
-      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      // });
-      // 隐藏缩略图视图器的版权信息
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none';
+            // 创建缩略图视图器实例
+            let smallMapContainer = document.getElementById('smallMapContainer');
+            let smallViewer = initCesium(Cesium, smallMapContainer)
+            window.smallViewer = smallViewer
+            smallViewer._cesiumWidget._creditContainer.style.display = 'none'
+            let smallOptions = {}
+            smallOptions.enableCompass = false
+            smallOptions.enableZoomControls = false
+            smallOptions.enableDistanceLegend = false
+            smallOptions.enableCompassOuterRing = false
+            smallOptions.geocoder = false
+            smallOptions.homeButton = false
+            smallOptions.sceneModePicker = false
+            smallOptions.timeline = false
+            smallOptions.navigationHelpButton = false
+            smallOptions.animation = false
+            smallOptions.infoBox = false
+            smallOptions.fullscreenButton = false
+            smallOptions.showRenderState = false
+            smallOptions.selectionIndicator = false
+            smallOptions.baseLayerPicker = false
+            smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
+            smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
+            window.navigation = new CesiumNavigation(smallViewer, smallOptions)
+            smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
+            // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
+            //   // 隐藏所有控件
+            //   geocoder: false,
+            //   homeButton: false,
+            //   sceneModePicker: false,
+            //   timeline: false,
+            //   navigationHelpButton: false,
+            //   animation: false,
+            //   infoBox: false,
+            //   fullscreenButton: false,
+            //   showRenderState: false,
+            //   selectionIndicator: false,
+            //   baseLayerPicker: false,
+            //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
+            //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
+            // });
+            // 隐藏缩略图视图器的版权信息
+            smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
-      // 同步主视图器的相机到缩略图视图器
-      function syncCamera() {
-        const camera1 = viewer.scene.camera;
-        const camera2 = smallViewer.scene.camera;
+            // 同步主视图器的相机到缩略图视图器
+            function syncCamera() {
+                const camera1 = viewer.scene.camera;
+                const camera2 = smallViewer.scene.camera;
 
-        camera2.setView({
-          destination: camera1.positionWC,
-          orientation: {
-            heading: camera1.heading,
-            pitch: camera1.pitch,
-            roll: camera1.roll
-          }
-        });
-      }
+                camera2.setView({
+                    destination: camera1.positionWC,
+                    orientation: {
+                        heading: camera1.heading,
+                        pitch: camera1.pitch,
+                        roll: camera1.roll
+                    }
+                });
+            }
 
-      // 监听主视图器的相机变化
-      viewer.scene.camera.changed.addEventListener(syncCamera);
+            // 监听主视图器的相机变化
+            viewer.scene.camera.changed.addEventListener(syncCamera);
 
-      // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function () {
-        smallViewer.scene.requestRender(); // 确保缩略图更新
-      });
+            // 每帧渲染时同步缩略图视图
+            viewer.scene.postRender.addEventListener(function () {
+                smallViewer.scene.requestRender(); // 确保缩略图更新
+            });
 
-      // 初始同步
-      syncCamera();
-    },
-
-    /**
-     * 取地震信息+开始结束当前时间初始化
-     * @param {string} eqid - 地震ID
-     */
-    getEqInfo(eqid) {
-      // 调用接口根据ID获取地震信息
-      getEqById({id: eqid}).then(res => {
-        console.log("thd eqid---------------", eqid)
-        //震中标绘点
-        this.centerPoint = res
-        // console.log(res)
-        // console.log(res)
-        // 设置中心点的标识和时间信息
-        this.centerPoint.plotid = "center"
-        this.centerPoint.starttime = new Date(res.occurrenceTime)
-        // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
-        //默认结束时间（设置得大一点，防止按时间渲染随时间长度更新消失了）10天
-        this.centerPoint.endtime = new Date(this.centerPoint.starttime.getTime() + 10 * 24 * 36000 * 1000);
-        // console.log(this.centerPoint.starttime,this.centerPoint.endtime,this.timelineAdvancesNumber)
-        //变量初始化
-        this.eqstartTime = this.centerPoint.starttime
-        this.eqyear = this.eqstartTime.getFullYear()
-        this.eqmonth = this.eqstartTime.getMonth() + 1
-        this.eqday = this.eqstartTime.getDate()
-        // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + 2076 * 5 * 60 * 1000);
-        // this.realTime = new Date(); //真实时间
-        //
-        // 根据当前时间和地震结束时间计算时间线推进数量
-        if (this.realTime < this.tmpeqendTime) {
-          this.eqendTime = new Date(this.realTime)
-          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-          this.currentNodeIndex = this.timelineAdvancesNumber
-        } else {
-          this.eqendTime = this.tmpeqendTime
-        }
-        this.currentTime = this.eqendTime
-
-        // 获取地震数据并更新地图和变量
-        this.getEq()
-        this.checkIfOvalCircleLayer();
-        this.updateMapandVariablebeforInit()
-
-      })
-
-    },
-
-    /*
-    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-    * */
-    timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    },
-
-    /*
-    * 更新地图中心视角，更新变量：地震起止时间，渲染点
-    * */
-    updateMapandVariablebeforInit() {
-      viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
-            120000),
-        orientation: {
-          // 指向
-          heading: 6.283185307179581,
-          // 视角
-          pitch: -1.5688168484696687,
-          roll: 0.0
-        }
-      });
-      //加载中心点
-      viewer.entities.add({
-        // properties: {
-        //   type: "震中",
-        //   time: this.centerPoint.time,
-        //   name: this.centerPoint.position,
-        //   lat: this.centerPoint.latitude,
-        //   lon: this.centerPoint.longitude,
-        //   describe: this.centerPoint.position,
-        // },
-        position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
-            parseFloat(this.centerPoint.height || 0)
-        ),
-        billboard: {
-          image: centerstar,
-          width: 40,
-          height: 40,
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-          scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
+            // 初始同步
+            syncCamera();
         },
-        label: {
-          text: this.centerPoint.earthquakeName,
-          show: true,
-          font: '14px sans-serif',
-          fillColor: Cesium.Color.RED,        //字体颜色
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          outlineWidth: 2,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -16),
-        },
-        id: this.centerPoint.plotid,
-        plottype: "震中",
-        layer: "标绘点"
-      });
-      smallViewer.entities.removeAll();
-      smallViewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
-            parseFloat(this.centerPoint.height || 0)
-        ),
-        billboard: {
-          image: centerstar,
-          width: 40,
-          height: 40,
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-          scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
-        },
-        label: {
-          text: this.centerPoint.earthquakeName,
-          show: true,
-          font: '10px sans-serif',
-          fillColor: Cesium.Color.RED,        //字体颜色
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          outlineWidth: 2,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -16),
-        },
-        id: this.centerPoint.plotid,
-        plottype: "震中",
-      });
 
-      this.xuanran(this.eqid)
-    },
-    //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
+        /**
+         * 取地震信息+开始结束当前时间初始化
+         * @param {string} eqid - 地震ID
+         */
+        getEqInfo(eqid) {
+            // 调用接口根据ID获取地震信息
+            getEqById({id: eqid}).then(res => {
+                console.log("thd eqid---------------", eqid)
+                //震中标绘点
+                this.centerPoint = res
+                // console.log(res)
+                // console.log(res)
+                // 设置中心点的标识和时间信息
+                this.centerPoint.plotid = "center"
+                this.centerPoint.starttime = new Date(res.occurrenceTime)
+                // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
+                //默认结束时间（设置得大一点，防止按时间渲染随时间长度更新消失了）10天
+                this.centerPoint.endtime = new Date(this.centerPoint.starttime.getTime() + 10 * 24 * 36000 * 1000);
+                // console.log(this.centerPoint.starttime,this.centerPoint.endtime,this.timelineAdvancesNumber)
+                //变量初始化
+                this.eqstartTime = this.centerPoint.starttime
+                this.eqyear = this.eqstartTime.getFullYear()
+                this.eqmonth = this.eqstartTime.getMonth() + 1
+                this.eqday = this.eqstartTime.getDate()
+                // 计算结束时间 结束时间为开始后72小时，单位为毫秒
+                //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+                this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + 2076 * 5 * 60 * 1000);
+                // this.realTime = new Date(); //真实时间
+                //
+                // 根据当前时间和地震结束时间计算时间线推进数量
+                if (this.realTime < this.tmpeqendTime) {
+                    this.eqendTime = new Date(this.realTime)
+                    this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+                    this.currentNodeIndex = this.timelineAdvancesNumber
+                } else {
+                    this.eqendTime = this.tmpeqendTime
+                }
+                this.currentTime = this.eqendTime
 
-    /**
-     * 根据指定的eqid渲染数据
-     * 此方法主要负责针对特定的eqid获取并渲染数据，包括初始化渲染和动态更新数据
-     * @param {string} eqid - 需要渲染的数据的唯一标识符
-     */
-    xuanran(eqid) {
-      // 获取特定eqid的带有开始和结束时间的绘图数据
-      this.getPlotwithStartandEndTime(eqid)
-      // 初始化定时器，用于定期从数据库请求新的绘图数据
-      this.intimexuanran(eqid)
-    },
+                // 获取地震数据并更新地图和变量
+                this.getEq()
+                this.checkIfOvalCircleLayer();
+                this.updateMapandVariablebeforInit()
 
-    /**
-     * 触发地震渲染更新
-     * @param {string} eqid - 地震ID
-     */
-    intimexuanran(eqid) {
-      // 每5分钟触发一次更新
-      if (this.realTime < this.tmpeqendTime) {
-        console.log("还在更新的地震")
-        // 当实时时间位置为100%且没有定时器运行时，启动定时器
-        if (!this.isTimerRunning && this.currentTimePosition === 100) {
-          // 检查是否已经有定时器在运行
-          if (!this.realtimeinterval) {
-            // 设置定时器，每5秒执行一次
-            this.realtimeinterval = setInterval(() => {
-              // 如果时间位置不再为100%，停止定时器
-              if (this.currentTimePosition !== 100) {
-                clearInterval(this.realtimeinterval); // 停止定时器
-                this.realtimeinterval = null; // 清除引用
-                return; // 跳出当前循环
-              }
-              // 更新结束时间和当前时间，并计算时间轴进度和节点数量
-              this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-              this.eqendTime = new Date()
-              this.currentTime = this.eqendTime
-              this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-              this.currentNodeIndex = this.timelineAdvancesNumber
-            }, 5000);
-          }
+            })
+
+        },
+
+        /*
+        * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+        * */
+        timestampToTime(timestamp) {
+            let DateObj = new Date(timestamp)
+
+            let year = DateObj.getFullYear()
+            let month = DateObj.getMonth() + 1
+            let day = DateObj.getDate()
+            let hh = DateObj.getHours()
+            let mm = DateObj.getMinutes()
+            let ss = DateObj.getSeconds()
+            month = month > 9 ? month : '0' + month
+            day = day > 9 ? day : '0' + day
+            hh = hh > 9 ? hh : '0' + hh
+            mm = mm > 9 ? mm : '0' + mm
+            ss = ss > 9 ? ss : '0' + ss
+            // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+            return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+        },
+
+        /*
+        * 更新地图中心视角，更新变量：地震起止时间，渲染点
+        * */
+        updateMapandVariablebeforInit() {
+            viewer.camera.setView({
+                destination: Cesium.Cartesian3.fromDegrees(
+                    parseFloat(this.centerPoint.geom.coordinates[0]),
+                    parseFloat(this.centerPoint.geom.coordinates[1]),
+                    120000),
+                orientation: {
+                    // 指向
+                    heading: 6.283185307179581,
+                    // 视角
+                    pitch: -1.5688168484696687,
+                    roll: 0.0
+                }
+            });
+            //加载中心点
+            viewer.entities.add({
+                // properties: {
+                //   type: "震中",
+                //   time: this.centerPoint.time,
+                //   name: this.centerPoint.position,
+                //   lat: this.centerPoint.latitude,
+                //   lon: this.centerPoint.longitude,
+                //   describe: this.centerPoint.position,
+                // },
+                position: Cesium.Cartesian3.fromDegrees(
+                    parseFloat(this.centerPoint.geom.coordinates[0]),
+                    parseFloat(this.centerPoint.geom.coordinates[1]),
+                    parseFloat(this.centerPoint.height || 0)
+                ),
+                billboard: {
+                    image: centerstar,
+                    width: 40,
+                    height: 40,
+                    eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+                    scale: 0.8,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    depthTest: false,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                },
+                label: {
+                    text: this.centerPoint.earthquakeName,
+                    show: true,
+                    font: '14px sans-serif',
+                    fillColor: Cesium.Color.RED,        //字体颜色
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    outlineWidth: 2,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    pixelOffset: new Cesium.Cartesian2(0, -16),
+                },
+                id: this.centerPoint.plotid,
+                plottype: "震中",
+                layer: "标绘点"
+            });
+            smallViewer.entities.removeAll();
+            smallViewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(
+                    parseFloat(this.centerPoint.geom.coordinates[0]),
+                    parseFloat(this.centerPoint.geom.coordinates[1]),
+                    parseFloat(this.centerPoint.height || 0)
+                ),
+                billboard: {
+                    image: centerstar,
+                    width: 40,
+                    height: 40,
+                    eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+                    scale: 0.8,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    depthTest: false,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY
+                },
+                label: {
+                    text: this.centerPoint.earthquakeName,
+                    show: true,
+                    font: '10px sans-serif',
+                    fillColor: Cesium.Color.RED,        //字体颜色
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    outlineWidth: 2,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    pixelOffset: new Cesium.Cartesian2(0, -16),
+                },
+                id: this.centerPoint.plotid,
+                plottype: "震中",
+            });
+
+            this.xuanran(this.eqid)
+        },
+        //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
+
+        /**
+         * 根据指定的eqid渲染数据
+         * 此方法主要负责针对特定的eqid获取并渲染数据，包括初始化渲染和动态更新数据
+         * @param {string} eqid - 需要渲染的数据的唯一标识符
+         */
+        xuanran(eqid) {
+          // 初始化标绘所需的viewer、ws、pinia
+          let cesiumStore = useCesiumStore()
+          cesiumPlot.init(window.viewer, this.websock, cesiumStore)
+            // 获取特定eqid的带有开始和结束时间的绘图数据
+            this.getPlotwithStartandEndTime(eqid)
+            // 初始化定时器，用于定期从数据库请求新的绘图数据
+            this.intimexuanran(eqid)
+        },
+
+        /**
+         * 触发地震渲染更新
+         * @param {string} eqid - 地震ID
+         */
+        intimexuanran(eqid) {
+
+            // 每5分钟触发一次更新
+            if (this.realTime < this.tmpeqendTime) {
+                console.log("还在更新的地震")
+                // 当实时时间位置为100%且没有定时器运行时，启动定时器
+                if (!this.isTimerRunning && this.currentTimePosition === 100) {
+                    // 检查是否已经有定时器在运行
+                    if (!this.realtimeinterval) {
+                        // 设置定时器，每5秒执行一次
+                        this.realtimeinterval = setInterval(() => {
+                            // 如果时间位置不再为100%，停止定时器
+                            if (this.currentTimePosition !== 100) {
+                                clearInterval(this.realtimeinterval); // 停止定时器
+                                this.realtimeinterval = null; // 清除引用
+                                return; // 跳出当前循环
+                            }
+                            // 更新结束时间和当前时间，并计算时间轴进度和节点数量
+                            this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+                            this.eqendTime = new Date()
+                            this.currentTime = this.eqendTime
+                            this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+                            this.currentNodeIndex = this.timelineAdvancesNumber
+                        }, 5000);
+                    }
 
                     // 当没有结束时间定时器运行时，启动定时器
                     if (!this.eqendtimeinterval) {
@@ -953,7 +997,7 @@ export default {
                 // }
                 // })
                 // 更新绘图
-                this.updatePlot()
+                this.updatePlot(false)
 
 
                 // 开启时间轴
@@ -968,7 +1012,8 @@ export default {
         /*
         * 更新标绘点
         * */
-        updatePlot() {
+        // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
+        updatePlot(bool) {
             // 原始代码：console.log(this.plots)
             // 创建一个指向当前上下文的变量，用于在闭包中访问this
             let that = this
@@ -1023,10 +1068,10 @@ export default {
                 }
               }
             });
-            // 批量渲染点
+            // 批量渲染点 + 非初始化状态渲染标会点动画
             if (points.length > 0) {
-              console.log("")
-              cesiumPlot.drawPoints(points,true);
+              let param = bool === false ? false : true
+              cesiumPlot.drawPoints(points,param);
             }
 
             //--------------------------线绘制------------------------------

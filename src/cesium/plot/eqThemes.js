@@ -17,7 +17,7 @@ export function addYaanLayer() {
     dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
 
     const colors = [
-      // {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+      {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
       {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
       {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
       {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
@@ -180,7 +180,7 @@ export function addHistoryEqPoints(centerPoint, eqData) {
           label: {
             show: false,
             showBackground: true,
-            text: `${timestampToTime(eq.time, 'date')} ${eq.position} ${eq.magnitude}级地震`,
+            text: `${timestampToTime(eq.occurrenceTime, 'date')} ${eq.earthquakeName} ${eq.magnitude}级地震`,
             font: '16px sans-serif',
             fillColor: Cesium.Color.WHITE,
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,

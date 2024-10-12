@@ -13,7 +13,7 @@ export function addEq(data) {
 export function deleteeq(query) {
     return request({
         url: '/system/deleteEq',
-        method: 'get',
+        method: 'post',
         params: query
     })
 }
