@@ -93,7 +93,7 @@ const plotType = {
         }
     },
     dispatchedTeam: {
-        name:"已出发队伍",
+        name: "已出发队伍",
         teamName: {
             type: "text",
             name: "队伍名称",
@@ -113,8 +113,7 @@ const plotType = {
             type: "text",
             name: "县（市、区）",
             value: ""
-        }
-        ,
+        },
         personnelCount: {
             type: "text",
             name: "人员数量",
@@ -207,7 +206,7 @@ const plotType = {
         }
     },
     participatingTeam: {
-        name:"正在参与队伍",
+        name: "正在参与队伍",
         teamName: {
             type: "text",
             name: "队伍名称",
@@ -569,7 +568,7 @@ const plotType = {
     },
 
     missingPersons: {
-        name:"失踪人员",
+        name: "失踪人员",
         missingLocation: {
             type: "text",
             name: "失联位置",
@@ -622,7 +621,7 @@ const plotType = {
     },
 
     injuredPerson: {
-        name:"轻伤人员",
+        name: "轻伤人员",
         location: {
             type: "text",
             name: "所在位置",
@@ -746,7 +745,7 @@ const plotType = {
         }
     },
     severelyInjuredPerson: {
-        name:"重伤人员",
+        name: "重伤人员",
         location: {
             type: "text",
             name: "所在位置",
@@ -870,7 +869,7 @@ const plotType = {
         }
     },
     criticallyInjuredPerson: {
-        name:"危重伤人员",
+        name: "危重伤人员",
         location: {
             type: "text",
             name: "所在位置",
@@ -994,7 +993,7 @@ const plotType = {
         }
     },
     deadPerson: {
-        name:"死亡人员",
+        name: "死亡人员",
         location: {
             type: "text",
             name: "所在位置",
@@ -1105,7 +1104,8 @@ const plotType = {
                     value: "casualties",
                     label: "无"
                 },
-                { value: "casualties",
+                {
+                    value: "casualties",
                     label: "有"
                 }
             ]
@@ -1254,9 +1254,9 @@ const plotType = {
             name: "先期处置阶段",
             value: "",
             content: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -1277,9 +1277,9 @@ const plotType = {
             name: "河沟坡度",
             value: "",
             content: [
-                { value: "riverSlope", label: "陡峭" },
-                { value: "riverSlope", label: "中等" },
-                { value: "riverSlope", label: "平缓" }
+                {value: "riverSlope", label: "陡峭"},
+                {value: "riverSlope", label: "中等"},
+                {value: "riverSlope", label: "平缓"}
             ]
         },
         vegetationCoverage: {
@@ -1287,104 +1287,103 @@ const plotType = {
             name: "植被覆盖率",
             value: "",
             content: [
-                { value: "vegetationCoverage", label: "低" },
-                { value: "vegetationCoverage", label: "中" },
-                { value: "vegetationCoverage", label: "高" }
+                {value: "vegetationCoverage", label: "低"},
+                {value: "vegetationCoverage1", label: "中"},
+                {value: "vegetationCoverage2", label: "高"}
             ]
         },
         flowSpeed: {
             type: "select",
             name: "流速",
             value: "",
-            options: [
-                { value: "flowSpeed", label: "快" },
-                { value: "flowSpeed", label: "中" },
-                { value: "flowSpeed", label: "慢" }
+            content: [
+                {value: "flowSpeed", label: "快"},
+                {value: "flowSpeed1", label: "中"},
+                {value: "flowSpeed2", label: "慢"}
             ]
         },
-        accumulationArea: {
-            area: {
-                type: "text",
-                name: "面积 (m²)",
-                value: ""
-            },
-            averageThickness: {
-                type: "text",
-                name: "平均厚度 (m)",
-                value: ""
-            },
-            materialComposition: {
-                type: "select",
-                name: "物质组成",
-                value: "",
-                options: [
-                    { value: "materialComposition", label: "泥流" },
-                    { value: "materialComposition", label: "泥石流" },
-                    { value: "materialComposition", label: "水石流" }
-                ]
-            },
-            currentStabilityStatus: {
-                type: "select",
-                name: "目前稳定状况",
-                value: "",
-                options: [
-                    { value: "currentStabilityStatus", label: "基本稳定" },
-                    { value: "currentStabilityStatus", label: "不稳定" }
-                ]
-            },
-            casualties: {
-                type: "select",
-                name: "人员伤亡",
-                value: "",
-                options: [
-                    { value: "casualties", label: "无" },
-                    { value: "casualties", label: "有" }
-                ]
-            },
-            threatenedObjects: {
-                type: "selectMultiple",
-                name: "威胁对象",
-                value: [],
-                options: [
-                    { value: "threatenedObjects", label: "地表建筑" },
-                    { value: "threatenedObjects", label: "交通线路" },
-                    { value: "threatenedObjects", label: "通讯电力设施" },
-                    { value: "threatenedObjects", label: "水库电站" },
-                    { value: "threatenedObjects", label: "管网工程" },
-                    { value: "threatenedObjects", label: "其他设施" }
-                ]
-            },
-            disposalTeam: {
-                type: "text",
-                name: "处置队伍",
-                value: ""
-            },
-            disposalMeasures: {
-                type: "text",
-                name: "处置措施",
-                value: ""
-            },
-            initialDisposalPhase: {
-                type: "select",
-                name: "先期处置阶段",
-                value: "",
-                options: [
-                    { value: "initialDisposalPhase", label: "暂未处置" },
-                    { value: "initialDisposalPhase", label: "正在处置" },
-                    { value: "initialDisposalPhase", label: "完成处置" }
-                ]
-            },
-            contactPerson: {
-                type: "text",
-                name: "联系人员",
-                value: ""
-            },
-            contactPhone: {
-                type: "text",
-                name: "联系电话",
-                value: ""
-            }
+        area: {
+            type: "text",
+            name: "面积 (m²)",
+            value: ""
+        },
+        averageThickness: {
+            type: "text",
+            name: "平均厚度 (m)",
+            value: ""
+        },
+        materialComposition: {
+            type: "select",
+            name: "物质组成",
+            value: "",
+            content: [
+                {value: "materialComposition", label: "泥流"},
+                {value: "materialComposition", label: "泥石流"},
+                {value: "materialComposition", label: "水石流"}
+            ]
+        },
+        currentStabilityStatus: {
+            type: "select",
+            name: "目前稳定状况",
+            value: "",
+            content: [
+                {value: "currentStabilityStatus", label: "基本稳定"},
+                {value: "currentStabilityStatus", label: "不稳定"}
+            ]
+        },
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
+            ]
+        },
+        threatenedObjects: {
+            type: "selectMultiple",
+            name: "威胁对象",
+            value: [],
+            content: [
+                {value: "threatenedObjects", label: "地表建筑"},
+                {value: "threatenedObjects", label: "交通线路"},
+                {value: "threatenedObjects", label: "通讯电力设施"},
+                {value: "threatenedObjects", label: "水库电站"},
+                {value: "threatenedObjects", label: "管网工程"},
+                {value: "threatenedObjects", label: "其他设施"}
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
+            type: "select",
+            name: "先期处置阶段",
+            value: "",
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
         }
+
     },
     groundFissure: {
         name: "地裂缝",
@@ -1408,17 +1407,17 @@ const plotType = {
             name: "活动性",
             value: "",
             content: [
-                { value: "activityStatus", label: "停止" },
-                { value: "activityStatus", label: "仍有活动" }
+                {value: "activityStatus", label: "停止"},
+                {value: "activityStatus", label: "仍有活动"}
             ]
         },
         casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         threatenedObjects: {
@@ -1426,12 +1425,12 @@ const plotType = {
             name: "威胁对象",
             value: [],
             content: [
-                { value: "threatenedObjects", label: "地表建筑" },
-                { value: "threatenedObjects", label: "交通线路" },
-                { value: "threatenedObjects", label: "通讯电力设施" },
-                { value: "threatenedObjects", label: "水库电站" },
-                { value: "threatenedObjects", label: "管网工程" },
-                { value: "threatenedObjects", label: "其他设施" }
+                {value: "threatenedObjects", label: "地表建筑"},
+                {value: "threatenedObjects", label: "交通线路"},
+                {value: "threatenedObjects", label: "通讯电力设施"},
+                {value: "threatenedObjects", label: "水库电站"},
+                {value: "threatenedObjects", label: "管网工程"},
+                {value: "threatenedObjects", label: "其他设施"}
             ]
         },
         disposalTeam: {
@@ -1449,9 +1448,9 @@ const plotType = {
             name: "先期处置阶段",
             value: "",
             content: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -1466,7 +1465,7 @@ const plotType = {
         }
     },
     landSubsidence: {
-        name:"地面沉降",
+        name: "地面沉降",
         affectedArea: {
             type: "text",
             name: "沉降面积 (m²)",
@@ -1482,17 +1481,17 @@ const plotType = {
             name: "发展变化",
             value: "",
             content: [
-                { value: "developmentChange", label: "停止" },
-                { value: "developmentChange", label: "尚在发展" }
+                {value: "developmentChange", label: "停止"},
+                {value: "developmentChange", label: "尚在发展"}
             ]
         },
         casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         threatenedTarget: {
@@ -1500,12 +1499,12 @@ const plotType = {
             name: "威胁对象",
             value: "",
             content: [
-                { value: "threatenedTarget", label: "地表建筑" },
-                { value: "threatenedTarget", label: "交通线路" },
-                { value: "threatenedTarget", label: "通讯电力设施" },
-                { value: "threatenedTarget", label: "水库电站" },
-                { value: "threatenedTarget", label: "管网工程" },
-                { value: "threatenedTarget", label: "其他设施" }
+                {value: "threatenedTarget", label: "地表建筑"},
+                {value: "threatenedTarget", label: "交通线路"},
+                {value: "threatenedTarget", label: "通讯电力设施"},
+                {value: "threatenedTarget", label: "水库电站"},
+                {value: "threatenedTarget", label: "管网工程"},
+                {value: "threatenedTarget", label: "其他设施"}
             ]
         },
         responseTeam: {
@@ -1523,9 +1522,9 @@ const plotType = {
             name: "先期处置阶段",
             value: "",
             content: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -1557,30 +1556,30 @@ const plotType = {
             name: "发展变化",
             value: "",
             content: [
-                { value: "developmentChange", label: "停止" },
-                { value: "developmentChange", label: "尚在发展" }
+                {value: "developmentChange", label: "停止"},
+                {value: "developmentChange", label: "尚在发展"}
             ]
         },
         casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         threatenedTarget: {
             type: "selectMultiple",
             name: "威胁对象",
             value: [],
-            options: [
-                { value: "threatenedTarget", label: "地表建筑" },
-                { value: "threatenedTarget", label: "交通线路" },
-                { value: "threatenedTarget", label: "通讯电力设施" },
-                { value: "threatenedTarget", label: "水库电站" },
-                { value: "threatenedTarget", label: "管网工程" },
-                { value: "threatenedTarget", label: "其他设施" }
+            content: [
+                {value: "threatenedTarget", label: "地表建筑"},
+                {value: "threatenedTarget", label: "交通线路"},
+                {value: "threatenedTarget", label: "通讯电力设施"},
+                {value: "threatenedTarget", label: "水库电站"},
+                {value: "threatenedTarget", label: "管网工程"},
+                {value: "threatenedTarget", label: "其他设施"}
             ]
         },
         responseTeam: {
@@ -1597,10 +1596,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+            content: [
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -1612,7 +1611,8 @@ const plotType = {
             type: "text",
             name: "联系电话",
             value: ""
-        }},
+        }
+    },
 
     minorDamageToBuildings: {
         name: "轻微破坏建筑物",
@@ -1621,9 +1621,9 @@ const plotType = {
             name: "人员伤亡",
             value: "",
             content: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有（10人及以下）" },
-                { value: "casualties", label: "有（10人以上）" }
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有（10人及以下）"},
+                {value: "casualties", label: "有（10人以上）"}
             ]
         },
         usageType: {
@@ -1631,38 +1631,38 @@ const plotType = {
             name: "使用性质",
             value: "",
             content: [
-                { value: "usageType", label: "住宅楼" },
-                { value: "usageType", label: "自建房" },
-                { value: "usageType", label: "办公楼" },
-                { value: "usageType", label: "学校" },
-                { value: "usageType", label: "医院" },
-                { value: "usageType", label: "厂房" },
-                { value: "usageType", label: "仓库" },
-                { value: "usageType", label: "体育馆" },
-                { value: "usageType", label: "展览馆" },
-                { value: "usageType", label: "其它" }
+                {value: "usageType", label: "住宅楼"},
+                {value: "usageType", label: "自建房"},
+                {value: "usageType", label: "办公楼"},
+                {value: "usageType", label: "学校"},
+                {value: "usageType", label: "医院"},
+                {value: "usageType", label: "厂房"},
+                {value: "usageType", label: "仓库"},
+                {value: "usageType", label: "体育馆"},
+                {value: "usageType", label: "展览馆"},
+                {value: "usageType", label: "其它"}
             ]
         },
         structureType: {
             type: "select",
             name: "结构类型",
             value: "",
-            options: [
-                { value: "structureType", label: "砖木结构" },
-                { value: "structureType", label: "砖混结构" },
-                { value: "structureType", label: "钢筋混凝土结构" },
-                { value: "structureType", label: "钢结构" },
-                { value: "structureType", label: "其它" }
+            content: [
+                {value: "structureType", label: "砖木结构"},
+                {value: "structureType", label: "砖混结构"},
+                {value: "structureType", label: "钢筋混凝土结构"},
+                {value: "structureType", label: "钢结构"},
+                {value: "structureType", label: "其它"}
             ]
         },
         damageForm: {
-            type: "selectMultiple",
+            type: "select",
             name: "破坏形式",
-            value: [],
-            options: [
-                { value: "damageForm", label: "振动破坏（地面振动通过基础传递到建筑物导致）" },
-                { value: "damageForm", label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）" },
-                { value: "damageForm", label: "次生效应破坏（如震后滑坡、崩塌等导致）" }
+            value: "",
+            content: [
+                {value: "damageForm", label: "振动破坏（地面振动通过基础传递到建筑物导致）"},
+                {value: "damageForm", label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"},
+                {value: "damageForm", label: "次生效应破坏（如震后滑坡、崩塌等导致）"}
             ]
         },
         disposalTeam: {
@@ -1679,10 +1679,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -1696,622 +1696,622 @@ const plotType = {
             value: ""
         }
     },
-    moderatelyDamagedBuildings:{
-        name:"中等破坏建筑物",
-        casualties:{
-            type:"select",
-            name:"人员伤亡",
-            value:"",
-            content:[
+    moderatelyDamagedBuildings: {
+        name: "中等破坏建筑物",
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            content: [
                 {
-                    value:"casualties",
-                    label:"有（10人以上）"
+                    value: "casualties",
+                    label: "有（10人以上）"
                 },
                 {
-                    value:"casualties",
-                    label:"有（10人以下）"
+                    value: "casualties",
+                    label: "有（10人以下）"
                 },
                 {
-                    value:"casualties",
-                    label:"无"
-                },
-            ]
-        },
-        usageType:{
-            type:"select",
-            name:"使用性质",
-            value:"",
-            content:[
-                {
-                    value:"usageType",
-                    label:"住宅楼"
-                },
-                {
-                    value:"usageType",
-                    label:"自建房"
-                },
-                {
-                    value:"usageType",
-                    label:"办公楼"
-                },
-                {
-                    value:"usageType",
-                    label:"学校"
-                },
-                {
-                    value:"usageType",
-                    label:"医院"
-                },
-                {
-                    value:"usageType",
-                    label:"厂房"
-                },
-                {
-                    value:"usageType",
-                    label:"仓库"
-                },
-                {
-                    value:"usageType",
-                    label:"体育馆"
-                },
-                {
-                    value:"usageType",
-                    label:"展览馆"
-                },
-                {
-                    value:"usageType",
-                    label:"其它"
+                    value: "casualties",
+                    label: "无"
                 },
             ]
         },
-        structureType:{
-            type:"select",
-            name:"结构类型",
-            value:"",
-            content:[
+        usageType: {
+            type: "select",
+            name: "使用性质",
+            value: "",
+            content: [
                 {
-                    value:"structureType",
-                    label:"砖木结构"
+                    value: "usageType",
+                    label: "住宅楼"
                 },
                 {
-                    value:"structureType",
-                    label:"砖混结构"
+                    value: "usageType",
+                    label: "自建房"
                 },
                 {
-                    value:"structureType ",
-                    label:"钢筋混凝土结构"
+                    value: "usageType",
+                    label: "办公楼"
                 },
                 {
-                    value:"structureType",
-                    label:"钢结构"
+                    value: "usageType",
+                    label: "学校"
                 },
                 {
-                    value:"structureType",
-                    label:"其它"
-                },
-            ]
-        },
-        damageForm:{
-            type:"select",
-            name:"破坏模式",
-            value:"",
-            content:[
-                {
-                    value:"damageForm",
-                    label:"振动破坏（地面振动通过基础传递到建筑物导致）"
+                    value: "usageType",
+                    label: "医院"
                 },
                 {
-                    value:"damageForm",
-                    label:"地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                    value: "usageType",
+                    label: "厂房"
                 },
                 {
-                    value:"damageForm",
-                    label:"次生效应破坏（如震后滑坡、崩塌等导致）"
-                },
-            ]
-        },
-        disposalTeam:{
-            type:"text",
-            name:"处置队伍",
-            value:""
-        },
-        disposalMeasures:{
-            type:"text",
-            name:"处置措施",
-            value:""
-        },
-        initialDisposalPhase:{
-            type:"select",
-            name:"处置阶段",
-            value:"",
-            content:[
-                {
-                    value:"initialDisposalPhase",
-                    label:"暂未处置"
+                    value: "usageType",
+                    label: "仓库"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"正在处置"
+                    value: "usageType",
+                    label: "体育馆"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"完成处置"
+                    value: "usageType",
+                    label: "展览馆"
+                },
+                {
+                    value: "usageType",
+                    label: "其它"
                 },
             ]
         },
-        contactPerson:{
-            type:"text",
-            name:"联系人员",
-            value:""
+        structureType: {
+            type: "select",
+            name: "结构类型",
+            value: "",
+            content: [
+                {
+                    value: "structureType",
+                    label: "砖木结构"
+                },
+                {
+                    value: "structureType",
+                    label: "砖混结构"
+                },
+                {
+                    value: "structureType ",
+                    label: "钢筋混凝土结构"
+                },
+                {
+                    value: "structureType",
+                    label: "钢结构"
+                },
+                {
+                    value: "structureType",
+                    label: "其它"
+                },
+            ]
         },
-        contactPhone:{
-            type:"text",
-            name:"联系电话",
-            value:""
+        damageForm: {
+            type: "select",
+            name: "破坏模式",
+            value: "",
+            content: [
+                {
+                    value: "damageForm",
+                    label: "振动破坏（地面振动通过基础传递到建筑物导致）"
+                },
+                {
+                    value: "damageForm",
+                    label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                },
+                {
+                    value: "damageForm",
+                    label: "次生效应破坏（如震后滑坡、崩塌等导致）"
+                },
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
+            type: "select",
+            name: "处置阶段",
+            value: "",
+            content: [
+                {
+                    value: "initialDisposalPhase",
+                    label: "暂未处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "正在处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "完成处置"
+                },
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
         },
     },
-    basicallyIntactBuildings:{
-        name:"基本完好建筑物",
-        casualties:{
-            type:"select",
-            name:"人员伤亡",
-            value:"",
-            content:[
+    basicallyIntactBuildings: {
+        name: "基本完好建筑物",
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            content: [
                 {
-                    value:"casualties",
-                    label:"有（10人以上）"
+                    value: "casualties",
+                    label: "有（10人以上）"
                 },
                 {
-                    value:"casualties",
-                    label:"有（10人以下）"
+                    value: "casualties",
+                    label: "有（10人以下）"
                 },
                 {
-                    value:"casualties",
-                    label:"无"
-                },
-            ]
-        },
-        usageType:{
-            type:"select",
-            name:"使用性质",
-            value:"",
-            content:[
-                {
-                    value:"usageType",
-                    label:"住宅楼"
-                },
-                {
-                    value:"usageType",
-                    label:"自建房"
-                },
-                {
-                    value:"usageType",
-                    label:"办公楼"
-                },
-                {
-                    value:"usageType",
-                    label:"学校"
-                },
-                {
-                    value:"usageType",
-                    label:"医院"
-                },
-                {
-                    value:"usageType",
-                    label:"厂房"
-                },
-                {
-                    value:"usageType",
-                    label:"仓库"
-                },
-                {
-                    value:"usageType",
-                    label:"体育馆"
-                },
-                {
-                    value:"usageType",
-                    label:"展览馆"
-                },
-                {
-                    value:"usageType",
-                    label:"其它"
+                    value: "casualties",
+                    label: "无"
                 },
             ]
         },
-        structureType:{
-            type:"select",
-            name:"结构类型",
-            value:"",
-            content:[
+        usageType: {
+            type: "select",
+            name: "使用性质",
+            value: "",
+            content: [
                 {
-                    value:"structureType",
-                    label:"砖木结构"
+                    value: "usageType",
+                    label: "住宅楼"
                 },
                 {
-                    value:"structureType",
-                    label:"砖混结构"
+                    value: "usageType",
+                    label: "自建房"
                 },
                 {
-                    value:"structureType ",
-                    label:"钢筋混凝土结构"
+                    value: "usageType",
+                    label: "办公楼"
                 },
                 {
-                    value:"structureType",
-                    label:"钢结构"
+                    value: "usageType",
+                    label: "学校"
                 },
                 {
-                    value:"structureType",
-                    label:"其它"
-                },
-            ]
-        },
-        damageForm:{
-            type:"select",
-            name:"破坏模式",
-            value:"",
-            content:[
-                {
-                    value:"damageForm",
-                    label:"振动破坏（地面振动通过基础传递到建筑物导致）"
+                    value: "usageType",
+                    label: "医院"
                 },
                 {
-                    value:"damageForm",
-                    label:"地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                    value: "usageType",
+                    label: "厂房"
                 },
                 {
-                    value:"damageForm",
-                    label:"次生效应破坏（如震后滑坡、崩塌等导致）"
-                },
-            ]
-        },
-        disposalTeam:{
-            type:"text",
-            name:"处置队伍",
-            value:""
-        },
-        disposalMeasures:{
-            type:"text",
-            name:"处置措施",
-            value:""
-        },
-        initialDisposalPhase:{
-            type:"select",
-            name:"处置阶段",
-            value:"",
-            content:[
-                {
-                    value:"initialDisposalPhase",
-                    label:"暂未处置"
+                    value: "usageType",
+                    label: "仓库"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"正在处置"
+                    value: "usageType",
+                    label: "体育馆"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"完成处置"
+                    value: "usageType",
+                    label: "展览馆"
+                },
+                {
+                    value: "usageType",
+                    label: "其它"
                 },
             ]
         },
-        contactPerson:{
-            type:"text",
-            name:"联系人员",
-            value:""
+        structureType: {
+            type: "select",
+            name: "结构类型",
+            value: "",
+            content: [
+                {
+                    value: "structureType",
+                    label: "砖木结构"
+                },
+                {
+                    value: "structureType",
+                    label: "砖混结构"
+                },
+                {
+                    value: "structureType ",
+                    label: "钢筋混凝土结构"
+                },
+                {
+                    value: "structureType",
+                    label: "钢结构"
+                },
+                {
+                    value: "structureType",
+                    label: "其它"
+                },
+            ]
         },
-        contactPhone:{
-            type:"text",
-            name:"联系电话",
-            value:""
+        damageForm: {
+            type: "select",
+            name: "破坏模式",
+            value: "",
+            content: [
+                {
+                    value: "damageForm",
+                    label: "振动破坏（地面振动通过基础传递到建筑物导致）"
+                },
+                {
+                    value: "damageForm",
+                    label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                },
+                {
+                    value: "damageForm",
+                    label: "次生效应破坏（如震后滑坡、崩塌等导致）"
+                },
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
+            type: "select",
+            name: "处置阶段",
+            value: "",
+            content: [
+                {
+                    value: "initialDisposalPhase",
+                    label: "暂未处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "正在处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "完成处置"
+                },
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
         },
     },
-    seriousDamageBuildings:{
-        name:"严重破坏建筑物",
-        casualties:{
-            type:"select",
-            name:"人员伤亡",
-            value:"",
-            content:[
+    seriousDamageBuildings: {
+        name: "严重破坏建筑物",
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            content: [
                 {
-                    value:"casualties",
-                    label:"有（10人以上）"
+                    value: "casualties",
+                    label: "有（10人以上）"
                 },
                 {
-                    value:"casualties",
-                    label:"有（10人以下）"
+                    value: "casualties",
+                    label: "有（10人以下）"
                 },
                 {
-                    value:"casualties",
-                    label:"无"
-                },
-            ]
-        },
-        usageType:{
-            type:"select",
-            name:"使用性质",
-            value:"",
-            content:[
-                {
-                    value:"usageType",
-                    label:"住宅楼"
-                },
-                {
-                    value:"usageType",
-                    label:"自建房"
-                },
-                {
-                    value:"usageType",
-                    label:"办公楼"
-                },
-                {
-                    value:"usageType",
-                    label:"学校"
-                },
-                {
-                    value:"usageType",
-                    label:"医院"
-                },
-                {
-                    value:"usageType",
-                    label:"厂房"
-                },
-                {
-                    value:"usageType",
-                    label:"仓库"
-                },
-                {
-                    value:"usageType",
-                    label:"体育馆"
-                },
-                {
-                    value:"usageType",
-                    label:"展览馆"
-                },
-                {
-                    value:"usageType",
-                    label:"其它"
+                    value: "casualties",
+                    label: "无"
                 },
             ]
         },
-        structureType:{
-            type:"select",
-            name:"结构类型",
-            value:"",
-            content:[
+        usageType: {
+            type: "select",
+            name: "使用性质",
+            value: "",
+            content: [
                 {
-                    value:"structureType",
-                    label:"砖木结构"
+                    value: "usageType",
+                    label: "住宅楼"
                 },
                 {
-                    value:"structureType",
-                    label:"砖混结构"
+                    value: "usageType",
+                    label: "自建房"
                 },
                 {
-                    value:"structureType ",
-                    label:"钢筋混凝土结构"
+                    value: "usageType",
+                    label: "办公楼"
                 },
                 {
-                    value:"structureType",
-                    label:"钢结构"
+                    value: "usageType",
+                    label: "学校"
                 },
                 {
-                    value:"structureType",
-                    label:"其它"
+                    value: "usageType",
+                    label: "医院"
+                },
+                {
+                    value: "usageType",
+                    label: "厂房"
+                },
+                {
+                    value: "usageType",
+                    label: "仓库"
+                },
+                {
+                    value: "usageType",
+                    label: "体育馆"
+                },
+                {
+                    value: "usageType",
+                    label: "展览馆"
+                },
+                {
+                    value: "usageType",
+                    label: "其它"
                 },
             ]
         },
-        damageForm:{
-            type:"select",
-            name:"破坏模式",
-            value:"",
-            content:[
+        structureType: {
+            type: "select",
+            name: "结构类型",
+            value: "",
+            content: [
                 {
-                    value:"damageForm",
-                    label:"振动破坏（地面振动通过基础传递到建筑物导致）"
+                    value: "structureType",
+                    label: "砖木结构"
                 },
                 {
-                    value:"damageForm",
-                    label:"地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                    value: "structureType",
+                    label: "砖混结构"
                 },
                 {
-                    value:"damageForm",
-                    label:"次生效应破坏（如震后滑坡、崩塌等导致）"
+                    value: "structureType ",
+                    label: "钢筋混凝土结构"
+                },
+                {
+                    value: "structureType",
+                    label: "钢结构"
+                },
+                {
+                    value: "structureType",
+                    label: "其它"
                 },
             ]
         },
-        disposalTeam:{
-            type:"text",
-            name:"处置队伍",
-            value:""
-        },
-        disposalMeasures:{
-            type:"text",
-            name:"处置措施",
-            value:""
-        },
-        initialDisposalPhase:{
-            type:"select",
-            name:"处置阶段",
-            value:"",
-            content:[
+        damageForm: {
+            type: "select",
+            name: "破坏模式",
+            value: "",
+            content: [
                 {
-                    value:"initialDisposalPhase",
-                    label:"暂未处置"
+                    value: "damageForm",
+                    label: "振动破坏（地面振动通过基础传递到建筑物导致）"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"正在处置"
+                    value: "damageForm",
+                    label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"完成处置"
+                    value: "damageForm",
+                    label: "次生效应破坏（如震后滑坡、崩塌等导致）"
+                },
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
+            type: "select",
+            name: "处置阶段",
+            value: "",
+            content: [
+                {
+                    value: "initialDisposalPhase",
+                    label: "暂未处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "正在处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "完成处置"
                 },
             ]
         },
 
-        contactPerson:{
-            type:"text",
-            name:"联系人员",
-            value:""
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
         },
-        contactPhone:{
-            type:"text",
-            name:"联系电话",
-            value:""
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
         },
     },
 
-    destructionCollapseBuildings:{
-        name:"毁坏或倒塌建筑物",
-        casualties:{
-            type:"select",
-            name:"人员伤亡",
-            value:"",
-            content:[
+    destructionCollapseBuildings: {
+        name: "毁坏或倒塌建筑物",
+        casualties: {
+            type: "select",
+            name: "人员伤亡",
+            value: "",
+            content: [
                 {
-                    value:"casualties",
-                    label:"有（10人以上）"
+                    value: "casualties",
+                    label: "有（10人以上）"
                 },
                 {
-                    value:"casualties",
-                    label:"有（10人以下）"
+                    value: "casualties",
+                    label: "有（10人以下）"
                 },
                 {
-                    value:"casualties",
-                    label:"无"
-                },
-            ]
-        },
-        usageType:{
-            type:"select",
-            name:"使用性质",
-            value:"",
-            content:[
-                {
-                    value:"usageType",
-                    label:"住宅楼"
-                },
-                {
-                    value:"usageType",
-                    label:"自建房"
-                },
-                {
-                    value:"usageType",
-                    label:"办公楼"
-                },
-                {
-                    value:"usageType",
-                    label:"学校"
-                },
-                {
-                    value:"usageType",
-                    label:"医院"
-                },
-                {
-                    value:"usageType",
-                    label:"厂房"
-                },
-                {
-                    value:"usageType",
-                    label:"仓库"
-                },
-                {
-                    value:"usageType",
-                    label:"体育馆"
-                },
-                {
-                    value:"usageType",
-                    label:"展览馆"
-                },
-                {
-                    value:"usageType",
-                    label:"其它"
+                    value: "casualties",
+                    label: "无"
                 },
             ]
         },
-        structureType:{
-            type:"select",
-            name:"结构类型",
-            value:"",
-            content:[
+        usageType: {
+            type: "select",
+            name: "使用性质",
+            value: "",
+            content: [
                 {
-                    value:"structureType",
-                    label:"砖木结构"
+                    value: "usageType",
+                    label: "住宅楼"
                 },
                 {
-                    value:"structureType",
-                    label:"砖混结构"
+                    value: "usageType",
+                    label: "自建房"
                 },
                 {
-                    value:"structureType ",
-                    label:"钢筋混凝土结构"
+                    value: "usageType",
+                    label: "办公楼"
                 },
                 {
-                    value:"structureType",
-                    label:"钢结构"
+                    value: "usageType",
+                    label: "学校"
                 },
                 {
-                    value:"structureType",
-                    label:"其它"
-                },
-            ]
-        },
-        damageForm:{
-            type:"select",
-            name:"破坏模式",
-            value:"",
-            content:[
-                {
-                    value:"damageForm",
-                    label:"振动破坏（地面振动通过基础传递到建筑物导致）"
+                    value: "usageType",
+                    label: "医院"
                 },
                 {
-                    value:"damageForm",
-                    label:"地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                    value: "usageType",
+                    label: "厂房"
                 },
                 {
-                    value:"damageForm",
-                    label:"次生效应破坏（如震后滑坡、崩塌等导致）"
-                },
-            ]
-        },
-        disposalTeam:{
-            type:"text",
-            name:"处置队伍",
-            value:""
-        },
-        disposalMeasures:{
-            type:"text",
-            name:"处置措施",
-            value:""
-        },
-        initialDisposalPhase:{
-            type:"select",
-            name:"处置阶段",
-            value:"",
-            content:[
-                {
-                    value:"initialDisposalPhase",
-                    label:"暂未处置"
+                    value: "usageType",
+                    label: "仓库"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"正在处置"
+                    value: "usageType",
+                    label: "体育馆"
                 },
                 {
-                    value:"initialDisposalPhase",
-                    label:"完成处置"
+                    value: "usageType",
+                    label: "展览馆"
+                },
+                {
+                    value: "usageType",
+                    label: "其它"
                 },
             ]
         },
-        contactPerson:{
-            type:"text",
-            name:"联系人员",
-            value:""
+        structureType: {
+            type: "select",
+            name: "结构类型",
+            value: "",
+            content: [
+                {
+                    value: "structureType",
+                    label: "砖木结构"
+                },
+                {
+                    value: "structureType",
+                    label: "砖混结构"
+                },
+                {
+                    value: "structureType ",
+                    label: "钢筋混凝土结构"
+                },
+                {
+                    value: "structureType",
+                    label: "钢结构"
+                },
+                {
+                    value: "structureType",
+                    label: "其它"
+                },
+            ]
         },
-        contactPhone:{
-            type:"text",
-            name:"联系电话",
-            value:""
+        damageForm: {
+            type: "select",
+            name: "破坏模式",
+            value: "",
+            content: [
+                {
+                    value: "damageForm",
+                    label: "振动破坏（地面振动通过基础传递到建筑物导致）"
+                },
+                {
+                    value: "damageForm",
+                    label: "地基失效破坏（如震后地基不均匀沉降、水平变位等导致）"
+                },
+                {
+                    value: "damageForm",
+                    label: "次生效应破坏（如震后滑坡、崩塌等导致）"
+                },
+            ]
+        },
+        disposalTeam: {
+            type: "text",
+            name: "处置队伍",
+            value: ""
+        },
+        disposalMeasures: {
+            type: "text",
+            name: "处置措施",
+            value: ""
+        },
+        initialDisposalPhase: {
+            type: "select",
+            name: "处置阶段",
+            value: "",
+            content: [
+                {
+                    value: "initialDisposalPhase",
+                    label: "暂未处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "正在处置"
+                },
+                {
+                    value: "initialDisposalPhase",
+                    label: "完成处置"
+                },
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
         },
     },
 
@@ -2437,16 +2437,16 @@ const plotType = {
             value: "",
             content: [
                 {
-                    value:"casualties",
-                    label:"有（10人以上）"
+                    value: "casualties",
+                    label: "有（10人以上）"
                 },
                 {
-                    value:"casualties",
-                    label:"有（10人以下）"
+                    value: "casualties",
+                    label: "有（10人以下）"
                 },
                 {
-                    value:"casualties",
-                    label:"无"
+                    value: "casualties",
+                    label: "无"
                 },
             ]
         },
@@ -2479,7 +2479,7 @@ const plotType = {
             name: "处置措施",
             value: ""
         },
-        disposalPhase: {
+        initialDisposalPhase: {
             type: "select",
             name: "先期处置阶段",
             value: "",
@@ -2584,20 +2584,20 @@ const plotType = {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有（10人及以下）" },
-                { value: "casualties", label: "有（10人以上）" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有（10人及以下）"},
+                {value: "casualties", label: "有（10人以上）"}
             ]
         },
         railwayLevel: {
             type: "select",
             name: "铁路等级",
             value: "",
-            options: [
-                { value: "passengerDedicatedLine", label: "客运专线" },
-                { value: "mixedPassengerFreight", label: "客货共线" },
-                { value: "freightDedicatedLine", label: "货运专线" }
+            content: [
+                {value: "passengerDedicatedLine", label: "客运专线"},
+                {value: "mixedPassengerFreight", label: "客货共线"},
+                {value: "freightDedicatedLine", label: "货运专线"}
             ]
         },
         disposalTeam: {
@@ -2614,10 +2614,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "notDisposed", label: "暂未处置" },
-                { value: "inProcess", label: "正在处置" },
-                { value: "completed", label: "完成处置" }
+            content: [
+                {value: "notDisposed", label: "暂未处置"},
+                {value: "inProcess", label: "正在处置"},
+                {value: "completed", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -2642,20 +2642,20 @@ const plotType = {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有（10人及以下）" },
-                { value: "casualties", label: "有（10人以上）" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有（10人及以下）"},
+                {value: "casualties", label: "有（10人以上）"}
             ]
         },
         railwayLevel: {
             type: "select",
             name: "铁路等级",
             value: "",
-            options: [
-                { value: "passengerDedicatedLine", label: "客运专线" },
-                { value: "mixedPassengerFreight", label: "客货共线" },
-                { value: "freightDedicatedLine", label: "货运专线" }
+            content: [
+                {value: "passengerDedicatedLine", label: "客运专线"},
+                {value: "mixedPassengerFreight", label: "客货共线"},
+                {value: "freightDedicatedLine", label: "货运专线"}
             ]
         },
         disposalTeam: {
@@ -2672,10 +2672,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "notDisposed", label: "暂未处置" },
-                { value: "inProcess", label: "正在处置" },
-                { value: "completed", label: "完成处置" }
+            content: [
+                {value: "notDisposed", label: "暂未处置"},
+                {value: "inProcess", label: "正在处置"},
+                {value: "completed", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -2700,21 +2700,21 @@ const plotType = {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         airportLevel: {
             type: "select",
             name: "飞行区等级",
             value: "",
-            options: [
-                { value: "4F", label: "4F" },
-                { value: "4E", label: "4E" },
-                { value: "4D", label: "4D" },
-                { value: "4C", label: "4C" },
-                { value: "3C", label: "3C" }
+            content: [
+                {value: "4F", label: "4F"},
+                {value: "4E", label: "4E"},
+                {value: "4D", label: "4D"},
+                {value: "4C", label: "4C"},
+                {value: "3C", label: "3C"}
             ]
         },
         disposalTeam: {
@@ -2731,10 +2731,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -2759,21 +2759,21 @@ const plotType = {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
-        flightAreaLevel: {
+        airportLevel: {
             type: "select",
             name: "飞行区等级",
             value: "",
-            options: [
-                { value: "4F", label: "4F" },
-                { value: "4E", label: "4E" },
-                { value: "4D", label: "4D" },
-                { value: "4C", label: "4C" },
-                { value: "3C", label: "3C" }
+            content: [
+                {value: "4F", label: "4F"},
+                {value: "4E", label: "4E"},
+                {value: "4D", label: "4D"},
+                {value: "4C", label: "4C"},
+                {value: "3C", label: "3C"}
             ]
         },
         disposalTeam: {
@@ -2790,10 +2790,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -2823,30 +2823,30 @@ const plotType = {
             type: "select",
             name: "桥梁类型",
             value: "",
-            options: [
-                { value: "bridgeType", label: "小桥（≤30m）" },
-                { value: "bridgeType", label: "中桥（30-100m）" },
-                { value: "bridgeType", label: "大桥（100-1000m）" },
-                { value: "bridgeType", label: "特大桥（＞1000m）" }
+            content: [
+                {value: "bridgeType", label: "小桥（≤30m）"},
+                {value: "bridgeType", label: "中桥（30-100m）"},
+                {value: "bridgeType", label: "大桥（100-1000m）"},
+                {value: "bridgeType", label: "特大桥（＞1000m）"}
             ]
         },
         casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         damageForm: {
             type: "select",
             name: "破坏形式",
             value: "",
-            options: [
-                { value: "damageForm", label: "上部结构破坏（如桥面开裂、沉陷、断裂，落梁等）" },
-                { value: "damageForm", label: "桥台、桥墩破坏（如桥台滑移、倾斜等，桥墩开裂、沉降、倒塌等）" },
-                { value: "damageForm", label: "支承连接件破坏（支座移位、倾倒、脱落，锚固螺栓拔出、剪断等）" }
+            content: [
+                {value: "damageForm", label: "上部结构破坏（如桥面开裂、沉陷、断裂，落梁等）"},
+                {value: "damageForm", label: "桥台、桥墩破坏（如桥台滑移、倾斜等，桥墩开裂、沉降、倒塌等）"},
+                {value: "damageForm", label: "支承连接件破坏（支座移位、倾倒、脱落，锚固螺栓拔出、剪断等）"}
             ]
         },
         responseTeam: {
@@ -2863,10 +2863,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialResponsePhase", label: "暂未处置" },
-                { value: "initialResponsePhase", label: "正在处置" },
-                { value: "initialResponsePhase", label: "完成处置" }
+            content: [
+                {value: "initialResponsePhase", label: "暂未处置"},
+                {value: "initialResponsePhase", label: "正在处置"},
+                {value: "initialResponsePhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -2896,30 +2896,30 @@ const plotType = {
             type: "select",
             name: "桥梁类型",
             value: "",
-            options: [
-                { value: "bridgeType", label: "小桥（≤30m）" },
-                { value: "bridgeType", label: "中桥（30-100m）" },
-                { value: "bridgeType", label: "大桥（100-1000m）" },
-                { value: "bridgeType", label: "特大桥（＞1000m）" }
+            content: [
+                {value: "bridgeType", label: "小桥（≤30m）"},
+                {value: "bridgeType", label: "中桥（30-100m）"},
+                {value: "bridgeType", label: "大桥（100-1000m）"},
+                {value: "bridgeType", label: "特大桥（＞1000m）"}
             ]
         },
         casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         damageForm: {
             type: "select",
             name: "破坏形式",
             value: "",
-            options: [
-                { value: "damageForm", label: "上部结构破坏（如桥面开裂、沉陷、断裂，落梁等）" },
-                { value: "damageForm", label: "桥台、桥墩破坏（如桥台滑移、倾斜等，桥墩开裂、沉降、倒塌等）" },
-                { value: "damageForm", label: "支承连接件破坏（支座移位、倾倒、脱落，锚固螺栓拔出、剪断等）" }
+            content: [
+                {value: "damageForm", label: "上部结构破坏（如桥面开裂、沉陷、断裂，落梁等）"},
+                {value: "damageForm", label: "桥台、桥墩破坏（如桥台滑移、倾斜等，桥墩开裂、沉降、倒塌等）"},
+                {value: "damageForm", label: "支承连接件破坏（支座移位、倾倒、脱落，锚固螺栓拔出、剪断等）"}
             ]
         },
         responseTeam: {
@@ -2936,10 +2936,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialResponsePhase", label: "暂未处置" },
-                { value: "initialResponsePhase", label: "正在处置" },
-                { value: "initialResponsePhase", label: "完成处置" }
+            content: [
+                {value: "initialResponsePhase", label: "暂未处置"},
+                {value: "initialResponsePhase", label: "正在处置"},
+                {value: "initialResponsePhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3054,10 +3054,10 @@ const plotType = {
                 type: "select",
                 name: "先期处置阶段",
                 value: "",
-                options: [
-                    { value: "initialDisposalPhase", label: "暂未处置" },
-                    { value: "initialDisposalPhase", label: "正在处置" },
-                    { value: "initialDisposalPhase", label: "完成处置" }
+                content: [
+                    {value: "initialDisposalPhase", label: "暂未处置"},
+                    {value: "initialDisposalPhase", label: "正在处置"},
+                    {value: "initialDisposalPhase", label: "完成处置"}
                 ]
             },
             contactPerson: {
@@ -3098,10 +3098,10 @@ const plotType = {
             type: "select",
             name: "供水管网类型",
             value: "",
-            options: [
-                { value: "waterSupplyNetworkType", label: "一级" },
-                { value: "waterSupplyNetworkType", label: "二级" },
-                { value: "waterSupplyNetworkType", label: "三级" }
+            content: [
+                {value: "waterSupplyNetworkType", label: "一级"},
+                {value: "waterSupplyNetworkType", label: "二级"},
+                {value: "waterSupplyNetworkType", label: "三级"}
             ]
         }
     },
@@ -3110,11 +3110,11 @@ const plotType = {
         damageForm: {
             type: "selectMultiple",
             name: "破坏形式",
-            value: [],
+            value: "",
             content: [
-                { value: "damageForm", label: "连接破坏" },
-                { value: "damageForm", label: "接口破坏" },
-                { value: "damageForm", label: "管体破坏" }
+                {value: "damageForm", label: "连接破坏"},
+                {value: "damageForm", label: "接口破坏"},
+                {value: "damageForm", label: "管体破坏"}
             ]
         },
         disposalTeam: {
@@ -3131,10 +3131,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+            content: [
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3159,11 +3159,11 @@ const plotType = {
             type: "select",
             name: "电压等级",
             value: "",
-            options: [
-                { value: "voltageLevel", label: "低压（≤1kV）" },
-                { value: "voltageLevel", label: "高压（10-220kV）" },
-                { value: "voltageLevel", label: "超高压（330-750kV）" },
-                { value: "voltageLevel", label: "特高压（＞750kV）" }
+            content: [
+                {value: "voltageLevel", label: "低压（≤1kV）"},
+                {value: "voltageLevel", label: "高压（10-220kV）"},
+                {value: "voltageLevel", label: "超高压（330-750kV）"},
+                {value: "voltageLevel", label: "特高压（＞750kV）"}
             ]
         }
     },
@@ -3173,10 +3173,10 @@ const plotType = {
         damageForm: {
             type: "selectMultiple",
             name: "破坏形式",
-            value: [],
-            options: [
-                { value: "electricalEquipmentDamage", label: "电气设备破坏（如变压器、电线等破坏）" },
-                { value: "towerDamage", label: "杆塔破坏（如杆塔倾斜、断裂、倒塌等）" }
+            value: "",
+            content: [
+                {value: "electricalEquipmentDamage", label: "电气设备破坏（如变压器、电线等破坏）"},
+                {value: "towerDamage", label: "杆塔破坏（如杆塔倾斜、断裂、倒塌等）"}
             ]
         },
         disposalTeam: {
@@ -3193,10 +3193,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "notDisposed", label: "暂未处置" },
-                { value: "inProcess", label: "正在处置" },
-                { value: "completed", label: "完成处置" }
+            content: [
+                {value: "notDisposed", label: "暂未处置"},
+                {value: "inProcess", label: "正在处置"},
+                {value: "completed", label: "完成处置"}
             ]
         },
         managementUnit: {
@@ -3227,10 +3227,10 @@ const plotType = {
             type: "select",
             name: "管道分类",
             value: "",
-            options: [
-                { value: "pipeType", label: "长距离输气管线" },
-                { value: "pipeType", label: "城市燃气管道" },
-                { value: "pipeType", label: "工业企业燃气管道" }
+            content: [
+                {value: "pipeType", label: "长距离输气管线"},
+                {value: "pipeType", label: "城市燃气管道"},
+                {value: "pipeType", label: "工业企业燃气管道"}
             ]
         },
         managementUnit: {
@@ -3254,10 +3254,10 @@ const plotType = {
         damageForm: {
             type: "selectMultiple",
             name: "破坏形式",
-            value: [],
-            options: [
-                { value: "damageForm", label: "接口破坏" },
-                { value: "damageForm", label: "管道破坏" }
+            value: "",
+            content: [
+                {value: "damageForm", label: "接口破坏"},
+                {value: "damageForm", label: "管道破坏"}
             ]
         },
         disposalTeam: {
@@ -3274,10 +3274,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+            content: [
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         managementUnit: {
@@ -3438,23 +3438,23 @@ const plotType = {
             type: "select",
             name: "大坝类型",
             value: "",
-            options: [
-                { value: "damType", label: "土石坝" },
-                { value: "damType", label: "混凝土坝" },
-                { value: "damType", label: "砌石坝" },
-                { value: "damType", label: "其他" }
+            content: [
+                {value: "damType", label: "土石坝"},
+                {value: "damType", label: "混凝土坝"},
+                {value: "damType", label: "砌石坝"},
+                {value: "damType", label: "其他"}
             ]
         },
         projectScale: {
             type: "select",
             name: "工程规模",
             value: "",
-            options: [
-                { value: "projectScale", label: "小（2）型" },
-                { value: "projectScale", label: "小（1）型" },
-                { value: "projectScale", label: "中型" },
-                { value: "projectScale", label: "大（2）型" },
-                { value: "projectScale", label: "大（1）型" }
+            content: [
+                {value: "projectScale", label: "小（2）型"},
+                {value: "projectScale", label: "小（1）型"},
+                {value: "projectScale", label: "中型"},
+                {value: "projectScale", label: "大（2）型"},
+                {value: "projectScale", label: "大（1）型"}
             ]
         },
         disposalTeam: {
@@ -3471,10 +3471,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3499,23 +3499,23 @@ const plotType = {
             type: "select",
             name: "大坝类型",
             value: "",
-            options: [
-                { value: "damType", label: "土石坝" },
-                { value: "damType", label: "混凝土坝" },
-                { value: "damType", label: "砌石坝" },
-                { value: "damType", label: "其他" }
+            content: [
+                {value: "damType", label: "土石坝"},
+                {value: "damType", label: "混凝土坝"},
+                {value: "damType", label: "砌石坝"},
+                {value: "damType", label: "其他"}
             ]
         },
         projectScale: {
             type: "select",
             name: "工程规模",
             value: "",
-            options: [
-                { value: "projectScale", label: "小（2）型" },
-                { value: "projectScale", label: "小（1）型" },
-                { value: "projectScale", label: "中型" },
-                { value: "projectScale", label: "大（2）型" },
-                { value: "projectScale", label: "大（1）型" }
+            content: [
+                {value: "projectScale", label: "小（2）型"},
+                {value: "projectScale", label: "小（1）型"},
+                {value: "projectScale", label: "中型"},
+                {value: "projectScale", label: "大（2）型"},
+                {value: "projectScale", label: "大（1）型"}
             ]
         },
         disposalTeam: {
@@ -3532,10 +3532,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3560,23 +3560,23 @@ const plotType = {
             type: "select",
             name: "大坝类型",
             value: "",
-            options: [
-                { value: "damType", label: "土石坝" },
-                { value: "damType", label: "混凝土坝" },
-                { value: "damType", label: "砌石坝" },
-                { value: "damType", label: "其他" }
+            content: [
+                {value: "damType", label: "土石坝"},
+                {value: "damType", label: "混凝土坝"},
+                {value: "damType", label: "砌石坝"},
+                {value: "damType", label: "其他"}
             ]
         },
         projectScale: {
             type: "select",
             name: "工程规模",
             value: "",
-            options: [
-                { value: "projectScale", label: "小（2）型" },
-                { value: "projectScale", label: "小（1）型" },
-                { value: "projectScale", label: "中型" },
-                { value: "projectScale", label: "大（2）型" },
-                { value: "projectScale", label: "大（1）型" }
+            content: [
+                {value: "projectScale", label: "小（2）型"},
+                {value: "projectScale", label: "小（1）型"},
+                {value: "projectScale", label: "中型"},
+                {value: "projectScale", label: "大（2）型"},
+                {value: "projectScale", label: "大（1）型"}
             ]
         },
         disposalTeam: {
@@ -3593,10 +3593,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3621,23 +3621,23 @@ const plotType = {
             type: "select",
             name: "防洪标准",
             value: "",
-            options: [
-                { value: "floodStandard", label: "1级" },
-                { value: "floodStandard", label: "2级" },
-                { value: "floodStandard", label: "3级" },
-                { value: "floodStandard", label: "4级" },
-                { value: "floodStandard", label: "5级" }
+            content: [
+                {value: "floodStandard", label: "1级"},
+                {value: "floodStandard", label: "2级"},
+                {value: "floodStandard", label: "3级"},
+                {value: "floodStandard", label: "4级"},
+                {value: "floodStandard", label: "5级"}
             ]
         },
         constructionMaterial: {
             type: "select",
             name: "建筑材料",
             value: "",
-            options: [
-                { value: "constructionMaterial", label: "土堤" },
-                { value: "constructionMaterial", label: "石堤" },
-                { value: "constructionMaterial", label: "土石混合堤" },
-                { value: "constructionMaterial", label: "钢筋混凝土堤" }
+            content: [
+                {value: "constructionMaterial", label: "土堤"},
+                {value: "constructionMaterial", label: "石堤"},
+                {value: "constructionMaterial", label: "土石混合堤"},
+                {value: "constructionMaterial", label: "钢筋混凝土堤"}
             ]
         },
         disposalTeam: {
@@ -3654,10 +3654,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3682,23 +3682,23 @@ const plotType = {
             type: "select",
             name: "防洪标准",
             value: "",
-            options: [
-                { value: "floodStandard", label: "1级" },
-                { value: "floodStandard", label: "2级" },
-                { value: "floodStandard", label: "3级" },
-                { value: "floodStandard", label: "4级" },
-                { value: "floodStandard", label: "5级" }
+            content: [
+                {value: "floodStandard", label: "1级"},
+                {value: "floodStandard", label: "2级"},
+                {value: "floodStandard", label: "3级"},
+                {value: "floodStandard", label: "4级"},
+                {value: "floodStandard", label: "5级"}
             ]
         },
         constructionMaterial: {
             type: "select",
             name: "建筑材料",
             value: "",
-            options: [
-                { value: "constructionMaterial", label: "土堤" },
-                { value: "constructionMaterial", label: "石堤" },
-                { value: "constructionMaterial", label: "土石混合堤" },
-                { value: "constructionMaterial", label: "钢筋混凝土堤" }
+            content: [
+                {value: "constructionMaterial", label: "土堤"},
+                {value: "constructionMaterial", label: "石堤"},
+                {value: "constructionMaterial", label: "土石混合堤"},
+                {value: "constructionMaterial", label: "钢筋混凝土堤"}
             ]
         },
         disposalTeam: {
@@ -3715,10 +3715,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3743,23 +3743,23 @@ const plotType = {
             type: "select",
             name: "防洪标准",
             value: "",
-            options: [
-                { value: "floodStandard", label: "1级" },
-                { value: "floodStandard", label: "2级" },
-                { value: "floodStandard", label: "3级" },
-                { value: "floodStandard", label: "4级" },
-                { value: "floodStandard", label: "5级" }
+            content: [
+                {value: "floodStandard", label: "1级"},
+                {value: "floodStandard", label: "2级"},
+                {value: "floodStandard", label: "3级"},
+                {value: "floodStandard", label: "4级"},
+                {value: "floodStandard", label: "5级"}
             ]
         },
         constructionMaterial: {
             type: "select",
             name: "建筑材料",
             value: "",
-            options: [
-                { value: "constructionMaterial", label: "土堤" },
-                { value: "constructionMaterial", label: "石堤" },
-                { value: "constructionMaterial", label: "土石混合堤" },
-                { value: "constructionMaterial", label: "钢筋混凝土堤" }
+            content: [
+                {value: "constructionMaterial", label: "土堤"},
+                {value: "constructionMaterial", label: "石堤"},
+                {value: "constructionMaterial", label: "土石混合堤"},
+                {value: "constructionMaterial", label: "钢筋混凝土堤"}
             ]
         },
         disposalTeam: {
@@ -3776,10 +3776,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalPhase", label: "暂未处置" },
-                { value: "initialDisposalPhase", label: "正在处置" },
-                { value: "initialDisposalPhase", label: "完成处置" }
+            content: [
+                {value: "initialDisposalPhase", label: "暂未处置"},
+                {value: "initialDisposalPhase", label: "正在处置"},
+                {value: "initialDisposalPhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3804,10 +3804,10 @@ const plotType = {
             type: "select",
             name: "爆炸类型",
             value: "",
-            options: [
-                { value: "explosionType", label: "物理性爆炸（如压力容器、油桶受热等）" },
-                { value: "explosionType", label: "化学性爆炸（如危化品、可燃气体、粉尘等）" },
-                { value: "explosionType", label: "核爆炸" }
+            content: [
+                {value: "explosionType", label: "物理性爆炸（如压力容器、油桶受热等）"},
+                {value: "explosionType", label: "化学性爆炸（如危化品、可燃气体、粉尘等）"},
+                {value: "explosionType", label: "核爆炸"}
             ]
         },
         impactArea: {
@@ -3819,9 +3819,9 @@ const plotType = {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         responseTeam: {
@@ -3838,10 +3838,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialResponseStage", label: "暂未处置" },
-                { value: "initialResponseStage", label: "正在处置" },
-                { value: "initialResponseStage", label: "完成处置" }
+            content: [
+                {value: "initialResponseStage", label: "暂未处置"},
+                {value: "initialResponseStage", label: "正在处置"},
+                {value: "initialResponseStage", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3866,31 +3866,31 @@ const plotType = {
             type: "select",
             name: "火灾类型",
             value: "",
-            options: [
-                { value: "fireType", label: "明火引发（炉具倾倒、防震棚起火、烟囱损坏等）" },
-                { value: "fireType", label: "易燃易爆物质反应（如危化品、天然气、汽油等）" },
-                { value: "fireType", label: "电气设施损坏（电线短路、电流过载等）" },
-                { value: "fireType", label: "其他" }
+            content: [
+                {value: "fireType", label: "明火引发（炉具倾倒、防震棚起火、烟囱损坏等）"},
+                {value: "fireType", label: "易燃易爆物质反应（如危化品、天然气、汽油等）"},
+                {value: "fireType", label: "电气设施损坏（电线短路、电流过载等）"},
+                {value: "fireType", label: "其他"}
             ]
         },
         fireLevel: {
             type: "select",
             name: "火灾等级",
             value: "",
-            options: [
-                { value: "fireLevel", label: "一级火灾（燃烧不超过10m²，且火势高度不超过3m）" },
-                { value: "fireLevel", label: "二级火灾（燃烧不超过30m²，且火势高度不超过6m）" },
-                { value: "fireLevel", label: "三级火灾（燃烧不超过200m²，且火势高度不超过20m）" },
-                { value: "fireLevel", label: "四级火灾（燃烧超过200m²，或火势高度超过20m）" }
+            content: [
+                {value: "fireLevel", label: "一级火灾（燃烧不超过10m²，且火势高度不超过3m）"},
+                {value: "fireLevel", label: "二级火灾（燃烧不超过30m²，且火势高度不超过6m）"},
+                {value: "fireLevel", label: "三级火灾（燃烧不超过200m²，且火势高度不超过20m）"},
+                {value: "fireLevel", label: "四级火灾（燃烧超过200m²，或火势高度超过20m）"}
             ]
         },
         casualties: {
             type: "select",
             name: "人员伤亡",
             value: "",
-            options: [
-                { value: "casualties", label: "无" },
-                { value: "casualties", label: "有" }
+            content: [
+                {value: "casualties", label: "无"},
+                {value: "casualties", label: "有"}
             ]
         },
         responseTeam: {
@@ -3907,10 +3907,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialResponsePhase", label: "暂未处置" },
-                { value: "initialResponsePhase", label: "正在处置" },
-                { value: "initialResponsePhase", label: "完成处置" }
+            content: [
+                {value: "initialResponsePhase", label: "暂未处置"},
+                {value: "initialResponsePhase", label: "正在处置"},
+                {value: "initialResponsePhase", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3930,10 +3930,10 @@ const plotType = {
             type: "selectMultiple",
             name: "有毒物质类型",
             value: [],
-            options: [
-                { value: "toxicSubstanceType", label: "有毒气体（如氨气、氯气、二氧化氮、二氧化硫、一氧化碳、硫化氢等）" },
-                { value: "toxicSubstanceType", label: "有毒液体（如液氨、强酸、强碱等）" },
-                { value: "toxicSubstanceType", label: "有毒固体（氰化物、重金属等）" }
+            content: [
+                {value: "toxicSubstanceType", label: "有毒气体（如氨气、氯气、二氧化氮、二氧化硫、一氧化碳、硫化氢等）"},
+                {value: "toxicSubstanceType", label: "有毒液体（如液氨、强酸、强碱等）"},
+                {value: "toxicSubstanceType", label: "有毒固体（氰化物、重金属等）"}
             ]
         },
         disposalTeam: {
@@ -3950,10 +3950,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+            content: [
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         contactPerson: {
@@ -3983,10 +3983,10 @@ const plotType = {
             type: "select",
             name: "先期处置阶段",
             value: "",
-            options: [
-                { value: "initialDisposalStage", label: "暂未处置" },
-                { value: "initialDisposalStage", label: "正在处置" },
-                { value: "initialDisposalStage", label: "完成处置" }
+            content: [
+                {value: "initialDisposalStage", label: "暂未处置"},
+                {value: "initialDisposalStage", label: "正在处置"},
+                {value: "initialDisposalStage", label: "完成处置"}
             ]
         },
         contactPerson: {
