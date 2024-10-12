@@ -969,10 +969,8 @@ export default {
         })
       } else if (item.name === '钳击箭头') {
         new Promise((resolve, reject) => {
-          window.isDrawingPolygon = true;
           Arrow.drawPincerArrow(data, resolve)
         }).then((res) => {
-          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.plottype === '线图层') {
