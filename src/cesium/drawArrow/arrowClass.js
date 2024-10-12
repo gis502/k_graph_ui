@@ -113,7 +113,7 @@ StraightArrow.prototype = {
                 insertPlotAndInfo(data).then(res => {
                     console.log(data)
                 })
-
+                window.isDrawingPolygon = false;
                 $this.handler.destroy();
                 $this.arrowEntity.objId = $this.objId;
                 $this.state = -1;
