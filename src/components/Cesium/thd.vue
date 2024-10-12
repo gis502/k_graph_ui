@@ -997,7 +997,7 @@ export default {
                 // }
                 // })
                 // 更新绘图
-                this.updatePlot()
+                this.updatePlot(false)
 
 
                 // 开启时间轴
@@ -1012,7 +1012,8 @@ export default {
         /*
         * 更新标绘点
         * */
-        updatePlot() {
+        // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
+        updatePlot(bool) {
             // 原始代码：console.log(this.plots)
             // 创建一个指向当前上下文的变量，用于在闭包中访问this
             let that = this
@@ -1067,10 +1068,10 @@ export default {
                 }
               }
             });
-            // 批量渲染点
+            // 批量渲染点 + 非初始化状态渲染标会点动画
             if (points.length > 0) {
-              console.log("")
-              cesiumPlot.drawPoints(points,true);
+              let param = bool === false ? false : true
+              cesiumPlot.drawPoints(points,param);
             }
 
             //--------------------------线绘制------------------------------
