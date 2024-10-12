@@ -131,11 +131,19 @@
     <div id="box" ref="box">
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
-        <TimeLinePanel
+        <commonPanel
             :visible="timelinePopupVisible"
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
+            :ifedit="false"
+            @wsSendPoint="wsSendPoint"
+            @closePlotPop="closePlotPop"
         />
+<!--        <TimeLinePanel-->
+<!--            :visible="timelinePopupVisible"-->
+<!--            :position="timelinePopupPosition"-->
+<!--            :popupData="timelinePopupData"-->
+<!--        />-->
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
@@ -524,6 +532,14 @@ export default {
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
       gl = null
+    },
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
     },
     /**
      * 计算复选框列表的高度
