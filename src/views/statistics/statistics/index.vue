@@ -22,7 +22,6 @@
             v-model="selectedComponentKey"
             placeholder="请选择模块"
             size="large"
-
             style="width: 240px"
         >
           <el-option
@@ -36,7 +35,7 @@
       <!-- 动态组件显示 -->
     </el-row>
     <div class="container-center">
-      <component :is="selectedComponent" :newEqId="newEqId" />
+      <component :is="selectedComponent" :newEqId="newEqId"/>
     </div>
   </div>
 </template>
@@ -44,21 +43,17 @@
 <script setup>
 import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
-import { reactive } from 'vue';
+import {reactive} from 'vue';
 import {getField, getData} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
 
 
-
-
-
-
 // 选项数据
 const options = [
-  { label: '震情伤亡信息可视化', value: 'EarthquakeCasualties' },
-  { label: '交通电力通信信息可视化', value: 'TransportationElectricity' }
+  {label: '震情伤亡信息可视化', value: 'EarthquakeCasualties'},
+  {label: '交通电力通信信息可视化', value: 'TransportationElectricity'}
 ]
 
 // 当前选择的组件标识符
@@ -117,10 +112,10 @@ watch(flag, (newFlag) => {
 
 
 const newEqId = ref('');
-console.log()
+
 watch(eqlistName, (newValue) => {  // 修改为 newValue
   newEqId.value = newValue
-  console.log("爷爷",newEqId.value)
+  console.log("爷爷", newEqId.value)
   // const selectedOption = tableNameOptions.value?.find(option => option.label === newValue);
   // if (selectedOption) {
   //   const part = selectedOption.value.split(" - "); // 根据 " - " 分割字符串
@@ -155,8 +150,6 @@ onMounted(() => {
 // }
 
 
-
-
 /** 获取字段 */
 const getTableField = () => {
   getField().then(res => {
@@ -170,7 +163,7 @@ const getTableField = () => {
     field.value = Array.from(map.keys())
     name.value = Array.from(map.values())
     data.value = generateData();
-    FieldName.value = name.value.filter(item =>  item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
+    FieldName.value = name.value.filter(item => item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
 
     console.log(FieldName.value)
@@ -186,14 +179,15 @@ const getEarthquake = () => {
       ElMessage.error("地震列表无数据")
     }
     tableNameOptions.value = eqlists.value.map(file => {
-      const eqid = file.split(' - ')[0]?.trim();
-        const details = file.split(' - ')[1]?.trim();
-        // 提取 `-` 后面的部分
-      return {
-        label: details, // 使用提取的部分作为标签
-        value: eqid// 选择值为 ID
-      }}
-      )
+          const eqid = file.split(' - ')[0]?.trim();
+          const details = file.split(' - ')[1]?.trim();
+          // 提取 `-` 后面的部分
+          return {
+            label: details, // 使用提取的部分作为标签
+            value: eqid// 选择值为 ID
+          }
+        }
+    )
     // console.log(tableNameOptions.value)
 
     // eqlistName.value = tableNameOptions.value[0].label
@@ -243,7 +237,6 @@ const clearSelection = () => {
   width: 100%;
   height: calc(100vh - 90px);
 }
-
 
 
 ::v-deep .el-transfer-panel {

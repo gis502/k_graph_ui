@@ -1,6 +1,7 @@
 import * as Cesium from "cesium"
 import {xp} from "./algorithm"
 import {insertPlotAndInfo} from "@/api/system/plot.js";
+import {useCesiumStore} from "@/store/modules/cesium.js";
 
 function guid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -88,7 +89,7 @@ StraightArrow.prototype = {
             this.modifyHandler = null;
         }
     },
-    startDraw: function (data) {
+    startDraw: function (data, resolve) {
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) { //单机开始绘制
@@ -110,13 +111,13 @@ StraightArrow.prototype = {
                 data.plot.drawtype = "straight"
                 data.plot.plotType = "直线箭头"
                 data.plot.geom.coordinates = $this.getLnglats();
-                insertPlotAndInfo(data).then(res => {
-                    console.log(data)
-                })
+
 
                 $this.handler.destroy();
                 $this.arrowEntity.objId = $this.objId;
                 $this.state = -1;
+                $this.positions.push(cartesian.clone());
+                resolve(data)
             }
             $this.positions.push(cartesian.clone());
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -125,6 +126,7 @@ StraightArrow.prototype = {
             var cartesian;
             cartesian = getCatesian3FromPX(evt.endPosition, $this.viewer);
             if (!cartesian) return;
+
 
             $this.floatPoint.position.setValue(cartesian);
             if ($this.positions.length >= 2) {
@@ -136,7 +138,6 @@ StraightArrow.prototype = {
                     $this.positions.push(cartesian);
                 }
             }
-            console.log(1)
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     startModify: function () { //修改箭头
@@ -206,7 +207,7 @@ StraightArrow.prototype = {
         this.firstPoint.type = "firstPoint";
         this.floatPoint = this.creatPoint(this.positions[2]);
         this.floatPoint.type = "floatPoint";
-        this.arrowEntity = this.showArrowOnMap(this.positions,data.plot);
+        this.arrowEntity = this.showArrowOnMap(this.positions,data);
         this.firstPoint.show = false;
         this.floatPoint.show = false;
         this.arrowEntity.objId = this.objId;
@@ -262,7 +263,6 @@ StraightArrow.prototype = {
             }
             return new Cesium.PolygonHierarchy(arrow);
         }
-
         return window.viewer.entities.add({
             polygon: new Cesium.PolygonGraphics({
                 hierarchy: new Cesium.CallbackProperty(update, false),
@@ -344,7 +344,7 @@ AttackArrow.prototype = {
             this.modifyHandler = null;
         }
     },
-    startDraw: function (data) {
+    startDraw: function (data, resolve) {
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) { //单机开始绘制
@@ -409,11 +409,9 @@ AttackArrow.prototype = {
             data.plot.drawtype = "attack"
             data.plot.plotType = "攻击箭头"
             data.plot.geom.coordinates = $this.getLnglats();
-            insertPlotAndInfo(data).then(res => {
-                console.log(data)
-            })
-
             $this.handler.destroy();
+
+            resolve(data)
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     },
     createByData: function (data) { //根据传入的数据构建箭头
@@ -624,7 +622,7 @@ PincerArrow.prototype = {
             this.modifyHandler = null;
         }
     },
-    startDraw: function (data) {
+    startDraw: function (data, resolve) {
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) {
@@ -655,10 +653,8 @@ PincerArrow.prototype = {
                 data.plot.drawtype = "pincer"
                 data.plot.plotType = "钳击箭头"
                 data.plot.geom.coordinates = $this.getLnglats();
-                insertPlotAndInfo(data).then(res => {
-                    console.log(data)
-                })
                 $this.handler.destroy();
+                resolve(data)
                 return;
             } else {
                 $this.positions.push(cartesian);
