@@ -105,7 +105,7 @@ export default class Point {
     // console.log("------------------------------------------",bool)
     let dataSource = new Cesium.CustomDataSource("pointData");
     // 传来bool判断是否要添加动画，若为true则添加
-    if(bool){
+    if(bool) {
       points.forEach(data => {
         let colorFactor = 1.0;
         const intervalTime1 = 500;
@@ -203,13 +203,11 @@ export default class Point {
       })
     }
 
-
-
     // 存储 dataSource 到对象上，便于后续操作
     window.pointDataSource = dataSource;
     // console.log("window.pointDataSource",window.pointDataSource)
     const dataSourcePromise = window.viewer.dataSources.add(dataSource)
-    console.log(dataSourcePromise)
+    console.log("datasrouce:",dataSourcePromise)
     dataSourcePromise.then(function (dataSource) {
       console.log(dataSource)
       const pixelRange = 10;

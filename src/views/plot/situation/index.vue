@@ -720,6 +720,8 @@ export default {
         this.initWebsocket()
         // that.websock.eqid = that.eqid
         this.initPlot(that.eqid)
+
+
         this.getEqInfo(that.eqid)
         // 初始化标绘所需的viewer、ws、pinia
         let cesiumStore = useCesiumStore()
