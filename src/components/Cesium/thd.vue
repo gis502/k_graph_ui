@@ -173,7 +173,7 @@
 
             <!--      时间点-->
             <div class="current-time-info">
-                <span class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
+                <span style="margin-left: 50px" class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
             </div>
 
             <div class="end-time-info">
