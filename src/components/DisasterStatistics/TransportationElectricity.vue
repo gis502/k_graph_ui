@@ -9,11 +9,11 @@
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <PowerSupply/>
       </dv-border-box-12>
-      <dv-border-box-12 class="model1">道路交通损毁及抢修情况与交通管控情况<br/>
+      <dv-border-box-12 class="model2">道路交通损毁及抢修情况与交通管控情况<br/>
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <RoadDamage/>
       </dv-border-box-12>
-      <dv-border-box-12 class="model1">通信设施损毁及抢修情况<br/>
+      <dv-border-box-12 class="model2">通信设施损毁及抢修情况<br/>
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <TrafficSituation/>
       </dv-border-box-12>
@@ -46,9 +46,18 @@ export default {
 </script>
 
 <style scoped>
+.style-container {
+  width: 100%;
+  height: calc(100vh - 50px);
+  background-image: url("@/assets/bg1.png");
+  background-size: 100% 100%;
+  position: absolute;
+  padding-right:4px;
+
+}
 .model1 {
   width: 48%;
-  height: 52%;
+  height: 40%;
   position: relative;
   text-align: center;
   float: left;
@@ -56,6 +65,21 @@ export default {
   margin: 10px;
   color: #FFFFFF;
   padding-top: 10px;
+}
+.model2 {
+  width: 48%;
+  height: 50%;
+  position: relative;
+  text-align: center;
+  float: left;
+  font-size: 20px;
+  margin: 10px;
+  color: #FFFFFF;
+  padding-top: 10px;
+}
+.container-center {
+  width: 100%;
+  height: calc(100vh - 90px);
 }
 
 </style>

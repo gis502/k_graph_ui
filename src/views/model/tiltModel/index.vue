@@ -535,7 +535,7 @@ function rotationModel(tileset, rz) {
 }
 
 function remove3dData() {
-  window.viewer.scene.primitives.remove(window.modelObject)
+  // window.viewer.scene.primitives.remove(window.modelObject)
   window.modelObject = null
 }
 
