@@ -871,6 +871,9 @@ export default {
          * @param {string} eqid - 需要渲染的数据的唯一标识符
          */
         xuanran(eqid) {
+          // 初始化标绘所需的viewer、ws、pinia
+          let cesiumStore = useCesiumStore()
+          cesiumPlot.init(window.viewer, this.websock, cesiumStore)
             // 获取特定eqid的带有开始和结束时间的绘图数据
             this.getPlotwithStartandEndTime(eqid)
             // 初始化定时器，用于定期从数据库请求新的绘图数据
@@ -882,6 +885,7 @@ export default {
          * @param {string} eqid - 地震ID
          */
         intimexuanran(eqid) {
+
             // 每5分钟触发一次更新
             if (this.realTime < this.tmpeqendTime) {
                 console.log("还在更新的地震")
@@ -1102,7 +1106,7 @@ export default {
             })
             // console.log("filteredPolylineArr",filteredPolylineArr)
             // 将过滤后的线条数据传递给绘制函数
-          if (points.length > 0) {
+          if (filteredPolylineArr.length > 0) {
             cesiumPlot.getDrawPolyline(filteredPolylineArr)
           }
 
@@ -1147,7 +1151,7 @@ export default {
                 }
                 polygonMap[item.plotId].push(item);
             });
-          if (points.length > 0) {
+          if (filteredPolygonArr.length > 0) {
             // 遍历分组后的多边形数据，调用绘制多边形的函数进行渲染
             Object.keys(polygonMap).forEach(plotId => {
               let polygonData = polygonMap[plotId];
@@ -1832,9 +1836,6 @@ export default {
             let that = this
             getAllEq().then(res => {
                 that.tableData = res
-                // 初始化标绘所需的viewer、ws、pinia
-                let cesiumStore = useCesiumStore()
-                cesiumPlot.init(window.viewer, this.websock, cesiumStore)
                 // console.log("that.tableData", that.tableData)
             })
         },
