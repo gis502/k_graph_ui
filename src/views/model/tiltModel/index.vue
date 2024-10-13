@@ -380,7 +380,6 @@ function initModel(modelName) {
   window.modelObject = tileset
   tileset.zIndex = -1;
   tileset.readyPromise.then(function () {
-    window.viewer.scene.primitives.add(tileset);
     window.viewer.scene.primitives.add(window.modelObject);
     console.log("模型已加载")
     if (isTerrainLoaded()) {
