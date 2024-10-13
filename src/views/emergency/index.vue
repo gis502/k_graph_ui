@@ -436,7 +436,8 @@ export default {
     this.entitiesClickPonpHandler();
     this.initPlot(this.id);
   },
-  beforeDestroy() {
+  beforeUnmount() {
+    console.log("111",window.viewer)
     if (window.viewer){
       let viewer=window.viewer
       let gl=viewer.scene.context._gl
@@ -445,6 +446,7 @@ export default {
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
+      console.log("webglcontext 已清除")
       gl=null
       window.viewer = null;
     }

@@ -348,7 +348,6 @@ export default {
             points.push(point)
           }
         })
-        console.log("weixuanran",points)
         that.drawPoints(points)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
         console.log("polylineArr",polylineArr)

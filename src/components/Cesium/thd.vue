@@ -517,7 +517,7 @@ export default {
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (window.viewer) {
       this.clearResource(window.viewer)
       window.viewer = null;
@@ -2048,7 +2048,7 @@ export default {
     /**
      * 移除区域图层和相关标签
      * 此函数负责从地图中移除特定的区域图层和与之关联的图例标签
-     **/
+     */
     removethdRegions() {
       // 检查是否存在名为regionLayerJump的图层
       if (window.regionLayerJump) {
