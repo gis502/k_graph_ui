@@ -35,12 +35,10 @@ const deathCount = ref(0);
 const updateTime = ref('')
 watch(() => props.lastEq, () => {
   if (props.lastEq){
-    gettotal(props.lastEq.eqid).then((res) => {
+    gettotal("206ebdc2-5bc9-45ba-9b5f-1e2d121674ca").then((res) => {
 
       if (res && Array.isArray(res)) {
         // 初始化计数器
-
-
         let totalInjury = 0;
         let totalMissing = 0;
         let totalDeath = 0;
@@ -54,9 +52,9 @@ watch(() => props.lastEq, () => {
           console.log("Death count for this item:", item.deathCount);
           console.log(res)
           // 确保 item 中的字段存在，并进行累加
-          totalInjury += item.totalDeceased || 0;  // 使用 || 以防 item.injuryCount 为 null 或 undefined
+          totalInjury += item.totalInjured || 0;  // 使用 || 以防 item.injuryCount 为 null 或 undefined
           totalMissing += item.totalMissing || 0;
-          totalDeath += item.deathCount || 0;
+          totalDeath += item.totalDeceased || 0;
         });
 
         // 更新到前端显示的变量
