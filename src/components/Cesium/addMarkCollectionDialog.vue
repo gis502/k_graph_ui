@@ -6,10 +6,10 @@
         <el-input placeholder="请输入内容" v-model="form.plotType" :disabled="true" size="large"/>
       </el-form-item>
       <el-form-item label="经度" :label-width="120">
-        <el-input v-model="form.longitude" autocomplete="off" size="large"/>
+        <el-input v-model="form.geom.coordinates[0]" autocomplete="off" size="large"/>
       </el-form-item>
       <el-form-item label="纬度" :label-width="120">
-        <el-input v-model="form.latitude" autocomplete="off" size="large"/>
+        <el-input v-model="form.geom.coordinates[1]" autocomplete="off" size="large"/>
       </el-form-item>
       <el-form-item label="开始时间" :label-width="120">
         <div class="formTime">
@@ -90,6 +90,12 @@ export default {
   ],
   watch: {
     addMarkDialogFormVisible() {
+      // 设置默认开始时间为当前时间
+      this.starttime = this.timestampToTime(Date.now());  // 当前时间
+      // 设置默认结束时间为5天后的时间
+      const currentDate = new Date();
+      const fiveDaysLater = currentDate.setDate(currentDate.getDate() + 5); // 5天后
+      this.endtime = this.timestampToTime(fiveDaysLater);
       // 1-1 显示弹窗
       this.DialogFormVisible = this.addMarkDialogFormVisible
       // 2-1 获取pinia中存的经纬度、标绘类型等信息以及生成对应类型的dialog

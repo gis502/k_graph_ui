@@ -116,6 +116,7 @@
           :visible="popupVisible"
           :position="popupPosition"
           :popupData="popupData"
+          :ifedit="true"
           @wsSendPoint="wsSendPoint"
           @closePlotPop="closePlotPop"
       />
