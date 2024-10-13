@@ -15,6 +15,8 @@ const arrow = {
             this.isActivate = true;
             this.viewer = viewer;
             this.bindEdit();
+            // 定义全局变量
+            window.isDrawingPolygon = false;
         }
     },
     disable: function () {
@@ -142,6 +144,7 @@ const arrow = {
         }
     },
     drawStraightArrow: function (data, resolve) {
+        window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
@@ -151,6 +154,7 @@ const arrow = {
         this.drawArr.push(straightArrow);
     },
     drawAttackArrow: function (data, resolve) {
+        window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
@@ -160,6 +164,7 @@ const arrow = {
         this.drawArr.push(attackArrow);
     },
     drawPincerArrow: function (data, resolve) {
+        window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }

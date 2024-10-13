@@ -125,7 +125,6 @@ export default class Polygon {
         this.polygonEntity.remove = () => {
           this.viewer.entities.remove(this.polygonEntity);
         }
-
         break;
       }
       case "区域面":{
@@ -140,11 +139,11 @@ export default class Polygon {
           plotType: this.name
         }
         this.resolve(data)
-        console.log("绘制结束传得面",data)
+        // console.log("绘制结束传得面",data)
         // 3秒后清除所有 dataSources
         setTimeout(() => {
           window.viewer.dataSources.removeAll();
-        }, 3000); // 3000 毫秒 = 3 秒
+        }, 2000); // 3000 毫秒 = 3 秒
         break;
       }
     }
@@ -163,12 +162,10 @@ export default class Polygon {
   _leftClickEventForPolygon() {
     this.handler.setInputAction((e) => {
       window.isDrawingPolygon = true;  // 启用标志位
-      console.log("21",window.isDrawingPolygon)
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
       if (!p) return;
       this._tempPositions.push(p);
-      console.log(p)
       this._addPolygon();
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
@@ -196,6 +193,10 @@ export default class Polygon {
       return false;
     }
     this.handler.setInputAction((e) => {
+      // 检查点的数量
+      if (this._tempPositions.length < 3) {
+        return;  // 阻止绘制结束
+      }
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
       if (!p) return;

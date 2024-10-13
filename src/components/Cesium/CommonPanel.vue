@@ -79,7 +79,7 @@
           </el-descriptions-item>
         </template>
       </el-descriptions>
-      <div class="collapseFooter">
+      <div class="collapseFooter" v-if="ifedit">
         <el-button v-if="!plotInfoNew.aditStatus && addStatus" type="success" round
                    @click="addCommitPlotInfo(plotInfoNew)">新增
         </el-button>
@@ -240,7 +240,7 @@ export default {
     }
   },
   props: [
-    'popupData', 'position', 'visible'
+    'popupData', 'position', 'visible','ifedit'
   ],
   watch: {
     visible() {
