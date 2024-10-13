@@ -57,6 +57,7 @@ import {ElMessage} from 'element-plus'
 import {plotType} from '@/cesium/plot/plotType.js'
 import {useCesiumStore} from "@/store/modules/cesium.js";
 import {insertPlotAndInfo} from '@/api/system/plot.js'
+import arrow from "@/cesium/drawArrow/drawPlot.js";
 
 export default {
   name: "addPolygonDialog",
@@ -99,7 +100,12 @@ export default {
     // 取消添加标注
     cancelAddNote() {
       // 取消时，把绘制的线也清除
-      window.viewer.entities.removeById(this.form.situationPlotData[0].plotid)
+      if (Object.prototype.toString.call(this.form) === '[object Object]') {
+        arrow.clearById(this.form.situationPlotData.plotId)
+      } else {
+        window.viewer.entities.removeById(this.form.situationPlotData[0].plotId)
+      }
+
       // 清空typeInfo信息、starttime、endtime
       this.typeInfo = null
       this.starttime = null
@@ -161,6 +167,25 @@ export default {
           plotId:null,
         }
       }
+      // console.log(">>>",data1)
+      if (data1.plotType==="直线箭头"||data1.plotType==="攻击箭头"||data1.plotType==="钳击箭头"){
+        // 组装 plot
+        assemblyData.plot.earthquakeId = data1.situationPlotData.earthquakeId
+        assemblyData.plot.plotId = data1.situationPlotData.plotId
+        assemblyData.plot.creationTime = this.timestampToTime(Date.now()) // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
+        assemblyData.plot.plotType = data1.situationPlotData.plotType
+        assemblyData.plot.drawtype = data1.situationPlotData.drawtype // 点线面后面再判断，先写点，别忘了改！！！！
+        assemblyData.plot.geom = data1.situationPlotData.geom
+        assemblyData.plot.elevation = data1.situationPlotData.elevation
+        assemblyData.plot.icon = data1.situationPlotData.icon
+        assemblyData.plot.startTime = this.timestampToTime(startTime)
+        assemblyData.plot.endTime = this.timestampToTime(endTime)
+        // 组装plotinfo)
+        assemblyData.plotinfo = {
+          ...data2,     //展开data2的内容
+          plotId: data1.situationPlotData.plotId // 添加 plotId 字段，使用 data1 中的 plotId
+        }
+      } else {
       // 组装 plot
       assemblyData.plot.earthquakeId = data1.situationPlotData[0].earthquakeId
       assemblyData.plot.plotId = data1.situationPlotData[0].plotId
@@ -177,8 +202,8 @@ export default {
         ...data2,     //展开data2的内容
         plotId: data1.situationPlotData[0].plotId // 添加 plotId 字段，使用 data1 中的 plotId
       }
-
-      console.log("assemblyData.plotinfo",assemblyData.plotinfo)
+        // console.log("assemblyData.plotinfo",assemblyData.plotinfo)
+      }
       return assemblyData
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式

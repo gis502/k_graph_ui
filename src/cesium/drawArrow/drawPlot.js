@@ -10,7 +10,6 @@ const arrow = {
     drawArr: [],
     handler: null,
     viewer: null,
-
     init: function (viewer) {
         if (!this.isActivate) {
             this.isActivate = true;
@@ -110,59 +109,68 @@ const arrow = {
     },
     showStraightArrow: function (straightArr) {
         for (var i = 0; i < straightArr.length; i++) {
-            var item = straightArr[i];
-            var straightArrow = new StraightArrow(this.viewer);
-            straightArrow.objId = straightArr[i].plotId;
-            straightArrow.createByData(item);
-            this.drawArr.push(straightArrow);
+            var flag = this.drawArr.find(cur => cur.objId == straightArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
+            if (!flag) {
+                var item = straightArr[i];
+                var straightArrow = new StraightArrow(this.viewer);
+                straightArrow.objId = straightArr[i].plotId;
+                straightArrow.createByData(item);
+                this.drawArr.push(straightArrow);
+            }
         }
     },
     showAttackArrow: function (attackArr) {
-        for (var i = 0; i < attackArr.length; i++) {
-            var item = attackArr[i];
-            var attackArrow = new AttackArrow(this.viewer);
-            attackArrow.objId = attackArr[i].plotId;
-            attackArrow.createByData(item);
-            this.drawArr.push(attackArrow);
+        var flag = this.drawArr.find(cur => cur.objId == attackArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
+        if (!flag) {
+            for (var i = 0; i < attackArr.length; i++) {
+                var item = attackArr[i];
+                var attackArrow = new AttackArrow(this.viewer);
+                attackArrow.objId = attackArr[i].plotId;
+                attackArrow.createByData(item);
+                this.drawArr.push(attackArrow);
+            }
         }
     },
     showPincerArrow: function (pincerArr) {
-        for (var i = 0; i < pincerArr.length; i++) {
-            var item = pincerArr[i];
-            var pincerArrow = new PincerArrow(this.viewer);
-            pincerArrow.objId = pincerArr[i].plotId;
-            pincerArrow.createByData(item);
-            this.drawArr.push(pincerArrow);
+        var flag = this.drawArr.find(cur => cur.objId == pincerArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
+        if (!flag) {
+            for (var i = 0; i < pincerArr.length; i++) {
+                var item = pincerArr[i];
+                var pincerArrow = new PincerArrow(this.viewer);
+                pincerArrow.objId = pincerArr[i].plotId;
+                pincerArrow.createByData(item);
+                this.drawArr.push(pincerArrow);
+            }
         }
     },
-    drawStraightArrow: function (data) {
+    drawStraightArrow: function (data, resolve) {
         window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var straightArrow = new StraightArrow(this.viewer);
         straightArrow.disable();
-        straightArrow.startDraw(data);
+        straightArrow.startDraw(data, resolve);
         this.drawArr.push(straightArrow);
     },
-    drawAttackArrow: function (data) {
+    drawAttackArrow: function (data, resolve) {
         window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var attackArrow = new AttackArrow(this.viewer);
         attackArrow.disable();
-        attackArrow.startDraw(data);
+        attackArrow.startDraw(data, resolve);
         this.drawArr.push(attackArrow);
     },
-    drawPincerArrow: function (data) {
+    drawPincerArrow: function (data, resolve) {
         window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var pincerArrow = new PincerArrow(this.viewer);
         pincerArrow.disable();
-        pincerArrow.startDraw(data);
+        pincerArrow.startDraw(data, resolve);
         this.drawArr.push(pincerArrow);
     },
     nowArrowObj: null,
@@ -213,6 +221,7 @@ const arrow = {
         for (var i = 0; i < $this.drawArr.length; i++) {
             if (id === $this.drawArr[i].objId) {
                 $this.drawArr[i].clear();
+                console.log($this.drawArr)
                 $this.drawArr.splice(i, 1);
                 break;
             }

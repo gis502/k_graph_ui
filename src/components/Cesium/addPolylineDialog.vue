@@ -99,7 +99,7 @@ export default {
     // 取消添加标注
     cancelAddNote() {
       // 取消时，把绘制的线也清除
-      window.viewer.entities.removeById(this.form.situationPlotData[0].plotid)
+      window.viewer.entities.removeById(this.form.situationPlotData[0].plotId)
       // 清空typeInfo信息、starttime、endtime
       this.typeInfo = null
       this.starttime = null

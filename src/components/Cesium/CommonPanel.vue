@@ -257,8 +257,9 @@ export default {
         // 可能时因为开启深度监听的原因（deep: true）。
         // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
+          console.log(this.popupPanelData)
           if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
-
+            this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
           } else if (this.popupPanelData.drawtype) {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
           } else {
@@ -371,6 +372,7 @@ export default {
         }
         if (arraw) {
           arrow.clearById(data.plotId)
+          arraw = false
         }
         this.$emit('closePlotPop')
       })
