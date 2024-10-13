@@ -15,29 +15,26 @@ export default class Point {
       let that = this
       that.handler.setInputAction((event) => {
         let pointInfo = {
-          latitude: null,
-          longitude: null,
-          height: null,
-          img: null,
-          plottype: null,
-          plotid: null,
-          eqid:eqid
+          geom: null,
+          elevation: null,
+          icon: null,
+          plotType: null,
+          plotId: null,
+          earthquakeId:eqid
         }
         // 1-1 获取点击的位置的坐标信息（经度、纬度、高度）
         let ray = viewer.camera.getPickRay(event.position)
         let position = viewer.scene.globe.pick(ray, viewer.scene)
         // 1-2 坐标系转换
         let cartographic = Cesium.Cartographic.fromCartesian(position)//把笛卡尔坐标转换成制图实例，单位是弧度
-        let lon = Cesium.Math.toDegrees(cartographic.longitude) //把弧度转换成度
-        let lat = Cesium.Math.toDegrees((cartographic.latitude))
-        let height = cartographic.height
+        let geom = that.cartographicToGeoJSON(cartographic)
+        let elevation = cartographic.height
         // 1-3 点开弹窗中就有经纬度，并且把经纬度图片等信息存入store中
-        pointInfo.latitude = lat.toFixed(6)
-        pointInfo.longitude = lon.toFixed(6)
-        pointInfo.height = height
-        pointInfo.img = img//that.matchIcon(pointType)
-        pointInfo.plottype = pointType//that.refenceTypeList[pointType]
-        pointInfo.plotid = that.guid()
+        pointInfo.geom = geom
+        pointInfo.elevation = elevation
+        pointInfo.icon = img//that.matchIcon(pointType)
+        pointInfo.plotType = pointType//that.refenceTypeList[pointType]
+        pointInfo.plotId = that.guid()
         that.store.setPointInfo1(pointInfo)
         // 1-4 异步执行完成
         resolve('异步操作完成');
@@ -60,11 +57,12 @@ export default class Point {
       setTimeout(() => {
         clearInterval(intervalId); // 停止颜色切换
       }, animationDuration);
+      let coords = data.geom.coordinates
       window.viewer.entities.add({
-        id: data.plotid,
-        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+        id: data.plotId,
+        position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
         billboard: {
-          image: data.img,
+          image: data.icon,
           width: 50,
           height: 50,
           color: new Cesium.CallbackProperty(() => {
@@ -79,11 +77,12 @@ export default class Point {
         }
       });
     } else {
+      let coords = data.geom.coordinates
       window.viewer.entities.add({
-        id: data.plotid,
-        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+        id: data.plotId ,
+        position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
         billboard: {
-          image: data.img,
+          image: data.icon,
           width: 50, // 图片宽度,单位px
           height: 50, // 图片高度，单位px
           eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -133,10 +132,10 @@ export default class Point {
 
         // 添加标绘点
         dataSource.entities.add({
-          id: data.plotid,
+          id: data.plotId,
           plottype: data.plotType,
           layer: "标绘点",
-          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
+          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
           billboard: {
             image: data.icon,
             width: 50, // 图片宽度,单位px
@@ -154,11 +153,10 @@ export default class Point {
             data
           }
         });
-
         // 添加标绘点对应的椭圆实体
         dataSource.entities.add({
-          id: data.plotid + '_ellipse', // 椭圆唯一id，移除标绘点的时候同时移除椭圆
-          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
+          id: data.plotId + '_ellipse', // 椭圆唯一id，移除标绘点的时候同时移除椭圆
+          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
           name: '圆形',
           ellipse: {
             semiMinorAxis: new Cesium.CallbackProperty(() => minR, false),
@@ -175,16 +173,16 @@ export default class Point {
         // 动画结束移除椭圆
         setTimeout(() => {
           clearInterval(intervalId2);
-          dataSource.entities.removeById(data.plotid + '_ellipse');
+          dataSource.entities.removeById(data.plotId + '_ellipse');
         }, animationDuration);
       });
     }else{
       points.forEach(data=>{
         dataSource.entities.add({
-          id: data.plotid,
+          id: data.plotId,
           plottype: data.plotType,
           layer: "标绘点",
-          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height || 0)),
+          position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
           billboard: {
             image: data.icon,
             width: 50,//图片宽度,单位px
@@ -202,8 +200,6 @@ export default class Point {
         })
       })
     }
-
-
 
     // 存储 dataSource 到对象上，便于后续操作
     window.pointDataSource = dataSource;
@@ -262,6 +258,12 @@ export default class Point {
                 cluster.billboard.id = cluster.label.id;
                 cluster.billboard.verticalOrigin =
                     Cesium.VerticalOrigin.BOTTOM;
+
+                // 设置 Billboard 高度引用地形
+                cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+
+                // 禁用深度测试，使 Billboard 不会被地形遮挡
+                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
                 if (clusteredEntities.length >= 1000) {
                   cluster.billboard.image = pin1000;
@@ -335,5 +337,17 @@ export default class Point {
           v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+  cartographicToGeoJSON(cartographic) {
+    // 将 Cesium.Cartographic 弧度转换为 GeoJSON 所需的度
+    let lon = Cesium.Math.toDegrees(cartographic.longitude); // 经度
+    let lat = Cesium.Math.toDegrees(cartographic.latitude);  // 纬度
+
+    // 返回 GeoJSON 格式的 Point 对象
+    return {
+      "type": "Point",
+      "coordinates": [lon, lat]
+    };
   }
 }

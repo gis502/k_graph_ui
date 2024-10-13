@@ -9,17 +9,20 @@ export function getEmergencyResponse() {
     })
 }
 // 获取 人员伤亡
-export function getRescueActionCasualties() {
+export function getRescueActionCasualties(data) {
     return request({
         url: '/timeLine/rescueActionCasualties',
         method: 'get',
-    })
+        params:data
+    });
 }
+
 // 获取 救援出队
-export function getRescueTeam() {
+export function getRescueTeam(data) {
     return request({
         url: '/timeLine/rescueTeam',
         method: 'get',
+        params: data
     })
 }
 // 获取 新闻

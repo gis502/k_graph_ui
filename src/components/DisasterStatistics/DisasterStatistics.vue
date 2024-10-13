@@ -1,5 +1,5 @@
 <template>
-  <div ref="chart" style="width: 100%; height: 250px;" className="container-left"></div>
+  <div ref="chart" style="width: 100%; height: 200px;" className="container-left"></div>
 </template>
 
 <script setup>
@@ -7,80 +7,67 @@ import {ref, onMounted, watch} from 'vue';
 import * as echarts from 'echarts';
 import {ElMessage} from "element-plus";
 import {getExcelUploadEarthquake} from "../../api/system/eqlist";
-import {gettotal} from "../../api/system/casualtystats";
-
-
-
-
-
+import {getTotal} from "../../api/system/statistics";
 
 import { defineProps } from 'vue';
 
 const props = defineProps({
   eqid: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 
-const neweqid =ref('')
+const neweqid = ref('be3a5ea4-8dfd-a0a2-2510-21845f17960b'); // 默认 eqid
+const total_magnitude_3_3_9 = ref(0);
+const total_magnitude_4_4_9 = ref(0);
+const total_magnitude_5_5_9 = ref(0);
+const all_aftershocks = ref(0);
+const latest_time = ref('');
 
+// 监听传入的 eqid，更新地震信息
 watch(() => props.eqid, (newValue) => {
-  neweqid.value = newValue
-  console.log("孙子中的新 eqId:", neweqid.value); // 确认更新后的值
-
-  // 获取第一个 eqid 作为参数
-
-  if (neweqid.value) {
-    gettotal(neweqid.value).then(res => {
-      total_deceased.value = res.totalDeceased;
-      total_missing.value = res.totalMissing;
-      total_injured.value = res.totalInjured;
-
-      // 更新图表数据
-      echartData.value = [
-        {
-          value: total_deceased.value,
-          name: '累计遇难（人）',
-          itemStyle: {
-            normal: {
-              color: 'black',
-            },
-          },
-        },
-        {
-          value: total_missing.value,
-          name: '累计失联（人）',
-          itemStyle: {
-            normal: {
-              color: '#ffa500',
-            },
-          },
-        },
-        {
-          value: total_injured.value,
-          name: '累计受伤（人）',
-          itemStyle: {
-            normal: {
-              color: '#f81919',
-            },
-          },
-        },
-      ];
-    });
-  } else {
-    ElMessage.error("未找到有效的 eqid");
+  if (newValue) {
+    neweqid.value = newValue;
+    fetchEarthquakeData(neweqid.value);
   }
 });
 
+// 获取并更新图表数据的函数
+const fetchEarthquakeData = (eqid) => {
+  getTotal(eqid).then(res => {
+    total_magnitude_3_3_9.value = 0;
+    total_magnitude_4_4_9.value = 0;
+    total_magnitude_5_5_9.value = 0;
+    all_aftershocks.value = 0;
+    latest_time.value = '';
+
+    res.forEach(item => {
+      total_magnitude_3_3_9.value += item.magnitude_3_3_9;
+      total_magnitude_4_4_9.value += item.magnitude_4_4_9;
+      total_magnitude_5_5_9.value += item.magnitude_5_5_9;
+      all_aftershocks.value += item.total_aftershocks;
+
+      if (item.submission_deadline) {
+        const formattedTime = formatDate(new Date(item.submission_deadline));
+        if (!latest_time.value || new Date(item.submission_deadline) > new Date(latest_time.value)) {
+          latest_time.value = formattedTime;
+        }
+      }
+    });
 
 
 
 
-
-const total_deceased = ref(0);
-const total_missing = ref(0);
-const total_injured = ref(0);
+    echartData.value = [
+      { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},
+      { value: total_magnitude_4_4_9.value, name: '4.0-4.9级', itemStyle: { normal: { color: '#ffa602' }}},
+      { value: total_magnitude_5_5_9.value, name: '5.0-5.9级', itemStyle: { normal: { color: '#f81b1b' }}},
+    ];
+  }).catch(() => {
+    ElMessage.error("未找到有效的地震信息");
+  });
+};
 
 // 定义图表数据
 const echartData = ref([]);
@@ -99,7 +86,7 @@ const initChart = () => {
 
     const option = {
       title: {
-        text: '受灾人数累积',
+        text: '余震累积',
         top: "center",
         right: "center",
         textStyle: {
@@ -169,41 +156,23 @@ const initChart = () => {
   }
 };
 
-// 当组件挂载时初始化图表
+// 当组件挂载时初始化图表并加载默认数据
 onMounted(() => {
-  getEarthquake();
+  fetchEarthquakeData(neweqid.value);
+  initChart();
 });
+
+function formatDate(date) {
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Shanghai' };
+  return new Intl.DateTimeFormat('zh-CN', options).format(date).replace(/\//g, '-').replace(',', '');
+}
 
 // 监听 echartData 的变化并重新初始化图表
 watch(echartData, () => {
   initChart();
 });
 
-const eqlistName = ref('')
-const tableNameOptions = ref([])
-const eqlists = ref([])
-
-
-// 数据获取函数
-const getEarthquake = () => {
-  getExcelUploadEarthquake().then(res => {
-    eqlists.value = res;
-    if (res.data === null) {
-      ElMessage.error("地震列表无数据");
-    }
-    tableNameOptions.value = eqlists.value.map(file => {
-      const eqid = file.split(' - ')[0]?.trim();
-      const details = file.split(' - ')[1]?.trim();
-
-      return {
-        label: details,
-        value: eqid
-      };
-    });
-
-
-  });
-};
+// 格式化时间的函数
 
 </script>
 

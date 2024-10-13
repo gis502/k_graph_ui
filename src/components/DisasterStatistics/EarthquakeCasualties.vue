@@ -5,18 +5,26 @@
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
         <ResettlementGraph :eqid="eqid"/>
       </dv-border-box-13>
-      <dv-border-box-13 class="model1">人员伤亡信息统计<br>
+      <dv-border-box-13 class="model1">地震震情灾情信息统计<br>
         <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
         <DisasterStatistics :eqid="eqid"/>
       </dv-border-box-13>
-      <dv-border-box-12 class="model2">地震震情灾情信息统计
-        <div ref="chart" style="width:100%; height:270px;margin-top: 30px" ></div>
+      <dv-border-box-12 class="model2">人员伤亡信息统计
+        <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
       </dv-border-box-12>
     </div>
   </div>
 </template>
 
+
 <script setup>
+// 进行了调整这个子组件从余震信息变成了伤亡情况，但是组件名字还没有进行修改！！！！！！
+// 进行了调整这个子组件从余震信息变成了伤亡情况，但是组件名字还没有进行修改！！！！！！
+// 进行了调整这个子组件从余震信息变成了伤亡情况，但是组件名字还没有进行修改！！！！！！
+
+
+
+
 import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
 import {getField, getData} from "@/api/system/excel.js";
@@ -31,7 +39,7 @@ import ResettlementGraph from "@/components/DisasterStatistics/ResettlementGraph
 
 
 import { defineProps } from 'vue';
-import {getTotal} from "../../api/system/statistics";
+import {gettotal} from "../../api/system/casualtystats"
 
 const props = defineProps({
   newEqId: {
@@ -42,23 +50,127 @@ const props = defineProps({
 
 const eqid = ref('')
 watch(() => props.newEqId, (newValue) => {
+
   eqid.value = newValue
   console.log("儿子中的新 eqId:", eqid.value); // 确认更新后的值
   // 其他处理逻辑
-  getTotal(eqid.value).then(res =>{
-    console.log(res)
+  gettotal(eqid.value).then(res =>{
+
     // 得到后端数据开始操作：
 
 
-    const formattedData = processData(res);
-    console.log("处理后的数据",formattedData)
-    updateChart(formattedData);
+
+    const areas = res.length > 0 ? res.map(item => item.affectedAreaName) : ["抱歉暂无数据"];
+    const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
+    const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
+    const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
+    const times = res.length > 0 ? res.map(item => item.submissionDeadline) : ["抱歉暂无数据"];
 
 
 
+    // 初始化 ECharts 实例
+    const chartInstance = echarts.init(chart.value);
+    // 更新图表配置
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        formatter: function (params) {
+          // 第一行显示地区名称
+          let result = `${params[0].axisValue}<br/>`;
 
+          // 第二行显示截止时间
+          const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
+          result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
+
+          // 显示系列名和数值
+          params.forEach(item => {
+            result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
+          });
+
+          return result;
+        }
+      },
+      legend: {
+        data:FieldName.value,
+        align: 'right',
+        right: 10,
+        textStyle: {
+          color: "#fff"
+        },
+        itemWidth: 10,
+        itemHeight: 10,
+        itemGap: 35
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: [{
+        type: 'category',
+        data: areas, // 使用动态获取的区域数据
+        // 其他 xAxis 配置
+      }],
+      yAxis: [{
+        type: 'value',
+        axisLabel: {
+          // 移除百分比格式化
+          // formatter: '{value} %'
+        },
+        axisTick: {
+          show: false
+        },
+        axisLine: {
+          show: false,
+          lineStyle: {
+            color: "#00c7ff",
+            width: 1,
+            type: "solid"
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: "#063374"
+          }
+        }
+      }],
+      series: [
+        {
+          name: '累计遇难（人）',
+          type: 'bar',
+          data: totalDeceased, // 使用动态获取的死亡人数
+          // 其他系列配置
+        },
+        {
+          name: '累计失联（人）',
+          type: 'bar',
+          data: totalMissing, // 使用动态获取的失联人数
+          // 其他系列配置
+        },
+        {
+          name: '累计受伤（人）',
+          type: 'bar',
+          data: totalInjured, // 使用动态获取的受伤人数
+          // 其他系列配置
+        }
+      ]
+    };
+
+    chartInstance.setOption(option); // 设置更新后的配置
+    window.addEventListener('resize', () => {
+      chartInstance.resize();
+    });
   })
 });
+
+
+
+
+
 
 
 
@@ -105,194 +217,25 @@ watch(flag, (newFlag) => {
 
 });
 
-
-
-
-
-
-
-
-
-// 格式化数据
-const processData = (data) => {
-  const areas = ['天全县', '石棉县', '名山区', '雨城区', '荥经县', '汉源县', '芦山县', '宝兴县']; // 所有需要统计的县区
-  const result = areas.map(area => {
-    const entry = data.find(item => item.affected_area === area);
-    return {
-      affected_area: area,
-      total_aftershocks:entry ? entry.total_aftershocks : 0,
-      magnitude_3_3_9: entry ? entry.magnitude_3_3_9 : 0,
-      magnitude_4_4_9: entry ? entry.magnitude_4_4_9 : 0,
-      magnitude_5_5_9: entry ? entry.magnitude_5_5_9 : 0,
-      earthquake_time: entry ? formatTime(entry.earthquake_time) : "无数据"
-    };
-  });
-  return result;
-
-};
-
-const formatTime = (timestamp) => {
-  const date = new Date(timestamp);
-  return date.toISOString().slice(0, 19).replace('T', ' '); // 转换为 "YYYY-MM-DD HH:MM:SS" 格式
-};
-
-const updateChart = (data) => {
-  const xAxisData = data.map(item => item.affected_area);
-  const seriesData = [
-    data.map(item => item.total_aftershocks),
-    data.map(item => item.magnitude_3_3_9),
-    data.map(item => item.magnitude_4_4_9),
-    data.map(item => item.magnitude_5_5_9)
-  ];
-  const chartInstance = echarts.init(chart.value);
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      },
-      formatter: function (params) {
-        // 第一行显示地区名称
-        let result = `${params[0].axisValue}<br/>`;
-
-        // 第二行显示截止时间
-        const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
-        result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
-
-        // 显示系列名和数值
-        params.forEach(item => {
-          result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
-        });
-
-        return result;
-      }
-    },
-    legend: {
-      data:FieldName.value,
-      align: 'right',
-      right: 10,
-      textStyle: {
-        color: "#fff"
-      },
-      itemWidth: 10,
-      itemHeight: 10,
-      itemGap: 35
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    // ...其他配置项
-    xAxis: [{
-      type: 'category',
-      data: xAxisData,
-    }],
-    series: [
-      {
-        name: '余震次数累计',
-        type: 'bar',
-        data: seriesData[0],
-        barWidth: 13,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#008cff' },
-              { offset: 1, color: '#005193' }
-            ]),
-            opacity: 1
-          }
-        }
-      },
-      {
-        name: '3.0-3.9级',
-        type: 'bar',
-        data: seriesData[1],
-      },
-      {
-        name: '4.0-4.9级',
-        type: 'bar',
-        data: seriesData[2],
-      },
-      {
-        name: '5.0-5.9级',
-        type: 'bar',
-        data: seriesData[3],
-      }
-    ],
-    // 其他配置项目
-    yAxis: [{
-      type: 'value',
-      axisLabel: {
-        // 移除百分比格式化
-        // formatter: '{value} %'
-      },
-      axisTick: {
-        show: false
-      },
-      axisLine: {
-        show: false,
-        lineStyle: {
-          color: "#00c7ff",
-          width: 1,
-          type: "solid"
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#063374"
-        }
-      }
-    }],
-  };
-
-  chartInstance.setOption(option);
-  window.addEventListener('resize', () => {
-    chartInstance.resize();
-  });
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const times = [
-  '2024-09-05 15:30:00',
-  '2024-09-06 18:45:00',
-  '2024-09-07 21:00:00',
-  '2024-09-08 23:59:59',
-  '2024-09-01 00:00:00',
-  '2024-09-02 01:30:00',
-  '2024-09-03 03:45:00',
-  '2024-09-04 12:00:00',
+  "2022-06-01 17:10:15",
+  "2022-06-03 13:20:05",
+  "2022-06-04 12:05:50",
+  "2024-06-12 11:50:00",
+  "2022-06-03 14:55:40",
+  "2022-06-08 16:30:25",
+  "2022-06-03 09:15:10",
+  "2024-06-12 11:50:00",
 ];
+
+
+
 const time = ref('2024-09-05 15:30:00')
+
+
+
 onMounted(() => {
   getTableField()
-  getEarthquake()
 })
 
 // 请求人员伤亡表数据
@@ -328,6 +271,7 @@ const generateColumnConfig = () => {
 /** 获取字段 */
 const getTableField = () => {
   getField().then(res => {
+
     files.value = res.data
     if (files.value.length == 0) {
       ElMessage.error("该用户无导表权限")
@@ -343,9 +287,22 @@ const getTableField = () => {
     name.value = Array.from(map.values())
     data.value = generateData();
     columns.value = generateColumnConfig();
-    FieldName.value = name.value.filter(item =>  item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
+
+
+
+    // 目前这里的图例的名称是写死的，后端获取伤亡标题的接口貌似没有，数据库的表也没有
+    name.value[6] = "累计遇难（人）";
+    name.value[7] = "累计失联（人）";
+    name.value[8] ="累计受伤（人）";
+
+
+
+
+    FieldName.value = name.value.filter(item =>  item === '累计遇难（人）' || item === '累计失联（人）' || item === '累计受伤（人）' )
     // 模拟异步请求后赋值给 FieldName
     console.log(FieldName.value)
+
+
 
     // 初始化 ECharts 实例
     const chartInstance = echarts.init(chart.value);
@@ -392,14 +349,14 @@ const getTableField = () => {
       xAxis: [{
         type: 'category',
         data: [
-          '雨城区',
-          '名山区',
-          '荥经县',
+          '宝兴县',
           '汉源县',
+          '芦山县',
+          '名山区',
           '石棉县',
           '天全县',
-          '芦山县',
-          '宝兴县'
+          '荥经县',
+          '雨城区',
         ],
         axisLine: {
           show: true,
@@ -444,25 +401,9 @@ const getTableField = () => {
       }],
       series: [
         {
-          name: '余震次数累计',
+          name: '累计遇难（人）',
           type: 'bar',
-          data: [2, 5, 8, 5, 8, 6, 5, 8, 4, 6],
-          barWidth: 13,
-          barGap: 1,
-          itemStyle: {
-            normal: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: '#008cff' },
-                { offset: 1, color: '#005193' }
-              ]),
-              opacity: 1
-            }
-          }
-        },
-        {
-          name: '3.0-3.9级',
-          type: 'bar',
-          data: [1,2,4,2,4,3,2,4,2,3],
+          data: [22,18,8,10,12,30,25,10],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
@@ -477,9 +418,9 @@ const getTableField = () => {
           }
         },
         {
-          name: '4.0-4.9级',
+          name: '累计失联（人）',
           type: 'bar',
-          data: [0,2,3,2,2,2,2,2,1,2],
+          data: [6,1,1,2,4,10,7,2],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
@@ -494,9 +435,9 @@ const getTableField = () => {
           }
         },
         {
-          name: '5.0-5.9级',
+          name: '累计受伤（人）',
           type: 'bar',
-          data: [1,1,1,1,2,1,1,2,1,1],
+          data: [110,70,20,25,40,120,80,25],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
@@ -514,25 +455,6 @@ const getTableField = () => {
       chartInstance.resize();
     });
 
-  })
-}
-//获取地震列表
-const getEarthquake = () => {
-  getExcelUploadEarthquake().then(res => {
-    eqlists.value = res
-
-    if (res.data === null) {
-      ElMessage.error("地震列表无数据")
-    }
-
-    tableNameOptions.value = eqlists.value.map(file => ({
-      label: file,
-      value: file
-    }))
-
-    eqlistName.value = tableNameOptions.value[0].label
-
-    console.log(eqlistName.value)
   })
 }
 
@@ -564,8 +486,9 @@ const clearSelection = () => {
   multipleTableRef.value?.clearSelection()
 }
 
-
 </script>
+
+
 
 <style lang="scss" scoped>
 .style-container {

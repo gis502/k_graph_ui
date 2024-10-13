@@ -858,7 +858,7 @@ export default {
         // }
         // })
         // 更新绘图
-        this.updatePlot()
+        this.updatePlot(false)
 
 
         // 开启时间轴
@@ -873,7 +873,8 @@ export default {
     /*
     * 更新标绘点
     * */
-    updatePlot() {
+    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
+    updatePlot(bool) {
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -899,7 +900,7 @@ export default {
           // 创建点数据
           let point = {
             earthquakeId: item.earthquakeId,
-            plotid: item.plotId,
+            plotId: item.plotId,
             time: item.creationTime.replace("T", " "),
             plotType: item.plotType,
             drawtype: item.drawtype,
@@ -930,10 +931,11 @@ export default {
           }
         }
       });
-      // 批量渲染点
-      if (points.length > 0) {
-        cesiumPlot.drawPoints(points,true);
-      }
+        // 批量渲染点 + 非初始化状态渲染标会点动画
+        if (points.length > 0) {
+            let param = bool === false ? false : true
+            cesiumPlot.drawPoints(points,param);
+        }
 
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
