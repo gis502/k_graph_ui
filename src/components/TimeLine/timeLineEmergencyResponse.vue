@@ -16,7 +16,8 @@
       <div class="emergency_response_time_div">
         <div class="emergency_response_title-underline"></div>
         <p class="time_text"> 数据更新时间</p>
-        <p class="time"> {{this.activity.time}}</p>
+        <!--        <p class="time"> {{this.activity.time}}</p>-->
+        <p class="time"> {{this.recordTime}}</p>
       </div>
     </div>
 
@@ -44,13 +45,14 @@ export default {
         department: '',
         time: '',
       },
-      ifShowData: false,
-      emergency_response_isExpanded:'true'
+      // ifShowData: false,
+      emergency_response_isExpanded:'true',
+      recordTime:''
     }
   },
   props: [
     'currentTime',
-      'eqid'
+    'eqid'
   ],
   mounted() {
     // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
@@ -61,17 +63,15 @@ export default {
   },
   watch: {
     currentTime(newVal) {
-      if(this.ifShowData) {
-        this.updateEmergencyResponse(newVal)
-      }
+      this.updateEmergencyResponse(newVal)
     }
   },
   methods: {
     init() {
-        getEmergencyResponse().then(res => {
-          this.EmergencyResponseResponsecontent = res
-          this.updateEmergencyResponse(this.currentTime)
-        })
+      getEmergencyResponse().then(res => {
+        this.EmergencyResponseResponsecontent = res
+        this.updateEmergencyResponse(this.currentTime)
+      })
     },
     async updateEmergencyResponse(currentTime){
       const activities =await this.EmergencyResponseResponsecontent.filter((activity) => {
@@ -79,7 +79,7 @@ export default {
             new Date(activity.responseTime) <= currentTime
         );
       });
-      if(activities.length>=1){
+      if(activities.length>0){
         activities.sort((a, b) => {
           if (a.responseTime < b.responseTime) return -1;
           if (a.responseTime > b.responseTime) return 1;
@@ -88,11 +88,14 @@ export default {
         let tmp=activities[activities.length-1]
         // console.log(tmp)
         this.activity.time=this.timestampToTime(tmp.responseTime)
+        this.recordTime=this.timestampToTime(tmp.responseTime)
         this.activity.department=tmp.unit
         this.activity.ResponseName=tmp.level
         this.activity.state=tmp.status
       }
-      // console.log("this.activity-------",this.activity)
+      else{
+        this.recordTime=this.timestampToTime(currentTime)
+      }
     },
     timestampToTime(timestamp) {
       let DateObj = new Date(timestamp)
