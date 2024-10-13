@@ -180,7 +180,7 @@ const typeIndex = (row, column, cellValue, index) => {
 };
 
 const formatMagnitude = (row, column, cellValue) => {
-  if (column.label === '震级') {
+  if (column.label === '震级(级)') {
     return cellValue.includes('.') ? cellValue : cellValue + '.0';
   }
   return cellValue;

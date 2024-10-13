@@ -15,6 +15,14 @@ export function getAftershockMagnitude(eqid) {
 
 }
 
+export function getAfterShockInformation(eqid) {
+    return request({
+        url: '/system/getAfterShockInformation',
+        method: 'get',
+        params: {eqid: eqid}
+    });
+}
+
 export function getTotal(eqid) {
     return request({
         url: '/system/getAftershock',
@@ -22,5 +30,4 @@ export function getTotal(eqid) {
         params: {eqid: eqid}
     });
 }
-
 
