@@ -517,7 +517,7 @@ export default {
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (window.viewer) {
       this.clearResource(window.viewer)
       window.viewer = null;
@@ -1874,8 +1874,6 @@ export default {
 
     /**
      *  ------------------行政区划--------------------
-     * 添加雅安行政区划影像图层
-     *
      * 此方法旨在向地图中添加雅安市的行政区划影像图层如果图层已存在，则不会重复添加
      * 使用Cesium库加载GeoJSON数据，并根据图层是否已存在来设置不同的显示样式
      */
@@ -2116,7 +2114,6 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
-
     /*
     * 更新地图图层
     * 点击图层复选框时在地图上展示相应的图层数据

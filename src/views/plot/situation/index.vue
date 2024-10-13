@@ -283,22 +283,24 @@ export default {
     // 获取标绘图片
     this.getPlotPicture()
   },
-  beforeDestroy() {
-    if (window.viewer) {
-      let viewer = window.viewer
-      let gl = viewer.scene.context._gl
+  beforeUnmount() {
+    console.log("111",window.viewer)
+    if (window.viewer){
+      let viewer=window.viewer
+      let gl=viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
-      gl = null
+      console.log("webglcontext 已清除")
+      gl=null
       window.viewer = null;
     }
   },
-  destroyed() {
-    this.websock.close()
-  },
+  // unmounted() {
+  //   this.websock.close()
+  // },
   methods: {
     // 初始化控件等
     init() {
@@ -347,7 +349,7 @@ export default {
             let point = {
               earthquakeId: item.earthquakeId,
               plotId: item.plotId,
-              time: item.creationTime.replace("T", " "),
+              time: item.creationTime.replace("T"," "),
               plotType: item.plotType,
               drawtype: item.drawtype,
               latitude: item.latitude,
@@ -358,10 +360,9 @@ export default {
             points.push(point)
           }
         })
-        console.log("weixuanran", points)
         that.drawPoints(points)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("polylineArr", polylineArr)
+        console.log("polylineArr",polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -754,7 +755,7 @@ export default {
         let data = []
         for (let i = 0; i < resData.length; i++) {
           let item = resData[i]
-          item.time = resData[i].occurrenceTime.replace("T", " ")
+          item.time = resData[i].occurrenceTime.replace("T"," ")
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -764,7 +765,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].occurrenceTime.replace("T", " ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
+        that.title = that.tableData[0].occurrenceTime.replace("T"," ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -787,9 +788,9 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqById({id: eqid}).then(res => {
+        getEqById({id: eqid}).then(res => {
         //震中标绘点
-        console.log("res", res)
+          console.log("res",res)
         this.centerPoint = res
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
