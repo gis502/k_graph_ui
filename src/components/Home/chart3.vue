@@ -35,7 +35,7 @@ const deathCount = ref(0);
 const updateTime = ref('')
 watch(() => props.lastEq, () => {
   if (props.lastEq){
-    gettotal("206ebdc2-5bc9-45ba-9b5f-1e2d121674ca").then((res) => {
+    gettotal(props.lastEq.eqid).then((res) => {
 
       if (res && Array.isArray(res)) {
         // 初始化计数器
@@ -65,8 +65,8 @@ watch(() => props.lastEq, () => {
         // 使用可选链和默认值，防止latestInsertTime为undefined时报错
         // 检查时间字段并安全访问
         const firstItem = res[0];
-        if (firstItem && firstItem.earthquakeTime) {
-          updateTime.value = firstItem.earthquakeTime.replace('T', ' ');
+        if (firstItem && firstItem.submissionDeadline) {
+          updateTime.value = firstItem.submissionDeadline.replace('T', ' ');
           console.log(updateTime)
         } else {
           updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');

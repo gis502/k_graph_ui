@@ -129,8 +129,7 @@ export default {
       insertPlotAndInfo(data).then(res => {
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         // let form = {...this.form}
-        // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
-        //   this.$emit('')
+        this.$emit('wsSendPoint', JSON.stringify({type: "polyline", operate: "add", data}))
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
         ElMessage({
           message: '添加成功',
@@ -183,8 +182,6 @@ export default {
         ...data2,     //展开data2的内容
         plotId: data1.situationPlotData[0].plotId // 添加 plotId 字段，使用 data1 中的 plotId
       }
-
-      console.log("assemblyData.plotinfo",assemblyData.plotinfo)
       return assemblyData
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式

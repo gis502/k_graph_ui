@@ -100,12 +100,18 @@ function wsAdd(type, data) {
             }
         })
     } else if (type === "polyline") {
+        console.log(data,123)
+        let points = data.plot.geom.coordinates
+        let plotId = data.plot.plotId
+        let type = data.plot.plotType
+        let img = data.plot.icon
+
         let pointLinePoints = []
-        for (let i = 0; i < data.positions.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             let p = window.viewer.entities.add({
                 show: false,
-                position: data.positions[i],
-                id: data.id + 'point' + (i + 1),
+                position: points[i],
+                id: plotId + 'point' + (i + 1),
                 point: {
                     pixelSize: 1,
                     color: Cesium.Color.RED,
@@ -118,9 +124,9 @@ function wsAdd(type, data) {
             });
             pointLinePoints.push(p)
         }
-        let material = getMaterial(data.type, data.img)
+        let material = getMaterial(type, img)
         window.viewer.entities.add({
-            id: data.id, //+ 'polyline',
+            id: plotId, //+ 'polyline',
             polyline: {
                 positions: data.positions,
                 width: 5,
