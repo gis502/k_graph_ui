@@ -638,6 +638,7 @@ export default {
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          console.log(this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -646,6 +647,7 @@ export default {
           // }
 
         } else {
+          console.log(1230)
           // this.showPolyline = false
           // this.popupData = {}
         }

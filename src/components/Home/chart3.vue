@@ -35,7 +35,7 @@ const deathCount = ref(0);
 const updateTime = ref('')
 watch(() => props.lastEq, () => {
   if (props.lastEq){
-    gettotal("206ebdc2-5bc9-45ba-9b5f-1e2d121674ca").then((res) => {
+    gettotal(props.lastEq.eqid).then((res) => {
 
       if (res && Array.isArray(res)) {
         // 初始化计数器
@@ -118,7 +118,7 @@ watch(() => props.lastEq, () => {
 .count {
   font-size: 25px; /* Larger font size for the numbers */
   color: rgb(248, 150, 150);
-  margin-left: 7vw; /* Pushes count to the right */
+  margin-left: 4vw; /* Pushes count to the right */
 }
 
 .suffix {

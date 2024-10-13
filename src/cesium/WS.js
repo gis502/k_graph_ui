@@ -103,6 +103,7 @@ function wsAdd(type, data) {
         console.log(data,123)
         let points = data.plot.geom.coordinates
         let plotId = data.plot.plotId
+        let elevation = data.plot.elevation
         let type = data.plot.plotType
         let img = data.plot.icon
 
@@ -110,7 +111,7 @@ function wsAdd(type, data) {
         for (let i = 0; i < points.length; i++) {
             let p = window.viewer.entities.add({
                 show: false,
-                position: points[i],
+                position: new Cesium.Cartesian3(points[i][0], points[i][1], elevation),
                 id: plotId + 'point' + (i + 1),
                 point: {
                     pixelSize: 1,
@@ -125,10 +126,15 @@ function wsAdd(type, data) {
             pointLinePoints.push(p)
         }
         let material = getMaterial(type, img)
+        let linePostion = []
+        points.forEach(e => {
+            // 线的positions需要数组里的点都是Cartesian3类型
+            linePostion.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
+        })
         window.viewer.entities.add({
             id: plotId, //+ 'polyline',
             polyline: {
-                positions: data.positions,
+                positions: linePostion,
                 width: 5,
                 material: material,
                 // material: Cesium.Color.YELLOW,
