@@ -312,8 +312,9 @@ import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
-import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
+import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+
 export default {
   components: {
     thematicMapPreview,
@@ -439,7 +440,7 @@ export default {
       ],
       geojsonData: [],
       labels: [],  // 保存标签实体的引用
-      regionLayer111: null,
+      regionLayerJump: null,
 
       activeComponent: null,
       //-----------------图层要素---------------------
@@ -460,10 +461,10 @@ export default {
       disasterReserves: [],
       emergencyTeam: [],
       emergencyShelters: [],
-      isShowYaanRegionLegend:false, //雅安行政区划图例
+      isShowYaanRegionLegend: false, //雅安行政区划图例
 
       // 定义雅安各区县的颜色和名称
-      YaanLegendcolors : [
+      YaanLegendcolors: [
         {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
         {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
         {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
@@ -474,25 +475,25 @@ export default {
         {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
       ],
       //专题图下载
-      thematicMapitems:[],
-      selectthematicMap:'',
-      isshowThematicMapPreview:'',
-      imgshowURL:'',
-      imgurlFromDate:'',
-      imgName:'',
+      thematicMapitems: [],
+      selectthematicMap: '',
+      isshowThematicMapPreview: '',
+      imgshowURL: '',
+      imgurlFromDate: '',
+      imgName: '',
       ifShowMapPreview: false, // 是否预览专题图
       //专题图下载end
 
       //报告产出
-      reportItems:[],
-      selectReportItem:'',
+      reportItems: [],
+      selectReportItem: '',
 
     };
   },
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-    this.reportItems=ReportUrl.filter(item => item.eqid === this.eqid);
+    this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
     // console.log(this.thematicMapitems);
   },
   mounted() {
@@ -506,25 +507,25 @@ export default {
     this.watchTerrainProviderChanged()
   },
   beforeDestroy() {
-    if (window.viewer){
+    if (window.viewer) {
       this.clearResource(window.viewer)
       window.viewer = null;
     }
-    if (window.smallViewer){
+    if (window.smallViewer) {
       this.clearResource(window.smallViewer)
       window.smallViewer = null;
     }
   },
   // 图层要素
   methods: {
-    clearResource(viewer){
-      let gl=viewer.scene.context._gl
+    clearResource(viewer) {
+      let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
-      gl=null
+      gl = null
     },
     // 关闭弹窗
     closePlotPop() {
@@ -583,6 +584,15 @@ export default {
       // 如果激活的组件是地震列表，则获取地震数据
       if (this.activeComponent === 'eqList') {
         this.getEq();
+      }
+      if(this.activeComponent == 'layerChoose'){
+        this.removethdRegions();
+        const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
+        // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
+        if (hasYaanRegionLayer) {
+
+          this.addYaanRegion();
+        }
       }
     },
     // 初始化控件等
@@ -976,11 +986,11 @@ export default {
         this.plots = res
         // 遍历更新后的绘图信息，确保每个点都有起止时间
         this.plots.forEach(item => {
-          if (!item.endTime || new Date(item.endTime)< new Date(this.eqstartTime)  ||  new Date(item.endTime)< new Date(item.startTime) ) {
+          if (!item.endTime || new Date(item.endTime) < new Date(this.eqstartTime) || new Date(item.endTime) < new Date(item.startTime)) {
             // 为没有结束时间的点设置默认结束时间
             item.endTime = new Date(this.eqstartTime.getTime() + 20 * 24 * 36000 * 1000);  //20天 错误时间设置结束时间地震发生20天以后
           }
-          if (!item.startTime || new Date(item.startTime)< new Date(this.eqstartTime) ) {
+          if (!item.startTime || new Date(item.startTime) < new Date(this.eqstartTime)) {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
@@ -1037,12 +1047,12 @@ export default {
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-            console.log("entityToRemove",entityToRemove)
+            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
+            console.log("entityToRemove", entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
-            if(ellipseEntityToRemove){
+            if (ellipseEntityToRemove) {
               window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
             }
           }
@@ -1051,7 +1061,7 @@ export default {
       // 批量渲染点 + 非初始化状态渲染标会点动画
       if (points.length > 0) {
         let param = bool === false ? false : true
-        cesiumPlot.drawPoints(points,param);
+        cesiumPlot.drawPoints(points, param);
       }
 
       //--------------------------线绘制------------------------------
@@ -1498,7 +1508,7 @@ export default {
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            this.timelinePopupData={}
+            this.timelinePopupData = {}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
 
             // this.timelinePopupData = this.extractDataForTimeline(entity);
@@ -1845,50 +1855,76 @@ export default {
     addYaanImageryDistrict() {
       // 移除其他区域图层
       this.removethdRegions()
-      // 检查是否已添加“行政区划要素图层”
-      if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
-        // 加载雅安行政区划的GeoJSON数据，并设置显示样式
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          clampToGround: true, //贴地显示
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-          strokeWidth: 4,
-        });
-        // 处理加载成功的GeoJSON数据
-        geoPromise.then((dataSource) => {
-          // 添加 geojson
-          window.regionLayer111 = dataSource;
-          window.viewer.dataSources.add(dataSource);
-          // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-          dataSource.name = "thd_yaanregion";
-          // 视角跳转到 geojson
-          viewer.flyTo(dataSource.entities.values);
+      this.removeDataSourcesLayer('YaanRegionLayer');
 
-        }).catch((error) => {
-          // 处理加载失败的情况
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      } else {
-        // 如果图层已存在，加载一个透明的GeoJSON数据，以保持图层的存在而不显示内容
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          stroke: Cesium.Color.TRANSPARENT,
-          fill: Cesium.Color.TRANSPARENT,
-          markerColor: Cesium.Color.TRANSPARENT,
-          markerSize: 0,
-          strokeWidth: 0,
-          clampToGround: true, //贴地显示
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: true,
-        });
-        // 处理加载成功的透明GeoJSON数据
-        geoPromise.then((dataSource) => {
-          window.viewer.dataSources.add(dataSource);
-          viewer.flyTo(dataSource.entities.values);
-        }).catch((error) => {
-          // 处理加载失败的情况
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      }
+      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+        clampToGround: true, //贴地显示
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+        strokeWidth: 4,
+      });
+      // 处理加载成功的GeoJSON数据
+      geoPromise.then((dataSource) => {
+        // 添加 geojson
+        window.regionLayerJump = dataSource;
+        window.viewer.dataSources.add(dataSource);
+        // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
+        dataSource.name = "thd_yaanregion";
+        // 视角跳转到 geojson
+        viewer.flyTo(dataSource.entities.values);
+
+      }).catch((error) => {
+        // 处理加载失败的情况
+        console.error("加载GeoJSON数据失败:", error);
+      });
+
+      // 检查是否已添加“行政区划要素图层”
+      // if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
+      //   // 加载雅安行政区划的GeoJSON数据，并设置显示样式
+      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+      //     clampToGround: true, //贴地显示
+      //     stroke: Cesium.Color.RED,
+      //     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+      //     strokeWidth: 4,
+      //   });
+      //   // 处理加载成功的GeoJSON数据
+      //   geoPromise.then((dataSource) => {
+      //     // 添加 geojson
+      //     window.regionLayerJump = dataSource;
+      //     window.viewer.dataSources.add(dataSource);
+      //     // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
+      //     dataSource.name = "thd_yaanregion";
+      //     // 视角跳转到 geojson
+      //     viewer.flyTo(dataSource.entities.values);
+      //
+      //   }).catch((error) => {
+      //     // 处理加载失败的情况
+      //     console.error("加载GeoJSON数据失败:", error);
+      //   });
+      // }
+      // else {
+      //   // 如果图层已存在，加载一个透明的GeoJSON数据，以保持图层的存在而不显示内容
+      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+      //     stroke: Cesium.Color.TRANSPARENT,
+      //     fill: Cesium.Color.TRANSPARENT,
+      //     markerColor: Cesium.Color.TRANSPARENT,
+      //     markerSize: 0,
+      //     strokeWidth: 0,
+      //     clampToGround: true, //贴地显示
+      //     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      //     depthTest: true,
+      //   });
+      //   // 处理加载成功的透明GeoJSON数据
+      //   geoPromise.then((dataSource) => {
+      //     window.viewer.dataSources.add(dataSource);
+      //     viewer.flyTo(dataSource.entities.values);
+      //   }).catch((error) => {
+      //     // 处理加载失败的情况
+      //     console.error("加载GeoJSON数据失败:", error);
+      //   });
+      // }
+
+
       // 添加雅安市的标签
       let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
       let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
@@ -1914,6 +1950,7 @@ export default {
     handleDistrictClick(district) {
       //清除其他实体标签
       this.removethdRegions()
+      this.removeDataSourcesLayer('YaanRegionLayer');
       // this.visible = false;
       // 根据区县代码过滤GeoJSON数据
       let filteredFeatures = yaan.features.filter(feature => {
@@ -1942,7 +1979,7 @@ export default {
           // 将数据源添加到观众的数据显示中
           window.viewer.dataSources.add(dataSource);
           // 保存区域图层以便后续使用
-          window.regionLayer111 = dataSource
+          window.regionLayerJump = dataSource
 
           // 遍历每个过滤后的地理特征
           filteredFeatures.forEach((feature) => {
@@ -1988,17 +2025,17 @@ export default {
      * 此函数负责从地图中移除特定的区域图层和与之关联的图例标签
      */
     removethdRegions() {
-      // 检查是否存在名为regionLayer111的图层
-      if (window.regionLayer111) {
+      // 检查是否存在名为regionLayerJump的图层
+      if (window.regionLayerJump) {
         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-        window.viewer.dataSources.remove(window.regionLayer111, true);
-        // 清空regionLayer111的引用，以便垃圾回收
-        window.regionLayer111 = null;
+        window.viewer.dataSources.remove(window.regionLayerJump, true);
+        // 清空regionLayerJump的引用，以便垃圾回收
+        window.regionLayerJump = null;
 
 
         // console.log("图层已移除");
       }
-      this.isShowYaanRegionLegend=false;
+      this.isShowYaanRegionLegend = false;
       // 获取图例容器，准备清空其内容
       // const legend = document.getElementById('legend');
       // 循环移除图例容器中的所有子元素
@@ -2078,7 +2115,7 @@ export default {
       const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
       // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
       if (hasYaanRegionLayer) {
-        // this.removethdRegions();
+        this.removethdRegions();
         this.addYaanRegion();
       } else {
         // 如果未选定行政区划要素图层，则移除其他区域图层和雅安行政区划图层
@@ -2358,7 +2395,7 @@ export default {
           // console.log("dataSource--------------", dataSource.entities.values.length)
 
           // 生成图例
-          this.isShowYaanRegionLegend=true;
+          this.isShowYaanRegionLegend = true;
           // const legend = document.getElementById('legend');
           // legend.style.display = 'block';
           // colors.forEach((colorItem, index) => {
@@ -2516,16 +2553,16 @@ export default {
     MarkingLayerRemove() {
       // 遍历所有plot
       this.plots.forEach(item => {
-        console.log("item",item)
+        console.log("item", item)
         // 从 dataSource 中删除点
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-          const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-          console.log("entityToRemove",entityToRemove)
+          const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
+          console.log("entityToRemove", entityToRemove)
           if (entityToRemove) {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
           }
-          if(ellipseEntityToRemove){
+          if (ellipseEntityToRemove) {
             window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
           }
         }
@@ -2613,33 +2650,34 @@ export default {
      * 更新主题地图的预览
      * 当选择了一个主题地图后，显示地图的预览图；如果没有选择，则隐藏预览图
      */
-    updatethematicMap(){
-      if(this.selectthematicMap){
-        this.ifShowMapPreview=true
-        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name===this.selectthematicMap);
+    updatethematicMap() {
+      if (this.selectthematicMap) {
+        this.ifShowMapPreview = true
+        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name === this.selectthematicMap);
         console.log(selectedData)
         this.imgurlFromDate = selectedData.path
-        this.imgName=selectedData.name
+        this.imgName = selectedData.name
         // console.log("11111",this.imgurlFromDate, this.imgName)
-        this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+        this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
         // console.log(this.imgshowURL)
-      }
-      else{
-        this.ifShowMapPreview=false
+      } else {
+        this.ifShowMapPreview = false
       }
 
     },
     ifShowThematicMapDialog(val) {
-      this.ifShowMapPreview= val // 是否预览专题图 = val
-      if( !val){this.selectthematicMap=null}
+      this.ifShowMapPreview = val // 是否预览专题图 = val
+      if (!val) {
+        this.selectthematicMap = null
+      }
     },
     //专题图 end
 
     //报告产出
-    updateReportItem(){
-      if(this.selectReportItem){
+    updateReportItem() {
+      if (this.selectReportItem) {
         console.log(this.selectReportItem)
-        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name===this.selectReportItem);
+        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name === this.selectReportItem);
         const link = document.createElement('a');
         link.href = selectedData.path;
         link.download = selectedData.name; // 指定下载的文件名
@@ -2913,10 +2951,12 @@ export default {
   max-height: 0;
   transition: max-height 0.3s ease;
 }
+
 .dropdown.expanded {
   max-height: 550px; /* 根据实际内容调整 */
   overflow-y: auto;
 }
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
   color: #FFFFFF;
