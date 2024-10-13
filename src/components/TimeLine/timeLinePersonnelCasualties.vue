@@ -77,9 +77,7 @@ export default {
   },
   watch: {
     currentTime(newVal) {
-      if (this.ifShowData) {
         this.personnel_casualties_update(newVal)
-      }
     }
   },
   methods: {

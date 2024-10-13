@@ -73,16 +73,13 @@ export default {
   },
   watch: {
     currentTime(newVal) {
-      // console.log("``````````````````",newVal)
-      if (this.ifShowData) {
         this.rescue_team_update(newVal)
-      }
     }
   },
   methods: {
     init() {
-      getRescueTeam().then(res => {
-        console.log("res:----",res)
+      getRescueTeam({eqid: this.eqid}).then(res => {
+        console.log("res:救援队伍",res)
         this.RescueTeamInfo = res
         this.rescue_team_update(this.currentTime)
       })
