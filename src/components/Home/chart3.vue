@@ -24,25 +24,69 @@
 
 <script setup>
 import {ref, watch } from 'vue';
-import { getCasualtyStats } from '@/api/system/casualtystats.js'; // 引入之前定义的 API 方法
+// import { getCasualtyStats } from '@/api/system/casualtystats.js'; // 引入之前定义的 API 方法
+import {gettotal} from '@/api/system/casualtystats.js'
 const props = defineProps(['lastEq'])
+
 
 const injuryCount = ref(0);
 const missingCount = ref(0);
 const deathCount = ref(0);
-const updateTime = ref()
-
+const updateTime = ref('')
 watch(() => props.lastEq, () => {
   if (props.lastEq){
-    getCasualtyStats(props.lastEq.eqid).then((res) => {
-      if (res) {
-        injuryCount.value = res.injuryCount
-        missingCount.value = res.missingCount
-        deathCount.value = res.deathCount
-        updateTime.value = res.latestInsertTime.replace('T', ' ')
-      } else {
-        updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
+    gettotal("props.lastEq").then((res) => {
+
+      if (res && Array.isArray(res)) {
+        // 初始化计数器
+
+
+        let totalInjury = 0;
+        let totalMissing = 0;
+        let totalDeath = 0;
+
+        // 遍历后端返回的数组，累加各个字段的值
+        res.forEach((item) => {
+          //由于此处处于监听所以对于每次变化的数据都要打印让数据真正被获取到
+          console.log("Item:", item);
+          console.log("Injury count for this item:", item.injuryCount);
+          console.log("Missing count for this item:", item.missingCount);
+          console.log("Death count for this item:", item.deathCount);
+          console.log(res)
+          // 确保 item 中的字段存在，并进行累加
+          totalInjury += item.totalDeceased || 0;  // 使用 || 以防 item.injuryCount 为 null 或 undefined
+          totalMissing += item.totalMissing || 0;
+          totalDeath += item.deathCount || 0;
+        });
+
+        // 更新到前端显示的变量
+        injuryCount.value = totalInjury;
+        missingCount.value = totalMissing;
+        deathCount.value = totalDeath;
+        // 更新最新时间
+        // 使用可选链和默认值，防止latestInsertTime为undefined时报错
+        // 检查时间字段并安全访问
+        const firstItem = res[0];
+        if (firstItem && firstItem.earthquakeTime) {
+          updateTime.value = firstItem.earthquakeTime.replace('T', ' ');
+          console.log(updateTime)
+        } else {
+          updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');
+        }
+
       }
+
+
+
+
+  //     if (res) {
+  //       injuryCount.value = res.injuryCount
+  //       missingCount.value = res.missingCount
+  //       deathCount.value = res.deathCount
+  //       updateTime.value = res.latestInsertTime.replace('T', ' ')
+  //     } else {
+  //       updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
+  //     }
     })
   }
 });
