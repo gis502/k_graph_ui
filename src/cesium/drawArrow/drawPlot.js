@@ -114,13 +114,23 @@ const arrow = {
             this.drawArr.push(straightArrow);
         }
     },
-    showAttackArrow: function (data) {
-        var attackArrow = new AttackArrow(this.viewer);
-        attackArrow.createByData(data);
+    showAttackArrow: function (attackArr) {
+        for (var i = 0; i < attackArr.length; i++) {
+            var item = attackArr[i];
+            var attackArrow = new AttackArrow(this.viewer);
+            attackArrow.objId = attackArr[i].plotId;
+            attackArrow.createByData(item);
+            this.drawArr.push(attackArrow);
+        }
     },
-    showPincerArrow: function (data) {
-        var pincerArrow = new PincerArrow(this.viewer);
-        pincerArrow.createByData(data);
+    showPincerArrow: function (pincerArr) {
+        for (var i = 0; i < pincerArr.length; i++) {
+            var item = pincerArr[i];
+            var pincerArrow = new PincerArrow(this.viewer);
+            pincerArrow.objId = pincerArr[i].plotId;
+            pincerArrow.createByData(item);
+            this.drawArr.push(pincerArrow);
+        }
     },
     drawStraightArrow: function (data) {
         for (var i = 0; i < this.drawArr.length; i++) {
@@ -131,22 +141,22 @@ const arrow = {
         straightArrow.startDraw(data);
         this.drawArr.push(straightArrow);
     },
-    drawAttackArrow: function () {
+    drawAttackArrow: function (data) {
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var attackArrow = new AttackArrow(this.viewer);
         attackArrow.disable();
-        attackArrow.startDraw();
+        attackArrow.startDraw(data);
         this.drawArr.push(attackArrow);
     },
-    drawPincerArrow: function () {
+    drawPincerArrow: function (data) {
         for (var i = 0; i < this.drawArr.length; i++) {
             this.drawArr[i].disableHandler();
         }
         var pincerArrow = new PincerArrow(this.viewer);
         pincerArrow.disable();
-        pincerArrow.startDraw();
+        pincerArrow.startDraw(data);
         this.drawArr.push(pincerArrow);
     },
     nowArrowObj: null,
@@ -192,7 +202,7 @@ const arrow = {
             }
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
-    clearStraightArrow: function (id) {
+    clearById: function (id) {
         var $this = this;
         for (var i = 0; i < $this.drawArr.length; i++) {
             if (id === $this.drawArr[i].objId) {

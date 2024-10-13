@@ -1,283 +1,73 @@
 <template>
   <el-dialog class="dialogDiv" v-model="DialogFormVisible" title="添加标注信息" width="800"
              :close-on-click-modal="false" :destroy-on-close="true" :show-close="false">
-    <el-form ref="form" :model="form" label-width="110px">
-      <el-row>
-        <el-col :span="6">
-          <el-form-item label="长度(m)：">
-            <el-input v-model="form.length.value"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="宽度(m)：">
-            <el-input v-model="form.width.value"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="体积(m³)：">
-            <el-input v-model="form.volume.value"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="平均厚度(m)：">
-            <el-input v-model="form.averageThickness.value"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-col :span="6">
-          <el-form-item label="处置队伍：">
-            <el-input v-model="form.disposalTeam.value"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="处置措施：">
-            <el-input v-model="form.disposalMeasures.value"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="联系人员：">
-            <el-input v-model="form.contactPerson.value"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item label="联系电话：">
-            <el-input v-model="form.contactPhone.value"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <el-row>
-        <el-col :span="12">
-          <el-form-item label="目前状况：">
-            <el-checkbox-group v-model="form.currentStabilityStatus.value" :max="1">
-              <el-checkbox label="基本稳定" name="currentStabilityStatus" :value="form.currentStabilityStatus.content[0].label"></el-checkbox>
-              <el-checkbox label="不稳定" name="currentStabilityStatus" :value="form.currentStabilityStatus.content[1].label"></el-checkbox>
-            </el-checkbox-group>
-          </el-form-item>
-        </el-col>
-
-        <el-col :span="12">
-          <el-form-item label="人员伤亡：" >
-            <el-checkbox-group v-model="form.casualties.value" :max="1">
-              <el-checkbox label="无" name="casualties" :value="form.casualties.content[0].label"></el-checkbox>
-              <el-checkbox label="有" name="casualties" :value="form.casualties.content[1].label"></el-checkbox>
-            </el-checkbox-group>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <el-form-item label="威胁对象：">
-        <el-checkbox-group v-model="form.threatenedObjects.value">
-          <el-checkbox label="地表建筑" name="threatenedObjects" :value="form.threatenedObjects.content[0].label"></el-checkbox>
-          <el-checkbox label="交通路线" name="threatenedObjects" :value="form.threatenedObjects.content[1].label"></el-checkbox>
-          <el-checkbox label="通讯电力设施" name="threatenedObjects" :value="form.threatenedObjects.content[2].label"></el-checkbox>
-          <el-checkbox label="水库电站" name="threatenedObjects" :value="form.threatenedObjects.content[3].label"></el-checkbox>
-          <el-checkbox label="管网工程" name="threatenedObjects" :value="form.threatenedObjects.content[4].label"></el-checkbox>
-          <el-checkbox label="其他设施" name="threatenedObjects" :value="form.threatenedObjects.content[5].label"></el-checkbox>
-        </el-checkbox-group>
+    <el-form :model="this.form" :inline="true">
+      <el-form-item label="标注类型" :label-width="100">
+        <el-input placeholder="请输入内容" v-model="form.plotType" :disabled="true" size="large"/>
       </el-form-item>
-      <el-form-item label="先期处置阶段：">
-        <el-checkbox-group v-model="form.initialDisposalPhase.value" :max="1">
-          <el-checkbox label="暂未处置" name="initialDisposalPhase" :value="form.initialDisposalPhase.content[0].label"></el-checkbox>
-          <el-checkbox label="正在处置" name="initialDisposalPhase" :value="form.initialDisposalPhase.content[1].label"></el-checkbox>
-          <el-checkbox label="完成处置" name="initialDisposalPhase" :value="form.initialDisposalPhase.content[2].label"></el-checkbox>
-        </el-checkbox-group>
+      <el-form-item label="开始时间" :label-width="100">
+        <div class="formTime">
+          <el-date-picker
+              v-model="starttime"
+              type="datetime"
+              placeholder="选择日期时间"
+              value-format="x"
+              size="large">
+          </el-date-picker>
+        </div>
       </el-form-item>
-
-      <el-form-item class="box" label="先期处置过程：">
-        <el-row>
-          <el-col :span="8">
-            <el-date-picker
-                v-model="form.initialDisposalStartDate.value"
-                type="datetime"
-                value-format="x"
-                placeholder="开始处置时间"
-            >
-            </el-date-picker>
-          </el-col>
-          <el-col :span="8">
-            <el-date-picker
-                v-model="form.initialDisposalEstimatedEndDate.value"
-                type="datetime"
-                value-format="x"
-                placeholder="预计完成处置时间"
-            >
-            </el-date-picker>
-          </el-col>
-          <el-col :span="8">
-            <el-date-picker
-                v-model="form.initialDisposalActualEndDate.value"
-                type="datetime"
-                value-format="x"
-                placeholder="实际完成处置时间"
-            >
-            </el-date-picker>
-          </el-col>
-        </el-row>
-
+      <el-form-item label="结束时间" :label-width="100">
+        <div class="formTime">
+          <el-date-picker
+              v-model="endtime"
+              type="datetime"
+              placeholder="选择日期时间"
+              value-format="x"
+              size="large">
+          </el-date-picker>
+        </div>
       </el-form-item>
-      <el-form-item class="button">
-        <el-button type="primary" @click="cancelAddNote">取消</el-button>
-        <el-button type="primary" @click="commitAddNote">确认</el-button>
-      </el-form-item>
+      <!--  v-if 比 v-for 的优先级更高，这意味着 v-if 的条件将无法访问到 v-for 作用域内定义的变量别名。    -->
+      <!--  在外先包装一层 <template> 再在其上使用 v-for 可以解决这个问题-->
+      <template v-for="(value,key,index) in typeInfo">
+        <el-form-item v-if="value.type ==='text'" :label="value.name" :label-width="100">
+          <el-input v-model="value.value" autocomplete="off" size="large"/>
+        </el-form-item>
+      </template>
+      <template v-for="(value,key) in typeInfo">
+        <el-form-item v-if="value.type ==='select'" :label="value.name">
+          <el-select v-model="value.value" placeholder="请选择" size="large">
+            <el-option
+                v-for="item in value.content"
+                :label="item.label"
+                :value="item.label"/>
+          </el-select>
+        </el-form-item>
+      </template>
     </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button type="primary" @click="cancelAddNote">取消</el-button>
+      <el-button type="primary" @click="commitAddNote">确认</el-button>
+    </div>
   </el-dialog>
 </template>
 
-
 <script>
+import {ElMessage} from 'element-plus'
+import {plotType} from '@/cesium/plot/plotType.js'
 import {useCesiumStore} from "@/store/modules/cesium.js";
 import {insertPlotAndInfo} from '@/api/system/plot.js'
-import {ElMessage} from "element-plus";
-import * as Cesium from 'cesium'
+
 export default {
   name: "addPolygonDialog",
   data() {
     return {
-        form: {
-            name: "滑坡",
-            length: {
-              type: "text",
-              name: "长度（m）",
-              value: ""
-            },
-            width: {
-              type: "text",
-              name: "宽度（m）",
-              value: ""
-            },
-            averageThickness: {
-              type: "text",
-              name: "平均厚度（m）",
-              value: ""
-            },
-            volume: {
-              type: "text",
-              name: "体积（m³）",
-              value: ""
-            },
-            currentStabilityStatus: {
-              type: "select",
-              name: "目前稳定状况",
-              value: [],
-              content: [
-                {
-                  value: "basicallyStable",
-                  label: "基本稳定"
-                },
-                {
-                  value: "unstable",
-                  label: "不稳定"
-                }
-              ]
-            },
-            casualties: {
-              type: "select",
-              name: "人员伤亡",
-              value: [],
-              content: [
-                {
-                  value: "noCasualties",
-                  label: "无"
-                },
-                {
-                  value: "hasCasualties",
-                  label: "有"
-                }
-              ]
-            },
-            threatenedObjects: {
-              type: "select",
-              name: "威胁对象",
-              value: [],
-              content: [
-                {
-                  value: "surfaceBuildings",
-                  label: "地表建筑"
-                },
-                {
-                  value: "transportationRoutes",
-                  label: "交通线路"
-                },
-                {
-                  value: "communicationPowerFacilities",
-                  label: "通讯电力设施"
-                },
-                {
-                  value: "reservoirPowerStation",
-                  label: "水库电站"
-                },
-                {
-                  value: "pipelineEngineering",
-                  label: "管网工程"
-                },
-                {
-                  value: "otherFacilities",
-                  label: "其他设施"
-                }
-              ]
-            },
-            disposalTeam: {
-              type: "text",
-              name: "处置队伍",
-              value: ""
-            },
-            disposalMeasures: {
-              type: "text",
-              name: "处置措施",
-              value: ""
-            },
-            initialDisposalPhase: {
-              type: "select",
-              name: "先期处置阶段",
-              value: [],
-              content: [
-                {
-                  value: "notYetProcessed",
-                  label: "暂未处置"
-                },
-                {
-                  value: "processing",
-                  label: "正在处置"
-                },
-                {
-                  value: "completeDisposal",
-                  label: "完成处置"
-                }
-              ]
-            },
-            initialDisposalStartDate: {
-              type: "text",
-              name: "先期处置时间",
-              value: ""
-            },
-            initialDisposalEstimatedEndDate: {
-              type: "text",
-              name: "预计处置时间",
-              value: ""
-            },
-            initialDisposalActualEndDate: {
-              type: "text",
-              name: "实际处置时间",
-              value: ""
-            },
-            contactPerson: {
-              type: "text",
-              name: "联系人员",
-              value: ""
-            },
-            contactPhone: {
-              type: "text",
-              name: "联系电话",
-              value: ""
-            }
-      },
       DialogFormVisible: false,
-      polygonInfo: [],
-      formInfo: []
-    };
+      form: null,
+      typeInfo: null,
+      starttime:null,
+      endtime:null
+    }
   },
   props: [
     'addPolygonDialogFormVisible'
@@ -291,97 +81,107 @@ export default {
       if(this.addPolygonDialogFormVisible){
         // 2-2 获取pinia中数据
         // this.form = cesiumStore.getPointInfo1()
-        this.polygonInfo = cesiumStore.getPolygonInfo()
-        console.log(">>>",this.polygonInfo.situationPlotData)
+        this.form = cesiumStore.getPolygonInfo()
+        console.log("plotTypemain",this.form)
+        // 2-3 生成对应类型的dialog
+        for (let item in plotType) {
+          if (this.form.plotType === plotType[item].name) {
+            // 此处对plotType[item]用json的parse和stringify是因为需要深拷贝，而{...plotType[item]}是浅拷贝
+            this.typeInfo = JSON.parse(JSON.stringify(plotType[item]))//{...plotType[item]}
+            console.log("mianlog",this.typeInfo)
+            break;
+          }
+        }
       }
     },
   },
-
   methods: {
     // 取消添加标注
     cancelAddNote() {
-      window.viewer.entities.removeById(this.polygonInfo.situationPlotData[0].plotid)
+      // 取消时，把绘制的线也清除
+      window.viewer.entities.removeById(this.form.situationPlotData[0].plotid)
       // 清空typeInfo信息、starttime、endtime
-
-      this.$emit('clearMarkDialogForm')// 调用父组件中resetPolygon对应的方法，重置标绘信息填写框里的信息
-      this.resetFormInfo()
+      this.typeInfo = null
+      this.starttime = null
+      this.endtime = null
+      this.$emit('clearMarkDialogForm')// 调用父组件中clearPolygon对应的方法，重置标绘信息填写框里的信息
     },
+    //确认添加标注
     commitAddNote() {
-      let data = this.assembleData(this.form, this.polygonInfo.situationPlotData)
-      // 批量插入所有数据
-      insertPlotAndInfo(data)
-          .then((res) => {
-            ElMessage({
-              message: '所有数据添加成功',
-              type: 'success',
-            });
-          });
-      this.resetFormInfo()
-      this.$emit('clearMarkDialogForm')// 调用父组件中resetPolygon对应的方法，重置标绘信息填写框里的信息
-      window.document.oncontextmenu = function(){  // 允许默认菜单弹出
-        return true;
+      let that = this
+      // 创建一个新的对象，只保留字段和它们的 value 值
+      let typeInfoValues = {};
+      if (this.typeInfo) {
+        for (let key in this.typeInfo) {
+          if (this.typeInfo.hasOwnProperty(key) && this.typeInfo[key].hasOwnProperty('value')) {
+            typeInfoValues[key] = this.typeInfo[key].value;
+          }
+        }
       }
+      let data = this.assembleData(this.form, typeInfoValues, this.starttime, this.endtime)
+      console.log("面插入数据库得数据",data)
+      insertPlotAndInfo(data).then(res => {
+        // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
+        // let form = {...this.form}
+        // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
+        //   this.$emit('')
+        this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
+        ElMessage({
+          message: '添加成功',
+          type: 'success',
+        })
+        // 清空typeInfo信息、starttime、endtime
+        this.typeInfo = null
+        this.starttime = null
+        this.endtime = null
+        window.document.oncontextmenu = function(){  // 允许默认菜单弹出
+          return true;
+        }
+      })
     },
     // 组装成发送请求的数据形式
-    assembleData(data1, data2) {
-      let plotInfo = data1
-      console.log("标绘点详细",plotInfo)
-      // 遍历 form 对象中的所有字段，将数组转换为字符串
-      for (let key in plotInfo) {
-        if (Array.isArray(plotInfo[key].value)) {
-          // 使用逗号拼接数组中的值
-          plotInfo[key].value = plotInfo[key].value.join(',');
-        }
-        // 假设有需要转换时间戳的字段
-        if (key === 'initialDisposalStartDate' || key === 'initialDisposalEstimatedEndDate' || key === 'initialDisposalActualEndDate') {
-          plotInfo[key].value = this.timestampToTime(plotInfo[key].value);
+    assembleData(data1, data2, startTime, endTime) {
+      console.log("组装的数据请求",data1, data2, startTime, endTime)
+      let assemblyData = {
+        plot:{
+          earthquakeId:null,
+          plotId:null,
+          creationTime:null,
+          plotType:null,
+          drawtype:null,
+          geom:null,
+          elevation:null,
+          icon:null,
+          startTime:null,
+          endTime:null,
+          severity:null,
+          isDeleted:null,
+        },
+        plotinfo:{
+          plotId:null,
         }
       }
-      let startTime = this.timestampToTime(plotInfo.initialDisposalStartDate.value)
-      let endTime = this.timestampToTime(plotInfo.initialDisposalActualEndDate.value)
-      // 将多边形顶点转换为经纬度
-      let posArr = data2.map((item) => {
-      return {
-        lat: item.latitude,
-        lon: item.longitude,
-        height: item.height,
-        eqid: item.eqid,
-        name: item.name,
-        img: item.img,
-        angle: item.angle,
-        time: item.time,
-        plotid: item.plotid
-      };
-      });
-      let assemblyData = {
-        plots: [],
-        plotinfo: {
-          plotid: posArr[0].plotid,
-          starttime: startTime,
-          endtime: endTime,
-          info: plotInfo,
-          id: this.guid()
-        }
-      };
-      // 组装 plot 数据
-      posArr.forEach((pos, index) => {
-        assemblyData.plots.push({
-          eqid: pos.eqid,
-          plotid: pos.plotid,  // 整个多边形共用一个UUID
-          time: pos.time,
-          plottype: pos.name,
-          drawtype: "polygon",
-          latitude: pos.lat,
-          longitude: pos.lon,
-          height: pos.height,
-          img: pos.img,
-          angle: pos.angle
-        });
-      });
-      console.log("最终" ,assemblyData)
-      return assemblyData;
-    },
+      // 组装 plot
+      assemblyData.plot.earthquakeId = data1.situationPlotData[0].earthquakeId
+      assemblyData.plot.plotId = data1.situationPlotData[0].plotId
+      assemblyData.plot.creationTime = this.timestampToTime(Date.now()) // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
+      assemblyData.plot.plotType = data1.situationPlotData[0].plotType
+      assemblyData.plot.drawtype = "polygon" // 点线面后面再判断，先写点，别忘了改！！！！
+      assemblyData.plot.geom = data1.situationPlotData[0].geom
+      assemblyData.plot.elevation = data1.situationPlotData[0].elevation
+      assemblyData.plot.icon = data1.situationPlotData[0].icon
+      assemblyData.plot.startTime = this.timestampToTime(startTime)
+      assemblyData.plot.endTime = this.timestampToTime(endTime)
+      // 组装plotinfo)
+      assemblyData.plotinfo = {
+        ...data2,     //展开data2的内容
+        plotId: data1.situationPlotData[0].plotId // 添加 plotId 字段，使用 data1 中的 plotId
+      }
 
+      console.log("assemblyData.plotinfo",assemblyData.plotinfo)
+      return assemblyData
+    },
+    // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式
     timestampToTime(timestamp) {
       let DateObj = new Date(timestamp)
       // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
@@ -397,7 +197,7 @@ export default {
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      return `${year}-${month}-${day}T${hh}:${mm}:${ss}`
     },
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -405,31 +205,12 @@ export default {
             v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
-    },
-    resetFormInfo() {
-      this.form.name = "滑坡"; // 根据需求重置
-      this.form.length.value = "";
-      this.form.width.value = "";
-      this.form.averageThickness.value = "";
-      this.form.volume.value = "";
-      this.form.currentStabilityStatus.value = [];
-      this.form.casualties.value = [];
-      this.form.threatenedObjects.value = [];
-      this.form.disposalTeam.value = "";
-      this.form.disposalMeasures.value = "";
-      this.form.initialDisposalPhase.value = [];
-      this.form.initialDisposalStartDate.value = "";
-      this.form.initialDisposalEstimatedEndDate.value = "";
-      this.form.initialDisposalActualEndDate.value = "";
-      this.form.contactPerson.value = "";
-      this.form.contactPhone.value = "";
-    },
-  },
-
-};
+    }
+  }
+}
 </script>
 
-<style scoped >
+<style scoped>
 .dialogDiv {
   position: absolute;
   /*padding: 20px;*/
@@ -439,24 +220,14 @@ export default {
   z-index: 10; /* 更高的层级 */
   /*background-color: rgba(40, 40, 40, 0.7);*/
 }
-.el-form {
-  max-width: 910px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #e4e7ed;
-  border-radius: 5px;
+
+.el-input {
+  --el-input-width: 220px !important;
 }
 
-.button {
-  display: flex;
-  justify-content: flex-end;
+.el-select {
+  /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
+  --el-select-width: 150px !important;
 }
 
-.el-form .box .el-input{
-  width: 200px;
-}
-
-.el-form .el-input{
-  width: 120px;
-}
 </style>

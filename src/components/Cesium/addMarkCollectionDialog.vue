@@ -3,7 +3,7 @@
              :close-on-click-modal="false" :destroy-on-close="true" :show-close="false">
     <el-form :model="this.form" :inline="true">
       <el-form-item label="标注类型" :label-width="120">
-        <el-input placeholder="请输入内容" v-model="form.plottype" :disabled="true" size="large"/>
+        <el-input placeholder="请输入内容" v-model="form.plotType" :disabled="true" size="large"/>
       </el-form-item>
       <el-form-item label="经度" :label-width="120">
         <el-input v-model="form.longitude" autocomplete="off" size="large"/>
@@ -97,12 +97,13 @@ export default {
       if(this.addMarkDialogFormVisible){
         // 2-2 获取pinia中数据
         this.form = cesiumStore.getPointInfo1()
+        console.log("plotType",this.form)
         // 2-3 生成对应类型的dialog
         for (let item in plotType) {
-          if (this.form.plottype === plotType[item].name) {
+          if (this.form.plotType === plotType[item].name) {
             // 此处对plotType[item]用json的parse和stringify是因为需要深拷贝，而{...plotType[item]}是浅拷贝
             this.typeInfo = JSON.parse(JSON.stringify(plotType[item]))//{...plotType[item]}
-            console.log(this.typeInfo)
+            console.log("log",this.typeInfo)
             break;
           }
         }
@@ -121,16 +122,25 @@ export default {
     //确认添加标注
     commitAddNote() {
       let that = this
-      let data = this.assembleData(this.form,this.typeInfo,this.starttime,this.endtime)
+      // 创建一个新的对象，只保留字段和它们的 value 值
+      let typeInfoValues = {};
+      if (this.typeInfo) {
+        for (let key in this.typeInfo) {
+          if (this.typeInfo.hasOwnProperty(key) && this.typeInfo[key].hasOwnProperty('value')) {
+            typeInfoValues[key] = this.typeInfo[key].value;
+          }
+        }
+      }
+      let data = this.assembleData(this.form,typeInfoValues,this.starttime,this.endtime)
       insertPlotAndInfo(data).then(res=>{
-
         let bool = true
         this.$emit('ifPointAnimate',bool)
         this.$emit('drawPoint', data.plot)
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
-        let form = {...this.form}
+        // let form = {...this.form}
         // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
+        console.log("添加成功")
         ElMessage({
           message: '添加成功',
           type: 'success',
@@ -143,44 +153,45 @@ export default {
     },
 
     // 组装成发送请求的数据形式
-    assembleData(data1,data2,starttime,endtime){
+    assembleData(data1,data2,startTime,endTime){
+      console.log("data1",startTime,startTime)
       let assemblyData = {
         plot:{
-          eqid:null,
-          plotid:null,
-          time:null,
-          plottype:null,
+          earthquakeId:null,
+          plotId:null,
+          creationTime:null,
+          plotType:null,
           drawtype:null,
-          latitude:null,
-          longitude:null,
-          height:null,
-          img:null
+          geom:null,
+          elevation:null,
+          icon:null,
+          startTime:null,
+          endTime:null,
+          severity:null,
+          isDeleted:null,
         },
         plotinfo:{
-          plotid:null,
-          starttime:null,
-          endtime:null,
-          info:null,
-          id:null
+          plotId:null,
         }
       }
       // 组装 plot
-      assemblyData.plot.eqid = data1.eqid
-      assemblyData.plot.plotid = data1.plotid
-      assemblyData.plot.time = this.timestampToTime(Date.now()) // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
-      assemblyData.plot.plottype = data1.plottype
+      assemblyData.plot.earthquakeId = data1.earthquakeId
+      assemblyData.plot.plotId = data1.plotId
+      assemblyData.plot.creationTime = this.timestampToTime(Date.now()) // 标绘主表的时间是系统生成时间，而不是手动选的标绘时间
+      assemblyData.plot.plotType = data1.plotType
       assemblyData.plot.drawtype = "point" // 点线面后面再判断，先写点，别忘了改！！！！
-      assemblyData.plot.latitude = data1.latitude
-      assemblyData.plot.longitude = data1.longitude
-      assemblyData.plot.height = data1.height
-      assemblyData.plot.img = data1.img
-      // 组装plotinfo
-      assemblyData.plotinfo.plotid = data1.plotid
-      assemblyData.plotinfo.starttime = starttime
-      assemblyData.plotinfo.endtime = endtime
-      assemblyData.plotinfo.info = JSON.stringify(data2)
-      assemblyData.plotinfo.id = this.guid()
+      assemblyData.plot.geom = data1.geom
+      assemblyData.plot.elevation = data1.elevation
+      assemblyData.plot.icon = data1.icon
+      assemblyData.plot.startTime = this.timestampToTime(startTime)
+      assemblyData.plot.endTime = this.timestampToTime(endTime)
+      // 组装plotinfo)
+      assemblyData.plotinfo = {
+        ...data2,     //展开data2的内容
+        plotId: data1.plotId // 添加 plotId 字段，使用 data1 中的 plotId
+      }
 
+      console.log("assemblyData.plotinfo",assemblyData.plotinfo)
       return assemblyData
     },
 
@@ -200,7 +211,7 @@ export default {
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      return `${year}-${month}-${day}T${hh}:${mm}:${ss}`
     },
 
     guid() {

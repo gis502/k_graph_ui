@@ -342,7 +342,20 @@ export default {
     this.entitiesClickPonpHandler();
     this.initPlot(this.id);
   },
-    computed: {
+  beforeDestroy() {
+    if (window.viewer){
+      let viewer=window.viewer
+      let gl=viewer.scene.context._gl
+      viewer.entities.removeAll()
+      // viewer.scene.primitives.removeAll()
+      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+      viewer.destroy()
+      gl.getExtension("WEBGL_lose_context").loseContext();
+      gl=null
+      window.viewer = null;
+    }
+  },
+  computed: {
         displayDisasterTentsCount: {
             get() {
                 return this.searchSupplyForm.tents === 0 ? '' : this.searchSupplyForm.tents;
