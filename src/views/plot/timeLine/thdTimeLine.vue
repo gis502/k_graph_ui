@@ -33,6 +33,11 @@
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
         />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
+        />
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
@@ -41,6 +46,7 @@
         :position="routerPopupPosition"
         :popupData="routerPopupData"
     />
+
 
     <!-- 进度条-->
     <div class="bottom">
@@ -187,7 +193,7 @@ import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSupplies
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../../cesium/plot/eqThemes.js";
 
 //专题图
@@ -197,6 +203,7 @@ export default {
   components: {
     thematicMapPreview,
     RouterPanel,
+    dataSourcePanel,
     TimeLinePanel,
     News,
     MiniMap,
@@ -215,6 +222,10 @@ export default {
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
       routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
       routerPopupData: {}, // RouterPanel弹窗的数据
+
+      dataSourcePopupVisible: false, // RouterPanel弹窗的显示与隐藏
+      dataSourcePopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
+      dataSourcePopupData: {}, // RouterPanel弹窗的数据
 
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
@@ -1373,11 +1384,15 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
+
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            this.timelinePopupData = this.extractDataForTimeline(entity);
+            this.timelinePopupData={}
+            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+
+            // this.timelinePopupData = this.extractDataForTimeline(entity);
             this.routerPopupVisible = false;
           } else if (entity._billboard) {
             // 如果点击的是路标
@@ -1386,23 +1401,28 @@ export default {
             this.routerPopupData = this.extractDataForRouter(entity);
 
             this.timelinePopupVisible = false;
+          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+            this.dataSourcePopupData = entity
+            this.dataSourcePopupVisible = true
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
           }
         } else {
           // 没有选中实体时隐藏 faultInfo
           faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
+          this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible) {
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -1533,6 +1553,7 @@ export default {
               window.viewer.scene,
               Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
+          console.log(canvasPosition)
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
             this.routerPopupPosition = {
@@ -1543,6 +1564,10 @@ export default {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
+            this.dataSourcePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            }
           }
         }
       });
