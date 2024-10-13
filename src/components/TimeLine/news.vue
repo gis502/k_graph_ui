@@ -3,7 +3,7 @@
     <div id="news" v-show="showRightButton">
       <h2 class="sub-title-new">
         最新新闻:
-        <span class="title-time">{{ currentEvent }}</span>
+        <span class="title-time">{{ recordTime }}</span>
         <span class="icon" @click="hideNews">
             <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
         </span>
@@ -49,11 +49,11 @@ export default {
       error,
       newsData: [],
       showNews: [],
-      currentEvent: '',
+      // currentEvent: '',
       showRightButton: true,
       showLeftButton: false,
       ifShowData:false,
-
+      recordTime:'',
       // ----新闻详情Dialog----
       DialogFormVisible: false,
       showingNews: {
@@ -69,14 +69,11 @@ export default {
     'eqid'
   ],
   mounted() {
-      // console.log("this.eqid1111111111111------------",this.eqid)
-      if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-          this.ifShowData = true
-          this.fetchData()
-
-      }
-      // console.log("ifShowData---------------",this.ifShowData)
-
+    // console.log("this.eqid1111111111111------------",this.eqid)
+    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
+      this.ifShowData = true
+      this.fetchData()
+    }
   },
   watch: {
     currentTime(newVal) {
@@ -108,10 +105,10 @@ export default {
       });
       if (activities.length > 0) {
         this.showNews = activities.reverse()
-        this.currentEvent=activities[0].publish_time
+        this.recordTime=activities[0].publish_time
       }else{
-          this.showNews = []
-          this.currentEvent=''
+        this.showNews = []
+        this.recordTime=this.timestampToTime(currentTime)
       }
     },
     showDetailedNews(row) {
@@ -119,7 +116,24 @@ export default {
       let bool = true
       this.$emit('detailedNews', row);
       this.$emit('ifShowDialog', bool);
-    }
+    },
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
   }
 }
 </script>
@@ -214,8 +228,8 @@ export default {
 }
 
 .news-img img {
-   /* 设置图片最大宽度 max-width: 30px;*/
-   /* 设置图片最大高度 max-height: 30px;*/
+  /* 设置图片最大宽度 max-width: 30px;*/
+  /* 设置图片最大高度 max-height: 30px;*/
   width: 120px; /* 自动调整宽度以保持比例 */
   height: 65px; /* 自动调整高度以保持比例 */
 }

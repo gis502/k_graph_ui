@@ -175,6 +175,9 @@ export default {
           this.showRescueTeam.unshift(activity)
         })
       }
+      else{
+        this.recordtime = this.timestampToTime(currentTime)
+      }
     },
 
     timestampToTime(timestamp) {
