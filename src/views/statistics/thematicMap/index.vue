@@ -252,7 +252,7 @@ export default {
     startPolling() {
       this.getEarthquake()
 
-      this.pollingInterval = setInterval(() => this.getEarthquake(), 5000);
+      this.pollingInterval = setInterval(() => this.getEarthquake(), 5000000);
     },
 
     // 停止轮询
@@ -292,14 +292,17 @@ export default {
               value: eqid      // 选择值为 ID
             };
           });
-          if (this.tableNameOptions.length > 0) {
-            if (!this.eqlistName){
-              // 默认选择地震列表中的第一个
-              this.eqlistName = this.tableNameOptions[0].label;
-              this.handleEqListChange(this.tableNameOptions[0].value)
-            }else {
-              // this.handleEqListChange(this.eqlistName)
-            }
+          const defaultOption = this.tableNameOptions.find(option => option.value === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b');
+          if (defaultOption) {
+            // 如果找到了 'daddadade' 的地震数据，则默认显示它
+            this.eqlistName = defaultOption.label;
+            this.handleEqListChange(defaultOption.value);
+          } else if (this.tableNameOptions.length > 0) {
+            // 如果没找到，则默认选择地震列表中的第一个
+            this.eqlistName = this.tableNameOptions[0].label;
+            this.handleEqListChange(this.tableNameOptions[0].value);
+          } else {
+            ElMessage.error("地震列表无数据");
           }
         }
       });
