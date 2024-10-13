@@ -24,7 +24,7 @@
       <el-col :span="1.5">
         <el-select
             v-model="flag"
-            placeholder="S elect"
+            placeholder="Select"
             size="large"
             style="width: 240px"
         >
@@ -36,6 +36,22 @@
           />
         </el-select>
       </el-col>
+        <el-col :span="1.5">
+          <el-select
+              v-model="eqlistName"
+              placeholder="请选择地震信息"
+              size="large"
+              style="width: 370px"
+              filterable
+          >
+            <el-option
+                v-for="item in tableNameOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-col>
     </el-row>
 
     <el-table
@@ -108,15 +124,20 @@ import {ref, onMounted} from 'vue'
 import {ElMessage,ElMessageBox} from "element-plus";
 import {exportExcel, getField, getData, deleteData} from "@/api/system/excel.js";
 import {Search} from "@element-plus/icons-vue";
+import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 
 const dialogVisible = ref(false)
 const flag = ref()
 const currentPage = ref(1)
 const pageSize = ref(10)
 const requestParams = ref("")
+const eqlistName = ref('')
+const tableNameOptions = ref([])
+const eqlists = ref([])
 
 onMounted(() => {
   getTableField()
+  getEarthquake()
 })
 const options = ref([]);
 const tableData = ref([])
@@ -230,7 +251,27 @@ const handleDeleteAll = () => {
         });
       });
 }
+//获取地震列表
+const getEarthquake = () => {
+  getExcelUploadEarthquake().then(res => {
+    eqlists.value = res
+    if (res.data === null) {
+      ElMessage.error("地震列表无数据")
+    }
+    tableNameOptions.value = eqlists.value.map(file => {
+          const eqid = file.split(' - ')[0]?.trim();
+          const details = file.split(' - ')[1]?.trim();
+          // 提取 `-` 后面的部分
+          return {
+            label: details, // 使用提取的部分作为标签
+            value: eqid// 选择值为 ID
+          }
+        }
+    )
+    eqlistName.value = tableNameOptions.value[0].label
 
+  })
+}
 
 const generateFieldData = () => {
   return field.value.map((fieldName, index) => ({
