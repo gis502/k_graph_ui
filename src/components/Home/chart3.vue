@@ -35,7 +35,7 @@ const deathCount = ref(0);
 const updateTime = ref('')
 watch(() => props.lastEq, () => {
   if (props.lastEq){
-    gettotal("props.lastEq").then((res) => {
+    gettotal(props.lastEq.eqid).then((res) => {
 
       if (res && Array.isArray(res)) {
         // 初始化计数器
