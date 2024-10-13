@@ -72,10 +72,7 @@ export default {
     'eqid'
   ],
   mounted() {
-    if (this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b') {
-      this.ifShowData = true
       this.init()
-    }
   },
   watch: {
     currentTime(newVal) {
@@ -168,7 +165,6 @@ export default {
 .personnel_casualties_expand_button {
   position: absolute;
   width: 10%; /* 调整宽度 */
-  //height: 25%;
   padding: 10px;
   border-radius: 5px;
   top: 0%;
@@ -195,7 +191,6 @@ export default {
 
 .total-list {
   height: 36%;
-  //width:100%;
   list-style-type: none;
   padding: 0;
   display: flex;
