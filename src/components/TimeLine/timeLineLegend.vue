@@ -15,6 +15,7 @@
       </div>
     </div>
     <div class="legend-items-close" v-if="activeComponent !== 'legend'">
+      <div class="close-items-row">
       <div class="close-item">
         <img class="legend-img" src="@/assets/icons/TimeLine/震中.png" />
         <span class="legend-label">震中</span>
@@ -22,6 +23,7 @@
       <div class="close-item">
         <img class="legend-img" src="@/assets/icons/TimeLine/重伤人员.png" />
         <span class="legend-label">重伤人员</span>
+      </div>
       </div>
     </div>
   </div>
@@ -89,6 +91,11 @@ export default {
   align-items: center;
   cursor: pointer;
   width: 100%;
+}
+.close-items-row {
+  display: flex; /* 使用 flex 布局 */
+  justify-content: space-between; /* 在两项之间留出空间 */
+  width: 100%; /* 确保占满整个容器 */
 }
 
 .legend-items-close {

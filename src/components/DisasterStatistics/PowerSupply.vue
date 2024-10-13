@@ -1,15 +1,15 @@
 <template>
   <div class="chart-container">
     <div class="chart-wrapper">
-      <div ref="chart1" class="chart" style="width: 100%; height: 210px;"></div>
+      <div ref="chart1" class="chart" style="width: 100%; height: 145px;"></div>
       <p class="chart-description" style="font-size: 17px; color: white;">变站</p>
     </div>
     <div class="chart-wrapper">
-      <div ref="chart2" class="chart" style="width: 100%; height: 210px;"></div>
+      <div ref="chart2" class="chart" style="width: 100%; height: 145px;"></div>
       <p class="chart-description" style="font-size: 17px; color: white;">跳闸线路</p>
     </div>
     <div class="chart-wrapper">
-      <div ref="chart3" class="chart" style="width: 100%; height: 210px;"></div>
+      <div ref="chart3" class="chart" style="width: 100%; height: 145px;"></div>
       <p class="chart-description" style="font-size: 17px; color: white;">主网停电用户数</p>
     </div>
   </div>
