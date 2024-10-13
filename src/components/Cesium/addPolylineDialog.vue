@@ -74,6 +74,12 @@ export default {
   ],
   watch: {
     addPolylineDialogFormVisible() {
+      // 设置默认开始时间为当前时间
+      this.starttime = this.timestampToTime(Date.now());  // 当前时间
+      // 设置默认结束时间为5天后的时间
+      const currentDate = new Date();
+      const fiveDaysLater = currentDate.setDate(currentDate.getDate() + 5); // 5天后
+      this.endtime = this.timestampToTime(fiveDaysLater);
       // 1-1 显示弹窗
       this.DialogFormVisible = this.addPolylineDialogFormVisible
       // 2-1 获取pinia中存的经纬度、标绘类型等信息以及生成对应类型的dialog
@@ -99,7 +105,7 @@ export default {
     // 取消添加标注
     cancelAddNote() {
       // 取消时，把绘制的线也清除
-      window.viewer.entities.removeById(this.form.situationPlotData[0].plotid)
+      window.viewer.entities.removeById(this.form.situationPlotData[0].plotId)
       // 清空typeInfo信息、starttime、endtime
       this.typeInfo = null
       this.starttime = null

@@ -56,10 +56,13 @@ const fetchEarthquakeData = (eqid) => {
       }
     });
 
+
+
+
     echartData.value = [
-      { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: 'black' }}},
-      { value: total_magnitude_4_4_9.value, name: '4.0-4.9级', itemStyle: { normal: { color: '#ffa500' }}},
-      { value: total_magnitude_5_5_9.value, name: '5.0-5.9级', itemStyle: { normal: { color: '#f81919' }}},
+      { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},
+      { value: total_magnitude_4_4_9.value, name: '4.0-4.9级', itemStyle: { normal: { color: '#ffa602' }}},
+      { value: total_magnitude_5_5_9.value, name: '5.0-5.9级', itemStyle: { normal: { color: '#f81b1b' }}},
     ];
   }).catch(() => {
     ElMessage.error("未找到有效的地震信息");

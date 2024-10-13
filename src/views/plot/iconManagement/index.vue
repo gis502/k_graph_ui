@@ -300,9 +300,24 @@ export default {
     // 删除单个标绘图片
     handleDelete(row) {
       let that = this
-      deletePlotIcon(row.uuid).then(res => {
-        that.getPlotPicture()
-      })
+      this.$confirm('确定要删除这条标绘图片记录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deletePlotIcon(row.uuid).then(res => {
+          that.getPlotPicture()
+          that.$message({
+            type: 'success',
+            message: '删除成功'
+          });
+        });
+      }).catch(() => {
+        that.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     },
     // 点击新增或修改打开dialog对话框
     handleOpen(title, row) {
