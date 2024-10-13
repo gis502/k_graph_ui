@@ -1618,7 +1618,7 @@ export default {
     takeScreenshot() {
       const link = document.createElement('a');
       link.href = fileUrl
-      link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
+      link.download = '芦山地震人员伤亡态势专题报告.pdf';
       link.click();
     },
 
