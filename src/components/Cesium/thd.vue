@@ -3011,6 +3011,10 @@ export default {
   gap: 8px; /* 列间距 */
 }
 
+:deep(.search-results){
+  z-index:99 !important;
+}
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
   color: #FFFFFF;
