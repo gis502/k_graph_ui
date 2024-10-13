@@ -83,12 +83,12 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="经度(度分)：" prop="longitude">
-              <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>
+              <el-input v-model="dialogContent.longitude" placeholder="请输入内容" type="number"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="纬度(度分)：" prop="latitude">
-              <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>
+              <el-input v-model="dialogContent.latitude" placeholder="请输入内容" type="number"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -174,7 +174,9 @@ export default {
                 return callback(new Error('震级必须在 3 到 10 之间'));
               }
               callback();
-            }, trigger: 'blur' },
+            },
+            trigger: ['blur', 'change'],
+          },
 
         ],
         depth: [
@@ -193,7 +195,7 @@ export default {
               }
               callback();
             },
-            trigger: 'blur',
+            trigger: ['blur', 'change'],
           },
         ],
         longitude: [
@@ -212,7 +214,7 @@ export default {
               }
               callback();
             },
-            trigger: 'change',
+            trigger: ['blur', 'change'],
           },
         ],
         latitude: [
@@ -231,7 +233,7 @@ export default {
               }
               callback();
             },
-            trigger: 'change',
+            trigger: ['blur', 'change'],
           },
         ],
       },
@@ -513,14 +515,6 @@ export default {
     commit() {
       this.$refs.from.validate((valid) => {
         if (valid) {
-          // 如果没有选择发震时间，则使用当前时间
-          if (!this.dialogContent.occurrenceTime) {
-            this.dialogContent.occurrenceTime = Date.now();
-          } else {
-            // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-            this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
-          }
-
           // 发送请求
           // 提交表单逻辑
           console.log("表单验证通过，提交数据");
@@ -530,6 +524,13 @@ export default {
         }
       });
 
+// 检查发震时间是否已选择，如果未选择，则设置为当前时间
+      if (!this.dialogContent.occurrenceTime) {
+        this.dialogContent.occurrenceTime = new Date().toISOString();
+      } else {
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
+      }
 
       let that = this;
       if (this.dialogTitle === "新增") {
