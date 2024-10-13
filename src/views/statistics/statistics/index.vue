@@ -163,7 +163,7 @@ const getTableField = () => {
     field.value = Array.from(map.keys())
     name.value = Array.from(map.values())
     data.value = generateData();
-    FieldName.value = name.value.filter(item => item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
+    // FieldName.value = name.value.filter(item => item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
 
     console.log(FieldName.value)
@@ -188,9 +188,16 @@ const getEarthquake = () => {
           }
         }
     )
-    // console.log(tableNameOptions.value)
+    // 查找 eqid
+    const defaultOption = tableNameOptions.value.find(option => option.value === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b');
 
-    // eqlistName.value = tableNameOptions.value[0].label
+    // 设置默认显示的 eqlistName 值为找到的对象的 label
+    if (defaultOption) {
+      eqlistName.value = defaultOption.value;
+    } else {
+      ElMessage.error("未找到指定的地震ID");
+      // eqlistName.value = tableNameOptions.value[0].label
+    }
 
   })
 }

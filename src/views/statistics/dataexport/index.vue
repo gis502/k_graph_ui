@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-    <div style="margin-bottom:5px;">
-      <el-input
-          v-model="requestParams"
-          placeholder="请输入查询内容"
-          clearable
-          :prefix-icon="Search"
-          class="search-input"
-      />
-      <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>
-    </div>
+<!--    <div style="margin-bottom:5px;">-->
+<!--      <el-input-->
+<!--          v-model="requestParams"-->
+<!--          placeholder="请输入查询内容"-->
+<!--          clearable-->
+<!--          :prefix-icon="Search"-->
+<!--          class="search-input"-->
+<!--      />-->
+<!--      <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>-->
+<!--    </div>-->
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
@@ -43,6 +43,7 @@
               size="large"
               style="width: 370px"
               filterable
+              @change="handleEqListChange"
           >
             <el-option
                 v-for="item in tableNameOptions"
@@ -141,6 +142,7 @@ onMounted(() => {
 })
 const options = ref([]);
 const tableData = ref([])
+const tableConditionData = ref([])
 const field = ref([])
 const files = ref([])//存储当前用户的导表信息
 const name = ref([])
@@ -171,18 +173,18 @@ watch(flag, (newFlag) => {
   // 清空选择
   clearSelection();
   value.value = [];
-  getYaanCasualtiesList();
+  getList();
 
 });
 
 /** 搜索按钮操作 */
-function handleQuery() {
-  currentPage.value = 1;
-  getYaanCasualtiesList()
-}
+// function handleQuery() {
+//   currentPage.value = 1;
+//   getList()
+// }
 
 // 请求数据
-const getYaanCasualtiesList = async () => {
+const getList = async () => {
   await getData({
     currentPage: currentPage.value,
     pageSize: pageSize.value,
@@ -240,7 +242,7 @@ const handleDeleteAll = () => {
             type: 'success',
             message: '删除成功!'
           });
-          getYaanCasualtiesList()
+          getList()
         });
       })
       .catch(() => {
@@ -268,10 +270,28 @@ const getEarthquake = () => {
           }
         }
     )
-    eqlistName.value = tableNameOptions.value[0].label
+    // 2. 默认选择 eqid 为 'be3a5ea4-8dfd-a0a2-2510-21845f17960b' 的地震并获取对应数据
+    const defaultEqid = 'be3a5ea4-8dfd-a0a2-2510-21845f17960b';
+    const defaultOption = tableNameOptions.value.find(option => option.value === defaultEqid);
 
+    // 设置初始值
+    if (defaultOption) {
+      eqlistName.value = defaultOption.label;
+      handleEqListChange(defaultOption.value); // 调用函数，获取对应 eqid 的数据
+    } else if (tableNameOptions.value.length > 0) {
+      eqlistName.value = tableNameOptions.value[0].label;
+      handleEqListChange(tableNameOptions.value[0].value);
+    }
   })
 }
+// 3. 当下拉框改变时，获取对应 eqid 的数据
+const handleEqListChange = (selectedEqid) => {
+  // 将选中的 eqid 添加到 requestParams 中
+  requestParams.value = selectedEqid;
+  console.log(111111)
+  console.log(requestParams.value)
+  getList(); // 调用获取数据的方法，传递筛选后的 eqid
+};
 
 const generateFieldData = () => {
   return field.value.map((fieldName, index) => ({
@@ -280,6 +300,7 @@ const generateFieldData = () => {
     disabled: false     // Optional: define if the item is selectable
   }));
 };
+
 
 /** 获取字段 */
 const getTableField = () => {
@@ -310,12 +331,12 @@ function getRowKey(row) {
 // 分页函数
 const handleSizeChange = (val) => {
   pageSize.value = val
-  getYaanCasualtiesList()
+  getList()
 }
 
 const handleCurrentChange = async (val) => {
   currentPage.value = val
-  await getYaanCasualtiesList()
+  await getList()
 }
 
 const generateData = _ => {
