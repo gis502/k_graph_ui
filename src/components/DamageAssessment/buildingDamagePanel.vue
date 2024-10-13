@@ -25,7 +25,7 @@
         <el-table :data="copiedbuildingDamageData" :height="180" :max-height="180" stripe
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
           <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
-          <el-table-column prop="size" label="建筑破坏 / km²" align="center"></el-table-column>
+          <el-table-column prop="size" label="建筑破坏 / km²" align="center" :formatter="formatSize"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -82,6 +82,7 @@ export default {
     buildingDamageData: {
       handler() {
         this.settleData();
+        console.log("dataL:",this.buildingDamageData)
       },
       deep: true,
     },
@@ -118,6 +119,16 @@ export default {
       const counties = Object.keys(countySizeMap);
       const values = Object.values(countySizeMap);
 
+      // 将县和对应的值组合为数组，方便排序和筛选
+      const countyData = counties.map((county, index) => ({ name: county, value: values[index] }));
+
+      // 按值降序排序，并取前六个
+      const topCounties = countyData.sort((a, b) => b.value - a.value).slice(0, 6);
+
+      // 提取前六个的县名和对应值
+      const topCountyNames = topCounties.map(item => item.name);
+      const topValues = topCounties.map(item => item.value);
+
       // 设置图表配置项
       const option = {
         title: {
@@ -132,11 +143,11 @@ export default {
           left: '0%',
           right: '0%',
           bottom: '10%',
-          containLabel: true
+          containLabel: true,
         },
         xAxis: {
           type: 'category',
-          data: counties,
+          data: topCountyNames,
           name: '区县',
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
@@ -162,7 +173,7 @@ export default {
           {
             name: '建筑破坏',
             type: 'bar',
-            data: values,
+            data: topValues,
             itemStyle: {
               color: '#376db9',
             },
@@ -181,6 +192,7 @@ export default {
       // 使用刚指定的配置项和数据显示图表
       myChart.setOption(option);
     },
+
 
     convertColor(colorString) {
       return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
@@ -218,6 +230,10 @@ export default {
           'padding': '10',
         }
       }
+    },
+
+    formatSize(row, column, cellValue) {
+      return parseFloat(cellValue).toFixed(2); // 保留两位小数
     },
   },
 };
