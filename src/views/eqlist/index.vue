@@ -45,7 +45,7 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" >
-      <el-form  ref="from" :model="dialogContent"  :rules="rules"   >
+      <el-form  ref="from" :model="dialogContent"  :rules="rules"  >
         <el-row >
           <el-col :span="13">
             <el-form-item label="震发位置：" prop="earthquakeName">
@@ -158,7 +158,7 @@ export default {
           {required: true, message: '请输入震发位置', trigger: 'blur'},
         ],
         occurrenceTime: [
-          {required: true, message: '请选择发震时间', trigger: 'blur'},
+          {required: true, message: '请选择发震时间',trigger: ['blur', 'change']},
         ],
         magnitude: [
           {required: true, message: '请输入震级(级)', trigger: 'blur'},
@@ -170,8 +170,8 @@ export default {
               if (isNaN(num)) {
                 return callback(new Error('震级必须为数字'));
               }
-              if (num < 0 || num > 10) {
-                return callback(new Error('震级必须在 0 到 10 之间'));
+              if (num < 3 || num > 10) {
+                return callback(new Error('震级必须在 3 到 10 之间'));
               }
               callback();
             }, trigger: 'blur' },
@@ -280,7 +280,7 @@ export default {
         ]
       },
 
-
+      formValid: false, // 表单验证状态
       getEqData: [],
       tableData: [],
       total: 0,
@@ -292,7 +292,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         earthquakeName: '',
-        occurrenceTime: [],
+        occurrenceTime: Date.now(), // 初始化为当前时间的时间戳
         magnitude: '',
         longitude: '',
         latitude: '',
@@ -509,12 +509,23 @@ export default {
       this.getEq();  // 重新加载所有数据
     },
 
-    //新增
+    //新增或修改
     commit() {
       this.$refs.from.validate((valid) => {
         if (valid) {
+          // 如果没有选择发震时间，则使用当前时间
+          if (!this.dialogContent.occurrenceTime) {
+            this.dialogContent.occurrenceTime = Date.now();
+          } else {
+            // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+            this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
+          }
+
           // 发送请求
+          // 提交表单逻辑
+          console.log("表单验证通过，提交数据");
         } else {
+          console.log("表单验证失败，请检查输入！");
           // this.$message.error('表单验证失败，请检查输入！');
         }
       });

@@ -8,7 +8,7 @@
 import * as echarts from 'echarts';
 
 export default {
-  name: 'PowerSupply',
+  name: 'TrafficSituation',
   props: {
     isRestored: {
       type: Boolean,
@@ -33,8 +33,15 @@ export default {
         axisPointer: {
           type: 'shadow'
         },
+        formatter: function (params) {
+          let tooltipContent = '';
+          params.forEach(item => {
+            tooltipContent += `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
+                               ${item.seriesName}: ${item.value} 公里<br/>`;
+          });
+          return tooltipContent;
+        }
       },
-
       legend: {
         textStyle: {
           color: '#ffffff' // 设置图例文字颜色为白色
@@ -63,6 +70,9 @@ export default {
               color: 'rgba(255, 255, 255, 0.3)', // 设置为浅色
               width: 1 // 设置线宽为1
             }
+          },
+          axisLabel: {
+            color: '#ffffff' // 设置 Y 轴坐标文字颜色为白色
           }
         }
       ],
@@ -77,7 +87,7 @@ export default {
           itemStyle: {
             color: '#4A90E2' // 设置柱体颜色为蓝色
           },
-          data: [120, 132, 101, 134, 90, 230, 210, 100]
+          data: [10, 12, 11, 14, 9, 20, 20, 10]
         },
         {
           name: '目前待修复光缆',
@@ -89,7 +99,7 @@ export default {
           itemStyle: {
             color: '#005193' // 设置柱体颜色为深蓝色
           },
-          data: [220, 182, 191, 234, 290, 330, 310, 150]
+          data: [20, 12, 11, 24, 20, 30, 30, 10]
         }
       ]
     };

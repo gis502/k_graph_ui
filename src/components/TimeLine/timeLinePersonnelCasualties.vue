@@ -74,8 +74,8 @@ export default {
   mounted() {
     if (this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b') {
       this.ifShowData = true
+      this.init()
     }
-    this.init()
   },
   watch: {
     currentTime(newVal) {
@@ -87,16 +87,12 @@ export default {
   methods: {
     init() {
       getRescueActionCasualties().then(res => {
-        // console.log("res:",res)
+        console.log("res人员伤亡:",res)
         this.Responsecontent = res
         this.personnel_casualties_update(this.currentTime)
       })
-      // this.Responsecontent = [...PersonnelCasualties]
-      // console.log(this.Responsecontent)
     },
     async personnel_casualties_update(currentTime) {
-      // console.log("personnel_casualties_update",this.Responsecontent)
-      // console.log(currentTime)
       const activities =await this.Responsecontent.filter((activity) => {
         return (
             new Date(activity.recordTime) <= currentTime
@@ -110,7 +106,7 @@ export default {
           return 0;
         });
         let tmp = activities[activities.length - 1]
-        console.log("casual",tmp)
+        // console.log("casual",tmp)
         this.activity.time = this.timestampToTime(tmp.recordTime)
         this.activity.death = tmp.totalDeathCount
         this.activity.miss = 0

@@ -76,6 +76,22 @@ export default {
   mounted() {
     this.settleData()
   },
+
+  watch: {
+    economicLossData: {
+      handler() {
+        this.settleData();
+      },
+      deep: true,
+    },
+    selectedTabData: {
+      handler() {
+        this.settleData();
+      },
+      deep: true,
+    },
+  },
+
   methods: {
 
     settleData() {

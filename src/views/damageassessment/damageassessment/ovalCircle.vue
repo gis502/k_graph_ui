@@ -12,7 +12,7 @@
         <div class="eqListContent" v-if="currentTab === '震害事件'">
           <div style="display: flex">
             <!-- 搜索框 -->
-            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq">
+            <el-input v-model="title" placeholder="请输入地震名称" class="query" @input="filterEq" clearable>
             </el-input>
           </div>
           <!-- 地震列表 -->
@@ -309,7 +309,7 @@ export default {
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
-            text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.position + eq.magnitude + '级地震',
+            text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,

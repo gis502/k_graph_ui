@@ -1,22 +1,21 @@
 <template>
-    <div>
-        <!--    地震列表切换-->
-        <!--    <div class="eqlist-button">-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
-        <!--    </div>-->
-        <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
-            <eqTable :eqData="tableData"/>
-        </div>
+  <div>
+    <!--    地震列表切换-->
+    <!--    <div class="eqlist-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
+    <!--    </div>-->
+    <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
+      <eqTable :eqData="tableData"/>
+    </div>
 
     <!--   图层要素-->
     <!--    <div class="layer-button">-->
     <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
     <!--    </div>-->
-    <div v-if="activeComponent === 'layerChoose'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+    <div v-if="activeComponent === 'layerChoose'" class="dropdown expanded">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
-            v-for="item in (isExpanded ? layeritems : layeritems.slice(0, 6))"
+            v-for="item in layeritems"
             :key="item.id"
             :label="item.name"
             style="margin:0 0;"
@@ -26,15 +25,13 @@
       </el-checkbox-group>
       <div @click="toggleExpand"
            style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
 
-    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown expanded">
       <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
         <el-radio
-            v-for="item in (isExpanded ? thematicMapitems : thematicMapitems.slice(0, 6))"
+            v-for="item in thematicMapitems"
             :key="item.id"
             :label="item.name"
             style="margin: 0 0;color:white"
@@ -44,14 +41,12 @@
       </el-radio-group>
       <div @click="toggleExpand"
            style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
-    <div v-if="activeComponent === 'reportDownload'" class="dropdown"
-         :style="{ height: 'auto',  transition: 'height 0.3s ease' }">
+    <div v-if="activeComponent === 'reportDownload'" class="dropdown expanded">
       <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
         <el-radio
-            v-for="item in (isExpanded ? reportItems : reportItems.slice(0, 6))"
+            v-for="item in reportItems"
             :key="item.id"
             :label="item.name"
             style="margin: 0 0;color:white"
@@ -61,75 +56,74 @@
       </el-radio-group>
       <div @click="toggleExpand"
            style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-        <span style="color: white;">{{ isExpanded ? '▲' : '▼' }}</span>
       </div>
     </div>
 
 
-        <!--    行政区划-->
-        <!--    <div class="regionjump-button">-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
-        <!--    </div>-->
-        <div class="dropdown" v-if="activeComponent === 'Regionjump'">
-            <div class="district-buttons">
-                <div class="city-button">
-                    <el-button @click="addYaanImageryDistrict">雅安市</el-button>
-                </div>
-                <div class="city-button">
-                    <el-button @click="backcenter">回到震中</el-button>
-                </div>
-            </div>
-            <!-- 下属区县按钮 -->
-            <div class="district-buttons">
-                <div v-for="district in districts" :key="district.adcode" class="district-button">
-                    <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
-                </div>
-            </div>
+    <!--    行政区划-->
+    <!--    <div class="regionjump-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
+    <!--    </div>-->
+    <div v-if="activeComponent === 'Regionjump'" class="dropdown expanded">
+      <div class="district-buttons">
+        <div class="city-button">
+          <el-button @click="addYaanImageryDistrict">雅安市</el-button>
         </div>
+        <div class="city-button">
+          <el-button @click="backcenter">回到震中</el-button>
+        </div>
+      </div>
+      <!-- 下属区县按钮 -->
+      <div class="district-buttons">
+        <div v-for="district in districts" :key="district.adcode" class="district-button">
+          <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
+        </div>
+      </div>
+    </div>
 
-        <!--报告产出按钮-->
-        <!--    <div class="button-container">-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
-        <!--    </div>-->
-        <!--    <div class="thematic-button">-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="">专题图下载</el-button>-->
-        <!--    </div>-->
-        <!--    <div class="back-button">-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="backToHome">返回首页</el-button>-->
-        <!--    </div>-->
+    <!--报告产出按钮-->
+    <!--    <div class="button-container">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
+    <!--    </div>-->
+    <!--    <div class="thematic-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="">专题图下载</el-button>-->
+    <!--    </div>-->
+    <!--    <div class="back-button">-->
+    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="backToHome">返回首页</el-button>-->
+    <!--    </div>-->
 
 
-        <!--    title-->
-        <div class="eqtitle">
+    <!--    title-->
+    <div class="eqtitle">
       <span
-              class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
+          class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
           this.eqday
-          }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</span>
-        </div>
-        <!--    title end-->
+        }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</span>
+    </div>
+    <!--    title end-->
 
-        <div>
-            <el-menu
-                    class="el-menu-vertical-demo"
-                    mode="horizontal"
-                    background-color="#293038"
-                    text-color="#fff"
-                    active-text-color="#537BB7FF"
-                    style="position: absolute;
+    <div>
+      <el-menu
+          class="el-menu-vertical-demo"
+          mode="horizontal"
+          background-color="#293038"
+          text-color="#fff"
+          active-text-color="#537BB7FF"
+          style="position: absolute;
                   top: 4.3%;z-index: 20;
                   height: 45px;width: 25%;
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
-    >
-      <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
-      <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
-      <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-<!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-      <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
-      <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-      <el-menu-item index="6">返回首页</el-menu-item>
-    </el-menu>
-  </div>
+      >
+        <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
+        <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
+        <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
+        <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
+        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
+        <el-menu-item index="6">返回首页</el-menu-item>
+      </el-menu>
+    </div>
 
         <!--    box包裹地图，截图需要-->
         <div id="box" ref="box">
@@ -161,21 +155,21 @@
                 <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
             </div>
 
-            <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true"
-                 @mouseleave="isDragging = true">
-                <div class="time-ruler-line" @click="jumpToTime">
-                    <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
-                    <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-                    <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
-                </div>
-                <!-- speedButton 和 chooseSpeed 放在一起 -->
-                <span class="speedButton">{{ speedOption }}</span>
-                <div class="chooseSpeed">
-                    <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-                        {{ option }}
-                    </option>
-                </div>
-            </div>
+      <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true"
+           @mouseleave="isDragging = true">
+        <div class="time-ruler-line" @click="jumpToTime">
+          <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
+          <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+          <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
+        </div>
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
+        <span class="speedButton">{{ speedOption }}</span>
+        <div class="chooseSpeed">
+          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
+            {{ option }}
+          </option>
+        </div>
+      </div>
 
             <!--      时间点-->
             <div class="current-time-info">
@@ -283,19 +277,18 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-import {getPloy} from "@/api/system/plot"
+
 import eqTable from '@/components/Home/eqtable.vue'
-import geojsonmap from '@/assets/geoJson/map.json'
+
 import yaan from '@/assets/geoJson/yaan.json'
-import picUrl1 from "@/assets/json/TimeLine/芦山县行政区划图.png";
+
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-import fault_zone from "@/assets/geoJson/line_fault_zone.json";
-import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
+
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
@@ -443,7 +436,7 @@ export default {
                 {id: '8', name: '断裂带要素图层'},
             ],
             selectedlayersLocal: ['标绘点图层'],
-            isMarkingLayerLocal: false,
+            isMarkingLayerLocal: true,
             disasterReserves: [],
             emergencyTeam: [],
             emergencyShelters: [],
@@ -483,9 +476,27 @@ export default {
         //     this.ifShowData = true
         // }
     },
+  beforeDestroy() {
+    if (window.viewer){
+      this.clearResource(window.viewer)
+      window.viewer = null;
+    }
+    if (window.smallViewer){
+      this.clearResource(window.smallViewer)
+      window.smallViewer = null;
+    }
+  },
     // 图层要素
     methods: {
-
+      clearResource(viewer){
+        let gl=viewer.scene.context._gl
+        viewer.entities.removeAll()
+        // viewer.scene.primitives.removeAll()
+        // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+        viewer.destroy()
+        gl.getExtension("WEBGL_lose_context").loseContext();
+        gl=null
+      },
         /**
          * 计算复选框列表的高度
          * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
@@ -978,7 +989,6 @@ export default {
             console.log("点渲染", pointArr)
 
             let points = [];
-
             // 遍历点数组，处理每个点的绘制或删除
             pointArr.forEach(item => {
                 // 获取当前时间
@@ -994,7 +1004,7 @@ export default {
                     // 创建点数据
                     let point = {
                         earthquakeId: item.earthquakeId,
-                        plotid: item.plotId,
+                        plotId: item.plotId,
                         time: item.creationTime.replace("T", " "),
                         plotType: item.plotType,
                         drawtype: item.drawtype,
@@ -1003,27 +1013,31 @@ export default {
                         height: item.elevation,
                         icon: item.icon
                     };
-
                     points.push(point); // 收集点数据
                 }
                 // 如果点应该消失
                 if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
                     this.plotisshow[item.plotId] = 0;
-                    console.log(item.plotId, "end");
+                    // console.log(item.plotId, "end");
 
-                    // 从 dataSource 中删除点
-                    if (window.pointDataSource) {
-                        const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-                        console.log("entityToRemove", entityToRemove)
-                        if (entityToRemove) {
-                            window.pointDataSource.entities.remove(entityToRemove); // 移除点
-                        }
-                    }
+                // 从 dataSource 中删除点
+                if (window.pointDataSource) {
+                  const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+                  const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
+                  console.log("entityToRemove",entityToRemove)
+                  if (entityToRemove) {
+                    window.pointDataSource.entities.remove(entityToRemove); // 移除点
+                  }
+                  if(ellipseEntityToRemove){
+                      window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+                  }
                 }
+              }
             });
             // 批量渲染点
             if (points.length > 0) {
-                cesiumPlot.drawPoints(points);
+              console.log("")
+              cesiumPlot.drawPoints(points,true);
             }
 
             //--------------------------线绘制------------------------------
@@ -1059,7 +1073,10 @@ export default {
             })
             // console.log("filteredPolylineArr",filteredPolylineArr)
             // 将过滤后的线条数据传递给绘制函数
+          if (points.length > 0) {
             cesiumPlot.getDrawPolyline(filteredPolylineArr)
+          }
+
 
             //--------------------------面绘制------------------------------
             // 过滤出绘制类型为多边形的数据
@@ -1101,13 +1118,14 @@ export default {
                 }
                 polygonMap[item.plotId].push(item);
             });
-
+          if (points.length > 0) {
             // 遍历分组后的多边形数据，调用绘制多边形的函数进行渲染
             Object.keys(polygonMap).forEach(plotId => {
-                let polygonData = polygonMap[plotId];
-                console.log("polygonData", polygonData)
-                cesiumPlot.getDrawPolygon(polygonData)
+              let polygonData = polygonMap[plotId];
+              console.log("polygonData", polygonData)
+              cesiumPlot.getDrawPolygon(polygonData)
             });
+          }
         },
 
         //时间轴操作-----------------------------------------------
@@ -1172,7 +1190,7 @@ export default {
                 // 根据当前节点索引计算实际时间
                 this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
                 // 根据是否需要显示标绘层来更新图层
-                if (this.isMarkingLayer) {
+                if (this.isMarkingLayerLocal) {
                     this.updatePlot()
                 } else {
                     this.MarkingLayerRemove()
@@ -1466,7 +1484,10 @@ export default {
                     if (entity._layer === "标绘点") {
                         this.timelinePopupVisible = true;
                         this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-                        this.timelinePopupData = this.extractDataForTimeline(entity);
+                        this.timelinePopupData={}
+                        this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+
+                      // this.timelinePopupData = this.extractDataForTimeline(entity);
                         this.routerPopupVisible = false;
                     } else if (entity._billboard) {
                         // 如果点击的是路标
@@ -1817,6 +1838,7 @@ export default {
             if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
                 // 加载雅安行政区划的GeoJSON数据，并设置显示样式
                 let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+                    clampToGround: true, //贴地显示
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
@@ -1843,8 +1865,8 @@ export default {
                     markerColor: Cesium.Color.TRANSPARENT,
                     markerSize: 0,
                     strokeWidth: 0,
-                    clampToGround: true,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    clampToGround: true, //贴地显示
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
                     depthTest: true,
                 });
                 // 处理加载成功的透明GeoJSON数据
@@ -1898,6 +1920,7 @@ export default {
                 // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
                 // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
                 let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
+                    clampToGround: true, //贴地显示
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
@@ -2285,6 +2308,7 @@ export default {
             if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
                 // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
                 let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+                    clampToGround: true, //贴地显示
                     stroke: Cesium.Color.RED,
                     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                     strokeWidth: 4,
@@ -2477,14 +2501,24 @@ export default {
         MarkingLayerRemove() {
             // 遍历所有plot
             this.plots.forEach(item => {
-                // 获取指定plotId的实体
-                const entity = viewer.entities.getById(item.plotId);
-                // 如果实体存在，则移除该实体
-                if (entity) {
-                    viewer.entities.removeById(item.plotId);
-                    // 标记该plotId对应的图层为隐藏状态
-                    this.plotisshow[item.plotId] = 0
+              console.log("item",item)
+              // 从 dataSource 中删除点
+              if (window.pointDataSource) {
+                const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+                const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
+                console.log("entityToRemove",entityToRemove)
+                if (entityToRemove) {
+                  window.pointDataSource.entities.remove(entityToRemove); // 移除点
                 }
+                if(ellipseEntityToRemove){
+                  window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+                }
+              }
+
+              viewer.entities.removeById(item.plotId);
+                    // 标记该plotId对应的图层为隐藏状态
+              this.plotisshow[item.plotId] = 0
+
             })
         },
 
@@ -2853,17 +2887,21 @@ export default {
 }
 
 .dropdown {
-    background-color: #333832;
-    width: 25%;
-    top: 10%;
-    height: 23%;
-    padding: 15px;
-    z-index: 30;
-    left: 1%;
-    position: absolute;
-    overflow-y: auto; /* 启用垂直滚动条 */
+  background-color: #333832;
+  width: 25%;
+  padding: 15px;
+  z-index: 30;
+  left: 1%;
+  top: 10%;
+  position: absolute;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
 }
-
+.dropdown.expanded {
+  max-height: 550px; /* 根据实际内容调整 */
+  overflow-y: auto;
+}
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
     color: #FFFFFF;

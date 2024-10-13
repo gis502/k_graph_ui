@@ -6,13 +6,13 @@
 import * as echarts from 'echarts';
 
 export default {
-  name: 'PieChart',
+  name: 'CumulativeInterruption',
   data() {
     return {
       echartData: [
         {
           value: 43,
-          name: '目前道路中断村',
+          name: '目前道路中断村（个）',
           itemStyle: {
             normal: {
               color: 'black',
@@ -21,7 +21,7 @@ export default {
         },
         {
           value: 28,
-          name: '目前主网供电中断村',
+          name: '目前主网供电中断村（个）',
           itemStyle: {
             normal: {
               color: '#ffa500',
@@ -30,7 +30,7 @@ export default {
         },
         {
           value: 24,
-          name: '目前通信中断村',
+          name: '目前通信中断村（个）',
           itemStyle: {
             normal: {
               color: '#f81919',

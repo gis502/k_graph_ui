@@ -28,7 +28,7 @@
 <!--                <span v-if="item.describeThings">{{item.describeThings}}</span>-->
 <!--                <div v-if="item.gotime || item.team || item.personnum || item.destination||item.describeThings" class="p-underline"></div>-->
 <!--              </p>-->
-                <p class="rescue_team_p">{{item}}</p>
+                <p class="rescue_team_p">{{showContent(item)}}</p>
             </div>
           </li>
         </ul>
@@ -69,13 +69,11 @@ export default {
       'eqid'
   ],
   mounted() {
-    this.init()
+
     if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
       this.ifShowData = true
+      this.init()
     }
-    // if(this.ifShowData){
-    //   this.rescue_team_update(this.currentTime)
-    // }
   },
   watch: {
     currentTime(newVal) {
@@ -88,16 +86,10 @@ export default {
   methods: {
     init() {
         getRescueTeam().then(res => {
-            console.log("res:----",res)
-            // console.log("this.ifShowData-----",this.ifShowData)
+            // console.log("res:----",res)
             this.RescueTeamInfo = res
           this.rescue_team_update(this.currentTime)
         })
-      // this.RescueTeamInfo.sort((a, b) => {
-      //   if (a.recordTime < b.recordTime) return -1;
-      //   if (a.recordTime > b.recordTime) return 1;
-      //   return 0;
-      // });
     },
 
       showContent(item){
@@ -126,7 +118,7 @@ export default {
                 result = result + '前往震区' + '。'
             }
         }
-        if(flag){
+        if(flag && item.describeThings !== null){
             if(item.describeThings.endsWith('。')){
                 result = result + item.describeThings
             }else{
@@ -187,8 +179,7 @@ export default {
                 activity.goRecordhour = String(new Date(item.recordTime).getHours()).padStart(2, '0');
                 activity.goRecordminute = String(new Date(item.recordTime).getMinutes()).padStart(2, '0');
             }
-            let result = this.showContent(activity)
-          this.showRescueTeam.unshift(result)
+          this.showRescueTeam.unshift(activity)
         })
       }
     },
