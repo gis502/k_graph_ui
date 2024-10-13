@@ -116,6 +116,7 @@
           :visible="popupVisible"
           :position="popupPosition"
           :popupData="popupData"
+          :ifedit="true"
           @wsSendPoint="wsSendPoint"
           @closePlotPop="closePlotPop"
       />
@@ -953,6 +954,8 @@ export default {
         plotinfo: null
       }
       let that = this
+      // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
+      window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
       if (item.plottype === '点图层') {
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
@@ -969,10 +972,8 @@ export default {
         })
       } else if (item.name === '钳击箭头') {
         new Promise((resolve, reject) => {
-          window.isDrawingPolygon = true;
           Arrow.drawPincerArrow(data, resolve)
         }).then((res) => {
-          window.isDrawingPolygon = false;
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.plottype === '线图层') {

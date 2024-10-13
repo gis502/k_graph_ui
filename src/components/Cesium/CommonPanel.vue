@@ -7,6 +7,17 @@
         </span>
       </div>
       <el-descriptions :column="2" size="default " border>
+        <!-- 标绘名称 -->
+        <el-descriptions-item>
+          <template #label>
+            <div class="cell-item">标绘名称</div>
+          </template>
+          <div>
+            <el-text size="large">
+              {{ plotInfoNew.plotType || "未命名" }}
+            </el-text>
+          </div>
+        </el-descriptions-item>
         <el-descriptions-item>
           <template #label>
             <div class="cell-item">
@@ -53,6 +64,18 @@
             </el-date-picker>
           </div>
         </el-descriptions-item>
+        <!-- 经纬度显示 -->
+        <el-descriptions-item v-if="plotInfoNew.drawtype === 'point'">
+          <template #label>
+            <div class="cell-item">经纬度</div>
+          </template>
+          <div>
+            <el-text size="large">
+              经度: {{ plotInfoNew.longitude || "无数据" }},
+              纬度: {{ plotInfoNew.latitude || "无数据" }}
+            </el-text>
+          </div>
+        </el-descriptions-item>
         <template v-for="(value,key,index) in plotInfoNew.info">
           <el-descriptions-item v-if="value.type ==='text'">
             <template #label>
@@ -79,7 +102,7 @@
           </el-descriptions-item>
         </template>
       </el-descriptions>
-      <div class="collapseFooter">
+      <div class="collapseFooter" v-if="ifedit">
         <el-button v-if="!plotInfoNew.aditStatus && addStatus" type="success" round
                    @click="addCommitPlotInfo(plotInfoNew)">新增
         </el-button>
@@ -240,7 +263,7 @@ export default {
     }
   },
   props: [
-    'popupData', 'position', 'visible'
+    'popupData', 'position', 'visible','ifedit'
   ],
   watch: {
     visible() {
@@ -299,7 +322,6 @@ export default {
     },
     // 提交修改的标绘信息
     updataPlotInfo(activity) {
-      console.log("activity",activity)
       let that = this
       // 创建一个新的对象，只保留字段和它们的 value 值
       let typeInfoValues = {};
@@ -313,8 +335,10 @@ export default {
       activity.aditStatus = !activity.aditStatus
       let plotId = activity.plotId
       let plotType = activity.plotType
+      let startTime = this.timestampToTime(activity.starttime)
+      let endTime = this.timestampToTime(activity.endtime)
 
-      updataPlotInfo({ plotId, plotType }, typeInfoValues).then(res => {
+      updataPlotInfo({ startTime, endTime ,plotId, plotType }, typeInfoValues).then(res => {
         that.getPlotInfo(plotId,plotType);
       });
     },
@@ -420,7 +444,7 @@ export default {
       let that = this;
       // 1. 请求获取标绘点信息
       getPlotInfos({ plotId, plotType }).then(res => {
-        // console.log("点击获取",res)
+        console.log("点击获取",res)
         // 2. 初始化 item 对象，存储标绘信息
         let item = {
           starttime: null,
@@ -429,7 +453,10 @@ export default {
           uuid: null,
           aditStatus: true,
           plotId: null,
-          plotType:null
+          plotType:null,
+          drawtype: null,
+          longitude: null,
+          latitude: null
         };
 
         // 3. 处理标绘点的开始和结束时间
@@ -437,40 +464,51 @@ export default {
         item.endtime = res.plotInfo.endTime ? that.timestampToTime(res.plotInfo.endTime) : "";
         item.plotId = plotId;
         item.plotType = plotType;
+        item.drawtype = res.plotInfo.drawtype;
+        item.longitude=res.plotInfo.geom.coordinates[0] || "无经纬度信息";
+        item.latitude=res.plotInfo.geom.coordinates[1] || "无经纬度信息";
         // 4. 初始化类型信息
         let typeInfo = {};
 
-        // 5. 根据 plotType 生成对应类型的 dialog
-        for (let key in plotTypeDialog) {
-          if (res.plotInfo.plotType === plotTypeDialog[key].name) {
-            // 深拷贝 plotTypeDialog 中的对应类型到 typeInfo
-            typeInfo = JSON.parse(JSON.stringify(plotTypeDialog[key]));
-            break; // 找到对应类型后跳出循环
-          }
-        }
-
-        // 6. 将获取到的 plotTypeInfo 值赋给 typeInfo
+        // 6. 如果 res.plotTypeInfo 存在，则处理类型相关信息
         if (res.plotTypeInfo) {
+          for (let key in plotTypeDialog) {
+            if (res.plotInfo.plotType === plotTypeDialog[key].name) {
+              // 深拷贝 plotTypeDialog 中的对应类型到 typeInfo
+              typeInfo = JSON.parse(JSON.stringify(plotTypeDialog[key]));
+              break;
+            }
+          }
+
+          // 7. 将获取到的 plotTypeInfo 值赋给 typeInfo
           for (let key in typeInfo) {
             // 如果 plotTypeInfo 中存在对应字段，则直接赋值
             if (res.plotTypeInfo[key] !== undefined) {
-              typeInfo[key].value = res.plotTypeInfo[key]; // 直接赋值
+              typeInfo[key].value = res.plotTypeInfo[key];
             }
           }
+
+          // 8. 将处理后的 typeInfo 赋值给 item.info
+          item.info = typeInfo;
+
+          // 9. 设置 item.uuid
+          item.uuid = res.plotTypeInfo.uuid;
+        } else {
+          // 如果 res.plotTypeInfo 不存在，只保留基本信息
+          item.info = {
+            starttime: item.starttime,
+            endtime: item.endtime,
+            plotType: plotType,
+          };
         }
 
-        // 7. 将处理后的 typeInfo 赋值给 item.info
-        item.info = typeInfo;
-
-        // 8. 设置 item.id
-        item.uuid = res.plotTypeInfo.uuid;
-
-        // 9. 将 item 添加到 plotInfoActivities 数组中
+        // 10. 将 item 添加到 plotInfoActivities 数组中
         that.plotInfoActivities.push(item);
 
-        // 10. 更新 plotInfoNew 为最新的标绘信息
+        // 11. 更新 plotInfoNew 为最新的标绘信息
         that.plotInfoNew = that.plotInfoActivities[0];
-      })
+        console.log("更新",that.plotInfoNew)
+      });
     },
     // 删除标注
     deletePoint() {
@@ -494,7 +532,7 @@ export default {
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      return `${year}-${month}-${day}T${hh}:${mm}:${ss}`
     },
     // 生成uuid
     guid() {

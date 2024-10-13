@@ -293,25 +293,27 @@ export default class Point {
         dataSource.clustering.pixelRange = pixelRange;
       }
       customStyle();
+
       const handler = new Cesium.ScreenSpaceEventHandler(
           viewer.scene.canvas
       );
+      var isShow = false
       handler.setInputAction(function (movement) {
         const pickedLabel = viewer.scene.pick(movement.position);
         if (Cesium.defined(pickedLabel)) {
           const ids = pickedLabel.id;
           if(ids.length > 1) {
-            let PoRay = viewer.camera.getPickRay(ray);
+            let PoRay = viewer.camera.getPickRay(movement.position);
             const car3 = viewer.scene.globe.pick(PoRay, viewer.scene);
             let cartographic = Cesium.Cartographic.fromCartesian(car3);
             let longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
             let latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
             viewer.camera.flyTo({
-              destination: Cesium.Cartesian3.fromDegrees(longitudeString , latitudeString , height / 1.8),
+              destination: Cesium.Cartesian3.fromDegrees(longitudeString , latitudeString , 60000),
               duration: 1.0
             });
           }
-          console.log(pickedLabel)
+
           // if (Array.isArray(ids)) {
           //     for (let i = 0; i < ids.length; ++i) {
           //         ids[i].billboard.color = Cesium.Color.RED;
