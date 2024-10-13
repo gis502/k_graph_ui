@@ -52,6 +52,7 @@
 <script>
 import PersonnelCasualties from "@/assets/json/TimeLine/PersonnelCasualties";
 import {getRescueActionCasualties} from "../../api/system/timeLine.js";
+import {getEqById} from "@/api/system/eqlist.js";
 
 export default {
   data() {
@@ -83,7 +84,7 @@ export default {
   },
   methods: {
     init() {
-      getRescueActionCasualties().then(res => {
+      getRescueActionCasualties({eqid: this.eqid}).then(res => {
         console.log("res人员伤亡:",res)
         this.Responsecontent = res
         this.personnel_casualties_update(this.currentTime)

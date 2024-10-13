@@ -70,7 +70,6 @@ export default {
   ],
   mounted() {
     this.init()
-
   },
   watch: {
     currentTime(newVal) {
@@ -83,7 +82,7 @@ export default {
   methods: {
     init() {
       getRescueTeam().then(res => {
-        // console.log("res:----",res)
+        console.log("res:----",res)
         this.RescueTeamInfo = res
         this.rescue_team_update(this.currentTime)
       })

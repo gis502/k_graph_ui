@@ -192,16 +192,16 @@
                 :eqid="eqid"
                 :currentTime="currentTime"
         />
-        <!--   人员伤亡-左中   -->
+<!--           人员伤亡-左中   -->
         <timeLinePersonnelCasualties
                 :eqid="eqid"
                 :currentTime="currentTime"
         />
         <!--   救援出队-左下   -->
-        <timeLineRescueTeam
-                :eqid="eqid"
-                :currentTime="currentTime"
-        />
+<!--        <timeLineRescueTeam-->
+<!--                :eqid="eqid"-->
+<!--                :currentTime="currentTime"-->
+<!--        />-->
         <!--  新闻-右上  -->
         <div>
             <news

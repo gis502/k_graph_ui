@@ -9,15 +9,17 @@ export function getEmergencyResponse() {
     })
 }
 // 获取 人员伤亡
-export function getRescueActionCasualties() {
+export function getRescueActionCasualties(data) {
     // 获取URL中的参数
-    const urlParams = new URLSearchParams(window.location.search);
-    const eqid = urlParams.get('eqid');  // 从URL中获取eqid参数
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const eqid = urlParams.get('eqid');  // 从URL中获取eqid参数
 
     return request({
         url: '/timeLine/rescueActionCasualties',
         method: 'get',
-        params: { eqid }  // 传递获取到的eqid
+        // method: 'post',
+        // params: { eqid }  // 传递获取到的eqid
+        params:data
     });
 }
 
