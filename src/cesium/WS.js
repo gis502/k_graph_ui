@@ -36,10 +36,11 @@ function websocketclose(e) {
 
 function websocketonmessage(e) {
     try {
+        console.log(JSON.parse(e.data))
         let markType = JSON.parse(e.data).type
         let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
         if (markOperate === "add") {
-            if (this.eqid === JSON.parse(e.data).data.eqid) {
+            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
                 let markData = JSON.parse(e.data).data
                 wsAdd(markType, markData)
             }
@@ -73,12 +74,18 @@ function websocketonmessage(e) {
 }
 
 function wsAdd(type, data) {
+
     if (type === "point") {
+        let id = data.plot.plotId
+        let longitude = Number(data.plot.geom.coordinates[0])
+        let latitude = Number(data.plot.geom.coordinates[1])
+        let height = Number(data.plot.elevation)
+        let img = data.plot.icon
         window.viewer.entities.add({
-            id: data.plotid,
-            position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+            id: id,
+            position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
             billboard: {
-                image: data.img,
+                image: img,
                 width: 50,//图片宽度,单位px
                 height: 50,//图片高度，单位px // 会影响data大小，离谱
                 eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
@@ -89,7 +96,7 @@ function wsAdd(type, data) {
                 disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
             },
             properties: {
-                data
+                data:data.plot
             }
         })
     } else if (type === "polyline") {
@@ -157,6 +164,10 @@ function wsAdd(type, data) {
             }
         })
     }
+}
+
+function wsDelete(){
+
 }
 
 // 选择当前线的material
