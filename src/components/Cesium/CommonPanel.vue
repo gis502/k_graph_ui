@@ -27,8 +27,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.starttime).match('-')
-                    ? this.timestampToTime(plotInfoNew.starttime)
-                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime) : "")
+                    ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
+                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
               }}
             </el-text>
             <el-date-picker
@@ -50,8 +50,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.endtime).match('-')
-                    ? this.timestampToTime(plotInfoNew.endtime)
-                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime) : "")
+                    ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
+                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
               }}
             </el-text>
             <el-date-picker
