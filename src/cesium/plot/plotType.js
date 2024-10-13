@@ -3982,9 +3982,9 @@ const plotType = {
     toxicSubstanceLeak: {
         name: "有毒物质泄露",
         toxicSubstanceType: {
-            type: "selectMultiple",
+            type: "select",
             name: "有毒物质类型",
-            value: [],
+            value: "",
             content: [
                 {value: "toxicSubstanceType", label: "有毒气体（如氨气、氯气、二氧化氮、二氧化硫、一氧化碳、硫化氢等）"},
                 {value: "toxicSubstanceType", label: "有毒液体（如液氨、强酸、强碱等）"},
