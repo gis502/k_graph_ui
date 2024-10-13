@@ -125,7 +125,7 @@ export default {
         }
       }
       let data = this.assembleData(this.form, typeInfoValues, this.starttime, this.endtime)
-      console.log("插入数据库得数据",data)
+      console.log("插入数据库得线数据",data)
       insertPlotAndInfo(data).then(res => {
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         // let form = {...this.form}
@@ -178,7 +178,7 @@ export default {
       assemblyData.plot.icon = data1.situationPlotData[0].icon
       assemblyData.plot.startTime = this.timestampToTime(startTime)
       assemblyData.plot.endTime = this.timestampToTime(endTime)
-      // 组装plotinfo)
+      // 组装plotinfo
       assemblyData.plotinfo = {
         ...data2,     //展开data2的内容
         plotId: data1.situationPlotData[0].plotId // 添加 plotId 字段，使用 data1 中的 plotId
