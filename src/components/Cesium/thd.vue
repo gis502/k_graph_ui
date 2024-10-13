@@ -1537,8 +1537,6 @@ export default {
           } else if(Object.prototype.toString.call(entity) === '[object Array]') {
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
-
-
             this.timelinePopupVisible = false
             this.routerPopupVisible = false;
           } else {
