@@ -33,6 +33,11 @@
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
         />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
+        />
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
@@ -41,6 +46,7 @@
         :position="routerPopupPosition"
         :popupData="routerPopupData"
     />
+
 
     <!-- 进度条-->
     <div class="bottom">
@@ -187,7 +193,7 @@ import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSupplies
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../../cesium/plot/eqThemes.js";
 
 //专题图
@@ -197,6 +203,7 @@ export default {
   components: {
     thematicMapPreview,
     RouterPanel,
+    dataSourcePanel,
     TimeLinePanel,
     News,
     MiniMap,
@@ -215,6 +222,10 @@ export default {
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
       routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
       routerPopupData: {}, // RouterPanel弹窗的数据
+
+      dataSourcePopupVisible: false, // RouterPanel弹窗的显示与隐藏
+      dataSourcePopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
+      dataSourcePopupData: {}, // RouterPanel弹窗的数据
 
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
@@ -858,7 +869,7 @@ export default {
         // }
         // })
         // 更新绘图
-        this.updatePlot()
+        this.updatePlot(false)
 
 
         // 开启时间轴
@@ -873,7 +884,8 @@ export default {
     /*
     * 更新标绘点
     * */
-    updatePlot() {
+    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
+    updatePlot(bool) {
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -930,10 +942,11 @@ export default {
           }
         }
       });
-      // 批量渲染点
-      if (points.length > 0) {
-        cesiumPlot.drawPoints(points,true);
-      }
+        // 批量渲染点 + 非初始化状态渲染标会点动画
+        if (points.length > 0) {
+            let param = bool === false ? false : true
+            cesiumPlot.drawPoints(points,param);
+        }
 
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
@@ -1371,11 +1384,15 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
+
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            this.timelinePopupData = this.extractDataForTimeline(entity);
+            this.timelinePopupData={}
+            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+
+            // this.timelinePopupData = this.extractDataForTimeline(entity);
             this.routerPopupVisible = false;
           } else if (entity._billboard) {
             // 如果点击的是路标
@@ -1384,23 +1401,28 @@ export default {
             this.routerPopupData = this.extractDataForRouter(entity);
 
             this.timelinePopupVisible = false;
+          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+            this.dataSourcePopupData = entity
+            this.dataSourcePopupVisible = true
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
           }
         } else {
           // 没有选中实体时隐藏 faultInfo
           faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
+          this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible) {
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -1531,6 +1553,7 @@ export default {
               window.viewer.scene,
               Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
+          console.log(canvasPosition)
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
             this.routerPopupPosition = {
@@ -1541,6 +1564,10 @@ export default {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
+            this.dataSourcePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            }
           }
         }
       });
@@ -1616,7 +1643,7 @@ export default {
     takeScreenshot() {
       const link = document.createElement('a');
       link.href = fileUrl
-      link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
+      link.download = '芦山地震人员伤亡态势专题报告.pdf';
       link.click();
     },
 

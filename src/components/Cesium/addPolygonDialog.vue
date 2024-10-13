@@ -75,6 +75,12 @@ export default {
   ],
   watch: {
     addPolygonDialogFormVisible() {
+      // 设置默认开始时间为当前时间
+      this.starttime = this.timestampToTime(Date.now());  // 当前时间
+      // 设置默认结束时间为5天后的时间
+      const currentDate = new Date();
+      const fiveDaysLater = currentDate.setDate(currentDate.getDate() + 5); // 5天后
+      this.endtime = this.timestampToTime(fiveDaysLater);
       // 1-1 显示弹窗
       this.DialogFormVisible = this.addPolygonDialogFormVisible
       // 2-1 获取pinia中存的经纬度、标绘类型等信息以及生成对应类型的dialog
@@ -167,7 +173,8 @@ export default {
           plotId:null,
         }
       }
-      if (Object.prototype.toString.call(data1) === '[object Object]'){
+      // console.log(">>>",data1)
+      if (data1.plotType==="直线箭头"||data1.plotType==="攻击箭头"||data1.plotType==="钳击箭头"){
         // 组装 plot
         assemblyData.plot.earthquakeId = data1.situationPlotData.earthquakeId
         assemblyData.plot.plotId = data1.situationPlotData.plotId
@@ -185,7 +192,6 @@ export default {
           plotId: data1.situationPlotData.plotId // 添加 plotId 字段，使用 data1 中的 plotId
         }
       } else {
-
       // 组装 plot
       assemblyData.plot.earthquakeId = data1.situationPlotData[0].earthquakeId
       assemblyData.plot.plotId = data1.situationPlotData[0].plotId
@@ -202,8 +208,8 @@ export default {
         ...data2,     //展开data2的内容
         plotId: data1.situationPlotData[0].plotId // 添加 plotId 字段，使用 data1 中的 plotId
       }
+        // console.log("assemblyData.plotinfo",assemblyData.plotinfo)
       }
-      console.log("assemblyData.plotinfo",assemblyData.plotinfo)
       return assemblyData
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式

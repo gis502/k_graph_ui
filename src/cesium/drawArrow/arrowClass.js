@@ -388,6 +388,8 @@ AttackArrow.prototype = {
             }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
         this.handler.setInputAction(function (evt) { //右击结束绘制
+
+            if ($this.positions.length < 3) return;
             // var ray = viewer.camera.getPickRay(evt.position);
             // if (!ray) return;
             // var cartesian = viewer.scene.globe.pick(ray, $this.viewer.scene);
