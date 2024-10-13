@@ -1874,8 +1874,6 @@ export default {
 
     /**
      *  ------------------行政区划--------------------
-     * 添加雅安行政区划影像图层
-     *
      * 此方法旨在向地图中添加雅安市的行政区划影像图层如果图层已存在，则不会重复添加
      * 使用Cesium库加载GeoJSON数据，并根据图层是否已存在来设置不同的显示样式
      */
@@ -2050,7 +2048,7 @@ export default {
     /**
      * 移除区域图层和相关标签
      * 此函数负责从地图中移除特定的区域图层和与之关联的图例标签
-     */
+     **/
     removethdRegions() {
       // 检查是否存在名为regionLayerJump的图层
       if (window.regionLayerJump) {
@@ -2116,27 +2114,6 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
-
-        /*
-        * 更新地图图层
-        * 点击图层复选框时在地图上展示相应的图层数据
-        * */
-        updateMapLayers() {
-            // this.initPlot()
-            // 检查选中的图层中是否包含标绘点图层
-            const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
-            // 如果包含标绘点图层
-            if (hasDrawingLayer) {
-                // 确认标绘图层变更，参数为true表示已选中
-                this.handleMarkingLayerChange(true);
-                // 更新绘图状态
-                this.updatePlot(false);
-            } else {
-                // 确认标绘图层变更，参数为false表示未选中
-                this.handleMarkingLayerChange(false);
-                // 移除标绘图层
-                this.MarkingLayerRemove();
-            }
     /*
     * 更新地图图层
     * 点击图层复选框时在地图上展示相应的图层数据
