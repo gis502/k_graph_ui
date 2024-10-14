@@ -36,10 +36,11 @@ function websocketclose(e) {
 
 function websocketonmessage(e) {
     try {
+        console.log(JSON.parse(e.data))
         let markType = JSON.parse(e.data).type
         let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
         if (markOperate === "add") {
-            if (this.eqid === JSON.parse(e.data).data.eqid) {
+            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
                 let markData = JSON.parse(e.data).data
                 wsAdd(markType, markData)
             }
@@ -73,12 +74,18 @@ function websocketonmessage(e) {
 }
 
 function wsAdd(type, data) {
+
     if (type === "point") {
+        let id = data.plot.plotId
+        let longitude = Number(data.plot.geom.coordinates[0])
+        let latitude = Number(data.plot.geom.coordinates[1])
+        let height = Number(data.plot.elevation)
+        let img = data.plot.icon
         window.viewer.entities.add({
-            id: data.plotid,
-            position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
+            id: id,
+            position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
             billboard: {
-                image: data.img,
+                image: img,
                 width: 50,//图片宽度,单位px
                 height: 50,//图片高度，单位px // 会影响data大小，离谱
                 eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
@@ -89,16 +96,23 @@ function wsAdd(type, data) {
                 disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
             },
             properties: {
-                data
+                data:data.plot
             }
         })
     } else if (type === "polyline") {
+        console.log(data,123)
+        let points = data.plot.geom.coordinates
+        let plotId = data.plot.plotId
+        let elevation = data.plot.elevation
+        let type = data.plot.plotType
+        let img = data.plot.icon
+
         let pointLinePoints = []
-        for (let i = 0; i < data.positions.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             let p = window.viewer.entities.add({
                 show: false,
-                position: data.positions[i],
-                id: data.id + 'point' + (i + 1),
+                position: new Cesium.Cartesian3(points[i][0], points[i][1], elevation),
+                id: plotId + 'point' + (i + 1),
                 point: {
                     pixelSize: 1,
                     color: Cesium.Color.RED,
@@ -111,11 +125,16 @@ function wsAdd(type, data) {
             });
             pointLinePoints.push(p)
         }
-        let material = getMaterial(data.type, data.img)
+        let material = getMaterial(type, img)
+        let linePostion = []
+        points.forEach(e => {
+            // 线的positions需要数组里的点都是Cartesian3类型
+            linePostion.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
+        })
         window.viewer.entities.add({
-            id: data.id, //+ 'polyline',
+            id: plotId, //+ 'polyline',
             polyline: {
-                positions: data.positions,
+                positions: linePostion,
                 width: 5,
                 material: material,
                 // material: Cesium.Color.YELLOW,
@@ -157,6 +176,10 @@ function wsAdd(type, data) {
             }
         })
     }
+}
+
+function wsDelete(){
+
 }
 
 // 选择当前线的material

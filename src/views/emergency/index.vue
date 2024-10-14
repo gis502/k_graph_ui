@@ -625,7 +625,7 @@ export default {
         // 调用 `processPoints` 并传递不同的 `tableName`
         this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
         this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
 
         // this.fetSupplyPoints();
           this.listField = 'supplies'

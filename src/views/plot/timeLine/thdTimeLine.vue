@@ -750,7 +750,7 @@ export default {
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
-      this.intimexuanran(eqid)
+      // this.intimexuanran(eqid)
     },
 
     /**

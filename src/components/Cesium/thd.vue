@@ -1537,8 +1537,6 @@ export default {
           } else if(Object.prototype.toString.call(entity) === '[object Array]') {
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
-
-
             this.timelinePopupVisible = false
             this.routerPopupVisible = false;
           } else {
@@ -3011,6 +3009,10 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
   gap: 8px; /* 列间距 */
+}
+
+:deep(.search-results){
+  z-index:99 !important;
 }
 
 /*图层要素选项颜色改为白色*/
