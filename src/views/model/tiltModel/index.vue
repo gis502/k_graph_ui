@@ -173,6 +173,8 @@ let showArrowText = ref("显示坐标轴")
 let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
+
+
 //----------------------------model table---------------------------------------
 let currentPage = ref(1)
 let pageSize = ref(6)
@@ -670,10 +672,11 @@ function checkModelLoad() {
 // 初始化模型table数据
 function initModelTable() {
   getAllModel().then(res => {
+
     modelList = res
     total.value = res.length
     tableData.value = getPageArr(modelList)
-    console.log(modelList, tableData)
+    console.log("modelList, tableData",modelList, tableData)
   })
 }
 
