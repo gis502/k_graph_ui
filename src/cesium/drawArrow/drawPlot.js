@@ -120,9 +120,9 @@ const arrow = {
         }
     },
     showAttackArrow: function (attackArr) {
-        var flag = this.drawArr.find(cur => cur.objId == attackArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
-        if (!flag) {
-            for (var i = 0; i < attackArr.length; i++) {
+        for (var i = 0; i < attackArr.length; i++) {
+            var flag = this.drawArr.find(cur => cur.objId === attackArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
+            if (!flag) {
                 var item = attackArr[i];
                 var attackArrow = new AttackArrow(this.viewer);
                 attackArrow.objId = attackArr[i].plotId;
@@ -132,9 +132,9 @@ const arrow = {
         }
     },
     showPincerArrow: function (pincerArr) {
-        var flag = this.drawArr.find(cur => cur.objId == pincerArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
-        if (!flag) {
-            for (var i = 0; i < pincerArr.length; i++) {
+        for (var i = 0; i < pincerArr.length; i++) {
+            var flag = this.drawArr.find(cur => cur.objId == pincerArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
+            if (!flag) {
                 var item = pincerArr[i];
                 var pincerArrow = new PincerArrow(this.viewer);
                 pincerArrow.objId = pincerArr[i].plotId;
