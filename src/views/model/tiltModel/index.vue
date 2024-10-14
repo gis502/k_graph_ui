@@ -149,6 +149,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {Edit, Delete} from '@element-plus/icons-vue'
+
 import {
   addModelApi,
   deleteModel,
@@ -162,6 +163,9 @@ import {ElMessageBox} from 'element-plus';
 import {ElMessage} from 'element-plus';
 import {CustomShader} from "cesium";
 
+
+
+
 let pageStatus = ref(true)
 let tz = ref(0)
 let rz = ref(0)
@@ -173,6 +177,8 @@ let showArrowText = ref("显示坐标轴")
 let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
+
+
 //----------------------------model table---------------------------------------
 let currentPage = ref(1)
 let pageSize = ref(6)
@@ -670,10 +676,11 @@ function checkModelLoad() {
 // 初始化模型table数据
 function initModelTable() {
   getAllModel().then(res => {
+
     modelList = res
     total.value = res.length
     tableData.value = getPageArr(modelList)
-    console.log(modelList, tableData)
+    console.log("modelList, tableData",modelList, tableData)
   })
 }
 
@@ -758,6 +765,7 @@ function goModel(row) {
   modelInfo.modelid = row.modelid
   modelInfo.tze = row.tze
   modelInfo.rze = row.rze
+  // goModel(raw)
   selectModel(row.path)
 }
 

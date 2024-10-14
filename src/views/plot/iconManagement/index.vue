@@ -467,7 +467,9 @@ export default {
     },
     // 重置按钮操作
     resetQuery() {
-      this.getPlotPicture();
+      this.queryParams.menuName = ''
+      this.getList();
+      // this.getPlotPicture();
       // this.handleQuery();
     },
 
