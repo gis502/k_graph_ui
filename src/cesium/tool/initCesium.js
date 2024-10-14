@@ -92,6 +92,7 @@ export function initCesium(Cesium,container) {
 
 //图层
 function getImageryProviderArr() {
+    let baseURL = import.meta.env.VITE_APP_API_URL
     return [
         new Cesium.ProviderViewModel({
             //图层的名称。
@@ -142,7 +143,7 @@ function getImageryProviderArr() {
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
             creationFunction: function () {
                 return new Cesium.WebMapServiceImageryProvider({
-                    url: 'http://10.16.7.69:9080/geoserver/yaan/wms',
+                    url: baseURL+'/geoserver/yaan/wms',
                     layers: 'yaan:yaan',
                     parameters: {
                         service: 'WMS',
