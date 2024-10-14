@@ -379,7 +379,7 @@ export default {
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (window.viewer){
       this.clearResource(window.viewer)
       window.viewer = null;

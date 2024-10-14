@@ -120,6 +120,11 @@
           @wsSendPoint="wsSendPoint"
           @closePlotPop="closePlotPop"
       />
+      <dataSourcePanel
+          :visible="dataSourcePopupVisible"
+          :position="dataSourcePopupPosition"
+          :popupData="dataSourcePopupData"
+      />
     </div>
   </div>
 </template>
@@ -140,9 +145,11 @@ import commonPanel from "@/components/Cesium/CommonPanel";
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 
 export default {
   components: {
+    dataSourcePanel,
     addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog
   },
   data: function () {
@@ -163,6 +170,11 @@ export default {
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
       popupVisible: false, // 弹窗的显示与隐藏，传值给子组件
       popupData: {}, // 弹窗内容，传值给子组件
+
+      dataSourcePopupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
+      dataSourcePopupVisible: false, // 弹窗的显示与隐藏，传值给子组件
+      dataSourcePopupData: [], // 弹窗内容，传值给子组件
+
       //--------------------------------------------------
       showPolygon: false, // y面的删除按钮
       showPolyline: false,// 线的删除按钮
@@ -348,7 +360,6 @@ export default {
             points.push(point)
           }
         })
-        console.log("weixuanran",points)
         that.drawPoints(points)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
         console.log("polylineArr",polylineArr)
@@ -499,16 +510,40 @@ export default {
     entitiesClickPonpHandler() {
       let that = this
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+
         // 如果正在绘制面，直接返回，不处理点击事件
         // console.log(window.isDrawingPolygon)
         if (window.isDrawingPolygon) return;
         // 1-1 获取点击点的信息（包括）
+
+
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
 
+        this.dataSourcePopupVisible = false
         if (window.selectedEntity === undefined) {
           this.popupVisible = false
+          this.dataSourcePopupVisible = false
           this.popupData = {}
+        }
+
+        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]') {
+          // 2-2 获取点击点的经纬度
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+
+          this.updatePopupPosition(); // 更新弹窗的位置
+          this.dataSourcePopupData = window.selectedEntity
+          this.dataSourcePopupVisible = true
+          this.popupVisible = false
         }
         // 2-1 判断点击物体是否为点实体（billboard）
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
@@ -656,7 +691,7 @@ export default {
 
       // 必须有这个，拖动地图弹窗位置才会跟着移动
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-        if (that.popupVisible && window.selectedEntity) {
+        if (window.selectedEntity) {
           that.updatePopupPosition(); // 更新弹窗的位置
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -667,6 +702,10 @@ export default {
       const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, this.selectedEntityHighDiy)
       if (canvasPosition) {
         this.popupPosition = {
+          x: canvasPosition.x,//+ 20,
+          y: canvasPosition.y //- 60 // 假设弹窗应该在图标上方 50px 的位置
+        };
+        this.dataSourcePopupPosition = {
           x: canvasPosition.x,//+ 20,
           y: canvasPosition.y //- 60 // 假设弹窗应该在图标上方 50px 的位置
         };
@@ -933,7 +972,7 @@ export default {
     },
 
     treeItemClick(item) {
-      console.log("item",item)
+      console.log("item", item)
       let data = {
         plot: {
           earthquakeId: this.eqid,
@@ -997,7 +1036,7 @@ export default {
             drawtype: "polyline",
             icon: item.img,
             geom: geom.lineString, // 使用封装好的 GeoJSON LineString，包含高度信息
-            elevation: 0 ||geom.heights[0], // 如果需要单独传海拔可以进一步处理
+            elevation: 0 || geom.heights[0], // 如果需要单独传海拔可以进一步处理
           };
           // 添加到数据数组
           situationPlotData.push(plotItem);
@@ -1023,13 +1062,13 @@ export default {
           let plotItem = {
             ...res,  // 保留 res 中其他属性不变
             geom: geoJsonData.Polygon, // 使用转换后的 GeoJSON LineString
-            elevation: 0 ||geoJsonData.heights[0], // 单独的高度数组
+            elevation: 0 || geoJsonData.heights[0], // 单独的高度数组
           };
           // 删除 pointPosArr，替换为 geom 和 heights
           delete plotItem.pointPosArr;
 
           situationPlotData.push(plotItem)
-          console.log("situationPlotData",situationPlotData)
+          console.log("situationPlotData", situationPlotData)
           that.polygonStatus = cesiumPlot.drawPolygonStatus()
           this.openPolygonPop(res.plotType, situationPlotData)
         })
@@ -1066,8 +1105,8 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo,bool) {
-      cesiumPlot.drawPoints(pointInfo,bool)
+    drawPoints(pointInfo, bool) {
+      cesiumPlot.drawPoints(pointInfo, bool)
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
@@ -1156,7 +1195,7 @@ export default {
         // })
         // console.log("situationPlotData",plotType,situationPlotData)
         cesiumStore.setPolygonInfo({plotType, situationPlotData})
-        console.log("123",situationPlotData)
+        console.log("123", situationPlotData)
         that.addPolygonDialogFormVisible = true
         // 1-3 生成点标注的handler
         // cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {

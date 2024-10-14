@@ -59,7 +59,7 @@
                     :prop="column.prop"
                     :label="column.label"
                     :width="column.width"
-                    :show-overflow-tooltip="column.tooltip || false"
+                    show-overflow-tooltip
             ></el-table-column>
             <!--      救援力量      -->
             <el-table-column
@@ -69,7 +69,7 @@
                     :prop="column.prop"
                     :label="column.label"
                     :width="column.width"
-                    :show-overflow-tooltip="column.tooltip || false"
+                    show-overflow-tooltip
             ></el-table-column>
             <!--      救灾装备      -->
             <el-table-column
@@ -79,7 +79,7 @@
                     :prop="column.prop"
                     :label="column.label"
                     :width="column.width"
-                    :show-overflow-tooltip="column.tooltip || false"
+                    show-overflow-tooltip
             ></el-table-column>
         </el-table>
         <el-pagination
@@ -391,10 +391,10 @@ export default {
       affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
         // 救援物资字段
       listFieldsOfSupplies: [
-          { prop: 'county', label: '区域', width: 200, tooltip: true },
-          { prop: 'address', label: '地址', width: 320, tooltip: true },
-          { prop: 'contactPerson', label: '联系人', width: 100 },
-          { prop: 'contactPhone', label: '联系电话' },
+          { prop: 'county', label: '区域', width: 200},
+          { prop: 'address', label: '地址', width: 320},
+          { prop: 'contactPerson', label: '联系人', width: 100},
+          { prop: 'contactPhone', label: '联系电话'},
           { prop: 'tents', label: '帐篷总数量', width: 100 },
           { prop: 'raincoats', label: '雨衣总数量', width: 100 },
           { prop: 'rainBoots', label: '雨鞋总数量', width: 100 },
@@ -402,8 +402,8 @@ export default {
       ],
         // 救灾设备字段
       listFieldOfReserves: [
-          { prop: 'county', label: '区域', width: 200, tooltip: true },
-          { prop: 'address', label: '地址', width: 320, tooltip: true },
+          { prop: 'county', label: '区域', width: 200},
+          { prop: 'address', label: '地址', width: 320},
           { prop: 'contactPerson', label: '联系人', width: 100 },
           { prop: 'contactPhone', label: '联系电话' },
           { prop: 'lifeJacket', label: '救生衣', width: 100 },
@@ -436,7 +436,8 @@ export default {
     this.entitiesClickPonpHandler();
     this.initPlot(this.id);
   },
-  beforeDestroy() {
+  beforeUnmount() {
+    console.log("111",window.viewer)
     if (window.viewer){
       let viewer=window.viewer
       let gl=viewer.scene.context._gl
@@ -445,6 +446,7 @@ export default {
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
+      console.log("webglcontext 已清除")
       gl=null
       window.viewer = null;
     }
