@@ -45,7 +45,7 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" >
-      <el-form  ref="from" :model="dialogContent"  :rules="rules"   >
+      <el-form  ref="from" :model="dialogContent"  :rules="rules"  >
         <el-row >
           <el-col :span="13">
             <el-form-item label="震发位置：" prop="earthquakeName">
@@ -83,12 +83,12 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="经度(度分)：" prop="longitude">
-              <el-input v-model="dialogContent.longitude" placeholder="请输入内容"></el-input>
+              <el-input v-model="dialogContent.longitude" placeholder="请输入内容" type="number"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="纬度(度分)：" prop="latitude">
-              <el-input v-model="dialogContent.latitude" placeholder="请输入内容"></el-input>
+              <el-input v-model="dialogContent.latitude" placeholder="请输入内容" type="number"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -158,7 +158,7 @@ export default {
           {required: true, message: '请输入震发位置', trigger: 'blur'},
         ],
         occurrenceTime: [
-          {required: true, message: '请选择发震时间', trigger: 'blur'},
+          {required: true, message: '请选择发震时间',trigger: ['blur', 'change']},
         ],
         magnitude: [
           {required: true, message: '请输入震级(级)', trigger: 'blur'},
@@ -174,7 +174,9 @@ export default {
                 return callback(new Error('震级必须在 3 到 10 之间'));
               }
               callback();
-            }, trigger: 'blur' },
+            },
+            trigger: ['blur', 'change'],
+          },
 
         ],
         depth: [
@@ -193,7 +195,7 @@ export default {
               }
               callback();
             },
-            trigger: 'blur',
+            trigger: ['blur', 'change'],
           },
         ],
         longitude: [
@@ -212,7 +214,7 @@ export default {
               }
               callback();
             },
-            trigger: 'change',
+            trigger: ['blur', 'change'],
           },
         ],
         latitude: [
@@ -231,7 +233,7 @@ export default {
               }
               callback();
             },
-            trigger: 'change',
+            trigger: ['blur', 'change'],
           },
         ],
       },
@@ -280,7 +282,7 @@ export default {
         ]
       },
 
-
+      formValid: false, // 表单验证状态
       getEqData: [],
       tableData: [],
       total: 0,
@@ -292,7 +294,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         earthquakeName: '',
-        occurrenceTime: [],
+        occurrenceTime: Date.now(), // 初始化为当前时间的时间戳
         magnitude: '',
         longitude: '',
         latitude: '',
@@ -509,16 +511,26 @@ export default {
       this.getEq();  // 重新加载所有数据
     },
 
-    //新增
+    //新增或修改
     commit() {
       this.$refs.from.validate((valid) => {
         if (valid) {
           // 发送请求
+          // 提交表单逻辑
+          console.log("表单验证通过，提交数据");
         } else {
+          console.log("表单验证失败，请检查输入！");
           // this.$message.error('表单验证失败，请检查输入！');
         }
       });
 
+// 检查发震时间是否已选择，如果未选择，则设置为当前时间
+      if (!this.dialogContent.occurrenceTime) {
+        this.dialogContent.occurrenceTime = new Date().toISOString();
+      } else {
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
+      }
 
       let that = this;
       if (this.dialogTitle === "新增") {

@@ -64,7 +64,7 @@ export default {
         miss: '0',
         injure: '0',
       },
-      ifShowData: false,
+      // ifShowData: false,
       personnel_casualties_isExpanded: 'true'
     }
   },
