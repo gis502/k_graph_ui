@@ -83,6 +83,14 @@ export function searchMaterialData(inputData) {
     })
 }
 
+export function searchEmergencyTeamData(inputData) {
+    return request({
+        url: '/emergencyResources/searchEmergencyTeamData',
+        method: 'post',
+        data: inputData
+    })
+}
+
 export function searchDisasterReserves(inputData) {
     return request({
         url: '/emergencyResources/searchDisasterReserves',

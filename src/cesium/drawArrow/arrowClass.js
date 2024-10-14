@@ -387,7 +387,12 @@ AttackArrow.prototype = {
                 }
             }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        // 阻止默认的右键菜单
+        window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
+            return false;
+        }
         this.handler.setInputAction(function (evt) { //右击结束绘制
+
 
             if ($this.positions.length < 3) return;
             // var ray = viewer.camera.getPickRay(evt.position);

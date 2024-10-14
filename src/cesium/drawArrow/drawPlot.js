@@ -14,7 +14,7 @@ const arrow = {
         if (!this.isActivate) {
             this.isActivate = true;
             this.viewer = viewer;
-            this.bindEdit();
+            // this.bindEdit();
             // 定义全局变量
             window.isDrawingPolygon = false;
         }
@@ -221,7 +221,6 @@ const arrow = {
         for (var i = 0; i < $this.drawArr.length; i++) {
             if (id === $this.drawArr[i].objId) {
                 $this.drawArr[i].clear();
-                console.log($this.drawArr)
                 $this.drawArr.splice(i, 1);
                 break;
             }

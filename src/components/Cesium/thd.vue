@@ -149,6 +149,11 @@
             @wsSendPoint="wsSendPoint"
             @closePlotPop="closePlotPop"
         />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
+        />
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
@@ -299,7 +304,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import eqTable from '@/components/Home/eqtable.vue'
 
 import yaan from '@/assets/geoJson/yaan.json'
@@ -354,6 +359,7 @@ export default {
     timeLineLegend,
     newsDialog,
     commonPanel,
+    dataSourcePanel,
     eqTable,
   },
   data: function () {
@@ -367,6 +373,11 @@ export default {
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
       timelinePopupData: {}, // TimeLinePanel弹窗的数据
+      //----------------------------------
+
+      dataSourcePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
+      dataSourcePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
+      dataSourcePopupData: [], // TimeLinePanel弹窗的数据
       //----------------------------------
       eqid: '',
       // viewer: '',
@@ -552,7 +563,7 @@ export default {
     this.entitiesClickPonpHandler()
 
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (window.viewer) {
       this.clearResource(window.viewer)
       window.viewer = null;
@@ -1550,6 +1561,7 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
+
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
@@ -1558,6 +1570,7 @@ export default {
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
 
             // this.timelinePopupData = this.extractDataForTimeline(entity);
+            this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
           } else if (entity._billboard) {
             // 如果点击的是路标
@@ -1565,24 +1578,34 @@ export default {
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.routerPopupData = this.extractDataForRouter(entity);
 
+            this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
+          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+            this.dataSourcePopupData = entity
+            this.dataSourcePopupVisible = true
+
+
+            this.timelinePopupVisible = false
+            this.routerPopupVisible = false;
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
           }
         } else {
           // 没有选中实体时隐藏 faultInfo
           faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
+          this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible) {
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -1720,6 +1743,10 @@ export default {
               y: canvasPosition.y + 10
             };
             this.timelinePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
+            this.dataSourcePopupPosition = {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
@@ -1865,8 +1892,6 @@ export default {
 
     /**
      *  ------------------行政区划--------------------
-     * 添加雅安行政区划影像图层
-     *
      * 此方法旨在向地图中添加雅安市的行政区划影像图层如果图层已存在，则不会重复添加
      * 使用Cesium库加载GeoJSON数据，并根据图层是否已存在来设置不同的显示样式
      */
@@ -2107,7 +2132,6 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
-
     /*
     * 更新地图图层
     * 点击图层复选框时在地图上展示相应的图层数据

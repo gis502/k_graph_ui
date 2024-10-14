@@ -143,7 +143,7 @@ export default class Polygon {
         // 3秒后清除所有 dataSources
         setTimeout(() => {
           window.viewer.dataSources.removeAll();
-        }, 2000); // 3000 毫秒 = 3 秒
+        }, 200); // 3000 毫秒 = 3 秒
         break;
       }
     }
@@ -432,7 +432,7 @@ export default class Polygon {
       // 1-4 pointLinePoints用来存构成面的点实体
       let pointLinePoints = []
       let coords = polygon[0].geom.coordinates[0]
-      console.log("coords",coords)
+      // console.log("coords",coords)
       for (let i = 0; i < coords.length; i++) {
         let polygonCoords = coords[i]
 
@@ -445,19 +445,19 @@ export default class Polygon {
         let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
         pointLinePoints.push(cartesian);
         // 添加调试输出
-        this.viewer.entities.add({
-          // id: `${onlyPlotidItem}_Point_${i}`,
-          //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
-          position: cartesian,
-          point: {
-            // color: Cesium.Color.SKYBLUE,
-            // pixelSize: 10,
-            // outlineColor: Cesium.Color.YELLOW,
-            // outlineWidth: 3,
-            // disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          }
-        });
+        // this.viewer.entities.add({
+        //   // id: `${onlyPlotidItem}_Point_${i}`,
+        //   //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
+        //   position: cartesian,
+        //   point: {
+        //     // color: Cesium.Color.SKYBLUE,
+        //     // pixelSize: 10,
+        //     // outlineColor: Cesium.Color.YELLOW,
+        //     // outlineWidth: 3,
+        //     // disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        //     // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        //   }
+        // });
         // === 检查并删除已经存在的多边形实体 ===
         let polygonId = onlyPlotidItem;
         if (this.viewer.entities.getById(polygonId)) {
