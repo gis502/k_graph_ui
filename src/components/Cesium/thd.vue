@@ -119,8 +119,10 @@
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
         <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
+        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
+        </el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
+        </el-menu-item>
         <el-menu-item index="6">返回首页</el-menu-item>
       </el-menu>
     </div>
@@ -252,7 +254,7 @@
            right: 450px; color: #FFFFFF;
            background-color: rgba(0, 0, 0, 0.5);
            padding: 10px; border-radius: 5px;text-align: center;">
-      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index" >
+      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
           <div
               style="width: 20px; height: 20px; margin-right: 10px;"
@@ -319,6 +321,7 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/pl
 //专题图
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
 
 export default {
   components: {
@@ -596,7 +599,7 @@ export default {
       if (this.activeComponent === 'eqList') {
         this.getEq();
       }
-      if(this.activeComponent == 'layerChoose'){
+      if (this.activeComponent == 'layerChoose') {
         this.removethdRegions();
         const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
         // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
@@ -661,28 +664,54 @@ export default {
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
+      let smallViewer = new Cesium.Viewer(smallMapContainer, {
+        shouldAnimate: false,
+        animation: false, // 是否创建动画小器件，左下角仪表
+        baseLayerPicker: false, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
+        fullscreenButton: false, // 是否显示全屏按钮
+        geocoder: false, // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
+        homeButton: false, // 是否显示Home按钮
+        infoBox: false, // 是否显示信息框
+        sceneModePicker: false, // 是否显示3D/2D选择器
+        selectionIndicator: false, // 是否显示选取指示器组件
+        timeline: false, // 是否显示时间轴
+        navigationHelpButton: false, // 是否显示右上角的帮助按钮
+        scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
+        //截图和渲染相关的一些配置
+        contextOptions: {
+          webgl: {
+            alpha: true,
+            depth: false,
+            stencil: true,
+            antialias: true,
+            premultipliedAlpha: true,
+            //cesium状态下允许canvas转图片convertToImage
+            preserveDrawingBuffer: true,
+            failIfMajorPerformanceCaveat: true
+          },
+          allowTextureFilterAnisotropic: true
+        },
+        // 本地geoserver影像
+        imageryProvider:
+            new Cesium.WebMapTileServiceImageryProvider({
+              // url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+              url: `/tdtproxy/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+              format: 'tiles',
+              tileMatrixSetID: 'c',
+              tilingScheme: new Cesium.GeographicTilingScheme(),
+              tileMatrixLabels: ['1', '2', '3', '4',
+                '5', '6', '7', '8', '9', '10', '11',
+                '12', '13', '14', '15', '16', '17', '18'],
+              layer: "tdtImgAnnoLayer",
+              style: "default",
+              show: false
+            }),
+        terrainProvider: new Cesium.CesiumTerrainProvider({
+          url: "http://localhost:9080/geoserver/www/dem",
+        }),
+
+      })
       window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
       // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
       //   // 隐藏所有控件
@@ -1534,7 +1563,7 @@ export default {
 
             this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
-          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+          } else if (Object.prototype.toString.call(entity) === '[object Array]') {
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
 
@@ -2468,7 +2497,7 @@ export default {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapServiceImageryProvider({
-              url: baseURL+'/geoserver/yaan/wms', // WMS服务的URL
+              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
               layers: 'yaan:pop', // 需要请求的图层名称
               parameters: {
                 service: 'WMS', // 指定服务类型为WMS
@@ -2638,7 +2667,7 @@ export default {
     getPopDesity(longitude, latitude) {
       let baseURL = import.meta.env.VITE_APP_API_URL
       // WMS服务的URL
-      const url = baseURL+'/geoserver/yaan/wms'
+      const url = baseURL + '/geoserver/yaan/wms'
       // 查询区域的边界框大小，用于确定查询区域的范围
       const bboxSize = 0.001
       // 构建URL查询参数
