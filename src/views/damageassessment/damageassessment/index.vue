@@ -1950,5 +1950,7 @@ p {
   top: 120px;
   left: 53px;
 }
-
+:deep(.distance-legend) {
+  bottom: 7% !important;
+}
 </style>
