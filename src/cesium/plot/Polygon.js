@@ -159,12 +159,21 @@ export default class Polygon {
    * @private
    */
 
-  _leftClickEventForPolygon() {
+  _leftClickEventForPolygon()   {
     this.handler.setInputAction((e) => {
       window.isDrawingPolygon = true;  // 启用标志位
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
       if (!p) return;
+      // 检查新点是否与最后一个点重复
+      if (this._tempPositions.length > 0) {
+        let lastPoint = this._tempPositions[this._tempPositions.length - 1];
+        if (Cesium.Cartesian3.equals(p, lastPoint)) {
+          console.log('点重复，忽略此次点击');
+          return;
+        }
+      }
+      console.log("this._tempPositions",this._tempPositions)
       this._tempPositions.push(p);
       this._addPolygon();
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
