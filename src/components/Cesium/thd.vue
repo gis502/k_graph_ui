@@ -74,15 +74,15 @@
     <div v-if="activeComponent === 'model'">
 
       <el-form class="button-container">
-        <div class="modelAdj">模型选择 </div>
+        <div class="modelAdj">模型选择</div>
         <div class="modelAdj" @click="findModel">找到模型</div>
         <el-table :data="modelTableData"
-                  style="width: 100%; margin-bottom: 0px;height: 11vw"
+                  style="width: 100%; margin-bottom: 0px;"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
 
           <el-table-column prop="name" label="模型名称" width="auto"></el-table-column>
-        <el-table-column label="操作" width="auto" align="center">
+          <el-table-column label="操作" width="auto" align="center">
 
             <template #default="scope">
               <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
@@ -130,7 +130,8 @@
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
         <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
+        </el-menu-item>
         <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
         </el-menu-item>
         <el-menu-item index="7">返回首页</el-menu-item>
@@ -533,7 +534,7 @@ export default {
       modelTableData: [],
       modelList: [],
 
-      modelInfo:{
+      modelInfo: {
         name: null,
         path: null,
         rz: null,
@@ -738,16 +739,11 @@ export default {
         // 本地geoserver影像
         imageryProvider:
             new Cesium.WebMapTileServiceImageryProvider({
-              // url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
-              url: `/tdtproxy/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
-              format: 'tiles',
-              tileMatrixSetID: 'c',
-              tilingScheme: new Cesium.GeographicTilingScheme(),
-              tileMatrixLabels: ['1', '2', '3', '4',
-                '5', '6', '7', '8', '9', '10', '11',
-                '12', '13', '14', '15', '16', '17', '18'],
-              layer: "tdtImgAnnoLayer",
+              url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + TianDiTuToken,
+              layer: "tdtVecBasicLayer",
               style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
               show: false
             }),
         terrainProvider: new Cesium.CesiumTerrainProvider({
@@ -756,33 +752,26 @@ export default {
 
       })
       window.smallViewer = smallViewer
+      window.smallViewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
+      );
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   // 隐藏所有控件
-      //   geocoder: false,
-      //   homeButton: false,
-      //   sceneModePicker: false,
-      //   timeline: false,
-      //   navigationHelpButton: false,
-      //   animation: false,
-      //   infoBox: false,
-      //   fullscreenButton: false,
-      //   showRenderState: false,
-      //   selectionIndicator: false,
-      //   baseLayerPicker: false,
-      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      // });
       // 隐藏缩略图视图器的版权信息
       smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
       // 同步主视图器的相机到缩略图视图器
       function syncCamera() {
         const camera1 = viewer.scene.camera;
+        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
         const camera2 = smallViewer.scene.camera;
-
         camera2.setView({
-          destination: camera1.positionWC,
+          destination: smallPoint,
           orientation: {
             heading: camera1.heading,
             pitch: camera1.pitch,
@@ -1888,9 +1877,6 @@ export default {
     },
 
 
-
-
-
     /**
      * 此方法通过调用getAllEq函数从服务器获取所有设备的数据，然后将这些数据赋值给eqtableData属性
      * 同时，成功获取数据后，初始化Cesium相关的viewer、websocket连接和pinia状态管理，以便进行设备位置的标绘
@@ -2770,7 +2756,7 @@ export default {
         // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
       })
     },
-    goModel(row){
+    goModel(row) {
       this.modelInfo.name = row.name
       this.modelInfo.path = row.path
       this.modelInfo.tz = row.tz
@@ -2781,10 +2767,12 @@ export default {
       this.modelInfo.rze = row.rze
       goModel(row)
     },
-    watchTerrainProviderChanged(){
+    watchTerrainProviderChanged() {
       watchTerrainProviderChanged()
     },
-    findModel(){findModel()},
+    findModel() {
+      findModel()
+    },
     // 修改table的header的样式
     tableHeaderColor() {
       return {
@@ -2830,7 +2818,7 @@ export default {
       let start = (this.modelCurrentPage - 1) * this.modelPageSize
       let end = this.modelCurrentPage * this.modelPageSize
       if (end > this.ModelTotal) {
-        end =  this.ModelTotal
+        end = this.ModelTotal
       }
       for (; start < end; start++) {
         data[start].show = false
@@ -3180,9 +3168,7 @@ export default {
 }
 
 
-
 .button-container {
-  height: 43%;
   width: 25%;
   position: absolute;
   padding: 10px;
@@ -3192,6 +3178,7 @@ export default {
   z-index: 30; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 1);
 }
+
 .modelAdj {
   color: #FFFFFF;
   margin-bottom: 5px;
@@ -3212,15 +3199,5 @@ export default {
 
 :deep(.el-pagination>.is-last) {
   color: #FFFFFF;
-}
-.model-button{
-  //flex: 0 0 20%; /* 每行5个按钮 */
-  //display: flex;
-  justify-content: center;
-  //margin: 4px; /* 调整按钮之间的间距 */
-  width: 22%;
-  position: absolute;
-  top: 1%;
-  left: 26%;
 }
 </style>
