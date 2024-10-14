@@ -17,7 +17,7 @@
         <span>统计表格</span>
         <span style="margin-right: 0">
           <span>地震造成经济损失共计约</span>
-          <span class="emphasis">{{ total }}万元</span>
+          <span class="emphasis">{{ total.toFixed(2) }}万元</span>
         </span>
 
       </div>
@@ -25,7 +25,7 @@
         <el-table :data="copiedeconomicLossData" :height="180" :max-height="180" stripe
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
           <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
-          <el-table-column prop="amount" label="经济损失 / 万元" align="center"></el-table-column>
+          <el-table-column prop="amount" label="经济损失 / 万元" align="center" :formatter="formatSize"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -117,6 +117,19 @@ export default {
       const counties = Object.keys(countyAmountMap);
       const values = Object.values(countyAmountMap);
 
+      // 将区县和对应的经济损失组合成数组
+      const countyData = counties.map((county, index) => ({
+        county,
+        value: values[index],
+      }));
+
+      // 按损失值进行排序，获取前六个最大的
+      const topCounties = countyData.sort((a, b) => b.value - a.value).slice(0, 6);
+
+      // 提取前六个的区县名和损失值
+      const topCountyNames = topCounties.map(item => item.county);
+      const topValues = topCounties.map(item => item.value);
+
       // 设置图表配置项
       const option = {
         title: {
@@ -135,7 +148,7 @@ export default {
         },
         xAxis: {
           type: 'category',
-          data: counties,
+          data: topCountyNames,
           name: '区县',
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
@@ -161,7 +174,7 @@ export default {
           {
             name: '经济损失',
             type: 'bar',
-            data: values,
+            data: topValues,
             itemStyle: {
               color: '#fa9440',
             },
@@ -174,7 +187,6 @@ export default {
               fontSize: 12,   // 设置字体大小
             },
           },
-
         ],
       };
 
@@ -218,6 +230,10 @@ export default {
           'padding': '10',
         }
       }
+    },
+
+    formatSize(row, column, cellValue) {
+      return parseFloat(cellValue).toFixed(2); // 保留两位小数
     },
   },
 };
