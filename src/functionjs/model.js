@@ -40,11 +40,11 @@ export function watchTerrainProviderChanged() {
         if (isTerrainLoaded()) {
             changeHeight(modelInfo.tze)
             tz.value = modelInfo.tze
-            find()
+            findModel()
         } else {
             changeHeight(modelInfo.tz)
             tz.value = modelInfo.tz
-            find()
+            findModel()
         }
     });
 }
@@ -96,11 +96,11 @@ function initModel(modelName) {
         if (isTerrainLoaded()) {
             changeHeight(modelInfo.tze)
             tz.value = modelInfo.tze
-            find()
+            findModel()
         } else {
             // tz.value = modelInfo.tz
             // changeHeight(modelInfo.tz)
-            // find()
+            // findModel()
             const cartographic = Cesium.Cartographic.fromCartesian(tileset.boundingSphere.center);//获取模型高度
             tz.value = 20 - Math.trunc(cartographic.height)//高度取整
             transferModel(tileset, 0, 0, tz.value, 0, 0, 0, 1, 1)//模型贴地
@@ -206,3 +206,4 @@ export function findModel() {
         }
     }
 }
+

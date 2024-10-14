@@ -74,9 +74,11 @@
     <div v-if="activeComponent === 'model'">
 
       <el-form class="button-container">
-        <div class="modelAdj">模型选择</div>
-<!--        <el-button type="primary" @click="findModel">找到模型</el-button>-->
-        <el-table :data="modelTableData" style="min-width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
+        <div class="modelAdj">模型选择 </div>
+        <div class="modelAdj" @click="findModel">找到模型</div>
+        <el-table :data="modelTableData"
+                  style="width: 100%; margin-bottom: 0px;height: 11vw"
+                  :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
 
           <el-table-column prop="name" label="模型名称" width="auto"></el-table-column>
@@ -123,16 +125,15 @@
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
       >
-        <el-menu-item index="1" @click="toggleComponent('model')" style="width: 90px;">模型调整</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
+
+        <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-        <!--        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">模型调整</el-menu-item>-->
-        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
+        <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
         </el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
-        </el-menu-item>
-        <el-menu-item index="6">返回首页</el-menu-item>
+        <el-menu-item index="7">返回首页</el-menu-item>
       </el-menu>
     </div>
 
@@ -330,8 +331,8 @@ import {
 
 import {
   goModel,
-  findModel,
-  watchTerrainProviderChanged
+  watchTerrainProviderChanged,
+  findModel
 } from '../../functionjs/model.js';
 
 
@@ -520,6 +521,16 @@ export default {
       modelTableData: [],
       modelList: [],
 
+      modelInfo:{
+        name: null,
+        path: null,
+        rz: null,
+        tz: null,
+        rze: null,
+        tze: null,
+        time: null,
+        modelid: null
+      }
     };
   },
   created() {
@@ -2706,11 +2717,21 @@ export default {
         // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
       })
     },
-    goModel(raw){
-      goModel(raw)
+    goModel(row){
+      this.modelInfo.name = row.name
+      this.modelInfo.path = row.path
+      this.modelInfo.tz = row.tz
+      this.modelInfo.rz = row.rz
+      this.modelInfo.time = row.time
+      this.modelInfo.modelid = row.modelid
+      this.modelInfo.tze = row.tze
+      this.modelInfo.rze = row.rze
+      goModel(row)
     },
-    watchTerrainProviderChanged(){watchTerrainProviderChanged()},
-
+    watchTerrainProviderChanged(){
+      watchTerrainProviderChanged()
+    },
+    findModel(){findModel()},
     // 修改table的header的样式
     tableHeaderColor() {
       return {
@@ -3106,9 +3127,7 @@ export default {
 }
 
 
-:deep(.el-button){
-  width:15% !important;
-}
+
 .button-container {
   height: 43%;
   width: 25%;
@@ -3124,7 +3143,11 @@ export default {
   color: #FFFFFF;
   margin-bottom: 5px;
   margin-right: 10px;
+  display: inline-block; /* 确保元素显示在同一行 */
+  border: 1px solid #ffffff; /* 边框宽度、样式和颜色 */
+  padding: 5px; /* 可选：添加内边距 */
 }
+
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
@@ -3136,5 +3159,15 @@ export default {
 
 :deep(.el-pagination>.is-last) {
   color: #FFFFFF;
+}
+.model-button{
+  //flex: 0 0 20%; /* 每行5个按钮 */
+  //display: flex;
+  justify-content: center;
+  //margin: 4px; /* 调整按钮之间的间距 */
+  width: 22%;
+  position: absolute;
+  top: 1%;
+  left: 26%;
 }
 </style>

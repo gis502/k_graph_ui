@@ -149,6 +149,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {Edit, Delete} from '@element-plus/icons-vue'
+
 import {
   addModelApi,
   deleteModel,
@@ -161,6 +162,9 @@ import {
 import {ElMessageBox} from 'element-plus';
 import {ElMessage} from 'element-plus';
 import {CustomShader} from "cesium";
+
+
+
 
 let pageStatus = ref(true)
 let tz = ref(0)
@@ -761,6 +765,7 @@ function goModel(row) {
   modelInfo.modelid = row.modelid
   modelInfo.tze = row.tze
   modelInfo.rze = row.rze
+  // goModel(raw)
   selectModel(row.path)
 }
 
