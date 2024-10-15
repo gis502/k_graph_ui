@@ -269,7 +269,7 @@ StraightArrow.prototype = {
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
-                material: $this.fillMaterial
+                material: Cesium.Color.BLUE  // 蓝色，透明度0.5
             }),
             properties: {
                 data
@@ -568,7 +568,7 @@ AttackArrow.prototype = {
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
-                material: $this.fillMaterial
+                material: Cesium.Color.RED
             }),
             properties: {
                 data
@@ -853,7 +853,7 @@ PincerArrow.prototype = {
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
-                material: $this.fillMaterial
+                material: Cesium.Color.YELLOW
             }),
             properties: {
                 data
