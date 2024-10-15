@@ -77,7 +77,7 @@
         <div class="modelAdj">模型选择 </div>
         <div class="modelAdj" @click="findModel">找到模型</div>
         <el-table :data="modelTableData"
-                  style="width: 100%; margin-bottom: 0px;height: 11vw"
+                  style="width: 100%; margin-bottom: 0px;height: 7vw"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
 
