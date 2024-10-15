@@ -110,6 +110,7 @@
       />
       <addPolygonDialog
           :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
           @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
@@ -489,6 +490,7 @@ export default {
     initPolygon(eqid) {
       let that = this
       getPlot({eqid}).then(res => {
+        console.log(res,8888)
         let data = res
         let polygonArr = data.filter(e => e.drawtype === 'polygon');
         // console.log('index.polygonArr', polygonArr)
@@ -502,6 +504,7 @@ export default {
         });
         Object.keys(polygonMap).forEach(plotId => {
           let polygonData = polygonMap[plotId];
+          console.log(polygonData,8889)
           that.getDrawPolygonInfo(polygonData);
         });
       })
@@ -974,7 +977,6 @@ export default {
     },
 
     treeItemClick(item) {
-      console.log("item", item)
       let data = {
         plot: {
           earthquakeId: this.eqid,
@@ -1049,7 +1051,6 @@ export default {
           this.openPolylinePop(item.name, situationPlotData)
         })
       } else {
-        this.initPolygon(this.eqid)
         new Promise((resolve, reject) => {
           this.drawPolygon(item, resolve)
           this.polygonStatus = cesiumPlot.drawPolygonStatus()

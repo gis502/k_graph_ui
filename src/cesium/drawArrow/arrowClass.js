@@ -244,6 +244,7 @@ StraightArrow.prototype = {
         return point;
     },
     showArrowOnMap: function (positions, data) {
+        console.log(positions, data)
         var $this = this;
         var update = function () {
             if (positions.length < 2) {
@@ -276,7 +277,8 @@ StraightArrow.prototype = {
         });
     },
     cartesianToLatlng: function (cartesian) {
-        var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         var lat = Cesium.Math.toDegrees(latlng.latitude);
         var lng = Cesium.Math.toDegrees(latlng.longitude);
         return [lng, lat];
@@ -560,7 +562,8 @@ AttackArrow.prototype = {
             if (index == -1) returnData = res.polygonalPoint;
             return new Cesium.PolygonHierarchy(returnData);
         }
-        return this.viewer.entities.add({
+        // return this.viewer.entities.add({
+        return window.viewer.entities.add({
             polygon: new Cesium.PolygonGraphics({
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
@@ -573,7 +576,8 @@ AttackArrow.prototype = {
         });
     },
     cartesianToLatlng: function (cartesian) {
-        var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         var lat = Cesium.Math.toDegrees(latlng.latitude);
         var lng = Cesium.Math.toDegrees(latlng.longitude);
         return [lng, lat];
@@ -843,7 +847,8 @@ PincerArrow.prototype = {
             if (index == -1) returnData = res.polygonalPoint;
             return new Cesium.PolygonHierarchy(returnData);
         }
-        return this.viewer.entities.add({
+        // return this.viewer.entities.add({
+        return window.viewer.entities.add({
             polygon: new Cesium.PolygonGraphics({
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
@@ -856,7 +861,8 @@ PincerArrow.prototype = {
         });
     },
     cartesianToLatlng: function (cartesian) {
-        var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         var lat = Cesium.Math.toDegrees(latlng.latitude);
         var lng = Cesium.Math.toDegrees(latlng.longitude);
         return [lng, lat];

@@ -139,11 +139,8 @@ export default class Polygon {
           plotType: this.name
         }
         this.resolve(data)
-        // console.log("绘制结束传得面",data)
-        // 3秒后清除所有 dataSources
-        setTimeout(() => {
-          window.viewer.dataSources.removeAll();
-        }, 200); // 3000 毫秒 = 3 秒
+        window.viewer.dataSources.remove(window.viewer.dataSources.getByName('_dataSource')[0])
+
         break;
       }
     }
@@ -164,6 +161,7 @@ export default class Polygon {
       window.isDrawingPolygon = true;  // 启用标志位
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
+      console.log("p",p)
       if (!p) return;
       // 检查新点是否与最后一个点重复
       if (this._tempPositions.length > 0) {
@@ -337,7 +335,6 @@ export default class Polygon {
     this.viewer.entities.remove(polygon);
   }
 
-
   leftClickEvent(click) {
     if (this.isDragging) return; // 如果在拖动，不执行添加点的逻辑
     let ray = this.viewer.camera.getPickRay(click.position);
@@ -426,6 +423,7 @@ export default class Polygon {
   //=======================绘制数据库中的面==================
   // 根据数据库中数据绘制面
   getDrawActivatePolygon(polygonArr) {
+    console.log(polygonArr,765645)
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
     // console.log("onlyPlotid",onlyPlotid)
@@ -856,7 +854,6 @@ export default class Polygon {
     this.viewer.scene.screenSpaceCameraController.enableTilt = false;
     this.viewer.scene.screenSpaceCameraController.enableLook = false;
   }
-
 
   timestampToTime(timestamp) {
     let DateObj = new Date(timestamp)
