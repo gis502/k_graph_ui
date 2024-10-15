@@ -5,8 +5,6 @@ let rz = ref(0)
 let originRz = 0
 let originTz = 0
 let opacity = ref(100)
-let showArrowValue = false
-let showArrowText = ref("显示坐标轴")
 let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
@@ -14,20 +12,6 @@ let modelName = ''
 let modelInfo = reactive({
     name: null, path: null, rz: null, tz: null, rze: null, tze: null, time: null, modelid: null
 })
-
-export function goModel(row) {
-    console.log(row,"row")
-    modelInfo.name = row.name
-    modelInfo.path = row.path
-    modelInfo.tz = row.tz
-    modelInfo.rz = row.rz
-    modelInfo.time = row.time
-    modelInfo.modelid = row.modelid
-    modelInfo.tze = row.tze
-    modelInfo.rze = row.rze
-    selectModel(row.path)
-}
-
 /**
  * 监听地形提供器变化
  * 当地形提供器发生变化时，此方法将被触发
@@ -36,6 +20,7 @@ export function goModel(row) {
  * 目前，高度设置和查找地形的方法被注释掉，需要在适当时候启用或移除
  */
 export function watchTerrainProviderChanged() {
+    // console.log("watchTerrainProviderChanged")
     window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
         if (isTerrainLoaded()) {
             changeHeight(modelInfo.tze)
@@ -49,6 +34,148 @@ export function watchTerrainProviderChanged() {
     });
 }
 
+//查看模型
+export function goModel(row) {
+    console.log(row,"row in js")
+    modelInfo.name = row.name
+    modelInfo.path = row.path
+    modelInfo.tz = row.tz
+    modelInfo.rz = row.rz
+    modelInfo.time = row.time
+    modelInfo.modelid = row.modelid
+    modelInfo.tze = row.tze
+    modelInfo.rze = row.rze
+    selectModel(row.path)
+}
+//找到模型
+export function findModel() {
+    if (checkModelLoad()) {
+        console.log("checkModelLoad")
+        if (window.modelObject instanceof Cesium.Cesium3DTileset) {
+            window.viewer.zoomTo(window.modelObject)
+        } else if (window.modelObject instanceof Cesium.Model) {
+            let origin = new Cesium.Cartesian3(0, 0, 1000)
+            Cesium.Matrix4.multiplyByPoint(window.modelObject.modelMatrix, origin, origin)
+            window.viewer.camera.zoomTo({
+                destination: origin,
+                orientation: {
+                    // 指向
+                    heading: 6.283185307179581,
+                    // 视角
+                    pitch: -1.5688168484696687,
+                    roll: 0.0
+                }
+            });
+        }
+    }
+}
+
+//坐标轴
+export function showArrow(showArrowValue) {
+    console.log("showArrow showArrowValue",showArrowValue)
+    viewer.entities.removeAll()
+    if (!showArrowValue) {
+        let origin = window.modelObject.boundingSphere.center
+        const localToWorldMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
+        let localX = new Cesium.Cartesian3(100, 0, 0)
+        let localY = new Cesium.Cartesian3(0, 100, 0)
+        let localZ = new Cesium.Cartesian3(0, 0, 100)
+        let localToWorldX = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localX, new Cesium.Cartesian3)
+        let localToWorldY = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localY, new Cesium.Cartesian3)
+        let localToWorldZ = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localZ, new Cesium.Cartesian3)
+        viewer.entities.add({
+            name: "localX",
+            position: localToWorldX,
+            polyline: {
+                positions: [origin, localToWorldX],
+                width: 25,
+                arcType: Cesium.ArcType.NONE,
+                material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED),
+            },
+            label: {
+                text: 'X轴 正东方向',
+                font: '14pt monospace',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -9)
+            }
+        });
+        viewer.entities.add({
+            name: "localY",
+            position: localToWorldY,
+            polyline: {
+                positions: [origin, localToWorldY],
+                width: 25,
+                arcType: Cesium.ArcType.NONE,
+                material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.BLUE),
+            },
+            label: {
+                text: 'Y轴 正北方向',
+                font: '14pt monospace',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -9)
+            }
+        });
+        viewer.entities.add({
+            name: "localZ",
+            position: localToWorldZ,
+            polyline: {
+                positions: [origin, localToWorldZ],
+                width: 25,
+                arcType: Cesium.ArcType.NONE,
+                material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.YELLOW),
+            },
+            label: {
+                text: 'Z轴 垂直地面',
+                font: '14pt monospace',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -9)
+            }
+        });
+    }
+}
+//隐藏模型
+export function hide(modelStatus) {
+    if (modelStatus) {
+        window.modelObject.show = false
+    } else {
+        window.modelObject.show = true
+    }
+}
+
+
+
+/**
+ * @Description: 调用模型更改函数更改高度
+ * @author White Mo
+ * @date 2024/3/22
+ */
+export function changeHeight(_tz) {
+    transferModel(window.modelObject, 0, 0, _tz, opacity.value)
+}
+/**
+ * @Description: 调用模型更改函数绕Z轴旋转
+ * @author White Mo
+ * @date 2024/3/22
+ */
+export function changeRotationZ(rz) {
+    rotationModel(window.modelObject, rz)
+}
+/**
+ * @Description: 调用模型更改函数更改透明度
+ * @author White Mo
+ * @date 2024/3/22
+ */
+export function changeOpacity(_opacity) {
+    transferModel(window.modelObject, 0, 0, tz.value, _opacity)
+}
+
+
 function selectModel(modelName) {
     remove3dData()
     initModel(modelName)
@@ -59,6 +186,7 @@ function selectModel(modelName) {
     // modelStatus = true
     // modelStatusContent.value = "隐藏当前模型"
 }
+
 function remove3dData() {
     window.viewer.scene.primitives.remove(window.modelObject)
     window.modelObject = null
@@ -110,6 +238,71 @@ function initModel(modelName) {
 
 }
 
+/**
+ * @Description: 模型绕垂直地面的Z轴旋转,先将模型平移到地心，然后将局部坐标Z轴与世界坐标Z轴对齐，进行旋转，再恢复原本Z轴朝向，平移回原位置   矩阵乘法顺序为T2R2RR1T1M0
+ * @author White Mo
+ * @date 2024/3/26
+ */
+function rotationModel(tileset, rz) {
+
+    if (!checkModelLoad()) {
+        return
+    }
+    const origin = tileset.boundingSphere.center;
+    console.log("初始世界坐标", origin)
+    const localToWorldMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin);//获取到以模型中心为原点,Z轴垂直地表的局部坐标系的变换矩阵，左乘此矩阵可以将局部坐标变换为世界坐标
+    const originMatrix = tileset.modelMatrix//贴地变换矩阵或者初始变换矩阵M0
+    console.log("当前坐标变换矩阵", localToWorldMatrix)
+    const backToEarthCenter = new Cesium.Cartesian3(-origin.x, -origin.y, -origin.z)//回到地心位移量
+    let backToEarthCenterMatrix = Cesium.Matrix4.fromTranslation(backToEarthCenter);//回到地心变换矩阵
+    Cesium.Matrix4.multiply(backToEarthCenterMatrix, originMatrix, backToEarthCenterMatrix)//贴地变换矩阵左乘回到地心矩阵 T1M0
+    console.log("回到地心变换矩阵", backToEarthCenterMatrix)
+    // 旋转
+    //旋转模型使得Z轴与世界坐标Z轴重合
+    let arrowX = new Cesium.Cartesian3(1, 0, 0)
+    let arrowY = new Cesium.Cartesian3(0, 1, 0)
+    let arrowZ = new Cesium.Cartesian3(0, 0, 1)
+    let localArrowX = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, new Cesium.Cartesian3(1, 0, 0), new Cesium.Cartesian3)
+    let localArrowY = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, new Cesium.Cartesian3(0, 1, 0), new Cesium.Cartesian3)
+    let localArrowZ = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, new Cesium.Cartesian3(0, 0, 1), new Cesium.Cartesian3)
+    let angleToXZ = Cesium.Cartesian3.angleBetween(arrowX, new Cesium.Cartesian3(localArrowZ.x, localArrowZ.y, 0))//局部Z轴在世界坐标系XY平面上投影到X轴角度，即绕Z顺时针旋转这个角度可以到XZ平面上
+    let angleToZ = Cesium.Cartesian3.angleBetween(localArrowX, arrowZ)//然后绕Y轴顺时针旋转此角度可使得Z轴与世界坐标系Z轴重合
+    const rotationAngleToXZ = Cesium.Matrix3.fromRotationZ(-angleToXZ);//此函数正方向为逆时针
+    const rotationAngleToZ = Cesium.Matrix3.fromRotationY(-angleToZ);
+    let rotationAngleToZMatrix = Cesium.Matrix3.multiply(rotationAngleToZ, rotationAngleToXZ, new Cesium.Matrix3)
+    rotationAngleToZMatrix = Cesium.Matrix4.fromRotationTranslation(rotationAngleToZMatrix)
+    Cesium.Matrix4.multiply(rotationAngleToZMatrix, backToEarthCenterMatrix, rotationAngleToZMatrix)//局部轴校正R1T1M0
+
+
+    // 绕Z轴旋转
+    console.log(rz - originRz)
+    const rotationZ = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(rz - originRz)); // 绕Z轴旋转变换矩阵R
+    let rotationMatrix = Cesium.Matrix4.fromRotationTranslation(rotationZ)
+    Cesium.Matrix4.multiply(rotationMatrix, rotationAngleToZMatrix, rotationMatrix)//RR1T1M0
+
+    // 旋转模型回到原本朝向
+    const rotationAngleLeaveXZ = Cesium.Matrix3.fromRotationZ(angleToXZ);
+    const rotationAngleLeaveZ = Cesium.Matrix3.fromRotationY(angleToZ);
+    let rotationAngleLeaveZMatrix = Cesium.Matrix3.multiply(rotationAngleLeaveXZ, rotationAngleLeaveZ, new Cesium.Matrix3)
+    rotationAngleLeaveZMatrix = Cesium.Matrix4.fromRotationTranslation(rotationAngleLeaveZMatrix)// 局部Z轴回到原本方向
+    Cesium.Matrix4.multiply(rotationAngleLeaveZMatrix, rotationMatrix, rotationAngleLeaveZMatrix)//R2RR1T1M0
+
+    //回到原来位置
+    const backToOriginMatrix = Cesium.Matrix4.fromTranslation(origin);//从地心回归原位T2
+    // 应用变换矩阵
+
+    const lastMatrix = Cesium.Matrix4.multiply(backToOriginMatrix, rotationAngleLeaveZMatrix, new Cesium.Matrix4)//最终矩阵T2R2RR1T1M0
+
+    tileset.modelMatrix = lastMatrix
+    console.log("结束世界坐标", tileset.boundingSphere.center)
+    originRz = rz
+
+}
+/**
+ * @Description: 使用矩阵更改模型位置，平移模型
+ * @author White Mo
+ * @date 2024/3/22
+ */
 function transferModel(model, _tx, _ty, _tz, _opacity) {
     if (!checkModelLoad()) {
         return
@@ -166,7 +359,10 @@ function checkModelLoad() {
         // })
         return false
 }
-function isTerrainLoaded() {
+
+// cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
+// 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
+export function isTerrainLoaded() {
     let terrainProvider = window.viewer.terrainProvider;
     if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
         // console.log("地形未加载")
@@ -181,29 +377,4 @@ function isTerrainLoaded() {
     return false;
 }
 
-function changeHeight(_tz) {
-    transferModel(window.modelObject, 0, 0, _tz, opacity.value)
-}
-
-export function findModel() {
-    if (checkModelLoad()) {
-        console.log("checkModelLoad")
-        if (window.modelObject instanceof Cesium.Cesium3DTileset) {
-            window.viewer.zoomTo(window.modelObject)
-        } else if (window.modelObject instanceof Cesium.Model) {
-            let origin = new Cesium.Cartesian3(0, 0, 1000)
-            Cesium.Matrix4.multiplyByPoint(window.modelObject.modelMatrix, origin, origin)
-            window.viewer.camera.zoomTo({
-                destination: origin,
-                orientation: {
-                    // 指向
-                    heading: 6.283185307179581,
-                    // 视角
-                    pitch: -1.5688168484696687,
-                    roll: 0.0
-                }
-            });
-        }
-    }
-}
 

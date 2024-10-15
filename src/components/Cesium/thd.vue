@@ -130,10 +130,8 @@
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
         <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出
-        </el-menu-item>
-        <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载
-        </el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
         <el-menu-item index="7">返回首页</el-menu-item>
       </el-menu>
     </div>
@@ -534,7 +532,7 @@ export default {
       modelTableData: [],
       modelList: [],
 
-      modelInfo: {
+      modelInfo:{
         name: null,
         path: null,
         rz: null,
