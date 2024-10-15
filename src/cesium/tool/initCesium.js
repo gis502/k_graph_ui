@@ -92,6 +92,7 @@ export function initCesium(Cesium,container) {
 
 //图层
 function getImageryProviderArr() {
+    let baseURL = import.meta.env.VITE_APP_API_URL
     return [
         new Cesium.ProviderViewModel({
             //图层的名称。
@@ -119,9 +120,9 @@ function getImageryProviderArr() {
         }),
         new Cesium.ProviderViewModel({
             //图层的名称。
-            name: 'Bing底图',
+            name: '第三方底图',
             //显示项目被隐藏的工具提示
-            tooltip: '默认Bing底图',
+            tooltip: '第三方底图',
             //代表图层的图标
             iconUrl: bingAerial,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
@@ -141,15 +142,15 @@ function getImageryProviderArr() {
             iconUrl: bingAerial,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
             creationFunction: function () {
-                return new Cesium.WebMapServiceImageryProvider({
-                    url: 'http://10.16.7.69:9080/geoserver/yaan/wms',
-                    layers: 'yaan:yaan',
-                    parameters: {
-                        service: 'WMS',
-                        format: 'image/png',
-                        transparent: true
-                    }
-                })
+                // return new Cesium.WebMapServiceImageryProvider({
+                //     url: baseURL+'/geoserver/yaan/wms',
+                //     layers: 'yaan:yaan',
+                //     parameters: {
+                //         service: 'WMS',
+                //         format: 'image/png',
+                //         transparent: true
+                //     }
+                // })
 
 
                 // return new Cesium.WebMapTileServiceImageryProvider({
@@ -161,9 +162,15 @@ function getImageryProviderArr() {
                 //         maximumLevel: 20
                 //     })
 
-                // return new Cesium.UrlTemplateImageryProvider({
-                //     url: 'http://localhost:9003/image/wmts/6CGzXm2G/{z}/{x}/{y}',
-                // })
+                return [
+                    new Cesium.UrlTemplateImageryProvider({
+                        url: 'http://localhost:9003/image/wmts/xIVBqDcT/{z}/{x}/{y}',
+                    }),
+                    new Cesium.UrlTemplateImageryProvider({
+                    url: 'http://localhost:9003/image/wmts/SjbIL6SP/{z}/{x}/{y}',
+                }),
+
+                ]
             }
         }),
 
@@ -207,9 +214,9 @@ function getTerrainProviderViewModelsArr() {
         }),
         new Cesium.ProviderViewModel({
             //图层的名称
-            name: 'Cesium地形',
+            name: '第三方地形',
             //显示项目被隐藏的工具提示
-            tooltip: 'Cesium地形',
+            tooltip: '第三方地形',
             //代表图层的图标
             iconUrl: CesiumWorldTerrain,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
