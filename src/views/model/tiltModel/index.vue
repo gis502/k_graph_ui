@@ -278,6 +278,8 @@ function init() {
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 }
 function changeModel(row){
+  tz.value=row.tz
+  rz.value=row.rz
   modelInfo.name = row.name
   modelInfo.path = row.path
   modelInfo.tz = row.tz
