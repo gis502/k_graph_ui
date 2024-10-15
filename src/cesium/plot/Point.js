@@ -77,25 +77,49 @@ export default class Point {
         }
       });
     } else {
-      let coords = data.geom.coordinates
-      window.viewer.entities.add({
-        id: data.plotId ,
-        position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
+      let id = data.plotId
+      let longitude = Number(data.geom.coordinates[0])
+      let latitude = Number(data.geom.coordinates[1])
+      let height = Number(data.elevation)
+      let img = data.icon
+      window.viewer.dataSources.getByName('pointData')[0].entities.add({
+        id: id,
+        layer: "标绘点",
+        position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
         billboard: {
-          image: data.icon,
-          width: 50, // 图片宽度,单位px
-          height: 50, // 图片高度，单位px
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-          color: Cesium.Color.WHITE.withAlpha(1), // 固定颜色
-          scale: 0.8, // 缩放比例
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
-          depthTest: false, // 禁止深度测试
-          disableDepthTestDistance: Number.POSITIVE_INFINITY // 不进行深度测试
+          image: img,
+          width: 50,//图片宽度,单位px
+          height: 50,//图片高度，单位px // 会影响data大小，离谱
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
+          color: Cesium.Color.WHITE.withAlpha(1),//颜色
+          scale: 0.8,//缩放比例
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+          depthTest: false,//禁止深度测试但是没有下面那句有用
+          disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
         },
         properties: {
-          data
+          data: data
         }
-      });
+      })
+      // let coords = data.geom.coordinates
+      // window.viewer.entities.add({
+      //   id: data.plotId ,
+      //   position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
+      //   billboard: {
+      //     image: data.icon,
+      //     width: 50, // 图片宽度,单位px
+      //     height: 50, // 图片高度，单位px
+      //     eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+      //     color: Cesium.Color.WHITE.withAlpha(1), // 固定颜色
+      //     scale: 0.8, // 缩放比例
+      //     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+      //     depthTest: false, // 禁止深度测试
+      //     disableDepthTestDistance: Number.POSITIVE_INFINITY // 不进行深度测试
+      //   },
+      //   properties: {
+      //     data
+      //   }
+      // });
     }
 
   }

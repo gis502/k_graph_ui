@@ -85,10 +85,10 @@ export default class Polyline {
       if (that.positions.length === 1) {
         that.generatePolyline();
       }
-      let distance = that.getSpaceDistance(that.positions)
-      if(this.typeName ==="量算"){
-        document.getElementById("distanceLine").innerHTML = distance.toFixed(2)
-      }
+      // let distance = that.getSpaceDistance(that.positions)
+      // if(this.typeName ==="量算"){
+      //   document.getElementById("distanceLine").innerHTML = distance.toFixed(2)
+      // }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 
@@ -187,7 +187,6 @@ export default class Polyline {
   }
 
   noNo(data){
-    // console.log("data",data)
     let situationPlotData = []// situationplot表中的线数据
     let plotItem = {
       // eqid: that.eqid,

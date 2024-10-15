@@ -6,7 +6,7 @@
       <!--  指南针  -->
       <div class="compassContainer" ref="compassContainer"></div>
       <!-- 图例 -->
-      <el-form class="noteContainer">
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'EarthquakeCasualties'">
         <p style="color: white; text-align: left; margin: 5px 0; font-size: 15px;">余震次数累计：</p>
         <div class="legend_item" v-for="(item, index) in echartsLegendData" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
@@ -58,7 +58,7 @@
             v-model="selectedComponentKey"
             placeholder="请选择模块"
             size="large"
-
+            @change="handleComponentChange"
             style="width: 220px"
         >
           <el-option
@@ -81,9 +81,8 @@
           <img :src="previewImage" class="preview-image" alt="导出预览">
         </div>
       </div>
-      <div
-          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
-        <p style="flex: 1; text-align: left; margin-left: 10px;">制图单位：四川省地震应急服务中心</p>
+      <div style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+        <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
         <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
         <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
       </div>
@@ -155,13 +154,13 @@ export default {
       dataSource: null,//这个别的也能用
 
       injuredLegendData: [
-        {name: '0-50人', color: '#ffb3b3'},// 非常浅的红色
+        {name: '0-50人', color: '#ffb3b3', range: [0, 50]},// 非常浅的红色
         // {name: '10-20人', color: '#ff6666'},// 浅红色
         // {name: '20-50人', color: '#ff4d4d'},// 略深的红色
-        {name: '50-200人', color: '#ff3333'},// 中等红色
+        {name: '50-200人', color: '#ff3333', range: [51, 200]},// 中等红色
         // {name: '100-500人', color: '#ff1a1a'},// 深红色
         // {name: '500-1000人', color: '#e60000'},// 更深的红色
-        {name: '>200人', color: '#b30000'},// 深红带棕
+        {name: '>200人', color: '#b30000', range: [201, Infinity]},// 深红带棕
         // {name: '>2000人', color: '#800000'}, // 非常深的红色
       ],
 
@@ -251,7 +250,6 @@ export default {
     // 启动轮询
     startPolling() {
       this.getEarthquake()
-
       this.pollingInterval = setInterval(() => this.getEarthquake(), 5000000);
     },
 
@@ -275,6 +273,15 @@ export default {
     },
 
 
+    handleComponentChange(value){
+      if (this.selectedComponentKey === 'EarthquakeCasualties'){
+
+      }else if (this.selectedComponentKey === 'TransportationElectricity'){
+
+      }
+    },
+
+
     //--------------------------------------------------下面是后端获取数据的方法------------------------------------------
     //获取地震列表数据
     getEarthquake() {
@@ -292,17 +299,14 @@ export default {
               value: eqid      // 选择值为 ID
             };
           });
-          const defaultOption = this.tableNameOptions.find(option => option.value === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b');
-          if (defaultOption) {
-            // 如果找到了 'daddadade' 的地震数据，则默认显示它
-            this.eqlistName = defaultOption.label;
-            this.handleEqListChange(defaultOption.value);
-          } else if (this.tableNameOptions.length > 0) {
-            // 如果没找到，则默认选择地震列表中的第一个
-            this.eqlistName = this.tableNameOptions[0].label;
-            this.handleEqListChange(this.tableNameOptions[0].value);
-          } else {
-            ElMessage.error("地震列表无数据");
+          if (this.tableNameOptions.length > 0) {
+            if (!this.eqlistName){
+              // 默认选择地震列表中的第一个
+              this.eqlistName = this.tableNameOptions[0].label;
+              this.handleEqListChange(this.tableNameOptions[0].value)
+            }else {
+              // this.handleEqListChange(this.eqlistName)
+            }
           }
         }
       });
@@ -454,6 +458,7 @@ export default {
           }
         });
       });
+      // 由于之前删除了所有实体，所以要添加标签
       this.addDistrictLabels(this.dataSource)
     },
 
@@ -664,12 +669,6 @@ export default {
 
     // 设置区块颜色的方法
     updateDistrictColors(dataSource, districtData) {
-      const injuredLegendData = [
-        {name: '0-50人', color: '#ffb3b3', range: [0, 50]},
-        {name: '50-200人', color: '#ff3333', range: [51, 200]},
-        {name: '>200人', color: '#b30000', range: [201, Infinity]},
-      ];
-
       // 遍历后端传回的区县受灾数据，并更新区块颜色
       dataSource.entities.values.forEach(entity => {
         const districtName = entity.name;
@@ -679,7 +678,7 @@ export default {
         const affectedPopulation = districtInfo ? districtInfo.affectedPopulation : 0;
 
         // 根据受灾人口数量范围匹配相应的颜色
-        const legendItem = injuredLegendData.find(item =>
+        const legendItem = this.injuredLegendData.find(item =>
             affectedPopulation >= item.range[0] && affectedPopulation <= item.range[1]
         );
 

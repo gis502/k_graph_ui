@@ -141,6 +141,13 @@ export default {
         // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
         //   this.$emit('')
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
+        if(data.plot.plotType !== "攻击箭头" && data.plot.plotType !== "钳击箭头" && data.plot.plotType !== "直线箭头"){
+          this.$emit('wsSendPoint', JSON.stringify({type: "polygon", operate: "add", data}))
+        }else{
+          console.log("klo")
+          this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "add", data}))
+        }
+
         ElMessage({
           message: '添加成功',
           type: 'success',
