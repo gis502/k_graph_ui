@@ -730,6 +730,7 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       window.viewer.entities.removeAll();
+      Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
       this.websock.eqid = this.eqid
