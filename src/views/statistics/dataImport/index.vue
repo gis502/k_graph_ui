@@ -257,6 +257,7 @@ import {getExcelUploadByTime, getField} from "@/api/system/excel.js";
 import {ElMessage} from "element-plus";
 import {ref} from "vue";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import * as XLSX from 'xlsx';
 
 
 export default {
@@ -277,6 +278,7 @@ export default {
   },
   data() {
     return {
+      uploadFileName:'',
       headers: {
         Authorization: "Bearer " + getToken()
       },
@@ -540,49 +542,78 @@ export default {
     },
     // 上传时验证是否为Excel文件
     beforeAvatarUpload(file) {
-      // 从对象数组中提取表名
+      // 从对象数组中提取表名,拿到该用户所有表名
       const validTableNames = this.tableNameOptions.map(option => option.label);
-      const type = file.name.split('.')[1]
+      const type = file.name.split('.')[1];
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
-      this.filename = fileNameWithoutExtension
-      this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
+      this.filename = fileNameWithoutExtension;
+
       const isExcel = (type === "xlsx") || (type === 'xls');
       if (!isExcel) {
         this.$message({
           type: 'error',
-          message: '附件格式错误，请重新上传！'
-        })
-      }
-      if (!validTableNames.includes(fileNameWithoutExtension)) {
-        // 检查文件名是否在允许的表名列表中
-        this.$message({
-          type: 'error',
-          message: '该上传文件没有权限，请重新上传！'
+          message: '附件格式错误，请重新上传xlsx或xls文件！'
         });
         return false;
-      } else {
-        this.isLoading = true
-        if ('WebSocket' in window) {
-          // 判断当前的浏览器是否支持WebSocket
-          // 如果支持则创建一个WebSocket赋值给刚才创建的变量
-          // 后面的路径实际上就是一次请求，但是这里用的是WebSocket协议
-          // 记住这个地方后面详细讲到怎么写
-          this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name)
-        } else {  // 如果不兼容则弹框，该浏览器不支持
-          alert('该浏览器不支持')
-        }
-        this.websocket.socket.onmessage = (event) => {
-          if (Number.parseInt(event.data)) {
-            this.percent = Number.parseInt(event.data)
-          }
-        }
       }
-      this.uploadedFile = file;
+
+      // 解析 Excel 文件，读取第一行数据
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const firstRow = XLSX.utils.sheet_to_json(firstSheet, { header: 1 })[0]; // 获取第一行数据
+        console.log("Excel 第一行数据: ", firstRow);
+
+        // 对比第一行数据中的第一个单元格是否与表名列表一致
+        if (firstRow && validTableNames.includes(firstRow[0])) {
+          this.uploadFileName = firstRow[0]; // 设置上传文件名
+          this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.uploadFileName}&${this.form1.tableName1}`;
+
+          // 执行上传操作或其他逻辑
+          this.isLoading = true;
+          if ('WebSocket' in window) {
+            this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name);
+          } else {
+            alert('该浏览器不支持 WebSocket');
+          }
+
+          this.websocket.socket.onmessage = (event) => {
+            if (Number.parseInt(event.data)) {
+              this.percent = Number.parseInt(event.data);
+            }
+          };
+
+          this.uploadedFile = file;
+        } else {
+          // 表名不匹配，提示错误
+          this.$message({
+            type: 'error',
+            message: `文件的第一行数据与表名不匹配，请检查文件内容！`
+          }
+          );
+          setTimeout( ()=> {
+            this.importDialogVisible =false
+          },2000)
+        }
+      };
+
+      reader.readAsBinaryString(file);
+
       return isExcel;
     },
-
-    // 上传成功弹窗展示上传结果,需修改
+    handleError(res, file, fileList) {
+      // 检查响应数据是否为空或返回消息指示上传失败
+      if (!res.data || res.data.length <= 0 || res.msg === '上传失败，请检查文件格式') {
+        this.$message({
+          type: 'error',
+          message: '请参考下载模版样式！'
+        });
+      }
+    },
+    // 上传成功弹窗展示上传结果
     handleSuccess(res, file, fileList) {
       const account = res.data.length
       // const account = res.data.失败信息.length + res.data.成功信息.length

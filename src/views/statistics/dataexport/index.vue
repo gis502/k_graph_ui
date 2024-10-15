@@ -142,7 +142,6 @@ onMounted(() => {
 })
 const options = ref([]);
 const tableData = ref([])
-const tableConditionData = ref([])
 const field = ref([])
 const files = ref([])//存储当前用户的导表信息
 const name = ref([])
@@ -150,11 +149,15 @@ const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 const width = ref([])
 const widthList = {
-  'AftershockInformation': [200, 200, 120, 120, 200, 120, 120, 120,120,120],
-  'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200,200],
-  'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120,200],
-  'Meetings':[200, 200, 120, 200, 200, 120, 120, 120, 120],
-  'CommunicationFacilityDamageRepairStatus':[200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200]
+  'AftershockInformation': [200, 200, 100, 120, 200, 120, 120, 120,120,120],
+  'TransferSettlementInfo': [200, 200, 100, 120, 200, 150, 150, 200,200],
+  'CasualtyReport': [200, 200, 100, 120, 200, 120, 120, 120, 120, 120,120],
+  'Meetings':[200, 200, 100, 120, 200, 120, 120, 120, 120,120,120],
+  'CommunicationFacilityDamageRepairStatus':[200, 200, 120, 200, 200, 200, 200, 200,200,200, 200, 200],
+  'TrafficControlSections':[200, 200, 120, 200, 200, 200, 200, 200,200,200, 200, 200],
+  'RoadDamage':[200, 200, 120, 200, 200, 200, 200, 200,200,200, 200, 200],
+  'PowerSupplyInformation':[200, 200, 120, 200, 200, 200, 200, 200,200,200, 200, 200],
+  'AfterSeismicInformation': [200, 200, 100, 120, 200, 300,200],
 }
 
 /** 监听 */
@@ -352,13 +355,7 @@ const generateData = _ => {
   return data
 }
 
-const getColumnWidth = (prop) => {
-  const specialColumns = ['地震名称', '地震时间', '填报截止时间'];
-  if (specialColumns.includes(prop)) {
-    return 250;
-  }
-  return 150;
-};
+
 
 const data = ref(generateData())
 let value = ref([])
@@ -389,9 +386,19 @@ const exportStatistics = () => {
       }
       else if (flag.value === 'Meetings'){
         fileName = '震情伤亡-文会情况统计表.xlsx'; // 默认文件名
+    } else if (flag.value === 'AfterSeismicInformation'){
+      fileName = '震情伤亡-震情受灾统计表.xlsx'; // 默认文件名
     } else if (flag.value === 'CommunicationFacilityDamageRepairStatus'){
       fileName = '交通电力通信-通信设施损毁及抢修情况统计表.xlsx'; // 默认文件名
+
+    } else if (flag.value === 'TrafficControlSections') {
+      fileName = '交通电力通信-交通管控情况统计表.xlsx'; // 默认文件名
     }
+     else if (flag.value === 'PowerSupplyInformation') {
+      fileName = '交通电力通信-电力设施损毁及抢修情况统计表.xlsx'; // 默认文件名
+    } else if (flag.value === 'RoadDamage') {
+        fileName = '交通电力通信-道路交通损毁及抢修情况统计表.xlsx'; // 默认文件名
+      }
       const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
       const link = document.createElement('a');
       link.href = url;
