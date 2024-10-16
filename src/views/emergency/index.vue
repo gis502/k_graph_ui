@@ -9,7 +9,8 @@
       <el-form class="eqTable">
         <div style="margin-bottom: 10px; padding: 10px; width: 100.6%;">
             <el-menu
-                    :default-active="1"
+                    :default-active="activeMenuIndex"
+                    v-model="activeMenuIndex"
                     class="el-menu-demo"
                     mode="horizontal"
                     background-color="#293038"
@@ -25,16 +26,21 @@
                     <el-menu-item index="1-3" @click="removePolyline">删除路径规划</el-menu-item>
                 </el-sub-menu>
                 <el-sub-menu index="2" >
-                    <template #title>物资匹配</template>
+                    <template #title>救援力量匹配</template>
                     <el-menu-item index="2-1" @click="addDisasterPoint">添加受灾点</el-menu-item>
                     <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
-                    <el-menu-item index="2-3" @click="marchSupply">物资匹配</el-menu-item>
-                    <el-menu-item index="2-4" @click="searchSuppliesByRadius">半径查询</el-menu-item>
-                    <el-menu-item index="2-5" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
+                    <el-menu-item index="2-3" @click="searchEmergencyTeamDialog = true">救援力量查询</el-menu-item>
+                    <el-menu-item index="2-4" @click="marchSupply">物资匹配</el-menu-item>
+                    <el-menu-item index="2-5" @click="searchSuppliesByRadius">半径查询</el-menu-item>
+                    <el-menu-item index="2-6" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
                 </el-sub-menu>
-                <el-menu-item index="3" style="width: 140px;" @click="toggleTable">{{ toolValue }}</el-menu-item>
+                <el-menu-item index="3" style="width: 140px;" @click="changeDataList('supplies')">救援物资</el-menu-item>
+                <el-menu-item index="4" style="width: 140px;" @click="changeDataList('emergencyTeam')">救援力量</el-menu-item>
+                <el-menu-item index="5" style="width: 140px;" @click="changeDataList('reserves')">救灾装备</el-menu-item>
+                <el-menu-item index="6" style="width: 140px;" @click="toggleTable">{{ toolValue }}</el-menu-item>
             </el-menu>
         </div>
+        <!--     数据列表     -->
         <el-table
             v-if="tableVisible"
             :data="showSuppliesList"
@@ -45,49 +51,37 @@
             :row-style="{ height: '40px' }"
             @row-click="showSupplyPoint"
         >
-          <el-table-column
-              prop="county"
-              label="区域"
-              width="200"
-              show-overflow-tooltip
-          ></el-table-column>
-          <el-table-column
-              prop="address"
-              label="地址"
-              width="320"
-              show-overflow-tooltip
-          ></el-table-column>
-          <el-table-column
-              prop="contactPerson"
-              label="联系人"
-              width="100"
-          ></el-table-column>
-          <el-table-column
-              prop="contactPhone"
-              label="联系电话"
-          ></el-table-column>
-          <el-table-column
-              prop="tents"
-              label="帐篷总数量"
-              width="100"
-          ></el-table-column>
-          <el-table-column
-              prop="raincoats"
-              label="雨衣总数量"
-              width="100"
-          ></el-table-column>
-          <el-table-column
-              prop="rainBoots"
-              label="雨鞋总数量"
-              width="100"
-          ></el-table-column>
-          <el-table-column
-              prop="flashlights"
-              label="手电筒总数量"
-              width="130"
-          ></el-table-column>
+            <!--      救援物资      -->
+            <el-table-column
+                    v-if="listField === 'supplies'"
+                    v-for="column in listFieldsOfSupplies"
+                    :key="column.prop"
+                    :prop="column.prop"
+                    :label="column.label"
+                    :width="column.width"
+                    show-overflow-tooltip
+            ></el-table-column>
+            <!--      救援力量      -->
+            <el-table-column
+                    v-if="listField === 'emergencyTeam'"
+                    v-for="column in listFieldOfEmergencyTeam"
+                    :key="column.prop"
+                    :prop="column.prop"
+                    :label="column.label"
+                    :width="column.width"
+                    show-overflow-tooltip
+            ></el-table-column>
+            <!--      救灾装备      -->
+            <el-table-column
+                    v-if="listField === 'reserves'"
+                    v-for="column in listFieldOfReserves"
+                    :key="column.prop"
+                    :prop="column.prop"
+                    :label="column.label"
+                    :width="column.width"
+                    show-overflow-tooltip
+            ></el-table-column>
         </el-table>
-
         <el-pagination
             v-if="tableVisible"
             @size-change="handleSizeChange"
@@ -100,6 +94,7 @@
             style="padding: 10px"
         >
         </el-pagination>
+        <!--     数据列表end     -->
       </el-form>
     </div>
 
@@ -164,6 +159,60 @@
         </template>
 
     </el-dialog>
+
+      <!--   救援力量查询dialog   -->
+      <el-dialog v-model="searchEmergencyTeamDialog" title="救援力量查询" width="600" class="marchSupply">
+          <el-form :model="searchEmergencyTeamForm" label-width="120px">
+              <el-row>
+                  <el-col :span="12">
+                      <el-form-item label="级别名称">
+                          <el-input v-model="searchEmergencyTeamForm.levelName" autocomplete="off" />
+                      </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                      <el-form-item label="队伍类型名称">
+                          <el-input v-model="searchEmergencyTeamForm.teamTypeName" autocomplete="off" />
+                      </el-form-item>
+                  </el-col>
+              </el-row>
+              <el-row>
+                  <el-col :span="12">
+                      <el-form-item label="队伍人数">
+                          <el-input
+                                  v-model="displayTeamTotalMembers"
+                                  @input="handleTeamTotalMembersInput"
+                                  autocomplete="off" />
+                      </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                      <el-form-item label="地址">
+                          <el-input v-model="searchEmergencyTeamForm.address" autocomplete="off" />
+                      </el-form-item>
+                  </el-col>
+              </el-row>
+              <el-row>
+                  <el-col :span="12">
+                      <el-form-item label="负责人">
+                          <el-input v-model="searchEmergencyTeamForm.personInCharge" autocomplete="off" />
+                      </el-form-item>
+                  </el-col>
+                  <el-col :span="12">
+                      <el-form-item label="负责人电话">
+                          <el-input v-model="searchEmergencyTeamForm.chargePhone" autocomplete="off" />
+                      </el-form-item>
+                  </el-col>
+              </el-row>
+          </el-form>
+          <template #footer>
+              <div class="dialog-footer">
+                  <el-button @click="searchEmergencyTeamDialog = false">取消</el-button>
+                  <el-button type="primary" @click="searchEmergencyTeam">
+                      查询
+                  </el-button>
+              </div>
+          </template>
+
+      </el-dialog>
 
     <!--   物资匹配dialog   -->
     <el-dialog v-model="marchSupplyDialog" title="物资匹配" width="500" class="marchSupply">
@@ -265,7 +314,7 @@ import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
 // import {searchMaterialData} from "../../api/system/emergency.js";
 import { ElMessageBox, ElMessage } from 'element-plus';
-import {searchMaterialData} from "../../api/system/emergency.js";
+import {searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import {getRouteData } from "@/api/system/PathPlanningRoute.js"
 
 export default {
@@ -292,9 +341,11 @@ export default {
       showSuppliesList: [],
       selectedSuppliesList: [],
       showIcon: [],
+        activeMenuIndex: '3', // 显示的一级菜单 eg.路径规划、物资匹配
       tableVisible: true, // 显示表格
       isCollapsed: false, // 控制是否收缩
       searchSupplyDialog: false, // 物资查询dialog是否显示
+      searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
       marchSupplyDialog: false, // 物资匹配dialog是否显示
       searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
@@ -313,6 +364,7 @@ export default {
         type: "",
         tel: "",
       },
+        // 物资查询/匹配表单
       searchSupplyForm: {
         county: "",
         address: "",
@@ -324,11 +376,53 @@ export default {
         flashlights: 0,
         radius: 0.0,
       },
+        // 救援力量表单
+      searchEmergencyTeamForm: {
+          levelName: '',
+          teamTypeName: '',
+          totalMembers: 0,
+          address: '',
+          personInCharge: '',
+          chargePhone: ''
+      },
       inputRadius: "",
       inputData: '',
       canMarkPoint: false,
       DialogFormVisible: false,
       affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
+        // 救援物资字段
+      listFieldsOfSupplies: [
+          { prop: 'county', label: '区域', width: 200},
+          { prop: 'address', label: '地址', width: 320},
+          { prop: 'contactPerson', label: '联系人', width: 100},
+          { prop: 'contactPhone', label: '联系电话'},
+          { prop: 'tents', label: '帐篷总数量', width: 100 },
+          { prop: 'raincoats', label: '雨衣总数量', width: 100 },
+          { prop: 'rainBoots', label: '雨鞋总数量', width: 100 },
+          { prop: 'flashlights', label: '手电筒总数量', width: 130 }
+      ],
+        // 救灾设备字段
+      listFieldOfReserves: [
+          { prop: 'county', label: '区域', width: 200},
+          { prop: 'address', label: '地址', width: 320},
+          { prop: 'contactPerson', label: '联系人', width: 100 },
+          { prop: 'contactPhone', label: '联系电话' },
+          { prop: 'lifeJacket', label: '救生衣', width: 100 },
+          { prop: 'lifebuoy', label: '救生圈', width: 100 },
+          { prop: 'walkieTalkie', label: '对讲机', width: 100 },
+          { prop: 'portableLight', label: '照明灯', width: 130 }
+      ],
+        // 救援力量字段
+      listFieldOfEmergencyTeam: [
+          // { prop: 'county', label: '所属机构', width: 200, tooltip: true },
+          { prop: 'levelName', label: '级别名称', width: 250},
+          { prop: 'teamTypeName', label: '队伍类型名称', width: 400 },
+          { prop: 'totalMembers', label: '队伍人数', width: 120 },
+          { prop: 'address', label: '地址', width: 320 },
+          { prop: 'personInCharge', label: '负责人'},
+          { prop: 'chargePhone', label: '负责人电话', width: 200 },
+      ],
+      listField: '',  // 判断显示哪个列表
       suppliesList: [],
       supplyList: [],
       //-----------弹窗部分-------------------
@@ -343,7 +437,8 @@ export default {
     this.entitiesClickPonpHandler();
     this.initPlot(this.id);
   },
-  beforeDestroy() {
+  beforeUnmount() {
+    console.log("111",window.viewer)
     if (window.viewer){
       let viewer=window.viewer
       let gl=viewer.scene.context._gl
@@ -352,11 +447,13 @@ export default {
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
+      console.log("webglcontext 已清除")
       gl=null
       window.viewer = null;
     }
   },
   computed: {
+        // 以下方法确保表单字段数据为0时不显示，初始化时数据不为null，不会报错
         displayDisasterTentsCount: {
             get() {
                 return this.searchSupplyForm.tents === 0 ? '' : this.searchSupplyForm.tents;
@@ -396,7 +493,15 @@ export default {
             set(value) {
                 this.searchSupplyForm.radius = value === '' ? 0 : value;
             }
-        }
+        },
+      displayTeamTotalMembers: {
+          get() {
+              return this.searchEmergencyTeamForm.totalMembers === 0 ? '' : this.searchEmergencyTeamForm.totalMembers;
+          },
+          set(value) {
+              this.searchEmergencyTeamForm.totalMembers = value === '' ? 0 : Number(value);
+          }
+      }
     },
   methods: {
     /** 计算两个坐标的距离，单位米 **/
@@ -521,9 +626,14 @@ export default {
         // 调用 `processPoints` 并传递不同的 `tableName`
         this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
         this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
 
-        this.fetSupplyPoints();
+        // this.fetSupplyPoints();
+          this.listField = 'supplies'
+          this.selectedSuppliesList = this.suppliesList[0]
+          this.showIcon = this.selectedSuppliesList;
+          this.total = this.selectedSuppliesList.length;
+          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       });
     },
 
@@ -543,12 +653,14 @@ export default {
           return;
         }
         // 检查经度、纬度和高度是否为有效数值
-        let longitude = Number(element.longitude);
-        let latitude = Number(element.latitude);
-        if (isNaN(longitude) || isNaN(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
-          console.error(`id为${element.uuid}的实体的坐标无效或超出范围`, {longitude, latitude});
+        if (isNaN(element.longitude) || isNaN(element.latitude)
+            || element.longitude < -180 || element.longitude > 180
+            || element.latitude < -90 || element.latitude > 90) {
+          console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
           return;
         }
+          let longitude = Number(element.longitude);
+          let latitude = Number(element.latitude);
 
         element.type = type;
         element.icon = icon
@@ -686,6 +798,25 @@ export default {
     },
 
     //-----------附近资源快速匹配----------
+
+    // 切换数据列表
+    changeDataList(param){
+        this.selectedSuppliesList = []
+      if(param === 'supplies'){
+          this.listField = 'supplies'
+          this.selectedSuppliesList = this.suppliesList[0]
+      }else if(param === 'emergencyTeam'){
+          this.listField = 'emergencyTeam'
+          this.selectedSuppliesList = this.suppliesList[2]
+      }else{
+          this.listField = 'reserves'
+          this.selectedSuppliesList = this.suppliesList[1]
+      }
+        this.showIcon = this.selectedSuppliesList;
+        this.total = this.selectedSuppliesList.length;
+        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    },
+
     // 绘制点
     drawSite(lat, lng, id, color) {
       let point = {
@@ -707,23 +838,18 @@ export default {
       }
     },
 
-    fetSupplyPoints() {
-      console.log("------------", this.suppliesList);
-      // this.selectedSuppliesList = this.suppliesList[0].concat(
-      //     this.suppliesList[1]
-      // );
-      // this.selectedSuppliesList = this.selectedSuppliesList.concat(
-      //     this.suppliesList[2]
-      // );
-        this.selectedSuppliesList = this.suppliesList[0]
-      this.showIcon = this.selectedSuppliesList;
-      this.total = this.selectedSuppliesList.length;
-      this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-      // 在数据更新后进行排序
-    },
+    // fetSupplyPoints() {
+    //   console.log("------------", this.suppliesList);
+    //   this.selectedSuppliesList = this.suppliesList[0]
+    //   this.showIcon = this.selectedSuppliesList;
+    //   this.total = this.selectedSuppliesList.length;
+    //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    //   // 在数据更新后进行排序
+    // },
 
     showSupplyPoint(row) {
       console.log("点击了：", row);
+        console.log("点击了：", row.latitude);
       this.showIcon = [];
       this.showIcon.push(row);
       this.removePoints(this.suppliesList[0]);
@@ -765,6 +891,7 @@ export default {
       // 物资查询
     async searchSupply(){
         let that = this;
+        this.activeMenuIndex = '2'
         viewer.entities.values.forEach((entity) => {
             if (entity.ellipse) {
                 viewer.entities.remove(entity);
@@ -772,7 +899,6 @@ export default {
         });
         this.removePoints(that.showIcon);
         this.removePoints(that.selectedSuppliesList);
-        // 移除现有的点
         this.removePoints(this.suppliesList[0]);
         this.removePoints(this.suppliesList[1]);
         this.removePoints(this.suppliesList[2]);
@@ -792,8 +918,57 @@ export default {
             this.selectedSuppliesList = result
         })
         this.drawSupplyPoint('searchSupplies')
+        this.listField = 'supplies'
+        this.activeMenuIndex = '3'
         this.searchSupplyDialog = false
+        this.searchSupplyForm = {
+            county: "",
+            address: "",
+            contactPerson: "",
+            contactPhone: "",
+            tents: 0,
+            raincoats: 0,
+            rainBoots: 0,
+            flashlights: 0,
+            radius: 0.0,
+        }
+        // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
     },
+
+      // 救援力量查询
+      async searchEmergencyTeam(){
+          let that = this;
+          this.activeMenuIndex = '2'
+          viewer.entities.values.forEach((entity) => {
+              if (entity.ellipse) {
+                  viewer.entities.remove(entity);
+              }
+          });
+          this.removePoints(that.showIcon);
+          this.removePoints(that.selectedSuppliesList);
+          this.removePoints(this.suppliesList[0]);
+          this.removePoints(this.suppliesList[1]);
+          this.removePoints(this.suppliesList[2]);
+          this.ifDrawEllipse = false
+          this.selectedSuppliesList = []
+          await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
+              this.selectedSuppliesList = res
+              console.log("-------------------",this.selectedSuppliesList)
+
+          })
+          this.drawSupplyPoint('searchEmergencyTeam')
+          this.listField = 'emergencyTeam'
+          this.activeMenuIndex = '4'
+          this.searchEmergencyTeamDialog = false
+          this.searchEmergencyTeamForm = {
+              levelName: '',
+              teamTypeName: '',
+              totalMembers: 0,
+              address: '',
+              personInCharge: '',
+              chargePhone: ''
+          }
+      },
 
     // 物资匹配------------------------
     async marchSupply(){
@@ -918,7 +1093,7 @@ export default {
                 raincoats += ele.raincoats;
                 rainBoots += ele.rainBoots;
                 flashlights += ele.flashlights;
-                console.log("rainBoots=====-----",rainBoots)
+                // console.log("rainBoots=====-----",rainBoots)
                 if (tents >= this.searchSupplyForm.tents
                     && raincoats >= this.searchSupplyForm.raincoats
                     && rainBoots >= this.searchSupplyForm.rainBoots
@@ -928,7 +1103,7 @@ export default {
                 resultArray.push(ele)
             }
         });
-        console.log("flag-----------------",flag)
+        // console.log("flag-----------------",flag)
         if(flag){
             return resultArray
         }else{
@@ -944,12 +1119,21 @@ export default {
           // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
         let reservesArr = []  // 抢险救灾装备
         let suppliesArr = []  // 救灾物资储备
-        let emergencyTeamArr = []
+        let emergencyTeamArr = []  // 救援力量
         if(param === 'searchSupplies'){
             this.showIcon.forEach((item) => {
                 suppliesArr.push(item)
             })
-        }else{
+        }else if(param === 'searchEmergencyTeam'){
+            this.showIcon.forEach((item) => {
+                emergencyTeamArr.push(item)
+            })
+        }else if(param === 'searchReserves'){
+            this.showIcon.forEach((item) => {
+                reservesArr.push(item)
+            })
+        }
+        else{
             this.showIcon.forEach((item) => {
                 if (item.type === "reserves") {
                     reservesArr.push(item);
@@ -998,6 +1182,7 @@ export default {
     addDisasterPoint() {
       this.canMarkPoint = true;
     },
+      // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
     handleDisasterTentsInput(value) {
         this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
     },
@@ -1010,10 +1195,13 @@ export default {
     handleRainBootsInput(value) {
         this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
     },
-      handleRadiusInput(value) {
-          // 只在输入完成后处理浮点数转换
-          this.searchSupplyForm.radius = value;
-      },
+    handleRadiusInput(value) {
+        this.searchSupplyForm.radius = value;
+    },
+    handleTeamTotalMembersInput(){
+        this.searchEmergencyTeamForm.totalMembers = value
+    },
+      // ---------------------------------------------------------------------
     getPageArr(arr) {
       let newArr = [];
       let start = (this.currentPage - 1) * this.pageSize;

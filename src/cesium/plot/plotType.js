@@ -621,6 +621,47 @@ const plotType = {
         },
     },
 
+    bufferZone: {
+        name: "集结缓冲区",
+        area: {
+            type: "text",
+            name: "缓存区面积 (m²)",
+            value: ""
+        },
+        capacity: {
+            type: "select",
+            name: "容纳人数",
+            value: "",
+            content: [
+                {value: "50人以下", label: "50人以下"},
+                {value: "50—100人", label: "50—100人"},
+                {value: "100—200人", label: "100—200人"},
+                {value: "200人以上", label: "200人以上"}
+            ]
+        },
+        basicSupport: {
+            type: "select",
+            name: "基本保障",
+            value: '',
+            content: [
+                {value: "食宿", label: "食宿"},
+                {value: "通电", label: "通电"},
+                {value: "通水", label: "通水"},
+                {value: "通网", label: "通网"}
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
+        }
+    },
+
     missingPersons: {
         name: "失踪人员",
         missingLocation: {

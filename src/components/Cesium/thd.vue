@@ -1,17 +1,11 @@
 <template>
   <div>
     <!--    地震列表切换-->
-    <!--    <div class="eqlist-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
-    <!--    </div>-->
     <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
-      <eqTable :eqData="tableData"/>
+      <eqTable :eqData="eqtableData"/>
     </div>
 
     <!--   图层要素-->
-    <!--    <div class="layer-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
-    <!--    </div>-->
     <div v-if="activeComponent === 'layerChoose'" class="dropdown expanded">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
@@ -59,11 +53,7 @@
       </div>
     </div>
 
-
     <!--    行政区划-->
-    <!--    <div class="regionjump-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
-    <!--    </div>-->
     <div v-if="activeComponent === 'Regionjump'" class="dropdown expanded">
       <div class="district-buttons">
         <div class="city-button">
@@ -81,17 +71,37 @@
       </div>
     </div>
 
-    <!--报告产出按钮-->
-    <!--    <div class="button-container">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
-    <!--    </div>-->
-    <!--    <div class="thematic-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="">专题图下载</el-button>-->
-    <!--    </div>-->
-    <!--    <div class="back-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="backToHome">返回首页</el-button>-->
-    <!--    </div>-->
+    <div v-if="activeComponent === 'model'">
 
+      <el-form class="button-container">
+<!--        <div class="modelAdj">模型选择</div>-->
+<!--        <div class="modelAdj" @click="findModel">找到模型</div>-->
+        <el-table :data="modelTableData"
+                  style="width: 100%; margin-bottom: 0px;"
+                  :header-cell-style="tableHeaderColor"
+                  :cell-style="tableColor" @row-click="">
+
+          <el-table-column prop="name" label="模型名称" width="auto"></el-table-column>
+          <el-table-column label="操作" width="auto" align="center">
+
+            <template #default="scope">
+              <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div>
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="modelCurrentPage"
+              :page-size="modelPageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="ModelTotal">
+          </el-pagination>
+        </div>
+      </el-form>
+
+    </div>
 
     <!--    title-->
     <div class="eqtitle">
@@ -115,13 +125,14 @@
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
       >
+
         <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-        <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-        <el-menu-item index="6">返回首页</el-menu-item>
+        <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
+        <el-menu-item index="7">返回首页</el-menu-item>
       </el-menu>
     </div>
 
@@ -136,6 +147,11 @@
             :ifedit="false"
             @wsSendPoint="wsSendPoint"
             @closePlotPop="closePlotPop"
+        />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
         />
       </div>
     </div>
@@ -234,20 +250,13 @@
     <!--    两侧组件 end-->
 
 
-    <!--   行政区划要素图层图例   -->
-    <!--        <div id="legend"-->
-    <!--             style="display: none;position: absolute;-->
-    <!--           z-index:20; bottom: 100px;-->
-    <!--           right: 450px; color: #FFFFFF;-->
-    <!--           background-color: rgba(0, 0, 0, 0.5);-->
-    <!--           padding: 10px; border-radius: 5px;text-align: center;">-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
            right: 450px; color: #FFFFFF;
            background-color: rgba(0, 0, 0, 0.5);
            padding: 10px; border-radius: 5px;text-align: center;">
-      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index" >
+      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
           <div
               style="width: 20px; height: 20px; margin-right: 10px;"
@@ -257,9 +266,6 @@
         </div>
       </div>
     </div>
-
-    <!--            <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>-->
-    <!--        </div>-->
 
     <!--   断裂带名称div   -->
     <div id="faultInfo"
@@ -297,7 +303,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import eqTable from '@/components/Home/eqtable.vue'
 
 import yaan from '@/assets/geoJson/yaan.json'
@@ -312,9 +318,35 @@ import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
-import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
+import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
+
+
+//模型调整
+import {Edit, Delete} from '@element-plus/icons-vue'
+import {
+  addModelApi,
+  deleteModel,
+  getAllModel,
+  updataModel,
+  updataModelNoElevation,
+  updataModelElevation
+} from '@/api/system/model.js'
+
+import {
+  goModel,
+  watchTerrainProviderChanged,
+  findModel
+} from '../../functionjs/model.js';
+
+
 export default {
+  computed: {
+    Edit() {
+      return Edit
+    }
+  },
   components: {
     thematicMapPreview,
     RouterPanel,
@@ -327,6 +359,7 @@ export default {
     timeLineLegend,
     newsDialog,
     commonPanel,
+    dataSourcePanel,
     eqTable,
   },
   data: function () {
@@ -340,6 +373,11 @@ export default {
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
       timelinePopupData: {}, // TimeLinePanel弹窗的数据
+      //----------------------------------
+
+      dataSourcePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
+      dataSourcePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
+      dataSourcePopupData: [], // TimeLinePanel弹窗的数据
       //----------------------------------
       eqid: '',
       // viewer: '',
@@ -417,7 +455,7 @@ export default {
       total: 0,
       pageSize: 6,
       currentPage: 1,
-      tableData: [],
+      eqtableData: [],
       //-----------------图层---------------------
       // iflayerChoose: false,
       isMarkingLayer: true,
@@ -439,7 +477,7 @@ export default {
       ],
       geojsonData: [],
       labels: [],  // 保存标签实体的引用
-      regionLayer111: null,
+      regionLayerJump: null,
 
       activeComponent: null,
       //-----------------图层要素---------------------
@@ -460,10 +498,10 @@ export default {
       disasterReserves: [],
       emergencyTeam: [],
       emergencyShelters: [],
-      isShowYaanRegionLegend:false, //雅安行政区划图例
+      isShowYaanRegionLegend: false, //雅安行政区划图例
 
       // 定义雅安各区县的颜色和名称
-      YaanLegendcolors : [
+      YaanLegendcolors: [
         {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
         {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
         {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
@@ -474,57 +512,77 @@ export default {
         {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
       ],
       //专题图下载
-      thematicMapitems:[],
-      selectthematicMap:'',
-      isshowThematicMapPreview:'',
-      imgshowURL:'',
-      imgurlFromDate:'',
-      imgName:'',
+      thematicMapitems: [],
+      selectthematicMap: '',
+      isshowThematicMapPreview: '',
+      imgshowURL: '',
+      imgurlFromDate: '',
+      imgName: '',
       ifShowMapPreview: false, // 是否预览专题图
       //专题图下载end
 
       //报告产出
-      reportItems:[],
-      selectReportItem:'',
+      reportItems: [],
+      selectReportItem: '',
 
+      //----------------------------model table---------------------------------------
+      modelCurrentPage: 1,
+      modelPageSize: 6,
+      ModelTotal: 0,
+      modelTableData: [],
+      modelList: [],
+
+      modelInfo:{
+        name: null,
+        path: null,
+        rz: null,
+        tz: null,
+        rze: null,
+        tze: null,
+        time: null,
+        modelid: null
+      }
     };
   },
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-    this.reportItems=ReportUrl.filter(item => item.eqid === this.eqid);
+    this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
     // console.log(this.thematicMapitems);
   },
   mounted() {
     this.init()
+    this.initModelTable(); // 初始化模型table数据
+    this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
 
     this.initPlot(); // 初始化加载应急数据
+
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
-    this.watchTerrainProviderChanged()
+
   },
-  beforeDestroy() {
-    if (window.viewer){
+  beforeUnmount() {
+    if (window.viewer) {
       this.clearResource(window.viewer)
       window.viewer = null;
     }
-    if (window.smallViewer){
+    if (window.smallViewer) {
       this.clearResource(window.smallViewer)
       window.smallViewer = null;
     }
   },
   // 图层要素
   methods: {
-    clearResource(viewer){
-      let gl=viewer.scene.context._gl
+    clearResource(viewer) {
+      let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
-      gl=null
+      gl = null
     },
     // 关闭弹窗
     closePlotPop() {
@@ -584,6 +642,15 @@ export default {
       if (this.activeComponent === 'eqList') {
         this.getEq();
       }
+      if (this.activeComponent == 'layerChoose') {
+        this.removethdRegions();
+        const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
+        // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
+        if (hasYaanRegionLayer) {
+
+          this.addYaanRegion();
+        }
+      }
     },
     // 初始化控件等
     init() {
@@ -640,55 +707,69 @@ export default {
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
+      let smallViewer = new Cesium.Viewer(smallMapContainer, {
+        shouldAnimate: false,
+        animation: false, // 是否创建动画小器件，左下角仪表
+        baseLayerPicker: false, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
+        fullscreenButton: false, // 是否显示全屏按钮
+        geocoder: false, // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
+        homeButton: false, // 是否显示Home按钮
+        infoBox: false, // 是否显示信息框
+        sceneModePicker: false, // 是否显示3D/2D选择器
+        selectionIndicator: false, // 是否显示选取指示器组件
+        timeline: false, // 是否显示时间轴
+        navigationHelpButton: false, // 是否显示右上角的帮助按钮
+        scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
+        //截图和渲染相关的一些配置
+        contextOptions: {
+          webgl: {
+            alpha: true,
+            depth: false,
+            stencil: true,
+            antialias: true,
+            premultipliedAlpha: true,
+            //cesium状态下允许canvas转图片convertToImage
+            preserveDrawingBuffer: true,
+            failIfMajorPerformanceCaveat: true
+          },
+          allowTextureFilterAnisotropic: true
+        },
+        // 本地geoserver影像
+        imageryProvider:
+            new Cesium.WebMapTileServiceImageryProvider({
+              url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + TianDiTuToken,
+              layer: "tdtVecBasicLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false
+            }),
+        terrainProvider: new Cesium.CesiumTerrainProvider({
+          url: "http://localhost:9080/geoserver/www/dem",
+        }),
+
+      })
       window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
+      window.smallViewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
+      );
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   // 隐藏所有控件
-      //   geocoder: false,
-      //   homeButton: false,
-      //   sceneModePicker: false,
-      //   timeline: false,
-      //   navigationHelpButton: false,
-      //   animation: false,
-      //   infoBox: false,
-      //   fullscreenButton: false,
-      //   showRenderState: false,
-      //   selectionIndicator: false,
-      //   baseLayerPicker: false,
-      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      // });
       // 隐藏缩略图视图器的版权信息
       smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
       // 同步主视图器的相机到缩略图视图器
       function syncCamera() {
         const camera1 = viewer.scene.camera;
+        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
         const camera2 = smallViewer.scene.camera;
-
         camera2.setView({
-          destination: camera1.positionWC,
+          destination: smallPoint,
           orientation: {
             heading: camera1.heading,
             pitch: camera1.pitch,
@@ -976,11 +1057,11 @@ export default {
         this.plots = res
         // 遍历更新后的绘图信息，确保每个点都有起止时间
         this.plots.forEach(item => {
-          if (!item.endTime || new Date(item.endTime)< new Date(this.eqstartTime)  ||  new Date(item.endTime)< new Date(item.startTime) ) {
+          if (!item.endTime || new Date(item.endTime) < new Date(this.eqstartTime) || new Date(item.endTime) < new Date(item.startTime)) {
             // 为没有结束时间的点设置默认结束时间
             item.endTime = new Date(this.eqstartTime.getTime() + 20 * 24 * 36000 * 1000);  //20天 错误时间设置结束时间地震发生20天以后
           }
-          if (!item.startTime || new Date(item.startTime)< new Date(this.eqstartTime) ) {
+          if (!item.startTime || new Date(item.startTime) < new Date(this.eqstartTime)) {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
@@ -1037,12 +1118,12 @@ export default {
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-            console.log("entityToRemove",entityToRemove)
+            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
+            console.log("entityToRemove", entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
-            if(ellipseEntityToRemove){
+            if (ellipseEntityToRemove) {
               window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
             }
           }
@@ -1051,7 +1132,7 @@ export default {
       // 批量渲染点 + 非初始化状态渲染标会点动画
       if (points.length > 0) {
         let param = bool === false ? false : true
-        cesiumPlot.drawPoints(points,param);
+        cesiumPlot.drawPoints(points, param);
       }
 
       //--------------------------线绘制------------------------------
@@ -1494,14 +1575,16 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
+
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            this.timelinePopupData={}
+            this.timelinePopupData = {}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
 
             // this.timelinePopupData = this.extractDataForTimeline(entity);
+            this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
           } else if (entity._billboard) {
             // 如果点击的是路标
@@ -1509,24 +1592,32 @@ export default {
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.routerPopupData = this.extractDataForRouter(entity);
 
+            this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
+          } else if (Object.prototype.toString.call(entity) === '[object Array]') {
+            this.dataSourcePopupData = entity
+            this.dataSourcePopupVisible = true
+            this.timelinePopupVisible = false
+            this.routerPopupVisible = false;
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
           }
         } else {
           // 没有选中实体时隐藏 faultInfo
           faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
+          this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible) {
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -1539,7 +1630,7 @@ export default {
     addHistoryEqPoints() {
       // 先清除historyEq实体
       this.removeEntitiesByType("historyEq")
-      addHistoryEqPoints(this.centerPoint, this.tableData)
+      addHistoryEqPoints(this.centerPoint, this.eqtableData)
     },
 
     /**
@@ -1667,6 +1758,10 @@ export default {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
+            this.dataSourcePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
           }
         }
       });
@@ -1777,47 +1872,16 @@ export default {
       return false;
     },
 
-    /**
-     * 监听地形提供器变化
-     * 当地形提供器发生变化时，此方法将被触发
-     * 根据modelName的值设置不同的高度，并尝试查找地形
-     * 如果地形已加载，则使用一组预设高度；如果地形未加载，则使用另一组预设高度
-     * 目前，高度设置和查找地形的方法被注释掉，需要在适当时候启用或移除
-     */
-    watchTerrainProviderChanged() {
-      let that = this
-      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-        this.popupVisible = false // 地形改变时关闭弹窗
-        let tzs = []
-        if (that.modelName === 1) {
-          tzs[0] = 9
-          tzs[1] = -567
-        } else {
-          tzs[0] = 15
-          tzs[1] = -557
-        }
-        if (that.isTerrainLoaded()) {
-          // that.changeHeight(tzs[0])
-          // that.tz = tzs[0]
-          // that.find()
-        } else {
-          // that.changeHeight(tzs[1])
-          // that.tz = tzs[1]
-          // that.find()
-        }
-      });
-    },
-
 
     /**
-     * 此方法通过调用getAllEq函数从服务器获取所有设备的数据，然后将这些数据赋值给tableData属性
+     * 此方法通过调用getAllEq函数从服务器获取所有设备的数据，然后将这些数据赋值给eqtableData属性
      * 同时，成功获取数据后，初始化Cesium相关的viewer、websocket连接和pinia状态管理，以便进行设备位置的标绘
      */
     getEq() {
       let that = this
       getAllEq().then(res => {
-        that.tableData = res
-        // console.log("that.tableData", that.tableData)
+        that.eqtableData = res
+        // console.log("that.eqtableData", that.eqtableData)
       })
     },
 
@@ -1837,58 +1901,82 @@ export default {
 
     /**
      *  ------------------行政区划--------------------
-     * 添加雅安行政区划影像图层
-     *
      * 此方法旨在向地图中添加雅安市的行政区划影像图层如果图层已存在，则不会重复添加
      * 使用Cesium库加载GeoJSON数据，并根据图层是否已存在来设置不同的显示样式
      */
     addYaanImageryDistrict() {
       // 移除其他区域图层
       this.removethdRegions()
-      // 检查是否已添加“行政区划要素图层”
-      if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
-        // 加载雅安行政区划的GeoJSON数据，并设置显示样式
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          clampToGround: true, //贴地显示
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-          strokeWidth: 4,
-        });
-        // 处理加载成功的GeoJSON数据
-        geoPromise.then((dataSource) => {
-          // 添加 geojson
-          window.regionLayer111 = dataSource;
-          window.viewer.dataSources.add(dataSource);
-          // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-          dataSource.name = "thd_yaanregion";
-          // 视角跳转到 geojson
-          viewer.flyTo(dataSource.entities.values);
+      this.removeDataSourcesLayer('YaanRegionLayer');
 
-        }).catch((error) => {
-          // 处理加载失败的情况
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      } else {
-        // 如果图层已存在，加载一个透明的GeoJSON数据，以保持图层的存在而不显示内容
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          stroke: Cesium.Color.TRANSPARENT,
-          fill: Cesium.Color.TRANSPARENT,
-          markerColor: Cesium.Color.TRANSPARENT,
-          markerSize: 0,
-          strokeWidth: 0,
-          clampToGround: true, //贴地显示
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: true,
-        });
-        // 处理加载成功的透明GeoJSON数据
-        geoPromise.then((dataSource) => {
-          window.viewer.dataSources.add(dataSource);
-          viewer.flyTo(dataSource.entities.values);
-        }).catch((error) => {
-          // 处理加载失败的情况
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      }
+      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+        clampToGround: true, //贴地显示
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+        strokeWidth: 4,
+      });
+      // 处理加载成功的GeoJSON数据
+      geoPromise.then((dataSource) => {
+        // 添加 geojson
+        window.regionLayerJump = dataSource;
+        window.viewer.dataSources.add(dataSource);
+        // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
+        dataSource.name = "thd_yaanregion";
+        // 视角跳转到 geojson
+        viewer.flyTo(dataSource.entities.values);
+
+      }).catch((error) => {
+        // 处理加载失败的情况
+        console.error("加载GeoJSON数据失败:", error);
+      });
+
+      // 检查是否已添加“行政区划要素图层”
+      // if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
+      //   // 加载雅安行政区划的GeoJSON数据，并设置显示样式
+      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+      //     clampToGround: true, //贴地显示
+      //     stroke: Cesium.Color.RED,
+      //     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+      //     strokeWidth: 4,
+      //   });
+      //   // 处理加载成功的GeoJSON数据
+      //   geoPromise.then((dataSource) => {
+      //     // 添加 geojson
+      //     window.regionLayerJump = dataSource;
+      //     window.viewer.dataSources.add(dataSource);
+      //     // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
+      //     dataSource.name = "thd_yaanregion";
+      //     // 视角跳转到 geojson
+      //     viewer.flyTo(dataSource.entities.values);
+      //
+      //   }).catch((error) => {
+      //     // 处理加载失败的情况
+      //     console.error("加载GeoJSON数据失败:", error);
+      //   });
+      // }
+      // else {
+      //   // 如果图层已存在，加载一个透明的GeoJSON数据，以保持图层的存在而不显示内容
+      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+      //     stroke: Cesium.Color.TRANSPARENT,
+      //     fill: Cesium.Color.TRANSPARENT,
+      //     markerColor: Cesium.Color.TRANSPARENT,
+      //     markerSize: 0,
+      //     strokeWidth: 0,
+      //     clampToGround: true, //贴地显示
+      //     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      //     depthTest: true,
+      //   });
+      //   // 处理加载成功的透明GeoJSON数据
+      //   geoPromise.then((dataSource) => {
+      //     window.viewer.dataSources.add(dataSource);
+      //     viewer.flyTo(dataSource.entities.values);
+      //   }).catch((error) => {
+      //     // 处理加载失败的情况
+      //     console.error("加载GeoJSON数据失败:", error);
+      //   });
+      // }
+
+
       // 添加雅安市的标签
       let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
       let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
@@ -1914,6 +2002,7 @@ export default {
     handleDistrictClick(district) {
       //清除其他实体标签
       this.removethdRegions()
+      this.removeDataSourcesLayer('YaanRegionLayer');
       // this.visible = false;
       // 根据区县代码过滤GeoJSON数据
       let filteredFeatures = yaan.features.filter(feature => {
@@ -1942,7 +2031,7 @@ export default {
           // 将数据源添加到观众的数据显示中
           window.viewer.dataSources.add(dataSource);
           // 保存区域图层以便后续使用
-          window.regionLayer111 = dataSource
+          window.regionLayerJump = dataSource
 
           // 遍历每个过滤后的地理特征
           filteredFeatures.forEach((feature) => {
@@ -1988,17 +2077,17 @@ export default {
      * 此函数负责从地图中移除特定的区域图层和与之关联的图例标签
      */
     removethdRegions() {
-      // 检查是否存在名为regionLayer111的图层
-      if (window.regionLayer111) {
+      // 检查是否存在名为regionLayerJump的图层
+      if (window.regionLayerJump) {
         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-        window.viewer.dataSources.remove(window.regionLayer111, true);
-        // 清空regionLayer111的引用，以便垃圾回收
-        window.regionLayer111 = null;
+        window.viewer.dataSources.remove(window.regionLayerJump, true);
+        // 清空regionLayerJump的引用，以便垃圾回收
+        window.regionLayerJump = null;
 
 
         // console.log("图层已移除");
       }
-      this.isShowYaanRegionLegend=false;
+      this.isShowYaanRegionLegend = false;
       // 获取图例容器，准备清空其内容
       // const legend = document.getElementById('legend');
       // 循环移除图例容器中的所有子元素
@@ -2052,7 +2141,6 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
-
     /*
     * 更新地图图层
     * 点击图层复选框时在地图上展示相应的图层数据
@@ -2078,7 +2166,7 @@ export default {
       const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
       // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
       if (hasYaanRegionLayer) {
-        // this.removethdRegions();
+        this.removethdRegions();
         this.addYaanRegion();
       } else {
         // 如果未选定行政区划要素图层，则移除其他区域图层和雅安行政区划图层
@@ -2358,7 +2446,7 @@ export default {
           // console.log("dataSource--------------", dataSource.entities.values.length)
 
           // 生成图例
-          this.isShowYaanRegionLegend=true;
+          this.isShowYaanRegionLegend = true;
           // const legend = document.getElementById('legend');
           // legend.style.display = 'block';
           // colors.forEach((colorItem, index) => {
@@ -2400,13 +2488,14 @@ export default {
      * 人口图层通过Web Map Service (WMS) 提供，具体配置包括服务URL、图层名称和一些请求参数
      */
     addPopLayer() {
+      let baseURL = import.meta.env.VITE_APP_API_URL
       // 检查是否已存在名为'PopLayer'的图层
       let popLayerexists = this.imageryLayersExists('PopLayer')
       if (!popLayerexists) {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapServiceImageryProvider({
-              url: 'http://10.16.7.69:9080/geoserver/yaan/wms', // WMS服务的URL
+              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
               layers: 'yaan:pop', // 需要请求的图层名称
               parameters: {
                 service: 'WMS', // 指定服务类型为WMS
@@ -2516,16 +2605,16 @@ export default {
     MarkingLayerRemove() {
       // 遍历所有plot
       this.plots.forEach(item => {
-        console.log("item",item)
+        console.log("item", item)
         // 从 dataSource 中删除点
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-          const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-          console.log("entityToRemove",entityToRemove)
+          const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
+          console.log("entityToRemove", entityToRemove)
           if (entityToRemove) {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
           }
-          if(ellipseEntityToRemove){
+          if (ellipseEntityToRemove) {
             window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
           }
         }
@@ -2574,8 +2663,9 @@ export default {
      * @param {number} latitude - 纬度坐标，用于指定查询区域的中心点
      */
     getPopDesity(longitude, latitude) {
+      let baseURL = import.meta.env.VITE_APP_API_URL
       // WMS服务的URL
-      const url = "http://10.16.7.69:9080/geoserver/yaan/wms"
+      const url = baseURL + '/geoserver/yaan/wms'
       // 查询区域的边界框大小，用于确定查询区域的范围
       const bboxSize = 0.001
       // 构建URL查询参数
@@ -2613,33 +2703,34 @@ export default {
      * 更新主题地图的预览
      * 当选择了一个主题地图后，显示地图的预览图；如果没有选择，则隐藏预览图
      */
-    updatethematicMap(){
-      if(this.selectthematicMap){
-        this.ifShowMapPreview=true
-        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name===this.selectthematicMap);
+    updatethematicMap() {
+      if (this.selectthematicMap) {
+        this.ifShowMapPreview = true
+        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name === this.selectthematicMap);
         console.log(selectedData)
         this.imgurlFromDate = selectedData.path
-        this.imgName=selectedData.name
+        this.imgName = selectedData.name
         // console.log("11111",this.imgurlFromDate, this.imgName)
-        this.imgshowURL=new URL(this.imgurlFromDate, import.meta.url).href
+        this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
         // console.log(this.imgshowURL)
-      }
-      else{
-        this.ifShowMapPreview=false
+      } else {
+        this.ifShowMapPreview = false
       }
 
     },
     ifShowThematicMapDialog(val) {
-      this.ifShowMapPreview= val // 是否预览专题图 = val
-      if( !val){this.selectthematicMap=null}
+      this.ifShowMapPreview = val // 是否预览专题图 = val
+      if (!val) {
+        this.selectthematicMap = null
+      }
     },
     //专题图 end
 
     //报告产出
-    updateReportItem(){
-      if(this.selectReportItem){
+    updateReportItem() {
+      if (this.selectReportItem) {
         console.log(this.selectReportItem)
-        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name===this.selectReportItem);
+        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name === this.selectReportItem);
         const link = document.createElement('a');
         link.href = selectedData.path;
         link.download = selectedData.name; // 指定下载的文件名
@@ -2650,14 +2741,106 @@ export default {
           this.selectReportItem = null;
         }, 1000); // 1000 毫秒后执行
       }
-    }
+    },
 
+    //模型调整
+    initModelTable() {
+      getAllModel().then(res => {
+        this.modelList = res
+        this.ModelTotal = res.length
+        this.modelTableData = this.getPageArr(this.modelList)
+        // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
+      })
+    },
+    goModel(row) {
+      this.modelInfo.name = row.name
+      this.modelInfo.path = row.path
+      this.modelInfo.tz = row.tz
+      this.modelInfo.rz = row.rz
+      this.modelInfo.time = row.time
+      this.modelInfo.modelid = row.modelid
+      this.modelInfo.tze = row.tze
+      this.modelInfo.rze = row.rze
+      goModel(row)
+    },
+    watchTerrainProviderChanged() {
+      watchTerrainProviderChanged()
+    },
+    findModel() {
+      findModel()
+    },
+    // 修改table的header的样式
+    tableHeaderColor() {
+      return {
+        'border-width': '1px',
+        'border-style': 'solid',
+        'border-color': '#555555',
+        'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+        'color': '#fff',
+        'padding': '0',
+        'text-align': 'center',
+        'font-size': '14px'
+      }
+    },
+    // 修改table 中每行的样式
+    tableColor({row, column, rowIndex, columnIndex}) {
+      if (rowIndex % 2 == 1) {
+        return {
+          'border-width': '1px',
+          'border-style': 'solid',
+          'border-color': '#555555',
+          'background-color': '#313a44',
+          'color': '#fff',
+          'padding': '0',
+          'text-align': 'center',
+          'font-size': '14px'
+        }
+      } else {
+        return {
+          'border-width': '1px',
+          'border-style': 'solid',
+          'border-color': '#555555',
+          'background-color': '#304156',
+          'color': '#fff',
+          'padding': '0',
+          'text-align': 'center',
+          'font-size': '14px'
+        }
+      }
+    },
+    //数组切片
+    getPageArr(data) {
+      let arr = []
+      let start = (this.modelCurrentPage - 1) * this.modelPageSize
+      let end = this.modelCurrentPage * this.modelPageSize
+      if (end > this.ModelTotal) {
+        end = this.ModelTotal
+      }
+      for (; start < end; start++) {
+        data[start].show = false
+        arr.push(data[start])
+      }
+      return arr
+    },
+    //`每页 ${val} 条`
+    handleSizeChange(val) {
+      this.modelPageSize = val
+      this.modelTableData = this.getPageArr(this.modelList)
+    },
+    // `当前页: ${val}`
+    handleCurrentChange(val) {
+      this.modelCurrentPage = val
+      this.modelTableData = this.getPageArr(this.modelList)
+    }
+    //model style end
 
   }
 }
 </script>
 
 <style scoped>
+
+
 .eqtitle {
   background-color: #0d325f;
   width: 100%;
@@ -2835,12 +3018,6 @@ export default {
   background-color: rgba(40, 40, 40, 0.3);
 }
 
-.button-container {
-  position: absolute;
-  z-index: 20;
-  top: 6.3%;
-  left: 27%;
-}
 
 .thematic-button {
   position: absolute;
@@ -2913,10 +3090,12 @@ export default {
   max-height: 0;
   transition: max-height 0.3s ease;
 }
+
 .dropdown.expanded {
   max-height: 550px; /* 根据实际内容调整 */
   overflow-y: auto;
 }
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
   color: #FFFFFF;
@@ -2947,6 +3126,10 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
   gap: 8px; /* 列间距 */
+}
+
+:deep(.search-results){
+  z-index:99 !important;
 }
 
 /*图层要素选项颜色改为白色*/
@@ -2985,4 +3168,36 @@ export default {
 }
 
 
+.button-container {
+  width: 25%;
+  position: absolute;
+  padding: 10px;
+  border-radius: 5px;
+  top: 11%;
+  left: 1%;
+  z-index: 30; /* 更高的层级 */
+  background-color: rgba(40, 40, 40, 1);
+}
+
+.modelAdj {
+  color: #FFFFFF;
+  margin-bottom: 5px;
+  margin-right: 10px;
+  display: inline-block; /* 确保元素显示在同一行 */
+  border: 1px solid #ffffff; /* 边框宽度、样式和颜色 */
+  padding: 5px; /* 可选：添加内边距 */
+}
+
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
+
+:deep(.el-pagination__total) {
+  color: #FFFFFF;
+}
+
+:deep(.el-pagination>.is-last) {
+  color: #FFFFFF;
+}
 </style>

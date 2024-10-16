@@ -139,11 +139,8 @@ export default class Polygon {
           plotType: this.name
         }
         this.resolve(data)
-        // console.log("绘制结束传得面",data)
-        // 3秒后清除所有 dataSources
-        setTimeout(() => {
-          window.viewer.dataSources.removeAll();
-        }, 2000); // 3000 毫秒 = 3 秒
+        window.viewer.dataSources.remove(window.viewer.dataSources.getByName('_dataSource')[0])
+
         break;
       }
     }
@@ -159,12 +156,22 @@ export default class Polygon {
    * @private
    */
 
-  _leftClickEventForPolygon() {
+  _leftClickEventForPolygon()   {
     this.handler.setInputAction((e) => {
       window.isDrawingPolygon = true;  // 启用标志位
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
+      console.log("p",p)
       if (!p) return;
+      // 检查新点是否与最后一个点重复
+      if (this._tempPositions.length > 0) {
+        let lastPoint = this._tempPositions[this._tempPositions.length - 1];
+        if (Cesium.Cartesian3.equals(p, lastPoint)) {
+          console.log('点重复，忽略此次点击');
+          return;
+        }
+      }
+      console.log("this._tempPositions",this._tempPositions)
       this._tempPositions.push(p);
       this._addPolygon();
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -328,7 +335,6 @@ export default class Polygon {
     this.viewer.entities.remove(polygon);
   }
 
-
   leftClickEvent(click) {
     if (this.isDragging) return; // 如果在拖动，不执行添加点的逻辑
     let ray = this.viewer.camera.getPickRay(click.position);
@@ -417,6 +423,7 @@ export default class Polygon {
   //=======================绘制数据库中的面==================
   // 根据数据库中数据绘制面
   getDrawActivatePolygon(polygonArr) {
+    console.log(polygonArr,765645)
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
     // console.log("onlyPlotid",onlyPlotid)
@@ -432,7 +439,7 @@ export default class Polygon {
       // 1-4 pointLinePoints用来存构成面的点实体
       let pointLinePoints = []
       let coords = polygon[0].geom.coordinates[0]
-      console.log("coords",coords)
+      // console.log("coords",coords)
       for (let i = 0; i < coords.length; i++) {
         let polygonCoords = coords[i]
 
@@ -445,19 +452,19 @@ export default class Polygon {
         let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
         pointLinePoints.push(cartesian);
         // 添加调试输出
-        this.viewer.entities.add({
-          // id: `${onlyPlotidItem}_Point_${i}`,
-          //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
-          position: cartesian,
-          point: {
-            // color: Cesium.Color.SKYBLUE,
-            // pixelSize: 10,
-            // outlineColor: Cesium.Color.YELLOW,
-            // outlineWidth: 3,
-            // disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          }
-        });
+        // this.viewer.entities.add({
+        //   // id: `${onlyPlotidItem}_Point_${i}`,
+        //   //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
+        //   position: cartesian,
+        //   point: {
+        //     // color: Cesium.Color.SKYBLUE,
+        //     // pixelSize: 10,
+        //     // outlineColor: Cesium.Color.YELLOW,
+        //     // outlineWidth: 3,
+        //     // disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        //     // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        //   }
+        // });
         // === 检查并删除已经存在的多边形实体 ===
         let polygonId = onlyPlotidItem;
         if (this.viewer.entities.getById(polygonId)) {
@@ -847,7 +854,6 @@ export default class Polygon {
     this.viewer.scene.screenSpaceCameraController.enableTilt = false;
     this.viewer.scene.screenSpaceCameraController.enableLook = false;
   }
-
 
   timestampToTime(timestamp) {
     let DateObj = new Date(timestamp)

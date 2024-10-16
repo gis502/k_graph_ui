@@ -27,8 +27,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.starttime).match('-')
-                    ? this.timestampToTime(plotInfoNew.starttime)
-                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime) : "")
+                    ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
+                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
               }}
             </el-text>
             <el-date-picker
@@ -50,8 +50,8 @@
           <div>
             <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                 ("" + plotInfoNew.endtime).match('-')
-                    ? this.timestampToTime(plotInfoNew.endtime)
-                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime) : "")
+                    ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
+                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
               }}
             </el-text>
             <el-date-picker
@@ -116,123 +116,6 @@
                    @click="deletePlot">删除
         </el-button>
       </div>
-      <!--        <el-descriptions :column="2" size="default " border>-->
-
-      <!--        </el-descriptions>-->
-
-
-      <!--      <el-scrollbar height="400px">-->
-      <!--        <el-timeline>-->
-      <!--          <el-timeline-item v-for="(activity, index) in plotInfoActivities" :key="index">-->
-      <!--            <el-collapse v-model="activeNames" @change="">-->
-      <!--              <el-collapse-item :name="index">-->
-      <!--                <template #title>-->
-      <!--                  <div>-->
-      <!--                    &lt;!&ndash;此处首先判断starttime是日期形式还是时间戳形式；前者则直接显示；后者则再判断是否为null，不是null则把时间戳转成日期形式，是null则为空&ndash;&gt;-->
-      <!--                    &lt;!&ndash;用来解决新增时下面的span显示时间戳的问题&ndash;&gt;-->
-      <!--                    <span style="margin-left: 10px;font-size: 16px">-->
-      <!--                      {{("" + activity.starttime).match('-')-->
-      <!--                            ? activity.starttime-->
-      <!--                            : (activity.starttime !== null ? activity.starttime : "") }}-->
-      <!--                    </span>-->
-      <!--                    &lt;!&ndash;                    <span style="margin-left: 20px">自定义内容 </span>&ndash;&gt;-->
-      <!--                  </div>-->
-      <!--                </template>-->
-      <!--                <div>-->
-      <!--                  <el-descriptions :column="2" size="default " border>-->
-      <!--                    <el-descriptions-item>-->
-      <!--                      <template #label>-->
-      <!--                        <div class="cell-item">-->
-      <!--                          开始时间-->
-      <!--                        </div>-->
-      <!--                      </template>-->
-      <!--                      <div>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{-->
-      <!--                            ("" + activity.starttime).match('-')-->
-      <!--                                ? activity.starttime-->
-      <!--                                : (activity.starttime !== null ? activity.starttime : "")-->
-      <!--                          }}</el-text>-->
-      <!--                        <el-date-picker-->
-      <!--                            v-if="!activity.aditStatus"-->
-      <!--                            v-model="activity.starttime"-->
-      <!--                            type="datetime"-->
-      <!--                            placeholder="选择日期时间"-->
-      <!--                            value-format="x"-->
-      <!--                            size="large">-->
-      <!--                        </el-date-picker>-->
-      <!--                      </div>-->
-      <!--                    </el-descriptions-item>-->
-      <!--                    <el-descriptions-item>-->
-      <!--                      <template #label>-->
-      <!--                        <div class="cell-item">-->
-      <!--                          结束时间-->
-      <!--                        </div>-->
-      <!--                      </template>-->
-      <!--                      <div>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{-->
-      <!--                            ("" + activity.endtime).match('-')-->
-      <!--                                ? activity.endtime-->
-      <!--                                : (activity.endtime !== "" ? activity.endtime : "")-->
-      <!--                          }}</el-text>-->
-      <!--                        <el-date-picker-->
-      <!--                            v-if="!activity.aditStatus"-->
-      <!--                            v-model="activity.endtime"-->
-      <!--                            type="datetime"-->
-      <!--                            placeholder="选择日期时间"-->
-      <!--                            value-format="x"-->
-      <!--                            size="large">-->
-      <!--                        </el-date-picker>-->
-      <!--                      </div>-->
-      <!--                    </el-descriptions-item>-->
-      <!--                  </el-descriptions>-->
-
-      <!--                  <el-descriptions :column="2" size="default " border>-->
-      <!--                    <template v-for="(value,key,index) in activity.info">-->
-      <!--                      <el-descriptions-item v-if="value.type ==='text'">-->
-      <!--                        <template #label>-->
-      <!--                          <div class="cell-item">-->
-      <!--                            {{ value.name }}-->
-      <!--                          </div>-->
-      <!--                        </template>-->
-      <!--                          <el-text v-if="activity.aditStatus" size="large" >{{ value.value }}</el-text>-->
-      <!--                          <el-input v-if="!activity.aditStatus" v-model="value.value" autocomplete="off" size="large"/>-->
-      <!--                      </el-descriptions-item>-->
-      <!--                      <el-descriptions-item v-if="value.type ==='select'">-->
-      <!--                        <template #label>-->
-      <!--                          <div class="cell-item">-->
-      <!--                            {{ value.name }}-->
-      <!--                          </div>-->
-      <!--                        </template>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{ value.value }}</el-text>-->
-      <!--                        <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">-->
-      <!--                          <el-option-->
-      <!--                              v-for="item in value.content"-->
-      <!--                              :label="item.label"-->
-      <!--                              :value="item.label"/>-->
-      <!--                        </el-select>-->
-      <!--                      </el-descriptions-item>-->
-      <!--                    </template>-->
-      <!--                  </el-descriptions>-->
-      <!--                </div>-->
-      <!--                <div class="collapseFooter">-->
-      <!--                  <el-button v-if="!activity.aditStatus && addStatus" type="success" round-->
-      <!--                             @click="addCommitPlotInfo(activity)">新增-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="activity.aditStatus && !addStatus" type="warning" round-->
-      <!--                             @click="beforeUpdataPlotInfo(activity)">修改-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="!activity.aditStatus && !addStatus" type="success" round-->
-      <!--                             @click="updataPlotInfo(activity)">提交-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="activity.aditStatus && !addStatus" type="danger" round-->
-      <!--                             @click="deletePlotInfo(activity)">删除-->
-      <!--                  </el-button>-->
-      <!--                </div>-->
-      <!--              </el-collapse-item>-->
-      <!--            </el-collapse>-->
-      <!--          </el-timeline-item>-->
-      <!--        </el-timeline>-->
-      <!--      </el-scrollbar>-->
     </div>
   </div>
 </template>
@@ -398,7 +281,7 @@ export default {
           arrow.clearById(data.plotId)
           arraw = false
         }
-        this.$emit('closePlotPop')
+        this.deletePoint()
       })
     },
     // 打开添加标绘信息

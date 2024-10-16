@@ -1,7 +1,7 @@
 [
   { "name": "震区交通图",
     "path": "/ThematicMap/TwoAndThreeDIntegration/LuShan/EarthquakeZoneTrafficMap.jpg" },
-  { "name": "人口公路分布图",
+  { "name": "人口公里分布图",
     "path": "/ThematicMap/TwoAndThreeDIntegration/LuShan/PopulationGridMap.jpg" },
   { "name": "水库分布图",
     "path": "/ThematicMap/TwoAndThreeDIntegration/LuShan/ReservoirsMap.jpg" },

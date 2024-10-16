@@ -33,6 +33,11 @@
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
         />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
+        />
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
@@ -41,6 +46,7 @@
         :position="routerPopupPosition"
         :popupData="routerPopupData"
     />
+
 
     <!-- 进度条-->
     <div class="bottom">
@@ -187,7 +193,7 @@ import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSupplies
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../../cesium/plot/eqThemes.js";
 
 //专题图
@@ -197,6 +203,7 @@ export default {
   components: {
     thematicMapPreview,
     RouterPanel,
+    dataSourcePanel,
     TimeLinePanel,
     News,
     MiniMap,
@@ -215,6 +222,10 @@ export default {
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
       routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
       routerPopupData: {}, // RouterPanel弹窗的数据
+
+      dataSourcePopupVisible: false, // RouterPanel弹窗的显示与隐藏
+      dataSourcePopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
+      dataSourcePopupData: {}, // RouterPanel弹窗的数据
 
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
@@ -368,7 +379,7 @@ export default {
     this.entitiesClickPonpHandler()
     this.watchTerrainProviderChanged()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (window.viewer){
       this.clearResource(window.viewer)
       window.viewer = null;
@@ -739,7 +750,7 @@ export default {
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
-      this.intimexuanran(eqid)
+      // this.intimexuanran(eqid)
     },
 
     /**
@@ -1373,11 +1384,15 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
+
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            this.timelinePopupData = this.extractDataForTimeline(entity);
+            this.timelinePopupData={}
+            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+
+            // this.timelinePopupData = this.extractDataForTimeline(entity);
             this.routerPopupVisible = false;
           } else if (entity._billboard) {
             // 如果点击的是路标
@@ -1386,23 +1401,28 @@ export default {
             this.routerPopupData = this.extractDataForRouter(entity);
 
             this.timelinePopupVisible = false;
+          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+            this.dataSourcePopupData = entity
+            this.dataSourcePopupVisible = true
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
           }
         } else {
           // 没有选中实体时隐藏 faultInfo
           faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
+          this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible) {
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -1533,6 +1553,7 @@ export default {
               window.viewer.scene,
               Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
+          console.log(canvasPosition)
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
             this.routerPopupPosition = {
@@ -1543,6 +1564,10 @@ export default {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
+            this.dataSourcePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            }
           }
         }
       });
@@ -1618,7 +1643,7 @@ export default {
     takeScreenshot() {
       const link = document.createElement('a');
       link.href = fileUrl
-      link.download = '2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf';
+      link.download = '芦山地震人员伤亡态势专题报告.pdf';
       link.click();
     },
 
@@ -2272,13 +2297,14 @@ export default {
      * 人口图层通过Web Map Service (WMS) 提供，具体配置包括服务URL、图层名称和一些请求参数
      */
     addPopLayer() {
+      let baseURL = import.meta.env.VITE_APP_API_URL
       // 检查是否已存在名为'PopLayer'的图层
       let popLayerexists = this.imageryLayersExists('PopLayer')
       if (!popLayerexists) {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapServiceImageryProvider({
-              url: 'http://10.16.7.69:9080/geoserver/yaan/wms', // WMS服务的URL
+              url: baseURL+'/geoserver/yaan/wms', // WMS服务的URL
               layers: 'yaan:pop', // 需要请求的图层名称
               parameters: {
                 service: 'WMS', // 指定服务类型为WMS
@@ -2436,8 +2462,9 @@ export default {
      * @param {number} latitude - 纬度坐标，用于指定查询区域的中心点
      */
     getPopDesity(longitude, latitude) {
+      let baseURL = import.meta.env.VITE_APP_API_URL
       // WMS服务的URL
-      const url = "http://10.16.7.69:9080/geoserver/yaan/wms"
+      const url = baseURL+"/geoserver/yaan/wms"
       // 查询区域的边界框大小，用于确定查询区域的范围
       const bboxSize = 0.001
       // 构建URL查询参数
