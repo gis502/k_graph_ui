@@ -32,3 +32,20 @@ export function getEconomicLoss(eqid){
     params: { eqid }
   })
 }
+
+export function saveBuildingDamageData(saveBuildingDamage){
+  return request({
+    url: '/damageassessment/saveBuildingDamage',
+    method: 'post',
+    data: saveBuildingDamage
+  })
+}
+
+export function saveEconomicLossData(saveEconomicLoss){
+  return request({
+    url: '/damageassessment/saveEconomicLoss',
+    method: 'post',
+    data: saveEconomicLoss
+  })
+}
+

@@ -13,7 +13,8 @@
             <el-table-column prop="orthophotoPath" label="正射影像路径" width="300" align="center"></el-table-column>
             <el-table-column label="操作" align="center">
                 <template v-slot="scope">
-                    <el-button size="mini" type="text" icon="el-icon-edit" @click="handleOpen('修改',scope.row)">修改</el-button>
+                    <el-button size="mini" type="text" icon="el-icon-edit" @click="handleOpen(scope.row)">浏览</el-button>
+                    <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit('修改',scope.row)">修改</el-button>
                     <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
@@ -74,8 +75,8 @@ export default {
     data() {
         return {
             tableData: [
-                { eqid: 1, orthophotoName: '7.37平方公里正射影像',size:"84.0", addTime: '2023-08-19 15:31:19', orthophotoPath: '/geoserver/yaan/wms/1', orthophotoHeight: 15, rotationAngle: 0},
-                { eqid: 2, orthophotoName: '0.4平方公里正射影像', size:"7.8",addTime: '2023-07-23 17:19:09', orthophotoPath: '/geoserver/yaan/wms/2', orthophotoHeight: 9 , rotationAngle: 0},
+                { eqid: 1, orthophotoName: '雨城区测试正射影像',size:"1066.79", addTime: '2023-08-19 15:31:19', orthophotoPath: '/geoserver/yaan/wms/1', orthophotoHeight: 15, rotationAngle: 0},
+                // { eqid: 2, orthophotoName: '0.4平方公里正射影像', size:"7.8",addTime: '2023-07-23 17:19:09', orthophotoPath: '/geoserver/yaan/wms/2', orthophotoHeight: 9 , rotationAngle: 0},
                 // { eqid: 3, modelName: 'model1', addTime: '2023-08-10 17:02:57', modelPath: '/model1', modelHeight: 0, rotationAngle: 0},
                 // { eqid: 4, modelName: 'model2', addTime: '2023-08-18 09:30:20', modelPath: '/model2', modelHeight: 0, rotationAngle: 0},
                 // { eqid: 5, modelName: 'model3', addTime: '2023-08-13 13:40:11', modelPath: '/model3', modelHeight: 0, rotationAngle: 0},
@@ -110,7 +111,11 @@ export default {
             this.tableData = this.tableData.filter(item => item.eqid !== row.eqid);
             this.total = this.tableData.length;
         },
-        handleOpen(title, row) {
+        handleOpen(row){
+          console.log(row)
+          window.open('/orthophotographViewer',"_blank")
+        },
+        handleEdit(title, row) {
             this.dialogShow = true
             if (title === "新增") {
                 this.dialogTitle = title;

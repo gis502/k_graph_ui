@@ -21,7 +21,6 @@ export function getAfterShockInformation(eqid) {
         method: 'get',
         params: {eqid: eqid}
     });
-
 }
 
 export function getTotal(eqid) {

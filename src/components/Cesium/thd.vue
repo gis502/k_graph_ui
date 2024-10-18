@@ -1,17 +1,11 @@
 <template>
   <div>
     <!--    地震列表切换-->
-    <!--    <div class="eqlist-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
-    <!--    </div>-->
     <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
-      <eqTable :eqData="tableData"/>
+      <eqTable :eqData="eqtableData"/>
     </div>
 
     <!--   图层要素-->
-    <!--    <div class="layer-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('layerChoose')">图层要素</el-button>-->
-    <!--    </div>-->
     <div v-if="activeComponent === 'layerChoose'" class="dropdown expanded">
       <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
         <el-checkbox
@@ -59,11 +53,7 @@
       </div>
     </div>
 
-
     <!--    行政区划-->
-    <!--    <div class="regionjump-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('Regionjump')">行政区划</el-button>-->
-    <!--    </div>-->
     <div v-if="activeComponent === 'Regionjump'" class="dropdown expanded">
       <div class="district-buttons">
         <div class="city-button">
@@ -81,17 +71,37 @@
       </div>
     </div>
 
-    <!--报告产出按钮-->
-    <!--    <div class="button-container">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
-    <!--    </div>-->
-    <!--    <div class="thematic-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="">专题图下载</el-button>-->
-    <!--    </div>-->
-    <!--    <div class="back-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="backToHome">返回首页</el-button>-->
-    <!--    </div>-->
+    <div v-if="activeComponent === 'model'">
 
+      <el-form class="button-container">
+<!--        <div class="modelAdj">模型选择</div>-->
+<!--        <div class="modelAdj" @click="findModel">找到模型</div>-->
+        <el-table :data="modelTableData"
+                  style="width: 100%; margin-bottom: 0px;"
+                  :header-cell-style="tableHeaderColor"
+                  :cell-style="tableColor" @row-click="">
+
+          <el-table-column prop="name" label="模型名称" width="auto"></el-table-column>
+          <el-table-column label="操作" width="auto" align="center">
+
+            <template #default="scope">
+              <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div>
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="modelCurrentPage"
+              :page-size="modelPageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="ModelTotal">
+          </el-pagination>
+        </div>
+      </el-form>
+
+    </div>
 
     <!--    title-->
     <div class="eqtitle">
@@ -115,13 +125,14 @@
                   margin: 0;padding: 0;
                   left: 1%;border-radius:3px;text-align: center"
       >
+
         <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
         <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
         <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-        <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
-        <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-        <el-menu-item index="6">返回首页</el-menu-item>
+        <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
+        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
+        <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
+        <el-menu-item index="7">返回首页</el-menu-item>
       </el-menu>
     </div>
 
@@ -239,20 +250,13 @@
     <!--    两侧组件 end-->
 
 
-    <!--   行政区划要素图层图例   -->
-    <!--        <div id="legend"-->
-    <!--             style="display: none;position: absolute;-->
-    <!--           z-index:20; bottom: 100px;-->
-    <!--           right: 450px; color: #FFFFFF;-->
-    <!--           background-color: rgba(0, 0, 0, 0.5);-->
-    <!--           padding: 10px; border-radius: 5px;text-align: center;">-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
            right: 450px; color: #FFFFFF;
            background-color: rgba(0, 0, 0, 0.5);
            padding: 10px; border-radius: 5px;text-align: center;">
-      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index" >
+      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
           <div
               style="width: 20px; height: 20px; margin-right: 10px;"
@@ -262,9 +266,6 @@
         </div>
       </div>
     </div>
-
-    <!--            <h4 style="margin-bottom: 5px; margin-top: 0; padding:0;justify-content: center">颜色图例</h4>-->
-    <!--        </div>-->
 
     <!--   断裂带名称div   -->
     <div id="faultInfo"
@@ -319,8 +320,33 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/pl
 //专题图
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
+
+
+//模型调整
+import {Edit, Delete} from '@element-plus/icons-vue'
+import {
+  addModelApi,
+  deleteModel,
+  getAllModel,
+  updataModel,
+  updataModelNoElevation,
+  updataModelElevation
+} from '@/api/system/model.js'
+
+import {
+  goModel,
+  watchTerrainProviderChanged,
+  findModel
+} from '../../functionjs/model.js';
+
 
 export default {
+  computed: {
+    Edit() {
+      return Edit
+    }
+  },
   components: {
     thematicMapPreview,
     RouterPanel,
@@ -429,7 +455,7 @@ export default {
       total: 0,
       pageSize: 6,
       currentPage: 1,
-      tableData: [],
+      eqtableData: [],
       //-----------------图层---------------------
       // iflayerChoose: false,
       isMarkingLayer: true,
@@ -499,6 +525,23 @@ export default {
       reportItems: [],
       selectReportItem: '',
 
+      //----------------------------model table---------------------------------------
+      modelCurrentPage: 1,
+      modelPageSize: 6,
+      ModelTotal: 0,
+      modelTableData: [],
+      modelList: [],
+
+      modelInfo:{
+        name: null,
+        path: null,
+        rz: null,
+        tz: null,
+        rze: null,
+        tze: null,
+        time: null,
+        modelid: null
+      }
     };
   },
   created() {
@@ -509,13 +552,16 @@ export default {
   },
   mounted() {
     this.init()
+    this.initModelTable(); // 初始化模型table数据
+    this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
 
     this.initPlot(); // 初始化加载应急数据
+
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
-    this.watchTerrainProviderChanged()
+
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -596,7 +642,7 @@ export default {
       if (this.activeComponent === 'eqList') {
         this.getEq();
       }
-      if(this.activeComponent == 'layerChoose'){
+      if (this.activeComponent == 'layerChoose') {
         this.removethdRegions();
         const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
         // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
@@ -661,55 +707,69 @@ export default {
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
+      let smallViewer = new Cesium.Viewer(smallMapContainer, {
+        shouldAnimate: false,
+        animation: false, // 是否创建动画小器件，左下角仪表
+        baseLayerPicker: false, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
+        fullscreenButton: false, // 是否显示全屏按钮
+        geocoder: false, // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
+        homeButton: false, // 是否显示Home按钮
+        infoBox: false, // 是否显示信息框
+        sceneModePicker: false, // 是否显示3D/2D选择器
+        selectionIndicator: false, // 是否显示选取指示器组件
+        timeline: false, // 是否显示时间轴
+        navigationHelpButton: false, // 是否显示右上角的帮助按钮
+        scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
+        //截图和渲染相关的一些配置
+        contextOptions: {
+          webgl: {
+            alpha: true,
+            depth: false,
+            stencil: true,
+            antialias: true,
+            premultipliedAlpha: true,
+            //cesium状态下允许canvas转图片convertToImage
+            preserveDrawingBuffer: true,
+            failIfMajorPerformanceCaveat: true
+          },
+          allowTextureFilterAnisotropic: true
+        },
+        // 本地geoserver影像
+        imageryProvider:
+            new Cesium.WebMapTileServiceImageryProvider({
+              url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + TianDiTuToken,
+              layer: "tdtVecBasicLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false
+            }),
+        terrainProvider: new Cesium.CesiumTerrainProvider({
+          url: "http://localhost:9080/geoserver/www/dem",
+        }),
+
+      })
       window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
+      window.smallViewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
+      );
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   // 隐藏所有控件
-      //   geocoder: false,
-      //   homeButton: false,
-      //   sceneModePicker: false,
-      //   timeline: false,
-      //   navigationHelpButton: false,
-      //   animation: false,
-      //   infoBox: false,
-      //   fullscreenButton: false,
-      //   showRenderState: false,
-      //   selectionIndicator: false,
-      //   baseLayerPicker: false,
-      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      // });
       // 隐藏缩略图视图器的版权信息
       smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
       // 同步主视图器的相机到缩略图视图器
       function syncCamera() {
         const camera1 = viewer.scene.camera;
+        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
         const camera2 = smallViewer.scene.camera;
-
         camera2.setView({
-          destination: camera1.positionWC,
+          destination: smallPoint,
           orientation: {
             heading: camera1.heading,
             pitch: camera1.pitch,
@@ -1534,11 +1594,9 @@ export default {
 
             this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
-          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+          } else if (Object.prototype.toString.call(entity) === '[object Array]') {
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
-
-
             this.timelinePopupVisible = false
             this.routerPopupVisible = false;
           } else {
@@ -1572,7 +1630,7 @@ export default {
     addHistoryEqPoints() {
       // 先清除historyEq实体
       this.removeEntitiesByType("historyEq")
-      addHistoryEqPoints(this.centerPoint, this.tableData)
+      addHistoryEqPoints(this.centerPoint, this.eqtableData)
     },
 
     /**
@@ -1814,47 +1872,16 @@ export default {
       return false;
     },
 
-    /**
-     * 监听地形提供器变化
-     * 当地形提供器发生变化时，此方法将被触发
-     * 根据modelName的值设置不同的高度，并尝试查找地形
-     * 如果地形已加载，则使用一组预设高度；如果地形未加载，则使用另一组预设高度
-     * 目前，高度设置和查找地形的方法被注释掉，需要在适当时候启用或移除
-     */
-    watchTerrainProviderChanged() {
-      let that = this
-      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-        this.popupVisible = false // 地形改变时关闭弹窗
-        let tzs = []
-        if (that.modelName === 1) {
-          tzs[0] = 9
-          tzs[1] = -567
-        } else {
-          tzs[0] = 15
-          tzs[1] = -557
-        }
-        if (that.isTerrainLoaded()) {
-          // that.changeHeight(tzs[0])
-          // that.tz = tzs[0]
-          // that.find()
-        } else {
-          // that.changeHeight(tzs[1])
-          // that.tz = tzs[1]
-          // that.find()
-        }
-      });
-    },
-
 
     /**
-     * 此方法通过调用getAllEq函数从服务器获取所有设备的数据，然后将这些数据赋值给tableData属性
+     * 此方法通过调用getAllEq函数从服务器获取所有设备的数据，然后将这些数据赋值给eqtableData属性
      * 同时，成功获取数据后，初始化Cesium相关的viewer、websocket连接和pinia状态管理，以便进行设备位置的标绘
      */
     getEq() {
       let that = this
       getAllEq().then(res => {
-        that.tableData = res
-        // console.log("that.tableData", that.tableData)
+        that.eqtableData = res
+        // console.log("that.eqtableData", that.eqtableData)
       })
     },
 
@@ -2461,13 +2488,14 @@ export default {
      * 人口图层通过Web Map Service (WMS) 提供，具体配置包括服务URL、图层名称和一些请求参数
      */
     addPopLayer() {
+      let baseURL = import.meta.env.VITE_APP_API_URL
       // 检查是否已存在名为'PopLayer'的图层
       let popLayerexists = this.imageryLayersExists('PopLayer')
       if (!popLayerexists) {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapServiceImageryProvider({
-              url: 'http://10.16.7.69:9080/geoserver/yaan/wms', // WMS服务的URL
+              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
               layers: 'yaan:pop', // 需要请求的图层名称
               parameters: {
                 service: 'WMS', // 指定服务类型为WMS
@@ -2635,8 +2663,9 @@ export default {
      * @param {number} latitude - 纬度坐标，用于指定查询区域的中心点
      */
     getPopDesity(longitude, latitude) {
+      let baseURL = import.meta.env.VITE_APP_API_URL
       // WMS服务的URL
-      const url = "http://10.16.7.69:9080/geoserver/yaan/wms"
+      const url = baseURL + '/geoserver/yaan/wms'
       // 查询区域的边界框大小，用于确定查询区域的范围
       const bboxSize = 0.001
       // 构建URL查询参数
@@ -2712,14 +2741,106 @@ export default {
           this.selectReportItem = null;
         }, 1000); // 1000 毫秒后执行
       }
-    }
+    },
 
+    //模型调整
+    initModelTable() {
+      getAllModel().then(res => {
+        this.modelList = res
+        this.ModelTotal = res.length
+        this.modelTableData = this.getPageArr(this.modelList)
+        // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
+      })
+    },
+    goModel(row) {
+      this.modelInfo.name = row.name
+      this.modelInfo.path = row.path
+      this.modelInfo.tz = row.tz
+      this.modelInfo.rz = row.rz
+      this.modelInfo.time = row.time
+      this.modelInfo.modelid = row.modelid
+      this.modelInfo.tze = row.tze
+      this.modelInfo.rze = row.rze
+      goModel(row)
+    },
+    watchTerrainProviderChanged() {
+      watchTerrainProviderChanged()
+    },
+    findModel() {
+      findModel()
+    },
+    // 修改table的header的样式
+    tableHeaderColor() {
+      return {
+        'border-width': '1px',
+        'border-style': 'solid',
+        'border-color': '#555555',
+        'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+        'color': '#fff',
+        'padding': '0',
+        'text-align': 'center',
+        'font-size': '14px'
+      }
+    },
+    // 修改table 中每行的样式
+    tableColor({row, column, rowIndex, columnIndex}) {
+      if (rowIndex % 2 == 1) {
+        return {
+          'border-width': '1px',
+          'border-style': 'solid',
+          'border-color': '#555555',
+          'background-color': '#313a44',
+          'color': '#fff',
+          'padding': '0',
+          'text-align': 'center',
+          'font-size': '14px'
+        }
+      } else {
+        return {
+          'border-width': '1px',
+          'border-style': 'solid',
+          'border-color': '#555555',
+          'background-color': '#304156',
+          'color': '#fff',
+          'padding': '0',
+          'text-align': 'center',
+          'font-size': '14px'
+        }
+      }
+    },
+    //数组切片
+    getPageArr(data) {
+      let arr = []
+      let start = (this.modelCurrentPage - 1) * this.modelPageSize
+      let end = this.modelCurrentPage * this.modelPageSize
+      if (end > this.ModelTotal) {
+        end = this.ModelTotal
+      }
+      for (; start < end; start++) {
+        data[start].show = false
+        arr.push(data[start])
+      }
+      return arr
+    },
+    //`每页 ${val} 条`
+    handleSizeChange(val) {
+      this.modelPageSize = val
+      this.modelTableData = this.getPageArr(this.modelList)
+    },
+    // `当前页: ${val}`
+    handleCurrentChange(val) {
+      this.modelCurrentPage = val
+      this.modelTableData = this.getPageArr(this.modelList)
+    }
+    //model style end
 
   }
 }
 </script>
 
 <style scoped>
+
+
 .eqtitle {
   background-color: #0d325f;
   width: 100%;
@@ -2897,12 +3018,6 @@ export default {
   background-color: rgba(40, 40, 40, 0.3);
 }
 
-.button-container {
-  position: absolute;
-  z-index: 20;
-  top: 6.3%;
-  left: 27%;
-}
 
 .thematic-button {
   position: absolute;
@@ -3013,6 +3128,10 @@ export default {
   gap: 8px; /* 列间距 */
 }
 
+:deep(.search-results){
+  z-index:99 !important;
+}
+
 /*图层要素选项颜色改为白色*/
 .el-checkbox {
   color: #FFFFFF;
@@ -3049,4 +3168,36 @@ export default {
 }
 
 
+.button-container {
+  width: 25%;
+  position: absolute;
+  padding: 10px;
+  border-radius: 5px;
+  top: 11%;
+  left: 1%;
+  z-index: 30; /* 更高的层级 */
+  background-color: rgba(40, 40, 40, 1);
+}
+
+.modelAdj {
+  color: #FFFFFF;
+  margin-bottom: 5px;
+  margin-right: 10px;
+  display: inline-block; /* 确保元素显示在同一行 */
+  border: 1px solid #ffffff; /* 边框宽度、样式和颜色 */
+  padding: 5px; /* 可选：添加内边距 */
+}
+
+.el-pagination {
+  margin-top: 10px;
+  justify-content: center;
+}
+
+:deep(.el-pagination__total) {
+  color: #FFFFFF;
+}
+
+:deep(.el-pagination>.is-last) {
+  color: #FFFFFF;
+}
 </style>
