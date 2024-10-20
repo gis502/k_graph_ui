@@ -121,7 +121,7 @@
         <!--      <el-menu-item index="4" @click="takeScreenshot" style="width: 100px;">分析图件产出</el-menu-item>-->
         <el-menu-item index="4" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
         <el-menu-item index="5" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-        <el-menu-item index="6">返回首页</el-menu-item>
+        <el-menu-item index="6" @click="navigateToFrontPage">返回首页</el-menu-item>
       </el-menu>
     </div>
 
@@ -562,6 +562,16 @@ export default {
     toggleExpand() {
       console.log("Toggle expand clicked");
       this.isExpanded = !this.isExpanded;
+    },
+
+
+    /**
+     * 跳转首页
+     */
+    navigateToFrontPage(){
+      this.$router.push({
+        name: 'Index'
+      });
     },
 
     /**
