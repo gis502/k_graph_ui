@@ -2,7 +2,7 @@ import * as Cesium from 'cesium'
 import  {StraightArrow, AttackArrow, PincerArrow,} from "@/cesium/drawArrow/arrowClass.js";
 
 let webSocket
-let ip = "ws://localhost:8080/ws/"
+let ip = "ws://192.168.3.9:8080/ws/"
 
 export function initWebSocket(eqid) {
     const wsuri = ip + eqid;
