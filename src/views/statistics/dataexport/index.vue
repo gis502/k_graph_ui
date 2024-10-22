@@ -1,128 +1,130 @@
 <template>
-  <div class="app-container">
-<!--    <div style="margin-bottom:5px;">-->
-<!--      <el-input-->
-<!--          v-model="requestParams"-->
-<!--          placeholder="请输入查询内容"-->
-<!--          clearable-->
-<!--          :prefix-icon="Search"-->
-<!--          class="search-input"-->
-<!--      />-->
-<!--      <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>-->
-<!--    </div>-->
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="warning" plain icon="Delete" class="button" @click="clearSelection()">清空选择</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button type="danger" plain icon="Delete" class="button" @click="handleDeleteAll()">删除记录</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-select
-            v-model="flag"
-            placeholder="Select"
-            size="large"
-            style="width: 240px"
-        >
-          <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-          />
-        </el-select>
-      </el-col>
-        <el-col :span="1.5">
-          <el-select
-              v-model="eqlistName"
-              placeholder="请选择地震信息"
-              size="large"
-              style="width: 370px"
-              filterable
-              @change="handleEqListChange"
-          >
-            <el-option
-                v-for="item in tableNameOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-col>
-    </el-row>
+    <div class="app-container">
+        <!--    <div style="margin-bottom:5px;">-->
+        <!--      <el-input-->
+        <!--          v-model="requestParams"-->
+        <!--          placeholder="请输入查询内容"-->
+        <!--          clearable-->
+        <!--          :prefix-icon="Search"-->
+        <!--          class="search-input"-->
+        <!--      />-->
+        <!--      <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>-->
+        <!--    </div>-->
+        <el-row :gutter="10" class="mb8">
+            <el-col :span="1.5">
+                <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
+                </el-button>
+            </el-col>
+            <el-col :span="1.5">
+                <el-button type="warning" plain icon="Delete" class="button" @click="clearSelection()">清空选择
+                </el-button>
+            </el-col>
+            <el-col :span="1.5">
+                <el-button type="danger" plain icon="Delete" class="button" @click="handleDeleteAll()">删除记录
+                </el-button>
+            </el-col>
 
-    <el-table
-        table-layout="fixed"
-        ref="multipleTableRef"
-        :data="tableData"
-        height="510px"
-        class="table tableMove"
-        fit
-        :row-key="getRowKey"
-        :row-style="{ height: '6.3vh' }"
-        @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
-      <el-table-column
-          label="序号"
-          width="50"
-          align="center"
-          :formatter="typeIndex"
-      />
-      <el-table-column
-          v-for="col in columns"
-          :key="col.prop"
-          :prop="col.prop"
-          :label="col.label"
-          :align="col.align"
-          :width="col.width"
-          :formatter="col.label === '震级' ? formatMagnitude : undefined"
-      />
-      />
-    </el-table>
-    <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 30, 40]"
-        :background="true"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        class="pagination"
-    />
-    <el-dialog v-model="dialogVisible" title="选择需要导出的字段" width="50%">
-      <el-transfer
-          v-model="value"
-          :props="{
+            <el-col :span="1.5">
+                <el-select
+                        v-model="flag"
+                        placeholder="Select"
+                        size="large"
+                        style="width: 240px">
+                    <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"/>
+                </el-select>
+            </el-col>
+            <el-col :span="1.5">
+                <el-select
+                        v-model="eqlistName"
+                        placeholder="请选择地震信息"
+                        size="large"
+                        style="width: 370px"
+                        filterable
+                        @change="handleEqListChange"
+                >
+                    <el-option
+                            v-for="item in tableNameOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                    />
+                </el-select>
+            </el-col>
+        </el-row>
+
+        <el-table
+                table-layout="fixed"
+                ref="multipleTableRef"
+                :data="tableData"
+                height="510px"
+                class="table tableMove"
+                fit
+                :row-key="getRowKey"
+                :row-style="{ height: '6.3vh' }"
+                @selection-change="handleSelectionChange"
+        >
+            <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
+            <el-table-column
+                    label="序号"
+                    width="50"
+                    align="center"
+                    :formatter="typeIndex"
+            />
+            <el-table-column
+                    v-for="col in columns"
+                    :key="col.prop"
+                    :prop="col.prop"
+                    :label="col.label"
+                    :align="col.align"
+                    :width="col.width"
+                    :formatter="col.label === '震级' ? formatMagnitude : undefined"
+            />
+            />
+        </el-table>
+        <el-pagination
+                v-model:current-page="currentPage"
+                v-model:page-size="pageSize"
+                :page-sizes="[10, 20, 30, 40]"
+                :background="true"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                class="pagination"
+        />
+        <el-dialog v-model="dialogVisible" title="选择需要导出的字段" width="50%">
+            <el-transfer
+                    v-model="value"
+                    :props="{
       key: 'value',
       label: 'desc',
     }"
-          :data="data"
-          :titles="['可选字段', '已选字段']"
-          filterable
-          filter-placeholder="输入查询字段"
-          :format="{
+                    :data="data"
+                    :titles="['可选字段', '已选字段']"
+                    filterable
+                    filter-placeholder="输入查询字段"
+                    :format="{
         noChecked: '${total}',
         hasChecked: '${checked}/${total}',
       }"
-      >
-        <template #right-footer>
-          <el-button class="transfer-footer" type="primary" plain @click="dialogVisible = false">取消</el-button>
-          <el-button class="transfer-footer" type="primary" plain @click="exportStatistics()">导出</el-button>
-        </template>
-      </el-transfer>
-    </el-dialog>
-  </div>
+            >
+                <template #right-footer>
+                    <el-button class="transfer-footer" type="primary" plain @click="dialogVisible = false">取消
+                    </el-button>
+                    <el-button class="transfer-footer" type="primary" plain @click="exportStatistics()">导出</el-button>
+                </template>
+            </el-transfer>
+        </el-dialog>
+    </div>
 </template>
 
 <script setup>
 import {ref, onMounted} from 'vue'
-import {ElMessage,ElMessageBox} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import {exportExcel, getField, getData, deleteData} from "@/api/system/excel.js";
 import {Search} from "@element-plus/icons-vue";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
@@ -137,8 +139,8 @@ const tableNameOptions = ref([])
 const eqlists = ref([])
 
 onMounted(() => {
-  getTableField()
-  getEarthquake()
+    getTableField()
+    getEarthquake()
 })
 const options = ref([]);
 const tableData = ref([])
@@ -150,30 +152,46 @@ const columns = ref([]); // 用于存储表格列配置
 const total = ref()
 const width = ref([])
 const widthList = {
-  'AftershockInformation': [200, 200, 120, 120, 200, 120, 120, 120,120,120],
-  'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200,200],
-  'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120,200],
-  'Meetings':[200, 200, 120, 200, 200, 120, 120, 120, 120],
-  'CommunicationFacilityDamageRepairStatus':[200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200]
+    'AftershockInformation': [200, 200, 120, 120, 200, 120, 120, 120, 120, 120],
+    "AfterSeismicInformation": [200, 200, 120, 200, 200, 300, 200, 120],
+    'TransferSettlementInfo': [200, 200, 100, 200, 200, 150, 150, 200, 200],
+    'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120, 200],
+    'Meetings': [200, 200, 120, 200, 200, 120, 120, 120, 120],
+
+    'RoadDamage': [200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200, 200, 200],
+    'TrafficControlSections': [200, 200, 120, 200, 200, 120, 120, 120],
+    'CommunicationFacilityDamageRepairStatus': [200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200],
+    'PowerSupplyInformation': [200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200, 200, 200, 200, 200],
+
+    'HousingSituation': [200, 200, 120, 200, 200, 120, 120, 120, 200],
+    'SupplySituation': [200, 200, 120, 200, 200, 120, 120],
+    'SupplyWater': [200, 200, 120, 200, 200, 120, 120],
+
+    'RiskConstructionGeohazards': [200, 200, 120, 200, 200, 120, 120, 200, 200, 120],
+    'BarrierLakeSituation': [200, 200, 120, 200, 200, 120, 120, 200, 200],
+    'SecondaryDisasterInfo': [200, 200, 120, 200, 200, 120, 120],
+    'DisasterAreaWeatherForecast': [200, 200, 120, 1000, 200, 120]
+
+
 }
 
 /** 监听 */
 watch(flag, (newFlag) => {
-  const selectedFile = files.value.find(file => file.fileFlag === newFlag);
-  console.log(newFlag)
-  if (selectedFile && selectedFile.fileColumn) {
-    const fileColumn = JSON.parse(selectedFile.fileColumn);
-    const map = new Map(Object.entries(fileColumn));
-    field.value = Array.from(map.keys());
-    name.value = Array.from(map.values());
-    width.value = widthList[newFlag]
-    data.value = generateData();
-    columns.value = generateColumnConfig();
-  }
-  // 清空选择
-  clearSelection();
-  value.value = [];
-  getList();
+    const selectedFile = files.value.find(file => file.fileFlag === newFlag);
+    console.log(newFlag)
+    if (selectedFile && selectedFile.fileColumn) {
+        const fileColumn = JSON.parse(selectedFile.fileColumn);
+        const map = new Map(Object.entries(fileColumn));
+        field.value = Array.from(map.keys());
+        name.value = Array.from(map.values());
+        width.value = widthList[newFlag]
+        data.value = generateData();
+        columns.value = generateColumnConfig();
+    }
+    // 清空选择
+    clearSelection();
+    value.value = [];
+    getList();
 
 });
 
@@ -185,235 +203,275 @@ watch(flag, (newFlag) => {
 
 // 请求数据
 const getList = async () => {
-  await getData({
-    currentPage: currentPage.value,
-    pageSize: pageSize.value,
-    requestParams: requestParams.value,
-    flag: flag.value
-  }).then(res => {
-    tableData.value = res.data.records
-    total.value = res.data.total
-  })
+    await getData({
+        currentPage: currentPage.value,
+        pageSize: pageSize.value,
+        requestParams: requestParams.value,
+        flag: flag.value
+    }).then(res => {
+        tableData.value = res.data.records
+        total.value = res.data.total
+    })
 
 }
 
 /**自增序号**/
 const typeIndex = (row, column, cellValue, index) => {
-  return index + 1 + (currentPage.value - 1) * pageSize.value;
+    return index + 1 + (currentPage.value - 1) * pageSize.value;
 };
 
 const formatMagnitude = (row, column, cellValue) => {
-  if (column.label === '震级(级)') {
-    return cellValue.includes('.') ? cellValue : cellValue + '.0';
-  }
-  return cellValue;
+    if (column.label === '震级(级)') {
+        return cellValue.includes('.') ? cellValue : cellValue + '.0';
+    }
+    return cellValue;
 };
 
 const generateColumnConfig = () => {
-  return field.value.map((fieldName, index) => {
-    const label = name.value[index];
-    const width1 = width.value[index]
-    // console.log(label)
-    return {
-      prop: fieldName,
-      label: label,
-      align: "center",
-      width: width1
-    };
-  });
+    return field.value.map((fieldName, index) => {
+        const label = name.value[index];
+        const width1 = width.value[index]
+        // console.log(label)
+        return {
+            prop: fieldName,
+            label: label,
+            align: "center",
+            width: width1
+        };
+    });
 };
 
 
 /** 删除按钮操作 */
 const handleDeleteAll = () => {
-  // 弹出确认框
+    // 弹出确认框
     ElMessageBox.confirm('此操作将永久删除该数据, 是否继续?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-      .then(() => {
-        // 用户确认后直接删除数据
-        deleteData({
-          flag: flag.value,
-          ids: multipleSelection.value,
-        }).then(() => {
-          ElMessage({
-            type: 'success',
-            message: '删除成功!'
-          });
-          getList()
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    })
+        .then(() => {
+            // 用户确认后直接删除数据
+            deleteData({
+                flag: flag.value,
+                ids: multipleSelection.value,
+            }).then(() => {
+                ElMessage({
+                    type: 'success',
+                    message: '删除成功!'
+                });
+                getList()
+            });
+        })
+        .catch(() => {
+            // 用户取消操作
+            ElMessage({
+                type: 'info',
+                message: '已取消删除'
+            });
         });
-      })
-      .catch(() => {
-        // 用户取消操作
-        ElMessage({
-          type: 'info',
-          message: '已取消删除'
-        });
-      });
 }
 //获取地震列表
 const getEarthquake = () => {
-  getExcelUploadEarthquake().then(res => {
-    eqlists.value = res
-    if (res.data === null) {
-      ElMessage.error("地震列表无数据")
-    }
-    tableNameOptions.value = eqlists.value.map(file => {
-          const eqid = file.split(' - ')[0]?.trim();
-          const details = file.split(' - ')[1]?.trim();
-          // 提取 `-` 后面的部分
-          return {
-            label: details, // 使用提取的部分作为标签
-            value: eqid// 选择值为 ID
-          }
+    getExcelUploadEarthquake().then(res => {
+        eqlists.value = res
+        if (res.data === null) {
+            ElMessage.error("地震列表无数据")
         }
-    )
-    // 2. 默认选择 eqid 为 'be3a5ea4-8dfd-a0a2-2510-21845f17960b' 的地震并获取对应数据
-    const defaultEqid = 'be3a5ea4-8dfd-a0a2-2510-21845f17960b';
-    const defaultOption = tableNameOptions.value.find(option => option.value === defaultEqid);
+        tableNameOptions.value = eqlists.value.map(file => {
+                const eqid = file.split(' - ')[0]?.trim();
+                const details = file.split(' - ')[1]?.trim();
+                // 提取 `-` 后面的部分
+                return {
+                    label: details, // 使用提取的部分作为标签
+                    value: eqid// 选择值为 ID
+                }
+            }
+        )
+        // 2. 默认选择 eqid 为 'be3a5ea4-8dfd-a0a2-2510-21845f17960b' 的地震并获取对应数据
+        const defaultEqid = 'be3a5ea4-8dfd-a0a2-2510-21845f17960b';
+        const defaultOption = tableNameOptions.value.find(option => option.value === defaultEqid);
 
-    // 设置初始值
-    if (defaultOption) {
-      eqlistName.value = defaultOption.label;
-      handleEqListChange(defaultOption.value); // 调用函数，获取对应 eqid 的数据
-    } else if (tableNameOptions.value.length > 0) {
-      eqlistName.value = tableNameOptions.value[0].label;
-      handleEqListChange(tableNameOptions.value[0].value);
-    }
-  })
+        // 设置初始值
+        if (defaultOption) {
+            eqlistName.value = defaultOption.label;
+            handleEqListChange(defaultOption.value); // 调用函数，获取对应 eqid 的数据
+        } else if (tableNameOptions.value.length > 0) {
+            eqlistName.value = tableNameOptions.value[0].label;
+            handleEqListChange(tableNameOptions.value[0].value);
+        }
+    })
 }
 // 3. 当下拉框改变时，获取对应 eqid 的数据
 const handleEqListChange = (selectedEqid) => {
-  // 将选中的 eqid 添加到 requestParams 中
-  requestParams.value = selectedEqid;
-  console.log(111111)
-  console.log(requestParams.value)
-  getList(); // 调用获取数据的方法，传递筛选后的 eqid
+    // 将选中的 eqid 添加到 requestParams 中
+    requestParams.value = selectedEqid;
+    console.log(111111)
+    console.log(requestParams.value)
+    getList(); // 调用获取数据的方法，传递筛选后的 eqid
 };
 
 const generateFieldData = () => {
-  return field.value.map((fieldName, index) => ({
-    value: fieldName,    // `value` should match field identifier
-    desc: name.value[index], // `desc` should match field description
-    disabled: false     // Optional: define if the item is selectable
-  }));
+    return field.value.map((fieldName, index) => ({
+        value: fieldName,    // `value` should match field identifier
+        desc: name.value[index], // `desc` should match field description
+        disabled: false     // Optional: define if the item is selectable
+    }));
 };
 
 
 /** 获取字段 */
 const getTableField = () => {
-  getField().then(res => {
-    files.value = res.data
-    if (files.value.length == 0) {
-      ElMessage.error("该用户无导表权限")
-    }
-    options.value = files.value.map(file => ({
-      label: file.fileName,
-      value: file.fileFlag
-    }));
-    flag.value = files.value[0].fileFlag; // 默认选择第一个表
-    const fileColumn = JSON.parse(files.value[0].fileColumn);
-    const map = new Map(Object.entries(fileColumn));
-    field.value = Array.from(map.keys())
-    name.value = Array.from(map.values())
-    data.value = generateData();
-    columns.value = generateColumnConfig();
-  })
+    getField().then(res => {
+        files.value = res.data
+        if (files.value.length == 0) {
+            ElMessage.error("该用户无导表权限")
+        }
+        options.value = files.value.map(file => ({
+            label: file.fileName,
+            value: file.fileFlag
+        }));
+        flag.value = files.value[0].fileFlag; // 默认选择第一个表
+        const fileColumn = JSON.parse(files.value[0].fileColumn);
+        const map = new Map(Object.entries(fileColumn));
+        field.value = Array.from(map.keys())
+        name.value = Array.from(map.values())
+        data.value = generateData();
+        columns.value = generateColumnConfig();
+
+        console.log(res.data)
+    })
+
 }
 
 // 表格翻页选中（需要设置row-key）
 function getRowKey(row) {
-  return row.uuid
+    return row.uuid
 }
 
 // 分页函数
 const handleSizeChange = (val) => {
-  pageSize.value = val
-  getList()
+    pageSize.value = val
+    getList()
 }
 
 const handleCurrentChange = async (val) => {
-  currentPage.value = val
-  await getList()
+    currentPage.value = val
+    await getList()
 }
 
 const generateData = _ => {
-  const data = [];
-  // 确保 field 和 name 数组已经填充
-  for (let i = 0; i < field.value.length; i++) {
-    data.push({
-      value: field.value[i],
-      desc: name.value[i],
-      disabled: false
-    });
-  }
-  return data
+    const data = [];
+    // 确保 field 和 name 数组已经填充
+    for (let i = 0; i < field.value.length; i++) {
+        data.push({
+            value: field.value[i],
+            desc: name.value[i],
+            disabled: false
+        });
+    }
+    return data
 }
 
 const getColumnWidth = (prop) => {
-  const specialColumns = ['地震名称', '地震时间', '填报截止时间'];
-  if (specialColumns.includes(prop)) {
-    return 250;
-  }
-  return 150;
+    const specialColumns = ['地震名称', '地震时间', '填报截止时间'];
+    if (specialColumns.includes(prop)) {
+        return 250;
+    }
+    return 150;
 };
 
 const data = ref(generateData())
 let value = ref([])
 
 const exportStatistics = () => {
-  if (value.value.length < 1) {
-    ElMessage({
-      message: '请至少选择一个字段导出',
-      type: 'error',
-      plain: true,
-    })
-  } else {
+    if (value.value.length < 1) {
+        ElMessage({
+            message: '请至少选择一个字段导出',
+            type: 'error',
+            plain: true,
+        })
+    } else {
 
-    const ids = multipleSelection.value.map(item => item.uuid);
+        const ids = multipleSelection.value.map(item => item.uuid);
 
-    exportExcel({
-      fields: value.value,
-      ids: ids,
-      flag: flag.value
-    }).then(res => {
-      let fileName;
-      if (flag.value === 'TransferSettlementInfo') {
-        fileName = '震情伤亡-转移安置统计表.xlsx';
-      } else if (flag.value === 'AftershockInformation') {
-        fileName = '震情伤亡-震情灾情统计表.xlsx';
-      } else if (flag.value === 'CasualtyReport'){
-        fileName = '震情伤亡-人员伤亡统计表.xlsx'; // 默认文件名
-      }
-      else if (flag.value === 'Meetings'){
-        fileName = '震情伤亡-文会情况统计表.xlsx'; // 默认文件名
-    } else if (flag.value === 'CommunicationFacilityDamageRepairStatus'){
-      fileName = '交通电力通信-通信设施损毁及抢修情况统计表.xlsx'; // 默认文件名
+        exportExcel({
+            fields: value.value,
+            ids: ids,
+            flag: flag.value
+        }).then(res => {
+            let fileName;
+            if (flag.value === 'TransferSettlementInfo') {
+                fileName = '震情伤亡-转移安置统计表.xlsx';
+            } else if (flag.value === 'AftershockInformation') {
+                fileName = '震情伤亡-震情灾情统计表.xlsx';
+            } else if (flag.value === 'CasualtyReport') {
+                fileName = '震情伤亡-人员伤亡统计表.xlsx';
+            } else if (flag.value === 'Meetings') {
+                fileName = '震情伤亡-文会情况统计表.xlsx';
+            } else if (flag.value === 'CommunicationFacilityDamageRepairStatus') {
+                fileName = '交通电力通信-通信设施损毁及抢修情况统计表.xlsx';
+            } else if (flag.value === 'PowerSupplyInformation') {
+                fileName = '交通电力通信-电力设施损毁及抢修情况统计表.xlsx';
+            } else if (flag.value === 'TrafficControlSections') {
+                fileName = '交通电力通信-交通管控情况统计表.xlsx';
+            } else if (flag.value === 'RoadDamage') {
+                fileName = '交通电力通信-道路交通损毁及抢修情况统计表.xlsx';
+            } else if (flag.value === 'HousingSituation') {
+                fileName = '建筑物、工程受损-房屋情况统计表.xlsx';
+            } else if (flag.value === 'SupplySituation') {
+                fileName = '建筑物、工程受损-供水情况统计表.xlsx';
+            } else if (flag.value === 'SupplyWater') {
+                fileName = '建筑物、工程受损-保障安置点供水统计表.xlsx';
+            } else if (flag.value === 'RiskConstructionGeohazards') {
+                fileName = '次生灾害-地质灾害统计表.xlsx';
+            } else if (flag.value === 'BarrierLakeSituation') {
+                fileName = '次生灾害-堰塞湖（雍塞体）统计表.xlsx';
+            } else if (flag.value === 'SecondaryDisasterInfo') {
+                fileName = '次生灾害-山洪危险区统计表.xlsx';
+            } else if (flag.value === 'DisasterAreaWeatherForecast') {
+                fileName = '次生灾害-气象情况统计表.xlsx';
+            } else if (flag.value === 'DisasterAreaWeatherForecast') {
+                fileName = '资金及物资捐赠-政府部门接收捐赠资金.xlsx';
+            } else if (flag.value === 'DisasterAreaWeatherForecast') {
+                fileName = '资金及物资捐赠-慈善组织接收捐赠资金.xlsx';
+            } else if (flag.value === 'DisasterAreaWeatherForecast') {
+                fileName = '资金及物资捐赠-红十字会系统接收捐赠资金.xlsx';
+            }
+
+
+            // 建筑物、工程受损-房屋情况统计表
+            // 建筑物、工程受损-供水情况统计表
+            // 次生灾害-地质灾害情况统计表
+            // 次生灾害-堰塞湖（雍塞体）情况统计表
+            // 次生灾害-山洪危险区情况统计表
+            // 次生灾害-气象情况统计表
+            // 力量物资资金-救援力量情况统计表
+            // 震情伤亡-震情受灾统计表
+
+
+            const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+        }).finally(() => {
+            dialogVisible.value = false
+        })
     }
-      const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-    }).finally(() => {
-      dialogVisible.value = false
-    })
-  }
 }
 
 const multipleTableRef = ref()
 const multipleSelection = ref([])
 
 const handleSelectionChange = (val) => {
-  multipleSelection.value = val
+    multipleSelection.value = val
 }
 const clearSelection = () => {
-  multipleTableRef.value?.clearSelection()
+    multipleTableRef.value?.clearSelection()
 }
 
 
