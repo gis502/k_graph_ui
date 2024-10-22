@@ -288,7 +288,6 @@ import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
-
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
@@ -339,6 +338,7 @@ import {
   watchTerrainProviderChanged,
   findModel
 } from '../../functionjs/model.js';
+import {initWebSocket} from '@/cesium/WS.js'
 
 
 export default {
@@ -800,6 +800,11 @@ export default {
       syncCamera();
     },
 
+      // 初始化ws
+    initWebsocket() {
+        this.websock = initWebSocket(this.eqid)
+    },
+
     /**
      * 取地震信息+开始结束当前时间初始化
      * @param {string} eqid - 地震ID
@@ -845,6 +850,8 @@ export default {
         this.updateMapandVariablebeforInit()
 
       })
+
+        this.websock.eqid = eqid
 
     },
 
@@ -1891,6 +1898,8 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.eqtableData = res
+          // 建立WS
+          this.initWebsocket()
         // console.log("that.eqtableData", that.eqtableData)
       })
     },
