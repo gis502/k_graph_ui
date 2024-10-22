@@ -320,6 +320,8 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/pl
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 
+import {initWebSocket} from '@/cesium/WS.js'
+
 export default {
   components: {
     thematicMapPreview,
@@ -728,6 +730,11 @@ export default {
 
       // 初始同步
       syncCamera();
+    },
+
+    // 初始化ws
+    initWebsocket() {
+      this.websock = initWebSocket(this.eqid)
     },
 
     /**
@@ -1852,6 +1859,8 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.tableData = res
+        // 建立WS
+        this.initWebsocket()
         // console.log("that.tableData", that.tableData)
       })
     },
