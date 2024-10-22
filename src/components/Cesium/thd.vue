@@ -132,7 +132,7 @@
         <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
         <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
         <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-        <el-menu-item index="7">返回首页</el-menu-item>
+        <el-menu-item index="7" @click="navigateToFrontPage">返回首页</el-menu-item>
       </el-menu>
     </div>
 
@@ -340,6 +340,8 @@ import {
   findModel
 } from '../../functionjs/model.js';
 
+
+import {initWebSocket} from '@/cesium/WS.js'
 
 export default {
   computed: {
@@ -622,6 +624,16 @@ export default {
       this.isExpanded = !this.isExpanded;
     },
 
+
+    /**
+     * 跳转首页
+     */
+    navigateToFrontPage(){
+      this.$router.push({
+        name: 'Index'
+      });
+    },
+
     /**
      * 设置组件展开的面板互斥,避免堆叠
      * 切换组件的显示状态
@@ -788,6 +800,11 @@ export default {
 
       // 初始同步
       syncCamera();
+    },
+
+    // 初始化ws
+    initWebsocket() {
+      this.websock = initWebSocket(this.eqid)
     },
 
     /**
@@ -1880,8 +1897,10 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
-        that.eqtableData = res
-        // console.log("that.eqtableData", that.eqtableData)
+        that.tableData = res
+        // 建立WS
+        this.initWebsocket()
+        // console.log("that.tableData", that.tableData)
       })
     },
 

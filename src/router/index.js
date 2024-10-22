@@ -120,7 +120,13 @@ export const constantRoutes = [
     path: '/statistics/pic/:flag',
     component: () => import('@/views/statistics/pic/datapic.vue'),
     name: 'Pic',
-  }
+  },
+  {
+    path: '/external-page',
+    name: 'ExternalPage',
+    component: () => import('@/components/ExternalPage/ExternalPage.vue'),
+    // meta: { title: '外部页面', requiresAuth: false }
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载
