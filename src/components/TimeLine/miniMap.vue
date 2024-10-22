@@ -9,7 +9,7 @@
       </h2>
       <div id="smallMapContainer"></div>
     </div>
-    <div class="showMiniMapButton" v-show="showLeftButton" @click="openMiniMap">
+    <div class="showMiniMapButton" v-show="showLeftButton" @click="openMiniMap" style="margin-top: 10px">
       <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 100%;width: 100%">
     </div>
   </div>

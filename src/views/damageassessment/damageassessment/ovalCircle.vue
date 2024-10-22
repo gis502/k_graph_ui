@@ -485,6 +485,8 @@ export default {
           id: this.selectedTabData.id
         });
 
+
+
         // 渲染 selectedEqPoint
         // console.log("Selected Eq Point:", this.selectedEqPoint);
       } else {
