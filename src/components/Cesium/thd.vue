@@ -341,6 +341,8 @@ import {
 } from '../../functionjs/model.js';
 
 
+import {initWebSocket} from '@/cesium/WS.js'
+
 export default {
   computed: {
     Edit() {
@@ -798,6 +800,11 @@ export default {
 
       // 初始同步
       syncCamera();
+    },
+
+    // 初始化ws
+    initWebsocket() {
+      this.websock = initWebSocket(this.eqid)
     },
 
     /**
@@ -1890,8 +1897,10 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
-        that.eqtableData = res
-        // console.log("that.eqtableData", that.eqtableData)
+        that.tableData = res
+        // 建立WS
+        this.initWebsocket()
+        // console.log("that.tableData", that.tableData)
       })
     },
 
