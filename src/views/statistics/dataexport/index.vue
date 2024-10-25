@@ -142,7 +142,6 @@ onMounted(() => {
 })
 const options = ref([]);
 const tableData = ref([])
-const tableConditionData = ref([])
 const field = ref([])
 const files = ref([])//存储当前用户的导表信息
 const name = ref([])
@@ -156,21 +155,24 @@ const widthList = {
     'CasualtyReport': [200, 200, 100, 200, 200, 120, 120, 120, 120, 120, 120, 200],
     'Meetings': [200, 200, 120, 200, 200, 120, 120, 120, 120],
 
-    'RoadDamage': [200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200, 200, 200],
-    'TrafficControlSections': [200, 200, 120, 200, 200, 120, 120, 120],
-    'CommunicationFacilityDamageRepairStatus': [200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200],
-    'PowerSupplyInformation': [200, 200, 120, 200, 200, 120, 120, 120, 120, 200, 200, 200, 200, 200, 200, 200],
+    'RoadDamage': [150, 200, 120, 200, 200, 200, 200, 200, 200, 200, 150, 120, 120, 120],
+    'TrafficControlSections': [200, 200, 120, 200, 200, 200, 300],
+    'CommunicationFacilityDamageRepairStatus': [200, 200, 120, 200, 200, 200, 200, 200, 200, 200, 200, 200],
+    'PowerSupplyInformation': [200, 200, 120, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
 
-    'HousingSituation': [200, 200, 120, 200, 200, 120, 120, 120, 200],
-    'SupplySituation': [200, 200, 120, 200, 200, 120, 120],
-    'SupplyWater': [200, 200, 120, 200, 200, 120, 120],
+    'HousingSituation': [200, 200, 200, 200, 200, 200, 200, 200, 200],
+    'SupplySituation': [250, 250, 250, 250, 250, 250],
+    'SupplyWater': [250, 250, 250, 250, 250, 250],
 
-    'RiskConstructionGeohazards': [200, 200, 120, 200, 200, 120, 120, 200, 200, 120],
-    'BarrierLakeSituation': [200, 200, 120, 200, 200, 120, 120, 200, 200],
-    'SecondaryDisasterInfo': [200, 200, 120, 200, 200, 120, 120],
-    'DisasterAreaWeatherForecast': [200, 200, 120, 1000, 200, 120]
+    'RiskConstructionGeohazards': [200, 200, 120, 200, 200, 150, 150, 200, 200, 120],
+    'BarrierLakeSituation': [200, 200, 120, 200, 200, 150, 150, 150, 150],
+    'SecondaryDisasterInfo': [200, 200, 120, 200, 200, 150, 150],
+    'DisasterAreaWeatherForecast': [200, 200, 120, 1000, 200, 150],
 
-
+    'MaterialDonation':[200, 200, 200, 200, 200, 150],
+    'GovernmentDepartmentDonations':[200, 200, 200, 200, 200, 200],
+    'CharityOrganizationDonations':[200, 200, 200, 250, 250, 200],
+    'RedCrossDonations':[200, 200, 200, 200, 200, 200]
 }
 
 /** 监听 */
@@ -287,7 +289,7 @@ const getEarthquake = () => {
         }
     )
     // 2. 默认选择 eqid 为 'be3a5ea4-8dfd-a0a2-2510-21845f17960b' 的地震并获取对应数据
-    const defaultEqid = 'be3a5ea4-8dfd-a0a2-2510-21845f17960b';
+    const defaultEqid = 'e5188712-00d9-4ff7-ad89-8bdcfe4a35ab';
     const defaultOption = tableNameOptions.value.find(option => option.value === defaultEqid);
 
     // 设置初始值
@@ -426,24 +428,17 @@ const exportStatistics = () => {
                 fileName = '次生灾害-山洪危险区统计表.xlsx';
             } else if (flag.value === 'DisasterAreaWeatherForecast') {
                 fileName = '次生灾害-气象情况统计表.xlsx';
-            } else if (flag.value === 'DisasterAreaWeatherForecast') {
-                fileName = '资金及物资捐赠-政府部门接收捐赠资金.xlsx';
-            } else if (flag.value === 'DisasterAreaWeatherForecast') {
-                fileName = '资金及物资捐赠-慈善组织接收捐赠资金.xlsx';
-            } else if (flag.value === 'DisasterAreaWeatherForecast') {
-                fileName = '资金及物资捐赠-红十字会系统接收捐赠资金.xlsx';
             }
-
-
-            // 建筑物、工程受损-房屋情况统计表
-            // 建筑物、工程受损-供水情况统计表
-            // 次生灾害-地质灾害情况统计表
-            // 次生灾害-堰塞湖（雍塞体）情况统计表
-            // 次生灾害-山洪危险区情况统计表
-            // 次生灾害-气象情况统计表
-            // 力量物资资金-救援力量情况统计表
-            // 震情伤亡-震情受灾统计表
-
+            else if (flag.value === 'MaterialDonation') {
+                fileName = '资金及物资捐赠-物资捐赠情况统计表.xlsx';
+            }
+            else if (flag.value === 'GovernmentDepartmentDonations') {
+                fileName = '资金及物资捐赠-资金援助情况-政府部门接收捐赠资金统计表.xlsx';
+            } else if (flag.value === 'CharityOrganizationDonations') {
+                fileName = '资金及物资捐赠-资金援助情况-慈善机构接收捐赠资金统计表.xlsx';
+            } else if (flag.value === 'RedCrossDonations') {
+                fileName = '资金及物资捐赠-资金援助情况-红十字会系统接收捐赠资金统计表.xlsx';
+            }
 
             const url = window.URL.createObjectURL(new Blob([res], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
             const link = document.createElement('a');
