@@ -21,7 +21,11 @@
       </el-table-column>
       <el-table-column prop="applicationType" label="应用类型" align="center" width="180"></el-table-column>
       <el-table-column prop="source" label="来源" align="center" width="180"></el-table-column>
-      <el-table-column prop="agreement" label="协议" align="center" width="180"></el-table-column>
+      <el-table-column prop="agreement" label="协议" align="center" width="180">
+        <template #default="scope">
+          {{ scope.row.agreement ? scope.row.agreement.toUpperCase() : '' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="port" label="端口" align="center" width="180"></el-table-column>
       <el-table-column prop="tactics" label="策略" align="center" width="180">
         <template #default="scope">
@@ -74,10 +78,8 @@
             </el-form-item>
             <el-form-item label="协议：">
               <el-select v-model="dialogContent.agreement" placeholder="请选择协议">
-                <el-option label="TCP" value="TCP"></el-option>
-                <el-option label="UDP" value="UDP"></el-option>
-                <el-option label="ICMPv6" value="ICMPv6"></el-option>
-                <el-option label="ICMP" value="ICMP"></el-option>
+                <el-option label="TCP" value="tcp"></el-option>
+                <el-option label="UDP" value="udp"></el-option>
               </el-select>
             </el-form-item>
 
@@ -125,7 +127,7 @@ let dialogContent = ref({// 弹窗内容
   uuid: "",
   applicationType: "自定义",
   source: "",
-  agreement: "TCP",
+  agreement: "tcp",
   port: null,
   notes: "",
   tactics: 'allow'
