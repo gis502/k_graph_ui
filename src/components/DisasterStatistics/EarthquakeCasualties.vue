@@ -56,14 +56,11 @@ watch(() => props.newEqId, (newValue) => {
   gettotal(eqid.value).then(res =>{
 
     // 得到后端数据开始操作：
-
-
-
     const areas = res.length > 0 ? res.map(item => item.affectedAreaName) : ["抱歉暂无数据"];
     const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
     const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
     const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
-    const times = res.length > 0 ? res.map(item => item.submissionDeadline) : ["抱歉暂无数据"];
+    const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
 
 
 
@@ -165,16 +162,6 @@ watch(() => props.newEqId, (newValue) => {
     });
   })
 });
-
-
-
-
-
-
-
-
-
-
 
 const flag = ref()
 const currentPage = ref(1 )

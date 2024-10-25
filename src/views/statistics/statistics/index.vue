@@ -111,20 +111,11 @@ watch(flag, (newFlag) => {
 });
 
 
-const newEqId = ref('');
+const newEqId = ref('be3a5ea4-8dfd-a0a2-2510-21845f17960b');
 
 watch(eqlistName, (newValue) => {  // 修改为 newValue
   newEqId.value = newValue
   console.log("爷爷", newEqId.value)
-  // const selectedOption = tableNameOptions.value?.find(option => option.label === newValue);
-  // if (selectedOption) {
-  //   const part = selectedOption.value.split(" - "); // 根据 " - " 分割字符串
-  //   selectedEqid.value = part[0].trim(); // 获取对应的 eqid
-  //   console.log("Selected eqid:", selectedEqid.value); // 打印 eqid
-  //   // 向后端请求数据
-  // } else {
-  //   console.warn('No matching option found for the selected label:', newValue);
-  // }
 });
 
 
@@ -173,7 +164,6 @@ const getTableField = () => {
 //获取地震列表
 const getEarthquake = () => {
   getExcelUploadEarthquake().then(res => {
-
     eqlists.value = res
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
@@ -181,6 +171,7 @@ const getEarthquake = () => {
     tableNameOptions.value = eqlists.value.map(file => {
           const eqid = file.split(' - ')[0]?.trim();
           const details = file.split(' - ')[1]?.trim();
+
           // 提取 `-` 后面的部分
           return {
             label: details, // 使用提取的部分作为标签
@@ -188,17 +179,24 @@ const getEarthquake = () => {
           }
         }
     )
-    // 查找 eqid
-    const defaultOption = tableNameOptions.value.find(option => option.value === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b');
 
-    // 设置默认显示的 eqlistName 值为找到的对象的 label
-    if (defaultOption) {
-      eqlistName.value = defaultOption.value;
+    const earthquakeList = tableNameOptions.value;
+    console.log(earthquakeList);
+
+// 查找最新的地震记录
+    const latestEarthquake = earthquakeList.reduce((latest, current) => {
+      // 提取时间字符串并转换为日期对象
+      const currentDate = new Date(current.label.split(' ')[0] + ' ' + current.label.split(' ')[1]);
+      return (!latest || currentDate > latest.date) ? { ...current, date: currentDate } : latest;
+    }, null);
+
+// 设置默认显示的 eqlistName 值为最新记录的 value
+    if (latestEarthquake) {
+      eqlistName.value = latestEarthquake.value;
     } else {
       ElMessage.error("未找到指定的地震ID");
       // eqlistName.value = tableNameOptions.value[0].label
     }
-
   })
 }
 
