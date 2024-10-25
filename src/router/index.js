@@ -43,11 +43,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/thd',
-    component: () => import('@/components/Cesium/thd.vue'),
-    hidden: true
-  },
-  {
     path: '/register',
     component: () => import('@/views/register'),
     hidden: true
@@ -106,6 +101,11 @@ export const constantRoutes = [
     component: () =>import('@/components/Cesium/thd'),
     hidden: true
   },
+  {
+    path:'/orthophotographViewer',
+    component: () =>import('@/components/Cesium/orthophotographViewer'),
+    hidden: true
+  },
 
   // {
   //   // path:'/thdTimeLine',
@@ -120,7 +120,13 @@ export const constantRoutes = [
     path: '/statistics/pic/:flag',
     component: () => import('@/views/statistics/pic/datapic.vue'),
     name: 'Pic',
-  }
+  },
+  {
+    path: '/external-page',
+    name: 'ExternalPage',
+    component: () => import('@/components/ExternalPage/ExternalPage.vue'),
+    // meta: { title: '外部页面', requiresAuth: false }
+  },
 ]
 
 // 动态路由，基于用户权限动态去加载

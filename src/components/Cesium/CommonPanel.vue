@@ -1,11 +1,51 @@
 <template>
   <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
-    <div v-if="!showStatus">
+    <div v-if="!showEqStatus">
+      <div class="earthquake-info-panel">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>{{earthquakeInfo.tableName}}</span>
+          </div>
+          <el-descriptions :column="2" size="default" border>
+            <!-- 地震名称 -->
+            <el-descriptions-item label="地震名称">
+              <el-text size="large">
+                {{ earthquakeInfo.earthquakeName || "未知地震" }}
+              </el-text>
+            </el-descriptions-item>
+
+            <!-- 地震发生时间 -->
+            <el-descriptions-item label="发生时间">
+              <el-text size="large">
+                {{ earthquakeInfo.historyEqTime }}
+              </el-text>
+            </el-descriptions-item>
+
+            <!-- 地震震级 -->
+            <el-descriptions-item label="震级">
+              <el-text size="large">
+                {{ earthquakeInfo.magnitude || "无数据" }} 级
+              </el-text>
+            </el-descriptions-item>
+
+            <!-- 经纬度 -->
+            <el-descriptions-item label="经纬度">
+              <el-text size="large">
+                经度: {{ earthquakeInfo.lon || "无数据" }}，纬度: {{ earthquakeInfo.lat || "无数据" }}
+              </el-text>
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </div>
+    </div>
+    <div v-else>
+      <div v-if="!showStatus">
       <div class="header-div">
         <span>
           <span>态势标绘信息</span>
         </span>
       </div>
+        <div class="earthquake-info-panel">
       <el-descriptions :column="2" size="default " border>
         <!-- 标绘名称 -->
         <el-descriptions-item>
@@ -116,124 +156,10 @@
                    @click="deletePlot">删除
         </el-button>
       </div>
-      <!--        <el-descriptions :column="2" size="default " border>-->
-
-      <!--        </el-descriptions>-->
-
-
-      <!--      <el-scrollbar height="400px">-->
-      <!--        <el-timeline>-->
-      <!--          <el-timeline-item v-for="(activity, index) in plotInfoActivities" :key="index">-->
-      <!--            <el-collapse v-model="activeNames" @change="">-->
-      <!--              <el-collapse-item :name="index">-->
-      <!--                <template #title>-->
-      <!--                  <div>-->
-      <!--                    &lt;!&ndash;此处首先判断starttime是日期形式还是时间戳形式；前者则直接显示；后者则再判断是否为null，不是null则把时间戳转成日期形式，是null则为空&ndash;&gt;-->
-      <!--                    &lt;!&ndash;用来解决新增时下面的span显示时间戳的问题&ndash;&gt;-->
-      <!--                    <span style="margin-left: 10px;font-size: 16px">-->
-      <!--                      {{("" + activity.starttime).match('-')-->
-      <!--                            ? activity.starttime-->
-      <!--                            : (activity.starttime !== null ? activity.starttime : "") }}-->
-      <!--                    </span>-->
-      <!--                    &lt;!&ndash;                    <span style="margin-left: 20px">自定义内容 </span>&ndash;&gt;-->
-      <!--                  </div>-->
-      <!--                </template>-->
-      <!--                <div>-->
-      <!--                  <el-descriptions :column="2" size="default " border>-->
-      <!--                    <el-descriptions-item>-->
-      <!--                      <template #label>-->
-      <!--                        <div class="cell-item">-->
-      <!--                          开始时间-->
-      <!--                        </div>-->
-      <!--                      </template>-->
-      <!--                      <div>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{-->
-      <!--                            ("" + activity.starttime).match('-')-->
-      <!--                                ? activity.starttime-->
-      <!--                                : (activity.starttime !== null ? activity.starttime : "")-->
-      <!--                          }}</el-text>-->
-      <!--                        <el-date-picker-->
-      <!--                            v-if="!activity.aditStatus"-->
-      <!--                            v-model="activity.starttime"-->
-      <!--                            type="datetime"-->
-      <!--                            placeholder="选择日期时间"-->
-      <!--                            value-format="x"-->
-      <!--                            size="large">-->
-      <!--                        </el-date-picker>-->
-      <!--                      </div>-->
-      <!--                    </el-descriptions-item>-->
-      <!--                    <el-descriptions-item>-->
-      <!--                      <template #label>-->
-      <!--                        <div class="cell-item">-->
-      <!--                          结束时间-->
-      <!--                        </div>-->
-      <!--                      </template>-->
-      <!--                      <div>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{-->
-      <!--                            ("" + activity.endtime).match('-')-->
-      <!--                                ? activity.endtime-->
-      <!--                                : (activity.endtime !== "" ? activity.endtime : "")-->
-      <!--                          }}</el-text>-->
-      <!--                        <el-date-picker-->
-      <!--                            v-if="!activity.aditStatus"-->
-      <!--                            v-model="activity.endtime"-->
-      <!--                            type="datetime"-->
-      <!--                            placeholder="选择日期时间"-->
-      <!--                            value-format="x"-->
-      <!--                            size="large">-->
-      <!--                        </el-date-picker>-->
-      <!--                      </div>-->
-      <!--                    </el-descriptions-item>-->
-      <!--                  </el-descriptions>-->
-
-      <!--                  <el-descriptions :column="2" size="default " border>-->
-      <!--                    <template v-for="(value,key,index) in activity.info">-->
-      <!--                      <el-descriptions-item v-if="value.type ==='text'">-->
-      <!--                        <template #label>-->
-      <!--                          <div class="cell-item">-->
-      <!--                            {{ value.name }}-->
-      <!--                          </div>-->
-      <!--                        </template>-->
-      <!--                          <el-text v-if="activity.aditStatus" size="large" >{{ value.value }}</el-text>-->
-      <!--                          <el-input v-if="!activity.aditStatus" v-model="value.value" autocomplete="off" size="large"/>-->
-      <!--                      </el-descriptions-item>-->
-      <!--                      <el-descriptions-item v-if="value.type ==='select'">-->
-      <!--                        <template #label>-->
-      <!--                          <div class="cell-item">-->
-      <!--                            {{ value.name }}-->
-      <!--                          </div>-->
-      <!--                        </template>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{ value.value }}</el-text>-->
-      <!--                        <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">-->
-      <!--                          <el-option-->
-      <!--                              v-for="item in value.content"-->
-      <!--                              :label="item.label"-->
-      <!--                              :value="item.label"/>-->
-      <!--                        </el-select>-->
-      <!--                      </el-descriptions-item>-->
-      <!--                    </template>-->
-      <!--                  </el-descriptions>-->
-      <!--                </div>-->
-      <!--                <div class="collapseFooter">-->
-      <!--                  <el-button v-if="!activity.aditStatus && addStatus" type="success" round-->
-      <!--                             @click="addCommitPlotInfo(activity)">新增-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="activity.aditStatus && !addStatus" type="warning" round-->
-      <!--                             @click="beforeUpdataPlotInfo(activity)">修改-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="!activity.aditStatus && !addStatus" type="success" round-->
-      <!--                             @click="updataPlotInfo(activity)">提交-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="activity.aditStatus && !addStatus" type="danger" round-->
-      <!--                             @click="deletePlotInfo(activity)">删除-->
-      <!--                  </el-button>-->
-      <!--                </div>-->
-      <!--              </el-collapse-item>-->
-      <!--            </el-collapse>-->
-      <!--          </el-timeline-item>-->
-      <!--        </el-timeline>-->
-      <!--      </el-scrollbar>-->
     </div>
+    </div>
+    </div>
+
   </div>
 </template>
 <script>
@@ -250,6 +176,7 @@ export default {
       popupPanelData: {}, // 存储这当前标绘点在situationplot表中的信息
       //--------------------
       showStatus: false,
+      showEqStatus:false,
       plotInfoActivities: [], // 存储当前标绘点的多有situationplotinfo表信息
       activeNames: [], // 对应每个el-collapse-item标签的name，数组中有谁，谁展开。（我使用的index是整型）
       addStatus: false,
@@ -259,7 +186,8 @@ export default {
         info: null,
         id: null,
         aditStatus: true,
-      }
+      },
+      earthquakeInfo:{}
     }
   },
   props: [
@@ -280,16 +208,18 @@ export default {
         // 可能时因为开启深度监听的原因（deep: true）。
         // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
-          console.log(this.popupPanelData)
+          // console.log("1123",this.popupPanelData)
           if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else if (this.popupPanelData.drawtype) {
+          } else if (this.popupPanelData.drawtype ==='point') {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else {
+          } else if (this.popupPanelData.drawtype === 'center'){
+            this.getEqInfo(this.popupPanelData)
+          }else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
-            }else {
+            } else {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }
@@ -398,7 +328,7 @@ export default {
           arrow.clearById(data.plotId)
           arraw = false
         }
-        this.$emit('closePlotPop')
+        this.deletePoint()
       })
     },
     // 打开添加标绘信息
@@ -442,6 +372,7 @@ export default {
     getPlotInfo(plotId,plotType) {
       // console.log("点击获取",plotId,plotType)
       let that = this;
+      that.showEqStatus = true; // 切换地震和标绘信息的显示状态
       // 1. 请求获取标绘点信息
       getPlotInfos({ plotId, plotType }).then(res => {
         console.log("点击获取",res)
@@ -510,6 +441,23 @@ export default {
         console.log("更新",that.plotInfoNew)
       });
     },
+    // 点击震中中心点获取该中心点的标绘信息
+    getEqInfo(eqData){
+      let that = this
+      that.showEqStatus = false; // 切换地震和标绘信息的显示状态
+      console.log("eqData",eqData)
+      let data ={
+        tableName: `${this.timestampToTime(eqData.occurrenceTime, 'date').replace("T"," ")} ${eqData.earthquakeName} ${eqData.magnitude}级地震`,
+        historyEqTime: eqData.occurrenceTime.replace("T"," "),
+        earthquakeName: eqData.earthquakeName,
+        lat: eqData.latitude,
+        lon: eqData.longitude,
+        magnitude: eqData.magnitude,
+      }
+      that.earthquakeInfo = data
+      console.log("更新",that.earthquakeInfo)
+
+    },
     // 删除标注
     deletePoint() {
       this.$emit('closePlotPop')
@@ -553,6 +501,9 @@ export default {
 .cell-item {
   width: 100%;
   text-align: center;
+  white-space: nowrap; /* 避免换行 */
+  overflow: hidden;    /* 隐藏溢出的文本 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
 .collapseFooter {
@@ -579,6 +530,7 @@ export default {
 
 .box-card {
   margin-bottom: 5px;
+  font-size: 25px;
 }
 
 .videoMonitorWin {
@@ -625,5 +577,23 @@ export default {
   background-color: #4d5469;
   margin-bottom: 2px;
 }
+
+.earthquake-info-panel {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 100%;
+  margin: 10px 10px;
+}
+
+.el-card__header {
+  font-weight: bold;
+}
+
+.el-descriptions__label {
+  font-weight: bold;
+}
+
+
 
 </style>
