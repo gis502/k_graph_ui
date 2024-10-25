@@ -818,7 +818,6 @@ export default {
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
-        // console.log(res)
         // 设置中心点的标识和时间信息
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
@@ -849,7 +848,7 @@ export default {
         // 获取地震数据并更新地图和变量
         this.getEq()
         this.checkIfOvalCircleLayer();
-        this.updateMapandVariablebeforInit()
+        this.updateMapandVariablebeforInit(this.centerPoint)
 
       })
 
@@ -879,7 +878,7 @@ export default {
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
-    updateMapandVariablebeforInit() {
+    updateMapandVariablebeforInit(data) {
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
@@ -895,14 +894,14 @@ export default {
       });
       //加载中心点
       viewer.entities.add({
-        // properties: {
-        //   type: "震中",
-        //   time: this.centerPoint.time,
-        //   name: this.centerPoint.position,
-        //   lat: this.centerPoint.latitude,
-        //   lon: this.centerPoint.longitude,
-        //   describe: this.centerPoint.position,
-        // },
+        properties: {
+          tableName: `${this.timestampToTime(data.occurrenceTime, 'date')} ${data.earthquakeName} ${data.magnitude}级地震`,
+          historyEqTime: data.occurrenceTime.replace("T"," "),
+          earthquakeName: data.earthquakeName,
+          lat: data.latitude,
+          lon: data.longitude,
+          magnitude: data.magnitude,
+        },
         position: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
@@ -1087,6 +1086,7 @@ export default {
         this.updatePlot(false)
       })
     },
+
     /*
     * 更新标绘点
     * */
@@ -1547,6 +1547,7 @@ export default {
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
         // 检查点击位置是否拾取到实体
         let pickedEntity = window.viewer.scene.pick(click.position);
+        console.log("点击选择的pickedEntity",pickedEntity)
         window.selectedEntity = pickedEntity?.id;
 
         // 获取故障信息的 div 元素
@@ -1594,7 +1595,7 @@ export default {
 
 
           // 如果点击的是标绘点
-          if (entity._layer === "标绘点") {
+          if (entity._layer === "标绘点" && entity._id !== "center") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.timelinePopupData = {}
@@ -1603,7 +1604,7 @@ export default {
             // this.timelinePopupData = this.extractDataForTimeline(entity);
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
-          } else if (entity._billboard) {
+          } else if (entity._billboard ) {
             // 如果点击的是路标
             this.routerPopupVisible = true;
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
@@ -1612,6 +1613,7 @@ export default {
             this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
           } else if (Object.prototype.toString.call(entity) === '[object Array]') {
+
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
             this.timelinePopupVisible = false
@@ -1660,7 +1662,6 @@ export default {
       // 在中心点位置添加新的故障区域
       addFaultZones(this.centerPoint)
     },
-
 
     /**
      * 检查并确定是否添加烈度圈要素图层
@@ -1861,7 +1862,6 @@ export default {
     backToHome() {
 
     },
-
 
     /**
      * 检查地形是否已加载
@@ -2160,6 +2160,7 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
+
     /*
     * 更新地图图层
     * 点击图层复选框时在地图上展示相应的图层数据
