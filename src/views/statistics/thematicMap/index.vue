@@ -8,11 +8,11 @@
       <!-- 图例 -->
       <el-form class="noteContainer" v-if="this.selectedComponentKey === 'EarthquakeCasualties'">
         <p style="color: white; text-align: left; margin: 5px 0; font-size: 15px;">余震次数累计：</p>
-        <div class="legend_item" v-for="(item, index) in echartsLegendData" :key="index">
+        <div class="legend_item" v-for="(item, index) in getLegendData()" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
         </div>
-        <p style="color: white; text-align: left; margin: 5px 0; padding: 0;font-size: 15px">受灾人数：</p>
+        <p style="color: white; text-align: left; margin: 5px 0; padding: 0;font-size: 15px">累积受伤人数：</p>
         <div class="legend_item" v-for="(item, index) in injuredLegendData" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
@@ -73,18 +73,36 @@
     </el-row>
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
-      <div class="export-info">
-        <p>{{ exportTitle }}</p>
-      </div>
-      <div class="img_outbox">
-        <div class="mainImage">
-          <img :src="previewImage" class="preview-image" alt="导出预览">
+      <div class="export-image">
+        <div class="export-info">
+          <p>{{ exportTitle }}</p>
         </div>
-      </div>
-      <div style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
-        <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
-        <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
-        <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
+        <div class="main_coantainer">
+          <div class="top_container">
+            <div class="box"></div>
+            <div class="top"></div>
+            <div class="box"></div>
+          </div>
+          <div class="middow">
+            <div class="left"></div>
+            <div class="main">
+              <img :src="previewImage" alt="导出图片">
+            </div>
+            <div class="right"></div>
+          </div>
+          <div class="bottom_container">
+            <div class="box"></div>
+            <div class="bottom"></div>
+            <div class="box"></div>
+          </div>
+        </div>
+        <div
+            style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+          <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
+          <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
+          <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
+        </div>
+
       </div>
       <div class="preview-buttons">
         <button @click="downloadImage" class="download-button">下载</button>
@@ -103,20 +121,34 @@ import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
-import {getAfterShockInformation,getTotal} from "@/api/system/statistics";
+import earthQuakeCenterImg from '@/assets/icons/TimeLine/震中.png'
+import {getTotal as getAftershock} from "@/api/system/statistics";
 import {getCasualty} from "@/api/system/casualtystats" ;
 import {getTransferInfo} from "@/api/system/relocation";
+import {TianDiTuToken} from "@/cesium/tool/config.js";
 
 export default {
   data() {
     return {
       viewer: null, // 保存 Cesium Viewer
       pollingInterval: null, // 保存轮询定时器的引用
+
       //-------echarts所用到的-----------
+      //下面是各个模块的echarts图例数据
       echartsLegendData: [
-        {name: '3.0-3.9级', color: '#ff6d39'},
-        {name: '4.0-4.9级', color: '#53a8ff'},
-        {name: '5.0-5.9级', color: '#ff7c88'}
+        {
+          name: 'EarthquakeCasualties',
+          data: [
+            {name: '3.0-3.9级', color: '#2c933e'},
+            {name: '4.0-4.9级', color: '#ff6d39'},
+            {name: '5.0-5.9级', color: '#53a8ff'},
+            {name: '6.0级以上', color: '#ff7c88'},
+          ]
+        },
+        {
+          name: 'TransportationElectricity',
+          data: []
+        },
       ],
       locations: [
         {name: '雨城区', longitude: 103.0, latitude: 29.87},
@@ -130,19 +162,10 @@ export default {
       ],
       echartsInstances: [],
 
-      //-----------导出图片----------------
-      previewImage: null, // 保存预览图片的 URL
-      loading: false, // 控制加载状态
-      exportTitle: '震情伤亡信息专题图',
-      pictureCreateTime: '',
-
-      // ---------导出图片时经纬度线--------------
-      rectangleBounds: [],//按东南西北的顺序存储
-      latLonEntities: [], // 用于存储经纬度线实体的数组
-
       //----------地震选择列表------------
       eqlists: [],
       eqlistName: '',
+      eqid: '',
       tableNameOptions: [],
       selectedComponentKey: 'EarthquakeCasualties',
       options: [
@@ -152,7 +175,6 @@ export default {
 
       //---------板块颜色------------
       dataSource: null,//这个别的也能用
-
       injuredLegendData: [
         {name: '0-50人', color: '#ffb3b3', range: [0, 50]},// 非常浅的红色
         // {name: '10-20人', color: '#ff6666'},// 浅红色
@@ -178,6 +200,25 @@ export default {
         {name: '芦山县', longitude: 103.10, latitude: 30.56},  // 向西偏移
         {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
       ],
+
+      //-----------导出图片----------------
+      previewImage: null, // 保存预览图片的 URL
+      loading: false, // 控制加载状态
+      exportTitle: '震情伤亡信息专题图',
+      pictureCreateTime: '',
+      // 导出图片时经纬度线
+      rectangleBounds: [],//按东南西北的顺序存储
+      latLonEntities: [], // 用于存储经纬度线实体的数组
+      //下面的是用来解决导出图片边框和经纬度数字展示用的
+      topStart: null,
+      topEnd: null,
+      leftStart: null,
+      leftEnd: null,
+      step: 0.5,
+      divBoxCount: 0,
+      flexPercentages: [],
+      points: [],
+      hasGeneratedPoints: false,
     };
   },
   mounted() {
@@ -245,6 +286,9 @@ export default {
 
       // 禁用中键旋转
       this.viewer.scene.screenSpaceCameraController.enableTilt = false;
+
+      // 禁用双击后的视角锁定功能
+      this.viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
     },
 
     // 启动轮询
@@ -260,29 +304,73 @@ export default {
       }
     },
 
-
+    // 地震列表变化
     handleEqListChange(value) {
       // 获取选择的 eqid
-      const selectedEqId = value;
-      // this.getTransfer('be3a5ea4-8dfd-a0a2-2510-21845f17960b')
-      // this.getCasualtyCount('be3a5ea4-8dfd-a0a2-2510-21845f17960b')
-      // this.getAfterShock('be3a5ea4-8dfd-a0a2-2510-21845f17960b')
-      this.getTransfer(value)
-      this.getCasualtyCount(value)
-      this.getAfterShock(value)
-    },
+      this.eqid = value;
 
+      if (this.selectedComponentKey === 'EarthquakeCasualties') {
+        // 清除当前所有转移安置的实体
+        this.viewer.entities.removeAll();
+        this.getPoints(value)
+        //获取震源中心的点数据
+        // this.getEarthQuakeCenter(value)
+        this.getDistrictColor(value)
+        this.getEcharts(value)
+      }
 
-    handleComponentChange(value){
-      if (this.selectedComponentKey === 'EarthquakeCasualties'){
-
-      }else if (this.selectedComponentKey === 'TransportationElectricity'){
-
+      if (this.selectedComponentKey === 'TransportationElectricity') {
+        //这里根据this.eqid来获取对应的数据
+        console.log('选中了交通的对应eqid：', this.eqid)
       }
     },
 
+    // 切换模块组件
+    handleComponentChange(value) {
+
+      //这里是修改exportTitle，导出图片的标题会对应变化
+      const selectedOption = this.options.find(option => option.value === this.selectedComponentKey);
+      if (selectedOption) {
+        this.exportTitle = selectedOption.label; // 设置 exportTitle 为对应的 label
+      }
+
+      if (this.selectedComponentKey === 'EarthquakeCasualties') {
+        // 清除当前所有转移安置的实体
+        this.viewer.entities.removeAll();
+        this.getPoints(this.eqid)
+        // 由于之前删除了所有实体，所以要添加标签
+        this.addDistrictLabels(this.dataSource)
+        //获取震源中心的点数据
+        // this.getEarthQuakeCenter(this.eqid)
+        this.getDistrictColor(this.eqid)
+        this.getEcharts(this.eqid)
+      } else {
+        // 清除当前所有转移安置的实体
+        this.viewer.entities.removeAll();
+        this.clearMultipleECharts();
+      }
+
+      if (this.selectedComponentKey === 'TransportationElectricity') {
+        this.addTrafficLayer();
+        this.updateDistrictColors(this.dataSource)
+        this.getEcharts(this.eqid)
+        this.getPoints(this.eqid)
+      } else {
+        this.removeImageryLayer('TrafficLayer');
+        this.removeImageryLayer('TrafficTxtLayer');
+      }
+    },
+
+    // 切换组件获取图例数据
+    getLegendData() {
+      const legend = this.echartsLegendData.find(
+          legendItem => legendItem.name === this.selectedComponentKey
+      );
+      return legend ? legend.data : [];
+    },
 
     //--------------------------------------------------下面是后端获取数据的方法------------------------------------------
+
     //获取地震列表数据
     getEarthquake() {
       getExcelUploadEarthquake().then(res => {
@@ -300,11 +388,11 @@ export default {
             };
           });
           if (this.tableNameOptions.length > 0) {
-            if (!this.eqlistName){
+            if (!this.eqlistName) {
               // 默认选择地震列表中的第一个
               this.eqlistName = this.tableNameOptions[0].label;
               this.handleEqListChange(this.tableNameOptions[0].value)
-            }else {
+            } else {
               // this.handleEqListChange(this.eqlistName)
             }
           }
@@ -312,60 +400,169 @@ export default {
       });
     },
 
-    //获取echarts展示的数据
-    getAfterShock(eqid) {
-      getTotal(eqid).then(res => {
-        this.updateMultipleECharts(res)
-      })
+    //获取震源中心
+    getEarthQuakeCenter(eqid) {
+      // getGeomById(eqid).then(res => {
+      //   this.updateEarthQuakeCenter(res[0])
+      // })
     },
 
-    //获取受灾人数数据，对应板块颜色
-    getCasualtyCount(eqid) {
+    //获取echarts展示的数据
+    getEcharts(eqid) {
+      if (this.selectedComponentKey === 'EarthquakeCasualties') {
+        getAftershock(eqid).then(res => {
+          this.updateMultipleECharts(res)
+        })
+      }
+      if (this.selectedComponentKey === 'TransportationElectricity') {
+
+      }
+    },
+
+    //板块颜色
+    getDistrictColor(eqid) {
+      //获取受灾人数数据
       getCasualty(eqid).then(res => {
         this.updateDistrictColors(this.dataSource, res)
       })
     },
 
-    //获取转移安置人数数据
-    getTransfer(eqid) {
-      getTransferInfo(eqid).then(res => {
-        this.updateTransferPoints(res);
-      })
+    //获取点数据
+    getPoints(eqid) {
+      if (this.selectedComponentKey === 'EarthquakeCasualties') {
+        //获取转移安置人数数据
+        getTransferInfo(eqid).then(res => {
+          this.updatePoints(res);
+        })
+      }
+      if (this.selectedComponentKey === 'TransportationElectricity') {
+
+      }
     },
 
-    //------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------下面是交通图层的方法-------------------------------------------------
 
+    /**
+     * 添加交通图层到地图
+     * 该方法首先检查是否已经存在名为'TrafficLayer'的图层，如果不存在，则从天地图服务添加交通图层
+     * 同样，如果不存在名为'TrafficTxtLayer'的图层，则添加交通注记图层
+     */
+    addTrafficLayer() {
+      // 获取天地图API令牌
+      let token = TianDiTuToken;
+
+      // 检查是否存在'TrafficLayer'图层
+      let trafficLayerexists = this.imageryLayersExists('TrafficLayer')
+      if (!trafficLayerexists) {
+        // 创建并添加交通图层
+        let trafficLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通图层的URL模板
+              url:
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+            })
+        );
+        trafficLayer.name = "TrafficLayer"; // 设置名称
+      }
+
+      // 检查是否存在'TrafficTxtLayer'图层
+      let trafficTxtLayerExists = this.imageryLayersExists('TrafficTxtLayer')
+      if (!trafficTxtLayerExists) {
+        // 创建并添加交通注记图层
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通注记图层的URL模板
+              url:
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false, // 初始状态下不显示注记
+            })
+        )
+        traffictxtLayer.name = "TrafficTxtLayer"
+      }
+    },
+
+    /**
+     * 移除指定名称的影像图层
+     *
+     * 该方法旨在从当前 viewer 的影像图层列表中移除第一个匹配给定图层名称的图层
+     * 主要用于动态管理地图上的影像图层，提高地图的可读性和性能
+     * @param {string} layerName - 要移除的影像图层的名称
+     *        图层名称是在添加图层时指定的，用于唯一标识每个图层
+     */
+    removeImageryLayer(layerName) {
+      // 获取当前 viewer 的所有影像图层
+      const layers = window.viewer.imageryLayers;
+      // 遍历所有图层，寻找与给定名称匹配的图层
+      for (let i = 0; i < layers.length; i++) {
+        // 当找到名称匹配的图层时
+        if (layers.get(i).name === layerName) {
+          // 移除该图层
+          layers.remove(layers.get(i));
+          // 完成移除后即返回，结束函数执行
+          return;
+        }
+      }
+    },
+
+    /**
+     * 检查指定名称的图层是否存在于地图中
+     *
+     * @param {string} layerName - 需要检查的图层名称
+     * @return {boolean} - 如果图层存在，则返回true；否则返回false
+     */
+    imageryLayersExists(layerName) {
+      // 获取地图中所有的图层
+      const layers = viewer.imageryLayers;
+      // 遍历所有图层，检查是否存在指定名称的图层
+      for (let i = 0; i < layers.length; i++) {
+        if (layers.get(i).name === layerName) {
+          // 如果找到指定名称的图层，返回true
+          return true;
+        }
+      }
+      // 如果遍历完所有图层后仍未找到指定名称的图层，返回false
+      return false;
+    },
 
     //------------------------------------------下面是清除实体的方法------------------------------------------------------
 
+    // 销毁所有已创建的 ECharts 实例
+    clearMultipleECharts() {
+      // 停止 Cesium 场景渲染后的 ECharts 更新同步
+      if (this.syncEChartsWithCesium) {
+        this.viewer.scene.postRender.removeEventListener(this.syncEChartsWithCesium);
+        this.isPostRenderAdded = false;
+      }
 
-    // // 销毁所有已创建的 ECharts 实例
-    // clearMultipleECharts() {
-    //   // 停止 Cesium 场景渲染后的 ECharts 更新同步
-    //   if (this.syncEChartsWithCesium) {
-    //     this.viewer.scene.postRender.removeEventListener(this.syncEChartsWithCesium);
-    //   }
-    //
-    //   // 遍历每个 ECharts 实例并销毁它们
-    //   this.echartsInstances.forEach(echart => {
-    //     if (echart) {
-    //       echart.dispose();  // 销毁 ECharts 实例，释放资源
-    //     }
-    //   });
-    //
-    //   // 清空 ECharts 实例数组
-    //   this.echartsInstances = [];
-    //
-    //   // 清空 ECharts 容器
-    //   const chartContainers = this.$refs.echartsContainer;
-    //   if (chartContainers) {
-    //     chartContainers.forEach(container => {
-    //       container.innerHTML = '';  // 移除容器中的所有 ECharts 元素
-    //     });
-    //   }
-    // },
-    //
-    //
+      // 遍历每个 ECharts 实例并销毁它们
+      this.echartsInstances.forEach(echart => {
+        if (echart) {
+          echart.dispose();  // 销毁 ECharts 实例，释放资源
+        }
+      });
+
+      // 清空 ECharts 实例数组
+      this.echartsInstances = [];
+
+      // 清空 ECharts 容器
+      const chartContainers = this.$refs.echartsContainer;
+      if (chartContainers) {
+        chartContainers.forEach(container => {
+          container.innerHTML = '';  // 移除容器中的所有 ECharts 元素
+        });
+      }
+    },
+
     // clearTransferPoints() {
     //   // 遍历 transferData 并移除对应的实体
     //   const transferData = [
@@ -408,71 +605,78 @@ export default {
     //   });
     // },
 
+    //-----------------------------下面主要是标绘点的方法，创建转移安置点，以及震源中心的方法--------------------------------
+
+    updatePoints(data) {
+      if (this.selectedComponentKey === 'EarthquakeCasualties') {
+        // 遍历所有的转移位置
+        this.transferLocations.forEach(location => {
+          // 在 transferDataFromBackend 中查找对应位置的数据
+          const transferItem = data.find(item => item.earthquakeAreaName === location.name);
+
+          // 如果找不到对应的转移数据，设定人数为0
+          const count = transferItem ? transferItem.cumulativeTransferred : 0;
+
+          // 当人数小于10时，设为10
+          const adjustedCount = count < 10 ? 10 : count;
+          const scale = Math.log(adjustedCount) / 5;  // 动态计算缩放比例
+          const baseFontSize = 12;  // 定义基础字体大小
+          const fontSize = Math.max(Math.round(scale * baseFontSize), 10);  // 动态计算字体大小，最小为10
+          const imageHeight = 30;  // 假设图标的高度
+          const dynamicOffsetY = -(imageHeight * scale / 2) - (fontSize / 2);  // 动态计算Y轴偏移量
+
+          // 添加到 Cesium 实体
+          this.viewer.entities.add({
+            id: location.name,
+            position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
+            billboard: {
+              image: cumulativeTransferredImg,  // 图标
+              scale: scale,
+              verticalOrigin: Cesium.VerticalOrigin.CENTER,  // 图标在位置的中心
+              horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
+              eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
+            },
+            label: {
+              text: `${count}`,  // 显示实际人数
+              font: `bold ${fontSize}px sans-serif`,  // 动态调整字体大小
+              fillColor: Cesium.Color.BLACK,  // 字体颜色
+              showBackground: false,  // 不显示背景
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,  // 将文本基线对齐到图标底部
+              horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
+              pixelOffset: new Cesium.Cartesian2(0, dynamicOffsetY),  // 动态调整文本位置
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,  // 禁用深度测试，使标签不被遮挡
+              eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
+            }
+          });
+        });
+      }
+      if (this.selectedComponentKey === 'TransportationElectricity') {
+
+      }
+
+    },
+
+    updateEarthQuakeCenter(data) {
+      // 添加到 Cesium 实体
+      this.viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(data.longitude, data.latitude),
+        billboard: {
+          image: earthQuakeCenterImg,  // 图标
+        }
+      });
+    },
+
     //------------------------------------------------------------------------------------------------------------------
 
 
-    //--------------------------------------------------下面是创建转移安置点的方法----------------------------------------
-
-    updateTransferPoints(transferDataFromBackend) {
-
-      // 清除当前所有转移安置的实体
-      this.viewer.entities.removeAll();
-
-      // 遍历所有的转移位置
-      this.transferLocations.forEach(location => {
-        // 在 transferDataFromBackend 中查找对应位置的数据
-        const transferItem = transferDataFromBackend.find(item => item.earthquakeAreaName === location.name);
-
-        // 如果找不到对应的转移数据，设定人数为0
-        const count = transferItem ? transferItem.cumulativeTransferred : 0;
-
-        // 当人数小于10时，设为10
-        const adjustedCount = count < 10 ? 10 : count;
-        const scale = Math.log(adjustedCount) / 5;  // 动态计算缩放比例
-        const baseFontSize = 12;  // 定义基础字体大小
-        const fontSize = Math.max(Math.round(scale * baseFontSize), 10);  // 动态计算字体大小，最小为10
-        const imageHeight = 30;  // 假设图标的高度
-        const dynamicOffsetY = -(imageHeight * scale / 2) - (fontSize / 2);  // 动态计算Y轴偏移量
-
-        // 添加到 Cesium 实体
-        this.viewer.entities.add({
-          id: location.name,
-          position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
-          billboard: {
-            image: cumulativeTransferredImg,  // 图标
-            scale: scale,
-            verticalOrigin: Cesium.VerticalOrigin.CENTER,  // 图标在位置的中心
-            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
-          },
-          label: {
-            text: `${count}`,  // 显示实际人数
-            font: `bold ${fontSize}px sans-serif`,  // 动态调整字体大小
-            fillColor: Cesium.Color.BLACK,  // 字体颜色
-            showBackground: false,  // 不显示背景
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,  // 将文本基线对齐到图标底部
-            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
-            pixelOffset: new Cesium.Cartesian2(0, dynamicOffsetY),  // 动态调整文本位置
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,  // 禁用深度测试，使标签不被遮挡
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
-          }
-        });
-      });
-      // 由于之前删除了所有实体，所以要添加标签
-      this.addDistrictLabels(this.dataSource)
-    },
-
-    //-------------------------------------------------------------------------------------------------------------------
-
-
-    //--------------------------------------------------下面是创建echarts的方法-------------------------------------------
+    //--------------------------------------------------下面是创建echarts的方法------------------------------------------
 
     // 创建多个 ECharts 实例，位置为雅安市各区县
-    updateMultipleECharts(districtData) {
+    updateMultipleECharts(data) {
       const locations = this.locations; // 获取 locations
+      const echartsLegendData = this.echartsLegendData;
 
       locations.forEach((location, index) => {
-        const districtInfo = districtData.find(district => district.affected_area === location.name);
         const chartContainer = this.$refs.echartsContainer[index]; // 获取容器
 
         // 销毁旧的 ECharts 实例，避免重复渲染
@@ -485,70 +689,164 @@ export default {
         chartInstance = echarts.init(chartContainer);
         this.echartsInstances[index] = chartInstance; // 保存实例
 
-        if (districtInfo) {
-          // 更新图表数据
-          const values = [districtInfo.magnitude_3_3_9, districtInfo.magnitude_4_4_9, districtInfo.magnitude_5_5_9];
-          const categories = ['3.0-3.9级', '4.0-4.9级', '5.0-5.9级'];
+        if (this.selectedComponentKey === 'EarthquakeCasualties') {
+          const districtInfo = data.find(district => district.affected_area === location.name);
+          // 处理地震数据
+          if (districtInfo) {
+            const values = [
+              districtInfo.magnitude_3_3_9,
+              districtInfo.magnitude_4_4_9,
+              districtInfo.magnitude_5_5_9,
+              districtInfo.magnitude_6
+            ];
 
-          const option = {
-            tooltip: {
-              trigger: 'axis',
-              show: true, // 始终显示 tooltip
-              formatter: (params) => {
-                return `<div style="font-size: 14px; background-color: rgba(255, 255, 255, 0.95);
-                    border: 1px solid #ddd; border-radius: 4px; padding: 4px; width: 100px;
-                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-                    <strong style="color: #333;">${params[0].name}</strong><br/>
-                    <div style="color: #555;"><span style="font-weight: bold;">余震次数:</span> ${params[0].value}</div></div>`;
+            // 创建颜色映射对象和类别数组
+            const colorMapping = {};
+            const categories = []; // 新增用于存储类别
+            echartsLegendData.forEach(legend => {
+              if (legend.name === 'EarthquakeCasualties') {
+                legend.data.forEach(item => {
+                  colorMapping[item.name] = item.color; // 通过名称映射颜色
+                  categories.push(item.name); // 添加类别
+                });
               }
-            },
-            xAxis: {
-              type: 'category',
-              data: categories,
-              axisLabel: {show: false},
-              axisLine: {show: false},
-              axisTick: {show: false}
-            },
-            yAxis: {
-              show: false,
-              type: 'value',
-              splitLine: {show: false},
-              axisLine: {show: false},
-              axisTick: {show: false}
-            },
-            series: [{
-              name: '数据类型',
-              type: 'bar',
-              data: values,
-              itemStyle: {
-                color: (params) => this.echartsLegendData[params.dataIndex].color
-              },
-              label: {
-                show: true,
-                position: 'inside',
-                formatter: '{c}',
-                color: '#fff',
-                fontSize: 12
-              },
-              barCategoryGap: '0%',
-              barWidth: '100%'
-            }]
-          };
+            });
 
-          chartInstance.setOption(option); // 设置图表选项
-        } else {
-          // 如果没有数据，清空图表内容
-          chartInstance.clear();
+            // 过滤有效数据
+            const filteredValues = values.filter(value => value > 0); // 过滤掉值为 0 的柱子
+            const filteredCategories = categories.filter((_, index) => values[index] > 0); // 过滤掉对应的类别
+
+            // 如果没有有效的数据，清空图表
+            if (filteredValues.length === 0) {
+              chartInstance.clear(); // 清空图表内容
+              return; // 结束当前迭代
+            }
+
+            // 更新图表
+            this.updateChart(chartInstance, filteredValues, filteredCategories, colorMapping);
+          } else {
+            // 如果没有数据，清空图表内容
+            chartInstance.clear();
+          }
+        }
+
+        if (this.selectedComponentKey === 'TransportationElectricity') {
+          const dataInfo = data.find(district => district.affectedArea === location.name);
+          // 处理地震数据
+          if (dataInfo) {
+            const values = [
+              dataInfo.restoredSubstations,
+              dataInfo.restoredCircuits,
+              dataInfo.restoredPowerUsers,
+            ];
+
+            // 创建颜色映射对象和类别数组
+            const colorMapping = {};
+            const categories = []; // 新增用于存储类别
+            echartsLegendData.forEach(legend => {
+              if (legend.name === 'TransportationElectricity') {
+                legend.data.forEach(item => {
+                  colorMapping[item.name] = item.color; // 通过名称映射颜色
+                  categories.push(item.name); // 添加类别
+                });
+              }
+            });
+
+            // 过滤有效数据
+            const filteredValues = values.filter(value => value > 0); // 过滤掉值为 0 的柱子
+            const filteredCategories = categories.filter((_, index) => values[index] > 0); // 过滤掉对应的类别
+
+            // 如果没有有效的数据，清空图表
+            if (filteredValues.length === 0) {
+              chartInstance.clear(); // 清空图表内容
+              return; // 结束当前迭代
+            }
+
+            // 更新图表
+            this.updateChart(chartInstance, filteredValues, filteredCategories, colorMapping);
+          } else {
+            // 如果没有数据，清空图表内容
+            chartInstance.clear();
+          }
         }
       });
 
       // 添加 Cesium 场景的 postRender 事件，在每次渲染后更新图表位置
       if (!this.isPostRenderAdded) {
         this.viewer.scene.postRender.addEventListener(this.syncEChartsWithCesium);
-        this.isPostRenderAdded = true; // 确保 postRender 只添加一次
+        this.isPostRenderAdded = true;
       }
     },
+
+    // 更新图表方法
+    updateChart(chartInstance, values, categories, colorMapping) {
+      let labelText = '余震次数';
+      // 设置图表选项
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          show: true,
+          formatter: (params) => {
+            // 根据 dataIndex 修改 labelText
+            if (this.selectedComponentKey === 'TransportationElectricity') {
+              if (params[0].dataIndex === 0) {
+                labelText = '已恢复变（发）电站（座）';
+              } else if (params[0].dataIndex === 1) {
+                labelText = '已恢复线路（条）';
+              } else if (params[0].dataIndex === 2) {
+                labelText = '已恢复主网供电用户数（户）';
+              }
+            } else {
+              labelText = '余震次数'; // 其他情况仍然是余震次数
+            }
+
+            return `<div style="font-size: 14px; background-color: rgba(255, 255, 255, 0.95);
+      border: 1px solid #ddd; border-radius: 4px; padding: 10px; width: auto;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+      <strong style="color: #333;">${params[0].name}</strong><br/>
+      <div style="color: #555;"><span style="font-weight: bold;">${labelText}:</span> ${params[0].value}</div></div>`;
+          },
+        },
+        xAxis: {
+          type: 'category',
+          data: categories, // 类别数据
+          axisLabel: { show: false },
+          axisLine: { show: false },
+          axisTick: { show: false },
+        },
+        yAxis: {
+          show: false,
+          type: 'value',
+          splitLine: { show: false },
+          axisLine: { show: false },
+          axisTick: { show: false },
+        },
+        series: [{
+          name: '数据类型',
+          type: 'bar',
+          data: values, // 数据
+          itemStyle: {
+            color: (params) => {
+              // 使用颜色映射对象
+              return colorMapping[params.name] || '#ccc'; // 如果没有对应的值，返回灰色
+            },
+          },
+          label: {
+            show: true,
+            position: 'inside',
+            formatter: '{c}',
+            color: '#fff',
+            fontSize: 12,
+          },
+          barCategoryGap: '0%',
+          barWidth: '100%',
+        }],
+      };
+
+      chartInstance.setOption(option); // 设置图表选项
+    },
+
 
     // 同步 ECharts 图表与 Cesium 地图，以保持图表与地图同步
     syncEChartsWithCesium() {
@@ -580,10 +878,10 @@ export default {
       });
     },
 
-    //-------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
 
-    //--------------------------------------------------下面是地图 区块边界线 和 地域标签 以及 板块颜色 的设置-----------------
+    //-------------------------------下面是地图 区块边界线 和 地域标签 以及 板块颜色 的设置---------------------------------
 
     // 加载雅安的边界线并设置视角
     loadYaAnBoundary() {
@@ -613,6 +911,7 @@ export default {
 
         // 添加各区县的名称标签
         this.addDistrictLabels(dataSource);
+
 
       }).catch(error => {
         console.error('加载 GeoJSON 时出错：', error);  // 捕获并显示错误信息
@@ -669,31 +968,38 @@ export default {
 
     // 设置区块颜色的方法
     updateDistrictColors(dataSource, districtData) {
-      // 遍历后端传回的区县受灾数据，并更新区块颜色
-      dataSource.entities.values.forEach(entity => {
-        const districtName = entity.name;
-        const districtInfo = districtData.find(d => d.affectedAreaName === districtName);
+      if (districtData) {
+        // 遍历后端传回的区县受灾数据，并更新区块颜色
+        dataSource.entities.values.forEach(entity => {
+          const districtName = entity.name;
+          const districtInfo = districtData.find(d => d.affectedAreaName === districtName);
 
-        // 如果没有找到对应的区县数据，则将 affectedPopulation 设为 0
-        const affectedPopulation = districtInfo ? districtInfo.affectedPopulation : 0;
+          // 如果没有找到对应的区县数据，则将 affectedPopulation 设为 0
+          const affectedPopulation = districtInfo ? districtInfo.affectedPopulation : 0;
 
-        // 根据受灾人口数量范围匹配相应的颜色
-        const legendItem = this.injuredLegendData.find(item =>
-            affectedPopulation >= item.range[0] && affectedPopulation <= item.range[1]
-        );
+          // 根据受灾人口数量范围匹配相应的颜色
+          const legendItem = this.injuredLegendData.find(item =>
+              affectedPopulation >= item.range[0] && affectedPopulation <= item.range[1]
+          );
 
-        if (legendItem) {
-          const color = Cesium.Color.fromCssColorString(legendItem.color).withAlpha(0.8);
-          // 更新区块的填充颜色
-          entity.polygon.material = new Cesium.ColorMaterialProperty(color);
-        }
-      });
+          if (legendItem) {
+            const color = Cesium.Color.fromCssColorString(legendItem.color).withAlpha(0.8);
+            // 更新区块的填充颜色
+            entity.polygon.material = new Cesium.ColorMaterialProperty(color);
+          }
+        });
+      } else {
+        dataSource.entities.values.forEach(entity => {
+          entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString('#ffb3b3').withAlpha(0.6));
+        })
+      }
+
     },
 
-    //-------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
 
 
-    //--------------------------------------------------下面是导出图片用的方法-----------------------------------------------------------------
+    //--------------------------------------------------下面是导出图片用的方法--------------------------------------------
 
     //导出图片：简单来讲就是分别获取一下对应的元素，把对应的元素绘制到合成Canvas上，最后把Canvas转换成图片，实现截图。
     async exportCesiumScene() {
@@ -723,9 +1029,9 @@ export default {
       stepStartTime = performance.now();  // 记录下一个步骤的开始时间
 
       //  2: 获取地图当前视野范围的经纬度，并加载经纬度线
-      // this.getLatLonBounds();  // 获取当前视野经纬度范围
-      // this.addLatLonLines();   // 添加经纬度线
-      // await this.waitForEntitiesToRender(this.latLonEntities.length);  // 等待经纬度线渲染完成
+      this.getLatLonBounds();  // 获取当前视野经纬度范围
+      this.addLatLonLines();   // 添加经纬度线
+      await this.waitForEntitiesToRender(this.latLonEntities.length);  // 等待经纬度线渲染完成
 
       console.log(`Step 2: 加载经纬度线 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
       stepStartTime = performance.now();
@@ -811,13 +1117,43 @@ export default {
             });
           }
         });
-        // this.latLonEntities.forEach(entity => {
-        //   this.viewer.entities.remove(entity);  // 移除经纬度线
-        // });
-        // this.latLonEntities = [];
+        this.latLonEntities.forEach(entity => {
+          this.viewer.entities.remove(entity);  // 移除经纬度线
+        });
+        this.latLonEntities = [];
 
         const endTime = performance.now();  // 记录结束时间
         console.log(`exportCesiumScene 方法总执行时间: ${(endTime - startTime).toFixed(2)} 毫秒`);
+
+
+        this.getScreenCorners()
+        // 分别处理四条边的数据
+        const topData = {};
+        const sideData = {};
+        const bottomData = {};
+
+        // 生成点数据
+        this.generatePointsWithPercentage(this.corners.topStart, this.corners.topEnd, topData);
+        this.generatePointsWithPercentage(this.corners.leftStart, this.corners.leftEnd, sideData);
+        this.generatePointsWithPercentage(this.corners.bottomStart, this.corners.bottomEnd, bottomData);
+
+        // 等待 DOM 渲染完成
+        await nextTick();
+        // 添加盒子
+        const topContainer = document.querySelector('.top');
+        const bottomContainer = document.querySelector('.bottom');
+        const leftContainer = document.querySelector('.left');
+        const rightContainer = document.querySelector('.right');
+
+        // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
+        [topContainer].forEach(container => this.addBoxes(container, 'div_t', topData));
+
+        // 为 leftContainer 和 rightContainer 生成盒子（反转顺序，从下往上显示）
+        [leftContainer, rightContainer].forEach(container => this.addBoxes(container, 'div_l', sideData, true));
+
+        // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
+        [bottomContainer].forEach(container => this.addBoxes(container, 'div_t', bottomData));
+
         this.loading = false;
       }
     },
@@ -902,94 +1238,119 @@ export default {
     },
 
     // 下载图片
+    // downloadImage() {
+    //   // 创建 canvas 元素并获取其上下文
+    //   const finalCanvas = document.createElement('canvas');
+    //   const ctx = finalCanvas.getContext('2d');
+    //
+    //   // 获取页面中的两个 div 内容和样式
+    //   const exportInfoDiv = document.querySelector('.export-info');
+    //   const exportTitle = exportInfoDiv ? exportInfoDiv.textContent.trim() : '';
+    //
+    //   const additionalInfoDiv = document.querySelector('div[style*="background-color: white"]');
+    //   const unitText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(1)').textContent : '';
+    //   const dateText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(2)').textContent : '';
+    //   const versionText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(3)').textContent : '';
+    //   const backgroundColor = additionalInfoDiv ? window.getComputedStyle(additionalInfoDiv).backgroundColor : 'white';
+    //
+    //   // 获取 img_outbox 和 mainImage 的样式
+    //   const imgOutbox = document.querySelector('.img_outbox');
+    //
+    //   // 获取样式信息
+    //   const imgOutboxStyles = imgOutbox ? window.getComputedStyle(imgOutbox) : null;
+    //
+    //   // 设置 canvas 大小，确保包含图片、标题、边框和文字
+    //   const image = new Image();
+    //   image.src = this.previewImage; // this.previewImage 是之前合成的图片
+    //   image.onload = () => {
+    //     // 计算标题、边框和额外信息的高度
+    //     const titleHeight = 60; // exportTitle 的高度
+    //     const footerHeight = 50; // 底部信息的高度
+    //     const borderWidth = imgOutboxStyles ? parseInt(imgOutboxStyles.borderWidth) : 0; // 获取边框宽度
+    //     const padding = imgOutboxStyles ? parseInt(imgOutboxStyles.padding) : 0; // 获取 padding
+    //
+    //     // 根据图片大小和边框设置 canvas 尺寸
+    //     finalCanvas.width = image.width + borderWidth * 2 + padding * 4;
+    //     finalCanvas.height = image.height + titleHeight + footerHeight + borderWidth * 2 + padding * 2;
+    //
+    //     // 绘制 exportTitle 背景颜色
+    //     ctx.fillStyle = backgroundColor;
+    //     ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height); // 填充标题背景区域
+    //
+    //     // 设置标题文字样式并绘制 exportTitle
+    //     ctx.font = '26px Arial';
+    //     ctx.fillStyle = 'black';
+    //     ctx.textAlign = 'center';
+    //     ctx.fillText(exportTitle, finalCanvas.width / 2, 40); // 绘制标题
+    //
+    //     // 绘制 img_outbox 的边框
+    //     if (imgOutboxStyles) {
+    //       ctx.strokeStyle = imgOutboxStyles.borderColor || 'black';
+    //       ctx.lineWidth = borderWidth;
+    //       ctx.strokeRect(padding, titleHeight, finalCanvas.width - padding * 2, image.height + padding * 2); // 绘制外框
+    //     }
+    //
+    //     // 绘制 mainImage 图片内容
+    //     ctx.drawImage(image, padding + borderWidth + padding, titleHeight + padding); // 将图片绘制到 canvas 中，应用内边距和边框
+    //
+    //     // 绘制底部背景
+    //     ctx.fillStyle = backgroundColor;
+    //     ctx.fillRect(0, image.height + titleHeight + padding * 2 + borderWidth * 2, finalCanvas.width, footerHeight); // 填充底部背景
+    //
+    //     // 设置文字样式
+    //     ctx.font = '16px Arial';
+    //     ctx.fillStyle = 'black';
+    //     ctx.textAlign = 'center'; // 设置文本居中对齐
+    //
+    //     // 计算每个文本的水平位置
+    //     const unitX = finalCanvas.width * 0.2; // 单位文本居左 20% 位置
+    //     const dateX = finalCanvas.width * 0.5; // 时间文本居中
+    //     const versionX = finalCanvas.width * 0.8; // 版本文本居右 80% 位置
+    //
+    //     const textY = image.height + titleHeight + padding * 2 + borderWidth * 2 + 30; // 计算垂直位置
+    //
+    //     // 绘制单位、时间和版本信息
+    //     ctx.fillText(unitText, unitX, textY);   // 绘制单位
+    //     ctx.fillText(dateText, dateX, textY);   // 绘制时间
+    //     ctx.fillText(versionText, versionX, textY); // 绘制版本
+    //
+    //     // 将 canvas 转换为图片
+    //     const finalImage = finalCanvas.toDataURL('image/png');
+    //
+    //     // 创建下载链接并触发下载
+    //     const link = document.createElement('a');
+    //     link.download = '震情伤亡信息专题图.png';
+    //     link.href = finalImage;
+    //     link.click();
+    //
+    //     // 清理 previewImage
+    //     this.previewImage = null;
+    //   };
+    // },
+
+    // 下载图片
     downloadImage() {
-      // 创建 canvas 元素并获取其上下文
-      const finalCanvas = document.createElement('canvas');
-      const ctx = finalCanvas.getContext('2d');
+      // 获取要截取的 DOM 元素
+      const elementToCapture = document.querySelector('.export-image');
 
-      // 获取页面中的两个 div 内容和样式
-      const exportInfoDiv = document.querySelector('.export-info');
-      const exportTitle = exportInfoDiv ? exportInfoDiv.textContent.trim() : '';
-
-      const additionalInfoDiv = document.querySelector('div[style*="background-color: white"]');
-      const unitText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(1)').textContent : '';
-      const dateText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(2)').textContent : '';
-      const versionText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(3)').textContent : '';
-      const backgroundColor = additionalInfoDiv ? window.getComputedStyle(additionalInfoDiv).backgroundColor : 'white';
-
-      // 获取 img_outbox 和 mainImage 的样式
-      const imgOutbox = document.querySelector('.img_outbox');
-
-      // 获取样式信息
-      const imgOutboxStyles = imgOutbox ? window.getComputedStyle(imgOutbox) : null;
-
-      // 设置 canvas 大小，确保包含图片、标题、边框和文字
-      const image = new Image();
-      image.src = this.previewImage; // this.previewImage 是之前合成的图片
-      image.onload = () => {
-        // 计算标题、边框和额外信息的高度
-        const titleHeight = 60; // exportTitle 的高度
-        const footerHeight = 50; // 底部信息的高度
-        const borderWidth = imgOutboxStyles ? parseInt(imgOutboxStyles.borderWidth) : 0; // 获取边框宽度
-        const padding = imgOutboxStyles ? parseInt(imgOutboxStyles.padding) : 0; // 获取 padding
-
-        // 根据图片大小和边框设置 canvas 尺寸
-        finalCanvas.width = image.width + borderWidth * 2 + padding * 4;
-        finalCanvas.height = image.height + titleHeight + footerHeight + borderWidth * 2 + padding * 2;
-
-        // 绘制 exportTitle 背景颜色
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height); // 填充标题背景区域
-
-        // 设置标题文字样式并绘制 exportTitle
-        ctx.font = '26px Arial';
-        ctx.fillStyle = 'black';
-        ctx.textAlign = 'center';
-        ctx.fillText(exportTitle, finalCanvas.width / 2, 40); // 绘制标题
-
-        // 绘制 img_outbox 的边框
-        if (imgOutboxStyles) {
-          ctx.strokeStyle = imgOutboxStyles.borderColor || 'black';
-          ctx.lineWidth = borderWidth;
-          ctx.strokeRect(padding, titleHeight, finalCanvas.width - padding * 2, image.height + padding * 2); // 绘制外框
-        }
-
-        // 绘制 mainImage 图片内容
-        ctx.drawImage(image, padding + borderWidth + padding, titleHeight + padding); // 将图片绘制到 canvas 中，应用内边距和边框
-
-        // 绘制底部背景
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, image.height + titleHeight + padding * 2 + borderWidth * 2, finalCanvas.width, footerHeight); // 填充底部背景
-
-// 设置文字样式
-        ctx.font = '16px Arial';
-        ctx.fillStyle = 'black';
-        ctx.textAlign = 'center'; // 设置文本居中对齐
-
-// 计算每个文本的水平位置
-        const unitX = finalCanvas.width * 0.2; // 单位文本居左 20% 位置
-        const dateX = finalCanvas.width * 0.5; // 时间文本居中
-        const versionX = finalCanvas.width * 0.8; // 版本文本居右 80% 位置
-
-        const textY = image.height + titleHeight + padding * 2 + borderWidth * 2 + 30; // 计算垂直位置
-
-// 绘制单位、时间和版本信息
-        ctx.fillText(unitText, unitX, textY);   // 绘制单位
-        ctx.fillText(dateText, dateX, textY);   // 绘制时间
-        ctx.fillText(versionText, versionX, textY); // 绘制版本
-
+      // 使用 html2canvas 截图
+      html2canvas(elementToCapture, {
+        useCORS: true, // 允许跨域请求，确保图片加载
+        logging: true, // 打开日志以查看可能的错误
+        scale: 2, // 提高图像质量
+        backgroundColor: null // 使背景透明
+      }).then(canvas => {
         // 将 canvas 转换为图片
-        const finalImage = finalCanvas.toDataURL('image/png');
+        const finalImage = canvas.toDataURL('image/png');
 
         // 创建下载链接并触发下载
         const link = document.createElement('a');
-        link.download = '震情伤亡信息专题图.png';
-        link.href = finalImage;
-        link.click();
-
-        // 清理 previewImage
-        this.previewImage = null;
-      };
+        link.download = `${this.exportTitle}.png`; // 设置下载文件名
+        link.href = finalImage; // 设置图片来源
+        link.click(); // 触发下载
+      }).catch(error => {
+        console.error('Error capturing the screenshot:', error);
+      });
     },
 
     // 关闭预览窗口
@@ -997,17 +1358,25 @@ export default {
       this.previewImage = null;
     },
 
-    // 等待所有经纬度线实体完成渲染
+    // 等待所有经纬度线实体完成渲染，并确保 Cesium 渲染循环完成
     waitForEntitiesToRender(entityCount) {
       return new Promise(resolve => {
+        const scene = this.viewer.scene;
+
+        // 监听渲染循环是否完成
         const checkEntitiesRendered = () => {
           const isRendered = this.latLonEntities.filter(entity => entity.show).length === entityCount;
           if (isRendered) {
-            resolve();
+            // 等待 Cesium 完成渲染
+            const removePostRender = scene.postRender.addEventListener(() => {
+              removePostRender(); // 确保只监听一次
+              resolve();          // 确保渲染完成后再 resolve
+            });
           } else {
             setTimeout(checkEntitiesRendered, 100); // 每100ms检查一次
           }
         };
+
         checkEntitiesRendered();
       });
     },
@@ -1071,6 +1440,181 @@ export default {
       }
     },
 
+    // 获取屏幕四个角的坐标经纬度
+    // getScreenCorners() {
+    //   let extent = this.viewer.camera.computeViewRectangle();
+    //
+    //   // 提取四个角的经纬度
+    //   let southwest = Cesium.Rectangle.southwest(extent);
+    //   let southeast = Cesium.Rectangle.southeast(extent);
+    //   let northeast = Cesium.Rectangle.northeast(extent);
+    //   let northwest = Cesium.Rectangle.northwest(extent);
+    //   console.log('southwest:', southwest)
+    //   console.log('southeast:', southeast)
+    //   console.log('northeast:', northeast)
+    //   console.log('northwest:', northwest)
+    //   this.corners = {
+    //     topStart: Cesium.Math.toDegrees(northwest.longitude),
+    //     topEnd: Cesium.Math.toDegrees(northeast.longitude),
+    //     leftStart: Cesium.Math.toDegrees(southwest.latitude),
+    //     leftEnd: Cesium.Math.toDegrees(northwest.latitude),
+    //     bottomStart: Cesium.Math.toDegrees(southwest.longitude),
+    //     bottomEnd: Cesium.Math.toDegrees(southeast.longitude)
+    //   };
+    // },
+
+    getScreenCorners() {
+      const viewer = this.viewer;
+      const scene = viewer.scene;
+      const canvas = scene.canvas;
+
+      // 获取四个角的屏幕坐标
+      const topLeft = new Cesium.Cartesian2(0, 0);
+      const topRight = new Cesium.Cartesian2(canvas.width, 0);
+      const bottomLeft = new Cesium.Cartesian2(0, canvas.height);
+      const bottomRight = new Cesium.Cartesian2(canvas.width, canvas.height);
+
+      // 将屏幕坐标转换为地球坐标
+      const topLeftCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(topLeft));
+      const topRightCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(topRight));
+      const bottomLeftCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomLeft));
+      const bottomRightCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomRight));
+
+      // 获取经纬度
+      this.corners = {
+        topStart: Cesium.Math.toDegrees(topLeftCartographic.longitude),
+        topEnd: Cesium.Math.toDegrees(topRightCartographic.longitude),
+        leftStart: Cesium.Math.toDegrees(bottomLeftCartographic.latitude),
+        leftEnd: Cesium.Math.toDegrees(topLeftCartographic.latitude),
+        bottomStart: Cesium.Math.toDegrees(bottomLeftCartographic.longitude),
+        bottomEnd: Cesium.Math.toDegrees(bottomRightCartographic.longitude)
+      };
+
+      console.log(this.corners);
+    },
+    // 生成点和百分比，传入不同的标识符，避免共享同一数据集
+    generatePointsWithPercentage(start, end, dataContext) {
+      dataContext.points = [];
+      dataContext.flexPercentages = [];
+
+      const adjustedStart = Math.ceil(start / this.step) * this.step;
+      const adjustedEnd = Math.floor(end / this.step) * this.step;
+
+      for (let current = adjustedStart; current <= adjustedEnd; current += this.step) {
+        dataContext.points.push(Number(current.toFixed(2)));
+      }
+
+      const basePercentage = (this.step / (end - start)) * 100;
+      dataContext.divBoxCount = dataContext.points.length;
+      dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
+
+      this.calculateCustomValues(
+          dataContext.points[0],
+          dataContext.points[dataContext.points.length - 1],
+          start,
+          end,
+          dataContext
+      );
+    },
+
+    // 计算自定义值并保存到特定的数据上下文
+    calculateCustomValues(firstPoint, lastPoint, start, end, dataContext) {
+      const halfStep = this.step / 2;
+      const number1 = end - start;
+
+      const diffFirst = firstPoint - start;
+      if (diffFirst > halfStep) {
+        const percentageFirst = ((firstPoint - start - halfStep) / number1) * 100;
+        dataContext.flexPercentages.unshift(percentageFirst);
+        dataContext.points.unshift('');
+      } else if (diffFirst < halfStep) {
+        const percentage1 = (2 * (firstPoint - start) / number1) * 100;
+        const percentage2 = ((halfStep - (firstPoint - start)) / number1) * 100;
+        dataContext.flexPercentages.unshift(percentage1);
+        dataContext.flexPercentages[1] = percentage2;
+        dataContext.points.splice(1, 0, '');
+      }
+
+      const diffLast = end - lastPoint;
+      if (diffLast > halfStep) {
+        const percentageLast = ((end - lastPoint - halfStep) / number1) * 100;
+        dataContext.flexPercentages.push(percentageLast);
+        dataContext.points.push('');
+      } else if (diffLast < halfStep) {
+        const percentage1 = ((halfStep - (end - lastPoint)) / number1) * 100;
+        const percentage2 = (2 * (end - lastPoint) / number1) * 100;
+        dataContext.flexPercentages[dataContext.flexPercentages.length - 1] = percentage1;
+        dataContext.flexPercentages.push(percentage2);
+        dataContext.points.splice(-1, 0, '');
+      }
+
+      dataContext.divBoxCount = dataContext.points.length;
+    },
+
+    addBoxes(container, prefix, dataContext, reverse = false) {
+      if (!container) return;
+      let points = dataContext.points;
+      let flexPercentages = dataContext.flexPercentages;
+
+      // 如果需要反转顺序
+      if (reverse) {
+        points = [...points].reverse();
+        flexPercentages = [...flexPercentages].reverse();
+      }
+      Array.from({length: dataContext.divBoxCount}).forEach((_, i) => {
+        const box = document.createElement('div');
+        box.className = `${prefix}${i}`;
+        // 只对有效的数值进行转换
+        if (points[i]) {
+          box.textContent = this.convertToDMS(points[i], reverse);  // 转换为度分秒格式
+        } else {
+          box.textContent = '';  // 保留空值
+        }
+        container.appendChild(box);
+
+        // 设置盒子样式
+        const boxStyles = {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'black',
+          width: '19.47px',
+          height: '19.47px',
+          fontSize: '10px',
+          flex: flexPercentages[i], // 使用反转后的 flexPercentages
+          whiteSpace: 'nowrap', // 防止文字换行
+        };
+
+        // 如果 reverse 为 true，才旋转 90 度
+        if (reverse) {
+          boxStyles.transform = 'rotate(-90deg)';
+        }
+
+        // 应用样式
+        Object.assign(box.style, boxStyles);
+      });
+    },
+
+    // 将浮点数转换为度分秒格式
+    convertToDMS(point, reverse) {
+      const absolute = Math.abs(point);
+      const degrees = Math.floor(absolute);  // 整数部分为度
+      const minutes = Math.floor((absolute - degrees) * 60);  // 小数部分乘以 60 得到分
+      const seconds = Math.floor(((absolute - degrees) * 60 - minutes) * 60);  // 小数部分乘以 60 再得到秒
+
+      let direction;
+
+      if (reverse) {
+        // 只考虑南北方向
+        direction = point >= 0 ? '北' : '南';
+      } else {
+        // 只考虑东西方向
+        direction = point >= 0 ? '东' : '西';
+      }
+
+      return `${degrees}°${minutes}'${seconds}"${direction}`;
+    },
+
     // downloadImage() {
     //   const link = document.createElement('a');
     //   link.download = '震情伤亡-震情灾情统计表.png';
@@ -1079,7 +1623,7 @@ export default {
     //   this.previewImage = null;
     // },
 
-    //-------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------
   }
 };
 </script>
@@ -1269,6 +1813,72 @@ img {
 .img_outbox {
   border: 3px solid black;
   padding: 20px;
+}
+
+
+.main_coantainer {
+  border: 3px solid black;
+  background-color: white;
+}
+
+.top_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.middow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.bottom_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.box {
+  width: 19.47px;
+}
+
+.top {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.main {
+  flex: 1;
+  border: 2px solid black;
+  align-items: stretch;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bottom_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 </style>
