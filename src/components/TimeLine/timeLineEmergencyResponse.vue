@@ -55,11 +55,7 @@ export default {
     'eqid'
   ],
   mounted() {
-    // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
-    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-      this.ifShowData = true
       this.init()
-    }
   },
   watch: {
     currentTime(newVal) {
@@ -68,8 +64,9 @@ export default {
   },
   methods: {
     init() {
-      getEmergencyResponse().then(res => {
+      getEmergencyResponse({eqid: this.eqid}).then(res => {
         this.EmergencyResponseResponsecontent = res
+        console.log(this.EmergencyResponseResponsecontent,"this.EmergencyResponseResponsecontent")
         const times = res.map(item => item.responseTime);
         this.$emit('addJumpNodes',times)
         this.updateEmergencyResponse(this.currentTime)
