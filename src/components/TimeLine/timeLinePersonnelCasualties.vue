@@ -52,6 +52,7 @@
 import PersonnelCasualties from "@/assets/json/TimeLine/PersonnelCasualties";
 import {getRescueActionCasualties} from "../../api/system/timeLine.js";
 import {getEqById} from "@/api/system/eqlist.js";
+import newsData from "@/assets/json/TimeLine/sorted_data.json";
 
 export default {
   data() {
@@ -84,6 +85,8 @@ export default {
       getRescueActionCasualties({eqid: this.eqid}).then(res => {
         console.log("res人员伤亡:",res)
         this.Responsecontent = res
+        const times = res.map(item => item.recordTime);
+        this.$emit('addJumpNodes',times)
         this.personnel_casualties_update(this.currentTime)
       })
     },
