@@ -166,13 +166,16 @@ export default {
           console.log(this.popupPanelData)
           if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else if (this.popupPanelData.drawtype) {
+          }
+          else if (this.popupPanelData.drawtype) {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else {
+          }
+          else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
-            }else {
+            }
+            else {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }

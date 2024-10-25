@@ -27,11 +27,13 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-        <!-- TimeLinePanel 弹窗 -->
-        <TimeLinePanel
+        <commonPanel
             :visible="timelinePopupVisible"
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
+            :ifedit="false"
+            @wsSendPoint="wsSendPoint"
+            @closePlotPop="closePlotPop"
         />
         <dataSourcePanel
             :visible="dataSourcePopupVisible"
@@ -96,16 +98,19 @@
     <timeLineEmergencyResponse
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--  新闻-右上  -->
     <div>
@@ -114,6 +119,7 @@
           :currentTime="currentTime"
           @ifShowDialog="ifShowDialog"
           @detailedNews="detailedNews"
+          @addJumpNodes="addJumpNodes"
       ></news>
     </div>
     <!--      新闻弹框-->
@@ -365,6 +371,8 @@ export default {
       reportItems:[],
       selectReportItem:'',
 
+      jumpTimes:[],
+
     };
   },
   created() {
@@ -391,6 +399,14 @@ export default {
   },
   // 图层要素
   methods: {
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
+    },
     clearResource(viewer){
       let gl=viewer.scene.context._gl
       viewer.entities.removeAll()
@@ -855,10 +871,10 @@ export default {
             item.startTime = this.eqstartTime;
           }
           var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
-          console.log(jumpnode1)
+          // console.log(jumpnode1)
           this.jumpNodes[jumpnode1]=1
           var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
-          console.log(jumpnode1)
+          // console.log(jumpnode1)
           this.jumpNodes[jumpnode2]=1
         })
         // 更新绘图
@@ -930,6 +946,7 @@ export default {
         if (points.length > 0) {
             let param = bool === false ? false : true
             cesiumPlot.drawPoints(points,param);
+            // this.addlabel(points,param);
         }
 
       //--------------------------线绘制------------------------------
@@ -1015,7 +1032,9 @@ export default {
         cesiumPlot.getDrawPolygon(polygonData)
       });
     },
-
+    // addlabel(points,param){
+    //
+    // },
     //时间轴操作-----------------------------------------------
     // 暂停播放切换
     toggleTimer() {
@@ -1033,6 +1052,13 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+      this.jumpTimes.forEach(item => {
+        console.log(new Date(item),new Date(this.eqstartTime.getTime()))
+        var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+        console.log("jumpnode",jumpnode)
+        this.jumpNodes[jumpnode]=1
+      })
+
       console.log("this.jumpNodes",this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
@@ -1049,7 +1075,7 @@ export default {
         this.updateCurrentTime();
       }, 100);
     },
-    //updateCurrentTime 循环执行
+
 
     /**
      * 更新当前时间
@@ -2542,7 +2568,23 @@ export default {
           this.selectReportItem = null;
         }, 1000); // 1000 毫秒后执行
       }
-    }
+    },
+
+    addJumpNodes(val){
+      val.forEach(item => {
+        this.jumpTimes.push(item)
+      })
+      // console.log(".eqstartTime",this.eqstartTime)
+      // // console.log(new Date(item),new Date(that.eqstartTime.getTime()))
+      // let that=this
+      // console.log("val",val)
+      // val.forEach(item => {
+      //   console.log(new Date(item),new Date(that.eqstartTime.getTime()))
+      //   var jumpnode=Math.round((new Date(item)-new Date(that.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+      //   console.log("jumpnode",jumpnode)
+      //   this.jumpNodes[jumpnode]=1
+      // })
+    },
 
 
   }

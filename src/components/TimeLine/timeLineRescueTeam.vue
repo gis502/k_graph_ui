@@ -81,6 +81,8 @@ export default {
       getRescueTeam({eqid: this.eqid}).then(res => {
         console.log("res:救援队伍",res)
         this.RescueTeamInfo = res
+        const times = res.map(item => item.recordTime);
+        this.$emit('addJumpNodes',times)
         this.rescue_team_update(this.currentTime)
       })
     },

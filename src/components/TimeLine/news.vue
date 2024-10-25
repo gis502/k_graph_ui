@@ -86,6 +86,9 @@ export default {
     },
     async fetchData() {
       this.newsData = newsData
+      // const times = newsData.map(item => item.publish_time);
+      // console.log("times",times)
+      // this.$emit('addJumpNodes',times)
       this.updateNews(this.currentTime)
     },
     hideNews() {

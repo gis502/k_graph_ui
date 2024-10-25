@@ -8,7 +8,7 @@
         <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
             <el-table-column prop="eqid" label="序号" width="60" align="center"></el-table-column>
             <el-table-column prop="orthophotoName" label="正射影像名称" width="250" align="center"></el-table-column>
-            <el-table-column prop="size" label="正射影像正射影像大小(GB)" width="250" align="center"></el-table-column>
+            <el-table-column prop="size" label="正射影像大小(GB)" width="250" align="center"></el-table-column>
             <el-table-column prop="addTime" label="添加时间" align="center" width="180"></el-table-column>
             <el-table-column prop="orthophotoPath" label="正射影像路径" width="300" align="center"></el-table-column>
             <el-table-column label="操作" align="center">

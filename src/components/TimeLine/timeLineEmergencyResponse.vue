@@ -70,6 +70,8 @@ export default {
     init() {
       getEmergencyResponse().then(res => {
         this.EmergencyResponseResponsecontent = res
+        const times = res.map(item => item.responseTime);
+        this.$emit('addJumpNodes',times)
         this.updateEmergencyResponse(this.currentTime)
       })
     },
