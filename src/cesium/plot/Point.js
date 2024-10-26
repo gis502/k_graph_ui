@@ -45,7 +45,7 @@ export default class Point {
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     })
   }
-  // 画点
+  // 画点 //目前不用这个方法画点
   drawPoint(data,bool) {
     console.log("end")
     if (bool) {
@@ -127,6 +127,16 @@ export default class Point {
   }
 
   drawPoints(points,bool){
+    // 判断 points 是否为数组，不是数组则将它包装为数组
+    if (!Array.isArray(points)) {
+      let data = {
+        longitude: Number(points.geom.coordinates[0]),
+        latitude: Number(points.geom.coordinates[1]),
+        ...points
+      }
+      points = data
+      points = [points];
+    }
     // console.log("------------------------------------------",bool)
     let dataSource = new Cesium.CustomDataSource("pointData");
     // points.forEach(data=>{
@@ -380,8 +390,6 @@ export default class Point {
               data
             }
           });
-
-
 
           // 恢复标会点正常的清晰度
           setTimeout(() => {
