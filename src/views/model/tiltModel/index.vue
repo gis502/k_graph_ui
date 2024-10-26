@@ -359,7 +359,7 @@ function updataPosition() {
 // 初始化模型table数据
 function initModelTable() {
   getAllModel().then(res => {
-
+    console.log(res)
     modelList = res
     total.value = res.length
     tableData.value = getPageArr(modelList)
