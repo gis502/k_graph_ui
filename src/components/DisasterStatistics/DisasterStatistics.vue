@@ -18,7 +18,10 @@ const props = defineProps({
   },
 });
 
+// 这行代码里面的赋值已经不再是neweqid的默认值，这里的作用是为了一开始watch没有监听到eqid值变化的时候给的值
+// 防止因为没有eqid的传值而报错，删除或者更换为空值或者其他非正常eqid值都会报错
 const neweqid = ref('be3a5ea4-8dfd-a0a2-2510-21845f17960b'); // 默认 eqid
+
 const total_magnitude_3_3_9 = ref(0);
 const total_magnitude_4_4_9 = ref(0);
 const total_magnitude_5_5_9 = ref(0);
