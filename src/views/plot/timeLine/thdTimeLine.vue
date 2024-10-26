@@ -27,11 +27,13 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-        <!-- TimeLinePanel 弹窗 -->
-        <TimeLinePanel
+        <commonPanel
             :visible="timelinePopupVisible"
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
+            :ifedit="false"
+            @wsSendPoint="wsSendPoint"
+            @closePlotPop="closePlotPop"
         />
         <dataSourcePanel
             :visible="dataSourcePopupVisible"
@@ -68,12 +70,12 @@
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <span class="speedButton">{{ speedOption }}</span>
-        <div class="chooseSpeed">
-          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-            {{ option }}
-          </option>
-        </div>
+<!--        <span class="speedButton">{{ speedOption }}</span>-->
+<!--        <div class="chooseSpeed">-->
+<!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+<!--            {{ option }}-->
+<!--          </option>-->
+<!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -96,16 +98,19 @@
     <timeLineEmergencyResponse
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--  新闻-右上  -->
     <div>
@@ -114,6 +119,7 @@
           :currentTime="currentTime"
           @ifShowDialog="ifShowDialog"
           @detailedNews="detailedNews"
+          @addJumpNodes="addJumpNodes"
       ></news>
     </div>
     <!--      新闻弹框-->
@@ -296,7 +302,7 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-
+      jumpNodes:{},
       smallViewer: null,
 
       //-------------ws---------------------
@@ -365,6 +371,8 @@ export default {
       reportItems:[],
       selectReportItem:'',
 
+      jumpTimes:[],
+
     };
   },
   created() {
@@ -391,6 +399,14 @@ export default {
   },
   // 图层要素
   methods: {
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
+    },
     clearResource(viewer){
       let gl=viewer.scene.context._gl
       viewer.entities.removeAll()
@@ -615,6 +631,10 @@ export default {
           this.eqendTime = this.tmpeqendTime
         }
         this.currentTime = this.eqendTime
+        //timelineAdvancesNumber  jumpNodes赋值为0
+        for (let i = 0; i < this.timelineAdvancesNumber; i++) {
+          this.jumpNodes[i]=0;
+        }
 
         // 获取地震数据并更新地图和变量
         this.getEq()
@@ -779,6 +799,8 @@ export default {
               this.currentTime = this.eqendTime
               this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
               this.currentNodeIndex = this.timelineAdvancesNumber
+              this.jumpNodes[this.timelineAdvancesNumber]=0;
+
             }, 5000);
           }
 
@@ -848,37 +870,15 @@ export default {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
+          var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          // console.log(jumpnode1)
+          this.jumpNodes[jumpnode1]=1
+          var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          // console.log(jumpnode1)
+          this.jumpNodes[jumpnode2]=1
         })
-        // 将 item 添加到 this.plots
-        // this.plots.push(item);
-        // 检查当前 item 是否已经存在于 this.plots 中
-        // const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
-        // if(!plotexists){
-        //   // 设置 endtime 和 starttime
-        //   if (!item.endtime) {
-        //     // item.endtime = new Date(this.eqendTime.getTime() + 5000);
-        //     item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
-        //   }
-        //   if (!item.starttime) {
-        //     item.starttime = this.eqstartTime;
-        //   }
-        //   // 将 item 添加到 this.plots
-        //   this.plots.push(item);
-        //   // 初始化 plotisshow
-        //
-        // }
-        // })
         // 更新绘图
         this.updatePlot(false)
-
-
-        // 开启时间轴
-        // this.initTimerLine();
-        //   if(this.ifShowData){
-        //       this.initTimerLine();
-        //   }else{
-        //       this.isTimerRunning = false
-        //   }
       })
     },
     /*
@@ -946,6 +946,7 @@ export default {
         if (points.length > 0) {
             let param = bool === false ? false : true
             cesiumPlot.drawPoints(points,param);
+            // this.addlabel(points,param);
         }
 
       //--------------------------线绘制------------------------------
@@ -1031,7 +1032,9 @@ export default {
         cesiumPlot.getDrawPolygon(polygonData)
       });
     },
-
+    // addlabel(points,param){
+    //
+    // },
     //时间轴操作-----------------------------------------------
     // 暂停播放切换
     toggleTimer() {
@@ -1049,6 +1052,14 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+      this.jumpTimes.forEach(item => {
+        console.log(new Date(item),new Date(this.eqstartTime.getTime()))
+        var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+        console.log("jumpnode",jumpnode)
+        this.jumpNodes[jumpnode]=1
+      })
+
+      console.log("this.jumpNodes",this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
 
@@ -1064,7 +1075,7 @@ export default {
         this.updateCurrentTime();
       }, 100);
     },
-    //updateCurrentTime 循环执行
+
 
     /**
      * 更新当前时间
@@ -1074,38 +1085,56 @@ export default {
      */
     updateCurrentTime() {
       // 根据当前速度和节点索引计算新的节点索引，实现时间的前进
-      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-      // 计算时间进度条的当前位置增量
-      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
-      this.currentTimePosition += tmp;
+      // 找到下一个值为1的节点索引
+      let nextNodeIndex = null;
+      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+        if (this.jumpNodes[i] === 1) {
+          nextNodeIndex = i;
+          break;
+        }
+      }
 
-      // 检查是否达到或超过终点
-      if (this.currentTimePosition >= 100) {
-        // 达到终点时的处理
+      // 停止
+      if (nextNodeIndex === null) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.stopTimer();
         this.isTimerRunning = false
-        this.intimexuanran(this.eqid)
-        // this.xuanran(this.eqid)
-      } else {
-        // 未达到终点时的处理
-        this.currentTimePosition = this.currentTimePosition % 100
-        // 根据当前节点索引计算实际时间
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // 根据是否需要显示标绘层来更新图层
-        if (this.isMarkingLayer) {
-          this.updatePlot()
-        } else {
-          this.MarkingLayerRemove()
-        }
-        // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
       }
-      // 其他情况的处理（代码中未实现）
-      // else{
-      //   this.eqendTime=realTime
-      //   this.timelineAdvancesNumber=
-      // }
+      //更新到下一跳
+      else{
+        // this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+        // 计算时间进度条的当前位置增量
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
+
+        // 检查是否达到或超过终点
+        // if (this.currentTimePosition >= 100) {
+        //   // 达到终点时的处理
+        //   this.currentTimePosition = 100;
+        //   this.currentTime = this.eqendTime
+        //   this.stopTimer();
+        //   this.isTimerRunning = false
+        //   this.intimexuanran(this.eqid)
+        //   // this.xuanran(this.eqid)
+        // }
+        // else {
+          // 未达到终点时的处理
+          // this.currentTimePosition = this.currentTimePosition % 100
+          // 根据当前节点索引计算实际时间
+          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+          // 根据是否需要显示标绘层来更新图层
+          if (this.isMarkingLayer) {
+            this.updatePlot()
+          } else {
+            this.MarkingLayerRemove()
+          }
+          // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
+        // }
+      }
+
     },
 
 
@@ -2539,7 +2568,23 @@ export default {
           this.selectReportItem = null;
         }, 1000); // 1000 毫秒后执行
       }
-    }
+    },
+
+    addJumpNodes(val){
+      val.forEach(item => {
+        this.jumpTimes.push(item)
+      })
+      // console.log(".eqstartTime",this.eqstartTime)
+      // // console.log(new Date(item),new Date(that.eqstartTime.getTime()))
+      // let that=this
+      // console.log("val",val)
+      // val.forEach(item => {
+      //   console.log(new Date(item),new Date(that.eqstartTime.getTime()))
+      //   var jumpnode=Math.round((new Date(item)-new Date(that.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+      //   console.log("jumpnode",jumpnode)
+      //   this.jumpNodes[jumpnode]=1
+      // })
+    },
 
 
   }
