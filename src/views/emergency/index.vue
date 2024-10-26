@@ -330,8 +330,8 @@ export default {
       RouteWay: " ", //行进方式
       showTips: false, //路径弹窗
       totalRoute: "", //全长
-      cartime: "", //临时变量
-      humantime: "", //临时变量
+      cartime: "", //汽车行驶时间
+      humantime: "", //步行时间
       visibleGuilde: false, //驾驶时导航显示
       selectedDrive: "",
       selectedWalk: "",
@@ -1293,7 +1293,7 @@ export default {
     },
     driveStyle() {
       this.visibleGuilde = true;
-      if (this.cartime.includes("0时0分钟")) {
+      if (this.cartime.includes("0")) {
         this.RouteTime = "1分钟";
       } else {
         this.RouteTime = this.formatTime(this.cartime);
@@ -1413,8 +1413,14 @@ export default {
                   // 更新时间和距离
                   this.cartime = (driveTime).toFixed(2); // 驾驶时间
                   this.humantime = (humanTime).toFixed(2); // 人行时间
-                  this.totalRoute = totalDistance; // 总距离
-                  this.RouteGuilde = pathInstructions; // 路径指示
+                  this.driveStyle();
+                  this.walkStyle();
+                  this.totalRoute = pathInstructions; // 总距离
+                  this.RouteGuilde = totalDistance; // 路径指示
+                  console.log(totalDistance);
+                  console.log(driveTime);
+                  console.log(humanTime);
+                  console.log(pathInstructions);
                 } else {
                   console.error("Response data is not in the expected format", res);
                 }
@@ -1423,7 +1429,6 @@ export default {
                 this.loading = false; // 关闭加载状态
                 console.error("Error fetching route data:", error);
               });
-        console.log("from",from,"end",end)
 //           axios.get("https://restapi.amap.com/v3/direction/driving?origin=" + from + "&destination=" + end + "&extensions=base&strategy=0&avoidpolygons=" + avoidArea + "&key=7b0b64174ef6951cc6ee669de03e4f59", {}).then(res => {
 //
 //             pathM += parseInt(res.data.route.paths[0].distance)
