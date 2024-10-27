@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
   <div ref="chart" style="width: 100%; height: 250px;"></div>
 </template>
 
@@ -17,6 +18,8 @@ const props = defineProps({
 });
 
 const eqid = ref('');
+
+const latestTime = ref('') // 时间
 const earthquakeZoneName = ref([]) //地点
 const repairedCableLength = ref([]) //已修复
 const currentPendingRepairCableLength = ref([]) //待修复
@@ -34,10 +37,14 @@ watch(() => props.eqid, (newValue) => {
       earthquakeZoneName.value = ["抱歉暂无数据"]
       repairedCableLength.value = [0]
       currentPendingRepairCableLength.value = [0]
+      latestTime.value = ''
     }else {
       earthquakeZoneName.value = res.map(item => item.earthquakeZoneName || "抱歉暂无数据")
       repairedCableLength.value = res.map(item => item.repairedCableLength || 0)
       currentPendingRepairCableLength.value = res.map(item => item.currentPendingRepairCableLength || 0)
+      latestTime.value = res.reduce((max, item) => {
+        return new Date(max) > new Date(item.systemInsertionTime) ? max : item.systemInsertionTime;
+      }, res[0].systemInsertionTime); // 确保初始值
     }
 
     // console.log("earthquakeZoneName",earthquakeZoneName.value)

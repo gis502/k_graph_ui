@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
   <div>
     <div ref="chart" style="width: 100%; height: 250px;" className="container-left"></div>
   </div>
@@ -17,6 +18,7 @@ const props = defineProps({
 });
 
 const eqid = ref('');
+const latestTime = ref(''); // 时间
 const affectedArea = ref([]); // 地点
 const restoredKm = ref([]); // 已经抢修
 const pendingRepairKm = ref([]); // 等待抢修
@@ -26,15 +28,23 @@ let echartsInstance = null; // 全局变量
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getRoadRepairs(eqid.value).then(res => {
+
+
+    console.log("ssssssssssssssssssss",res)
+
     // 如果返回的数组为空，设置默认值
     if (res.length === 0) {
       affectedArea.value = ['抱歉暂无数据'];
       restoredKm.value = [0];
       pendingRepairKm.value = [0];
+      latestTime.value = '';
     } else {
       affectedArea.value = res.map(item => item.affectedArea || '无数据');
       restoredKm.value = res.map(item => item.restoredKm || 0);
       pendingRepairKm.value = res.map(item => item.pendingRepairKm || 0);
+      latestTime.value = res.reduce((max, item) => {
+        return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
+      }, res[0].systemInsertTime); // 确保初始值
     }
     update();
   });

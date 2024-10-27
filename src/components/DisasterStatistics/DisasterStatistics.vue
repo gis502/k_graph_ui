@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latest_time}}</p>
   <div ref="chart" style="width: 100%; height: 200px;" className="container-left"></div>
 </template>
 
@@ -20,7 +21,8 @@ const props = defineProps({
 
 // 这行代码里面的赋值已经不再是neweqid的默认值，这里的作用是为了一开始watch没有监听到eqid值变化的时候给的值
 // 防止因为没有eqid的传值而报错，删除或者更换为空值或者其他非正常eqid值都会报错
-const neweqid = ref('be3a5ea4-8dfd-a0a2-2510-21845f17960b'); // 默认 eqid
+const neweqid = ref('');
+neweqid.value = 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'
 
 const total_magnitude_3_3_9 = ref(0);
 const total_magnitude_4_4_9 = ref(0);
@@ -30,15 +32,14 @@ const latest_time = ref('');
 
 // 监听传入的 eqid，更新地震信息
 watch(() => props.eqid, (newValue) => {
-  if (newValue) {
-    neweqid.value = newValue;
-    fetchEarthquakeData(neweqid.value);
-  }
+  neweqid.value = newValue;
+  fetchEarthquakeData(neweqid.value);
 });
 
 // 获取并更新图表数据的函数
 const fetchEarthquakeData = (eqid) => {
   getTotal(eqid).then(res => {
+
     total_magnitude_3_3_9.value = 0;
     total_magnitude_4_4_9.value = 0;
     total_magnitude_5_5_9.value = 0;
@@ -51,16 +52,13 @@ const fetchEarthquakeData = (eqid) => {
       total_magnitude_5_5_9.value += item.magnitude_5_5_9;
       all_aftershocks.value += item.total_aftershocks;
 
-      if (item.submission_deadline) {
-        const formattedTime = formatDate(new Date(item.submission_deadline));
-        if (!latest_time.value || new Date(item.submission_deadline) > new Date(latest_time.value)) {
+      if (item.system_insert_time) {
+        const formattedTime = formatDate(new Date(item.system_insert_time));
+        if (!latest_time.value || new Date(item.system_insert_time) > new Date(latest_time.value)) {
           latest_time.value = formattedTime;
         }
       }
     });
-
-
-
 
     echartData.value = [
       { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},

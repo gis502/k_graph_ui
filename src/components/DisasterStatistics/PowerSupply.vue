@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{reportingDeadline}}</p>
   <div className="chart-container">
     <div className="chart-wrapper">
       <div ref="chart1" className="chart" style="width: 100%; height: 145px;"></div>

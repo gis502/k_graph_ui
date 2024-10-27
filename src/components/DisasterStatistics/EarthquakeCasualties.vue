@@ -2,11 +2,9 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-13 class="model1">转移安置信息统计
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
         <ResettlementGraph :eqid="eqid"/>
       </dv-border-box-13>
       <dv-border-box-13 class="model1">地震震情灾情信息统计<br>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{time}}</p>
         <DisasterStatistics :eqid="eqid"/>
       </dv-border-box-13>
       <dv-border-box-12 class="model2">人员伤亡信息统计
@@ -23,33 +21,250 @@
 // 进行了调整这个子组件从余震信息变成了伤亡情况，但是组件名字还没有进行修改！！！！！！
 
 
-
-import {ref, onMounted} from 'vue'
+import {ref, onMounted} from 'vue';
 import {ElMessage} from "element-plus";
 import {getField, getData} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import * as echarts from 'echarts';
 import DisasterStatistics from "@/components/DisasterStatistics/DisasterStatistics.vue";
 import ResettlementGraph from "@/components/DisasterStatistics/ResettlementGraph.vue";
-
-
-
-
-
-
 import { defineProps } from 'vue';
 import {gettotal} from "../../api/system/casualtystats"
+
+
 
 const props = defineProps({
   newEqId: {
     type: String,
     required: true
-  }
+  },
 });
 
 const eqid = ref('')
-watch(() => props.newEqId, (newValue) => {
 
+// 尝试导入全局变量：
+import {useGlobalStore} from "../../store";
+const store = useGlobalStore();
+// function test(){
+//   gettotal(store.globalEqId).then(res =>{
+//     console.log(store.globalEqId,res,123)
+//     // 得到后端数据开始操作：
+//     const areas = res.length > 0 ? res.map(item => item.affectedAreaName) : ["抱歉暂无数据"];
+//     const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
+//     const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
+//     const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
+//     const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
+//
+//     // 初始化 ECharts 实例
+//     const chartInstance = echarts.init(chart.value);
+//     // 更新图表配置
+//     const option = {
+//       tooltip: {
+//         trigger: 'axis',
+//         axisPointer: {
+//           type: 'shadow'
+//         },
+//         formatter: function (params) {
+//           // 第一行显示地区名称
+//           let result = `${params[0].axisValue}<br/>`;
+//
+//           // 第二行显示截止时间
+//           const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
+//           result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
+//
+//           // 显示系列名和数值
+//           params.forEach(item => {
+//             result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
+//           });
+//
+//           return result;
+//         }
+//       },
+//       legend: {
+//         data:FieldName.value,
+//         align: 'right',
+//         right: 10,
+//         textStyle: {
+//           color: "#fff"
+//         },
+//         itemWidth: 10,
+//         itemHeight: 10,
+//         itemGap: 35
+//       },
+//       grid: {
+//         left: '3%',
+//         right: '4%',
+//         bottom: '3%',
+//         containLabel: true
+//       },
+//       xAxis: [{
+//         type: 'category',
+//         data: areas, // 使用动态获取的区域数据
+//         // 其他 xAxis 配置
+//       }],
+//       yAxis: [{
+//         type: 'value',
+//         axisLabel: {
+//           // 移除百分比格式化
+//           // formatter: '{value} %'
+//         },
+//         axisTick: {
+//           show: false
+//         },
+//         axisLine: {
+//           show: false,
+//           lineStyle: {
+//             color: "#00c7ff",
+//             width: 1,
+//             type: "solid"
+//           }
+//         },
+//         splitLine: {
+//           lineStyle: {
+//             color: "#063374"
+//           }
+//         }
+//       }],
+//       series: [
+//         {
+//           name: '累计遇难（人）',
+//           type: 'bar',
+//           data: totalDeceased, // 使用动态获取的死亡人数
+//           // 其他系列配置
+//         },
+//         {
+//           name: '累计失联（人）',
+//           type: 'bar',
+//           data: totalMissing, // 使用动态获取的失联人数
+//           // 其他系列配置
+//         },
+//         {
+//           name: '累计受伤（人）',
+//           type: 'bar',
+//           data: totalInjured, // 使用动态获取的受伤人数
+//           // 其他系列配置
+//         }
+//       ]
+//     };
+//     chartInstance.setOption(option); // 设置更新后的配置
+//     // window.addEventListener('resize', () => {
+//     //   chartInstance.resize();
+//     // });
+//   })
+// }
+setTimeout(()=>{
+  (function (){
+    gettotal(store.globalEqId).then(res =>{
+
+      // 得到后端数据开始操作：
+      const areas = res.length > 0 ? res.map(item => item.affectedAreaName) : ["抱歉暂无数据"];
+      const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
+      const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
+      const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
+      const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
+
+      // 初始化 ECharts 实例
+      const chartInstance = echarts.init(chart.value);
+      // 更新图表配置
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
+          formatter: function (params) {
+            // 第一行显示地区名称
+            let result = `${params[0].axisValue}<br/>`;
+
+            // 第二行显示截止时间
+            const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
+            result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
+
+            // 显示系列名和数值
+            params.forEach(item => {
+              result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
+            });
+
+            return result;
+          }
+        },
+        legend: {
+          data:FieldName.value,
+          align: 'right',
+          right: 10,
+          textStyle: {
+            color: "#fff"
+          },
+          itemWidth: 10,
+          itemHeight: 10,
+          itemGap: 35
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: [{
+          type: 'category',
+          data: areas, // 使用动态获取的区域数据
+          // 其他 xAxis 配置
+        }],
+        yAxis: [{
+          type: 'value',
+          axisLabel: {
+            // 移除百分比格式化
+            // formatter: '{value} %'
+          },
+          axisTick: {
+            show: false
+          },
+          axisLine: {
+            show: false,
+            lineStyle: {
+              color: "#00c7ff",
+              width: 1,
+              type: "solid"
+            }
+          },
+          splitLine: {
+            lineStyle: {
+              color: "#063374"
+            }
+          }
+        }],
+        series: [
+          {
+            name: '累计遇难（人）',
+            type: 'bar',
+            data: totalDeceased, // 使用动态获取的死亡人数
+            // 其他系列配置
+          },
+          {
+            name: '累计失联（人）',
+            type: 'bar',
+            data: totalMissing, // 使用动态获取的失联人数
+            // 其他系列配置
+          },
+          {
+            name: '累计受伤（人）',
+            type: 'bar',
+            data: totalInjured, // 使用动态获取的受伤人数
+            // 其他系列配置
+          }
+        ]
+      };
+
+      chartInstance.setOption(option); // 设置更新后的配置
+      window.addEventListener('resize', () => {
+        chartInstance.resize();
+      });
+    })
+  })()
+},500)
+
+
+watch(() => props.newEqId, (newValue) => {
   eqid.value = newValue
   console.log("儿子中的新 eqId:", eqid.value); // 确认更新后的值
   // 其他处理逻辑
@@ -61,8 +276,6 @@ watch(() => props.newEqId, (newValue) => {
     const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
     const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
     const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
-
-
 
     // 初始化 ECharts 实例
     const chartInstance = echarts.init(chart.value);
@@ -204,41 +417,12 @@ watch(flag, (newFlag) => {
 });
 
 const times = [
-  "2022-06-01 17:10:15",
-  "2022-06-03 13:20:05",
-  "2022-06-04 12:05:50",
-  "2024-06-12 11:50:00",
-  "2022-06-03 14:55:40",
-  "2022-06-08 16:30:25",
-  "2022-06-03 09:15:10",
-  "2024-06-12 11:50:00",
 ];
-
-
-
-const time = ref('2024-09-05 15:30:00')
-
-
 
 onMounted(() => {
   getTableField()
+  // test()
 })
-
-// 请求人员伤亡表数据
-// const getYaanCasualtiesList = async () => {
-//   await getData({
-//     currentPage: currentPage.value,
-//     pageSize: pageSize.value,
-//     requestParams: requestParams.value,
-//     flag: flag.value
-//   }).then(res => {
-//     tableData.value = res.data.records
-//     console.log(res.data.records)
-//     total.value = res.data.total
-//   })
-//
-// }
-
 
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
@@ -334,16 +518,7 @@ const getTableField = () => {
       },
       xAxis: [{
         type: 'category',
-        data: [
-          '宝兴县',
-          '汉源县',
-          '芦山县',
-          '名山区',
-          '石棉县',
-          '天全县',
-          '荥经县',
-          '雨城区',
-        ],
+        data: ["抱歉暂无数据"],
         axisLine: {
           show: true,
           lineStyle: {
@@ -389,7 +564,7 @@ const getTableField = () => {
         {
           name: '累计遇难（人）',
           type: 'bar',
-          data: [22,18,8,10,12,30,25,10],
+          data: [],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
@@ -406,7 +581,7 @@ const getTableField = () => {
         {
           name: '累计失联（人）',
           type: 'bar',
-          data: [6,1,1,2,4,10,7,2],
+          data: [],
           barWidth: 13,
           barGap: 1,
           itemStyle: {
@@ -423,7 +598,7 @@ const getTableField = () => {
         {
           name: '累计受伤（人）',
           type: 'bar',
-          data: [110,70,20,25,40,120,80,25],
+          data: [0],
           barWidth: 13,
           barGap: 1,
           itemStyle: {

@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ latestTime }}</p>
   <div ref="chart" class="container-left" style="width: 100%; height: 200px;"></div>
 </template>
 
@@ -27,6 +28,9 @@ watch(() => props.eqid, (newValue) => {
     console.log("中断村返回的res",res)
 
     const formatDateTime = (dateString) => {
+      if (dateString === null ){
+        return null;
+      }
       return dateString.split('T')[0] + ' ' + dateString.split('T')[1].split('.')[0];
     };
 
@@ -58,7 +62,7 @@ function update(){
 const chart = ref(null);
 const echartData = ref([
   {
-    value: 43,
+    value: 0,
     name: '目前道路中断村（个）',
     itemStyle: {
       normal: {
@@ -67,7 +71,7 @@ const echartData = ref([
     },
   },
   {
-    value: 28,
+    value:0,
     name: '目前主网供电中断村（个）',
     itemStyle: {
       normal: {
@@ -76,7 +80,7 @@ const echartData = ref([
     },
   },
   {
-    value: 24,
+    value: 0,
     name: '目前通信中断村（个）',
     itemStyle: {
       normal: {

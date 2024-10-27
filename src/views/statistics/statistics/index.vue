@@ -35,7 +35,7 @@
       <!-- 动态组件显示 -->
     </el-row>
     <div class="container-center">
-      <component :is="selectedComponent" :newEqId="newEqId"/>
+      <component :is="selectedComponent" :newEqId="newEqId" />
     </div>
   </div>
 </template>
@@ -44,10 +44,11 @@
 import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
 import {reactive} from 'vue';
-import {getField, getData} from "@/api/system/excel.js";
+import {getField} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
+
 
 
 // 选项数据
@@ -93,6 +94,7 @@ const form = reactive({
 
 // const selectedEqid = ref(''); // 新增变量用于保存选中的 eqid
 
+
 /** 监听 */
 watch(flag, (newFlag) => {
   const selectedFile = files.value.find(file => file.fileFlag === newFlag);
@@ -107,38 +109,45 @@ watch(flag, (newFlag) => {
   clearSelection();
   value.value = [];
   // getYaanCasualtiesList();
-
 });
 
 
-const newEqId = ref('be3a5ea4-8dfd-a0a2-2510-21845f17960b');
 
-watch(eqlistName, (newValue) => {  // 修改为 newValue
-  newEqId.value = newValue
-  console.log("爷爷", newEqId.value)
+
+
+
+
+
+import {useGlobalStore} from "../../../store";
+const newEqId = computed(() => eqlistName.value);
+const store = useGlobalStore();
+watch([() => eqlistName.value,() => selectedComponentKey.value], (newValue) => {
+  console.log(newValue,123)
+  store.setGlobalVariable(newValue[0]); // 更新全局的eqid
+  store.setGlobalChange(newValue[1]); // 更新全局的模块变化标识
 });
+
+
+
+// watch(eqlistName, (newValue) => {  // 修改为 newValue
+// store.setGlobalVariable(newValue); // 更新全局变量
+//   console.log("更新后的全局变量",store.globalEqId)
+// });
+
+
+
+
+
+
+
+
+
 
 
 onMounted(() => {
   getTableField()
   getEarthquake()
 })
-
-
-// 请求人员伤亡表数据
-// const getYaanCasualtiesList = async () => {
-//   await getData({
-//     currentPage: currentPage.value,
-//     pageSize: pageSize.value,
-//     requestParams: requestParams.value,
-//     flag: flag.value
-//   }).then(res => {
-//     tableData.value = res.data.records
-//     console.log(res.data.records)
-//     total.value = res.data.total
-//   })
-//
-// }
 
 
 /** 获取字段 */
@@ -156,9 +165,6 @@ const getTableField = () => {
     data.value = generateData();
     // FieldName.value = name.value.filter(item => item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
-
-    console.log(FieldName.value)
-
   })
 }
 //获取地震列表
@@ -169,6 +175,7 @@ const getEarthquake = () => {
       ElMessage.error("地震列表无数据")
     }
     tableNameOptions.value = eqlists.value.map(file => {
+
           const eqid = file.split(' - ')[0]?.trim();
           const details = file.split(' - ')[1]?.trim();
 
