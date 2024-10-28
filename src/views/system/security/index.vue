@@ -166,7 +166,7 @@ const ruleFormRef = ref()
 
 const rules = reactive({
   port: [
-    { required: true, message: '请输入1-65535之间的数字', trigger: 'change' },
+    { required: true, message: '请输入1-65535之间的数字', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const num = Number(value);
@@ -176,14 +176,14 @@ const rules = reactive({
           callback(); // 验证通过
         }
       },
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
   source: [
     {
       required: true,
       message: '请输入有效的IP地址或CIDR段',
-      trigger: 'change'
+      trigger: 'blur'
     },
     {
       validator: (rule, value, callback) => {
@@ -196,7 +196,7 @@ const rules = reactive({
           callback(); // 验证通过
         }
       },
-      trigger: 'change'
+      trigger: 'blur'
     }
   ]
 });
@@ -302,11 +302,6 @@ const submitForm = async (formEl) => {
 
 // 新增与修改弹窗的确认按钮
 function commit() {
-  if (dialogContent.value.source === "全部IPv4地址") {
-    dialogContent.value.source = "0.0.0.0/0"
-  } else if (dialogContent.value.source === "全部IPv6地址") {
-    dialogContent.value.source = "::/0"
-  }
 
   if (dialogTitle.value === "新增") {
     dialogContent.value.uuid = guid()
