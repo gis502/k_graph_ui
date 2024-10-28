@@ -204,8 +204,8 @@
                 // console.log("pagedEqData:", this.pagedEqData)
 
                 // 清除之前的点并重新添加
-                viewer.entities.removeAll();
-                this.renderQueryEqPoints();
+                // viewer.entities.removeAll();
+                // this.renderQueryEqPoints();
             },
 
             renderQueryEqPoints(){
@@ -244,6 +244,14 @@
             back() {
                 this.currentTab = '震害事件';
                 this.selectedTabData = null;
+              //视角回雅安
+                const position = Cesium.Cartesian3.fromDegrees(
+                    103.0,
+                    29.98,
+                    500000
+                );
+                viewer.camera.flyTo({destination: position,})
+
                 // this.removeData()
             },
 
