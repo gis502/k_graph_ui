@@ -2,12 +2,6 @@ import request from '@/utils/request'
 
 //增
 export function insert(data) {
-    if (data.source === "全部IPv4地址") {
-        data.source = "0.0.0.0/0"
-    } else if (data.source === "全部IPv6地址") {
-        data.source = "::/0"
-    }
-    
     return request({
         url: '/safety_protection/insert',
         method: 'post',
