@@ -78,8 +78,8 @@
             </el-form-item>
             <el-form-item label="协议：">
               <el-select v-model="dialogContent.agreement" placeholder="请选择协议">
-                <el-option label="TCP" value="tcp"></el-option>
-                <el-option label="UDP" value="udp"></el-option>
+                <el-option label="tcp" value="tcp"></el-option>
+                <el-option label="udp" value="udp"></el-option>
               </el-select>
             </el-form-item>
 
@@ -196,7 +196,7 @@ const rules = reactive({
           callback(); // 验证通过
         }
       },
-      trigger: 'blur'
+      trigger: ['blur','change']
     }
   ]
 });
@@ -305,7 +305,14 @@ function commit() {
 
   if (dialogTitle.value === "新增") {
     dialogContent.value.uuid = guid()
-    insert(dialogContent.value).then(res => {
+    let data = JSON.parse(JSON.stringify(dialogContent.value));
+    if (dialogContent.value.source === "全部IPv4地址") {
+      data.source = "0.0.0.0/0"
+    } else if (dialogContent.value.source === "全部IPv6地址") {
+      data.source = "::/0"
+    }
+
+    insert(data).then(res => {
       ElMessageBox.alert(res.msg, 'Title', {
         confirmButtonText: '确认',
         callback: (action) => {
