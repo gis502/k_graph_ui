@@ -78,8 +78,8 @@
             </el-form-item>
             <el-form-item label="协议：">
               <el-select v-model="dialogContent.agreement" placeholder="请选择协议">
-                <el-option label="tcp" value="tcp"></el-option>
-                <el-option label="udp" value="udp"></el-option>
+                <el-option label="TCP" value="tcp"></el-option>
+                <el-option label="UDP" value="udp"></el-option>
               </el-select>
             </el-form-item>
 
@@ -181,9 +181,7 @@ const rules = reactive({
   ],
   source: [
     {
-      required: true,
-      message: '请输入有效的IP地址或CIDR段',
-      trigger: 'blur'
+      required: true, message: '请输入有效的IP地址或CIDR段', trigger: 'blur'
     },
     {
       validator: (rule, value, callback) => {
@@ -196,7 +194,7 @@ const rules = reactive({
           callback(); // 验证通过
         }
       },
-      trigger: ['blur','change']
+      trigger: 'blur'
     }
   ]
 });
@@ -336,8 +334,8 @@ function clearDialogContent() {
   dialogContent.value = ({// 弹窗内容
     uuid: "",
     applicationType: "自定义",
-    source: "",
-    agreement: "TCP",
+    source: null,
+    agreement: "tcp",
     port: null,
     notes: "",
     tactics: 'allow'
