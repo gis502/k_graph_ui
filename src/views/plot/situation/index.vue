@@ -99,7 +99,7 @@
       <addMarkCollectionDialog
           :addMarkDialogFormVisible="addMarkDialogFormVisible"
           @wsSendPoint="wsSendPoint"
-          @drawPoint="drawPoint"
+          @drawPoints="drawPoints"
           @ifPointAnimate="ifPointAnimation"
           @clearMarkDialogForm="resetAddMarkCollection"
       />
@@ -786,6 +786,10 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       window.viewer.entities.removeAll();
+      // 从 dataSource 中删除点
+      if (window.pointDataSource) {
+       window.pointDataSource.entities.removeAll();
+      }
       Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
