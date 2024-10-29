@@ -6,12 +6,12 @@
 <script setup>
 import {ref, onMounted, watch} from 'vue';
 import * as echarts from 'echarts';
-import {ElMessage} from "element-plus";
-import {getExcelUploadEarthquake} from "../../api/system/eqlist";
 import {getTotal} from "../../api/system/statistics";
 
 import { defineProps } from 'vue';
+import {useGlobalStore} from "../../store";
 
+const store = useGlobalStore();
 const props = defineProps({
   eqid: {
     type: String,
@@ -22,7 +22,7 @@ const props = defineProps({
 // 这行代码里面的赋值已经不再是neweqid的默认值，这里的作用是为了一开始watch没有监听到eqid值变化的时候给的值
 // 防止因为没有eqid的传值而报错，删除或者更换为空值或者其他非正常eqid值都会报错
 const neweqid = ref('');
-neweqid.value = 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'
+neweqid.value = store.globalEqId
 
 const total_magnitude_3_3_9 = ref(0);
 const total_magnitude_4_4_9 = ref(0);
@@ -30,6 +30,33 @@ const total_magnitude_5_5_9 = ref(0);
 const all_aftershocks = ref(0);
 const latest_time = ref('');
 
+const updateData = (data) =>{
+  total_magnitude_3_3_9.value = 0;
+  total_magnitude_4_4_9.value = 0;
+  total_magnitude_5_5_9.value = 0;
+  all_aftershocks.value = 0;
+  latest_time.value = '';
+
+  data.forEach(item => {
+    total_magnitude_3_3_9.value += item.magnitude_3_3_9;
+    total_magnitude_4_4_9.value += item.magnitude_4_4_9;
+    total_magnitude_5_5_9.value += item.magnitude_5_5_9;
+    all_aftershocks.value += item.total_aftershocks;
+
+    if (item.system_insert_time) {
+      const formattedTime = formatDate(new Date(item.system_insert_time));
+      if (!latest_time.value || new Date(item.system_insert_time) > new Date(latest_time.value)) {
+        latest_time.value = formattedTime;
+      }
+    }
+  });
+
+  echartData.value = [
+    { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},
+    { value: total_magnitude_4_4_9.value, name: '4.0-4.9级', itemStyle: { normal: { color: '#ffa602' }}},
+    { value: total_magnitude_5_5_9.value, name: '5.0-5.9级', itemStyle: { normal: { color: '#f81b1b' }}},
+  ];
+}
 // 监听传入的 eqid，更新地震信息
 watch(() => props.eqid, (newValue) => {
   neweqid.value = newValue;
@@ -39,35 +66,8 @@ watch(() => props.eqid, (newValue) => {
 // 获取并更新图表数据的函数
 const fetchEarthquakeData = (eqid) => {
   getTotal(eqid).then(res => {
-
-    total_magnitude_3_3_9.value = 0;
-    total_magnitude_4_4_9.value = 0;
-    total_magnitude_5_5_9.value = 0;
-    all_aftershocks.value = 0;
-    latest_time.value = '';
-
-    res.forEach(item => {
-      total_magnitude_3_3_9.value += item.magnitude_3_3_9;
-      total_magnitude_4_4_9.value += item.magnitude_4_4_9;
-      total_magnitude_5_5_9.value += item.magnitude_5_5_9;
-      all_aftershocks.value += item.total_aftershocks;
-
-      if (item.system_insert_time) {
-        const formattedTime = formatDate(new Date(item.system_insert_time));
-        if (!latest_time.value || new Date(item.system_insert_time) > new Date(latest_time.value)) {
-          latest_time.value = formattedTime;
-        }
-      }
-    });
-
-    echartData.value = [
-      { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},
-      { value: total_magnitude_4_4_9.value, name: '4.0-4.9级', itemStyle: { normal: { color: '#ffa602' }}},
-      { value: total_magnitude_5_5_9.value, name: '5.0-5.9级', itemStyle: { normal: { color: '#f81b1b' }}},
-    ];
-  }).catch(() => {
-    ElMessage.error("未找到有效的地震信息");
-  });
+    updateData(res)
+  })
 };
 
 // 定义图表数据
@@ -168,11 +168,14 @@ function formatDate(date) {
   return new Intl.DateTimeFormat('zh-CN', options).format(date).replace(/\//g, '-').replace(',', '');
 }
 
+setTimeout(()=>{
+    fetchEarthquakeData(store.globalEqId)
+},500)
+
 // 监听 echartData 的变化并重新初始化图表
 watch(echartData, () => {
   initChart();
-});
-
+})
 // 格式化时间的函数
 
 </script>

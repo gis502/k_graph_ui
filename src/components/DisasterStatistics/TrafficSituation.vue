@@ -7,55 +7,50 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {getFacility} from "../../api/system/CommunicationFacilityDamageRepairStatus";
-
-
-
+import {useGlobalStore} from "../../store";
 const props = defineProps({
   eqid: {
     type: String,
     required: true,
   },
 });
-
 const eqid = ref('');
-
 const latestTime = ref('') // 时间
 const earthquakeZoneName = ref([]) //地点
 const repairedCableLength = ref([]) //已修复
 const currentPendingRepairCableLength = ref([]) //待修复
 const chart = ref(null);
 let echartsInstance = null;
+const store = useGlobalStore()
+
+setTimeout(()=>{
+  getFacility(store.globalEqId).then(res => {
+    update(res)
+  })
+},500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  console.log("交通模块的第四个echarts图", eqid.value);
-
   getFacility(eqid.value).then(res => {
-    console.log("交通板块的通信设施损毁及抢修情况", res);
-
-    if(res.length === 0){
-      earthquakeZoneName.value = ["抱歉暂无数据"]
-      repairedCableLength.value = [0]
-      currentPendingRepairCableLength.value = [0]
-      latestTime.value = ''
-    }else {
-      earthquakeZoneName.value = res.map(item => item.earthquakeZoneName || "抱歉暂无数据")
-      repairedCableLength.value = res.map(item => item.repairedCableLength || 0)
-      currentPendingRepairCableLength.value = res.map(item => item.currentPendingRepairCableLength || 0)
-      latestTime.value = res.reduce((max, item) => {
-        return new Date(max) > new Date(item.systemInsertionTime) ? max : item.systemInsertionTime;
-      }, res[0].systemInsertionTime); // 确保初始值
-    }
-
-    // console.log("earthquakeZoneName",earthquakeZoneName.value)
-    // console.log("repairedCableLength",repairedCableLength.value)
-    // console.log("currentPendingRepairCableLength",currentPendingRepairCableLength.value)
-
-    update()
+    update(res)
   })
 })
 
-function update(){
+function update(data){
+  if(data.length === 0){
+    earthquakeZoneName.value = ["抱歉暂无数据"]
+    repairedCableLength.value = [0]
+    currentPendingRepairCableLength.value = [0]
+    latestTime.value = ''
+  }else {
+    earthquakeZoneName.value = data.map(item => item.earthquakeZoneName || "抱歉暂无数据")
+    repairedCableLength.value = data.map(item => item.repairedCableLength || 0)
+    currentPendingRepairCableLength.value = data.map(item => item.currentPendingRepairCableLength || 0)
+    latestTime.value = data.reduce((max, item) => {
+      return new Date(max) > new Date(item.systemInsertionTime) ? max : item.systemInsertionTime;
+    },data[0].systemInsertionTime); // 确保初始值
+  }
+
   echartsInstance.setOption({
     tooltip: {
       trigger: 'axis',

@@ -7,6 +7,7 @@
 import { onMounted, onBeforeUnmount, ref, watch, defineProps } from 'vue';
 import * as echarts from 'echarts';
 import { getTotal } from "../../api/system/relocation";
+import {useGlobalStore} from "../../store";
 
 const props = defineProps({
   eqid: {
@@ -20,7 +21,6 @@ const temporaryShelter = ref(0);
 const newlyTransferred = ref(0);
 const cumulativeTransferred = ref(0);
 const systemInserttime = ref('');
-
 const chart = ref(null);
 let chartInstance = null;
 
@@ -145,8 +145,14 @@ const updateChartData = (data) => {
 watch(() => props.eqid, async (newValue) => {
   const res = await getTotal(newValue);
   updateChartData(res[0]);
-
 });
+
+const store = useGlobalStore();
+setTimeout(()=>{
+  getTotal(store.globalEqId).then(res =>{
+    updateChartData(res[0]);
+  })
+},500)
 
 onMounted(() => {
   initChart(); // 初始化图表

@@ -92,8 +92,6 @@ const form = reactive({
   eqId: ''
 });
 
-// const selectedEqid = ref(''); // 新增变量用于保存选中的 eqid
-
 
 /** 监听 */
 watch(flag, (newFlag) => {
@@ -112,12 +110,6 @@ watch(flag, (newFlag) => {
 });
 
 
-
-
-
-
-
-
 import {useGlobalStore} from "../../../store";
 const newEqId = computed(() => eqlistName.value);
 const store = useGlobalStore();
@@ -126,23 +118,6 @@ watch([() => eqlistName.value,() => selectedComponentKey.value], (newValue) => {
   store.setGlobalVariable(newValue[0]); // 更新全局的eqid
   store.setGlobalChange(newValue[1]); // 更新全局的模块变化标识
 });
-
-
-
-// watch(eqlistName, (newValue) => {  // 修改为 newValue
-// store.setGlobalVariable(newValue); // 更新全局变量
-//   console.log("更新后的全局变量",store.globalEqId)
-// });
-
-
-
-
-
-
-
-
-
-
 
 onMounted(() => {
   getTableField()

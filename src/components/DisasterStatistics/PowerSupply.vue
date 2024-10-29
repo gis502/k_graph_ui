@@ -21,58 +21,62 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as echarts from 'echarts';
 import { getPowerSupply } from "../../api/system/powerSupply";
 import { defineProps } from "vue";
+import {useGlobalStore} from "../../store";
 
 const chart1 = ref(null);
 const chart2 = ref(null);
 const chart3 = ref(null);
-
 const props = defineProps({
   eqid: {
     type: String,
     required: true,
   },
 });
-
 const eqid = ref('');
-
 const reportingDeadline = ref('')
+const store = useGlobalStore();
+
+setTimeout(() => {
+  getPowerSupply(store.globalEqId).then(res => {
+    updataData(res)
+  });
+},500)
+
+function updataData(data){
+  // 处理数据，提取所需信息
+  const totalRestoredSubstations = data.reduce((sum, item) => sum + item.restoredSubstations, 0);
+  const totalToBeRepairedSubstations = data.reduce((sum, item) => sum + item.toBeRepairedSubstations, 0);
+  const totalRestoredCircuits = data.reduce((sum, item) => sum + item.restoredCircuits, 0);
+  const totalToBeRestoredCircuits = data.reduce((sum, item) => sum + item.toBeRestoredCircuits, 0);
+  const totalBlackoutUsers = data.reduce((sum, item) => sum + item.totalBlackoutUsers, 0);
+  const totalRestoredPowerUsers = data.reduce((sum, item) => sum + item.restoredPowerUsers, 0);
+
+  reportingDeadline.value = data.reduce((max, item) => {
+    return new Date(max) > new Date(item.reportingDeadline) ? max : item.reportingDeadline;
+  }, data[0]?.reportingDeadline); // 确保初始值
+
+  // 更新图表1的数据
+  option1.series[0].data[0].value = totalRestoredSubstations;
+  option1.series[0].data[1].value = totalToBeRepairedSubstations;
+
+  // 更新图表2的数据
+  option2.series[0].data[0].value = totalRestoredCircuits;
+  option2.series[0].data[1].value = totalToBeRestoredCircuits;
+
+  // 更新图表3的数据
+  option3.series[0].data[0].value = totalBlackoutUsers;
+  option3.series[0].data[1].value = totalRestoredPowerUsers;
+
+  // 重新渲染图表
+  chart1Instance.setOption(option1);
+  chart2Instance.setOption(option2);
+  chart3Instance.setOption(option3);
+}
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  console.log("交通模块的第二个echarts图", eqid.value);
-
   getPowerSupply(eqid.value).then(res => {
-    console.log("交通板块的powersupply", res);
-
-    // 处理数据，提取所需信息
-    const totalRestoredSubstations = res.reduce((sum, item) => sum + item.restoredSubstations, 0);
-    const totalToBeRepairedSubstations = res.reduce((sum, item) => sum + item.toBeRepairedSubstations, 0);
-    const totalRestoredCircuits = res.reduce((sum, item) => sum + item.restoredCircuits, 0);
-    const totalToBeRestoredCircuits = res.reduce((sum, item) => sum + item.toBeRestoredCircuits, 0);
-    const totalBlackoutUsers = res.reduce((sum, item) => sum + item.totalBlackoutUsers, 0);
-    const totalRestoredPowerUsers = res.reduce((sum, item) => sum + item.restoredPowerUsers, 0);
-
-    reportingDeadline.value = res.reduce((max, item) => {
-      return new Date(max) > new Date(item.reportingDeadline) ? max : item.reportingDeadline;
-    }, res[0]?.reportingDeadline); // 确保初始值
-
-
-    // 更新图表1的数据
-    option1.series[0].data[0].value = totalRestoredSubstations;
-    option1.series[0].data[1].value = totalToBeRepairedSubstations;
-
-    // 更新图表2的数据
-    option2.series[0].data[0].value = totalRestoredCircuits;
-    option2.series[0].data[1].value = totalToBeRestoredCircuits;
-
-    // 更新图表3的数据
-    option3.series[0].data[0].value = totalBlackoutUsers;
-    option3.series[0].data[1].value = totalRestoredPowerUsers;
-
-    // 重新渲染图表
-    chart1Instance.setOption(option1);
-    chart2Instance.setOption(option2);
-    chart3Instance.setOption(option3);
+    updataData(res)
   });
 });
 

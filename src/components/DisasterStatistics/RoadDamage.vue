@@ -9,6 +9,7 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {getRoadRepairs} from "../../api/system/roadDamage";
+import {useGlobalStore} from "../../store";
 
 const props = defineProps({
   eqid: {
@@ -24,33 +25,37 @@ const restoredKm = ref([]); // 已经抢修
 const pendingRepairKm = ref([]); // 等待抢修
 const chart = ref(null);
 let echartsInstance = null; // 全局变量
+const store = useGlobalStore()
+
+setTimeout(()=>{
+  getRoadRepairs(store.globalEqId).then(res => {
+    update(res);
+  });
+},500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getRoadRepairs(eqid.value).then(res => {
-
-
-    console.log("ssssssssssssssssssss",res)
-
-    // 如果返回的数组为空，设置默认值
-    if (res.length === 0) {
-      affectedArea.value = ['抱歉暂无数据'];
-      restoredKm.value = [0];
-      pendingRepairKm.value = [0];
-      latestTime.value = '';
-    } else {
-      affectedArea.value = res.map(item => item.affectedArea || '无数据');
-      restoredKm.value = res.map(item => item.restoredKm || 0);
-      pendingRepairKm.value = res.map(item => item.pendingRepairKm || 0);
-      latestTime.value = res.reduce((max, item) => {
-        return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
-      }, res[0].systemInsertTime); // 确保初始值
-    }
-    update();
+    update(res);
   });
 });
 
-function update() {
+function update(data) {
+  // 如果返回的数组为空，设置默认值
+  if (data.length === 0) {
+    affectedArea.value = ['抱歉暂无数据'];
+    restoredKm.value = [0];
+    pendingRepairKm.value = [0];
+    latestTime.value = '';
+  } else {
+    affectedArea.value = data.map(item => item.affectedArea || '无数据');
+    restoredKm.value = data.map(item => item.restoredKm || 0);
+    pendingRepairKm.value = data.map(item => item.pendingRepairKm || 0);
+    latestTime.value = data.reduce((max, item) => {
+      return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
+    }, data[0].systemInsertTime); // 确保初始值
+  }
+
   echartsInstance.setOption({
     tooltip: {
       trigger: 'axis',
