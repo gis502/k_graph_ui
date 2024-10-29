@@ -64,7 +64,8 @@
 import red from '@/assets/star.gif';
 import yellow from '@/assets/yellow3.png';
 import {ref, onMounted, defineProps ,reactive ,watch} from 'vue';
-import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
+import InfoWindow from './emap/infowindow.vue';
+// 信息窗口 在后面
 // 用于在组件中定义和接收 props（属性）
 
 
@@ -704,8 +705,8 @@ export default {
   }
 }
 .map_container {
-  width: 835px;
-  height: 730px;
+  width: 640px;
+  height: 600px;
   margin: 30px auto;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
