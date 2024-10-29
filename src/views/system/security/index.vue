@@ -19,11 +19,20 @@
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="applicationType" label="应用类型" align="center" width="200"></el-table-column>
-      <el-table-column prop="source" label="来源" align="center" width="200"></el-table-column>
-      <el-table-column prop="agreement" label="协议" align="center" width="200"></el-table-column>
-      <el-table-column prop="port" label="端口" align="center" width="200"></el-table-column>
-      <el-table-column prop="notes" label="备注" align="center" width="200"></el-table-column>
+      <el-table-column prop="applicationType" label="应用类型" align="center" width="180"></el-table-column>
+      <el-table-column prop="source" label="来源" align="center" width="180"></el-table-column>
+      <el-table-column prop="agreement" label="协议" align="center" width="180">
+        <template #default="scope">
+          {{ scope.row.agreement ? scope.row.agreement.toUpperCase() : '' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="port" label="端口" align="center" width="180"></el-table-column>
+      <el-table-column prop="tactics" label="策略" align="center" width="180">
+        <template #default="scope">
+          {{ scope.row.tactics === 'allow' ? '允许' : '拒绝'}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="notes" label="备注" align="center" width="180"></el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button type="text" icon="Edit" @click="handleOpen('修改',scope.row)">修改</el-button>
@@ -43,41 +52,59 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
-      <el-row>
-        <el-col :span="13">
-          <el-form-item label="应用类型：">
-            <el-input v-model="dialogContent.applicationType" placeholder="请输入应用类型"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-form-item label="来源：">
-            <el-input v-model="dialogContent.source" placeholder="请输入来源"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="协议：">
-            <el-input v-model="dialogContent.agreement" placeholder="请输入协议"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row :gutter="10">
-        <el-col :span="12">
-          <el-form-item label="端口：">
-            <el-input v-model="dialogContent.port" placeholder="请输入端口"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="备注：">
-            <el-input v-model="dialogContent.notes" placeholder="请输入备注"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" @click="commit">确 定</el-button>
-      </span>
+      <el-form
+          ref="ruleFormRef"
+          style="max-width: 600px"
+          :model="dialogContent"
+          :rules="rules"
+          label-width="auto"
+          status-icon
+      >
+            <el-form-item label="应用类型：">
+              <el-select v-model="dialogContent.applicationType" placeholder="请选择应用类型">
+                <el-option label="自定义" value="自定义"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="来源：" prop="source">
+              <el-autocomplete
+                  v-model="dialogContent.source"
+                  :fetch-suggestions="querySearch"
+                  clearable
+                  prepend="快速选择"
+                  placeholder="请输入来源"
+                  @select="handleSelect"
+              >
+              </el-autocomplete>
+            </el-form-item>
+            <el-form-item label="协议：">
+              <el-select v-model="dialogContent.agreement" placeholder="请选择协议">
+                <el-option label="TCP" value="tcp"></el-option>
+                <el-option label="UDP" value="udp"></el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="端口：" prop="port">
+              <el-input v-model="dialogContent.port" placeholder="请输入端口"></el-input>
+            </el-form-item>
+
+
+            <el-form-item label="策略：">
+              <el-select v-model="dialogContent.tactics" placeholder="请选择策略">
+                <el-option label="允许" value="allow"></el-option>
+                <el-option label="拒绝" value="deny"></el-option>
+              </el-select>
+            </el-form-item>
+
+
+            <el-form-item label="备注：">
+              <el-input v-model="dialogContent.notes" placeholder="请输入备注"></el-input>
+            </el-form-item>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="cancel">取 消</el-button>
+          <el-button type="primary" @click="submitForm(ruleFormRef)">确 定</el-button>
+        </span>
+      </el-form>
     </el-dialog>
 
   </div>
@@ -98,21 +125,84 @@ let dialogTitle = ref("") // 弹窗的标题
 let dialogShow = ref(false) // 弹窗的显示与否的属性
 let dialogContent = ref({// 弹窗内容
   uuid: "",
-  applicationType: "",
+  applicationType: "自定义",
   source: "",
-  agreement: "",
+  agreement: "tcp",
   port: null,
-  notes: ""
+  notes: "",
+  tactics: 'allow'
 })
+
 // 搜索关键词
 let queryParams = ref("")
 
 onMounted(() => {
   getList()
 })
+const restaurants = ref([{value: "全部IPv4地址"}, {value: "全部IPv6地址"}])
+
+const querySearch = (queryString, cb) => {
+  let results = queryString
+      ? restaurants.value.filter(createFilter(queryString))
+      : restaurants.value
+  if (results.length === 0 && queryString) {
+    queryString
+    results = [{value: queryString}]
+  }
+  cb(results)
+}
+
+function createFilter(queryString) {
+  return (restaurants) => {
+    return (restaurants.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+  };
+}
+
+function handleSelect(item) {
+  dialogContent.value.source = item.value;
+}
+
+const ruleFormRef = ref()
+
+const rules = reactive({
+  port: [
+    { required: true, message: '请输入1-65535之间的数字', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const num = Number(value);
+        if (!Number.isInteger(num) || num < 1 || num > 65535) {
+          callback(new Error('请输入1-65535之间的数字'));
+        } else {
+          callback(); // 验证通过
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  source: [
+    {
+      required: true, message: '请输入有效的IP地址或CIDR段', trigger: 'blur'
+    },
+    {
+      validator: (rule, value, callback) => {
+        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
+        const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]|:|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])))(\/(1[0-2][0-8]|[1-9]?[0-9]))?$/;
+
+        if (!ipv4Regex.test(value) && !ipv6Regex.test(value) && !(value === "全部IPv4地址") && !(value === "全部IPv6地址")) {
+          callback(new Error('请输入有效的IP地址或CIDR段'));
+        } else {
+          callback(); // 验证通过
+        }
+      },
+      trigger: 'blur'
+    }
+  ]
+});
+
+
 
 // 搜索
-function handleQuery(){
+function handleQuery() {
   let searchKey = queryParams.value.trim();
   // 如果搜索关键字为空，恢复为原始数据
   if (searchKey === "") {
@@ -122,9 +212,9 @@ function handleQuery(){
 }
 
 // 重置搜索信息
-function resetQuery(){
-    queryParams.value = '';  // 清空搜索输入框
-    getList()  // 重新加载所有数据
+function resetQuery() {
+  queryParams.value = '';  // 清空搜索输入框
+  getList()  // 重新加载所有数据
 }
 
 // 查全部数据
@@ -197,11 +287,35 @@ function cancel() {
   clearDialogContent()
 }
 
+const submitForm = async (formEl) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      commit()
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+}
+
 // 新增与修改弹窗的确认按钮
 function commit() {
+
   if (dialogTitle.value === "新增") {
     dialogContent.value.uuid = guid()
-    insert(dialogContent.value).then(res => {
+    let data = JSON.parse(JSON.stringify(dialogContent.value));
+    if (dialogContent.value.source === "全部IPv4地址") {
+      data.source = "0.0.0.0/0"
+    } else if (dialogContent.value.source === "全部IPv6地址") {
+      data.source = "::/0"
+    }
+
+    insert(data).then(res => {
+      ElMessageBox.alert(res.msg, 'Title', {
+        confirmButtonText: '确认',
+        callback: (action) => {
+        },
+      })
       dialogShow.value = false
       clearDialogContent()
       getList()
@@ -217,9 +331,15 @@ function commit() {
 
 // 清空新增与修改弹窗中上次的内容
 function clearDialogContent() {
-  Object.keys(dialogContent.value).forEach(key => {
-    dialogContent.value[key] = ""
-  });
+  dialogContent.value = ({// 弹窗内容
+    uuid: "",
+    applicationType: "自定义",
+    source: null,
+    agreement: "tcp",
+    port: null,
+    notes: "",
+    tactics: 'allow'
+  })
 }
 
 // 删除此条数据

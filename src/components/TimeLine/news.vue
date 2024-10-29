@@ -22,7 +22,7 @@
               <img :src="error" alt="新闻图片"/>
             </div>
             <div class="sub-content">
-              <p class="sub-time">{{ item.publish_time }}</p>
+              <p class="sub-time">{{ this.timestampToTime(item.publishTime) }}</p>
               <p class="sub-text">{{ item.title }}</p>
             </div>
           </li>
@@ -37,10 +37,9 @@
 </template>
 
 <script>
-// import newsData from "@/assets/json/TimeLine/news.json"
-import newsData from "@/assets/json/TimeLine/sorted_data.json"
-import error from '@/assets/json/TimeLine/errorimg.jpg'
 
+import error from '@/assets/json/TimeLine/errorimg.jpg'
+import {getNews} from "../../api/system/timeLine.js";
 
 export default {
   name: "news",
@@ -69,11 +68,7 @@ export default {
     'eqid'
   ],
   mounted() {
-    // console.log("this.eqid1111111111111------------",this.eqid)
-    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-      this.ifShowData = true
       this.fetchData()
-    }
   },
   watch: {
     currentTime(newVal) {
@@ -85,8 +80,12 @@ export default {
       event.target.src = error // 当图片加载失败时，将其替换为备用图片
     },
     async fetchData() {
-      this.newsData = newsData
-      this.updateNews(this.currentTime)
+      let that=this
+      getNews({eqid: this.eqid}).then(res => {
+        that.newsData = res;
+        // console.log(res,"新闻")
+        this.updateNews(this.currentTime)
+      });
     },
     hideNews() {
       this.showRightButton = false
@@ -97,15 +96,19 @@ export default {
       this.showLeftButton = false
     },
     async updateNews(currentTime) {
-      // console.log("this.newsData",this.newsData)
       const activities = await this.newsData.filter((activity) => {
         return (
-            new Date(activity.publish_time) <= currentTime
+            new Date(activity.publishTime) <= currentTime
         );
       });
       if (activities.length > 0) {
+        activities.sort((a, b) => {
+            if (a.publishTime < b.publishTime) return -1;
+            if (a.publishTime > b.publishTime) return 1;
+            return 0;
+        });
         this.showNews = activities.reverse()
-        this.recordTime=activities[0].publish_time
+        this.recordTime=this.timestampToTime(activities[0].publishTime)
       }else{
         this.showNews = []
         this.recordTime=this.timestampToTime(currentTime)

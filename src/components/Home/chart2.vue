@@ -1,30 +1,28 @@
 <template>
   <div style="display: flex; align-items: center; padding-left: 10px; box-sizing: border-box;">
     <span
-        style="font-size: 13px;color: white; padding-left: 5px; background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); width: 100%;">
+        style="font-size: 13px; color: white; padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); width: 100%;">
       更新时间：{{ updateTime }}
     </span>
   </div>
   <div ref="chart2" class="chart2"></div>
 </template>
 
-
-
 <script setup>
-import {onMounted, ref, watch, onBeforeUnmount} from 'vue';
+import { onMounted, ref, watch, onBeforeUnmount } from 'vue';
 import * as echarts from 'echarts';
-import {getAftershockMagnitude} from "@/api/system/statistics.js";
+import { getAftershockMagnitude } from "@/api/system/statistics.js";
 
 const chart2 = ref(null);
 const props = defineProps(['lastEq']);
-const updateTime = ref()
+const updateTime = ref('');
 let myChart = null;
 
 // 初始化图表
 const initChart = () => {
   if (!chart2.value) return;
 
-  myChart = echarts.init(chart2.value); // 初始化 ECharts
+  myChart = echarts.init(chart2.value);
   const option = {
     tooltip: {
       trigger: 'axis'
@@ -96,13 +94,24 @@ const updateChart = (data) => {
             data.magnitude_3_3_9 || 0,
             data.magnitude_4_4_9 || 0,
             data.magnitude_5_5_9 || 0,
-            0
+            0 // 第四项设为0
           ],
         }
       ]
     });
   }
 };
+
+// 监听 eqid 的变化
+watch(() => props.lastEq, () => {
+  if (props.lastEq) {
+    getAftershockMagnitude(props.lastEq.eqid).then((res) => {
+      console.log(res);  // 输出返回数据
+      updateChart(res);  // 更新图表数据
+      updateTime.value = res.submission_deadline;
+    });
+  }
+});
 
 // 窗口尺寸改变时触发 resize
 const resizeChart = () => {
@@ -111,24 +120,10 @@ const resizeChart = () => {
   }
 };
 
-// 监听 eqid 的变化
-watch(() => props.lastEq, () => {
-  if (props.lastEq) {
-    getAftershockMagnitude(props.lastEq.eqid).then((res) => {
-      updateChart(res);  // 更新图表数据
-      if (!res.submissionDeadline){
-        updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
-      }else{
-        updateTime.value = res.submissionDeadline.replace('T', ' ')
-      }
-    });
-  }
-});
-
 // 组件挂载时初始化图表并监听窗口尺寸变化
 onMounted(() => {
   initChart();
-  window.addEventListener('resize', resizeChart);  // 监听窗口尺寸变化
+  window.addEventListener('resize', resizeChart); // 监听窗口尺寸变化
 });
 
 // 组件卸载前移除事件监听
@@ -137,12 +132,9 @@ onBeforeUnmount(() => {
 });
 </script>
 
-
 <style scoped>
 .chart2 {
   width: 100%;  /* 设置宽度占满父级容器 */
   height: 100%; /* 设置高度占满父级容器 */
 }
-
-
 </style>

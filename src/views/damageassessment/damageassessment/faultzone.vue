@@ -495,6 +495,13 @@ export default {
       this.currentTab = '震害事件';
       this.selectedTabData = null;
       this.removeData()
+      //视角回雅安
+      const position = Cesium.Cartesian3.fromDegrees(
+          103.0,
+          29.98,
+          500000
+      );
+      viewer.camera.flyTo({destination: position,})
     },
 
     // 模糊匹配地震时间、位置和震级

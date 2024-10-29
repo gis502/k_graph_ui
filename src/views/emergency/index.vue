@@ -680,8 +680,8 @@ export default {
           eyeOffset: new Cesium.Cartesian3(0, 0, 0),
           color: Cesium.Color.WHITE.withAlpha(1),
           scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
+          // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 禁用，导致图标在高度计算或与地形交互时出现闪烁。 原作用：绑定到地形高度,让billboard贴地
+          depthTest: true, // 让 Cesium 正确处理图标的遮挡关系
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         properties: {

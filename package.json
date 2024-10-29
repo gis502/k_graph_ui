@@ -30,6 +30,7 @@
     "exceljs": "^4.4.0",
     "file-saver": "2.0.5",
     "fuse.js": "6.6.2",
+    "gcoord": "^1.0.6",
     "html2canvas": "^1.4.1",
     "i": "^0.3.7",
     "idb": "^8.0.0",
@@ -42,7 +43,9 @@
     "vite-plugin-cesium": "^1.2.22",
     "vue": "3.4.31",
     "vue-cropper": "1.1.1",
-    "vue-router": "4.4.0"
+    "vue-router": "4.4.0",
+    "vue-tianditu": "^2.7.6",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.0.5",
