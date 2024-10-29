@@ -1,5 +1,6 @@
 <template>
   <div class="content-body">
+
     <div class="header">
       <div class="header-center">
         <span>雅安市地震应急信息服务技术支撑平台</span>
@@ -9,8 +10,10 @@
         <span id="time">{{ nowTime }}</span>
       </div>
     </div>
+
     <div class="content">
       <div class="content-con">
+
         <div class="left-body">
           <div class="left-top public-bg">
             <dv-border-box7>
@@ -32,9 +35,11 @@
             </dv-border-box7>
           </div>
         </div>
+
         <div class="center-body">
           <e-map :eq-data="EqAll"/>
         </div>
+
         <div class="right-body">
           <div class="right-top public-bg">
             <dv-border-box7>
@@ -105,12 +110,12 @@
 <script setup>
 import {BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5} from '@kjgl77/datav-vue3'
 import {onMounted, ref} from 'vue';
-import eMap from '@/components/Home/emap.vue';
-import eqTable from '@/components/Home/eqtable.vue';
-import newInfo from '@/components/Home/newInfo.vue';
-import chart1 from '@/components/Home/chart1.vue';
-import chart2 from '@/components/Home/chart2.vue';
-import chart3 from '@/components/Home/chart3.vue';
+import EMap from '@/components/Home/emap.vue';
+import EqTable from '@/components/Home/eqtable.vue';
+import NewInfo from '@/components/Home/newInfo.vue';
+import Chart1 from '@/components/Home/chart1.vue';
+import Chart2 from '@/components/Home/chart2.vue';
+import Chart3 from '@/components/Home/chart3.vue';
 import {fromEq, getAllEq, queryEq} from '@/api/system/eqlist';
 
 const nowTime = ref(null);
@@ -224,6 +229,7 @@ const getEq = () => {
     EqAll.value = res
     tableData.value = res
     lastEqData.value = res[0]
+    console.log("res----------",res)
 
     // 打印最新的 eqid
     if (lastEqData.value) {
