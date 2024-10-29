@@ -1,28 +1,29 @@
 <template>
   <div>
     <!--    工具-->
-<!--    <div class="tool_container">-->
-<!--      &lt;!&ndash;      <button @click="openTool('paintBrushTool')">画笔</button>&ndash;&gt;-->
-<!--      &lt;!&ndash;      <button @click="clearTool('paintBrushTool')">清除画笔</button>&ndash;&gt;-->
-<!--      &lt;!&ndash;      <button class="_btn" type="button" @click="clearMap()">清空所有</button>&ndash;&gt;-->
-<!--      <button @click="setMapStyle('black')" class="theme">black</button>-->
-<!--      <button @click="setMapStyle('indigo')" class="theme">indigo</button>-->
-<!--      <button @click="resetMapStyle" class="theme">恢复默认</button>-->
-<!--    </div>-->
+    <!--    <div class="tool_container">-->
+    <!--      &lt;!&ndash;      <button @click="openTool('paintBrushTool')">画笔</button>&ndash;&gt;-->
+    <!--      &lt;!&ndash;      <button @click="clearTool('paintBrushTool')">清除画笔</button>&ndash;&gt;-->
+    <!--      &lt;!&ndash;      <button class="_btn" type="button" @click="clearMap()">清空所有</button>&ndash;&gt;-->
+    <!--      <button @click="setMapStyle('black')" class="theme">black</button>-->
+    <!--      <button @click="setMapStyle('indigo')" class="theme">indigo</button>-->
+    <!--      <button @click="resetMapStyle" class="theme">恢复默认</button>-->
+    <!--    </div>-->
     <!--指南针-->
     <div class="compassContainer"></div>
 
     <!--    地图-->
-    <div @contextmenu.prevent    id="emap" class="map_container" > </div>
+    <div @contextmenu.prevent id="emap" class="map_container"></div>
 
-    <!--信息窗-->
-<!--    <InfoWindow-->
-<!--        ref="infoWindow"-->
-<!--        v-show="showInfoWindow"-->
-<!--        :infoWindow="mapConfig.infoWindow"-->
-<!--        :data="mapConfig.infoWindowData"-->
-<!--        @callback="infoWindowCallback"-->
-<!--    ></InfoWindow>-->
+
+    <!-- 信息窗组件 -->
+    <InfoWindow
+        v-if="showInfoWindow"
+        :infoWindow="mapConfig.infoWindow"
+        :data="mapConfig.infoWindowData"
+        :style="{ position: 'absolute', left: `${infoWindowPosition.x}px`, top: `${infoWindowPosition.y}px` }"
+        @callback="infoWindowCallback"
+    />
   </div>
   <!-- 自制图例 -->
   <div class="legend">
@@ -63,8 +64,13 @@
 <script>
 import red from '@/assets/star.gif';
 import yellow from '@/assets/yellow3.png';
-import {ref, onMounted, defineProps ,reactive ,watch} from 'vue';
+import {ref, onMounted,  watch} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
+// 引入地理json文件
+// import sicuan from '@/assets/geoJson/data.json';
+// import * as d3 from 'd3';
+
+
 // 用于在组件中定义和接收 props（属性）
 
 
@@ -97,14 +103,19 @@ const seriesVisibility = ref({
 });
 
 export default {
-  components: { InfoWindow },
+  components: {InfoWindow},
   props: ['eqData'],
+
   setup(props) {
     const showInfoWindow = ref(false);  //信息框
     // const props = defineProps(['eqData']);
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
+    const infoWindowPosition = ref({ x: 0, y: 0 });
+
+    // let mapInstance = null;
+    // let svgOverlay = null;
 
     // 数据分组
     const dataGroups = ref({
@@ -128,7 +139,7 @@ export default {
       latestEqData.value = [props.eqData[0]]; // 只取最新的一个
       historyEqData.value = props.eqData.slice(1); // 剩下的为历史数据
 
-      console.log("2222222222222222222222222222222",latestEqData.value)
+      console.log("2222222222222222222222222222222", latestEqData.value)
 
       // 处理数据分组
       processData();
@@ -138,16 +149,16 @@ export default {
     const processData = () => {
       //处理最新地震数据，映射成适合 ECharts 使用的格式
       const latestData = latestEqData.value.map(item => ({
-        position: item.earthquakeName,
-        magnitude: parseFloat(item.magnitude),
-        longitude: item.longitude,
-        latitude: item.latitude,
+        position: item.earthquakeName,  //位置
+        magnitude: parseFloat(item.magnitude),  //震级
+        longitude: item.longitude,  //经度
+        latitude: item.latitude,  //纬度
         // 数据库表中time字段院数据为2015-01-03 08:16:20，
         // 但渲染在前端会出现个'T'，
         // 也就变成了2015-01-03T08:16:20，
         // 故以此将其删去
-        time: item.occurrenceTime.replace("T", " "),
-        depth: item.depth,
+        time: item.occurrenceTime.replace("T", " "),  //时间
+        depth: item.depth,  //深度
       }));
 
       //将历史地震数据 historyEqData 转换为合适的格式。
@@ -178,7 +189,6 @@ export default {
 
 
 
-
     // 初始化地图
     // 将地图挂载到 emap 容器中，并通过 centerAndZoom 设置中心点和缩放级别。
     const initMap = () => {
@@ -196,6 +206,11 @@ export default {
       // 设置地图的初始主题为 indigo
       setMapStyle('indigo');
 
+      // mapInstance = new T.Map('emap'); // 创建地图实例
+      // svgOverlay = initializeOverlay(initFunction, redrawFunction, options);
+      // svgOverlay.onAdd(mapInstance);
+
+
       // // **添加指南针控件**
       // const navigationControl = new T.Control.Navigation();
       // mapConfig.value.map.addControl(navigationControl);
@@ -208,15 +223,17 @@ export default {
       console.log('Scale control added:', scale);
 
 
-      // 初始化画笔工具
-      mapConfig.value.paintBrushTool = new T.PolylineTool(mapConfig.value.map, {
-        color: 'red', // 线条颜色
-        weight: 2,    // 线条宽度
-        opacity: 0.8, // 透明度
-        keepdrawing: false,
-      });
+      // // 初始化画笔工具
+      // mapConfig.value.paintBrushTool = new T.PolylineTool(mapConfig.value.map, {
+      //   color: 'red', // 线条颜色
+      //   weight: 2,    // 线条宽度
+      //   opacity: 0.8, // 透明度
+      //   keepdrawing: false,
+      // });
 
       addMarkers();//标点
+
+
 
       initMapAfter();//加载地图后方法
       // 添加鼠标悬停事件监听
@@ -224,10 +241,11 @@ export default {
     };
 
     const initMapAfter = () => {
-
-
       // 初始化地图后的操作
     };
+
+
+
 
 
     // 启动画笔工具
@@ -246,6 +264,8 @@ export default {
     const stopEvent = (event) => {
       event.stopPropagation();
     };
+
+
 
     // 鼠标松开时的处理
     const handleMouseUp = () => {
@@ -284,16 +304,27 @@ export default {
       }
     };
 
-
+// ----------------------------添加地震点------------------------------------------------
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
       clearMarkers();
+      // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
-        if (seriesVisibility.value[key]) {
+        if (key.startsWith('history') && seriesVisibility.value[key]) {
           const [group, type] = key.split('-');
           dataGroups.value[`${group}${capitalize(type)}`].forEach(item => {
-            addMarker1(item.longitude, item.latitude, group === 'latest' ? 'red' : 'yellow', getMarkerSize(type));
+            addMarker1(item.longitude, item.latitude, 'yellow', getMarkerSize(type), item);
+          });
+        }
+      });
+
+      // 然后添加最新地震标记（红色）
+      Object.keys(seriesVisibility.value).forEach(key => {
+        if (key.startsWith('latest') && seriesVisibility.value[key]) {
+          const [group, type] = key.split('-');
+          dataGroups.value[`${group}${capitalize(type)}`].forEach(item => {
+            addMarker1(item.longitude, item.latitude, 'red', getMarkerSize(type), item);
           });
         }
       });
@@ -305,7 +336,7 @@ export default {
       // 例如，使用 mapConfig.value.map.removeMarker(marker) 来移除标记
     };
 
-    //
+
     // 点击图例中的点 在地图上点的展示消失效果
 // ECharts中图例(legend)不支持分别定义图形大小，
 // 故通过该函数与自制的图例div配合实现legend自带的筛选效果
@@ -320,60 +351,45 @@ export default {
       return str.charAt(0).toUpperCase() + str.slice(1);
     };
 
-    //点呼吸
 
-    let breathingInterval = null;
-
-    const startBreathingEffect = (marker) => {
-      let scale = 1;
-      let growing = true;
-
-      breathingInterval = setInterval(() => {
-        if (growing) {
-          scale += 0.05;
-          if (scale >= 1.5) growing = false;
-        } else {
-          scale -= 0.05;
-          if (scale <= 1) growing = true;
-        }
-
-        marker.getElement().style.transform = `scale(${scale})`;
-        marker.getElement().style.opacity = scale === 1.5 ? 1 : 0.8; // 调整透明度
-      }, 100);
-    };
-
-    const stopBreathingEffect = () => {
-      clearInterval(breathingInterval);
-    };
-
-
-    const addMarker1 = (lng, lat, color, size) => {
+    const addMarker1 = (lng, lat, color, size,item) => {
       let iconUrl;
       let iconSize;
 
       // 根据类型和大小选择图标样式
       if (color === 'red') {
         iconUrl = red;
-        // 启动呼吸效果
-        const marker = new T.Marker([lat, lng], { icon: iconUrl });
-        startBreathingEffect(marker); // 启动呼吸效果
+        switch (size) {
+          case 'small':
+            iconSize = new T.Point(15, 15);
+            break;
+          case 'medium':
+            iconSize = new T.Point(25, 25);
+            break;
+          case 'large':
+            iconSize = new T.Point(35, 35);
+            break;
+          default:
+            iconSize = new T.Point(25, 25);
+        }
       } else {
         iconUrl = yellow;
+        switch (size) {
+          case 'small':
+            iconSize = new T.Point(10, 10);
+            break;
+          case 'medium':
+            iconSize = new T.Point(20, 20);
+            break;
+          case 'large':
+            iconSize = new T.Point(30, 30);
+            break;
+          default:
+            iconSize = new T.Point(20, 20);
+        }
       }
 
-      switch (size) {
-        case 'small':
-          iconSize = new T.Point(18, 18);
-          break;
-        case 'medium':
-          iconSize = new T.Point(23, 23);
-          break;
-        case 'large':
-          iconSize = new T.Point(28, 28);
-          break;
-        default:
-          iconSize = new T.Point(25, 25);
-      }
+
 
       // 自定义标记点图标
       const markerObj = {
@@ -388,43 +404,66 @@ export default {
       // 创建标记并添加到地图
       const marker = new T.Marker(returnLnglat([lng, lat]), markerObj);
 
-      mapConfig.value.map.addOverLay(marker);
 
       // 添加点击事件处理器
-      addClickHandler(marker, { lng, lat });
+      addClickHandler(marker, {lng, lat});
+
+// 添加悬停事件
+      marker.addEventListener('mouseover', () => {
+        showInfoWindow.value = true;
+        mapConfig.value.infoWindowData = item;
+        infoWindowPosition.value.x = event.clientX - 350; // 获取鼠标位置
+        infoWindowPosition.value.y = event.clientY - 330; // 获取鼠标位置
+        console.log("item-----------------",item)
+        // 创建信息窗口对象
+        mapConfig.value.infoWindow = new T.InfoWindow(
+            document.querySelector('#infoWindow'),
+            {offset: new T.Point(0, -20), closeButton: false}
+        );
+        // setTimeout(() => {
+        //   mapConfig.value.map.openInfoWindow(mapConfig.value.infoWindow);  //打开信息窗口
+        // }, 0);
+
+      });
 
 
+      //信息框位置
+      const updateInfoWindowPosition = (event) => {
+        // 计算信息框的宽度和高度
+        const infoWindowWidth = 355; // 信息框的宽度
+        const infoWindowHeight = 350; // 信息框的高度
+
+        // 设置信息框的位置，使其显示在点的正上方
+        infoWindowPosition.value.x = event.clientX - (infoWindowWidth / 2); // 确保信息框水平居中
+        infoWindowPosition.value.y = event.clientY - infoWindowHeight; // 确保信息框位于鼠标上方
+      };
+
+// 在鼠标移动事件中调用
+      mapConfig.value.map.addEventListener('mousemove', (event) => {
+        updateInfoWindowPosition(event);
+      });
+
+//
+// // 添加鼠标移开事件，关闭信息窗
+      marker.addEventListener('mouseout', () => {
+        mapConfig.value.map.closeInfoWindow();
+        showInfoWindow.value = false;
+      });
+
+      mapConfig.value.map.addOverLay(marker);
     };
 
-    onBeforeUnmount(() => {
-      stopBreathingEffect(); // 清理呼吸效果
-    });
 
-    // 添加点击事件返回
+
+    // 添加点击事件返回，将中心点变为点击点
     const addClickHandler = (marker, params) => {
       marker.addEventListener('click', (e) => {
-        showInfoWindow.value = true; //信息框
         mapConfig.value.map.panTo(returnLnglat(e.lnglat), 12); //将地图的中心点变换到指定的地理坐标
-        markerClick(e, params);
+
       });
     };
 
 
-    // 点击时间打开信息窗体
-    const markerClick = (e, params) => {
-      showInfoWindow.value = true;  //显示信息窗体
-      mapConfig.value.infoWindowData = params;  //传递数据
-
-      // 创建信息窗口对象
-      mapConfig.value.infoWindow = new T.InfoWindow(
-          document.querySelector('#infoWindow'),
-          { offset: new T.Point(0, -20), closeButton: false }
-      );
-
-      setTimeout(() => {
-        mapConfig.value.map.openInfoWindow(mapConfig.value.infoWindow, e.lnglat);  //打开信息窗口
-      }, 0);
-    };
 
     // 信息窗口点击回调
     const infoWindowCallback = (data) => {
@@ -440,7 +479,6 @@ export default {
     };
 
 
-
     // 清除地图
     const clearMap = (type) => {
       switch (type) {
@@ -452,7 +490,6 @@ export default {
           break
         default:
           mapConfig.value.map.clearOverLays() // 清除所有覆盖物
-
 
 
           // 清除信息窗口
@@ -518,6 +555,102 @@ export default {
       return new T.LngLat(x, y);
     };
 
+
+//     // ----------D3 绘制的图形
+//     //创建一个覆盖层对象。
+//     const initializeOverlay = (init, redraw, options) => {
+//       const overlay = {
+//         uid: new Date().getTime(),  //唯一标识符，用于标识这个覆盖层的实例。
+//         init,       //init 和 redraw：传入的初始化和重绘函数。
+//         redraw,
+//         options: options || {},  //配置选项，默认为空对象。
+//         _svg: new T.SVG(),  //使用 T.SVG() 创建一个新的 SVG 实例，用于 D3 绘图。
+//         _rootGroup: null,  //_rootGroup、selection 和 transform：用于存储 D3 的根分组、选择器和变换信息。
+//         selection: null,
+//         transform: null,
+//
+//         //处理缩放变化 (_zoomChange 方法)
+//         _zoomChange() {
+//           if (!this.redraw) {
+//             this.init(this.selection, this.transform);
+//           } else {
+//             this.redraw(this.selection, this.transform);
+//           }
+//         },
+//
+//
+//
+//         //添加到地图 (onAdd 方法),在覆盖层被添加到地图时调用。
+//         onAdd(map){
+//           this.map = map;
+//           map.addLayer(this._svg);    //将 SVG 添加到地图。
+//           this._rootGroup = d3.select(this._svg._rootGroup).classed("d3-overlay", true);  //使用 D3 选择器创建根分组，并将其标记为 d3-overlay。
+//           this.selection = this._rootGroup;
+//
+//           // Transform definitions
+//           this.transform = {
+//             LngLatToD3Point: (a, b) => {
+//               const _lnglat = a instanceof T.LngLat ? a : new T.LngLat(a, b);
+//               const point = this.map.lngLatToLayerPoint(_lnglat);
+//               this.stream.point(point.x, point.y);
+//             },
+//             unitsPerMeter: () => {
+//               return (256 * Math.pow(2, map.getZoom())) / 40075017;
+//             },
+//             map: this.map,
+//             layer: this
+//           };
+//         },
+//
+// //移除覆盖层 (onRemove 方法)
+//         onRemove(map) {
+//           map.removeEventListener("zoomend", this._zoomChange.bind(this));  //移除地图上的缩放事件监听
+//           this._rootGroup.remove();  //从 DOM 中删除 D3 的根分组。
+//           map.removeOverlay(this._svg);  //从地图中移除 SVG。
+//         },
+//
+//         bringToFront() {
+//           if (this._svg && this._svg._rootGroup) {
+//             const el = this._svg._rootGroup.parentNode;
+//             el.parentNode.appendChild(el);
+//           }
+//           return this;
+//         },
+//
+//         bringToBack() {
+//           if (this._svg && this._svg._rootGroup) {
+//             const el = this._svg._rootGroup.parentNode;
+//             const parent = el.parentNode;
+//             parent.insertBefore(el, parent.firstChild);
+//           }
+//           return this;
+//         },
+//
+//
+//
+//
+//
+//       }
+//     };
+//
+//
+//
+// // Initialize the overlay in onMounted hook
+//     onMounted(() => {
+//       // mapInstance = new T.Map('emap'); // 创建地图实例
+//       // svgOverlay = initializeOverlay(initFunction, redrawFunction, options);
+//       // svgOverlay.onAdd(mapInstance);
+//     });
+//
+//
+// // Cleanup on component unmount
+//     onBeforeUnmount(() => {
+//       if (svgOverlay) {
+//         svgOverlay.onRemove(mapInstance);
+//       }
+//     });
+
+
     onMounted(() => {
       // if (!mapConfig.value.map) {
       //   initMap();
@@ -540,17 +673,43 @@ export default {
       eqGroups,
       seriesVisibility,
       toggleSeriesVisibility,
+      infoWindowPosition,
     };
   },
 };
 </script>
 <style lang="scss" scoped>
+/* 自定义 比例尺 */
+
+:deep(.tdt-bottom .tdt-control-scale ){
+  margin-bottom: 8px;
+}
+//公里及其对应的白线
+:deep(.tdt-control-scale-line ){
+  border: 3px solid #f8f4f4;
+  color: #faf8f8;
+  border-top: none;
+  line-height: 2.1;
+  padding: 2px 5px 1px;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+//英制单位（英里）及其对应的黑线
+:deep(.tdt-control-scale-linebottom  ){
+  display: none; /* 隐藏该元素 */
+}
+
 
 //指南针
 .compassContainer {
   position: absolute;
-  top: 4vh;
-  right: 31vw;
+  top: 1.5%;
+  right: 32.5%;
   height: 105px;
   width: 140px;
   background: url(../../assets/compass.png) no-repeat 0 0 / cover;
@@ -600,8 +759,6 @@ export default {
 }
 
 
-
-
 //图例
 .breathing-marker {
   animation: breathe 1.5s infinite; /* 1.5秒循环动画 */
@@ -614,7 +771,7 @@ export default {
   left: 10px;
   z-index: 20;
   background-color: transparent;
-  width: 510px;
+  width: 400px;
   height: 70px;
 }
 
@@ -685,14 +842,14 @@ export default {
 }
 
 
-
 // 工具栏
 .tool_container {
   padding: 20px;
+
   ._btn {
     border: none;
     border-radius: 3px;
-    padding:8px 12px;
+    padding: 8px 12px;
     font-size: 12px;
     line-height: 1;
     background-color: #1890ff;
@@ -703,10 +860,11 @@ export default {
     }
   }
 }
+
 .map_container {
-  width: 835px;
-  height: 730px;
-  margin: 30px auto;
+  width: 100%;
+  height: 640px;
+  margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
   ::v-deep .tdt-control-copyright {
@@ -724,6 +882,7 @@ export default {
     z-index: 400;
     background: #fff;
     border-radius: 2px;
+
     .menu-item {
       height: 35px;
       line-height: 35px;
@@ -733,6 +892,7 @@ export default {
       min-width: 60px;
       text-align: center;
       white-space: nowrap;
+
       &:hover {
         background-color: #f3f3ee;
       }

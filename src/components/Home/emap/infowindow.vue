@@ -9,9 +9,9 @@
       <div class="info-item"><strong>震源深度:</strong> {{ depth }}</div>
       <div class="info-item"><strong>经纬度:</strong>{{ latitude }}, {{ longitude }}</div>
     </div>
-    <div class="_foot">
-      <el-button type="primary" @click="callback">确定</el-button>
-    </div>
+<!--    <div class="_foot">-->
+<!--      <el-button type="primary" @click="callback">确定</el-button>-->
+<!--    </div>-->
   </div>
 </template>
 <script>
