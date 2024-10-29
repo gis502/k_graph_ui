@@ -566,7 +566,6 @@ export default {
 
       // 监听主视图器的相机变化
       viewer.scene.camera.changed.addEventListener(syncCamera);
-
       // 每帧渲染时同步缩略图视图
       viewer.scene.postRender.addEventListener(function () {
         smallViewer.scene.requestRender(); // 确保缩略图更新

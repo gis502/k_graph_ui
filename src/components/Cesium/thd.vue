@@ -851,7 +851,7 @@ export default {
 
       })
 
-        this.websock.eqid = eqid
+        // this.websock.eqid = eqid
 
     },
 
@@ -1555,6 +1555,7 @@ export default {
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
+
 
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);

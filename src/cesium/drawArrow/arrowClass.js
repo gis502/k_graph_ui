@@ -90,6 +90,7 @@ StraightArrow.prototype = {
         }
     },
     startDraw: function (data, resolve) {
+        console.log("画箭头------------------------")
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) { //单机开始绘制
@@ -108,6 +109,7 @@ StraightArrow.prototype = {
                 $this.floatPoint.show = false;
 
                 data.plot.plotId = $this.objId
+                data.plot.objId = $this.objId
                 data.plot.drawtype = "straight"
                 data.plot.plotType = "直线箭头"
                 data.plot.geom.coordinates = $this.getLnglats();
@@ -245,6 +247,7 @@ StraightArrow.prototype = {
     },
     showArrowOnMap: function (positions, data) {
         console.log(positions, data)
+        // data.objId = data.plotId
         var $this = this;
         var update = function () {
             if (positions.length < 2) {

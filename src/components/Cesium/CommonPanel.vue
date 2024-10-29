@@ -257,7 +257,8 @@ export default {
         arraw = true
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
-      } else {
+      }
+      else {
         if (this.popupPanelData[0].drawtype === 'polyline') {
           data.plotId = this.popupPanelData[0].plotId
           data.plotType = this.popupPanelData[0].plotType
@@ -266,7 +267,6 @@ export default {
           data.plotType = this.popupPanelData[0].plotType
         }
       }
-
       deletePlotInfo(data).then(res => {
         // 从 dataSource 中删除点
         window.viewer.entities.removeById(data.plotId)
@@ -277,11 +277,13 @@ export default {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
           }
         }
+          this.deletePoint(arraw,data.plotId)
+          console.log("data.plotId----------------",data.plotId)
         if (arraw) {
           arrow.clearById(data.plotId)
+
           arraw = false
         }
-        this.deletePoint()
       })
     },
     // 打开添加标绘信息
@@ -394,9 +396,18 @@ export default {
       });
     },
     // 删除标注
-    deletePoint() {
+    deletePoint(bool,id) {
+        console.log("window.selectedEntity.id-----------------",window.selectedEntity.objId)
       this.$emit('closePlotPop')
-      this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}))
+        if(bool){
+            this.$emit('wsSendPoint', JSON.stringify
+            ({type: "arrow", operate: "delete", id: id}))
+            // this.$emit('wsSendPoint', JSON.stringify
+            // ({type: "arrow", operate: "delete", id: window.selectedEntity.id}))
+        }else{
+            this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: id}))
+        }
+        // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}))
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式，
     // 形参timestamp必须时整型时间戳，字符串类型时间戳得到的时NaN。

@@ -31,8 +31,9 @@
                     <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
                     <el-menu-item index="2-3" @click="searchEmergencyTeamDialog = true">救援力量查询</el-menu-item>
                     <el-menu-item index="2-4" @click="marchSupply">物资匹配</el-menu-item>
-                    <el-menu-item index="2-5" @click="searchSuppliesByRadius">半径查询</el-menu-item>
-                    <el-menu-item index="2-6" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
+                    <el-menu-item index="2-5" @click="marchRegionsDialog = true">行政区划匹配</el-menu-item>
+                    <el-menu-item index="2-6" @click="searchSuppliesByRadius">半径查询</el-menu-item>
+                    <el-menu-item index="2-7" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
                 </el-sub-menu>
                 <el-menu-item index="3" style="width: 140px;" @click="changeDataList('supplies')">救援物资</el-menu-item>
                 <el-menu-item index="4" style="width: 140px;" @click="changeDataList('emergencyTeam')">救援力量</el-menu-item>
@@ -290,6 +291,28 @@
           </template>
 
       </el-dialog>
+
+      <el-dialog v-model="marchRegionsDialog" title="行政区划匹配" width="400" class="marchSupply">
+          <div class="district-buttons">
+              <div v-for="district in districts" :key="district.adcode"
+                   class="district-button" :class="{ 'selected': selectedRegions.includes(district) }">
+                  <el-button @click="selectRegions(district)">
+                      {{ district.name }}
+                  </el-button>
+              </div>
+
+          </div>
+          <template #footer>
+              <div class="dialog-footer">
+                  <el-button @click="marchRegionsDialog = false">取消</el-button>
+                  <el-button type="primary" @click="handleDistrictClick">
+                      查询
+                  </el-button>
+              </div>
+          </template>
+      </el-dialog>
+
+
   </div>
 </template>
 
@@ -304,7 +327,6 @@ import {getEmergency} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from "@/assets/images/emergencyRescueEquipmentLogo.png"; // 抢险救灾设备
 import disasterReliefSuppliesLogo from "@/assets/images/disasterReliefSuppliesLogo.jpg"; // 救灾物资储备
 import rescueTeamsInfoLogo from "@/assets/images/rescueTeamsInfoLogo.png";
-// import bubbleImg from "@/assets/images/bubbles.png";
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {Entity} from "cesium";
@@ -312,7 +334,7 @@ import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
-// import {searchMaterialData} from "../../api/system/emergency.js";
+import yaan from "@/assets/geoJson/yaan.json";
 import { ElMessageBox, ElMessage } from 'element-plus';
 import {searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 
@@ -340,14 +362,15 @@ export default {
       showSuppliesList: [],
       selectedSuppliesList: [],
       showIcon: [],
-        activeMenuIndex: '3', // 显示的一级菜单 eg.路径规划、物资匹配
-      tableVisible: true, // 显示表格
+      activeMenuIndex: '3', // 显示的一级菜单 eg.路径规划、物资匹配
+      tableVisible: false, // 显示表格
       isCollapsed: false, // 控制是否收缩
       searchSupplyDialog: false, // 物资查询dialog是否显示
       searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
       marchSupplyDialog: false, // 物资匹配dialog是否显示
       searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
+      marchRegionsDialog: true,  //行政区划匹配dialog是否显示
       ifDrawEllipse: false,
       marchSupplyRadius: 0,
       toolValue: "隐藏数据列表",
@@ -424,6 +447,22 @@ export default {
       listField: '',  // 判断显示哪个列表
       suppliesList: [],
       supplyList: [],
+
+        labels: [],  // 保存标签实体的引用
+        regionLayerJump: null,
+        // 行政区划----------------------------
+        districts: [
+            {adcode: 511802, name: "雨城区"},
+            {adcode: 511803, name: "名山区"},
+            {adcode: 511822, name: "荥经县"},
+            {adcode: 511823, name: "汉源县"},
+            {adcode: 511824, name: "石棉县"},
+            {adcode: 511825, name: "天全县"},
+            {adcode: 511826, name: "芦山县"},
+            {adcode: 511827, name: "宝兴县"},
+        ],
+        selectedRegions: [],
+
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
@@ -437,7 +476,6 @@ export default {
     this.initPlot(this.id);
   },
   beforeUnmount() {
-    console.log("111",window.viewer)
     if (window.viewer){
       let viewer=window.viewer
       let gl=viewer.scene.context._gl
@@ -797,6 +835,215 @@ export default {
     },
 
     //-----------附近资源快速匹配----------
+    //-----------行政区划匹配-------------
+
+      // 行政区划匹配dialog选中函数
+    selectRegions(district){
+        const index = this.selectedRegions.indexOf(district);
+        if (index === -1) {
+            this.selectedRegions = []
+            this.selectedRegions.push(district); // 添加选中
+        } else {
+            this.selectedRegions.splice(index, 1); // 取消选中
+        }
+    },
+
+    handleDistrictClick() {
+        let district = this.selectedRegions[0]
+        //清除其他实体标签
+        this.removethdRegions()
+        this.removeDataSourcesLayer('YaanRegionLayer');
+        // this.visible = false;
+        // 根据区县代码过滤GeoJSON数据
+        let filteredFeatures = yaan.features.filter(feature => {
+            return feature.properties.adcode === district.adcode;
+        });
+        if (filteredFeatures.length > 0) {
+
+            console.log("filteredFeatures---------------------------",filteredFeatures)
+
+            this.removePoints(this.suppliesList[0]);
+            this.removePoints(this.suppliesList[1]);
+            this.removePoints(this.suppliesList[2]);
+
+            // 创建一个经过过滤的GeoJSON对象，包含过滤后的特性数据
+            let filteredGeoJson = {
+                type: "FeatureCollection",
+                features: filteredFeatures
+            };
+
+            // 使用Cesium的GeoJsonDataSource.load方法加载经过过滤的GeoJSON数据
+            // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
+            // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
+            let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
+                clampToGround: false, //贴地显示
+                stroke: Cesium.Color.RED,
+                fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+                strokeWidth: 10,
+            });
+
+            // 处理地理空间数据的Promise对象
+            geoPromise.then(async (dataSource) => {
+                // 将数据源添加到观众的数据显示中
+                window.viewer.dataSources.add(dataSource);
+                // 保存区域图层以便后续使用
+                window.regionLayerJump = dataSource
+
+                console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates[0])
+                // 遍历每个过滤后的地理特征
+                filteredFeatures.forEach((feature) => {
+                    // 获取特征的中心点坐标
+                    let center = feature.properties.center;
+
+                    // 检查中心点是否定义且格式正确
+                    if (center && center.length === 2) {
+                        // 将地理坐标转换为三维空间中的位置
+                        let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+                        // 创建并添加标签实体到观众的实体集合中
+                        let labelEntity = viewer.entities.add(new Cesium.Entity({
+                            position: position,
+                            label: new Cesium.LabelGraphics({
+                                text: district.name,  // 标签文本为区域名称
+                                scale: 1,  // 标签缩放比例
+                                font: "bolder 50px sans-serif",  // 标签字体样式
+                                style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 标签样式为填充和轮廓
+                                fillColor: Cesium.Color.fromCssColorString("#ffffff"),  // 标签填充颜色
+                                pixelOffset: new Cesium.Cartesian2(0, -60)  // 标签像素偏移量，用于调整位置
+                            })
+                        }));
+                        // 保存标签实体的引用，以便后续管理和操作
+                        this.labels.push(labelEntity);
+                    } else {
+                        // 如果中心点未定义或格式不正确，输出警告信息
+                        console.warn('中心点未定义或格式不正确:', feature);
+                    }
+                });
+
+                // 假设每个实体代表一个多边形
+                const polygons = dataSource.entities.values.map(entity => {
+                    if (entity.polygon && entity.polygon.hierarchy) {
+                        const positions = entity.polygon.hierarchy.getValue(Cesium.JulianDate.now()).positions;
+                        return positions.map(position => {
+                            const cartographic = Cesium.Cartographic.fromCartesian(position);
+                            return [
+                                Cesium.Math.toDegrees(cartographic.longitude),
+                                Cesium.Math.toDegrees(cartographic.latitude)
+                            ];
+                        });
+                    }
+                }).filter(Boolean);
+
+
+                // 检查每个标绘点是否在任何一个多边形内
+                this.suppliesList[0].forEach((marker) => {
+                    const [lon, lat] = marker.coords;
+                    const inAnyPolygon = polygons.some(polygon => this.pointInPolygon([lon, lat], polygon));
+                    if (inAnyPolygon) {
+                        console.log(`标绘点 ${marker.name} 位于实体范围内: 经度 ${lon}, 纬度 ${lat}`);
+                    }
+                });
+
+                // 飞行到数据源中的实体位置，以便用户查看
+                viewer.flyTo(dataSource.entities.values);
+
+                // // 检查标绘点是否在范围内
+                // let boundingBox = this.getBoundingBox(filteredFeatures[0].geometry.coordinates[0]);
+                // console.log("边界框:", boundingBox);
+                //
+                // let suppliesArr = this.printPointsInBoundingBox(boundingBox, this.suppliesList[0]);
+                // let emergencyTeamArr = this.printPointsInBoundingBox(boundingBox, this.suppliesList[2]);
+                // let reservesArr = this.printPointsInBoundingBox(boundingBox, this.suppliesList[1]);
+                //
+                // this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+                // this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+                // this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+            }).catch((error) => {
+                // 如果加载GeoJSON数据失败，输出错误信息
+                console.error("加载GeoJSON数据失败:", error);
+            });
+        } else {
+            // console.error("未找到对应的区县:", adcode);
+        }
+        this.selectedRegions = []
+        this.marchRegionsDialog = false
+      },
+
+      pointInPolygon(point, polygon) {
+          let inside = false;
+          for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+              const xi = polygon[i][0], yi = polygon[i][1];
+              const xj = polygon[j][0], yj = polygon[j][1];
+
+              const intersect = ((yi > point[1]) !== (yj > point[1])) &&
+                  (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
+              if (intersect) inside = !inside;
+          }
+          return inside;
+      },
+
+      getBoundingBox(coordinates) {
+          const lats = coordinates.flat().map(coord => coord[1]);
+          const lons = coordinates.flat().map(coord => coord[0]);
+
+          return {
+              minLat: Math.min(...lats),
+              maxLat: Math.max(...lats),
+              minLon: Math.min(...lons),
+              maxLon: Math.max(...lons),
+          };
+      },
+
+      printPointsInBoundingBox(boundingBox, markers) {
+        let result = []
+          markers.forEach(marker => {
+              // let { longitude, latitude } = marker; // 假设marker包含经纬度属性
+              let longitude = marker.longitude
+              let latitude = marker.latitude
+              if(
+                  latitude >= boundingBox.minLat &&
+                  latitude <= boundingBox.maxLat &&
+                  longitude >= boundingBox.minLon &&
+                  longitude <= boundingBox.maxLon
+              ){
+                  result.push(marker)
+              }
+          });
+        return result
+          console.log("result------------------------------",result)
+      },
+
+      removethdRegions() {
+          // 检查是否存在名为regionLayerJump的图层
+          if (window.regionLayerJump) {
+              // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+              window.viewer.dataSources.remove(window.regionLayerJump, true);
+              // 清空regionLayerJump的引用，以便垃圾回收
+              window.regionLayerJump = null;
+
+
+              // console.log("图层已移除");
+          }
+          // this.isShowYaanRegionLegend = false;
+          // 获取图例容器，准备清空其内容
+          // const legend = document.getElementById('legend');
+          // 循环移除图例容器中的所有子元素
+          // while (legend.firstChild) {
+          //     legend.removeChild(legend.firstChild);
+          // }
+          // 遍历标签数组，移除每个标签实体
+          this.labels.forEach(label => {
+              window.viewer.entities.remove(label);
+          });
+          // 清空标签引用数组，以便垃圾回收
+          this.labels = [];
+      },
+      removeDataSourcesLayer(layerName) {
+          // 通过图层名称获取数据源对象如果存在，则执行移除操作
+          const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+          if (dataSource) {
+              window.viewer.dataSources.remove(dataSource);
+          }
+      },
 
     // 切换数据列表
     changeDataList(param){
@@ -837,18 +1084,9 @@ export default {
       }
     },
 
-    // fetSupplyPoints() {
-    //   console.log("------------", this.suppliesList);
-    //   this.selectedSuppliesList = this.suppliesList[0]
-    //   this.showIcon = this.selectedSuppliesList;
-    //   this.total = this.selectedSuppliesList.length;
-    //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    //   // 在数据更新后进行排序
-    // },
-
+    // 点击列表某行显示对应标绘点
     showSupplyPoint(row) {
       console.log("点击了：", row);
-        console.log("点击了：", row.latitude);
       this.showIcon = [];
       this.showIcon.push(row);
       this.removePoints(this.suppliesList[0]);
@@ -863,6 +1101,7 @@ export default {
       }
     },
 
+    // 移除地图上的标绘点
     removePoints(entityArr) {
         entityArr.forEach((entity) => {
             // console.log("-----", entity);
@@ -875,6 +1114,7 @@ export default {
         });
     },
 
+    // 显示所有标绘点
     showAllSupplyPoints() {
       let that = this;
       viewer.entities.values.forEach((entity) => {
@@ -887,7 +1127,7 @@ export default {
       this.initPlot()
     },
 
-      // 物资查询
+    // 物资查询
     async searchSupply(){
         let that = this;
         this.activeMenuIndex = '2'
@@ -934,42 +1174,42 @@ export default {
         // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
     },
 
-      // 救援力量查询
-      async searchEmergencyTeam(){
-          let that = this;
-          this.activeMenuIndex = '2'
-          viewer.entities.values.forEach((entity) => {
-              if (entity.ellipse) {
-                  viewer.entities.remove(entity);
-              }
-          });
-          this.removePoints(that.showIcon);
-          this.removePoints(that.selectedSuppliesList);
-          this.removePoints(this.suppliesList[0]);
-          this.removePoints(this.suppliesList[1]);
-          this.removePoints(this.suppliesList[2]);
-          this.ifDrawEllipse = false
-          this.selectedSuppliesList = []
-          await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
-              this.selectedSuppliesList = res
-              console.log("-------------------",this.selectedSuppliesList)
+    // 救援力量查询
+    async searchEmergencyTeam(){
+        let that = this;
+        this.activeMenuIndex = '2'
+        viewer.entities.values.forEach((entity) => {
+            if (entity.ellipse) {
+                viewer.entities.remove(entity);
+            }
+        });
+        this.removePoints(that.showIcon);
+        this.removePoints(that.selectedSuppliesList);
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
+        this.ifDrawEllipse = false
+        this.selectedSuppliesList = []
+        await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
+            this.selectedSuppliesList = res
+            console.log("-------------------",this.selectedSuppliesList)
 
-          })
-          this.drawSupplyPoint('searchEmergencyTeam')
-          this.listField = 'emergencyTeam'
-          this.activeMenuIndex = '4'
-          this.searchEmergencyTeamDialog = false
-          this.searchEmergencyTeamForm = {
-              levelName: '',
-              teamTypeName: '',
-              totalMembers: 0,
-              address: '',
-              personInCharge: '',
-              chargePhone: ''
-          }
-      },
+        })
+        this.drawSupplyPoint('searchEmergencyTeam')
+        this.listField = 'emergencyTeam'
+        this.activeMenuIndex = '4'
+        this.searchEmergencyTeamDialog = false
+        this.searchEmergencyTeamForm = {
+            levelName: '',
+            teamTypeName: '',
+            totalMembers: 0,
+            address: '',
+            personInCharge: '',
+            chargePhone: ''
+        }
+    },
 
-    // 物资匹配------------------------
+    // 物资匹配dialog能打开
     async marchSupply(){
       if(this.addSupplyPointCurrently.lat === 0){
           await ElMessageBox.alert('请先添加受灾点。', '提示', {
@@ -979,6 +1219,7 @@ export default {
           this.marchSupplyDialog = true
       }
     },
+    // 物资匹配
     async marchSupplies(){
         this.removePoints(this.suppliesList[0]);
         this.removePoints(this.suppliesList[1]);
@@ -1017,7 +1258,7 @@ export default {
         this.marchSupplyDialog = false
     },
 
-    // 半径查询------------------------
+    // 半径查询
     async searchSuppliesByRadius(){
         if(this.addSupplyPointCurrently.lat === 0){
             await ElMessageBox.alert('请先添加受灾点。', '提示', {
@@ -1027,13 +1268,15 @@ export default {
             this.searchSupplyByRadiusDialog = true
         }
     },
-      async marchSuppliesByRadius(){
-          this.ifDrawEllipse = true
-        this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList,this.searchSupplyForm.radius)
-          this.drawSupplyPoint("searchSupplies",this.searchSupplyForm.radius)
-          this.searchSupplyByRadiusDialog = false
-      },
+
     // 通过半径匹配物资
+    async marchSuppliesByRadius(){
+        this.ifDrawEllipse = true
+      this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList,this.searchSupplyForm.radius)
+        this.drawSupplyPoint("searchSupplies",this.searchSupplyForm.radius)
+        this.searchSupplyByRadiusDialog = false
+    },
+    // 半径匹配
     async marchSupplyByRadius(array,radius){
         // 移除现有的点
         this.removePoints(this.suppliesList[0]);
@@ -1109,6 +1352,7 @@ export default {
             return []
         }
     },
+
       drawSupplyPoint(param,radius) {
         this.total = this.selectedSuppliesList.length;
         this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
@@ -1153,6 +1397,7 @@ export default {
 
     },
     // 查询指定范围内的物资点
+
     selectPoints(radius) {
       if (!isNaN(parseFloat(radius))) {
         radius = parseFloat(radius) * 1000;
@@ -1780,6 +2025,26 @@ canvas {
 }
 .el-form-item__label {
     text-align: center; /* 标签文字右对齐 */
+}
+/*行政区划按钮样式*/
+.district-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    justify-content: space-between;
+}
+.district-button {
+    flex: 0 0 20%; /* 每行5个按钮 */
+    display: flex;
+    justify-content: center;
+    margin: 4px; /* 调整按钮之间的间距 */
+}
+.district-button.selected {
+    background-color: #5b91c9; /* 选中按钮的背景色 */
+    color: white; /* 选中按钮的文字颜色 */
+    border: 1.5px solid #5b91c9; /* 增加边框 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影效果 */
+    transform: scale(1.05); /* 略微放大 */
 }
 
 </style>

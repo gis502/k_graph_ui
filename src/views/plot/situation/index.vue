@@ -363,7 +363,7 @@ export default {
         })
         that.drawPoints(points)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("polylineArr",polylineArr)
+        console.log("pointArr",pointArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -522,6 +522,7 @@ export default {
 
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
+          console.log("entity------------------",window.selectedEntity)
 
         this.dataSourcePopupVisible = false
         if (window.selectedEntity === undefined) {
@@ -633,9 +634,16 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          console.log(window.selectedEntity)
+          console.log(window.selectedEntity.id)
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          this.updatePopupPosition(); // 更新弹窗的位置
+            console.log("this.popupData.plotId--------------",this.popupData.plotId)
+
+            // if(this.popupData.plotType.includes("箭头")){
+                // this.popupData = window.selectedEntity.data.getValue()
+                // console.log("this.popupData.plotId--------------",this.popupData.plotId)
+            // }
+
+            this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity
         } else {
@@ -1008,6 +1016,7 @@ export default {
         new Promise((resolve, reject) => {
           Arrow.drawStraightArrow(data, resolve)
         }).then((res) => {
+            console.log("drawStraightArrow-------------------",res)
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.name === '攻击箭头') {
