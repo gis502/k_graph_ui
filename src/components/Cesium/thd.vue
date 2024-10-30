@@ -1131,14 +1131,16 @@ export default {
         if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
           // console.log(item.plotId, "end");
-
+          // cesiumPlot.removePointsDonghua();
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
             const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
-            console.log("entityToRemove", entityToRemove)
+
+            console.log("entityToRemove", entityDonghuaToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
+
             }
             if (ellipseEntityToRemove) {
               window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
@@ -1350,6 +1352,7 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
+      // cesiumPlot.removePointsDonghua();
       // 更新当前节点索引，使用模运算确保索引在合法范围内
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
       // 计算进度条每次前进的量
@@ -1387,6 +1390,7 @@ export default {
      * 并更新图表显示
      */
     backward() {
+      // cesiumPlot.removePointsDonghua();
       // 减小当前节点索引，并根据时间线前进次数取模，以实现循环效果
       this.currentNodeIndex = (this.currentNodeIndex - 1) % this.timelineAdvancesNumber
       // 计算每次后退的进度百分比
@@ -1414,6 +1418,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
+
       // 获取时间轴的矩形区域，用于计算点击位置对应的进度
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
       // 计算点击位置相对于时间轴左边缘的距离
@@ -1454,6 +1459,7 @@ export default {
      * @param {MouseEvent} event - 鼠标事件对象，包含拖拽开始时的坐标信息
      */
     startDrag(event) {
+
       this.isDragging = true; // 标记当前开始进入拖拽状态
       this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
       document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
@@ -1470,8 +1476,10 @@ export default {
      * @param {MouseEvent} event - 鼠标拖动事件对象
      */
     drag(event) {
+
       // 如果没有拖动，则不执行后续操作
       if (!this.isDragging) return;
+      // cesiumPlot.removePointsDonghua();
       // 获取时间尺的矩形信息
       const timeRulerRect = this.$el.querySelector('.time-ruler').getBoundingClientRect();
       // 计算鼠标点击位置相对于时间尺左边缘的水平距离
@@ -1494,6 +1502,7 @@ export default {
      * 当用户释放鼠标按钮时调用此方法，以重置拖拽状态并停止监听鼠标事件
      */
     stopDrag() {
+
       // 重置isDragging状态，表示不再拖拽中
       this.isDragging = false;
       // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发

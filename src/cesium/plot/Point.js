@@ -1,7 +1,7 @@
 import * as Cesium from 'cesium'
 import {getPlotInfos} from "@/api/system/plot.js";
 import {plotType as plotTypeDialog} from "@/cesium/plot/plotType.js";
-
+// let intervaladddonghua=null
 export default class Point {
     constructor(viewer, store) {
         this.viewer = viewer;
@@ -143,7 +143,8 @@ export default class Point {
         let dataSource = null
         if (window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'pointData')) {
             dataSource = window.pointDataSource
-        } else {
+        }
+        else {
             dataSource = new Cesium.CustomDataSource("pointData");
             const dataSourcePromise = window.viewer.dataSources.add(dataSource)
             dataSourcePromise.then(function (dataSource) {
@@ -240,48 +241,69 @@ export default class Point {
         }
 
 // ------------------------------------------------------
-        let labeldataSource = new Cesium.CustomDataSource("label");
+        let labeldataSource = null
+        if (window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'label')) {
+            labeldataSource = window.labeldataSource
+        }
+        else{
+            labeldataSource = new Cesium.CustomDataSource("label");
+            const labeldataSourcePromise = window.viewer.dataSources.add(labeldataSource)
+            labeldataSourcePromise.then(function (labeldataSource) {
+                labeldataSource.clustering.enabled = true; // 开启聚合
+                labeldataSource.clustering.pixelRange = 200; // 聚合像素范围
+                labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
-        const labeldataSourcePromise = window.viewer.dataSources.add(labeldataSource)
-        labeldataSourcePromise.then(function (labeldataSource) {
-            labeldataSource.clustering.enabled = true; // 开启聚合
-            labeldataSource.clustering.pixelRange = 15; // 聚合像素范围
-            labeldataSource.clustering.minimumClusterSize = 2; // 最小聚合大小
-            let removeListener;
+                let removeListener;
 
-            function customStyle() {
-                if (Cesium.defined(removeListener)) {
-                    removeListener();
-                    removeListener = undefined;
-                } else {
-                    removeListener = labeldataSource.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster) {
-                        // 显示标签
-                        cluster.label.show = true;
-                        cluster.label.text = ''; // 初始化标签文本
+                function customStyle() {
+                    if (Cesium.defined(removeListener)) {
+                        removeListener();
+                        removeListener = undefined;
+                    } else {
+                        removeListener = labeldataSource.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster) {
+                            // 显示标签
+                            cluster.label.show = true;
+                            cluster.label.text = ''; // 初始化标签文本
+                            clusteredEntities.forEach((entity, index) => {
+                                console.log(entity, "entity");
+                                // 假设每个实体都有一个名为'labeltext'的属性，包含要显示的信息
+                                cluster.label.text += entity.labeltext.toString();
 
-                        // 遍历所有聚合的实体，根据实体的属性设置标签文本
-                        clusteredEntities.forEach(entity => {
-                            console.log(entity, "entity")
-                            // 假设每个实体都有一个名为'description'的属性，包含要显示的信息
-                            cluster.label.text += entity.labeltext.toString() + '\n'; // 将每个实体的描述追加到标签文本中
+                                // 如果不是最后一个实体，则添加换行符
+                                if (index < clusteredEntities.length - 1) {
+                                    cluster.label.text += '\n';
+                                }
+                            });
+
+
+                            // 设置标签的其他样式属性
+                            // 设置标签的其他样式属性
+                            cluster.label.font = '14px Helvetica';
+                            cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
+                            cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
+                            cluster.label.outlineWidth = 2; // 外框宽度
+                            cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // 偏移量
+                            cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; // 垂直原点
+
+                            // 设置标签的背景颜色
+                            cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
+                            cluster.label.showBackground = true; // 显示背景
+                            cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                         });
-
-                        // 设置标签的其他样式属性
-                        cluster.label.font = '14px Helvetica';
-                        cluster.label.fillStyle = Cesium.Color.WHITE;
-                        cluster.label.outlineColor = Cesium.Color.BLACK;
-                        cluster.label.outlineWidth = 2;
-                        cluster.label.pixelOffset = new Cesium.Cartesian2(0, -20);
-                        cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
-                    });
+                    }
                 }
-            }
 
-            customStyle();
-        });
+                customStyle();
+            });
+            window.labeldataSource = labeldataSource; // 将数据源存储在window对象下
+        }
+
+
+
 
 
         if (bool) {
+
             points.forEach(data => {
                 var plotId = data.plotId
                 var plotType = data.plotType
@@ -297,99 +319,91 @@ export default class Point {
                     console.log("点击获取", res)
                     console.log("res.plotInfo", res.plotInfo)
                     // console.log("点击获取",res.ployInfo.latitude)
-                    var labeltext = ""
+                    // var labeltext = ""
+                    var labeltext = "新增" + plotType
+                    // console.log()
                     if (res.plotTypeInfo && res.plotTypeInfo.location) {
                         labeltext = res.plotTypeInfo.location + labeltext
                     }
-                    labeltext = labeltext + "出现" + plotType
-                    //   if(res.plotInfo){
-                    //     labeltext=labeltext +"\n（经度："+res.plotInfo.geom.coordinates[0]+"，"+"维度："+res.plotInfo.geom.coordinates[1]+"）"
-                    //   }
-                    // console.log("labeltxt",labeltxt)
-                    // var entity=viewer.entities.add({
-                  labeldataSource.entities.add({
-                        id: data.plotId,
-                        plottype: data.plotType,
-                        layer: "标绘点",
-                        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
-                        labeltext: 'thisislabel',
-                        billboard: {
-                            image: data.icon,
-                            width: 50, // 图片宽度,单位px
-                            height: 50, // 图片高度，单位px
-                            eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-                            color: new Cesium.CallbackProperty(() => {
-                                return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
-                            }, false),
-                            scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
-                            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
-                            depthTest: false, // 禁止深度测试
-                            disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
-                        },
-                    label: {
-                      text:  'thisislabel',
-                      font: '16px sans-serif', // 字体大小
-                      style: Cesium.LabelStyle.FILL_AND_OUTLINE, // 字体样式
-                      fillColor: new Cesium.Color.fromCssColorString("#fbfbfb"), // 字体填充色
-                      outlineWidth: 1,  // 字体外圈线宽度（同样也有颜色可设置）
-                      outlineColor: new Cesium.Color.fromCssColorString("#ffffff"),
-                      verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // 垂直位置
-                      // pixelOffset: new Cesium.Cartesian2(0, -15),  // 中心位置
-                      eyeOffset: new Cesium.Cartesian3(0, 15, 0), // 与坐标位置的偏移距离
-                      // pixelOffsetScaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 1.5e7, 0.5),
-                      disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                      // backgroundColor:Cesium.Color.AQUA,    //背景颜色
-                      backgroundColor:new Cesium.Color.fromCssColorString("#696969"),    //背景颜色
-                      showBackground:true,                //是否显示背景颜色
-                      heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
-                    },
-                        properties: {
-                            data
+
+                    //人员伤亡类文字：新增xxx人员xx人
+                    if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
+                        if(res.plotTypeInfo.newCount){
+                            labeltext =labeltext+res.plotTypeInfo.newCount +"人"
                         }
-                    });
-
-
-                    var entity = viewer.entities.add({
-                        id: data.plotId,
-                        plottype: data.plotType,
-                        layer: "标绘点",
-                        position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
-                        labeltext: 'thisislabel',
-
-                        billboard: {
-                            image: data.icon,
-                            width: 50, // 图片宽度,单位px
-                            height: 50, // 图片高度，单位px
-                            eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-                            color: new Cesium.CallbackProperty(() => {
-                                return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
-                            }, false),
-                            scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
-                            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
-                            depthTest: false, // 禁止深度测试
-                            disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
-                        },
-                        properties: {
-                            data
+                    }
+                    //救援队伍 单位,人数人
+                    if(plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
+                        if(res.plotTypeInfo.teamName){
+                            labeltext =labeltext+":"+res.plotTypeInfo.teamName
                         }
-                    });
+                        if(res.plotTypeInfo.personnelCount){
+                            labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"
+                        }
+                    }
+
+                    // 是否出现人员伤亡，是否处置（次生灾害）
+                    //
+                    if(res.plotTypeInfo&&res.plotTypeInfo.casualties) {
+                        labeltext =labeltext+res.plotTypeInfo.casualties+"人员伤亡"
+                    }
+                    if(res.plotTypeInfo&&res.plotTypeInfo.initialDisposalPhase) {
+                        labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase
+                    }
 
 
-                    // -----------------------------------------
-                    // 设置动画逻辑
 
-                    // 恢复标会点正常的清晰度
-                    setTimeout(() => {
-                        clearInterval(intervalId1);
-                        colorFactor = 1.0;
-                        // viewer.entities.remove(entity) //清除动画
-                        labeldataSource.entities.removeAll();  //清除标签
-                        // dataSource.entities.add(entity)//加到点聚合图层
-                    }, animationDuration);
-                })
+                        if (!viewer.entities.getById(data.plotId)) {
+
+                        var entity = viewer.entities.add({
+                            id: data.plotId,
+                            plottype: data.plotType,
+                            layer: "标绘点",
+                            position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
+                            labeltext: labeltext,
+                            billboard: {
+                                image: data.icon,
+                                width: 50, // 图片宽度,单位px
+                                height: 50, // 图片高度，单位px
+                                eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+                                color: new Cesium.CallbackProperty(() => {
+                                    return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+                                }, false),
+                                scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+                                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+                                depthTest: false, // 禁止深度测试
+                                disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
+                            },
+                            properties: {
+                                data
+                            }
+                        });
+                        labeldataSource.entities.add(entity)
+                        // -----------------------------------------
+                        // 设置动画逻辑
+
+                        // 恢复标会点正常的清晰度
+                        setTimeout(() => {
+                            clearInterval(intervalId1);
+                            colorFactor = 1.0;
+                            viewer.entities.remove(entity) //清除动画
+                            labeldataSource.entities.remove(entity);  //清除标签
+                            if (!dataSource.entities.getById(data.plotId)) {
+                                // 实体不存在，可以添加
+                                dataSource.entities.add(entity)//加到点聚合图层
+                            }
+
+                        }, animationDuration);
+
+
+                    }
+
+
+
+     })
 
             });
-            // });
+
         } else {
             points.forEach(data => {
                 dataSource.entities.add({
@@ -415,7 +429,28 @@ export default class Point {
             })
         }
     }
-
+    // removePointsDonghua(){
+    //     console.log("removePointsDonghua")
+    //     clearInterval(intervaladddonghua);
+    //     const entities = viewer.entities.values;
+    //     // console.log("removePointsDonghua entities",entities)
+    //     // 倒序遍历实体数组，这样在移除实体时不会影响到索引
+    //     for (let i = entities.length - 1; i >= 0; i--) {
+    //         const entity = entities[i];
+    //         // 检查实体是否有layer属性，并且它的值是否为"标绘点动画"
+    //         if (entity.layer === "标绘点动画") {
+    //             console.log("removePointsDonghua",entity)
+    //             // 移除实体
+    //             viewer.entities.remove(entity);
+    //         }
+    //     }
+    //     if(window.labeldataSource){
+    //         // console.log("removePointsDonghua window.labeldataSource.entities ",window.labeldataSource)
+    //         window.labeldataSource.entities.removeAll()
+    //     }
+    //
+    //
+    // }
     // 删除点
     deletePoint(point) {
         viewer.entities.remove(point)
