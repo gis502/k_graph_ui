@@ -99,7 +99,7 @@
       <addMarkCollectionDialog
           :addMarkDialogFormVisible="addMarkDialogFormVisible"
           @wsSendPoint="wsSendPoint"
-          @drawPoint="drawPoint"
+          @drawPoints="drawPoints"
           @ifPointAnimate="ifPointAnimation"
           @clearMarkDialogForm="resetAddMarkCollection"
       />
@@ -521,6 +521,7 @@ export default {
 
 
         let pickedEntity = window.viewer.scene.pick(click.position);
+        // console.log("pickedEntity",pickedEntity)
         window.selectedEntity = pickedEntity?.id
 
         this.dataSourcePopupVisible = false
@@ -687,9 +688,59 @@ export default {
           // }
 
         } else {
-          console.log(1230)
           // this.showPolyline = false
           // this.popupData = {}
+        }
+        if (Cesium.defined(pickedEntity) && window.selectedEntity._billboard && window.selectedEntity._id=== 'center'){
+          console.log("1123")
+          // 2-2 获取点击点的经纬度
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换data为弧度
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
+          if (this.isTerrainLoaded()) {
+            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            let l = Cesium.Cartographic.fromCartesian(position)
+            let lon = Cesium.Math.toDegrees(l.longitude)
+            let lat = Cesium.Math.toDegrees(l.latitude)
+            let hei = l.height
+            let height
+            // 将笛卡尔坐标转换为地理坐标角度
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            // 将地理坐标角度换为弧度
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
+            // 将经纬度和高度生成新的笛卡尔坐标
+            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
+            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
+          }
+          // 2-5 更新弹窗位置
+          // that.selectedEntity = window.selectedEntity
+          // that.popupData = {
+          //   type: window.selectedEntity.properties.type?window.selectedEntity.properties.type.getValue():"",
+          //   time: window.selectedEntity.properties.time?window.selectedEntity.properties.time.getValue():"",
+          //   name: window.selectedEntity.properties.name?window.selectedEntity.properties.name.getValue():"",
+          //   lon: window.selectedEntity.properties.lon?window.selectedEntity.properties.lon.getValue():"",
+          //   lat: window.selectedEntity.properties.lat?window.selectedEntity.properties.lat.getValue():"",
+          //   describe: window.selectedEntity.properties.describe?window.selectedEntity.properties.describe.getValue():"",
+          // };
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
+          this.popupData = {}
+
+          this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
+          this.updatePopupPosition(); // 更新弹窗的位置
+
+        }else {
+
         }
 
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
@@ -735,6 +786,10 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       window.viewer.entities.removeAll();
+      // 从 dataSource 中删除点
+      if (window.pointDataSource) {
+       window.pointDataSource.entities.removeAll();
+      }
       Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
@@ -811,22 +866,20 @@ export default {
         this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
-        this.updateMapandVariablebeforInit()
-
+        this.updateMapandVariablebeforInit(this.centerPoint)
       })
     },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
-    updateMapandVariablebeforInit() {
+    updateMapandVariablebeforInit(data) {
+      let centerData={
+        ...data,
+        drawtype: data.plotid
+      }
       //加载中心点
       viewer.entities.add({
-        // properties: {
-        //   type: "震中",
-        //   time: this.centerPoint.time,
-        //   name: this.centerPoint.earthquakeName,
-        //   lat: this.centerPoint.latitude,
-        //   lon: this.centerPoint.longitude,
-        //   describe: this.centerPoint.position,
-        // },
+        properties: {
+          centerData
+        },
         position: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.longitude),
             parseFloat(this.centerPoint.latitude),
@@ -1248,6 +1301,23 @@ export default {
       this.popupVisiblePolygon = false;
     },
 
+    /**
+     * 提取实体属性用于路由
+     *
+     * 此函数旨在根据实体的属性名称，动态地从实体对象中提取相应的属性值，
+     * 并将其组织成一个新的对象返回这对于构建动态路由或者进行属性比较等操作非常有用
+     *
+     * @param {Object} entity - 需要提取属性的实体对象，包含properties属性，其中包含可动态提取的属性
+     * @returns {Object} 返回一个新对象，该对象的属性和值根据entity.properties.propertyNames动态生成
+     */
+    //迁移thd页面的方法
+    extractDataForRouter(entity) {
+      let properties = {};
+      entity.properties.propertyNames.forEach(name => {
+        properties[name] = entity.properties[name].getValue();
+      });
+      return properties;
+    },
     //------------------------------------------------------------------------------
 
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发

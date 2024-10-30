@@ -1208,7 +1208,7 @@ const plotType = {
         threatenedObjects: {
             type: "select",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {
                     value: "threatenedObjects",
@@ -1307,7 +1307,7 @@ const plotType = {
         threatenedObjects: {
             type: "select",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {
                     value: "threatenedObjects",
@@ -1439,7 +1439,7 @@ const plotType = {
         threatenedObjects: {
             type: "selectMultiple",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {value: "threatenedObjects", label: "地表建筑"},
                 {value: "threatenedObjects", label: "交通线路"},
@@ -1519,7 +1519,7 @@ const plotType = {
         threatenedObjects: {
             type: "select",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {value: "threatenedObjects", label: "地表建筑"},
                 {value: "threatenedObjects", label: "交通线路"},
