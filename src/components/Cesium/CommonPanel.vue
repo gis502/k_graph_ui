@@ -508,7 +508,7 @@ export default {
 
 .collapseFooter {
   float: right;
-  margin: 10px;
+  margin-top: 25px;
 }
 
 .el-input {

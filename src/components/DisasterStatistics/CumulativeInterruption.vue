@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ latestTime }}</p>
   <div ref="chart" class="container-left" style="width: 100%; height: 200px;"></div>
 </template>
 
@@ -6,8 +7,7 @@
 import {onBeforeUnmount, onMounted, ref, watch,defineProps} from 'vue';
 import * as echarts from 'echarts';
 import {getVillages} from "../../api/system/ZhongDuanVillage";
-import {getRoadRepairs} from "../../api/system/roadDamage";
-
+import {useGlobalStore} from "../../store";
 const props = defineProps({
   eqid: {
     type: String,
@@ -19,46 +19,10 @@ const latestTime = ref(''); // 最新时间
 const currentlyBlackedOutVillages = ref('') // 供电
 const currentInterruptedVillages  = ref('') // 通信
 const roadBlockVillage = ref('') // 道路
-
-watch(() => props.eqid, (newValue) => {
-  eqid.value = newValue;
-  console.log("中断村返回的eqid",eqid.value)
-  getVillages(eqid.value).then(res => {
-    console.log("中断村返回的res",res)
-
-    const formatDateTime = (dateString) => {
-      return dateString.split('T')[0] + ' ' + dateString.split('T')[1].split('.')[0];
-    };
-
-    latestTime.value = formatDateTime(res[0].insertTime);
-    currentInterruptedVillages.value = res[0].currentInterruptedVillages;
-    currentlyBlackedOutVillages.value = res[0].currentlyBlackedOutVillages;
-    roadBlockVillage.value = res[0].roadBlockVillage;
-
-
-    // 更新 echartData 的值
-    echartData.value[0].value = roadBlockVillage.value; // 道路中断村
-    echartData.value[1].value = currentlyBlackedOutVillages.value; // 供电中断村
-    echartData.value[2].value = currentInterruptedVillages.value; // 通信中断村
-
-    update();
-  })
-})
-
-function update(){
-  chartInstance.setOption({
-    series: [{
-      data: echartData.value, // 更新图表数据
-    }],
-  });
-}
-
-
-
 const chart = ref(null);
 const echartData = ref([
   {
-    value: 43,
+    value: 0,
     name: '目前道路中断村（个）',
     itemStyle: {
       normal: {
@@ -67,7 +31,7 @@ const echartData = ref([
     },
   },
   {
-    value: 28,
+    value:0,
     name: '目前主网供电中断村（个）',
     itemStyle: {
       normal: {
@@ -76,7 +40,7 @@ const echartData = ref([
     },
   },
   {
-    value: 24,
+    value: 0,
     name: '目前通信中断村（个）',
     itemStyle: {
       normal: {
@@ -85,9 +49,7 @@ const echartData = ref([
     },
   },
 ]);
-
 let chartInstance = null;
-
 const initChart = () => {
   if (chart.value) {
     // 销毁之前的实例，防止重复初始化
@@ -173,16 +135,54 @@ const initChart = () => {
     console.error('chart DOM element is not ready.');
   }
 };
+const store = useGlobalStore();
 
-// 组件挂载后初始化图表
-onMounted(() => {
-  initChart();
-});
+setTimeout(()=>{
+  getVillages(store.globalEqId).then(res => {
+    update(res);
+  })
+},500)
+
+watch(() => props.eqid, (newValue) => {
+  eqid.value = newValue;
+  getVillages(eqid.value).then(res => {
+    update(res);
+  })
+})
+
+function update(data){
+  const formatDateTime = (dateString) => {
+    if (dateString === null ){
+      return null;
+    }
+    return dateString.split('T')[0] + ' ' + dateString.split('T')[1].split('.')[0];
+  };
+  latestTime.value = formatDateTime(data[0].insertTime);
+  currentInterruptedVillages.value = data[0].currentInterruptedVillages;
+  currentlyBlackedOutVillages.value = data[0].currentlyBlackedOutVillages;
+  roadBlockVillage.value = data[0].roadBlockVillage;
+
+  // 更新 echartData 的值
+  echartData.value[0].value = roadBlockVillage.value; // 道路中断村
+  echartData.value[1].value = currentlyBlackedOutVillages.value; // 供电中断村
+  echartData.value[2].value = currentInterruptedVillages.value; // 通信中断村
+
+  chartInstance.setOption({
+    series: [{
+      data: echartData.value, // 更新图表数据
+    }],
+  });
+}
 
 // 监听 echartData 的变化
 watch(echartData, () => {
   initChart();
 }, {deep: true});
+
+// 组件挂载后初始化图表
+onMounted(() => {
+  initChart();
+});
 
 // 组件卸载前销毁图表实例
 onBeforeUnmount(() => {

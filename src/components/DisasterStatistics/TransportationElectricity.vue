@@ -2,19 +2,15 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">当前累计中断情况<br>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <CumulativeInterruption :eqid="eqid"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">电力设施损毁及抢修情况<br>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <PowerSupply :eqid="eqid"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">道路交通损毁及抢修情况与交通管控情况<br/>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <RoadDamage :eqid="eqid"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">通信设施损毁及抢修情况<br/>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
         <TrafficSituation :eqid="eqid"/>
       </dv-border-box-12>
     </div>
@@ -38,8 +34,6 @@ const props = defineProps({
 
 // 响应式变量
 const eqid = ref('');
-const time = ref('2024-09-05 15:30:00');
-
 // 监听 props 的变化
 watch(() => props.newEqId, (newValue) => {
   eqid.value = newValue;

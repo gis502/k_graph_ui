@@ -6,10 +6,24 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
-import * as echarts from 'echarts';
-import {getRoadRepairs} from "../../api/system/roadDamage";
+
+import * as echarts from "echarts";
+import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useGlobalStore} from "../../store";
+import {getWatterSupplyProjectDamage} from "../../api/system/supplySituation";
+const latestTime = ref(''); // 时间
+const earthquakeAreaName = ref([]); // 地点
+const centralizedWaterProjectDamages = ref([]); // 受损数量
+const chart = ref(null);
+const store = useGlobalStore()
+const eqid = ref('');
+let echartsInstance = null; // 全局变量
+
+setTimeout(()=>{
+  getWatterSupplyProjectDamage(store.globalEqId).then(res => {
+    update(res)
+  })
+},500)
 
 const props = defineProps({
   eqid: {
@@ -18,42 +32,32 @@ const props = defineProps({
   },
 });
 
-const eqid = ref('');
-const latestTime = ref(''); // 时间
-const affectedArea = ref([]); // 地点
-const restoredKm = ref([]); // 已经抢修
-const pendingRepairKm = ref([]); // 等待抢修
-const chart = ref(null);
-let echartsInstance = null; // 全局变量
-const store = useGlobalStore()
-
-setTimeout(()=>{
-  getRoadRepairs(store.globalEqId).then(res => {
-    update(res);
-  });
-},500)
-
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getRoadRepairs(eqid.value).then(res => {
-    update(res);
-  });
+  getWatterSupplyProjectDamage(eqid.value).then(res => {
+    update(res)
+  })
 });
 
-function update(data) {
+function formatDate(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (isNaN(date)) return '无效日期'; // 检查日期有效性
+  return date.toISOString().replace('T', ' ').split('.')[0];
+}
+
+function update(data){
   // 如果返回的数组为空，设置默认值
   if (data.length === 0) {
-    affectedArea.value = ['抱歉暂无数据'];
-    restoredKm.value = [0];
-    pendingRepairKm.value = [0];
+    earthquakeAreaName.value = ['抱歉暂无数据'];
+    centralizedWaterProjectDamages.value = [0];
     latestTime.value = '';
   } else {
-    affectedArea.value = data.map(item => item.affectedArea || '无数据');
-    restoredKm.value = data.map(item => item.restoredKm || 0);
-    pendingRepairKm.value = data.map(item => item.pendingRepairKm || 0);
+    earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || '无数据');
+    centralizedWaterProjectDamages.value = data.map(item => item.centralizedWaterProjectDamage || 0);
     latestTime.value = data.reduce((max, item) => {
-      return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
-    }, data[0].systemInsertTime); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
+    }, formatDate(data[0].systemInsertTime)); // 确保初始值
   }
 
   echartsInstance.setOption({
@@ -65,19 +69,16 @@ function update(data) {
       formatter: (params) => {
         return params.map(item => `
           <span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
-          ${item.seriesName}: ${item.value} 公里<br/>`).join('');
+          ${item.seriesName}: ${item.value} 处<br/>`).join('');
       }
     },
     xAxis: {
-      data: affectedArea.value
+      data: earthquakeAreaName.value
     },
     series: [
       {
-        data: restoredKm.value
+        data: centralizedWaterProjectDamages.value
       },
-      {
-        data: pendingRepairKm.value
-      }
     ]
   });
 }
@@ -93,7 +94,7 @@ const initChart = () => {
       formatter: (params) => {
         return params.map(item => `
           <span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
-          ${item.seriesName}: ${item.value} 公里<br/>`).join('');
+          ${item.seriesName}: ${item.value} 处<br/>`).join('');
       }
     },
     legend: {
@@ -109,7 +110,7 @@ const initChart = () => {
     },
     xAxis: {
       type: 'category',
-      data: affectedArea.value,
+      data: earthquakeAreaName.value,
       axisLabel: {
         color: '#ffffff'
       }
@@ -128,7 +129,7 @@ const initChart = () => {
     },
     series: [
       {
-        name: '已抢救道路损毁公里数',
+        name: '集中供水工程受损统计（处）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -137,20 +138,8 @@ const initChart = () => {
         itemStyle: {
           color: '#4A90E2'
         },
-        data: restoredKm.value
+        data: centralizedWaterProjectDamages.value
       },
-      {
-        name: '待抢救道路损毁公里数',
-        type: 'bar',
-        stack: 'Ad',
-        emphasis: {
-          focus: 'series'
-        },
-        itemStyle: {
-          color: '#005193'
-        },
-        data: pendingRepairKm.value
-      }
     ]
   };
   echartsInstance.setOption(option);
@@ -166,7 +155,4 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.container-left {
-  /* 自定义样式 */
-}
 </style>
