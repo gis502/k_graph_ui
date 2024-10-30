@@ -174,14 +174,14 @@ const widthList = {
 
     'RescueForces': [200, 200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
     'LargeSpecialRescueEquipment': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200],
-    'DisasterReliefSuppliesAccumulated': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200, 200],
+    'DisasterReliefMaterials': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200, 200],
 
     'MaterialDonation': [200, 200, 200, 200, 200, 150],
     'GovernmentDepartmentDonations': [200, 200, 200, 200, 200, 200],
     'CharityOrganizationDonations': [200, 200, 200, 250, 250, 200],
     'RedCrossDonations': [200, 200, 200, 200, 200, 200],
 
-    'SocialOrder': [200, 200, 200, 200, 200, 200, 200, 200, 200],
+    'SocialOrder': [200, 200, 200, 200, 200, 200, 200, 200],
     'PublicOpinion': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200]
 
 }
@@ -443,7 +443,7 @@ const exportStatistics = () => {
                 fileName = '资金及物资捐赠-物资捐赠情况统计表.xlsx';
             } else if (flag.value === 'LargeSpecialRescueEquipment') {
                 fileName = '力量物资资金-大型、特种救援装备统计表.xlsx';
-            } else if (flag.value === 'DisasterReliefSuppliesAccumulated') {
+            } else if (flag.value === 'DisasterReliefMaterials') {
                 fileName = '力量物资资金-救灾物资情况（累计）统计表.xlsx';
             } else if (flag.value === 'MaterialDonation') {
                 fileName = '资金及物资捐赠-物资捐赠情况统计表.xlsx';
