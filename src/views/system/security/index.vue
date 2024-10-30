@@ -166,7 +166,7 @@ const ruleFormRef = ref()
 
 const rules = reactive({
   port: [
-    { required: true, message: '请输入1-65535之间的数字', trigger: 'change' },
+    { required: true, message: '请输入1-65535之间的数字', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const num = Number(value);
@@ -176,18 +176,16 @@ const rules = reactive({
           callback(); // 验证通过
         }
       },
-      trigger: 'change'
+      trigger: 'blur'
     }
   ],
   source: [
     {
-      required: true,
-      message: '请输入有效的IP地址或CIDR段',
-      trigger: 'change'
+      required: true, message: '请输入有效的IP地址或CIDR段', trigger: 'blur'
     },
     {
       validator: (rule, value, callback) => {
-        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\/([0-2][0-9]|3[0-2]))?$/;
+        const ipv4Regex = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(?:\/([0-9]|[1-2][0-9]|3[0-2]))?$/;
         const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]|:|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])))(\/(1[0-2][0-8]|[1-9]?[0-9]))?$/;
 
         if (!ipv4Regex.test(value) && !ipv6Regex.test(value) && !(value === "全部IPv4地址") && !(value === "全部IPv6地址")) {
@@ -196,7 +194,7 @@ const rules = reactive({
           callback(); // 验证通过
         }
       },
-      trigger: 'change'
+      trigger: 'blur'
     }
   ]
 });
@@ -302,15 +300,22 @@ const submitForm = async (formEl) => {
 
 // 新增与修改弹窗的确认按钮
 function commit() {
-  if (dialogContent.value.source === "全部IPv4地址") {
-    dialogContent.value.source = "0.0.0.0/0"
-  } else if (dialogContent.value.source === "全部IPv6地址") {
-    dialogContent.value.source = "::/0"
-  }
 
   if (dialogTitle.value === "新增") {
     dialogContent.value.uuid = guid()
-    insert(dialogContent.value).then(res => {
+    let data = JSON.parse(JSON.stringify(dialogContent.value));
+    if (dialogContent.value.source === "全部IPv4地址") {
+      data.source = "0.0.0.0/0"
+    } else if (dialogContent.value.source === "全部IPv6地址") {
+      data.source = "::/0"
+    }
+
+    insert(data).then(res => {
+      ElMessageBox.alert(res.msg, 'Title', {
+        confirmButtonText: '确认',
+        callback: (action) => {
+        },
+      })
       dialogShow.value = false
       clearDialogContent()
       getList()
@@ -330,7 +335,7 @@ function clearDialogContent() {
     uuid: "",
     applicationType: "自定义",
     source: "",
-    agreement: "TCP",
+    agreement: "tcp",
     port: null,
     notes: "",
     tactics: 'allow'

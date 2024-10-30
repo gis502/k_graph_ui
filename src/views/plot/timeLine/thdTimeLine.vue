@@ -70,12 +70,12 @@
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
-<!--        <span class="speedButton">{{ speedOption }}</span>-->
-<!--        <div class="chooseSpeed">-->
-<!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
-<!--            {{ option }}-->
-<!--          </option>-->
-<!--        </div>-->
+        <!--        <span class="speedButton">{{ speedOption }}</span>-->
+        <!--        <div class="chooseSpeed">-->
+        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+        <!--            {{ option }}-->
+        <!--          </option>-->
+        <!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -937,17 +937,17 @@ export default {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
             if(ellipseEntityToRemove){
-                window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+              window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
             }
           }
         }
       });
-        // 批量渲染点 + 非初始化状态渲染标会点动画
-        if (points.length > 0) {
-            let param = bool === false ? false : true
-            cesiumPlot.drawPoints(points,param);
-            // this.addlabel(points,param);
-        }
+      // 批量渲染点 + 非初始化状态渲染标会点动画
+      if (points.length > 0) {
+        let param = bool === false ? false : true
+        cesiumPlot.drawPoints(points,param);
+        // this.addlabel(points,param);
+      }
 
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
@@ -1073,7 +1073,7 @@ export default {
       // 每隔100毫秒更新一次当前时间
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      }, 100);
+      }, 500);
     },
 
 
@@ -1121,17 +1121,17 @@ export default {
         //   // this.xuanran(this.eqid)
         // }
         // else {
-          // 未达到终点时的处理
-          // this.currentTimePosition = this.currentTimePosition % 100
-          // 根据当前节点索引计算实际时间
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          // 根据是否需要显示标绘层来更新图层
-          if (this.isMarkingLayer) {
-            this.updatePlot()
-          } else {
-            this.MarkingLayerRemove()
-          }
-          // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
+        // 未达到终点时的处理
+        // this.currentTimePosition = this.currentTimePosition % 100
+        // 根据当前节点索引计算实际时间
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // 根据是否需要显示标绘层来更新图层
+        if (this.isMarkingLayer) {
+          this.updatePlot()
+        } else {
+          this.MarkingLayerRemove()
+        }
+        // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
         // }
       }
 

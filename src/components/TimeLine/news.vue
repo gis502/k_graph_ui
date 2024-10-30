@@ -102,6 +102,11 @@ export default {
         );
       });
       if (activities.length > 0) {
+        activities.sort((a, b) => {
+            if (a.publishTime < b.publishTime) return -1;
+            if (a.publishTime > b.publishTime) return 1;
+            return 0;
+        });
         this.showNews = activities.reverse()
         this.recordTime=this.timestampToTime(activities[0].publishTime)
       }else{
