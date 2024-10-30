@@ -251,12 +251,12 @@ export default {
       // 初始化地图后的操作
     };
 
-    onBeforeUnmount(() => {
-      // 清理逻辑
-      if (countriesOverlay.value) {
-        countriesOverlay.value.remove();
-      }
-    });
+    // onBeforeUnmount(() => {
+    //   // 清理逻辑
+    //   if (countriesOverlay.value) {
+    //     countriesOverlay.value.remove();
+    //   }
+    // });
 
     // ------------------------行政区划
 
@@ -534,7 +534,7 @@ export default {
         showInfoWindow.value = true;
         mapConfig.value.infoWindowData = item;
         infoWindowPosition.value.x = event.clientX - 350; // 获取鼠标位置
-        infoWindowPosition.value.y = event.clientY - 330; // 获取鼠标位置
+        infoWindowPosition.value.y = event.clientY - 270; // 获取鼠标位置
         console.log("item-----------------",item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -883,7 +883,7 @@ export default {
 
 .map_container {
   width: 100%;
-  height: 740px;
+  height: 620px;
   margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
