@@ -48,13 +48,14 @@ import {getField} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
-
+import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingDamageInformation.vue"
 
 
 // 选项数据
 const options = [
   {label: '震情伤亡信息可视化', value: 'EarthquakeCasualties'},
-  {label: '交通电力通信信息可视化', value: 'TransportationElectricity'}
+  {label: '交通电力通信信息可视化', value: 'TransportationElectricity'},
+  {label: '建筑物受损信息可视化', value: 'BuildingDamageInformation'},
 ]
 
 // 当前选择的组件标识符
@@ -63,7 +64,8 @@ const selectedComponentKey = ref('EarthquakeCasualties')
 // 组件映射表
 const components = {
   EarthquakeCasualties,
-  TransportationElectricity
+  TransportationElectricity,
+  BuildingDamageInformation,
 }
 
 // 动态获取选定的组件
