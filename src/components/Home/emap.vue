@@ -64,15 +64,12 @@
 <script>
 import red from '@/assets/star.gif';
 import yellow from '@/assets/yellow3.png';
-import {ref, onMounted,  watch} from 'vue';
+import {ref, onMounted,  watch,  onBeforeUnmount  } from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
 // 引入地理json文件
-// import sicuan from '@/assets/geoJson/data.json';
-// import * as d3 from 'd3';
-
-
-// 用于在组件中定义和接收 props（属性）
-
+import * as d3 from 'd3';
+import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
+import yaan from '@/assets/geoJson/yaan.json'
 
 // 图例分类
 const eqGroups = ref([
@@ -112,10 +109,9 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({ x: 0, y: 0 });
+    const infoWindowPosition = ref({ x: 0, y: 0 }); //信息窗的初始位置
 
-    // let mapInstance = null;
-    // let svgOverlay = null;
+    const countriesOverlay = ref(null); // 用于存储 overlay 实例
 
     // 数据分组
     const dataGroups = ref({
@@ -135,6 +131,12 @@ export default {
       isDrawing: false, // 是否正在绘制中
     });
 
+    onMounted(() => {
+      // if (!mapConfig.value.map) {
+      //   initMap();
+      // }
+    });
+
     watch(() => props.eqData, () => {
       latestEqData.value = [props.eqData[0]]; // 只取最新的一个
       historyEqData.value = props.eqData.slice(1); // 剩下的为历史数据
@@ -144,6 +146,7 @@ export default {
       // 处理数据分组
       processData();
       initMap(); // 初始化地图
+      addMarkers();//标点
     });
 
     const processData = () => {
@@ -188,16 +191,25 @@ export default {
 
 
 
-
     // 初始化地图
     // 将地图挂载到 emap 容器中，并通过 centerAndZoom 设置中心点和缩放级别。
     const initMap = () => {
       processData();
       // 通过 T.Map 创建一个新的天地图实例，并将地图绑定到页面中 ID 为 'emap' 的 DOM 元素上。
       // mapConfig.value.map 是一个可变的 mapConfig 对象，里面存放了地图的实例。
+
       mapConfig.value.map = new T.Map('emap');
       // 设置地图的中心点和缩放级别。
       mapConfig.value.map.centerAndZoom(new T.LngLat(103.00, 30.00), 6);
+
+
+      // 创建 D3Overlay 实例
+      countriesOverlay.value = new T.D3Overlay(init, redraw);
+
+      // 添加 overlay 到地图
+      mapConfig.value.map.addOverLay(countriesOverlay.value);
+      countriesOverlay.value.bringToBack();
+
 
       // // 添加地图类型控件
       // const mapTypeControl = new T.Control.MapType();
@@ -205,11 +217,6 @@ export default {
 
       // 设置地图的初始主题为 indigo
       setMapStyle('indigo');
-
-      // mapInstance = new T.Map('emap'); // 创建地图实例
-      // svgOverlay = initializeOverlay(initFunction, redrawFunction, options);
-      // svgOverlay.onAdd(mapInstance);
-
 
       // // **添加指南针控件**
       // const navigationControl = new T.Control.Navigation();
@@ -220,7 +227,7 @@ export default {
       // 添加比例尺控件
       mapConfig.value.map.addControl(scale);
       // 确认比例尺控件是否添加成功
-      console.log('Scale control added:', scale);
+      // console.log('Scale control added:', scale);
 
 
       // // 初始化画笔工具
@@ -231,7 +238,7 @@ export default {
       //   keepdrawing: false,
       // });
 
-      addMarkers();//标点
+      // addMarkers();//标点
 
 
 
@@ -243,6 +250,120 @@ export default {
     const initMapAfter = () => {
       // 初始化地图后的操作
     };
+
+    onBeforeUnmount(() => {
+      // 清理逻辑
+      if (countriesOverlay.value) {
+        countriesOverlay.value.remove();
+      }
+    });
+
+    // ------------------------行政区划
+
+
+    // 初始化函数
+    function init(sel, transform) {
+
+      const pathGenerator = d3.geoPath(transform.projection);  // 使用投影函数
+
+      const upd = sel.selectAll('path.geojson').data(sichuan.features); // 使用四川的 GeoJSON 数据
+      // console.log("sichuan.features1111111111111111111111111111111111",sichuan.features);
+      // console.log("Updating paths2222222222222222222222222222222222222:", upd);
+
+      upd.enter()
+          .append('path')
+          .attr("class", "geojson")
+          .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
+          // .attr('stroke', '#05CEE5') // 边界线颜色
+          .attr('stroke-width', '1px') // 边界线宽度
+          .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+          // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          // .attr('fill', (d, i) => d3.hsl(Math.random() * 360, 0.9, 0.5)) // 区域填充颜色,d3.hsl(Math.random() * 360, 0.9, 0.5)。这将会给每个区域随机生成一个颜色，
+          .attr('fill-opacity', 0.3); // 区域填充透明度
+
+      // 添加区域名称
+      const textUpd = sel.selectAll('text.region-label').data(sichuan.features);
+
+      // sichuan.features.forEach(feature => {
+      //   console.log('Feature Name------------------------------:', feature.properties.name);
+      // });
+
+
+      textUpd.enter()
+          .append('text')
+          .attr('class', 'region-label')
+          .attr('x', d => pathGenerator.centroid(d)[0])  // 获取中心位置的 x 坐标
+          .attr('y', d => pathGenerator.centroid(d)[1])  // 获取中心位置的 y 坐标
+          .attr('dy', '.35em')  // 使文本在 y 方向居中
+          .attr('font-size', '13px')  // 文本大小
+          .attr('fill', '#54aade')  // 文本颜色
+          .attr('text-anchor', 'middle')  // 文本水平居中
+          .text(d => d.properties.name);  // 显示区域名称
+
+
+      // 绘制雅安的行政区划
+      const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
+      yaanUpd.enter()
+          .append('path')
+          .attr("class", "yaan")  // 设置类名
+          .attr('stroke', '#05CEE5') // 边界线颜色
+          .attr('stroke-width', '1px')
+          .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          .attr('fill-opacity', 0.3);
+
+      // 添加雅安区域名称
+      const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
+      yaanTextUpd.enter()
+          .append('text')
+          .attr('class', 'yaan-label')
+          .attr('x', d => pathGenerator.centroid(d)[0])
+          .attr('y', d => pathGenerator.centroid(d)[1])
+          .attr('dy', '.35em')
+          .attr('font-size', '13px')
+          .attr('fill', '#cef1f6')  // 雅安区域名称颜色
+          .attr('text-anchor', 'middle')
+          .text(d => d.properties.name); // 显示区域名称
+
+      // 更新文本位置
+      sel.selectAll('text.region-label')
+          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+
+
+
+
+      sel.selectAll('text.yaan-label')
+          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+
+
+    }
+
+    // 重绘函数
+    function redraw(sel, transform) {
+
+      // 四川
+      sel.selectAll('path.geojson').each(function () {
+        d3.select(this).attr('d', transform.pathFromGeojson); // 更新路径
+      });
+
+      // 更新文本位置
+      sel.selectAll('text.region-label')
+          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+
+      // 雅安
+
+      sel.selectAll('path.yaan').each(function () {
+        d3.select(this).attr('d', transform.pathFromGeojson); // 更新雅安路径
+      });
+
+      sel.selectAll('text.yaan-label')
+          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+    }
+ //---------------------------------------------------------------------------------------
+
 
 
 
@@ -308,7 +429,7 @@ export default {
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
-      clearMarkers();
+      // clearMarkers();
       // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
         if (key.startsWith('history') && seriesVisibility.value[key]) {
@@ -556,108 +677,6 @@ export default {
     };
 
 
-//     // ----------D3 绘制的图形
-//     //创建一个覆盖层对象。
-//     const initializeOverlay = (init, redraw, options) => {
-//       const overlay = {
-//         uid: new Date().getTime(),  //唯一标识符，用于标识这个覆盖层的实例。
-//         init,       //init 和 redraw：传入的初始化和重绘函数。
-//         redraw,
-//         options: options || {},  //配置选项，默认为空对象。
-//         _svg: new T.SVG(),  //使用 T.SVG() 创建一个新的 SVG 实例，用于 D3 绘图。
-//         _rootGroup: null,  //_rootGroup、selection 和 transform：用于存储 D3 的根分组、选择器和变换信息。
-//         selection: null,
-//         transform: null,
-//
-//         //处理缩放变化 (_zoomChange 方法)
-//         _zoomChange() {
-//           if (!this.redraw) {
-//             this.init(this.selection, this.transform);
-//           } else {
-//             this.redraw(this.selection, this.transform);
-//           }
-//         },
-//
-//
-//
-//         //添加到地图 (onAdd 方法),在覆盖层被添加到地图时调用。
-//         onAdd(map){
-//           this.map = map;
-//           map.addLayer(this._svg);    //将 SVG 添加到地图。
-//           this._rootGroup = d3.select(this._svg._rootGroup).classed("d3-overlay", true);  //使用 D3 选择器创建根分组，并将其标记为 d3-overlay。
-//           this.selection = this._rootGroup;
-//
-//           // Transform definitions
-//           this.transform = {
-//             LngLatToD3Point: (a, b) => {
-//               const _lnglat = a instanceof T.LngLat ? a : new T.LngLat(a, b);
-//               const point = this.map.lngLatToLayerPoint(_lnglat);
-//               this.stream.point(point.x, point.y);
-//             },
-//             unitsPerMeter: () => {
-//               return (256 * Math.pow(2, map.getZoom())) / 40075017;
-//             },
-//             map: this.map,
-//             layer: this
-//           };
-//         },
-//
-// //移除覆盖层 (onRemove 方法)
-//         onRemove(map) {
-//           map.removeEventListener("zoomend", this._zoomChange.bind(this));  //移除地图上的缩放事件监听
-//           this._rootGroup.remove();  //从 DOM 中删除 D3 的根分组。
-//           map.removeOverlay(this._svg);  //从地图中移除 SVG。
-//         },
-//
-//         bringToFront() {
-//           if (this._svg && this._svg._rootGroup) {
-//             const el = this._svg._rootGroup.parentNode;
-//             el.parentNode.appendChild(el);
-//           }
-//           return this;
-//         },
-//
-//         bringToBack() {
-//           if (this._svg && this._svg._rootGroup) {
-//             const el = this._svg._rootGroup.parentNode;
-//             const parent = el.parentNode;
-//             parent.insertBefore(el, parent.firstChild);
-//           }
-//           return this;
-//         },
-//
-//
-//
-//
-//
-//       }
-//     };
-//
-//
-//
-// // Initialize the overlay in onMounted hook
-//     onMounted(() => {
-//       // mapInstance = new T.Map('emap'); // 创建地图实例
-//       // svgOverlay = initializeOverlay(initFunction, redrawFunction, options);
-//       // svgOverlay.onAdd(mapInstance);
-//     });
-//
-//
-// // Cleanup on component unmount
-//     onBeforeUnmount(() => {
-//       if (svgOverlay) {
-//         svgOverlay.onRemove(mapInstance);
-//       }
-//     });
-
-
-    onMounted(() => {
-      // if (!mapConfig.value.map) {
-      //   initMap();
-      // }
-    });
-
-
     return {
 
       mapConfig,
@@ -674,6 +693,7 @@ export default {
       seriesVisibility,
       toggleSeriesVisibility,
       infoWindowPosition,
+      countriesOverlay,//行政
     };
   },
 };
@@ -863,7 +883,7 @@ export default {
 
 .map_container {
   width: 100%;
-  height: 640px;
+  height: 740px;
   margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
