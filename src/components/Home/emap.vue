@@ -21,7 +21,7 @@
         v-if="showInfoWindow"
         :infoWindow="mapConfig.infoWindow"
         :data="mapConfig.infoWindowData"
-        :style="{ position: 'absolute', left: `${infoWindowPosition.x}px`, top: `${infoWindowPosition.y}px` }"
+        :style="{left: `${infoWindowPosition.x}px`, top: `${infoWindowPosition.y}px` }"
         @callback="infoWindowCallback"
     />
   </div>
@@ -71,6 +71,9 @@ import * as d3 from 'd3';
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
 import yaan from '@/assets/geoJson/yaan.json'
 
+
+
+
 // 图例分类
 const eqGroups = ref([
   {
@@ -109,9 +112,11 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({ x: 0, y: 0 }); //信息窗的初始位置
+    const infoWindowPosition = ref({ x: 0, y: -740 }); //信息窗的初始位置
+    const weight = ref(210); // 默认weight值
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
+
 
     // 数据分组
     const dataGroups = ref({
@@ -251,12 +256,12 @@ export default {
       // 初始化地图后的操作
     };
 
-    onBeforeUnmount(() => {
-      // 清理逻辑
-      if (countriesOverlay.value) {
-        countriesOverlay.value.remove();
-      }
-    });
+    // onBeforeUnmount(() => {
+    //   // 清理逻辑
+    //   if (countriesOverlay.value) {
+    //     countriesOverlay.value.remove();
+    //   }
+    // });
 
     // ------------------------行政区划
 
@@ -530,11 +535,15 @@ export default {
       addClickHandler(marker, {lng, lat});
 
 // 添加悬停事件
-      marker.addEventListener('mouseover', () => {
+      marker.addEventListener('mouseover', (e) => {
+        console.log(e.originalEvent.relatedTarget.offsetHeight, e.originalEvent.relatedTarget.offsetWidth)
+        console.log(e)
         showInfoWindow.value = true;
         mapConfig.value.infoWindowData = item;
-        infoWindowPosition.value.x = event.clientX - 350; // 获取鼠标位置
-        infoWindowPosition.value.y = event.clientY - 330; // 获取鼠标位置
+        console.log("weight.value*********",weight.value)
+
+        infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 150// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 190// 获取鼠标位置
         console.log("item-----------------",item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -548,38 +557,31 @@ export default {
       });
 
 
-      //信息框位置
-      const updateInfoWindowPosition = (event) => {
-        // 计算信息框的宽度和高度
-        const infoWindowWidth = 355; // 信息框的宽度
-        const infoWindowHeight = 350; // 信息框的高度
 
-        // 设置信息框的位置，使其显示在点的正上方
-        infoWindowPosition.value.x = event.clientX - (infoWindowWidth / 2); // 确保信息框水平居中
-        infoWindowPosition.value.y = event.clientY - infoWindowHeight; // 确保信息框位于鼠标上方
-      };
-
-// 在鼠标移动事件中调用
-      mapConfig.value.map.addEventListener('mousemove', (event) => {
-        updateInfoWindowPosition(event);
-      });
-
-//
 // // 添加鼠标移开事件，关闭信息窗
       marker.addEventListener('mouseout', () => {
         mapConfig.value.map.closeInfoWindow();
         showInfoWindow.value = false;
+        infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
+        infoWindowPosition.value.y = -740//- 330; // 获取鼠标位置
       });
 
       mapConfig.value.map.addOverLay(marker);
+
+
+
     };
+
+
 
 
 
     // 添加点击事件返回，将中心点变为点击点
     const addClickHandler = (marker, params) => {
       marker.addEventListener('click', (e) => {
-        mapConfig.value.map.panTo(returnLnglat(e.lnglat), 12); //将地图的中心点变换到指定的地理坐标
+        mapConfig.value.map.setZoom(12); // 设置缩放级别
+        mapConfig.value.map.panTo(returnLnglat(e.lnglat)); //将地图的中心点变换到指定的地理坐标
+
 
       });
     };
