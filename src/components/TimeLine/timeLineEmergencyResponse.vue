@@ -1,207 +1,171 @@
-
 <template>
   <div>
-    <div class="emergency_response" v-show="emergency_response_isExpanded">
-      <p class="title">应急响应</p>
-      <div class="emergency_response_expand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 100%;width: 100%">
+    <div class="pop">
+        <p class="pop_title">应急响应</p>
+      <div class="pop_content">
+      <p class="pop_txt">{{ this.activity.time }}</p>
+      <p class="pop_txt"><span>{{ this.activity.department }}</span></p>
+      <p class="pop_responseName">
+        <span>{{ this.activity.ResponseName }}</span>
+        <span class="pop_txt">{{ this.activity.state }}</span>
+      </p>
       </div>
-      <div class="emergency_response_title-underline"></div>
 
-      <!--            <p class="emergency_response_state"> {{this.activity.time}}</p>-->
-      <p class="emergency_response_txt"> {{this.activity.time}}</p>
-      <p class="emergency_response_txt"><span>{{this.activity.department}}</span> </p>
-      <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_txt">{{this.activity.state}}</span></p>
-
-      <div class="emergency_response_time_div">
-        <div class="emergency_response_title-underline"></div>
-        <p class="time_text"> 数据更新时间</p>
-        <!--        <p class="time"> {{this.activity.time}}</p>-->
-        <p class="time"> {{this.recordTime}}</p>
-      </div>
-    </div>
-
-    <div v-show="!emergency_response_isExpanded">
-      <div class="emergency_response_notexpand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 15px;max-width: 15px">
+      <div class="pop_time_div">
+        <div class="pop_title-underline"></div>
+        <p class="time_text">数据更新时间</p>
+        <p class="time">{{ this.recordTime }}</p>
       </div>
     </div>
   </div>
-
-
 </template>
 
-
 <script>
-import EmergencyResponse from "@/assets/json/TimeLine/EmergencyResponse";
-import {getEmergencyResponse} from "../../api/system/timeLine.js";
+import { getEmergencyResponse } from "../../api/system/timeLine.js";
+
 export default {
   data() {
     return {
       EmergencyResponseResponsecontent: [],
-      activity:{
+      activity: {
         ResponseName: '',
         state: '',
         department: '',
         time: '',
       },
-      // ifShowData: false,
-      emergency_response_isExpanded:'true',
-      recordTime:''
-    }
+      recordTime: ''
+    };
   },
-  props: [
-    'currentTime',
-    'eqid'
-  ],
+  props: ['currentTime', 'eqid'],
   mounted() {
-      this.init()
+    this.init();
   },
   watch: {
     currentTime(newVal) {
-      this.updateEmergencyResponse(newVal)
+      this.updateEmergencyResponse(newVal);
     }
   },
   methods: {
     init() {
-      getEmergencyResponse({eqid: this.eqid}).then(res => {
-        this.EmergencyResponseResponsecontent = res
-        console.log(this.EmergencyResponseResponsecontent,"this.EmergencyResponseResponsecontent")
+      getEmergencyResponse({ eqid: this.eqid }).then(res => {
+        this.EmergencyResponseResponsecontent = res;
         const times = res.map(item => item.responseTime);
-        this.$emit('addJumpNodes',times)
-        this.updateEmergencyResponse(this.currentTime)
-      })
-    },
-    async updateEmergencyResponse(currentTime){
-      const activities =await this.EmergencyResponseResponsecontent.filter((activity) => {
-        return (
-            new Date(activity.responseTime) <= currentTime
-        );
+        this.$emit('addJumpNodes', times);
+        this.updateEmergencyResponse(this.currentTime);
       });
-      if(activities.length>0){
+    },
+    async updateEmergencyResponse(currentTime) {
+      const activities = await this.EmergencyResponseResponsecontent.filter(activity => {
+        return new Date(activity.responseTime) <= currentTime;
+      });
+      if (activities.length > 0) {
         activities.sort((a, b) => {
           if (a.responseTime < b.responseTime) return -1;
           if (a.responseTime > b.responseTime) return 1;
           return 0;
         });
-        let tmp=activities[activities.length-1]
-        // console.log(tmp)
-        this.activity.time=this.timestampToTime(tmp.responseTime)
-        this.recordTime=this.timestampToTime(tmp.responseTime)
-        this.activity.department=tmp.unit
-        this.activity.ResponseName=tmp.level
-        this.activity.state=tmp.status
-      }
-      else{
-        this.recordTime=this.timestampToTime(currentTime)
+        let tmp = activities[activities.length - 1];
+        this.activity.time = this.timestampToTime(tmp.responseTime);
+        this.recordTime = this.timestampToTime(tmp.responseTime);
+        this.activity.department = tmp.unit;
+        this.activity.ResponseName = tmp.level;
+        this.activity.state = tmp.status;
+      } else {
+        this.recordTime = this.timestampToTime(currentTime);
       }
     },
     timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    },
-    emergency_response_toggleExpand() {
-      this.emergency_response_isExpanded = !this.emergency_response_isExpanded
+      let DateObj = new Date(timestamp);
+      let year = DateObj.getFullYear();
+      let month = DateObj.getMonth() + 1;
+      let day = DateObj.getDate();
+      let hh = DateObj.getHours();
+      let mm = DateObj.getMinutes();
+      let ss = DateObj.getSeconds();
+      month = month > 9 ? month : '0' + month;
+      day = day > 9 ? day : '0' + day;
+      hh = hh > 9 ? hh : '0' + hh;
+      mm = mm > 9 ? mm : '0' + mm;
+      ss = ss > 9 ? ss : '0' + ss;
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
     }
   }
-}
+};
 </script>
 
-<style>
-.emergency_response {
+
+<style scoped>
+.pop {
   position: absolute;
   width: 25%; /* 调整宽度 */
   height: 23%;
   padding: 10px;
   border-radius: 5px;
-  top:10%;
+  top:12%;
   left: 1%;
   z-index: 20; /* 提高层级 */
-  background-color: rgba(40, 40, 40, 0.7);
+  background-color: rgb(22, 53, 77,0.9);
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
+}
+.pop_title {
+  color: #FFFFFF;
+  font-size: 19px;
+  font-weight: 550;
+  top:-16px;
+  position: relative;
 }
 
-
-.title{
-  margin: 0.9px;
-  font-size: 0.9rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
+.pop_title:before {
+  content: "";
+  width: 11px;
+  height: 23px;
+  position: relative;
+  top: 7px;
+  margin: 0 10px;
+  display: inline-block;
+  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
-.emergency_response_expand_button{
+.pop_title:after {
+  content: "";
+  width: 90%;
+  height: 6px;
   position: absolute;
-  width: 10%; /* 调整宽度 */
-  //height: 25%;
-  padding: 10px;
-  border-radius: 5px;
-  top: 0%;
-  right: 1%;
-  z-index: 22; /* 提高层级 */
-}
-.emergency_response_notexpand_button{
-  position: absolute;
-  width: 2.5%; /* 调整宽度 */
-  //height: 6%;
-  padding: 10px;
-  border-radius: 5px;
-  top: 5%;
-  left: 1%;
-  z-index: 22; /* 提高层级 */
-  //background-color: #C03639;
+  bottom: -15px;
+  left: 9px;
+  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
-.emergency_response_title-underline {
+.pop_content {
+  left: 3%;
+  position: relative;
+}
+.pop_title-underline {
   width: 100%;
   height: 1px;
-  background-color: #FFFFFF;
+  background-color: #1f9dca;
   margin-top: 1px;
 }
-
-
-
-.emergency_response_responseName{
+.pop_responseName{
   font-size: 1.1rem;
   line-height: 0.5rem;
   font-weight: bold;
   font-family: 'myFirstFont', sans-serif;
   color: #419fff;
 }
-.emergency_response_txt{
-  font-size: 1.1rem;
-  line-height: 0.5rem;
-  font-weight: bold;
-  font-weight: normal;
-  color: #ffffff;
-}
-.emergency_response_department {
+.pop_txt{
   font-size: 1rem;
-  line-height: 0rem;
-  font-weight: bold;
-  font-family: 'myFirstFont', sans-serif;
+  line-height: 0.5rem;
+  font-weight: 550;
   color: #ffffff;
 }
-.emergency_response_state {
-  font-size: 0.9rem;
-  line-height: 0.3rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
-}
-.emergency_response_time_div{
+
+.pop_time_div{
   position: absolute;
   width: 94%;
   height: 10%;
