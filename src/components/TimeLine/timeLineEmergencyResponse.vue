@@ -23,7 +23,7 @@
 
     <div v-show="!emergency_response_isExpanded">
       <div class="emergency_response_notexpand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 15px;max-width: 15px">
+        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 15px;max-width: 15px;margin-top: 30px">
       </div>
     </div>
   </div>

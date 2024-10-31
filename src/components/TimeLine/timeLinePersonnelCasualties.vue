@@ -9,7 +9,6 @@
 
       <div class="title-underline"></div>
 
-
       <ul class="total-list">
         <li>
           <p>
@@ -40,7 +39,7 @@
 
     <div v-show="!personnel_casualties_isExpanded">
       <div class="personnel_casualties_notexpand_button" @click="personnel_casualties_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%;width: 100%">
+        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%;width: 100%; margin-top: 30px">
       </div>
     </div>
   </div>
