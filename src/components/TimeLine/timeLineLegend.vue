@@ -80,7 +80,7 @@ export default {
   width: 25%;
   height: 5%;
   left: 1%;
-  bottom: 9%;
+  bottom: 8.5%;
   padding: 0px;
   position: absolute;
   background-color: rgba(40, 40, 40, 0.7);
@@ -88,10 +88,12 @@ export default {
   color: white;
   z-index: 20;
   transition: width 0.3s ease-in-out, height 0.3s ease-in-out, bottom 0.3s ease-in-out;
+  background-color: rgb(22, 53, 77,0.9);
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
 }
 
 .timelineLegend.open {
-  //width: 25%;
   width: 32%;
   height: 81%;
   bottom: 9%;
@@ -99,7 +101,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgba(40, 40, 40);
 }
 
 .legend-header {
@@ -117,14 +118,15 @@ export default {
 }
 
 .legend-items-close {
-  background-color: #0d325f;
   display: flex;
   flex-wrap: wrap; /* 设置子元素换行 */
   justify-content: space-between; /* 两列均分 */
   align-items: flex-start;
   padding-top: 0;
-  background-color: rgba(40, 40, 40, 0.7);
   width: 100%;
+  background-color: rgb(22, 53, 77,0.9);
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
 }
 
 .close-item {

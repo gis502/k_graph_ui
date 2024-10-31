@@ -206,6 +206,8 @@
       </el-dialog>
 
     </div>
+      <!-- Cesium 视图 -->
+      <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
   </div>
 </template>
 
@@ -230,11 +232,12 @@ import {plotType} from "../../../cesium/plot/plotType.js";
 import {downloadPlotExcel, exportPlotExcel} from "../../../api/system/excel.js";
 import {getToken} from "../../../utils/auth.js";
 import * as XLSX from "xlsx";
+import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog,layeredShowPlot
   },
   data: function () {
     return {
@@ -352,6 +355,9 @@ export default {
       //----------------------------------
       renderedPlotIds: new Set(), // 用于存储已经渲染的 plotid
       //----------------------------------
+      zoomLevel: '市' , // 初始化缩放层级
+      pointsLayer :[], //传到子组件
+      //----------------------------------
       plotList: [], // 用于指定地震标绘点导出
       selectVisible: false,
       selectedNodes: [], // 用于存储选中的节点信息
@@ -400,6 +406,11 @@ export default {
       Arrow.disable();
       Arrow.init(viewer);
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      // 监听相机高度并更新 zoomLevel
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       let options = {}
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
@@ -420,6 +431,7 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+
     },
     // 初始化ws
     initWebsocket() {
@@ -431,6 +443,7 @@ export default {
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {
+      this.pointsLayer = []
       let that = this
       getPlot({eqid}).then(res => {
         let data = res
@@ -456,8 +469,10 @@ export default {
           }
         })
         that.drawPoints(points)
+        that.pointsLayer = [...points]
+        console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("polylineArr", polylineArr)
+        // console.log("polylineArr",polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -873,7 +888,7 @@ export default {
     initPolygon(eqid) {
       let that = this
       getPlot({eqid}).then(res => {
-        console.log(res, 8888)
+        console.log(res,8888)
         let data = res
         let polygonArr = data.filter(e => e.drawtype === 'polygon');
         // console.log('index.polygonArr', polygonArr)
@@ -887,7 +902,7 @@ export default {
         });
         Object.keys(polygonMap).forEach(plotId => {
           let polygonData = polygonMap[plotId];
-          console.log(polygonData, 8889)
+          console.log(polygonData,8889)
           that.getDrawPolygonInfo(polygonData);
         });
       })
@@ -1070,9 +1085,59 @@ export default {
           // }
 
         } else {
-          console.log(1230)
           // this.showPolyline = false
           // this.popupData = {}
+        }
+        if (Cesium.defined(pickedEntity) && window.selectedEntity._billboard && window.selectedEntity._id=== 'center'){
+          console.log("1123")
+          // 2-2 获取点击点的经纬度
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换data为弧度
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
+          if (this.isTerrainLoaded()) {
+            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            let l = Cesium.Cartographic.fromCartesian(position)
+            let lon = Cesium.Math.toDegrees(l.longitude)
+            let lat = Cesium.Math.toDegrees(l.latitude)
+            let hei = l.height
+            let height
+            // 将笛卡尔坐标转换为地理坐标角度
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            // 将地理坐标角度换为弧度
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
+            // 将经纬度和高度生成新的笛卡尔坐标
+            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
+            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
+          }
+          // 2-5 更新弹窗位置
+          // that.selectedEntity = window.selectedEntity
+          // that.popupData = {
+          //   type: window.selectedEntity.properties.type?window.selectedEntity.properties.type.getValue():"",
+          //   time: window.selectedEntity.properties.time?window.selectedEntity.properties.time.getValue():"",
+          //   name: window.selectedEntity.properties.name?window.selectedEntity.properties.name.getValue():"",
+          //   lon: window.selectedEntity.properties.lon?window.selectedEntity.properties.lon.getValue():"",
+          //   lat: window.selectedEntity.properties.lat?window.selectedEntity.properties.lat.getValue():"",
+          //   describe: window.selectedEntity.properties.describe?window.selectedEntity.properties.describe.getValue():"",
+          // };
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
+          this.popupData = {}
+
+          this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
+          this.updatePopupPosition(); // 更新弹窗的位置
+
+        }else {
+
         }
 
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
@@ -1118,6 +1183,10 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       window.viewer.entities.removeAll();
+      // 从 dataSource 中删除点
+      if (window.pointDataSource) {
+       window.pointDataSource.entities.removeAll();
+      }
       Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
@@ -1153,9 +1222,6 @@ export default {
         that.getEqData = data
         that.total = resData.length
         that.tableData = that.getPageArr()
-
-        console.log("data:", that.getEqData)
-
         that.eqid = that.tableData[0].eqid
         that.title = that.tableData[0].occurrenceTime.replace("T", " ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
@@ -1205,14 +1271,9 @@ export default {
     updateMapandVariablebeforInit() {
       //加载中心点
       viewer.entities.add({
-        // properties: {
-        //   type: "震中",
-        //   time: this.centerPoint.time,
-        //   name: this.centerPoint.earthquakeName,
-        //   lat: this.centerPoint.latitude,
-        //   lon: this.centerPoint.longitude,
-        //   describe: this.centerPoint.position,
-        // },
+        properties: {
+          centerData
+        },
         position: Cesium.Cartesian3.fromDegrees(
           parseFloat(this.centerPoint.longitude),
           parseFloat(this.centerPoint.latitude),
@@ -1752,6 +1813,20 @@ export default {
         },
         heights: heights // 高度单独返回
       };
+    },
+    /*获取目前相机所属高度*/
+    updateZoomLevel(cameraHeight) {
+      console.log("层级",cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if(cameraHeight > 4000){
+        this.zoomLevel = '乡/镇'
+      }else{
+        this.zoomLevel = '村'
+      }
     }
   }
 }
