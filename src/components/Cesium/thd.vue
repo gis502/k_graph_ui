@@ -416,7 +416,8 @@
         @toggleComponent="toggleComponent"
     ></timeLineLegend>
     <!--    两侧组件 end-->
-
+    <!--展示弹框伤亡统计-->
+    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -483,7 +484,7 @@ import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSupplies
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-
+import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
@@ -528,6 +529,7 @@ export default {
     commonPanel,
     dataSourcePanel,
     eqTable,
+    layeredShowPlot,
     earthquakeTable,
     modelTable,
   },
@@ -745,7 +747,10 @@ export default {
         tze: null,
         time: null,
         modelid: null
-      }
+      },
+      //----------------------------------
+      zoomLevel: '市' , // 初始化缩放层级
+      pointsLayer :[], //传到子组件
     };
   },
   created() {
@@ -886,6 +891,11 @@ export default {
       // console.log(this.eqid)
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      // 监听相机高度并更新 zoomLevel
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       // this.viewer=window.viewer
       let options = {}
@@ -1356,6 +1366,7 @@ export default {
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
+      this.pointsLayer = []
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -1421,7 +1432,8 @@ export default {
         let param = bool === false ? false : true
         cesiumPlot.drawPoints(points, param);
       }
-
+      that.pointsLayer = [...pointArr]
+      console.log("获取",that.pointsLayer)
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
@@ -3163,6 +3175,20 @@ export default {
       this.modelTableData = this.getPageArr(this.modelList)
     },
     //model style end
+    /*获取目前相机所属高度*/
+    updateZoomLevel(cameraHeight) {
+      console.log("层级",cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if(cameraHeight > 8000){
+        this.zoomLevel = '乡/镇'
+      }else{
+        this.zoomLevel = '村'
+      }
+    },
 
     //   菜单栏左上角实时获取时间代码
     startRealTimeClock(timeElementId, dateElementId) {
