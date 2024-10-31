@@ -862,10 +862,11 @@ export default {
         this.plots = res
         // 遍历更新后的绘图信息，确保每个点都有起止时间
         this.plots.forEach(item => {
-          if (!item.endTime) {
+          if (!item.endTime || new Date(item.endTime) < new Date(this.eqstartTime) || new Date(item.endTime) <= new Date(item.startTime)) {
             // 为没有结束时间的点设置默认结束时间
-            item.endTime = new Date(this.eqstartTime.getTime() + 10 * 24 * 36000 * 1000);
+            item.endTime = new Date(this.eqstartTime.getTime() + 20 * 24 * 36000 * 1000);  //20天 错误时间设置结束时间地震发生20天以后
           }
+          // if (!item.startTime || new Date(item.startTime) < new Date(this.eqstartTime)) {
           if (!item.startTime) {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
@@ -886,6 +887,7 @@ export default {
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
+
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -903,9 +905,10 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-
+        console.log("time",startDate,currentDate,endDate)
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+          console.log("item.plotId",item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -924,29 +927,41 @@ export default {
           points.push(point); // 收集点数据
         }
         // 如果点应该消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
           console.log(item.plotId, "end");
 
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-            console.log("entityToRemove", entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
-            if(ellipseEntityToRemove){
-              window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+
+            const entityDonghua = window.viewer.entities.getById(item.plotId);
+            if (entityDonghua) {
+              window.viewer.entities.remove(entityDonghua); // 移除点
             }
+            // if(window.labeldataSource) {
+              const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+              if (entitylabel) {
+                window.labeldataSource.entities.remove(entitylabel); // 移除点
+              }
+            // }
+            // const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
+            // console.log("entityToRemove", entityToRemove)
+            //
+            // if(ellipseEntityToRemove){
+            //   window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+            // }
           }
         }
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
       if (points.length > 0) {
+        console.log(points)
         let param = bool === false ? false : true
         cesiumPlot.drawPoints(points,param);
-        // this.addlabel(points,param);
       }
 
       //--------------------------线绘制------------------------------
@@ -969,7 +984,7 @@ export default {
           filteredPolylineArr.push(item); // 收集符合条件的线条
         }
         // 处理线条消失的逻辑
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
           // console.log(item.plotId,"end")
           viewer.entities.removeById(item.plotId)
@@ -1002,7 +1017,7 @@ export default {
           filteredPolygonArr.push(item);// 收集符合条件的面
         }
         // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
           console.log(item.geom.coordinates, "endPOlygon")
           viewer.entities.removeById(item.plotId)
@@ -1052,10 +1067,11 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+
       this.jumpTimes.forEach(item => {
-        console.log(new Date(item),new Date(this.eqstartTime.getTime()))
+        // console.log(new Date(item),new Date(this.eqstartTime.getTime()))
         var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
-        console.log("jumpnode",jumpnode)
+        // console.log("jumpnode",jumpnode)
         this.jumpNodes[jumpnode]=1
       })
 
@@ -1068,7 +1084,19 @@ export default {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime;
         this.currentNodeIndex = 0;
+        // 从 dataSource 中删除点
+        // this.plots.forEach(item => {
+        //   if(this.plotisshow[item.plotId]===1){
+        //     this.plotisshow[item.plotId] = 0
+        //     const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+        //     window.pointDataSource.entities.remove(entityToRemove); // 移除点
+        //
+        //   }
+        // })
+        // this.updatePlot(false)
+
       }
+
 
       // 每隔100毫秒更新一次当前时间
       this.intervalId = setInterval(() => {
@@ -1144,6 +1172,7 @@ export default {
      * 定时器停止后，不会再执行任何操作，确保资源得到正确释放
      */
     stopTimer() {
+
       // 清除定时器
       clearInterval(this.intervalId);
       // 重置定时器标识为null
@@ -1171,6 +1200,7 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
+
       // 更新当前节点索引，使用模运算确保索引在合法范围内
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
       // 计算进度条每次前进的量
@@ -1208,6 +1238,7 @@ export default {
      * 并更新图表显示
      */
     backward() {
+
       // 减小当前节点索引，并根据时间线前进次数取模，以实现循环效果
       this.currentNodeIndex = (this.currentNodeIndex - 1) % this.timelineAdvancesNumber
       // 计算每次后退的进度百分比
@@ -1745,11 +1776,11 @@ export default {
      */
     getEq() {
       let that = this
+      let cesiumStore = useCesiumStore()
+      cesiumPlot.init(window.viewer, this.websock, cesiumStore)
       getAllEq().then(res => {
         that.tableData = res
         // 初始化标绘所需的viewer、ws、pinia
-        let cesiumStore = useCesiumStore()
-        cesiumPlot.init(window.viewer, this.websock, cesiumStore)
         // console.log("that.tableData", that.tableData)
       })
     },
