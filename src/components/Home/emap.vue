@@ -112,7 +112,7 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({ x: 0, y: -740 }); //信息窗的初始位置
+    const infoWindowPosition = ref({ x: 0, y: -620 }); //信息窗的初始位置
     const weight = ref(210); // 默认weight值
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
@@ -563,7 +563,7 @@ export default {
         mapConfig.value.map.closeInfoWindow();
         showInfoWindow.value = false;
         infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
-        infoWindowPosition.value.y = -740//- 330; // 获取鼠标位置
+        infoWindowPosition.value.y = -620//- 330; // 获取鼠标位置
       });
 
       mapConfig.value.map.addOverLay(marker);
@@ -885,7 +885,7 @@ export default {
 
 .map_container {
   width: 100%;
-  height: 740px;
+  height: 620px;
   margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
