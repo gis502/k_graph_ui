@@ -1,116 +1,168 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
   <div>
-    <div ref="chart" style="width: 100%; height: 250px;" class="container-left"></div>
+    <div ref="chart" style="width: 100%; height: 250px;" className="container-left"></div>
   </div>
 </template>
 
-<script>
+<script setup>
+import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
+import {getRoadRepairs} from "../../api/system/roadDamage";
+import {useGlobalStore} from "../../store";
 
-export default {
-  name: 'RoadDamage',
-  props: {
-    isRestored: {
-      type: Boolean,
-      required: true
-    },
-    data: {
-      type: Object,
-      required: true
-    }
+const props = defineProps({
+  eqid: {
+    type: String,
+    required: true,
   },
-  data() {
-    return {
-      chart: null
-    };
-  },
-  mounted() {
-    let chart = echarts.init(this.$refs.chart);
-    this.chart = chart;
-    let option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        },
-        formatter: function (params) {
-          let tooltipContent = '';
-          params.forEach(item => {
-            tooltipContent += `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
-                               ${item.seriesName}: ${item.value} 公里<br/>`;
-          });
-          return tooltipContent;
-        }
-      },
-      legend: {
-        textStyle: {
-          color: '#ffffff' // 设置图例文字颜色为白色
-        }
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-      },
-      xAxis: [
-        {
-          type: 'category',
-          data: ['雨城区', '名山区', '荥经县', '汉源县', '石棉县', '天全县', '芦山县', '宝兴县'],
-          axisLabel: {
-            color: '#ffffff' // 设置 X 轴坐标文字颜色为白色
-          }
-        }
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)', // 设置为浅色
-              width: 1 // 设置线宽为1
-            }
-          },
-          axisLabel: {
-            color: '#ffffff' // 设置 Y 轴坐标文字颜色为白色
-          }
-        }
-      ],
-      series: [
-        {
-          name: '已抢救道路损毁公里数',
-          type: 'bar',
-          stack: 'Ad',
-          emphasis: {
-            focus: 'series'
-          },
-          itemStyle: {
-            color: '#4A90E2' // 设置柱体颜色为蓝色
-          },
-          data: [10, 12, 11, 14, 9, 20, 20, 10]
-        },
-        {
-          name: '待抢救道路损毁公里数',
-          type: 'bar',
-          stack: 'Ad',
-          emphasis: {
-            focus: 'series'
-          },
-          itemStyle: {
-            color: '#005193' // 设置柱体颜色为深蓝色
-          },
-          data: [20, 12, 11, 24, 20, 30, 30]
-        }
-      ]
-    };
-    chart.setOption(option);
-  },
-  beforeDestroy() {
-    if (this.chart) {
-      this.chart.dispose();
-    }
+});
+
+const eqid = ref('');
+const latestTime = ref(''); // 时间
+const affectedArea = ref([]); // 地点
+const restoredKm = ref([]); // 已经抢修
+const pendingRepairKm = ref([]); // 等待抢修
+const chart = ref(null);
+let echartsInstance = null; // 全局变量
+const store = useGlobalStore()
+
+setTimeout(()=>{
+  getRoadRepairs(store.globalEqId).then(res => {
+    update(res);
+  });
+},500)
+
+watch(() => props.eqid, (newValue) => {
+  eqid.value = newValue;
+  getRoadRepairs(eqid.value).then(res => {
+    update(res);
+  });
+});
+
+function update(data) {
+  // 如果返回的数组为空，设置默认值
+  if (data.length === 0) {
+    affectedArea.value = ['抱歉暂无数据'];
+    restoredKm.value = [0];
+    pendingRepairKm.value = [0];
+    latestTime.value = '';
+  } else {
+    affectedArea.value = data.map(item => item.affectedArea || '无数据');
+    restoredKm.value = data.map(item => item.restoredKm || 0);
+    pendingRepairKm.value = data.map(item => item.pendingRepairKm || 0);
+    latestTime.value = data.reduce((max, item) => {
+      return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
+    }, data[0].systemInsertTime); // 确保初始值
   }
+
+  echartsInstance.setOption({
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: (params) => {
+        return params.map(item => `
+          <span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
+          ${item.seriesName}: ${item.value} 公里<br/>`).join('');
+      }
+    },
+    xAxis: {
+      data: affectedArea.value
+    },
+    series: [
+      {
+        data: restoredKm.value
+      },
+      {
+        data: pendingRepairKm.value
+      }
+    ]
+  });
+}
+
+const initChart = () => {
+  echartsInstance = echarts.init(chart.value);
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: (params) => {
+        return params.map(item => `
+          <span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
+          ${item.seriesName}: ${item.value} 公里<br/>`).join('');
+      }
+    },
+    legend: {
+      textStyle: {
+        color: '#ffffff'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: affectedArea.value,
+      axisLabel: {
+        color: '#ffffff'
+      }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(255, 255, 255, 0.3)',
+          width: 1
+        }
+      },
+      axisLabel: {
+        color: '#ffffff'
+      }
+    },
+    series: [
+      {
+        name: '已抢救道路损毁公里数',
+        type: 'bar',
+        stack: 'Ad',
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#4A90E2'
+        },
+        data: restoredKm.value
+      },
+      {
+        name: '待抢救道路损毁公里数',
+        type: 'bar',
+        stack: 'Ad',
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#005193'
+        },
+        data: pendingRepairKm.value
+      }
+    ]
+  };
+  echartsInstance.setOption(option);
 };
+
+onMounted(() => {
+  initChart(); // 初始化图表
+});
+
+onBeforeUnmount(() => {
+  echartsInstance?.dispose(); // 释放实例
+});
 </script>
 
 <style scoped>
