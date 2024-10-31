@@ -1,58 +1,65 @@
 <template>
-  <div class="table">
-    <el-table
-        :data="tableData"
-        style="width: 100%; margin-bottom: 2px;height: 18vw"
-        :header-cell-style="tableHeaderColor"
-        :cell-style="tableColor"
-        :row-style="{ height: '37.5px', fontSize: '13px'}"
-        @row-click="go">
-      <el-table-column
-          prop="earthquakeName"
-          label="位置"
-          min-width="115px"
-          show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-          label="发震时间"
-          align="center"
-          min-width="140px"
-          show-overflow-tooltip>
-        <template v-slot="scope">
-          <span>{{ formatTime(scope.row.occurrenceTime) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-          prop="magnitude"
-          align="center"
-          min-width="70px"
-          label="震级(级)">
-        <template #default="scope">
-          {{ Number(scope.row.magnitude).toFixed(1) }}
-        </template>
-      </el-table-column>
-      <el-table-column
-          prop="depth"
-          align="center"
-          min-width="80px"
-          label="深度(千米)"
-          show-overflow-tooltip>
-        <template #default="scope">
-          {{scope.row.depth}}
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="pagination-wrapper">
-      <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          pager-count="3"
-          :total="total"
-          layout="total, prev, pager, next, jumper"
-          class="custom-pagination">
-      </el-pagination>
+  <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
+    <div class="list-dialog__header" >
+      <span >地震列表</span>
+    </div>
+    <div class="list-dialog__content" style="height: calc(100% - 40px);">
+      <div class="table">
+        <el-table
+            :data="tableData"
+            style="width: 100%; margin-bottom: 2px;height: 35.5vw;"
+            :header-cell-style="tableHeaderColor"
+            :cell-style="tableColor"
+            :row-style="{ height: '37.5px', fontSize: '12px'}"
+            @row-click="go">
+          <el-table-column
+              prop="earthquakeName"
+              label="位置"
+              min-width="110px"
+              show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+              label="发震时间"
+              align="center"
+              min-width="135px"
+              show-overflow-tooltip>
+            <template v-slot="scope">
+              <span>{{ formatTime(scope.row.occurrenceTime) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="magnitude"
+              align="center"
+              min-width="70px"
+              label="震级(级)">
+            <template #default="scope">
+              {{ Number(scope.row.magnitude).toFixed(1) }}
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="depth"
+              align="center"
+              min-width="75px"
+              label="深度(千米)"
+              show-overflow-tooltip>
+            <template #default="scope">
+              {{scope.row.depth}}
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="pagination-wrapper">
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="currentPage"
+              :page-size="pageSize"
+              pager-count="3"
+              :total="total"
+              layout="total, prev, pager, next, jumper"
+              class="custom-pagination">
+          </el-pagination>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -60,17 +67,13 @@
 <script setup>
 import {ref, watch} from 'vue';
 import {useRouter} from 'vue-router';
-
 const props = defineProps(['eqData']);
-
 const total = ref(0);
 const pageSize = ref(6);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
-
 const router = useRouter();
-
 watch(() => props.eqData, () => {
   console.log(props.eqData)
   let list = props.eqData.filter(item => item.magnitude >= 3)
@@ -78,12 +81,10 @@ watch(() => props.eqData, () => {
   total.value = list.length;
   tableData.value = getPageArr();
 });
-
 const go = (row) => {
   const route = router.resolve({path: '/thd', query: {eqid: row.eqid}}).href;
   window.open(route, '_blank');
 };
-
 const tableHeaderColor = () => ({
   'border-width':'1px',
   'border-style':'solid',
@@ -101,7 +102,7 @@ const tableColor = ({rowIndex}) => {
   return {
     'border-width':'1px',
     'border-style':'solid',
-    // 'border-color': '#555555',
+    'border-color': '#555555',
     'background-color': backgroundColor,
     'color': '#fff',
     'padding': '0',
@@ -165,37 +166,29 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
   text-align: center;
 }
 
-
-
 /*表格页面样式*/
 :deep(.el-table__inner-wrapper::before) {
   width: 0
 }
-
 :deep(.el-table) {
   --el-table-bg-color : ''
 }
-
 :deep(.el-pagination){
   --el-pagination-item-gap : 6px;
 }
-
 :deep(.el-table--default .cell){
   padding : 0 4px
 }
-
 .pagination-wrapper {
   display: flex;
   justify-content: center;
   margin-top: -5px;
 }
-
 .custom-pagination >>> .el-pagination__total,
 .custom-pagination >>> .el-pagination__jump,
 .custom-pagination >>> .el-pagination__right-wrapper {
   color: white;
   font-size: 13px;
 }
-
-
 </style>
+
