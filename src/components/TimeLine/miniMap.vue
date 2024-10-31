@@ -1,120 +1,98 @@
 <template>
   <div>
-    <div class="small-map" v-show="ifShowMiniMap">
+    <div class="small-map">
       <h2 class="sub-title">
         缩略地图:
-        <span class="icon" @click="closeMiniMap">
-                <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="height: 100%; width: 100%">
-            </span>
       </h2>
       <div id="smallMapContainer"></div>
     </div>
-    <div class="showMiniMapButton" v-show="showLeftButton" @click="openMiniMap">
-      <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 100%;width: 100%">
-    </div>
   </div>
-
 </template>
 
 <script>
 export default {
   name: "miniMap",
-  data(){
-    return{
+  data() {
+    return {
       smallViewer: null,
       showLeftButton: false,
-      ifShowMiniMap: true
-    }
+    };
   },
-  mounted(){
+  mounted() {
   },
   beforeUnmount() {
-    console.log("111",window.viewer)
-    if (window.viewer){
-      let viewer=window.viewer
-      let gl=viewer.scene.context._gl
-      viewer.entities.removeAll()
-      // viewer.scene.primitives.removeAll()
-      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
-      viewer.destroy()
+    console.log("111", window.viewer);
+    if (window.viewer) {
+      let viewer = window.viewer;
+      let gl = viewer.scene.context._gl;
+      viewer.entities.removeAll();
+      viewer.destroy();
       gl.getExtension("WEBGL_lose_context").loseContext();
-      console.log("webglcontext 已清除")
-      gl=null
+      console.log("webglcontext 已清除");
+      gl = null;
       window.viewer = null;
     }
   },
   methods: {
-    closeMiniMap() {
-      this.ifShowMiniMap = false
-      this.showLeftButton = true
-    },
-    openMiniMap() {
-      this.ifShowMiniMap = true
-      this.showLeftButton = false
-    },
-  }
-}
+  },
+};
 </script>
+
 
 <style scoped>
 .small-map {
   width: 27%;
   height: 34%;
   position: absolute;
-  padding: 5px;
+  padding: 10px;
   border-radius: 5px;
-  top: 56%;
+  top: 57.5%;
   right: 1%;
-  z-index: 10; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
+  z-index: 20; /* 提高层级 */
+  background-color: rgb(22, 53, 77,0.9);
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
 }
 
 #smallMapContainer {
-  width: 100%;
+  width: 95%;
   height: 80%;
-  margin-top: 2px;
+  margin-top: 6%;
+  margin-left: 2.5%;
 }
-
 .sub-title {
-  font-family: myFirstFont;
-  font-size: 1.1rem;
-  line-height: 1.4rem;
-  /*padding: 1rem 0 1rem !important;*/
-  color: #ffffff;
-  letter-spacing: 0;
-  text-align: justify;
-  text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
-  border-bottom: 0.1rem solid #ffffff;
+  color: #FFFFFF;
+  font-size: 19px;
+  font-weight: 550;
+  top:0.5%;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
 }
 
-.icon {
-  margin-right: 10px;
+.sub-title:before {
+  content: "";
+  width: 11px;
+  height: 23px;
+  position: relative;
+  top: 7px;
+  margin: 0 10px;
+  display: inline-block;
+  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
-.icon img {
-  max-width: 12px; /* 设置图片最大宽度 */
-  max-height: 12px; /* 设置图片最大高度 */
-  width: auto; /* 自动调整宽度以保持比例 */
-  height: auto; /* 自动调整高度以保持比例 */
-}
-
-.showMiniMapButton {
+.sub-title:after {
+  content: "";
+  width: 90%;
+  height: 6px;
   position: absolute;
-  padding: 4px;
-  border-radius: 2px;
-  top: 390px;
-  right: 10px;
-  z-index: 110; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-  color: white;
-  width: 20px;
-  height: 20px;
-  display: flex;
+  top: 140%;
+  left: 2%;
+  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 .showMiniMapButton img {
