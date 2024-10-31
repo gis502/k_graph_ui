@@ -6,7 +6,7 @@ import request from '@/utils/request';
 
 export function getRoadRepairs(eqid){
     return request({
-        url: '/system/repairs', // 对应的后台接口
+        url: '/system/repair', // 对应的后台接口
         method: 'get',
         params: { eqid } // 传递参数
     });

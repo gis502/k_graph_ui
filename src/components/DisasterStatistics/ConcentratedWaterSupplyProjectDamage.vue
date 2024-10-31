@@ -1,0 +1,158 @@
+<template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
+  <div>
+    <div ref="chart" style="width: 100%; height: 250px;" className="container-left"></div>
+  </div>
+</template>
+
+<script setup>
+
+import * as echarts from "echarts";
+import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import {useGlobalStore} from "../../store";
+import {getWatterSupplyProjectDamage} from "../../api/system/supplySituation";
+const latestTime = ref(''); // 时间
+const earthquakeAreaName = ref([]); // 地点
+const centralizedWaterProjectDamages = ref([]); // 受损数量
+const chart = ref(null);
+const store = useGlobalStore()
+const eqid = ref('');
+let echartsInstance = null; // 全局变量
+
+setTimeout(()=>{
+  getWatterSupplyProjectDamage(store.globalEqId).then(res => {
+    update(res)
+  })
+},500)
+
+const props = defineProps({
+  eqid: {
+    type: String,
+    required: true,
+  },
+});
+
+watch(() => props.eqid, (newValue) => {
+  eqid.value = newValue;
+  getWatterSupplyProjectDamage(eqid.value).then(res => {
+    update(res)
+  })
+});
+
+function formatDate(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (isNaN(date)) return '无效日期'; // 检查日期有效性
+  return date.toISOString().replace('T', ' ').split('.')[0];
+}
+
+function update(data){
+  // 如果返回的数组为空，设置默认值
+  if (data.length === 0) {
+    earthquakeAreaName.value = ['抱歉暂无数据'];
+    centralizedWaterProjectDamages.value = [0];
+    latestTime.value = '';
+  } else {
+    earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || '无数据');
+    centralizedWaterProjectDamages.value = data.map(item => item.centralizedWaterProjectDamage || 0);
+    latestTime.value = data.reduce((max, item) => {
+      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
+    }, formatDate(data[0].systemInsertTime)); // 确保初始值
+  }
+
+  echartsInstance.setOption({
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: (params) => {
+        return params.map(item => `
+          <span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
+          ${item.seriesName}: ${item.value} 处<br/>`).join('');
+      }
+    },
+    xAxis: {
+      data: earthquakeAreaName.value
+    },
+    series: [
+      {
+        data: centralizedWaterProjectDamages.value
+      },
+    ]
+  });
+}
+
+const initChart = () => {
+  echartsInstance = echarts.init(chart.value);
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: (params) => {
+        return params.map(item => `
+          <span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
+          ${item.seriesName}: ${item.value} 处<br/>`).join('');
+      }
+    },
+    legend: {
+      textStyle: {
+        color: '#ffffff'
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: earthquakeAreaName.value,
+      axisLabel: {
+        color: '#ffffff'
+      }
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(255, 255, 255, 0.3)',
+          width: 1
+        }
+      },
+      axisLabel: {
+        color: '#ffffff'
+      }
+    },
+    series: [
+      {
+        name: '集中供水工程受损统计（处）',
+        type: 'bar',
+        stack: 'Ad',
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#4A90E2'
+        },
+        data: centralizedWaterProjectDamages.value
+      },
+    ]
+  };
+  echartsInstance.setOption(option);
+};
+
+onMounted(() => {
+  initChart(); // 初始化图表
+});
+
+onBeforeUnmount(() => {
+  echartsInstance?.dispose(); // 释放实例
+});
+</script>
+
+<style scoped>
+</style>

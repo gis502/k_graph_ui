@@ -276,8 +276,9 @@ const eqlistName = ref('')
 const tableNameOptions = ref([])
 const eqlists = ref([])
 const FieldName = ref([])
-
-
+const multipleTableRef = ref()
+const multipleSelection = ref([])
+const times = [];
 
 /** 监听 */
 watch(flag, (newFlag) => {
@@ -296,9 +297,6 @@ watch(flag, (newFlag) => {
   // getYaanCasualtiesList();
 
 });
-
-const times = [
-];
 
 onMounted(() => {
   getTableField()
@@ -410,10 +408,6 @@ onMounted(() => {
   })
 })
 
-
-
-
-
 const generateColumnConfig = () => {
   return field.value.map((fieldName, index) => {
     const label = name.value[index];
@@ -426,7 +420,6 @@ const generateColumnConfig = () => {
     };
   });
 };
-
 
 /** 获取字段 */
 const getTableField = () => {
@@ -622,17 +615,16 @@ const generateData = _ => {
   return data
 }
 
-
 const data = ref(generateData())
+
 let value = ref([])
 
 
-const multipleTableRef = ref()
-const multipleSelection = ref([])
 
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
+
 const clearSelection = () => {
   multipleTableRef.value?.clearSelection()
 }
@@ -649,7 +641,6 @@ const clearSelection = () => {
   background-size: 100% 100%;
   position: absolute;
   padding-right:40px;
-
 }
 
 .container-center {
