@@ -145,7 +145,9 @@ export default {
         geometry: '位置',
 
         // 来自历史地震
+        type: "震中",
         historyEqTime: '发震时间',
+        earthquakeName: '地震名称',
         position: '位置',
         magnitude: '震级',
         depth: '震源深度'

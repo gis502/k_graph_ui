@@ -1,11 +1,51 @@
 <template>
   <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
-    <div v-if="!showStatus">
+    <div v-if="!showEqStatus">
+      <div class="earthquake-info-panel">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>{{earthquakeInfo.tableName}}</span>
+          </div>
+          <el-descriptions :column="2" size="default" border>
+            <!-- 地震名称 -->
+            <el-descriptions-item label="地震名称">
+              <el-text size="large">
+                {{ earthquakeInfo.earthquakeName || "未知地震" }}
+              </el-text>
+            </el-descriptions-item>
+
+            <!-- 地震发生时间 -->
+            <el-descriptions-item label="发生时间">
+              <el-text size="large">
+                {{ earthquakeInfo.historyEqTime }}
+              </el-text>
+            </el-descriptions-item>
+
+            <!-- 地震震级 -->
+            <el-descriptions-item label="震级">
+              <el-text size="large">
+                {{ earthquakeInfo.magnitude || "无数据" }} 级
+              </el-text>
+            </el-descriptions-item>
+
+            <!-- 经纬度 -->
+            <el-descriptions-item label="经纬度">
+              <el-text size="large">
+                经度: {{ earthquakeInfo.lon || "无数据" }}，纬度: {{ earthquakeInfo.lat || "无数据" }}
+              </el-text>
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </div>
+    </div>
+    <div v-else>
+      <div v-if="!showStatus">
       <div class="header-div">
         <span>
           <span>态势标绘信息</span>
         </span>
       </div>
+        <div class="earthquake-info-panel">
       <el-descriptions :column="2" size="default " border>
         <!-- 标绘名称 -->
         <el-descriptions-item>
@@ -117,6 +157,9 @@
         </el-button>
       </div>
     </div>
+    </div>
+    </div>
+
   </div>
 </template>
 <script>
@@ -133,6 +176,7 @@ export default {
       popupPanelData: {}, // 存储这当前标绘点在situationplot表中的信息
       //--------------------
       showStatus: false,
+      showEqStatus:false,
       plotInfoActivities: [], // 存储当前标绘点的多有situationplotinfo表信息
       activeNames: [], // 对应每个el-collapse-item标签的name，数组中有谁，谁展开。（我使用的index是整型）
       addStatus: false,
@@ -142,7 +186,8 @@ export default {
         info: null,
         id: null,
         aditStatus: true,
-      }
+      },
+      earthquakeInfo:{}
     }
   },
   props: [
@@ -163,16 +208,18 @@ export default {
         // 可能时因为开启深度监听的原因（deep: true）。
         // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
-          console.log(this.popupPanelData)
+          // console.log("1123",this.popupPanelData)
           if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else if (this.popupPanelData.drawtype) {
+          } else if (this.popupPanelData.drawtype ==='point') {
             this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else {
+          } else if (this.popupPanelData.drawtype === 'center'){
+            this.getEqInfo(this.popupPanelData)
+          }else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
-            }else {
+            } else {
               // console.log(this.popupPanelData[0], 987)
               this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
             }
@@ -327,6 +374,7 @@ export default {
     getPlotInfo(plotId,plotType) {
       // console.log("点击获取",plotId,plotType)
       let that = this;
+      that.showEqStatus = true; // 切换地震和标绘信息的显示状态
       // 1. 请求获取标绘点信息
       getPlotInfos({ plotId, plotType }).then(res => {
         console.log("点击获取",res)
@@ -395,6 +443,23 @@ export default {
         console.log("更新",that.plotInfoNew)
       });
     },
+    // 点击震中中心点获取该中心点的标绘信息
+    getEqInfo(eqData){
+      let that = this
+      that.showEqStatus = false; // 切换地震和标绘信息的显示状态
+      console.log("eqData",eqData)
+      let data ={
+        tableName: `${this.timestampToTime(eqData.occurrenceTime, 'date').replace("T"," ")} ${eqData.earthquakeName} ${eqData.magnitude}级地震`,
+        historyEqTime: eqData.occurrenceTime.replace("T"," "),
+        earthquakeName: eqData.earthquakeName,
+        lat: eqData.latitude,
+        lon: eqData.longitude,
+        magnitude: eqData.magnitude,
+      }
+      that.earthquakeInfo = data
+      console.log("更新",that.earthquakeInfo)
+
+    },
     // 删除标注
     deletePoint(bool,id) {
         // console.log("window.selectedEntity.id-----------------",window.selectedEntity.objId)
@@ -443,11 +508,14 @@ export default {
 .cell-item {
   width: 100%;
   text-align: center;
+  white-space: nowrap; /* 避免换行 */
+  overflow: hidden;    /* 隐藏溢出的文本 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
 .collapseFooter {
   float: right;
-  margin: 10px;
+  margin-top: 25px;
 }
 
 .el-input {
@@ -469,6 +537,7 @@ export default {
 
 .box-card {
   margin-bottom: 5px;
+  font-size: 25px;
 }
 
 .videoMonitorWin {
@@ -515,5 +584,23 @@ export default {
   background-color: #4d5469;
   margin-bottom: 2px;
 }
+
+.earthquake-info-panel {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 100%;
+  margin: 10px 10px;
+}
+
+.el-card__header {
+  font-weight: bold;
+}
+
+.el-descriptions__label {
+  font-weight: bold;
+}
+
+
 
 </style>

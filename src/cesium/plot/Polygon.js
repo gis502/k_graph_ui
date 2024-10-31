@@ -423,7 +423,7 @@ export default class Polygon {
   //=======================绘制数据库中的面==================
   // 根据数据库中数据绘制面
   getDrawActivatePolygon(polygonArr) {
-    console.log(polygonArr,765645)
+    // console.log(polygonArr,765645)
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
     // console.log("onlyPlotid",onlyPlotid)
@@ -472,6 +472,7 @@ export default class Polygon {
         }
         window.viewer.entities.add({
           id: onlyPlotidItem,
+          layer: "标绘点",
           polygon: {
             hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
             material: polygon[0].icon,

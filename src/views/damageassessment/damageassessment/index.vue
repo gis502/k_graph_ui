@@ -906,6 +906,14 @@ export default {
       setValues(this.panelData, []);
 
       this.toggleYaanLayer('colorful')
+
+      //视角回雅安
+      const position = Cesium.Cartesian3.fromDegrees(
+          103.0,
+          29.98,
+          500000
+      );
+      viewer.camera.flyTo({destination: position,})
     },
 
     // 跳转至指挥大屏

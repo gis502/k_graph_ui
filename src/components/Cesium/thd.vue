@@ -1,139 +1,240 @@
 <template>
   <div>
     <!--    地震列表切换-->
-    <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
-      <eqTable :eqData="eqtableData"/>
+    <div class="thd-listTable" v-if="activeComponent === 'eqList'">
+      <earthquakeTable :eqData="eqtableData"/>
     </div>
+    <!--  三维模型  -->
+    <div class="thd-listTable"  v-if="activeComponent === 'model'">
+      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
+        <div class="list-dialog__header" >
+          <span >三维模型</span>
+        </div>
+        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+          <el-table :data="modelTableData"
+                    style="width: 100%; margin-bottom: 2px;height: 35vw;"
+                    :header-cell-style="tableHeaderColor"
+                    :row-style="{ height: '37.5px', fontSize: '12px'}"
+                    :cell-style="tableColor" @row-click="">
 
+            <el-table-column prop="name" label="模型名称" width="auto" min-width="130px" show-overflow-tooltip></el-table-column>
+            <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
+
+              <template #default="scope">
+                <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div>
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="modelCurrentPage"
+                :page-size="modelPageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="ModelTotal">
+            </el-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
     <!--   图层要素-->
-    <div v-if="activeComponent === 'layerChoose'" class="dropdown expanded">
-      <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-        <el-checkbox
-            v-for="item in layeritems"
-            :key="item.id"
-            :label="item.name"
-            style="margin:0 0;"
-        >
-          {{ item.name }}
-        </el-checkbox>
-      </el-checkbox-group>
-      <div @click="toggleExpand"
-           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-      </div>
-    </div>
-
-    <div v-if="activeComponent === 'thematicMapDownload'" class="dropdown expanded">
-      <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
-        <el-radio
-            v-for="item in thematicMapitems"
-            :key="item.id"
-            :label="item.name"
-            style="margin: 0 0;color:white"
-        >
-          {{ item.name }}
-        </el-radio>
-      </el-radio-group>
-      <div @click="toggleExpand"
-           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-      </div>
-    </div>
-    <div v-if="activeComponent === 'reportDownload'" class="dropdown expanded">
-      <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
-        <el-radio
-            v-for="item in reportItems"
-            :key="item.id"
-            :label="item.name"
-            style="margin: 0 0;color:white"
-        >
-          {{ item.name }}
-        </el-radio>
-      </el-radio-group>
-      <div @click="toggleExpand"
-           style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-      </div>
-    </div>
-
-    <!--    行政区划-->
-    <div v-if="activeComponent === 'Regionjump'" class="dropdown expanded">
-      <div class="district-buttons">
-        <div class="city-button">
-          <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+    <!--    <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">-->
+    <!--      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900;">-->
+    <!--        <div class="list-dialog__header">-->
+    <!--          <span>图层要素</span>-->
+    <!--        </div>-->
+    <!--        <div class="list-dialog__content" style="height: calc(100% - 40px);">-->
+    <!--          <el-tree-->
+    <!--              v-model="selectedlayersLocal"-->
+    <!--              :data="layerTree"-->
+    <!--              show-checkbox-->
+    <!--              node-key="id"-->
+    <!--              ref="layerTree"-->
+    <!--              default-expand-all-->
+    <!--              highlight-current-->
+    <!--              :props="defaultProps"-->
+    <!--              @check-change="handleLayerTreeChange">-->
+    <!--          </el-tree>-->
+    <!--          <div @click="toggleExpand" style="text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+    <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
+      <div class="list-dialog" style="width: 100%; height: 100%; z-index: 900;">
+        <div class="list-dialog__header">
+          <span>图层要素</span>
         </div>
-        <div class="city-button">
-          <el-button @click="backcenter">回到震中</el-button>
-        </div>
-      </div>
-      <!-- 下属区县按钮 -->
-      <div class="district-buttons">
-        <div v-for="district in districts" :key="district.adcode" class="district-button">
-          <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
+        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+          <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
+            <el-checkbox
+                v-for="item in layeritems"
+                :key="item.id"
+                :label="item.name"
+                style="margin: 0 0;"
+            >
+              {{ item.name }}
+            </el-checkbox>
+          </el-checkbox-group>
+
+          <!-- 行政区划按钮 -->
+          <div class="district-buttons" style="margin-top: 20px;">
+            <div class="city-button">
+              <el-button @click="addYaanImageryDistrict">雅安市</el-button>
+            </div>
+            <div class="city-button">
+              <el-button @click="backcenter">回到震中</el-button>
+            </div>
+          </div>
+          <!-- 下属区县按钮 -->
+          <div class="district-buttons">
+            <div v-for="district in districts" :key="district.adcode" class="district-button">
+              <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
+            </div>
+          </div>
+
+          <div @click="toggleExpand" style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+          </div>
         </div>
       </div>
     </div>
 
-    <div v-if="activeComponent === 'model'">
-
-      <el-form class="button-container">
-<!--        <div class="modelAdj">模型选择</div>-->
-<!--        <div class="modelAdj" @click="findModel">找到模型</div>-->
-        <el-table :data="modelTableData"
-                  style="width: 100%; margin-bottom: 0px;"
-                  :header-cell-style="tableHeaderColor"
-                  :cell-style="tableColor" @row-click="">
-
-          <el-table-column prop="name" label="模型名称" width="auto"></el-table-column>
-          <el-table-column label="操作" width="auto" align="center">
-
-            <template #default="scope">
-              <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div>
-          <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="modelCurrentPage"
-              :page-size="modelPageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="ModelTotal">
-          </el-pagination>
+    <!-- 专题图产出 -->
+    <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
+      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
+        <div class="list-dialog__header" >
+          <span >专题图产出</span>
         </div>
-      </el-form>
-
+        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+          <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
+            <el-radio
+                v-for="item in thematicMapitems"
+                :key="item.id"
+                :label="item.name"
+                style="margin: 0 0;color:white"
+            >
+              {{ item.name }}
+            </el-radio>
+          </el-radio-group>
+          <div @click="toggleExpand"
+               style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--  报告导出  -->
+    <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
+      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
+        <div class="list-dialog__header" >
+          <span >专题图产出</span>
+        </div>
+        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+          <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
+            <el-radio
+                v-for="item in reportItems"
+                :key="item.id"
+                :label="item.name"
+                style="margin: 0 0;color:white"
+            >
+              {{ item.name }}
+            </el-radio>
+          </el-radio-group>
+          <div @click="toggleExpand"
+               style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!--    title-->
-    <div class="eqtitle">
-      <span
-          class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
-          this.eqday
-        }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</span>
-    </div>
-    <!--    title end-->
+    <div class="mars-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
+      <div class="mars-dialog__content" style="height: 100%;">
+        <div class="logo-title">
+          <div class="logo-title-content" style="padding: 0 0 15px 0;">
+            <p >雅安市地震应急<br>信息服务技术支持平台</p></div>
+        </div>
+        <div class="logo-menu menue-left">
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('dataStats') }"
+              title="数据统计"
+              @click="toggleComponent('dataStats')"
+          >
+            <p>数据统计</p>
+          </div>
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('eqList') }"
+              title="地震列表"
+              @click="toggleComponent('eqList')"
+          >
+            <p>地震列表</p>
+          </div>
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('model') }"
+              title="三维模型"
+              @click="toggleComponent('model')"
+          >
+            <p>三维模型</p>
+          </div>
+        </div>
+        <div class="logo-menu menue-right">
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('layerChoose') }"
+              title="图层要素"
+              @click="toggleComponent('layerChoose')"
+          >
+            <p>图层要素</p>
+          </div>
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
+              title="专题图产出"
+              @click="toggleComponent('thematicMapDownload')"
+          >
+            <p>专题图产出</p>
+          </div>
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('reportDownload') }"
+              title="报告导出"
+              @click="toggleComponent('reportDownload')"
+          >
+            <p>报告导出</p>
+          </div>
+          <div
+              class="logo-menu-tittle"
+              :class="{ 'logo-menu-active': isActive('frontPage') }"
+              title="返回首页"
+              @click="navigateToFrontPage"
+          >
+            <p>返回首页</p>
+          </div>
+        </div>
 
-    <div>
-      <el-menu
-          class="el-menu-vertical-demo"
-          mode="horizontal"
-          background-color="#293038"
-          text-color="#fff"
-          active-text-color="#537BB7FF"
-          style="position: absolute;
-                  top: 4.3%;z-index: 20;
-                  height: 45px;width: 25%;
-                  margin: 0;padding: 0;
-                  left: 1%;border-radius:3px;text-align: center"
-      >
+        <div class="logo-left-weather">
+          <div class="logo-left-eqtitle" style="font-size:17px;font-weight: 600;">
+            {{ this.eqyear }}年{{ this.eqmonth }}月{{this.eqday }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</div>
+          <!-- 以下是实时获取时间的代码 -->
+          <div class="logo-left-time">
+            <div class="logo-time-hour">
+            <span class="mars-icon">
+              <svg width="20" height="20" viewBox="0 0 48 48">
+                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="#BEE1FF" stroke-width="4"></path>
+                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4" stroke-linecap="round"></path>
+              </svg>
+            </span>
+              <span id="current-time">--:--:--</span>
+            </div>
+            <div class="logo-time-year" id="current-date">----</div>
+          </div>
 
-        <el-menu-item index="1" @click="toggleComponent('eqList')" style="width: 90px;">地震列表</el-menu-item>
-        <el-menu-item index="2" @click="toggleComponent('layerChoose')" style="width: 90px;">图层要素</el-menu-item>
-        <el-menu-item index="3" @click="toggleComponent('Regionjump')" style="width: 90px;">视角跳转</el-menu-item>
-        <el-menu-item index="4" @click="toggleComponent('model')" style="width: 90px;">模型加载</el-menu-item>
-        <el-menu-item index="5" @click="toggleComponent('reportDownload')" style="width: 90px;">分析图件产出</el-menu-item>
-        <el-menu-item index="6" @click="toggleComponent('thematicMapDownload')" style="width: 90px;">专题图下载</el-menu-item>
-        <el-menu-item index="7" @click="navigateToFrontPage">返回首页</el-menu-item>
-      </el-menu>
+        </div>
+        <div class="logo-right-time">
+        </div>
+      </div>
     </div>
 
     <!--    box包裹地图，截图需要-->
@@ -206,20 +307,24 @@
     <!-- 进度条 end-->
 
     <!--    两侧组件-->
+    <div v-show="showSidebarComponents">
     <!--   应急响应-左上   -->
     <timeLineEmergencyResponse
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--  新闻-右上  -->
     <div>
@@ -228,6 +333,7 @@
           :currentTime="currentTime"
           @ifShowDialog="ifShowDialog"
           @detailedNews="detailedNews"
+          @addJumpNodes="addJumpNodes"
       ></news>
     </div>
     <!--      新闻弹框-->
@@ -247,9 +353,10 @@
         :activeComponent="activeComponent"
         @toggleComponent="toggleComponent"
     ></timeLineLegend>
+    </div>
     <!--    两侧组件 end-->
-
-
+    <!--展示弹框伤亡统计-->
+    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -304,6 +411,8 @@ import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县
 import commonPanel from "@/components/Cesium/CommonPanel";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import eqTable from '@/components/Home/eqtable.vue'
+import earthquakeTable from "@/components/Home/earthquakeTable.vue";
+import modelTable from '@/components/Home/modelTable.vue'
 
 import yaan from '@/assets/geoJson/yaan.json'
 
@@ -313,14 +422,13 @@ import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSupplies
 import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
-
+import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
 
 //专题图
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
-
 
 //模型调整
 import {Edit, Delete} from '@element-plus/icons-vue'
@@ -332,7 +440,6 @@ import {
   updataModelNoElevation,
   updataModelElevation
 } from '@/api/system/model.js'
-
 import {
   goModel,
   watchTerrainProviderChanged,
@@ -362,6 +469,9 @@ export default {
     commonPanel,
     dataSourcePanel,
     eqTable,
+    layeredShowPlot,
+    earthquakeTable,
+    modelTable,
   },
   data: function () {
     return {
@@ -445,7 +555,8 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-
+      jumpTimes:[],
+      jumpNodes:{},
       smallViewer: null,
 
       //-------------ws---------------------
@@ -480,7 +591,8 @@ export default {
       labels: [],  // 保存标签实体的引用
       regionLayerJump: null,
 
-      activeComponent: null,
+      activeComponent: 'dataStats',// 默认为数据统计
+      showSidebarComponents: true,  // 控制两侧组件显示状态
       //-----------------图层要素---------------------
       isExpanded: false,
       layeritems: [
@@ -494,6 +606,39 @@ export default {
         {id: '7', name: '历史地震要素图层'},
         {id: '8', name: '断裂带要素图层'},
       ],
+      // layerTree: [
+      //   {
+      //     id: '0',
+      //     label: '图层要素',
+      //     children: [
+      //       {id: '0-0', label: '标绘点图层'},
+      //       {id: '0-1', label: '行政区划要素图层'},
+      //       {id: '0-2', label: '人口密度要素图层'},
+      //       {id: '0-3', label: '交通网络要素图层'},
+      //       {id: '0-4', label: '避难场所要素图层'},
+      //       {id: '0-5', label: '救援队伍分布要素图层'},
+      //       {id: '0-6', label: '应急物资存储要素图层'},
+      //       {id: '0-7', label: '历史地震要素图层'},
+      //       {id: '0-8', label: '断裂带要素图层'},
+      //       {id: '0-9', label: '烈度圈要素图层'},
+      //     ]
+      //   },
+      //   {
+      //     id: '1',
+      //     label: '视角跳转',
+      //     children: [
+      //       {id: '1-0', label: '人口密度要素图层'},
+      //       {id: '1-1', label: '交通网络要素图层'},
+      //       {id: '1-2', label: '避难场所要素图层'},
+      //       {id: '1-3', label: '救援队伍分布要素图层'},
+      //       {id: '1-4', label: '应急物资存储要素图层'}
+      //     ]
+      //   },
+      // ],
+      // defaultProps: {
+      //   children: 'children',
+      //   label: 'label'
+      // },
       selectedlayersLocal: ['标绘点图层'],
       isMarkingLayerLocal: true,
       disasterReserves: [],
@@ -542,7 +687,10 @@ export default {
         tze: null,
         time: null,
         modelid: null
-      }
+      },
+      //----------------------------------
+      zoomLevel: '市' , // 初始化缩放层级
+      pointsLayer :[], //传到子组件
     };
   },
   created() {
@@ -553,16 +701,24 @@ export default {
   },
   mounted() {
     this.init()
+    this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
-
     this.initPlot(); // 初始化加载应急数据
-
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
-
+    // 确保 tree 渲染完成后再设置选中的图层
+    this.$nextTick(() => {
+      const tree = this.$refs.layerTree;
+      if (tree) {
+        tree.setCheckedKeys(['0-0']); // 用“标绘点图层”的 ID 替换
+        this.handleLayerTreeChange(); // 触发选中变化处理
+      } else {
+        console.warn('layerTree ref is not defined.');
+      }
+    });
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -627,7 +783,7 @@ export default {
     /**
      * 跳转首页
      */
-    navigateToFrontPage(){
+    navigateToFrontPage() {
       this.$router.push({
         name: 'Index'
       });
@@ -646,6 +802,13 @@ export default {
       // 清除选择的主题地图
       this.selectthematicMap = null;
 
+      if (component === 'dataStats') {
+        // 切换 showSidebarComponents 以显示/隐藏两侧组件
+        this.showSidebarComponents = !this.showSidebarComponents;
+      } else {
+        // 当点击其他按钮时，隐藏两侧组件
+        this.showSidebarComponents = false;
+      }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
 
@@ -658,16 +821,23 @@ export default {
         const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
         // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
         if (hasYaanRegionLayer) {
-
           this.addYaanRegion();
         }
       }
+    },
+    isActive(component) {
+      return this.activeComponent === component; // 检查是否为活动组件
     },
     // 初始化控件等
     init() {
       // console.log(this.eqid)
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      // 监听相机高度并更新 zoomLevel
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       // this.viewer=window.viewer
       let options = {}
@@ -718,59 +888,98 @@ export default {
 
       // 创建缩略图视图器实例
       let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = new Cesium.Viewer(smallMapContainer, {
-        shouldAnimate: false,
-        animation: false, // 是否创建动画小器件，左下角仪表
-        baseLayerPicker: false, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
-        fullscreenButton: false, // 是否显示全屏按钮
-        geocoder: false, // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
-        homeButton: false, // 是否显示Home按钮
-        infoBox: false, // 是否显示信息框
-        sceneModePicker: false, // 是否显示3D/2D选择器
-        selectionIndicator: false, // 是否显示选取指示器组件
-        timeline: false, // 是否显示时间轴
-        navigationHelpButton: false, // 是否显示右上角的帮助按钮
-        scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
-        //截图和渲染相关的一些配置
-        contextOptions: {
-          webgl: {
-            alpha: true,
-            depth: false,
-            stencil: true,
-            antialias: true,
-            premultipliedAlpha: true,
-            //cesium状态下允许canvas转图片convertToImage
-            preserveDrawingBuffer: true,
-            failIfMajorPerformanceCaveat: true
-          },
-          allowTextureFilterAnisotropic: true
-        },
-        // 本地geoserver影像
-        imageryProvider:
-            new Cesium.WebMapTileServiceImageryProvider({
-              url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + TianDiTuToken,
-              layer: "tdtVecBasicLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-              show: false
-            }),
-        terrainProvider: new Cesium.CesiumTerrainProvider({
-          url: "http://localhost:9080/geoserver/www/dem",
-        }),
-
-      })
+      let smallViewer = initCesium(Cesium, smallMapContainer)
       window.smallViewer = smallViewer
-      window.smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + TianDiTuToken,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
+      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
+      let smallOptions = {}
+      smallOptions.enableCompass = false
+      smallOptions.enableZoomControls = false
+      smallOptions.enableDistanceLegend = false
+      smallOptions.enableCompassOuterRing = false
+      smallOptions.geocoder = false
+      smallOptions.homeButton = false
+      smallOptions.sceneModePicker = false
+      smallOptions.timeline = false
+      smallOptions.navigationHelpButton = false
+      smallOptions.animation = false
+      smallOptions.infoBox = false
+      smallOptions.fullscreenButton = false
+      smallOptions.showRenderState = false
+      smallOptions.selectionIndicator = false
+      smallOptions.baseLayerPicker = false
+      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
+      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
+      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
+      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
+      //   // 隐藏所有控件
+      //   geocoder: false,
+      //   homeButton: false,
+      //   sceneModePicker: false,
+      //   timeline: false,
+      //   navigationHelpButton: false,
+      //   animation: false,
+      //   infoBox: false,
+      //   fullscreenButton: false,
+      //   showRenderState: false,
+      //   selectionIndicator: false,
+      //   baseLayerPicker: false,
+      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
+      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
+      // });
+      // let smallViewer = new Cesium.Viewer(smallMapContainer, {
+      //   shouldAnimate: false,
+      //   animation: false, // 是否创建动画小器件，左下角仪表
+      //   baseLayerPicker: false, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
+      //   fullscreenButton: false, // 是否显示全屏按钮
+      //   geocoder: false, // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
+      //   homeButton: false, // 是否显示Home按钮
+      //   infoBox: false, // 是否显示信息框
+      //   sceneModePicker: false, // 是否显示3D/2D选择器
+      //   selectionIndicator: false, // 是否显示选取指示器组件
+      //   timeline: false, // 是否显示时间轴
+      //   navigationHelpButton: false, // 是否显示右上角的帮助按钮
+      //   scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
+      //   //截图和渲染相关的一些配置
+      //   contextOptions: {
+      //     webgl: {
+      //       alpha: true,
+      //       depth: false,
+      //       stencil: true,
+      //       antialias: true,
+      //       premultipliedAlpha: true,
+      //       //cesium状态下允许canvas转图片convertToImage
+      //       preserveDrawingBuffer: true,
+      //       failIfMajorPerformanceCaveat: true
+      //     },
+      //     allowTextureFilterAnisotropic: true
+      //   },
+      //   // 本地geoserver影像
+      //   imageryProvider:
+      //       new Cesium.WebMapTileServiceImageryProvider({
+      //         url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + TianDiTuToken,
+      //         layer: "tdtVecBasicLayer",
+      //         style: "default",
+      //         format: "image/jpeg",
+      //         tileMatrixSetID: "GoogleMapsCompatible",
+      //         show: false
+      //       }),
+      //   terrainProvider: new Cesium.CesiumTerrainProvider({
+      //     url: "http://localhost:9080/geoserver/www/dem",
+      //   }),
+      //
+      // })
+      // window.smallViewer = smallViewer
+      // window.smallViewer.imageryLayers.addImageryProvider(
+      //     new Cesium.WebMapTileServiceImageryProvider({
+      //       url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + TianDiTuToken,
+      //       layer: "tdtAnnoLayer",
+      //       style: "default",
+      //       format: "image/jpeg",
+      //       tileMatrixSetID: "GoogleMapsCompatible"
+      //     })
+      // );
+      // smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
       // 隐藏缩略图视图器的版权信息
       smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
@@ -817,7 +1026,6 @@ export default {
         //震中标绘点
         this.centerPoint = res
         // console.log(res)
-        // console.log(res)
         // 设置中心点的标识和时间信息
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
@@ -848,7 +1056,7 @@ export default {
         // 获取地震数据并更新地图和变量
         this.getEq()
         this.checkIfOvalCircleLayer();
-        this.updateMapandVariablebeforInit()
+        this.updateMapandVariablebeforInit(this.centerPoint)
 
       })
 
@@ -880,7 +1088,7 @@ export default {
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
-    updateMapandVariablebeforInit() {
+    updateMapandVariablebeforInit(data) {
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
@@ -896,14 +1104,14 @@ export default {
       });
       //加载中心点
       viewer.entities.add({
-        // properties: {
-        //   type: "震中",
-        //   time: this.centerPoint.time,
-        //   name: this.centerPoint.position,
-        //   lat: this.centerPoint.latitude,
-        //   lon: this.centerPoint.longitude,
-        //   describe: this.centerPoint.position,
-        // },
+        properties: {
+          tableName: `${this.timestampToTime(data.occurrenceTime, 'date')} ${data.earthquakeName} ${data.magnitude}级地震`,
+          historyEqTime: data.occurrenceTime.replace("T", " "),
+          earthquakeName: data.earthquakeName,
+          lat: data.latitude,
+          lon: data.longitude,
+          magnitude: data.magnitude,
+        },
         position: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
@@ -1016,6 +1224,8 @@ export default {
               this.currentTime = this.eqendTime
               this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
               this.currentNodeIndex = this.timelineAdvancesNumber
+              this.jumpNodes[this.timelineAdvancesNumber]=0;
+
             }, 5000);
           }
 
@@ -1057,7 +1267,6 @@ export default {
             this.plotisshow[item.plotId] = 0;
           }
         })
-
         // 删除的点删除  （删）
         // 创建一个当前绘图ID的集合
         const currentPlotIds = new Set(res.map(item => item.plotId));
@@ -1085,16 +1294,27 @@ export default {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
+          var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          // console.log(jumpnode1)
+          this.jumpNodes[jumpnode1]=1
+          var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          // console.log(jumpnode1)
+          this.jumpNodes[jumpnode2]=1
         })
         // 更新绘图
         this.updatePlot(false)
+        let pointArr = this.plots.filter(e => e.drawtype === 'point')
+        this.pointsLayer = [...pointArr]
+        console.log("获取",this.pointsLayer)
       })
     },
+
     /*
     * 更新标绘点
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
+      // console.log("2")
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -1105,7 +1325,6 @@ export default {
       // 过滤出绘制类型为点的plots
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
       console.log("点渲染", pointArr)
-
       let points = [];
       // 遍历点数组，处理每个点的绘制或删除
       pointArr.forEach(item => {
@@ -1141,14 +1360,20 @@ export default {
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
-            console.log("entityToRemove", entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
-            if (ellipseEntityToRemove) {
-              window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+
+            const entityDonghua = window.viewer.entities.getById(item.plotId);
+            if (entityDonghua) {
+              window.viewer.entities.remove(entityDonghua); // 移除点
             }
+            // if(window.labeldataSource) {
+            const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+            if (entitylabel) {
+              window.labeldataSource.entities.remove(entitylabel); // 移除点
+            }
+
           }
         }
       });
@@ -1157,7 +1382,6 @@ export default {
         let param = bool === false ? false : true
         cesiumPlot.drawPoints(points, param);
       }
-
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
@@ -1276,6 +1500,15 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+
+      this.jumpTimes.forEach(item => {
+        // console.log(new Date(item),new Date(this.eqstartTime.getTime()))
+        var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+        // console.log("jumpnode",jumpnode)
+        this.jumpNodes[jumpnode]=1
+      })
+      this.zoomLevel ="1"
+      console.log("this.jumpNodes",this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
 
@@ -1289,7 +1522,7 @@ export default {
       // 每隔100毫秒更新一次当前时间
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      }, 100);
+      }, 500);
     },
     //updateCurrentTime 循环执行
 
@@ -1301,23 +1534,44 @@ export default {
      */
     updateCurrentTime() {
       // 根据当前速度和节点索引计算新的节点索引，实现时间的前进
-      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-      // 计算时间进度条的当前位置增量
-      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
-      this.currentTimePosition += tmp;
+      // 找到下一个值为1的节点索引
+      let nextNodeIndex = null;
+      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+        if (this.jumpNodes[i] === 1) {
+          nextNodeIndex = i;
+          break;
+        }
+      }
 
-      // 检查是否达到或超过终点
-      if (this.currentTimePosition >= 100) {
-        // 达到终点时的处理
+      // 停止
+      if (nextNodeIndex === null) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.stopTimer();
         this.isTimerRunning = false
-        this.intimexuanran(this.eqid)
-        // this.xuanran(this.eqid)
-      } else {
+      }
+      //更新到下一跳
+      else{
+        // this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+        // 计算时间进度条的当前位置增量
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
+
+        // 检查是否达到或超过终点
+        // if (this.currentTimePosition >= 100) {
+        //   // 达到终点时的处理
+        //   this.currentTimePosition = 100;
+        //   this.currentTime = this.eqendTime
+        //   this.stopTimer();
+        //   this.isTimerRunning = false
+        //   this.intimexuanran(this.eqid)
+        //   // this.xuanran(this.eqid)
+        // }
+        // else {
         // 未达到终点时的处理
-        this.currentTimePosition = this.currentTimePosition % 100
+        // this.currentTimePosition = this.currentTimePosition % 100
         // 根据当前节点索引计算实际时间
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // 根据是否需要显示标绘层来更新图层
@@ -1566,6 +1820,7 @@ export default {
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
         // 检查点击位置是否拾取到实体
         let pickedEntity = window.viewer.scene.pick(click.position);
+        console.log("点击选择的pickedEntity", pickedEntity)
         window.selectedEntity = pickedEntity?.id;
 
         // 获取故障信息的 div 元素
@@ -1614,7 +1869,7 @@ export default {
 
 
           // 如果点击的是标绘点
-          if (entity._layer === "标绘点") {
+          if (entity._layer === "标绘点" && entity._id !== "center") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.timelinePopupData = {}
@@ -1632,6 +1887,7 @@ export default {
             this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
           } else if (Object.prototype.toString.call(entity) === '[object Array]') {
+
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
             this.timelinePopupVisible = false
@@ -2180,12 +2436,19 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
+
     /*
     * 更新地图图层
     * 点击图层复选框时在地图上展示相应的图层数据
     * */
+    handleLayerTreeChange(data, checked, indeterminate) {
+      console.log('①this.selectedlayersLocal',this.selectedlayersLocal)
+      this.selectedlayersLocal = this.$refs.layerTree.getCheckedNodes().map(node => node.label);
+      console.log('赋值后this.selectedlayersLocal',this.selectedlayersLocal)
+      this.updateMapLayers();
+    },
     updateMapLayers() {
-      // this.initPlot()
+      this.zoomLevel = "1"
       // 检查选中的图层中是否包含标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       // 如果包含标绘点图层
@@ -2781,13 +3044,18 @@ export default {
         }, 1000); // 1000 毫秒后执行
       }
     },
-
+    addJumpNodes(val){
+      val.forEach(item => {
+        this.jumpTimes.push(item)
+      })
+    },
     //模型调整
     initModelTable() {
       getAllModel().then(res => {
         this.modelList = res
         this.ModelTotal = res.length
         this.modelTableData = this.getPageArr(this.modelList)
+
         // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
       })
     },
@@ -2870,35 +3138,175 @@ export default {
     handleCurrentChange(val) {
       this.modelCurrentPage = val
       this.modelTableData = this.getPageArr(this.modelList)
-    }
+    },
     //model style end
+    /*获取目前相机所属高度*/
+    updateZoomLevel(cameraHeight) {
+      console.log("层级",cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if(cameraHeight > 8000){
+        this.zoomLevel = '乡/镇'
+      }else{
+        this.zoomLevel = '村'
+      }
+    },
 
+    //   菜单栏左上角实时获取时间代码
+    startRealTimeClock(timeElementId, dateElementId) {
+      function updateTime() {
+        const now = new Date();
+        const time = now.toLocaleTimeString('zh-CN', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        const date = now.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          weekday: 'long'
+        });
+        document.getElementById(timeElementId).textContent = time;
+        document.getElementById(dateElementId).textContent = date;
+      }
+
+      updateTime();
+      setInterval(updateTime, 1000);
+    }
   }
 }
 </script>
 
 <style scoped>
 
-
-.eqtitle {
-  background-color: #0d325f;
-  width: 100%;
-  height: 33px;
+.logo-title {
+  height: 100%;
+  background-image: url(@/assets/images/CommandScreen/菜单底图.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.logo-title-content {
+  color: #fff;
+  width: 680px;
+  height: 100%;
+  margin: auto;
+  font-size: 27px;
+  font-weight: 700;
   display: flex;
+  justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
-  font-weight: bold; /* 文字加粗 */
+  text-align: center; /* 多行文本居中 */
+  background-image: url(@/assets/images/CommandScreen/菜单标题.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  overflow: hidden; /* 隐藏滚动条 */
 }
 
-.eqtitle-text_eqname {
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  margin-left: 30px;
-  margin-right: 60%;
+@media screen and (max-width: 1645px) {
+  .logo-title-content {
+    width: 434px !important;
+    padding-top: 29px !important;
+    padding-right: 45px !important;
+    font-size: 19px !important;
+  }
+}
+@media screen and (max-width: 1835px) {
+  .logo-title-content {
+    width: 580px !important;
+  }
+}
+.menue-left {
+  left: 176px;
+}
+.logo-menu .logo-menu-active {
+  background-image: url(@/assets/images/CommandScreen/橙色按钮.png);
+}
+.logo-menu-tittle {
+  color: #fff;
+  width: 141px;
+  height: 41px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(@/assets/images/CommandScreen/蓝色按钮.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+@media screen and (max-width: 1490px) {
+  .logo-menu-tittle {
+    width: 92px !important;
+  }
+}
+@media screen and (max-width: 1835px) {
+  .logo-menu-tittle {
+    width: 125px !important;
+    font-size: 18px !important;
+  }
+}
+.logo-menu {
+  position: absolute;
+  top: 13px;
+  display: flex;
+}
+.menue-right {
+  right: 50px;
+}
+.logo-left-weather {
+  color: #fff;
+  position: absolute;
+  top: 5px;
+  left: 9px;
+}
+.logo-left-time {
+  position: absolute;
+  top: 28px;
+}
+.logo-right-time {
+  position: absolute;
+  top: 18px;
+  right: 26px;
+}
+.logo-time-hour {
+  font-size: 19px;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0px 2px 6px #123756;
+  background: linear-gradient(0deg, #bee1ff, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.mars-dialog .mars-dialog__content{
+  height: 100%;
+  overflow: auto;
+  background-color: #1d3043 ;
+}
+.mars-dialog {
+  height: 6.5rem;
+}
+.mars-icon {
+  margin-right: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.logo-time-year {
+  font-size: 14px;
+  font-weight: 500;
+  color: #cdcdcd;
 }
 
+
+.el-tree {
+  background-color: rgba(255, 255, 255, 0);
+  color: #FFFFFF;
+}
 #box {
-  height: calc(100vh - 33px);
+  height: calc(100vh - 104px);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -3107,13 +3515,12 @@ export default {
   left: 20%;
 }
 
-.thd-eqtable {
-  background-color: #324257;
-  width: 30%;
-  top: 10%;
-  height: 43%;
+.thd-listTable {
+  width: 23.5%;
+  top: 13%;
+  height: 79%;
   z-index: 30;
-  left: 1%;
+  right: 0.3%;
   position: absolute;
 }
 
@@ -3207,17 +3614,6 @@ export default {
 }
 
 
-.button-container {
-  width: 25%;
-  position: absolute;
-  padding: 10px;
-  border-radius: 5px;
-  top: 11%;
-  left: 1%;
-  z-index: 30; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 1);
-}
-
 .modelAdj {
   color: #FFFFFF;
   margin-bottom: 5px;
@@ -3238,5 +3634,53 @@ export default {
 
 :deep(.el-pagination>.is-last) {
   color: #FFFFFF;
+}
+/* 更改搜索、切换地形图组件位置*/
+:deep(.cesium-viewer-toolbar) {
+  display: block;
+  position: absolute;
+  top: 87%;
+  left: 1%;
+}
+.list-dialog .list-dialog__header {
+  height: 41px;
+  width: 100%;
+  line-height: 41px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  padding: 0 5px 0 10px;
+  position: relative;
+  top: 0;
+  left: 0;
+  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
+  background-size: 100% 100%;
+}
+.list-dialog {
+  height: 100%;
+  width: 100%;
+  background-color: rgb(22, 53, 77,0.9);
+  padding: 0!important;
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
+}
+.list-dialog .list-dialog__content {
+  height: 100%;
+  padding: 11px;
+  overflow: auto;
+  border-radius: 4px;
+}
+.table {
+  width: 100%;
+  height: 98%;
+  margin-bottom: 8px;
+  text-align: center;
+}
+:deep(.el-table__body-wrapper) {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background-color: rgb(23, 54, 76);
 }
 </style>

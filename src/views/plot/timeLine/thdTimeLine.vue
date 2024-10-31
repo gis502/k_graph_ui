@@ -8,15 +8,31 @@
       <eqTable :eqData="tableData"/>
     </div>
 
-
-
-
     <!--    title-->
-    <div class="eqtitle">
-      <span
-          class="eqtitle-text_eqname">{{ this.eqyear }}年{{ this.eqmonth }}月{{
-          this.eqday
-        }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</span>
+    <div class="mars-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
+      <div class="mars-dialog__content" style="height: 100%;">
+        <div class="logo-title">
+          <div class="logo-title-content" style="padding: 0 0 15px 0;">
+            <p >{{ this.eqyear }}年{{ this.eqmonth }}月{{this.eqday }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</p></div>
+        </div>
+
+        <div class="logo-left-weather">
+          <!-- 以下是实时获取时间的代码 -->
+            <div class="logo-time-hour">
+            <span class="mars-icon">
+              <svg width="20" height="20" viewBox="0 0 48 48">
+                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="#BEE1FF" stroke-width="4"></path>
+                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4" stroke-linecap="round"></path>
+              </svg>
+            </span>
+              <span id="current-time">--:--:--</span>
+            </div>
+            <div class="logo-time-year" id="current-date">----</div>
+
+        </div>
+        <div class="logo-right-time">
+        </div>
+      </div>
     </div>
     <!--    title end-->
 
@@ -27,11 +43,13 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-        <!-- TimeLinePanel 弹窗 -->
-        <TimeLinePanel
+        <commonPanel
             :visible="timelinePopupVisible"
             :position="timelinePopupPosition"
             :popupData="timelinePopupData"
+            :ifedit="false"
+            @wsSendPoint="wsSendPoint"
+            @closePlotPop="closePlotPop"
         />
         <dataSourcePanel
             :visible="dataSourcePopupVisible"
@@ -68,12 +86,12 @@
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <span class="speedButton">{{ speedOption }}</span>
-        <div class="chooseSpeed">
-          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-            {{ option }}
-          </option>
-        </div>
+        <!--        <span class="speedButton">{{ speedOption }}</span>-->
+        <!--        <div class="chooseSpeed">-->
+        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+        <!--            {{ option }}-->
+        <!--          </option>-->
+        <!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -96,16 +114,19 @@
     <timeLineEmergencyResponse
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   人员伤亡-左中   -->
     <timeLinePersonnelCasualties
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
         :currentTime="currentTime"
+        @addJumpNodes="addJumpNodes"
     />
     <!--  新闻-右上  -->
     <div>
@@ -114,6 +135,7 @@
           :currentTime="currentTime"
           @ifShowDialog="ifShowDialog"
           @detailedNews="detailedNews"
+          @addJumpNodes="addJumpNodes"
       ></news>
     </div>
     <!--      新闻弹框-->
@@ -296,7 +318,7 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-
+      jumpNodes:{},
       smallViewer: null,
 
       //-------------ws---------------------
@@ -365,6 +387,8 @@ export default {
       reportItems:[],
       selectReportItem:'',
 
+      jumpTimes:[],
+
     };
   },
   created() {
@@ -372,6 +396,7 @@ export default {
   },
   mounted() {
     this.init()
+    this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
 
     // // ---------------------------------------------------
@@ -391,6 +416,14 @@ export default {
   },
   // 图层要素
   methods: {
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
+    },
     clearResource(viewer){
       let gl=viewer.scene.context._gl
       viewer.entities.removeAll()
@@ -616,6 +649,10 @@ export default {
           this.eqendTime = this.tmpeqendTime
         }
         this.currentTime = this.eqendTime
+        //timelineAdvancesNumber  jumpNodes赋值为0
+        for (let i = 0; i < this.timelineAdvancesNumber; i++) {
+          this.jumpNodes[i]=0;
+        }
 
         // 获取地震数据并更新地图和变量
         this.getEq()
@@ -780,6 +817,8 @@ export default {
               this.currentTime = this.eqendTime
               this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
               this.currentNodeIndex = this.timelineAdvancesNumber
+              this.jumpNodes[this.timelineAdvancesNumber]=0;
+
             }, 5000);
           }
 
@@ -841,45 +880,24 @@ export default {
         this.plots = res
         // 遍历更新后的绘图信息，确保每个点都有起止时间
         this.plots.forEach(item => {
-          if (!item.endTime) {
+          if (!item.endTime || new Date(item.endTime) < new Date(this.eqstartTime) || new Date(item.endTime) <= new Date(item.startTime)) {
             // 为没有结束时间的点设置默认结束时间
-            item.endTime = new Date(this.eqstartTime.getTime() + 10 * 24 * 36000 * 1000);
+            item.endTime = new Date(this.eqstartTime.getTime() + 20 * 24 * 36000 * 1000);  //20天 错误时间设置结束时间地震发生20天以后
           }
+          // if (!item.startTime || new Date(item.startTime) < new Date(this.eqstartTime)) {
           if (!item.startTime) {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
+          var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          // console.log(jumpnode1)
+          this.jumpNodes[jumpnode1]=1
+          var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          // console.log(jumpnode1)
+          this.jumpNodes[jumpnode2]=1
         })
-        // 将 item 添加到 this.plots
-        // this.plots.push(item);
-        // 检查当前 item 是否已经存在于 this.plots 中
-        // const plotexists = this.plots.some(plot => plot.plotid === item.plotid);
-        // if(!plotexists){
-        //   // 设置 endtime 和 starttime
-        //   if (!item.endtime) {
-        //     // item.endtime = new Date(this.eqendTime.getTime() + 5000);
-        //     item.endtime = new Date(this.eqstartTime.getTime() + 10*24*36000*1000);
-        //   }
-        //   if (!item.starttime) {
-        //     item.starttime = this.eqstartTime;
-        //   }
-        //   // 将 item 添加到 this.plots
-        //   this.plots.push(item);
-        //   // 初始化 plotisshow
-        //
-        // }
-        // })
         // 更新绘图
         this.updatePlot(false)
-
-
-        // 开启时间轴
-        // this.initTimerLine();
-        //   if(this.ifShowData){
-        //       this.initTimerLine();
-        //   }else{
-        //       this.isTimerRunning = false
-        //   }
       })
     },
     /*
@@ -887,6 +905,7 @@ export default {
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
+
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -904,9 +923,10 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-
+        console.log("time",startDate,currentDate,endDate)
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+          console.log("item.plotId",item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -925,29 +945,42 @@ export default {
           points.push(point); // 收集点数据
         }
         // 如果点应该消失
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
           console.log(item.plotId, "end");
 
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-            console.log("entityToRemove", entityToRemove)
             if (entityToRemove) {
               window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
-            if(ellipseEntityToRemove){
-                window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+
+            const entityDonghua = window.viewer.entities.getById(item.plotId);
+            if (entityDonghua) {
+              window.viewer.entities.remove(entityDonghua); // 移除点
             }
+            // if(window.labeldataSource) {
+              const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+              if (entitylabel) {
+                window.labeldataSource.entities.remove(entitylabel); // 移除点
+              }
+            // }
+            // const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
+            // console.log("entityToRemove", entityToRemove)
+            //
+            // if(ellipseEntityToRemove){
+            //   window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
+            // }
           }
         }
       });
-        // 批量渲染点 + 非初始化状态渲染标会点动画
-        if (points.length > 0) {
-            let param = bool === false ? false : true
-            cesiumPlot.drawPoints(points,param);
-        }
+      // 批量渲染点 + 非初始化状态渲染标会点动画
+      if (points.length > 0) {
+        console.log(points)
+        let param = bool === false ? false : true
+        cesiumPlot.drawPoints(points,param);
+      }
 
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
@@ -969,7 +1002,7 @@ export default {
           filteredPolylineArr.push(item); // 收集符合条件的线条
         }
         // 处理线条消失的逻辑
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
           // console.log(item.plotId,"end")
           viewer.entities.removeById(item.plotId)
@@ -1002,7 +1035,7 @@ export default {
           filteredPolygonArr.push(item);// 收集符合条件的面
         }
         // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
-        if ((endDate <= currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
           console.log(item.geom.coordinates, "endPOlygon")
           viewer.entities.removeById(item.plotId)
@@ -1044,7 +1077,9 @@ export default {
         Arrow.showPincerArrow(pincerArr)
 
     },
-
+    // addlabel(points,param){
+    //
+    // },
     //时间轴操作-----------------------------------------------
     // 暂停播放切换
     toggleTimer() {
@@ -1062,6 +1097,15 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+
+      this.jumpTimes.forEach(item => {
+        // console.log(new Date(item),new Date(this.eqstartTime.getTime()))
+        var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+        // console.log("jumpnode",jumpnode)
+        this.jumpNodes[jumpnode]=1
+      })
+
+      console.log("this.jumpNodes",this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
 
@@ -1070,14 +1114,26 @@ export default {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime;
         this.currentNodeIndex = 0;
+        // 从 dataSource 中删除点
+        // this.plots.forEach(item => {
+        //   if(this.plotisshow[item.plotId]===1){
+        //     this.plotisshow[item.plotId] = 0
+        //     const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+        //     window.pointDataSource.entities.remove(entityToRemove); // 移除点
+        //
+        //   }
+        // })
+        // this.updatePlot(false)
+
       }
+
 
       // 每隔100毫秒更新一次当前时间
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      }, 100);
+      }, 500);
     },
-    //updateCurrentTime 循环执行
+
 
     /**
      * 更新当前时间
@@ -1087,23 +1143,44 @@ export default {
      */
     updateCurrentTime() {
       // 根据当前速度和节点索引计算新的节点索引，实现时间的前进
-      this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-      // 计算时间进度条的当前位置增量
-      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
-      this.currentTimePosition += tmp;
+      // 找到下一个值为1的节点索引
+      let nextNodeIndex = null;
+      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+        if (this.jumpNodes[i] === 1) {
+          nextNodeIndex = i;
+          break;
+        }
+      }
 
-      // 检查是否达到或超过终点
-      if (this.currentTimePosition >= 100) {
-        // 达到终点时的处理
+      // 停止
+      if (nextNodeIndex === null) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.stopTimer();
         this.isTimerRunning = false
-        this.intimexuanran(this.eqid)
-        // this.xuanran(this.eqid)
-      } else {
+      }
+      //更新到下一跳
+      else{
+        // this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+        // 计算时间进度条的当前位置增量
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
+
+        // 检查是否达到或超过终点
+        // if (this.currentTimePosition >= 100) {
+        //   // 达到终点时的处理
+        //   this.currentTimePosition = 100;
+        //   this.currentTime = this.eqendTime
+        //   this.stopTimer();
+        //   this.isTimerRunning = false
+        //   this.intimexuanran(this.eqid)
+        //   // this.xuanran(this.eqid)
+        // }
+        // else {
         // 未达到终点时的处理
-        this.currentTimePosition = this.currentTimePosition % 100
+        // this.currentTimePosition = this.currentTimePosition % 100
         // 根据当前节点索引计算实际时间
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // 根据是否需要显示标绘层来更新图层
@@ -1113,12 +1190,9 @@ export default {
           this.MarkingLayerRemove()
         }
         // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
+        // }
       }
-      // 其他情况的处理（代码中未实现）
-      // else{
-      //   this.eqendTime=realTime
-      //   this.timelineAdvancesNumber=
-      // }
+
     },
 
 
@@ -1128,6 +1202,7 @@ export default {
      * 定时器停止后，不会再执行任何操作，确保资源得到正确释放
      */
     stopTimer() {
+
       // 清除定时器
       clearInterval(this.intervalId);
       // 重置定时器标识为null
@@ -1155,6 +1230,7 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
+
       // 更新当前节点索引，使用模运算确保索引在合法范围内
       this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
       // 计算进度条每次前进的量
@@ -1192,6 +1268,7 @@ export default {
      * 并更新图表显示
      */
     backward() {
+
       // 减小当前节点索引，并根据时间线前进次数取模，以实现循环效果
       this.currentNodeIndex = (this.currentNodeIndex - 1) % this.timelineAdvancesNumber
       // 计算每次后退的进度百分比
@@ -1729,11 +1806,11 @@ export default {
      */
     getEq() {
       let that = this
+      let cesiumStore = useCesiumStore()
+      cesiumPlot.init(window.viewer, this.websock, cesiumStore)
       getAllEq().then(res => {
         that.tableData = res
         // 初始化标绘所需的viewer、ws、pinia
-        let cesiumStore = useCesiumStore()
-        cesiumPlot.init(window.viewer, this.websock, cesiumStore)
         // console.log("that.tableData", that.tableData)
       })
     },
@@ -2552,8 +2629,46 @@ export default {
           this.selectReportItem = null;
         }, 1000); // 1000 毫秒后执行
       }
-    }
+    },
 
+    addJumpNodes(val){
+      val.forEach(item => {
+        this.jumpTimes.push(item)
+      })
+      // console.log(".eqstartTime",this.eqstartTime)
+      // // console.log(new Date(item),new Date(that.eqstartTime.getTime()))
+      // let that=this
+      // console.log("val",val)
+      // val.forEach(item => {
+      //   console.log(new Date(item),new Date(that.eqstartTime.getTime()))
+      //   var jumpnode=Math.round((new Date(item)-new Date(that.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+      //   console.log("jumpnode",jumpnode)
+      //   this.jumpNodes[jumpnode]=1
+      // })
+    },
+    //   菜单栏左上角实时获取时间代码
+    startRealTimeClock(timeElementId, dateElementId) {
+      function updateTime() {
+        const now = new Date();
+        const time = now.toLocaleTimeString('zh-CN', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        const date = now.toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          weekday: 'long'
+        });
+        document.getElementById(timeElementId).textContent = time;
+        document.getElementById(dateElementId).textContent = date;
+      }
+
+      updateTime();
+      setInterval(updateTime, 1000);
+    }
 
   }
 }
@@ -2578,7 +2693,7 @@ export default {
 }
 
 #box {
-  height: calc(100vh - 85px);
+  height: calc(100vh - 140px);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -2885,4 +3000,119 @@ export default {
 :deep(.close-item){
   margin-right:7% !important;
 }
+
+.logo-title {
+  height: 100%;
+  background-image: url(@/assets/images/CommandScreen/菜单底图.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.logo-title-content {
+  color: #fff;
+  height: 100%;
+  margin: auto;
+  font-size: 27px;
+  font-weight: 700;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  text-align: center; /* 多行文本居中 */
+  background-image: url(@/assets/images/CommandScreen/菜单标题.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  overflow: hidden; /* 隐藏滚动条 */
+}
+
+@media screen and (max-width: 1645px) {
+  .logo-title-content {
+    width: 100% !important;
+    padding-top: 29px !important;
+    padding-right: 45px !important;
+    font-size: 19px !important;
+  }
+}
+@media screen and (max-width: 1835px) {
+  .logo-title-content {
+    width: 62% !important;
+  }
+}
+.menue-left {
+  left: 176px;
+}
+.logo-menu .logo-menu-active {
+  background-image: url(@/assets/images/CommandScreen/橙色按钮.png);
+}
+.logo-menu-tittle {
+  color: #fff;
+  width: 141px;
+  height: 41px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(@/assets/images/CommandScreen/蓝色按钮.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+@media screen and (max-width: 1490px) {
+  .logo-menu-tittle {
+    width: 92px !important;
+  }
+}
+@media screen and (max-width: 1835px) {
+  .logo-menu-tittle {
+    width: 125px !important;
+    font-size: 18px !important;
+  }
+}
+.logo-menu {
+  position: absolute;
+  top: 13px;
+  display: flex;
+}
+.menue-right {
+  right: 50px;
+}
+.logo-left-weather {
+  color: #fff;
+  position: absolute;
+  top: 5px;
+  left: 9px;
+}
+.logo-left-time {
+  position: absolute;
+}
+.logo-right-time {
+  position: absolute;
+  top: 18px;
+  right: 26px;
+}
+.logo-time-hour {
+  font-size: 19px;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0px 2px 6px #123756;
+  background: linear-gradient(0deg, #bee1ff, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.mars-dialog .mars-dialog__content{
+  height: 100%;
+  overflow: auto;
+  background-color: #1d3043 ;
+}
+.mars-dialog {
+  height: 3.5rem;
+}
+.mars-icon {
+  margin-right: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.logo-time-year {
+  font-size: 14px;
+  font-weight: 500;
+  color: #cdcdcd;
+}
+
 </style>
