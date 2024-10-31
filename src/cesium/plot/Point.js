@@ -250,7 +250,7 @@ export default class Point {
             const labeldataSourcePromise = window.viewer.dataSources.add(labeldataSource)
             labeldataSourcePromise.then(function (labeldataSource) {
                 labeldataSource.clustering.enabled = true; // 开启聚合
-                labeldataSource.clustering.pixelRange = 200; // 聚合像素范围
+                labeldataSource.clustering.pixelRange = 20; // 聚合像素范围
                 labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
                 let removeListener;
