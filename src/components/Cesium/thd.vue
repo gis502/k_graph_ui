@@ -1321,7 +1321,6 @@ export default {
             this.plotisshow[item.plotId] = 0;
           }
         })
-
         // 删除的点删除  （删）
         // 创建一个当前绘图ID的集合
         const currentPlotIds = new Set(res.map(item => item.plotId));
@@ -1358,6 +1357,9 @@ export default {
         })
         // 更新绘图
         this.updatePlot(false)
+        let pointArr = this.plots.filter(e => e.drawtype === 'point')
+        this.pointsLayer = [...pointArr]
+        console.log("获取",this.pointsLayer)
       })
     },
 
@@ -1366,7 +1368,7 @@ export default {
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
-      this.pointsLayer = []
+      console.log("2")
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -1374,7 +1376,6 @@ export default {
       // 过滤出绘制类型为点的plots
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
       console.log("点渲染", pointArr)
-
       let points = [];
       // 遍历点数组，处理每个点的绘制或删除
       pointArr.forEach(item => {
@@ -1432,8 +1433,6 @@ export default {
         let param = bool === false ? false : true
         cesiumPlot.drawPoints(points, param);
       }
-      that.pointsLayer = [...pointArr]
-      console.log("获取",that.pointsLayer)
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
@@ -1546,7 +1545,7 @@ export default {
         // console.log("jumpnode",jumpnode)
         this.jumpNodes[jumpnode]=1
       })
-
+      this.zoomLevel ="1"
       console.log("this.jumpNodes",this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
@@ -2469,7 +2468,7 @@ export default {
         // 更新组件的应急避难所数据
         this.emergencyShelters = emergencyShelters;
         // 原注释保留，但实际代码中未调用此方法
-        this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
+        // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
 
@@ -2484,6 +2483,7 @@ export default {
       this.updateMapLayers();
     },
     updateMapLayers() {
+      this.zoomLevel = "1"
       // 检查选中的图层中是否包含标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       // 如果包含标绘点图层
