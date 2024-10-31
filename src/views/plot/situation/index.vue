@@ -127,6 +127,8 @@
           :popupData="dataSourcePopupData"
       />
     </div>
+      <!-- Cesium 视图 -->
+      <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
   </div>
 </template>
 
@@ -147,11 +149,12 @@ import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog,layeredShowPlot
   },
   data: function () {
     return {
@@ -271,6 +274,9 @@ export default {
       },
       //----------------------------------
       renderedPlotIds: new Set(), // 用于存储已经渲染的 plotid
+      //----------------------------------
+      zoomLevel: '市' , // 初始化缩放层级
+      pointsLayer :[], //传到子组件
     };
   },
   mounted() {
@@ -309,6 +315,11 @@ export default {
       Arrow.disable();
       Arrow.init(viewer);
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      // 监听相机高度并更新 zoomLevel
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       let options = {}
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
@@ -329,6 +340,7 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+
     },
     // 初始化ws
     initWebsocket() {
@@ -340,6 +352,7 @@ export default {
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {
+      this.pointsLayer = []
       let that = this
       getPlot({eqid}).then(res => {
         let data = res
@@ -362,8 +375,10 @@ export default {
           }
         })
         that.drawPoints(points)
+        that.pointsLayer = [...points]
+        console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("polylineArr",polylineArr)
+        // console.log("polylineArr",polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -1436,6 +1451,20 @@ export default {
         },
         heights: heights // 高度单独返回
       };
+    },
+    /*获取目前相机所属高度*/
+    updateZoomLevel(cameraHeight) {
+      console.log("层级",cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if(cameraHeight > 4000){
+        this.zoomLevel = '乡/镇'
+      }else{
+        this.zoomLevel = '村'
+      }
     }
   }
 }
