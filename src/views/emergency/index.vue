@@ -336,7 +336,7 @@ import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
 import yaan from "@/assets/geoJson/yaan.json";
 import { ElMessageBox, ElMessage } from 'element-plus';
-import {searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
+import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 
 export default {
   components: {
@@ -653,6 +653,7 @@ export default {
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
     initPlot() {
+
       getEmergency().then(res => {
         let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
         console.log('获取到的res', res);
@@ -889,7 +890,7 @@ export default {
                 // 保存区域图层以便后续使用
                 window.regionLayerJump = dataSource
 
-                console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates[0])
+                console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates)
                 // 遍历每个过滤后的地理特征
                 filteredFeatures.forEach((feature) => {
                     // 获取特征的中心点坐标
@@ -919,29 +920,7 @@ export default {
                     }
                 });
 
-                // 假设每个实体代表一个多边形
-                const polygons = dataSource.entities.values.map(entity => {
-                    if (entity.polygon && entity.polygon.hierarchy) {
-                        const positions = entity.polygon.hierarchy.getValue(Cesium.JulianDate.now()).positions;
-                        return positions.map(position => {
-                            const cartographic = Cesium.Cartographic.fromCartesian(position);
-                            return [
-                                Cesium.Math.toDegrees(cartographic.longitude),
-                                Cesium.Math.toDegrees(cartographic.latitude)
-                            ];
-                        });
-                    }
-                }).filter(Boolean);
 
-
-                // 检查每个标绘点是否在任何一个多边形内
-                this.suppliesList[0].forEach((marker) => {
-                    const [lon, lat] = marker.coords;
-                    const inAnyPolygon = polygons.some(polygon => this.pointInPolygon([lon, lat], polygon));
-                    if (inAnyPolygon) {
-                        console.log(`标绘点 ${marker.name} 位于实体范围内: 经度 ${lon}, 纬度 ${lat}`);
-                    }
-                });
 
                 // 飞行到数据源中的实体位置，以便用户查看
                 viewer.flyTo(dataSource.entities.values);
@@ -950,17 +929,23 @@ export default {
                 // let boundingBox = this.getBoundingBox(filteredFeatures[0].geometry.coordinates[0]);
                 // console.log("边界框:", boundingBox);
                 //
-                // let suppliesArr = this.printPointsInBoundingBox(boundingBox, this.suppliesList[0]);
-                // let emergencyTeamArr = this.printPointsInBoundingBox(boundingBox, this.suppliesList[2]);
-                // let reservesArr = this.printPointsInBoundingBox(boundingBox, this.suppliesList[1]);
-                //
-                // this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-                // this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-                // this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+
             }).catch((error) => {
                 // 如果加载GeoJSON数据失败，输出错误信息
                 console.error("加载GeoJSON数据失败:", error);
             });
+
+            marchByRegion().then(res => {
+                console.log("marchByRegion-----------------------",res)
+                let suppliesArr = res.insideDisasterReliefSupplies
+                let emergencyTeamArr = res.insideRescueTeamsInfo
+                let reservesArr = res.insideEmergencyRescueEquipment
+
+
+                this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+                this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+                this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+            })
         } else {
             // console.error("未找到对应的区县:", adcode);
         }

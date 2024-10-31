@@ -98,3 +98,11 @@ export function searchDisasterReserves(inputData) {
         params: {'inputData':inputData}
     })
 }
+
+export function marchByRegion(inputData) {
+    return request({
+        url: '/emergencyResources/marchByRegion',
+        method: 'post',
+        params: {'inputData':inputData}
+    })
+}

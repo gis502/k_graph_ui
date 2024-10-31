@@ -339,6 +339,7 @@ import {
   findModel
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
+import Arrow from "@/cesium/drawArrow/drawPlot.js"
 
 
 export default {
@@ -980,6 +981,8 @@ export default {
       // 初始化标绘所需的viewer、ws、pinia
       let cesiumStore = useCesiumStore()
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
+        Arrow.disable();
+        Arrow.init(window.viewer);
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
@@ -1095,6 +1098,9 @@ export default {
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
+        console.log("this.plots-------------------",this.plots)
+
+
       // --------------------------点绘制------------------------------
       // 过滤出绘制类型为点的plots
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -1222,6 +1228,8 @@ export default {
         }
       })
 
+
+
       // 将符合条件的多边形数据按plotId分组
       let polygonMap = {};
       filteredPolygonArr.forEach(item => {
@@ -1238,6 +1246,17 @@ export default {
           cesiumPlot.getDrawPolygon(polygonData)
         });
       }
+
+
+        let straightArr = this.plots.filter(e => e.drawtype === 'straight');
+        console.log("straightArr----------------",straightArr)
+        Arrow.showStraightArrow(straightArr)
+
+        let attackArr = this.plots.filter(e => e.drawtype === 'attack');
+        Arrow.showAttackArrow(attackArr)
+
+        let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
+        Arrow.showPincerArrow(pincerArr)
     },
 
     //时间轴操作-----------------------------------------------

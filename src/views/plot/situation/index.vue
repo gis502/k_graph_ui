@@ -393,6 +393,7 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight');
         Arrow.showStraightArrow(straightArr)
+          console.log("straightArr----------------",straightArr)
 
         let attackArr = data.filter(e => e.drawtype === 'attack');
         Arrow.showAttackArrow(attackArr)
@@ -1016,7 +1017,6 @@ export default {
         new Promise((resolve, reject) => {
           Arrow.drawStraightArrow(data, resolve)
         }).then((res) => {
-            console.log("drawStraightArrow-------------------",res)
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.name === '攻击箭头') {

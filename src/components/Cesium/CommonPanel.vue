@@ -397,17 +397,13 @@ export default {
     },
     // 删除标注
     deletePoint(bool,id) {
-        console.log("window.selectedEntity.id-----------------",window.selectedEntity.objId)
+        // console.log("window.selectedEntity.id-----------------",window.selectedEntity.objId)
       this.$emit('closePlotPop')
         if(bool){
-            this.$emit('wsSendPoint', JSON.stringify
-            ({type: "arrow", operate: "delete", id: id}))
-            // this.$emit('wsSendPoint', JSON.stringify
-            // ({type: "arrow", operate: "delete", id: window.selectedEntity.id}))
+            this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "delete", id: id}))
         }else{
             this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: id}))
         }
-        // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}))
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式，
     // 形参timestamp必须时整型时间戳，字符串类型时间戳得到的时NaN。

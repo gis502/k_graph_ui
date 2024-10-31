@@ -236,23 +236,19 @@ function wsAdd(type, data) {
     }else if(type === "arrow"){
         console.log(45678)
 
-        let positions = []
-        let arrowData = data.plot
-        arrowData.objId = arrowData.plotId
+        // let positions = []
+        // let arrowData = data.plot
 
-        for (let i = 0; i < arrowData.geom.coordinates.length; i++) {
-            let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
-            positions.push(cart3);
-        }
+        // for (let i = 0; i < arrowData.geom.coordinates.length; i++) {
+        //     let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
+        //     positions.push(cart3);
+        // }
         if(data.plot.plotType==="攻击箭头"){
-            let arrow = AttackArrow
-            arrow.prototype.showArrowOnMap(positions,arrowData)
+            arrow.showAttackArrow([data.plot])
         }else if(data.plot.plotType==="钳击箭头"){
-            let arrow = PincerArrow
-            arrow.prototype.showArrowOnMap(positions,arrowData)
+            arrow.showPincerArrow([data.plot])
         }else if(data.plot.plotType==="直线箭头"){
-            let arrow = StraightArrow
-            arrow.prototype.showArrowOnMap(positions,arrowData)
+            arrow.showStraightArrow([data.plot])
         }
 
     }

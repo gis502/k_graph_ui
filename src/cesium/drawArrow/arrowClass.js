@@ -33,7 +33,9 @@ var StraightArrow = function (viewer) {
     this.type = "StraightArrow";
     this.objId = guid()
     this.viewer = viewer;
+    console.log("111111111111111111111111")
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+    console.log("111111111111111111111111")
     this.pointImageUrl = "/images/point.png";
     this.fillMaterial = Cesium.Color.fromCssColorString('#0000FF').withAlpha(0.8);
     this.outlineMaterial = new Cesium.PolylineDashMaterialProperty({
@@ -90,7 +92,6 @@ StraightArrow.prototype = {
         }
     },
     startDraw: function (data, resolve) {
-        console.log("画箭头------------------------")
         var $this = this;
         this.state = 1;
         this.handler.setInputAction(function (evt) { //单机开始绘制
@@ -109,7 +110,6 @@ StraightArrow.prototype = {
                 $this.floatPoint.show = false;
 
                 data.plot.plotId = $this.objId
-                data.plot.objId = $this.objId
                 data.plot.drawtype = "straight"
                 data.plot.plotType = "直线箭头"
                 data.plot.geom.coordinates = $this.getLnglats();
@@ -247,7 +247,6 @@ StraightArrow.prototype = {
     },
     showArrowOnMap: function (positions, data) {
         console.log(positions, data)
-        // data.objId = data.plotId
         var $this = this;
         var update = function () {
             if (positions.length < 2) {
