@@ -1,23 +1,23 @@
 <template>
   <div class="style-container">
     <div class="container-center">
-      <dv-border-box-12 class="model1">保障安置点供水统计<br>
-        <EnsureWaterSupplyResettlementSites :eqid="eqid"/>
+      <dv-border-box-12 class="model1">堰塞湖雍塞体统计<br>
+        <BarrierLakeSituation :eqid="eqid"/>
       </dv-border-box-12>
-      <dv-border-box-12 class="model1">集中供水工程受损统计<br>
-        <ConcentratedWaterSupplyProjectDamage :eqid="eqid"/>
+      <dv-border-box-12 class="model1">山洪危险区情况<br>
+        <MountainFlood :eqid="eqid"/>
       </dv-border-box-12>
-      <dv-border-box-12 class="model2">房屋损毁情况<br/>
-        <StatusOfHousingDamage :eqid="eqid"/>
+      <dv-border-box-12 class="model2">地质灾害情况<br/>
+        <GeologicalDisaster :eqid="eqid"/>
       </dv-border-box-12>
     </div>
   </div>
 </template>
 
 <script setup>
-import ConcentratedWaterSupplyProjectDamage from "@/components/DisasterStatistics/ConcentratedWaterSupplyProjectDamage.vue";
-import EnsureWaterSupplyResettlementSites from "@/components/DisasterStatistics/EnsureWaterSupplyResettlementSites.vue";
-import StatusOfHousingDamage from "@/components/DisasterStatistics/StatusOfHousingDamage.vue";
+import MountainFlood from "@/components/DisasterStatistics/MountainFlood.vue";
+import BarrierLakeSituation from "@/components/DisasterStatistics/BarrierLakeSituation.vue";
+import GeologicalDisaster from "@/components/DisasterStatistics/GeologicalDisaster.vue";
 import { ref, watch } from "vue";
 
 // 获取父组件的 eqid
