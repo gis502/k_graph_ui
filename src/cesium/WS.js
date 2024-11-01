@@ -22,7 +22,7 @@ export function initWebSocket(eqid) {
 
 //连接建立之后执行send方法发送数据
 function websocketonopen() {
-    let actions = {"test": "我已在线"};
+    // let actions = {"test": "我已在线"};
     webSocket.send(JSON.stringify(actions));
 }
 

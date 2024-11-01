@@ -113,10 +113,8 @@ const arrow = {
             if (!flag) {
                 var item = straightArr[i];
                 var straightArrow = new StraightArrow(this.viewer);
-                console.log("22222222222222222222222")
                 straightArrow.objId = straightArr[i].plotId;
                 straightArrow.createByData(item);
-                console.log("33333333333333333333333")
                 this.drawArr.push(straightArrow);
             }
         }

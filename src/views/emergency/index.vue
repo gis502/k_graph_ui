@@ -704,12 +704,14 @@ export default {
         element.type = type;
         element.icon = icon
 
+          let bool = type === 'supplies' ? true : false
+
         // 添加实体
-        this.addEntity(element, icon, tableName, longitude, latitude);
+        this.addEntity(element, icon, tableName, longitude, latitude,bool);
       });
     },
 
-    addEntity(element, icon, tableName, longitude, latitude) {
+    addEntity(element, icon, tableName, longitude, latitude,bool) {
       window.viewer.entities.add({
         uuid: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
@@ -721,7 +723,7 @@ export default {
           color: Cesium.Color.WHITE.withAlpha(1),
           scale: 0.8,
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 禁用，导致图标在高度计算或与地形交互时出现闪烁。 原作用：绑定到地形高度,让billboard贴地
-          depthTest: true, // 让 Cesium 正确处理图标的遮挡关系
+          depthTest: bool ? true : false, // 让 Cesium 正确处理图标的遮挡关系
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
         properties: {
@@ -878,7 +880,7 @@ export default {
             // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
             // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
             let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
-                clampToGround: false, //贴地显示
+                clampToGround: true, //贴地显示
                 stroke: Cesium.Color.RED,
                 fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
                 strokeWidth: 10,
@@ -1074,6 +1076,8 @@ export default {
       });
       this.removePoints(that.showIcon);
       this.removePoints(that.selectedSuppliesList);
+        this.removethdRegions()
+        this.removeDataSourcesLayer('YaanRegionLayer');
       this.initPlot()
     },
 
