@@ -2,10 +2,12 @@
   <div class="contentsBox">
     <div class="dataBox">
       <div class="dataManage" style="height: auto">
-        <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">上传Excel文件
+        <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">
+            上传Excel文件
         </el-button>
         <el-button size='large' type='primary' style="margin: 10px;"
-                   @click="downExcel($event)" plain icon="Download">下载上传Excel文件
+                   @click="downExcel($event)" plain icon="Download">
+            下载上传Excel文件
         </el-button>
         <el-button size='large' type='primary' @click="downloadForm" plain icon="Document">
           下载模板
