@@ -358,6 +358,7 @@ export default {
   mounted() {
     this.init();
     this.getEq();
+    // this.initWebsocket()
   },
 
   computed: {
@@ -613,7 +614,8 @@ export default {
           })
           //雅安行政区加载 end
         })
-      } else if (require === "none") {
+      }
+      else if (require === "none") {
         this.eqThemes.show.isshowRegion = true;
         this.removeLayers(['YaanRegionLayer'])
         this.RegionLabels.forEach(label => {

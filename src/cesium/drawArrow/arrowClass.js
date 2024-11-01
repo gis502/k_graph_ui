@@ -33,7 +33,9 @@ var StraightArrow = function (viewer) {
     this.type = "StraightArrow";
     this.objId = guid()
     this.viewer = viewer;
+    console.log("111111111111111111111111")
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+    console.log("111111111111111111111111")
     this.pointImageUrl = "/images/point.png";
     this.fillMaterial = Cesium.Color.fromCssColorString('#0000FF').withAlpha(0.8);
     this.outlineMaterial = new Cesium.PolylineDashMaterialProperty({

@@ -1,8 +1,9 @@
 import * as Cesium from 'cesium'
 import  {StraightArrow, AttackArrow, PincerArrow,} from "@/cesium/drawArrow/arrowClass.js";
+import arrow from "@/cesium/drawArrow/drawPlot.js";
 
 let webSocket
-let ip = "ws://192.168.3.9:8080/ws/"
+let ip = "ws://localhost:8080/ws/"
 
 export function initWebSocket(eqid) {
     const wsuri = ip + eqid;
@@ -21,8 +22,8 @@ export function initWebSocket(eqid) {
 
 //连接建立之后执行send方法发送数据
 function websocketonopen() {
-    // let actions = {"test": "我已在线"};
-    // webSocket.send(JSON.stringify(actions));
+    let actions = {"test": "我已在线"};
+    webSocket.send(JSON.stringify(actions));
 }
 
 //连接建立失败重连
@@ -51,8 +52,11 @@ function websocketonmessage(e) {
             if (markType === "point") {
                 // 其实只有这里有用
                 console.log(5629)
-                window.viewer.entities.removeById(id)
-                window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id)
+                let polygonRemoved = window.viewer.entities.removeById(id);
+                let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
+
+                console.log(polygonRemoved, pointDataRemoved);
+
             } else if (markType === "polyline") {
                 let polyline = window.viewer.entities.getById(id)
                 let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
@@ -68,7 +72,12 @@ function websocketonmessage(e) {
                 })
                 window.viewer.entities.remove(polygon)
             } else if(markType === "arrow"){
-                window.viewer.entities.removeById(id)
+                console.log("arrow------------------")
+                arrow.clearById(id)
+                let polygonRemoved = window.viewer.entities.removeById(id);
+                let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
+
+                console.log(polygonRemoved, pointDataRemoved);
             }
         }
     } catch (err) {
@@ -227,22 +236,19 @@ function wsAdd(type, data) {
     }else if(type === "arrow"){
         console.log(45678)
 
-        let positions = []
-        let arrowData = data.plot
+        // let positions = []
+        // let arrowData = data.plot
 
-        for (let i = 0; i < arrowData.geom.coordinates.length; i++) {
-            let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
-            positions.push(cart3);
-        }
+        // for (let i = 0; i < arrowData.geom.coordinates.length; i++) {
+        //     let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
+        //     positions.push(cart3);
+        // }
         if(data.plot.plotType==="攻击箭头"){
-            let arrow = AttackArrow
-            arrow.prototype.showArrowOnMap(positions,arrowData)
+            arrow.showAttackArrow([data.plot])
         }else if(data.plot.plotType==="钳击箭头"){
-            let arrow = PincerArrow
-            arrow.prototype.showArrowOnMap(positions,arrowData)
+            arrow.showPincerArrow([data.plot])
         }else if(data.plot.plotType==="直线箭头"){
-            let arrow = StraightArrow
-            arrow.prototype.showArrowOnMap(positions,arrowData)
+            arrow.showStraightArrow([data.plot])
         }
 
     }

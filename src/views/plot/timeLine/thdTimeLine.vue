@@ -189,7 +189,7 @@ import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
-
+import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
@@ -491,6 +491,8 @@ export default {
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
       window.viewer = viewer
+      Arrow.disable();
+      Arrow.init(viewer);
       // this.viewer=window.viewer
       let options = {}
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
@@ -599,7 +601,6 @@ export default {
 
       // 监听主视图器的相机变化
       viewer.scene.camera.changed.addEventListener(syncCamera);
-
       // 每帧渲染时同步缩略图视图
       viewer.scene.postRender.addEventListener(function () {
         smallViewer.scene.requestRender(); // 确保缩略图更新
@@ -1063,6 +1064,18 @@ export default {
         console.log("polygonData", polygonData)
         cesiumPlot.getDrawPolygon(polygonData)
       });
+
+
+        let straightArr = this.plots.filter(e => e.drawtype === 'straight');
+        console.log("straightArr----------------",straightArr)
+        Arrow.showStraightArrow(straightArr)
+
+        let attackArr = this.plots.filter(e => e.drawtype === 'attack');
+        Arrow.showAttackArrow(attackArr)
+
+        let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
+        Arrow.showPincerArrow(pincerArr)
+
     },
     // addlabel(points,param){
     //
