@@ -1263,12 +1263,15 @@ export default {
         this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
-        this.updateMapandVariablebeforInit()
-
+        this.updateMapandVariablebeforInit(this.centerPoint)
       })
     },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
-    updateMapandVariablebeforInit() {
+    updateMapandVariablebeforInit(data) {
+      let centerData={
+        ...data,
+        drawtype: data.plotid
+      }
       //加载中心点
       viewer.entities.add({
         properties: {
