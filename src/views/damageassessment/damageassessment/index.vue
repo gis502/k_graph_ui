@@ -358,6 +358,7 @@ export default {
   mounted() {
     this.init();
     this.getEq();
+    // this.initWebsocket()
   },
 
   computed: {

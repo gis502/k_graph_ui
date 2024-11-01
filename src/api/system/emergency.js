@@ -99,10 +99,10 @@ export function searchDisasterReserves(inputData) {
     })
 }
 
-export function marchByRegion(inputData) {
+export function marchByRegion(regionCode) {
     return request({
         url: '/emergencyResources/marchByRegion',
         method: 'post',
-        params: {'inputData':inputData}
+        data: regionCode
     })
 }

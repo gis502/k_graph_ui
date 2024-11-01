@@ -344,6 +344,7 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
+        console.log("this.eqid---------------------",this.eqid)
       this.websock = initWebSocket(this.eqid)
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????

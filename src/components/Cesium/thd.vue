@@ -1060,7 +1060,7 @@ export default {
 
       })
 
-        // this.websock.eqid = eqid
+        this.websock.eqid = eqid
 
     },
 

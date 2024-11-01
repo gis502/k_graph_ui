@@ -3,7 +3,7 @@ import  {StraightArrow, AttackArrow, PincerArrow,} from "@/cesium/drawArrow/arro
 import arrow from "@/cesium/drawArrow/drawPlot.js";
 
 let webSocket
-let ip = "ws://192.168.3.9:8080/ws/"
+let ip = "ws://localhost:8080/ws/"
 
 export function initWebSocket(eqid) {
     const wsuri = ip + eqid;
@@ -22,8 +22,8 @@ export function initWebSocket(eqid) {
 
 //连接建立之后执行send方法发送数据
 function websocketonopen() {
-    // let actions = {"test": "我已在线"};
-    // webSocket.send(JSON.stringify(actions));
+    let actions = {"test": "我已在线"};
+    webSocket.send(JSON.stringify(actions));
 }
 
 //连接建立失败重连

@@ -363,7 +363,7 @@ export default {
       selectedSuppliesList: [],
       showIcon: [],
       activeMenuIndex: '3', // 显示的一级菜单 eg.路径规划、物资匹配
-      tableVisible: false, // 显示表格
+      tableVisible: true, // 显示表格
       isCollapsed: false, // 控制是否收缩
       searchSupplyDialog: false, // 物资查询dialog是否显示
       searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
@@ -462,6 +462,7 @@ export default {
             {adcode: 511827, name: "宝兴县"},
         ],
         selectedRegions: [],
+        selectedDataByRegions: {},
 
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
@@ -935,66 +936,28 @@ export default {
                 console.error("加载GeoJSON数据失败:", error);
             });
 
-            marchByRegion().then(res => {
+            let obj = {
+                regionCode: this.selectedRegions[0].adcode
+            }
+            marchByRegion(obj).then(res => {
                 console.log("marchByRegion-----------------------",res)
                 let suppliesArr = res.insideDisasterReliefSupplies
                 let emergencyTeamArr = res.insideRescueTeamsInfo
                 let reservesArr = res.insideEmergencyRescueEquipment
+                this.selectedDataByRegions = {suppliesArr,emergencyTeamArr,reservesArr}
+                console.log("selectedDataByRegions--------------------",this.selectedDataByRegions)
 
-
-                this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
                 this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+                this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
                 this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+                this.listField = 'supplies'
+                this.changeDataList('supplies')
             })
         } else {
             // console.error("未找到对应的区县:", adcode);
         }
         this.selectedRegions = []
         this.marchRegionsDialog = false
-      },
-
-      pointInPolygon(point, polygon) {
-          let inside = false;
-          for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-              const xi = polygon[i][0], yi = polygon[i][1];
-              const xj = polygon[j][0], yj = polygon[j][1];
-
-              const intersect = ((yi > point[1]) !== (yj > point[1])) &&
-                  (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
-              if (intersect) inside = !inside;
-          }
-          return inside;
-      },
-
-      getBoundingBox(coordinates) {
-          const lats = coordinates.flat().map(coord => coord[1]);
-          const lons = coordinates.flat().map(coord => coord[0]);
-
-          return {
-              minLat: Math.min(...lats),
-              maxLat: Math.max(...lats),
-              minLon: Math.min(...lons),
-              maxLon: Math.max(...lons),
-          };
-      },
-
-      printPointsInBoundingBox(boundingBox, markers) {
-        let result = []
-          markers.forEach(marker => {
-              // let { longitude, latitude } = marker; // 假设marker包含经纬度属性
-              let longitude = marker.longitude
-              let latitude = marker.latitude
-              if(
-                  latitude >= boundingBox.minLat &&
-                  latitude <= boundingBox.maxLat &&
-                  longitude >= boundingBox.minLon &&
-                  longitude <= boundingBox.maxLon
-              ){
-                  result.push(marker)
-              }
-          });
-        return result
-          console.log("result------------------------------",result)
       },
 
       removethdRegions() {
@@ -1033,15 +996,17 @@ export default {
     // 切换数据列表
     changeDataList(param){
         this.selectedSuppliesList = []
+        let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+
       if(param === 'supplies'){
           this.listField = 'supplies'
-          this.selectedSuppliesList = this.suppliesList[0]
+          this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
       }else if(param === 'emergencyTeam'){
           this.listField = 'emergencyTeam'
-          this.selectedSuppliesList = this.suppliesList[2]
+          this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
       }else{
           this.listField = 'reserves'
-          this.selectedSuppliesList = this.suppliesList[1]
+          this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
       }
         this.showIcon = this.selectedSuppliesList;
         this.total = this.selectedSuppliesList.length;
@@ -1298,10 +1263,6 @@ export default {
         let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
         let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
         let resultArray = []
-        // console.log("ele--------------------",bool1)
-        // console.log("ele--------------------",bool2)
-        // console.log("ele--------------------",bool3)
-        // console.log("ele--------------------",bool4)
         array.forEach((ele) => {
             if(ele.tents === 0){
                 bool1 = true
