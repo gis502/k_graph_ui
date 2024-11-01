@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="eqtitle">
-      <span class="eqtitle-text_eqname">{{ this.title }}级地震</span>
+      <span class="eqtitle-text_eqname">{{ this.title.replace("T", " ") }}级地震</span>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
@@ -34,20 +34,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                  size="small"
-                  @click="plotAdj(scope.row)">查看
+                size="small"
+                @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            layout="total, prev, pager, next"
-            :total="total">
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          layout="total, prev, pager, next"
+          :total="total">
         </el-pagination>
 
       </el-form>
@@ -55,7 +55,8 @@
         <div class="modelAdj">态势标绘工具</div>
         <el-row>
           <el-col :span="13">
-            <el-tree :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick" accordion></el-tree>
+            <el-tree class="plotTool" :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick"
+                     accordion></el-tree>
           </el-col>
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
@@ -97,36 +98,116 @@
         </el-row>
       </el-form>
       <addMarkCollectionDialog
-          :addMarkDialogFormVisible="addMarkDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @drawPoints="drawPoints"
-          @ifPointAnimate="ifPointAnimation"
-          @clearMarkDialogForm="resetAddMarkCollection"
+        :addMarkDialogFormVisible="addMarkDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @drawPoint="drawPoint"
+        @ifPointAnimate="ifPointAnimation"
+        @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolyline"
+        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolygon"
+        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-          :visible="popupVisible"
-          :position="popupPosition"
-          :popupData="popupData"
-          :ifedit="true"
-          @wsSendPoint="wsSendPoint"
-          @closePlotPop="closePlotPop"
+        :visible="popupVisible"
+        :position="popupPosition"
+        :popupData="popupData"
+        :ifedit="true"
+        @wsSendPoint="wsSendPoint"
+        @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-          :visible="dataSourcePopupVisible"
-          :position="dataSourcePopupPosition"
-          :popupData="dataSourcePopupData"
+        :visible="dataSourcePopupVisible"
+        :position="dataSourcePopupPosition"
+        :popupData="dataSourcePopupData"
       />
+      <el-button type="primary" icon="Download" @click="downloadPlot(this.plotList)"
+                 style="position: absolute;top: 50px;right: 100px;z-index: 100;">标绘导出
+      </el-button>
+
+      <el-button type="primary" @click="showSelect()"
+                 style="position: absolute;top: 100px;right: 100px;z-index: 100;">下载导入标绘模板
+      </el-button>
+
+
+      <el-upload
+        :action="uploadUrl"
+        :multiple="false"
+        :show-file-list="false"
+        :on-success="handleSuccess"
+        :before-upload="beforeUpload"
+        :headers="this.headers"
+        style="position: absolute;top: 150px;right: 100px;z-index: 100;"
+      >
+        <el-button type="primary" @click="">上传当前地震标绘数据</el-button>
+      </el-upload>
+
+      <el-dialog
+        v-model="selectVisible"
+        width="30%"
+        @close="selectVisible=false"
+      >
+        <template #title>
+          <div style="text-align: center;">下载导入标绘模板</div>
+        </template>
+
+        <div>
+          <div style="display: flex">
+
+            <div style="width: 50%">
+              <div>可选择标绘名称</div>
+              <el-row>
+                <el-tree
+                  ref="tree"
+                  :data="plotTreeData"
+                  :props="defaultProps"
+                  accordion
+                  show-checkbox
+                  @check-change="handleCheck"
+                >
+                </el-tree>
+              </el-row>
+            </div>
+
+            <div>
+              <div>已选择标绘名称</div>
+              <ul>
+                <li v-for="(item, index) in selectedNodes" :key="index">
+                  {{ item }}
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+          <div style="display: flex">
+            <div style="width: 50%">
+              <div style="text-align: center;">
+                <el-button type="primary" @click="confirmDownload()">确定</el-button>
+              </div>
+            </div>
+            <div style="width: 50%">
+              <div style="text-align: center;">
+                <el-button type="primary" @click="cancelDownload()">取消</el-button>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+
+      </el-dialog>
+
     </div>
+      <!-- Cesium 视图 -->
+      <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
   </div>
 </template>
 
@@ -135,7 +216,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
-import {getPlot, getPlotIcon} from '@/api/system/plot'
+import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
@@ -147,11 +228,16 @@ import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import {plotType} from "../../../cesium/plot/plotType.js";
+import {downloadPlotExcel, exportPlotExcel} from "../../../api/system/excel.js";
+import {getToken} from "../../../utils/auth.js";
+import * as XLSX from "xlsx";
+import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog,layeredShowPlot
   },
   data: function () {
     return {
@@ -189,10 +275,10 @@ export default {
           label: '现场救援类',
           children: [
             {
-              label: 'I类（救援力量类）'
+              label: 'I类（救援力量类）',
             },
             {
-              label: 'II类（救援行动类）'
+              label: 'II类（救援行动类）',
             },
           ]
         },
@@ -233,9 +319,6 @@ export default {
             // },
           ]
         },
-        // {
-        //   label: '量算工具',
-        // }
       ],
       defaultProps: {
         label: 'label',
@@ -271,6 +354,20 @@ export default {
       },
       //----------------------------------
       renderedPlotIds: new Set(), // 用于存储已经渲染的 plotid
+      //----------------------------------
+      zoomLevel: '市' , // 初始化缩放层级
+      pointsLayer :[], //传到子组件
+      //----------------------------------
+      plotList: [], // 用于指定地震标绘点导出
+      selectVisible: false,
+      selectedNodes: [], // 用于存储选中的节点信息
+
+
+      uploadUrl: '',
+      headers: {
+        Authorization: "Bearer " + getToken()
+      },
+      fieldMapping: []
     };
   },
   mounted() {
@@ -285,17 +382,17 @@ export default {
     this.getPlotPicture()
   },
   beforeUnmount() {
-    console.log("111",window.viewer)
-    if (window.viewer){
-      let viewer=window.viewer
-      let gl=viewer.scene.context._gl
+    console.log("111", window.viewer)
+    if (window.viewer) {
+      let viewer = window.viewer
+      let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
       console.log("webglcontext 已清除")
-      gl=null
+      gl = null
       window.viewer = null;
     }
   },
@@ -309,6 +406,11 @@ export default {
       Arrow.disable();
       Arrow.init(viewer);
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      // 监听相机高度并更新 zoomLevel
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       let options = {}
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
@@ -329,6 +431,7 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+
     },
     // 初始化ws
     initWebsocket() {
@@ -336,13 +439,17 @@ export default {
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
       // this.websock.onmessage = this.wsOnmessage()
-      // this.websock.wsAdd = this.wsAdd()
+      // this.websock.wsAdd = this.wsAdd()c0a80428-c790-43e4-ac9d-ba682b716900
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {
+      this.pointsLayer = []
       let that = this
       getPlot({eqid}).then(res => {
         let data = res
+
+        that.plotList = data
+
         let pointArr = data.filter(e => e.drawtype === 'point')
         let points = []
         pointArr.forEach(item => {
@@ -350,7 +457,7 @@ export default {
             let point = {
               earthquakeId: item.earthquakeId,
               plotId: item.plotId,
-              time: item.creationTime.replace("T"," "),
+              time: item.creationTime.replace("T", " "),
               plotType: item.plotType,
               drawtype: item.drawtype,
               latitude: item.latitude,
@@ -362,8 +469,10 @@ export default {
           }
         })
         that.drawPoints(points)
+        that.pointsLayer = [...points]
+        console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("polylineArr",polylineArr)
+        // console.log("polylineArr",polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -481,6 +590,295 @@ export default {
       // // 开始长轮询
       // fetchData();
     },
+
+    downloadPlot(plotList) {
+      // console.log("plotList:", plotList)
+
+      // 标题与表头
+      const plotIds = plotList.map(plot => plot.plotId);
+      const plotTypes = plotList.map(plot => plot.plotType);
+
+      getExcelPlotInfo(plotIds, plotTypes).then(res => {
+        console.log("res:", res)
+
+        // 只提取部分字段
+        // const headersAndContent = res.filter(item =>
+        //   item.plotInfo &&
+        //   (item.plotInfo.plotType === "待命队伍" ||
+        //     item.plotInfo.plotType === "已出发队伍" ||
+        //     item.plotInfo.plotType === "正在参与队伍")
+        // ).map(item => {
+
+          //提取全部字段，记得规范！！！
+          const headersAndContent = res.filter(item => item.plotInfo).map(item => {
+
+          const {plotInfo, plotTypeInfo} = item;
+
+          const plotTypeFields = Object.values(plotType).find(team => team.name === plotInfo.plotType);
+
+          const filteredPlotTypeInfo = Object.keys(plotTypeFields)
+            .filter(key => key !== 'name')
+            .reduce((obj, key) => {
+              if (plotTypeInfo[key] !== undefined) {
+                // 使用 plotType 中的 name 作为中文字段名
+                obj[plotTypeFields[key].name] = plotTypeInfo[key];
+              }
+              return obj;
+            }, {});
+
+          const drawTypeMap = new Map([
+            ["point", "点"],
+            ["polyline", "线"],
+            ["polygon", "面"]
+          ]);
+
+          // 创建结果对象，移除 result 字段的封装
+          return {
+            "绘制类型": drawTypeMap.get(plotInfo.drawtype) || "未知类型",
+            "标绘类型": plotInfo.plotType,
+            "经度": plotInfo.longitude,
+            "纬度": plotInfo.latitude,
+            "高程": plotInfo.elevation,
+            "角度": plotInfo.angle,
+            "开始时间": plotInfo.startTime.replace("T", " "),
+            "结束时间": plotInfo.endTime.replace("T", " "),
+            ...filteredPlotTypeInfo,
+          };
+        });
+
+        const eqTitle = this.title.replace("T", " ") + "级地震"
+
+        // 假设 headersAndContent 已经定义并包含相关数据
+
+        const uniqueFields = new Set();
+
+        headersAndContent.forEach(item => {
+          // if (item["标绘类型"] === "正在参与队伍" ||
+          //   item["标绘类型"] === "已出发队伍" ||
+          //   item["标绘类型"] === "待命队伍") {
+
+          // 将字段名称添加到 uniqueFields 中
+          Object.keys(item).forEach(key => {
+            uniqueFields.add(key);
+          });
+          // }
+        });
+
+        const fields = Array.from(uniqueFields);
+
+        console.log("字段:", fields);
+        console.log("地震名:", eqTitle)
+        console.log("表头和内容:", headersAndContent);
+
+        exportPlotExcel({
+          eqTitle,
+          fields,
+          headersAndContent,
+          fileName: eqTitle
+        }).then(res => {
+
+          const excelTitle = eqTitle.replace(/:/g, '：') + "标绘数据";
+
+          // 检查返回的是否是 Blob
+          if (res && res instanceof Blob) {
+            // 创建 Blob 对象
+            const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+            // 创建下载链接
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${excelTitle}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            // window.URL.revokeObjectURL(url);
+          } else {
+            console.error('下载失败，返回的数据不是 Blob', res);
+          }
+        }).catch(error => {
+          console.error('请求错误', error);
+        });
+      })
+
+    },
+
+    showSelect() {
+      this.selectVisible = true
+      this.initializeTreeChildren()
+    },
+
+    handleCheck() {
+      const checkedNodes = this.$refs.tree.getCheckedNodes();
+
+      // 提取所有的最高级和第二级的label
+      const highestAndSecondLabels = [];
+      this.plotTreeData.forEach(item => {
+        // 添加最高级label
+        highestAndSecondLabels.push(item.label);
+        // 添加每个子项的label
+        if (item.children) {
+          item.children.forEach(child => {
+            highestAndSecondLabels.push(child.label);
+          });
+        }
+      });
+
+      // 过滤掉最高级和第二级的label
+      this.selectedNodes = checkedNodes
+        .map(node => node.label)
+        // 过滤掉最高级和第二级的 label
+        .filter(label => !highestAndSecondLabels.includes(label));
+    },
+
+    confirmDownload() {
+      const sheet = this.selectedNodes.map(node => {
+        // 反向查找键
+        const typeKey = Object.keys(plotType).find(key => plotType[key].name === node);
+        const fields = [];
+        fields.unshift(
+          {name: "绘制类型", type: "text"},
+          {name: "经度", type: "text"},
+          {name: "纬度", type: "text"},
+          {name: "高程", type: "text"},
+          {name: "角度", type: "text"},
+          {name: "开始时间", type: "text"},
+          {name: "结束时间", type: "text"}
+        );
+
+        if (typeKey) {
+          const typeData = plotType[typeKey];
+          for (const [key, value] of Object.entries(typeData)) {
+            // 仅处理有 content 的字段或 type 为 text 的字段
+            const field = {
+              name: value.name,
+              type: value.type,
+            };
+            if (value.type !== 'text' && value.content) {
+              field.content = value.content;
+            }
+            fields.push(field);
+          }
+        }
+        fields.splice(7, 1); // 删除第九个元素
+        return {
+          name: node,
+          fields: fields
+        };
+      });
+
+      const plotBTO = {
+        sheets: sheet
+      };
+
+      console.log(sheet)
+
+      downloadPlotExcel(plotBTO).then(res => {
+        const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const excelTitle ="标绘数据模板";
+        link.setAttribute('download', `${excelTitle}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+
+      this.selectVisible = false;
+      this.selectedNodes = [];
+      // 获取当前勾选的节点
+      const checkedNodes = this.$refs.tree.getCheckedNodes();
+
+      // 逐个取消勾选
+      checkedNodes.forEach(node => {
+        this.$refs.tree.setChecked(node, false);
+      });
+    },
+
+    cancelDownload() {
+      this.selectVisible = false;
+      this.selectedNodes = []
+      // 获取当前勾选的节点
+      const checkedNodes = this.$refs.tree.getCheckedNodes();
+
+      // 逐个取消勾选
+      checkedNodes.forEach(node => {
+        this.$refs.tree.setChecked(node, false);
+      });
+    },
+
+    // 新方法展示与点击节点相关的name字段
+    initializeTreeChildren() {
+      this.plotTreeData.forEach(rootNode => {
+        if (rootNode.children) {
+          rootNode.children.forEach(child => {
+            let arr = this.plotPicture.filter(item => item.type === child.label);
+            // 将 arr 中的每个项的 name 添加到 children 中
+            child.children = arr.map(item => ({
+              label: item.name,
+              uuid: item.uuid,
+              children: [] // 初始化为空数组
+            }));
+          });
+        }
+      });
+    },
+
+
+    beforeUpload(file) {
+      const type = file.name.split('.')[1];
+      // 获取不带扩展名的文件名
+      const filename = file.name.slice(0, -(type.length + 1));
+
+      const isExcel = (type === "xlsx") || (type === 'xls');
+      if (!isExcel) {
+        this.$message({
+          type: 'error',
+          message: '附件格式错误，请重新上传xlsx或xls文件！'
+        });
+        return false;
+      }
+
+      // 创建 FileReader 对象来读取 Excel 文件
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // 检查是否正确读取工作簿内容
+        console.log("工作簿内容：", workbook);
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // 获取第一行第一列内容
+        const firstCell = worksheet['A1'];
+        if (!firstCell && firstCell !== "绘制类型") {
+          this.$message({
+              type: 'error',
+              message: `文件的第一行数据有误，请检查文件内容！`
+            }
+          );
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+      this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}`;
+      // this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}&${this.fieldMapping}`;
+      return true;
+    },
+
+    handleSuccess() {
+      console.log("上传成功")
+    },
+    // -----------------------------------------------------------------------------------------------------------------
+
+    getCheckedNodes() {
+      // 获取所有已选中的节点，包括三级节点
+      const checkedNodes = this.$refs.plotTree.getCheckedNodes();
+      console.log("Checked nodes:", checkedNodes);
+    },
+
     entityclustering() {
       // window.viewer.dataSource.cl
       let dataSource = new Cesium.CustomDataSource("myData");
@@ -521,7 +919,6 @@ export default {
 
 
         let pickedEntity = window.viewer.scene.pick(click.position);
-        // console.log("pickedEntity",pickedEntity)
         window.selectedEntity = pickedEntity?.id
 
         this.dataSourcePopupVisible = false
@@ -816,7 +1213,7 @@ export default {
         let data = []
         for (let i = 0; i < resData.length; i++) {
           let item = resData[i]
-          item.time = resData[i].occurrenceTime.replace("T"," ")
+          item.time = resData[i].occurrenceTime.replace("T", " ")
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -826,7 +1223,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].occurrenceTime.replace("T"," ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
+        that.title = that.tableData[0].occurrenceTime.replace("T", " ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -849,9 +1246,9 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-        getEqById({id: eqid}).then(res => {
+      getEqById({id: eqid}).then(res => {
         //震中标绘点
-          console.log("res",res)
+        console.log("res", res)
         this.centerPoint = res
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
@@ -881,9 +1278,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            parseFloat(this.centerPoint.height || 0)
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -1301,23 +1698,6 @@ export default {
       this.popupVisiblePolygon = false;
     },
 
-    /**
-     * 提取实体属性用于路由
-     *
-     * 此函数旨在根据实体的属性名称，动态地从实体对象中提取相应的属性值，
-     * 并将其组织成一个新的对象返回这对于构建动态路由或者进行属性比较等操作非常有用
-     *
-     * @param {Object} entity - 需要提取属性的实体对象，包含properties属性，其中包含可动态提取的属性
-     * @returns {Object} 返回一个新对象，该对象的属性和值根据entity.properties.propertyNames动态生成
-     */
-    //迁移thd页面的方法
-    extractDataForRouter(entity) {
-      let properties = {};
-      entity.properties.propertyNames.forEach(name => {
-        properties[name] = entity.properties[name].getValue();
-      });
-      return properties;
-    },
     //------------------------------------------------------------------------------
 
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
@@ -1379,7 +1759,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -1436,6 +1816,20 @@ export default {
         },
         heights: heights // 高度单独返回
       };
+    },
+    /*获取目前相机所属高度*/
+    updateZoomLevel(cameraHeight) {
+      console.log("层级",cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if(cameraHeight > 4000){
+        this.zoomLevel = '乡/镇'
+      }else{
+        this.zoomLevel = '村'
+      }
     }
   }
 }
@@ -1555,16 +1949,16 @@ export default {
   color: #FFFFFF !important;
 }
 
-.el-tree {
+.plotTool {
   background: rgb(38 36 36) !important;
   color: #ffffff !important;
 }
 
-:deep(.el-tree-node__content:hover) {
+:deep(.plotTool .el-tree-node__content:hover) {
   background-color: rgb(56, 79, 105) !important;
 }
 
-:deep(.el-tree-node:focus > .el-tree-node__content) {
+:deep(.plotTool .el-tree-node:focus > .el-tree-node__content) {
   background-color: rgb(56, 79, 105) !important;
 }
 

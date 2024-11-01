@@ -82,6 +82,21 @@ export function getPlotInfos(query) {
   })
 }
 
+export function getExcelPlotInfo(plotIds, plotTypes) {
+  const params = {
+    plotIds: plotIds,
+    plotTypes: plotTypes
+  };
+  return request({
+    url: '/system/ploy/getExcelPlotInfo',
+    method: 'post',
+    data: JSON.stringify(params),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 export function addPlotInfo(data){
   return request({
     url: '/system/ploy/addplotinfo',

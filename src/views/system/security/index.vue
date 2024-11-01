@@ -334,7 +334,7 @@ function clearDialogContent() {
   dialogContent.value = ({// 弹窗内容
     uuid: "",
     applicationType: "自定义",
-    source: null,
+    source: "",
     agreement: "tcp",
     port: null,
     notes: "",

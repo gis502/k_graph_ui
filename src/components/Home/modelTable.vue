@@ -1,28 +1,31 @@
 <!--倾斜模型调整列表-->
 <template>
-    <div class="eqtable">
-        <el-table :data="modelTableData" style="width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
-                  :cell-style="tableColor" @row-click="">
-            <el-table-column prop="name" label="模型名称" width="300px"></el-table-column>
-           <el-table-column label="操作" width="158px" align="center">
-                <template #default="scope">
-                    <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-
-        <div style="margin-left: 20%;">
-            <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="currentPage"
-                    :page-size="pageSize"
-                    layout="total, prev, pager, next, jumper"
-                    :total="total">
-            </el-pagination>
-        </div>
+  <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
+    <div class="list-dialog__header" >
+      <span >三维模型</span>
     </div>
-
+    <div class="list-dialog__content" style="height: calc(100% - 40px);">
+      <el-table :data="modelTableData" style="width: 100%;margin-bottom: 5px;height: 34vw;" :header-cell-style="tableHeaderColor"
+                :cell-style="tableColor" @row-click="">
+          <el-table-column prop="name" label="模型名称" width="250px"></el-table-column>
+         <el-table-column label="操作" width="158px" align="center">
+              <template #default="scope">
+                  <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
+              </template>
+          </el-table-column>
+      </el-table>
+      <div style="margin-left: 20%;">
+          <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="currentPage"
+                  :page-size="pageSize"
+                  layout="total, prev, pager, next, jumper"
+                  :total="total">
+          </el-pagination>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -32,7 +35,7 @@ import {Edit} from '@element-plus/icons-vue'
 
 let modelStatus = true
 
-let props = defineProps(['modelData']);
+let props = defineProps(['modelData','total']);
 console.log(props)
 const total = ref(0);
 const pageSize = ref(6);
@@ -47,12 +50,15 @@ let modelInfo = reactive({
 })
 
 watch(() => props.modelData, () => {
-    console.log(props.modelData)
-    let list = props.modelData
-    console.log(list)
-    getEqData.value = list;
-    total.value = list.length;
-    modelTableData.value = getPageArr();
+    // console.log(props.modelData)
+    // let list = props.modelData
+    // console.log(list)
+    // getEqData.value = list;
+    // total.value = list.length;
+    // modelTableData.value = getPageArr();
+  getEqData.value = props.modelData;
+  total.value = props.total; // 更新总数
+  modelTableData.value = getPageArr();
 });
 
 const go = (row) => {
@@ -89,13 +95,13 @@ const getPageArr = () => {
 };
 
 const handleSizeChange = (val) => {
-    pageSize.value = val;
-    tableData.value = getPageArr();
+  pageSize.value = val;
+  modelTableData.value = getPageArr(); // 使用 modelTableData
 };
 
 const handleCurrentChange = (val) => {
-    currentPage.value = val;
-    tableData.value = getPageArr();
+  currentPage.value = val;
+  modelTableData.value = getPageArr(); // 使用 modelTableData
 };
 
 const formatTime = (time) => time ? time.replace('T', ' ') : '';
@@ -174,8 +180,40 @@ function initModel(modelName) {
 </script>
 
 <style scoped>
+.list-dialog .list-dialog__header {
+  height: 41px;
+  width: 100%;
+  line-height: 41px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  padding: 0 5px 0 10px;
+  position: relative;
+  top: 0;
+  left: 0;
+  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
+  background-size: 100% 100%;
+}
+.list-dialog {
+  height: 100%;
+  width: 100%;
+  background-color: rgb(22, 53, 77,0.9);
+  padding: 0!important;
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
+}
+.list-dialog .list-dialog__content {
+  height: 100%;
+  padding: 14px;
+  overflow: auto;
+  border-radius: 4px;
+}
 .table {
-    text-align: center;
+  width: 100%;
+  height: 98%;
+  margin-bottom: 8px;
+  text-align: center;
 }
 
 /*表格页面样式*/

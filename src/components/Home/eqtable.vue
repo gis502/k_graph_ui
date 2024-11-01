@@ -101,7 +101,7 @@ const tableColor = ({rowIndex}) => {
   return {
     'border-width':'1px',
     'border-style':'solid',
-    'border-color': '#555555',
+    // 'border-color': '#555555',
     'background-color': backgroundColor,
     'color': '#fff',
     'padding': '0',
@@ -129,9 +129,43 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 </script>
 
 <style scoped>
+.list-dialog .list-dialog__header {
+  height: 41px;
+  width: 100%;
+  line-height: 41px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  padding: 0 5px 0 10px;
+  position: relative;
+  top: 0;
+  left: 0;
+  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
+  background-size: 100% 100%;
+}
+.list-dialog {
+  height: 100%;
+  width: 100%;
+  background-color: rgb(22, 53, 77,0.9);
+  padding: 0!important;
+  backdrop-filter: none!important;
+  border: 1px solid #008aff70;
+}
+.list-dialog .list-dialog__content {
+  height: 100%;
+  padding: 11px;
+  overflow: auto;
+  border-radius: 4px;
+}
 .table {
+  width: 100%;
+  height: 98%;
+  margin-bottom: 8px;
   text-align: center;
 }
+
+
 
 /*表格页面样式*/
 :deep(.el-table__inner-wrapper::before) {
