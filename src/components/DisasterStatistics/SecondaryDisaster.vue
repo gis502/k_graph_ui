@@ -36,6 +36,7 @@ watch(() => props.newEqId, (newValue) => {
 });
 </script>
 
+
 <style scoped>
 .style-container {
   width: 100%;
