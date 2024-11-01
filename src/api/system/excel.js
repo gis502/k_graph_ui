@@ -17,6 +17,24 @@ export function exportExcel(data) {
     })
 }
 
+export function exportPlotExcel(data) {
+  return request({
+    url: '/excel/exportPlotExcel',
+    method: 'post',
+    responseType: 'blob',
+    data
+  })
+}
+
+export function downloadPlotExcel(plotBTO) {
+  return request({
+    url: '/excel/downloadPlotExcel',
+    method: 'post',
+    responseType: 'blob',
+    data: plotBTO
+  })
+}
+
 export function getField() {
     return request({
         url: '/Field',

@@ -358,6 +358,7 @@ export default {
   mounted() {
     this.init();
     this.getEq();
+    // this.initWebsocket()
   },
 
   computed: {
@@ -613,7 +614,8 @@ export default {
           })
           //雅安行政区加载 end
         })
-      } else if (require === "none") {
+      }
+      else if (require === "none") {
         this.eqThemes.show.isshowRegion = true;
         this.removeLayers(['YaanRegionLayer'])
         this.RegionLabels.forEach(label => {
@@ -1069,119 +1071,6 @@ export default {
       }
     },
 
-// 计算估算面积
-    calculateArea(selectedTabData, type) {
-      const magnitude = parseFloat(selectedTabData.magnitude);
-      const r = this.calculateRadius(magnitude); // 计算半径
-      const area = Math.PI * Math.pow(r, 2); // 计算圆面积
-      if (type === 'buildingDamage') {
-        return (area * 0.02).toFixed(2); // 返回面积的2%，保留两位小数
-      } else if (type === 'economicLoss') {
-        return (area * 80).toFixed(2); // 返回面积的80倍，保留两位小数
-      }
-
-    },
-
-// 计算震级对应的影响半径
-    calculateRadius(magnitude) {
-      if (magnitude < 4.5) throw new Error("Invalid magnitude");
-
-      const radiusMap = [
-        { min: 4.5, max: 5.0, r1: 2, r2: 5 },
-        { min: 5.0, max: 5.5, r1: 5, r2: 10 },
-        { min: 5.5, max: 6.0, r1: 11, r2: 30 },
-        { min: 6.0, max: 6.5, r1: 30, r2: 50 },
-        { min: 6.5, max: 7.0, r1: 50, r2: 80 },
-        { min: 7.0, max: 8.0, r1: 80, r2: 200 },
-        { min: 8.0, max: Infinity, r1: 200, r2: 200 }
-      ];
-
-      const range = radiusMap.find(r => magnitude >= r.min && magnitude <= r.max);
-      return range ? range.r1 + (magnitude - range.min) * (range.r2 - range.r1) / (range.max - range.min) : 200;
-    },
-
-// 获取受影响的区县
-    getAffectedCounties(latitude, longitude, radius) {
-      const affectedCounties = [];
-      const counties = sichuanCounty.features;
-
-      for (const feature of counties) {
-        const countyName = feature.properties.name; // 获取区县名称
-        const coordinates = feature.geometry.coordinates;
-
-        // 由于可能是多边形，循环检查每个多边形的坐标
-        let isAffected = false;
-        let distanceToEpicenter = null; // 初始化距离
-
-        for (const polygon of coordinates) {
-          // 对于每个多边形，检查其是否包含震中点
-          if (this.isPointInPolygon([longitude, latitude], polygon[0])) {
-            isAffected = true;
-            break;
-          }
-
-          // 如果多边形未包含震中点，则检查多边形的所有顶点是否在影响半径内
-          for (const point of polygon[0]) {
-            const countyLat = point[1];
-            const countyLng = point[0];
-
-            // 计算距离
-            const distance = this.calculateDistance(latitude, longitude, countyLat, countyLng);
-
-            // 如果距离小于或等于半径，则该区县在影响范围内
-            if (distance <= radius) {
-              isAffected = true;
-              distanceToEpicenter = distance; // 记录距离
-              break;
-            }
-          }
-
-          if (isAffected) break; // 找到影响的区县后停止检查
-        }
-
-        if (isAffected) {
-          affectedCounties.push({
-            name: countyName,
-            distance: distanceToEpicenter // 以对象形式存储区县和距离
-          }); // 添加到影响的区县列表
-        }
-      }
-
-      return affectedCounties;
-    },
-
-    // 判断点是否在多边形内部的函数
-    isPointInPolygon(point, polygon) {
-      const [lng, lat] = point; // 震中点
-      let inside = false;
-
-      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-        const [xi, yi] = polygon[i];
-        const [xj, yj] = polygon[j];
-
-        const intersect = ((yi > lat) !== (yj > lat)) &&
-          (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-      }
-
-      return inside;
-    },
-
-
-// 计算两点间距离
-    calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // 地球半径，单位：千米
-      const dLat = this.degreesToRadians(lat2 - lat1);
-      const dLon = this.degreesToRadians(lon2 - lon1);
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(this.degreesToRadians(lat1)) * Math.cos(this.degreesToRadians(lat2)) * Math.sin(dLon / 2) ** 2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // 哈弗辛公式
-    },
-
-// 角度转换为弧度
-    degreesToRadians(degrees) {
-      return degrees * Math.PI / 180;
-    },
-
     // 经济损失
     showEconomicLoss() {
       const tabName = "经济损失";
@@ -1254,8 +1143,6 @@ export default {
       }
     },
 
-
-
     // 人员伤亡评估
     showPersonalCasualty() {
       const tabName = "人员伤亡";
@@ -1315,6 +1202,121 @@ export default {
     // -----------------------------------------------------------------------------------------------------------------
     // 工具函数
     // -----------------------------------------------------------------------------------------------------------------
+
+    // 计算估算面积
+    calculateArea(selectedTabData, type) {
+      const magnitude = parseFloat(selectedTabData.magnitude);
+      const r = this.calculateRadius(magnitude); // 计算半径
+      const area = Math.PI * Math.pow(r, 2); // 计算圆面积
+      if (type === 'buildingDamage') {
+        return (area * 0.02).toFixed(2); // 返回面积的2%，保留两位小数
+      } else if (type === 'economicLoss') {
+        return (area * 80).toFixed(2); // 返回面积的80倍，保留两位小数
+      }
+
+    },
+
+    // 计算震级对应的影响半径
+    calculateRadius(magnitude) {
+      if (magnitude < 4.5) throw new Error("Invalid magnitude");
+
+      const radiusMap = [
+        { min: 4.5, max: 5.0, r1: 2, r2: 5 },
+        { min: 5.0, max: 5.5, r1: 5, r2: 10 },
+        { min: 5.5, max: 6.0, r1: 11, r2: 30 },
+        { min: 6.0, max: 6.5, r1: 30, r2: 50 },
+        { min: 6.5, max: 7.0, r1: 50, r2: 80 },
+        { min: 7.0, max: 8.0, r1: 80, r2: 200 },
+        { min: 8.0, max: Infinity, r1: 200, r2: 200 }
+      ];
+
+      const range = radiusMap.find(r => magnitude >= r.min && magnitude <= r.max);
+      return range ? range.r1 + (magnitude - range.min) * (range.r2 - range.r1) / (range.max - range.min) : 200;
+    },
+
+    // 获取受影响的区县
+    getAffectedCounties(latitude, longitude, radius) {
+      const affectedCounties = [];
+      const counties = sichuanCounty.features;
+
+      for (const feature of counties) {
+        const countyName = feature.properties.name; // 获取区县名称
+        const coordinates = feature.geometry.coordinates;
+
+        // 由于可能是多边形，循环检查每个多边形的坐标
+        let isAffected = false;
+        let distanceToEpicenter = null; // 初始化距离
+
+        for (const polygon of coordinates) {
+          // 对于每个多边形，检查其是否包含震中点
+          if (this.isPointInPolygon([longitude, latitude], polygon[0])) {
+            isAffected = true;
+            break;
+          }
+
+          // 如果多边形未包含震中点，则检查多边形的所有顶点是否在影响半径内
+          for (const point of polygon[0]) {
+            const countyLat = point[1];
+            const countyLng = point[0];
+
+            // 计算距离
+            const distance = this.calculateDistance(latitude, longitude, countyLat, countyLng);
+
+            // 如果距离小于或等于半径，则该区县在影响范围内
+            if (distance <= radius) {
+              isAffected = true;
+              distanceToEpicenter = distance;
+              break;
+            }
+          }
+          // 找到影响的区县后停止检查
+          if (isAffected) break;
+        }
+
+        if (isAffected) {
+          affectedCounties.push({
+            name: countyName,
+            distance: distanceToEpicenter
+          });
+        }
+      }
+
+      return affectedCounties;
+    },
+
+    // 判断点是否在多边形内部的函数
+    isPointInPolygon(point, polygon) {
+      const [lng, lat] = point; // 震中点
+      let inside = false;
+
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const [xi, yi] = polygon[i];
+        const [xj, yj] = polygon[j];
+
+        const intersect = ((yi > lat) !== (yj > lat)) &&
+          (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+
+      return inside;
+    },
+
+
+    // 计算两点间距离
+    calculateDistance(lat1, lon1, lat2, lon2) {
+      // 地球半径，单位：千米
+      const R = 6371;
+      const dLat = this.degreesToRadians(lat2 - lat1);
+      const dLon = this.degreesToRadians(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(this.degreesToRadians(lat1)) * Math.cos(this.degreesToRadians(lat2)) * Math.sin(dLon / 2) ** 2;
+      // 哈弗辛公式
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    },
+
+    // 角度转换为弧度
+    degreesToRadians(degrees) {
+      return degrees * Math.PI / 180;
+    },
 
     // 检查条件并调用相应的 toggleYaanLayer 方法
     handleToggleYaanLayer() {
@@ -1381,7 +1383,7 @@ export default {
           }
         });
 
-        this.renderLayers(type); // 渲染特定图层
+        this.renderLayers(type);
       });
     },
 
