@@ -435,6 +435,7 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
+        console.log("this.eqid---------------------",this.eqid)
       this.websock = initWebSocket(this.eqid)
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
@@ -472,6 +473,7 @@ export default {
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
+        console.log("pointArr",pointArr)
         // console.log("polylineArr",polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
@@ -502,6 +504,7 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight');
         Arrow.showStraightArrow(straightArr)
+          console.log("straightArr----------------",straightArr)
 
         let attackArr = data.filter(e => e.drawtype === 'attack');
         Arrow.showAttackArrow(attackArr)
@@ -920,6 +923,7 @@ export default {
 
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id
+          // console.log("entity------------------",window.selectedEntity)
 
         this.dataSourcePopupVisible = false
         if (window.selectedEntity === undefined) {
@@ -1263,12 +1267,15 @@ export default {
         this.eqendTime = new Date(this.eqstartTime.getTime() + ((7 * 24 + 5) * 60 * 60 * 1000));
         this.currentTime = this.eqstartTime
 
-        this.updateMapandVariablebeforInit()
-
+        this.updateMapandVariablebeforInit(this.centerPoint)
       })
     },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
-    updateMapandVariablebeforInit() {
+    updateMapandVariablebeforInit(data) {
+      let centerData={
+        ...data,
+        drawtype: data.plotid
+      }
       //加载中心点
       viewer.entities.add({
         properties: {
