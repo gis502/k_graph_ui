@@ -50,13 +50,15 @@ import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasu
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
 import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingDamageInformation.vue";
 import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster.vue";
+import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
 
 // 选项数据
 const options = [
   {label: '震情伤亡信息可视化', value: 'EarthquakeCasualties'},
   {label: '交通电力通信信息可视化', value: 'TransportationElectricity'},
   {label: '建筑物受损信息可视化', value: 'BuildingDamageInformation'},
-  {label: '次生灾害信息可视化',value:'SecondaryDisaster'}
+  {label: '次生灾害信息可视化',value: 'SecondaryDisaster'},
+  {label: '力量物资信息可视化',value: 'ResourceStrength'},
 ]
 
 // 当前选择的组件标识符
@@ -68,6 +70,7 @@ const components = {
   TransportationElectricity,
   BuildingDamageInformation,
   SecondaryDisaster,
+  ResourceStrength,
 }
 
 // 动态获取选定的组件
