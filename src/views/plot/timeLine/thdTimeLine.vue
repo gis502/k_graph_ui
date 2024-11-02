@@ -1,13 +1,8 @@
 <template>
   <div>
-    <!--    地震列表切换-->
-    <!--    <div class="eqlist-button">-->
-    <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="toggleComponent('eqList')">地震列表</el-button>-->
-    <!--    </div>-->
     <div class="thd-eqtable" v-if="activeComponent === 'eqList'">
       <eqTable :eqData="tableData"/>
     </div>
-
     <!--    title-->
     <div class="mars-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
       <div class="mars-dialog__content" style="height: 100%;">
@@ -35,7 +30,6 @@
       </div>
     </div>
     <!--    title end-->
-
     <div class="button-container">
       <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
     </div>
@@ -83,9 +77,12 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-          <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
+          <div v-for="node in importantNodes" :key="node.position" class="time-node"
+               :style="{ left: `${node.position}%`, backgroundColor: node.color }"
+               >
+<!--            @click="jumpToNode(node)"-->
+          </div>
         </div>
-<!--         speedButton 和 chooseSpeed 放在一起 -->
                 <span class="speedButton">{{ speedOption }}</span>
                 <div class="chooseSpeed">
                   <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
@@ -393,7 +390,11 @@ export default {
       selectReportItem:'',
 
       jumpTimes:[],
-
+      importantNodes: [
+        { position: 20, label: '事件1', color: 'red' },
+        { position: 40, label: '事件2', color: 'blue' },
+        { position: 60, label: '事件3', color: 'green' }
+      ],
     };
   },
   created() {
@@ -403,6 +404,7 @@ export default {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
+    this.addImportantNodes()
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -569,6 +571,7 @@ export default {
       let cesiumStore = useCesiumStore()
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
     },
+
     // 关闭弹窗
     closePlotPop() {
       this.timelinePopupVisible = !this.timelinePopupVisible
@@ -1560,6 +1563,8 @@ export default {
               this.updateCurrentTime();
             }, speedtime); // 时间间隔改为5秒
     },
+
+    addImportantNodes(){},
     //时间轴end-------------
 
 
@@ -2981,7 +2986,19 @@ export default {
   cursor: pointer;
   /*transition: left 0.1s ease;*/
 }
-
+.time-node {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  border-radius: 60%;
+  cursor: pointer;
+  top: 0; /* 调整位置使其位于时间轴上方 */
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
 .tmp {
   position: absolute;
   top: 0%;
