@@ -788,7 +788,7 @@ export default {
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
-      // this.intimexuanran(eqid)
+      this.intimexuanran(eqid)
     },
 
     /**
@@ -802,25 +802,25 @@ export default {
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
         if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // 检查是否已经有定时器在运行
-          if (!this.realtimeinterval) {
-            // 设置定时器，每5秒执行一次
-            this.realtimeinterval = setInterval(() => {
-              // 如果时间位置不再为100%，停止定时器
-              if (this.currentTimePosition !== 100) {
-                clearInterval(this.realtimeinterval); // 停止定时器
-                this.realtimeinterval = null; // 清除引用
-                return; // 跳出当前循环
-              }
-              // 更新结束时间和当前时间，并计算时间轴进度和节点数量
-              this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-              this.eqendTime = new Date()
-              this.currentTime = this.eqendTime
-              this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-              this.currentNodeIndex = this.timelineAdvancesNumber
-              this.jumpNodes[this.timelineAdvancesNumber]=0;
-
-            }, 5000);
-          }
+          // if (!this.realtimeinterval) {
+          //   // 设置定时器，每5秒执行一次
+          //   this.realtimeinterval = setInterval(() => {
+          //     // 如果时间位置不再为100%，停止定时器
+          //     if (this.currentTimePosition !== 100) {
+          //       clearInterval(this.realtimeinterval); // 停止定时器
+          //       this.realtimeinterval = null; // 清除引用
+          //       return; // 跳出当前循环
+          //     }
+          //     // 更新结束时间和当前时间，并计算时间轴进度和节点数量
+          //     this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+          //     this.eqendTime = new Date()
+          //     this.currentTime = this.eqendTime
+          //     this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+          //     this.currentNodeIndex = this.timelineAdvancesNumber
+          //     this.jumpNodes[this.timelineAdvancesNumber]=0;
+          //
+          //   }, 5000);
+          // }
 
           // 当没有结束时间定时器运行时，启动定时器
           if (!this.eqendtimeinterval) {
