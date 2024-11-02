@@ -221,6 +221,7 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../../cesium
 //专题图
 import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+import {initWebSocket} from "@/cesium/WS.js";
 export default {
   components: {
     thematicMapPreview,
@@ -420,74 +421,6 @@ export default {
   },
   // 图层要素
   methods: {
-    // 关闭弹窗
-    closePlotPop() {
-      this.timelinePopupVisible = !this.timelinePopupVisible
-    },
-    // ws发送数据（只有点的是在这里）
-    wsSendPoint(data) {
-      this.websock.send(data)
-    },
-    clearResource(viewer){
-      let gl=viewer.scene.context._gl
-      viewer.entities.removeAll()
-      // viewer.scene.primitives.removeAll()
-      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
-      viewer.destroy()
-      gl.getExtension("WEBGL_lose_context").loseContext();
-      gl=null
-    },
-    /**
-     * 计算复选框列表的高度
-     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
-     *
-     * @returns {number} 返回复选框列表的总高度
-     */
-    getHeight() {
-      // 每个复选框的高度
-      const checkboxHeight = 50;
-      // 复选框之间的间距值
-      const margin = 10;
-      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
-      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
-      console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
-      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
-      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
-    },
-
-    /**
-     * 图层要素 切换展开状态
-     *
-     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
-     *
-     * @returns {void} 无返回值
-     */
-    toggleExpand() {
-      console.log("Toggle expand clicked");
-      this.isExpanded = !this.isExpanded;
-    },
-
-    /**
-     * 设置组件展开的面板互斥,避免堆叠
-     * 切换组件的显示状态
-     * @param {String} component - 要切换的组件名称
-     */
-    toggleComponent(component) {
-      // 收起图层要素
-      this.isExpanded = false;
-      // 清除主题地图预览的显示状态
-      this.isshowThematicMapPreview = null;
-      // 清除选择的主题地图
-      this.selectthematicMap = null;
-
-      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
-      this.activeComponent = this.activeComponent === component ? null : component;
-
-      // 如果激活的组件是地震列表，则获取地震数据
-      if (this.activeComponent === 'eqList') {
-        this.getEq();
-      }
-    },
 
     // 初始化控件等
     init() {
@@ -625,13 +558,94 @@ export default {
 
       // 初始同步
       syncCamera();
+      this.initWebSocket()
+      this.initcesiumPlot()
     },
+    initWebSocket() {
+      this.websock = initWebSocket(this.eqid)
+      this.websock.eqid = this.eqid
+    },
+    initcesiumPlot(){
+      let cesiumStore = useCesiumStore()
+      cesiumPlot.init(window.viewer, this.websock, cesiumStore)
+    },
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
+    },
+
+    clearResource(viewer){
+      let gl=viewer.scene.context._gl
+      viewer.entities.removeAll()
+      // viewer.scene.primitives.removeAll()
+      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+      viewer.destroy()
+      gl.getExtension("WEBGL_lose_context").loseContext();
+      gl=null
+    },
+    /**
+     * 计算复选框列表的高度
+     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
+     *
+     * @returns {number} 返回复选框列表的总高度
+     */
+    getHeight() {
+      // 每个复选框的高度
+      const checkboxHeight = 50;
+      // 复选框之间的间距值
+      const margin = 10;
+      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
+      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
+      console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
+      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
+      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
+    },
+
+    /**
+     * 图层要素 切换展开状态
+     *
+     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
+     *
+     * @returns {void} 无返回值
+     */
+    toggleExpand() {
+      console.log("Toggle expand clicked");
+      this.isExpanded = !this.isExpanded;
+    },
+
+    /**
+     * 设置组件展开的面板互斥,避免堆叠
+     * 切换组件的显示状态
+     * @param {String} component - 要切换的组件名称
+     */
+    toggleComponent(component) {
+      // 收起图层要素
+      this.isExpanded = false;
+      // 清除主题地图预览的显示状态
+      this.isshowThematicMapPreview = null;
+      // 清除选择的主题地图
+      this.selectthematicMap = null;
+
+      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+      this.activeComponent = this.activeComponent === component ? null : component;
+
+      // 如果激活的组件是地震列表，则获取地震数据
+      if (this.activeComponent === 'eqList') {
+        this.getEq();
+      }
+    },
+
 
     /**
      * 取地震信息+开始结束当前时间初始化
      * @param {string} eqid - 地震ID
      */
     getEqInfo(eqid) {
+
       // 调用接口根据ID获取地震信息
       console.log("eqid",eqid)
       getEqById({id: eqid}).then(res => {
@@ -801,8 +815,11 @@ export default {
           id: this.centerPoint.plotid,
           plottype: "震中",
         });
-        this.getPlotwithStartandEndTime(this.eqid)
+
       }, 3000);
+      setTimeout(() => {
+        this.xuanran(this.eqid)
+    }, 6000);
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
 
@@ -812,6 +829,7 @@ export default {
      * @param {string} eqid - 需要渲染的数据的唯一标识符
      */
     xuanran(eqid) {
+
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
@@ -1140,15 +1158,73 @@ export default {
         this.currentTime = this.eqstartTime;
         this.currentNodeIndex = 0;
         // 从 dataSource 中删除点
-        // this.plots.forEach(item => {
-        //   if(this.plotisshow[item.plotId]===1){
-        //     this.plotisshow[item.plotId] = 0
-        //     const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-        //     window.pointDataSource.entities.remove(entityToRemove); // 移除点
-        //
-        //   }
-        // })
-        // this.updatePlot(false)
+        this.plots.forEach(item => {
+          if(this.plotisshow[item.plotId]===1){
+            this.plotisshow[item.plotId] = 0
+            const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+            window.pointDataSource.entities.remove(entityToRemove); // 移除点
+
+          }
+        })
+
+        viewer.entities.removeById(this.centerPoint.plotid);
+
+        let colorFactor = 1.0;
+        const intervalTime = 500; // 切换颜色的时间间隔
+        const animationDuration = 3000; // 动画总持续时间（3秒）
+        const intervalId = setInterval(() => {
+          colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
+        }, intervalTime);
+
+        setTimeout(() => {
+          clearInterval(intervalId); // 停止颜色切换
+        }, animationDuration);
+
+        //加载中心点
+        viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(
+              parseFloat(this.centerPoint.geom.coordinates[0]),
+              parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.height || 0)
+          ),
+          billboard: {
+            image: centerstar,
+            width: 40,
+            height: 40,
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            color: new Cesium.CallbackProperty(() => {
+              return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+            }, false),
+          },
+          label: {
+            text: this.centerPoint.earthquakeName,
+            show: true,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.RED,        //字体颜色
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -16),
+          },
+          id: this.centerPoint.plotid,
+          plottype: "震中",
+          layer: "标绘点"
+        });
+
+
+        setTimeout(() => {
+
+          this.updatePlot(false)
+        }, 3000);
+
+
+
 
       }
 
@@ -1156,7 +1232,7 @@ export default {
       // 每隔100毫秒更新一次当前时间
       this.intervalId = setInterval(() => {
         this.updateCurrentTime();
-      }, 500);
+      }, 3000);
     },
 
 
@@ -1831,8 +1907,7 @@ export default {
      */
     getEq() {
       let that = this
-      let cesiumStore = useCesiumStore()
-      cesiumPlot.init(window.viewer, this.websock, cesiumStore)
+
       getAllEq().then(res => {
         that.tableData = res
         // 初始化标绘所需的viewer、ws、pinia

@@ -3,11 +3,9 @@
       class="detailedNews"
       v-show="ifShowDialog"
   >
-
     <div class="close-button" @click="hideDetailedNews">
       &times; <!-- 叉号字符 -->
     </div>
-
 
     <div>
       <h2 class="news-title">{{ showingNewsContent.title }}</h2>
@@ -18,6 +16,7 @@
     </div>
     <div class="news-main">
       <div v-html="formattedNewsContent"></div>
+<!--      新闻内容-->
       <div v-if="showingNewsContent.image" class="news-img">
         <img :src="showingNewsContent.image" alt="新闻图片" @error="handleErrorImage" style="max-width: 400px; height: auto;"/>
       </div>
@@ -39,10 +38,6 @@ export default {
       required: true
     }
   },
-  // props: [
-  //     'showDetailedNewsDialog',
-  //     'showingNewsContent'
-  // ],
   watch: {
     showingNewsContent(newValue) {
       // console.log("showingNewsContent changed:", newValue);
@@ -64,18 +59,10 @@ export default {
     return{
       error,
       newsContent:'',
-      // showingNewsContent: {
-      //     id: '',
-      //     time: '',
-      //     content: '',
-      //     img: '',
-      // },
       ifShowDialog: false
     }
   },
   mounted() {
-    // console.log("newsDialog----",this.showingNewsContent)
-
   },
   methods:{
     handleErrorImage(event) {
@@ -87,10 +74,6 @@ export default {
     },
     timestampToTime(timestamp) {
       let DateObj = new Date(timestamp)
-      // if (isNaN(DateObj.getTime())) {
-      //   console.error("无效的时间戳:", timestamp);
-      //   return "";
-      // }
       // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
       let year = DateObj.getFullYear()
       let month = DateObj.getMonth() + 1
