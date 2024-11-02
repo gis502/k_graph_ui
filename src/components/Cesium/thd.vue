@@ -395,7 +395,6 @@ import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
-
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
@@ -447,6 +446,8 @@ import {
   findModel
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
+import Arrow from "@/cesium/drawArrow/drawPlot.js"
+
 
 export default {
   computed: {
@@ -700,6 +701,7 @@ export default {
   },
   mounted() {
     this.init()
+    this.initWebSocket()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
@@ -1009,9 +1011,10 @@ export default {
       syncCamera();
     },
 
-    // 初始化ws
-    initWebsocket() {
-      this.websock = initWebSocket(this.eqid)
+      // 初始化ws
+    initWebSocket() {
+        this.websock = initWebSocket(this.eqid)
+      this.websock.eqid = this.eqid
     },
 
     /**
@@ -1058,6 +1061,8 @@ export default {
         this.updateMapandVariablebeforInit(this.centerPoint)
 
       })
+
+
 
     },
 
@@ -1186,10 +1191,12 @@ export default {
       // 初始化标绘所需的viewer、ws、pinia
       let cesiumStore = useCesiumStore()
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
+        Arrow.disable();
+        Arrow.init(window.viewer);
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
-      // this.intimexuanran(eqid)
+      this.intimexuanran(eqid)
     },
 
     /**
@@ -1204,25 +1211,25 @@ export default {
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
         if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // 检查是否已经有定时器在运行
-          if (!this.realtimeinterval) {
-            // 设置定时器，每5秒执行一次
-            this.realtimeinterval = setInterval(() => {
-              // 如果时间位置不再为100%，停止定时器
-              if (this.currentTimePosition !== 100) {
-                clearInterval(this.realtimeinterval); // 停止定时器
-                this.realtimeinterval = null; // 清除引用
-                return; // 跳出当前循环
-              }
-              // 更新结束时间和当前时间，并计算时间轴进度和节点数量
-              this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-              this.eqendTime = new Date()
-              this.currentTime = this.eqendTime
-              this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-              this.currentNodeIndex = this.timelineAdvancesNumber
-              this.jumpNodes[this.timelineAdvancesNumber]=0;
-
-            }, 5000);
-          }
+          // if (!this.realtimeinterval) {
+          //   // 设置定时器，每5秒执行一次
+          //   this.realtimeinterval = setInterval(() => {
+          //     // 如果时间位置不再为100%，停止定时器
+          //     if (this.currentTimePosition !== 100) {
+          //       clearInterval(this.realtimeinterval); // 停止定时器
+          //       this.realtimeinterval = null; // 清除引用
+          //       return; // 跳出当前循环
+          //     }
+          //     // 更新结束时间和当前时间，并计算时间轴进度和节点数量
+          //     this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
+          //     this.eqendTime = new Date()
+          //     this.currentTime = this.eqendTime
+          //     this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
+          //     this.currentNodeIndex = this.timelineAdvancesNumber
+          //     this.jumpNodes[this.timelineAdvancesNumber]=0;
+          //
+          //   }, 5000);
+          // }
 
           // 当没有结束时间定时器运行时，启动定时器
           if (!this.eqendtimeinterval) {
@@ -1309,10 +1316,13 @@ export default {
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
-      console.log("2")
+      // console.log("2")
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
+        console.log("this.plots-------------------",this.plots)
+
+
       // --------------------------点绘制------------------------------
       // 过滤出绘制类型为点的plots
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -1444,6 +1454,8 @@ export default {
         }
       })
 
+
+
       // 将符合条件的多边形数据按plotId分组
       let polygonMap = {};
       filteredPolygonArr.forEach(item => {
@@ -1460,6 +1472,17 @@ export default {
           cesiumPlot.getDrawPolygon(polygonData)
         });
       }
+
+
+        let straightArr = this.plots.filter(e => e.drawtype === 'straight');
+        console.log("straightArr----------------",straightArr)
+        Arrow.showStraightArrow(straightArr)
+
+        let attackArr = this.plots.filter(e => e.drawtype === 'attack');
+        Arrow.showAttackArrow(attackArr)
+
+        let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
+        Arrow.showPincerArrow(pincerArr)
     },
 
     //时间轴操作-----------------------------------------------
@@ -1809,6 +1832,7 @@ export default {
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
 
+
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
@@ -1914,6 +1938,7 @@ export default {
       // 在中心点位置添加新的故障区域
       addFaultZones(this.centerPoint)
     },
+
 
     /**
      * 检查并确定是否添加烈度圈要素图层
@@ -2115,6 +2140,7 @@ export default {
 
     },
 
+
     /**
      * 检查地形是否已加载
      * cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
@@ -2150,9 +2176,9 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.eqtableData = res
-        // 建立WS
-        this.initWebsocket()
-        // console.log("that.tableData", that.tableData)
+          // 建立WS
+
+        // console.log("that.eqtableData", that.eqtableData)
       })
     },
 
@@ -3032,7 +3058,7 @@ export default {
         this.ModelTotal = res.length
         this.modelTableData = this.getPageArr(this.modelList)
 
-        console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
+        // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
       })
     },
     goModel(row) {
