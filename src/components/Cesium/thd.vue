@@ -517,9 +517,13 @@ export default {
       // 新闻组件
       showingNewsContent: {
         id: '',
-        time: '',
         content: '',
-        img: '',
+        earthquakeId: '',
+        image:'',
+        publishTime:'',
+        sourceName:'',
+        sourceLogo:'',
+        title:'',
       },
       showDetailedNewsDialog: false,
 
@@ -3057,8 +3061,6 @@ export default {
         this.modelList = res
         this.ModelTotal = res.length
         this.modelTableData = this.getPageArr(this.modelList)
-
-        // console.log("res,this.modelList, this.modelTableData",res,this.modelList, this.modelTableData)
       })
     },
     goModel(row) {

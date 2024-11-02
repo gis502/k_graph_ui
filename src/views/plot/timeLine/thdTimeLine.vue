@@ -280,9 +280,13 @@ export default {
       // 新闻组件
       showingNewsContent: {
         id: '',
-        time: '',
         content: '',
-        img: '',
+        earthquakeId: '',
+        image:'',
+        publishTime:'',
+        sourceName:'',
+        sourceLogo:'',
+        title:'',
       },
       showDetailedNewsDialog: false,
 
@@ -401,8 +405,8 @@ export default {
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
-    this.entitiesClickPonpHandler()
-    this.watchTerrainProviderChanged()
+    // this.entitiesClickPonpHandler()
+    // this.watchTerrainProviderChanged()
   },
   beforeUnmount() {
     if (window.viewer){
@@ -1724,7 +1728,7 @@ export default {
      * @param {Object} val - 要显示的新闻内容对象
      */
     detailedNews(val) {
-      // console.log("detailedNews-----",val)
+      console.log("detailedNews-----",val)
       this.showingNewsContent = val
 
     },
