@@ -133,7 +133,7 @@ export default {
 .news-main{
   padding-left: 5px;
   padding-right: 5px;
-  max-height: 87%;
+  max-height: 85%;
   overflow-y: auto;
 }
 .news-time{

@@ -85,13 +85,13 @@
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
-        <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <!--        <span class="speedButton">{{ speedOption }}</span>-->
-        <!--        <div class="chooseSpeed">-->
-        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
-        <!--            {{ option }}-->
-        <!--          </option>-->
-        <!--        </div>-->
+<!--         speedButton 和 chooseSpeed 放在一起 -->
+                <span class="speedButton">{{ speedOption }}</span>
+                <div class="chooseSpeed">
+                  <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
+                    {{ option }}
+                  </option>
+                </div>
       </div>
 
       <!--      时间点-->
@@ -1243,6 +1243,11 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
+      console.log("this.currentSpeed",this.currentSpeed)
+      // let inter=3000*this.currentSpeed
+      // this.intervalId = setInterval(() => {
+      //   this.updateCurrentTime();
+      // }, inter); // 时间间隔改为5秒
       // 根据当前速度和节点索引计算新的节点索引，实现时间的前进
       // 找到下一个值为1的节点索引
       let nextNodeIndex = null;
@@ -1252,6 +1257,7 @@ export default {
           break;
         }
       }
+
 
       // 停止
       if (nextNodeIndex === null) {
@@ -1293,7 +1299,6 @@ export default {
         // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
         // }
       }
-
     },
 
 
@@ -1331,34 +1336,47 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
-
-      // 更新当前节点索引，使用模运算确保索引在合法范围内
-      this.currentNodeIndex = (this.currentNodeIndex + 1) % this.timelineAdvancesNumber
-      // 计算进度条每次前进的量
-      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed
-      // 增加当前时间位置
-      this.currentTimePosition += tmp;
-      // 当达到或超过终点时
-      if (this.currentTimePosition >= 100) {
-        // 重置当前时间位置为100
+      let nextNodeIndex = null;
+      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+        if (this.jumpNodes[i] === 1) {
+          nextNodeIndex = i;
+          break;
+        }
+      }
+      // 停止
+      if (nextNodeIndex === null) {
         this.currentTimePosition = 100;
-        // 设置当前时间为结束时间
         this.currentTime = this.eqendTime
-        // 停止计时器
+        this.stopTimer();
         this.isTimerRunning = false
-        // 调用渲染函数，传入地震ID
-        this.intimexuanran(this.eqid)
-        // this.xuanran(this.eqid)
-      } else {
-        // 当未达到终点时，对当前时间位置取模确保值在合法范围内
-        this.currentTimePosition = this.currentTimePosition % 100
-        // 计算新的时间点，每次增加5分钟
-        let newTime = new Date(this.currentTime);
-        this.currentTime = newTime.setMinutes(newTime.getMinutes() + 5);
-        // 更新图表
+      }
+      //更新到下一跳
+      else {
+        // this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+        // 计算时间进度条的当前位置增量
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+
+        // 检查是否达到或超过终点
+        // if (this.currentTimePosition >= 100) {
+        //   // 达到终点时的处理
+        //   this.currentTimePosition = 100;
+        //   this.currentTime = this.eqendTime
+        //   this.stopTimer();
+        //   this.isTimerRunning = false
+        //   this.intimexuanran(this.eqid)
+        //   // this.xuanran(this.eqid)
+        // }
+        // else {
+        // 未达到终点时的处理
+        // this.currentTimePosition = this.currentTimePosition % 100
+        // 根据当前节点索引计算实际时间
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // 根据是否需要显示标绘层来更新图层
         this.updatePlot()
       }
-      // console.log("========================",this.currentTime)
     },
 
     /**
@@ -1369,26 +1387,30 @@ export default {
      * 并更新图表显示
      */
     backward() {
-
-      // 减小当前节点索引，并根据时间线前进次数取模，以实现循环效果
-      this.currentNodeIndex = (this.currentNodeIndex - 1) % this.timelineAdvancesNumber
-      // 计算每次后退的进度百分比
-      let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed
-      // 减小当前时间位置
-      this.currentTimePosition -= tmp;
-      // 当前时间位置小于等于0时，重置当前时间位置和时间，并停止计时器
-      if (this.currentTimePosition <= 0) {
+      let nextNodeIndex = null;
+      for (let i = this.currentNodeIndex -1; i > 0; i--) {
+        if (this.jumpNodes[i] === 1) {
+          nextNodeIndex = i;
+          break;
+        }
+      }
+      // 停止
+      if (nextNodeIndex === null) {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime
+        this.stopTimer();
         this.isTimerRunning = false
-      } else {
-        // 否则，更新当前时间位置
-        this.currentTimePosition = this.currentTimePosition % 100
-        // 计算新的时间，这里简化处理，直接减去5分钟
-        let newTime = new Date(this.currentTime);
-        this.currentTime = newTime.setMinutes(newTime.getMinutes() - 5);
-        // 更新图表显示
-        this.updatePlot()
+      }
+      //更新到下一跳
+      else {
+        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+        // 计算时间进度条的当前位置增量
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // 根据是否需要显示标绘层来更新图层
+        this.updatePlot(false)
       }
     },
 
@@ -1397,6 +1419,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
+      let currentTimeTmp=this.currentTIme
       // 获取时间轴的矩形区域，用于计算点击位置对应的进度
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
       // 计算点击位置相对于时间轴左边缘的距离
@@ -1424,8 +1447,13 @@ export default {
         this.intimexuanran(this.eqid)
         // this.xuanran(this.eqid)
       } else {
-        // 如果时间进度未达到100%，则更新图表
-        this.updatePlot();
+        if(currentTimeTmp>this.currentTime){
+          this.updatePlot(false);
+        }
+        else{
+          this.updatePlot();
+        }
+
       }
     },
 
@@ -1440,7 +1468,7 @@ export default {
       this.isDragging = true; // 标记当前开始进入拖拽状态
       this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
       document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
-      document.addEventListener('mouseup', this.stopDrag); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
+      document.addEventListener('mouseup', this.stopDrag(this.currentTIme)); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
       // 添加禁用选择的 CSS 样式
       document.body.style.userSelect = 'none';
       document.body.style.WebkitUserSelect = 'none';
@@ -1476,7 +1504,8 @@ export default {
      * 停止拖拽操作
      * 当用户释放鼠标按钮时调用此方法，以重置拖拽状态并停止监听鼠标事件
      */
-    stopDrag() {
+    stopDrag(time) {
+      // let timetmp=this.currentTime
       // 重置isDragging状态，表示不再拖拽中
       this.isDragging = false;
       // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
@@ -1496,8 +1525,14 @@ export default {
         // 调用另一个方法进行处理，传入eqid作为参数
         this.intimexuanran(this.eqid)
       } else {
+        if(time>this.currentTime){
+          this.updatePlot(false);
+        }
+        else{
+          this.updatePlot();
+        }
         // 如果不满足上述条件，调用updatePlot方法更新图表
-        this.updatePlot();
+
       }
       // 恢复默认的选择行为
       document.body.style.userSelect = 'auto';
@@ -1516,7 +1551,14 @@ export default {
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
-      // console.log("-----------------------",this.currentSpeed)
+      if (this.intervalId) {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+      }
+      let speedtime=3000*1.0/this.currentSpeed
+      this.intervalId = setInterval(() => {
+              this.updateCurrentTime();
+            }, speedtime); // 时间间隔改为5秒
     },
     //时间轴end-------------
 
