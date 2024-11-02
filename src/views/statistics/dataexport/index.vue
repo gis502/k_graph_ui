@@ -10,7 +10,23 @@
         <!--      />-->
         <!--      <el-button type="primary" class="button" @click="handleQuery()">搜索</el-button>-->
         <!--    </div>-->
+
+
         <el-row :gutter="10" class="mb8">
+
+            <el-form-item label="灾情数据统计">
+                <el-input
+                        v-model="queryParams"
+                        placeholder="请输入信息"
+                        clearable
+                        style="width: 200px"
+                        @keyup.enter="handleQuery"
+                />
+                <el-button type="primary" icon="Search" @click="handleQuery()">搜索</el-button>
+                <el-button icon="Refresh" @click="resetQuery()">重置</el-button>
+                <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+            </el-form-item>
+
             <el-col :span="1.5">
                 <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
                 </el-button>
@@ -66,8 +82,7 @@
                 fit
                 :row-key="getRowKey"
                 :row-style="{ height: '6.3vh' }"
-                @selection-change="handleSelectionChange"
-        >
+                @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
             <el-table-column
                     label="序号"
@@ -185,6 +200,9 @@ const widthList = {
     'PublicOpinion': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200]
 
 }
+
+
+const queryParams = ref("")
 
 /** 监听 */
 watch(flag, (newFlag) => {
@@ -484,6 +502,22 @@ const clearSelection = () => {
     multipleTableRef.value?.clearSelection()
 }
 
+// 搜索功能
+const handleQuery = () => {
+    // 获取搜索关键字
+    const searchKeys = queryParams.value.trim()
+    // 搜索内容为空时，恢复为初始数据
+    if (searchKeys == '') {
+        getList()
+        return;
+    }
+
+
+}
+const resetQuery = () => {
+    queryParams.value = ""
+    getList()
+}
 
 </script>
 
