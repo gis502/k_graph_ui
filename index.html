@@ -202,8 +202,53 @@
 </head>
 
 <body>
-<script src="http://api.tianditu.gov.cn/api?v=4.0&tk=7f013d0186775b063d6a046977bbefc6" type="text/javascript">
-</script>
+<!--引入天地图-->
+<script src="http://api.tianditu.gov.cn/api?v=4.0&tk=7f013d0186775b063d6a046977bbefc6" type="text/javascript"></script>
+<!--引入D3.js-->
+<script src="http://cdn.bootcss.com/d3/3.5.17/d3.js " charset="utf-8"></script>
+<script src="http://lbs.tianditu.gov.cn/api/js4.0/opensource/openlibrary/D3SvgOverlay.js"></script>
+<!--<script>-->
+<!--    var countries = [];-->
+<!--    var countriesOverlay = new T.D3Overlay(init,redraw);-->
+
+<!--    var map = new T.Map("map-canvas");-->
+<!--    map.centerAndZoom(new T.LngLat(116.39769, 40.25945), 6)-->
+<!--    d3.json("@/assets/geoJson/data.json", function (data) {-->
+<!--        countries = data.features;-->
+<!--        map.addOverLay(countriesOverlay)-->
+<!--        countriesOverlay.bringToBack();-->
+<!--    });-->
+
+<!--    function init(sel, transform) {-->
+<!--        var upd = sel.selectAll('path.geojson').data(countries);-->
+<!--        upd.enter()-->
+<!--            .append('path')-->
+<!--            .attr("class", "geojson")-->
+<!--            .attr('stroke', 'blue')-->
+<!--            .attr('stroke', 'blue')-->
+<!--            .attr('stroke-width', '2px')-->
+<!--            //.attr('fill', 'none') //不填充-->
+<!--            .attr('fill', function (d, i) {-->
+<!--                return d3.hsl(Math.random() * 360, 0.9, 0.5)-->
+<!--            }) //填充-->
+<!--            .attr('fill-opacity', 0.5) //填充透明度-->
+<!--    }-->
+
+<!--    function redraw(sel, transform) {-->
+<!--        sel.selectAll('path.geojson').each(-->
+<!--            function (d, i) {-->
+<!--                d3.select(this).attr('d', transform.pathFromGeojson)-->
+<!--                    .on("mouseover",function(){-->
+<!--                        console.log('这是点击了',);-->
+<!--                    })-->
+<!--            }-->
+<!--        )-->
+<!--    }-->
+
+<!--    function remove(){-->
+<!--        d3.selectAll('path.geojson').remove()-->
+<!--    }-->
+<!--</script>-->
 
   <div id="app">
     <div id="loader-wrapper">

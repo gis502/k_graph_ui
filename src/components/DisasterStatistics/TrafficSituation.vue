@@ -170,7 +170,7 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped>
+<style scoped >
 .container-left {
   /* 自定义样式 */
 }

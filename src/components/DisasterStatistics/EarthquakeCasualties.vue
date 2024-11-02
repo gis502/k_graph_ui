@@ -619,8 +619,6 @@ const data = ref(generateData())
 
 let value = ref([])
 
-
-
 const handleSelectionChange = (val) => {
   multipleSelection.value = val
 }
