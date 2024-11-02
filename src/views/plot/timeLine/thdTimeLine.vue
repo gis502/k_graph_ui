@@ -513,6 +513,19 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+      // 设置相机高度和视角
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 20000000),//足够高可以看到整个地球
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        }
+      });
+
+
 
       //经纬度查询
       let that = this
@@ -688,7 +701,8 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
-      viewer.camera.setView({
+      // 飞行动画持续时间（秒）
+      viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
@@ -699,83 +713,92 @@ export default {
           // 视角
           pitch: -1.5688168484696687,
           roll: 0.0
-        }
-      });
-      //加载中心点
-      viewer.entities.add({
-        // properties: {
-        //   type: "震中",
-        //   time: this.centerPoint.time,
-        //   name: this.centerPoint.position,
-        //   lat: this.centerPoint.latitude,
-        //   lon: this.centerPoint.longitude,
-        //   describe: this.centerPoint.position,
-        // },
-        position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
-            parseFloat(this.centerPoint.height || 0)
-        ),
-        billboard: {
-          image: centerstar,
-          width: 40,
-          height: 40,
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-          scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
-        label: {
-          text: this.centerPoint.earthquakeName,
-          show: true,
-          font: '14px sans-serif',
-          fillColor: Cesium.Color.RED,        //字体颜色
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          outlineWidth: 2,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -16),
-        },
-        id: this.centerPoint.plotid,
-        plottype: "震中",
-        layer: "标绘点"
-      });
-      smallViewer.entities.removeAll();
-      smallViewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
-            parseFloat(this.centerPoint.height || 0)
-        ),
-        billboard: {
-          image: centerstar,
-          width: 40,
-          height: 40,
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-          scale: 0.8,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: false,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY
-        },
-        label: {
-          text: this.centerPoint.earthquakeName,
-          show: true,
-          font: '10px sans-serif',
-          fillColor: Cesium.Color.RED,        //字体颜色
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          outlineWidth: 2,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -16),
-        },
-        id: this.centerPoint.plotid,
-        plottype: "震中",
+        duration : 3 // 飞行动画持续时间（秒）
       });
 
-      this.xuanran(this.eqid)
+      setTimeout(() => {
+        let colorFactor = 1.0;
+        const intervalTime = 500; // 切换颜色的时间间隔
+        const animationDuration = 3000; // 动画总持续时间（30秒）
+        const intervalId = setInterval(() => {
+          colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
+        }, intervalTime);
+        setTimeout(() => {
+          clearInterval(intervalId); // 停止颜色切换
+        }, animationDuration);
+        //加载中心点
+        viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(
+              parseFloat(this.centerPoint.geom.coordinates[0]),
+              parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.height || 0)
+          ),
+          billboard: {
+            image: centerstar,
+            width: 40,
+            height: 40,
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            color: new Cesium.CallbackProperty(() => {
+              return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+            }, false),
+          },
+          label: {
+            text: this.centerPoint.earthquakeName,
+            show: true,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.RED,        //字体颜色
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -16),
+          },
+          id: this.centerPoint.plotid,
+          plottype: "震中",
+          layer: "标绘点"
+        });
+
+
+        smallViewer.entities.removeAll();
+        smallViewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(
+              parseFloat(this.centerPoint.geom.coordinates[0]),
+              parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.height || 0)
+          ),
+          billboard: {
+            image: centerstar,
+            width: 40,
+            height: 40,
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          label: {
+            text: this.centerPoint.earthquakeName,
+            show: true,
+            font: '10px sans-serif',
+            fillColor: Cesium.Color.RED,        //字体颜色
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            outlineWidth: 2,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -16),
+          },
+          id: this.centerPoint.plotid,
+          plottype: "震中",
+        });
+        this.getPlotwithStartandEndTime(this.eqid)
+      }, 3000);
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
 
@@ -890,10 +913,8 @@ export default {
             item.startTime = this.eqstartTime;
           }
           var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
-          // console.log(jumpnode1)
           this.jumpNodes[jumpnode1]=1
           var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
-          // console.log(jumpnode1)
           this.jumpNodes[jumpnode2]=1
         })
         // 更新绘图
