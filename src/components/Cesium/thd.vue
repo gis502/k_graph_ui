@@ -866,6 +866,16 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 20000000),//足够高可以看到整个地球
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        }
+      });
 
       //经纬度查询
       let that = this
@@ -940,76 +950,6 @@ export default {
           })
       );
 
-
-      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   // 隐藏所有控件
-      //   geocoder: false,
-      //   homeButton: false,
-      //   sceneModePicker: false,
-      //   timeline: false,
-      //   navigationHelpButton: false,
-      //   animation: false,
-      //   infoBox: false,
-      //   fullscreenButton: false,
-      //   showRenderState: false,
-      //   selectionIndicator: false,
-      //   baseLayerPicker: false,
-      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      // });
-      // let smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   shouldAnimate: false,
-      //   animation: false, // 是否创建动画小器件，左下角仪表
-      //   baseLayerPicker: false, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
-      //   fullscreenButton: false, // 是否显示全屏按钮
-      //   geocoder: false, // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
-      //   homeButton: false, // 是否显示Home按钮
-      //   infoBox: false, // 是否显示信息框
-      //   sceneModePicker: false, // 是否显示3D/2D选择器
-      //   selectionIndicator: false, // 是否显示选取指示器组件
-      //   timeline: false, // 是否显示时间轴
-      //   navigationHelpButton: false, // 是否显示右上角的帮助按钮
-      //   scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
-      //   //截图和渲染相关的一些配置
-      //   contextOptions: {
-      //     webgl: {
-      //       alpha: true,
-      //       depth: false,
-      //       stencil: true,
-      //       antialias: true,
-      //       premultipliedAlpha: true,
-      //       //cesium状态下允许canvas转图片convertToImage
-      //       preserveDrawingBuffer: true,
-      //       failIfMajorPerformanceCaveat: true
-      //     },
-      //     allowTextureFilterAnisotropic: true
-      //   },
-      //   // 本地geoserver影像
-      //   imageryProvider:
-      //       new Cesium.WebMapTileServiceImageryProvider({
-      //         url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=" + TianDiTuToken,
-      //         layer: "tdtVecBasicLayer",
-      //         style: "default",
-      //         format: "image/jpeg",
-      //         tileMatrixSetID: "GoogleMapsCompatible",
-      //         show: false
-      //       }),
-      //   terrainProvider: new Cesium.CesiumTerrainProvider({
-      //     url: "http://localhost:9080/geoserver/www/dem",
-      //   }),
-      //
-      // })
-      // window.smallViewer = smallViewer
-      // window.smallViewer.imageryLayers.addImageryProvider(
-      //     new Cesium.WebMapTileServiceImageryProvider({
-      //       url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" + TianDiTuToken,
-      //       layer: "tdtAnnoLayer",
-      //       style: "default",
-      //       format: "image/jpeg",
-      //       tileMatrixSetID: "GoogleMapsCompatible"
-      //     })
-      // );
-      // smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
       // 隐藏缩略图视图器的版权信息
       smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
@@ -1038,6 +978,8 @@ export default {
 
       // 初始同步
       syncCamera();
+      // 初始同步
+
       this.initWebSocket()
       this.initcesiumPlot()
     },
@@ -1562,6 +1504,84 @@ export default {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime;
         this.currentNodeIndex = 0;
+        // 从 dataSource 中删除点
+        this.plots.forEach(item => {
+          if(this.plotisshow[item.plotId]===1){
+            this.plotisshow[item.plotId] = 0
+            const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+            if(entityToRemove){
+              window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            }
+            const entityDonghua = window.viewer.entities.getById(item.plotId);
+            if (entityDonghua) {
+              window.viewer.entities.remove(entityDonghua); // 移除点
+            }
+            const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+            if (entitylabel) {
+              window.labeldataSource.entities.remove(entitylabel); // 移除点
+            }
+          }
+        })
+
+        viewer.entities.removeById(this.centerPoint.plotid);
+
+        let colorFactor = 1.0;
+        const intervalTime = 500; // 切换颜色的时间间隔
+        const animationDuration = 3000; // 动画总持续时间（3秒）
+        const intervalId = setInterval(() => {
+          colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
+        }, intervalTime);
+
+        setTimeout(() => {
+          clearInterval(intervalId); // 停止颜色切换
+        }, animationDuration);
+
+        //加载中心点
+        viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(
+              parseFloat(this.centerPoint.geom.coordinates[0]),
+              parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.height || 0)
+          ),
+          billboard: {
+            image: centerstar,
+            width: 40,
+            height: 40,
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            color: new Cesium.CallbackProperty(() => {
+              return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+            }, false),
+          },
+          label: {
+            text: this.centerPoint.earthquakeName,
+            show: true,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.RED,        //字体颜色
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -16),
+          },
+          id: this.centerPoint.plotid,
+          plottype: "震中",
+          layer: "标绘点"
+        });
+
+
+        setTimeout(() => {
+
+          this.updatePlot(false)
+        }, 3000);
+
+
+
+
       }
 
       // 每隔100毫秒更新一次当前时间

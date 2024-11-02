@@ -468,7 +468,6 @@ export default {
 
       //经纬度查询
       let that = this
-
       let canvas = viewer.scene.canvas;
       //具体事件的实现
       let ellipsoid = viewer.scene.globe.ellipsoid;
@@ -517,32 +516,38 @@ export default {
       smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
       window.navigation = new CesiumNavigation(smallViewer, smallOptions)
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-      // that.smallViewer = new Cesium.Viewer(smallMapContainer, {
-      //   // 隐藏所有控件
-      //   geocoder: false,
-      //   homeButton: false,
-      //   sceneModePicker: false,
-      //   timeline: false,
-      //   navigationHelpButton: false,
-      //   animation: false,
-      //   infoBox: false,
-      //   fullscreenButton: false,
-      //   showRenderState: false,
-      //   selectionIndicator: false,
-      //   baseLayerPicker: false,
-      //   selectedImageryProviderViewModel: viewer.imageryLayers.selectedImageryProviderViewModel,
-      //   selectedTerrainProviderViewModel: viewer.terrainProviderViewModel
-      // });
+
+      smallViewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
+      );
+      smallViewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
+      );
+
       // 隐藏缩略图视图器的版权信息
       smallViewer._cesiumWidget._creditContainer.style.display = 'none';
 
       // 同步主视图器的相机到缩略图视图器
       function syncCamera() {
         const camera1 = viewer.scene.camera;
+        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
         const camera2 = smallViewer.scene.camera;
-
         camera2.setView({
-          destination: camera1.positionWC,
+          destination: smallPoint,
           orientation: {
             heading: camera1.heading,
             pitch: camera1.pitch,
@@ -553,11 +558,11 @@ export default {
 
       // 监听主视图器的相机变化
       viewer.scene.camera.changed.addEventListener(syncCamera);
+
       // 每帧渲染时同步缩略图视图
       viewer.scene.postRender.addEventListener(function () {
         smallViewer.scene.requestRender(); // 确保缩略图更新
       });
-
       // 初始同步
       syncCamera();
       this.initWebSocket()
@@ -1165,8 +1170,17 @@ export default {
           if(this.plotisshow[item.plotId]===1){
             this.plotisshow[item.plotId] = 0
             const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            window.pointDataSource.entities.remove(entityToRemove); // 移除点
-
+            if(entityToRemove){
+              window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            }
+            const entityDonghua = window.viewer.entities.getById(item.plotId);
+            if (entityDonghua) {
+              window.viewer.entities.remove(entityDonghua); // 移除点
+            }
+            const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+            if (entitylabel) {
+              window.labeldataSource.entities.remove(entitylabel); // 移除点
+            }
           }
         })
 
