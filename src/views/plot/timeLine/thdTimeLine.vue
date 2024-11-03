@@ -395,6 +395,7 @@ export default {
         { position: 40, label: '事件2', color: 'blue' },
         { position: 60, label: '事件3', color: 'green' }
       ],
+      // stopRealFlag:true,//为true是点击暂停按钮，真的暂停，为false时在动画过程中
     };
   },
   created() {
@@ -747,11 +748,11 @@ export default {
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
         const animationDuration = 3000; // 动画总持续时间（30秒）
-        const intervalId = setInterval(() => {
+        const intervalIdcolor = setInterval(() => {
           colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
         }, intervalTime);
         setTimeout(() => {
-          clearInterval(intervalId); // 停止颜色切换
+          clearInterval(intervalIdcolor); // 停止颜色切换
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
@@ -837,7 +838,6 @@ export default {
      * @param {string} eqid - 需要渲染的数据的唯一标识符
      */
     xuanran(eqid) {
-
       // 获取特定eqid的带有开始和结束时间的绘图数据
       this.getPlotwithStartandEndTime(eqid)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
@@ -854,27 +854,6 @@ export default {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
         if (!this.isTimerRunning && this.currentTimePosition === 100) {
-          // 检查是否已经有定时器在运行
-          // if (!this.realtimeinterval) {
-          //   // 设置定时器，每5秒执行一次
-          //   this.realtimeinterval = setInterval(() => {
-          //     // 如果时间位置不再为100%，停止定时器
-          //     if (this.currentTimePosition !== 100) {
-          //       clearInterval(this.realtimeinterval); // 停止定时器
-          //       this.realtimeinterval = null; // 清除引用
-          //       return; // 跳出当前循环
-          //     }
-          //     // 更新结束时间和当前时间，并计算时间轴进度和节点数量
-          //     this.getPlotwithStartandEndTime(eqid) //取标绘点，更新标绘点
-          //     this.eqendTime = new Date()
-          //     this.currentTime = this.eqendTime
-          //     this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-          //     this.currentNodeIndex = this.timelineAdvancesNumber
-          //     this.jumpNodes[this.timelineAdvancesNumber]=0;
-          //
-          //   }, 5000);
-          // }
-
           // 当没有结束时间定时器运行时，启动定时器
           if (!this.eqendtimeinterval) {
             // 设置定时器，每秒执行一次
@@ -956,7 +935,7 @@ export default {
     * */
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     updatePlot(bool) {
-
+      // this.stopRealFlag=false
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
@@ -1027,8 +1006,35 @@ export default {
         }
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
+      console.log(points,"points")
       if (points.length > 0) {
-        console.log(points)
+        console.log(bool,"bool")
+        if(bool!=false){
+          if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+          }
+          let stoptime=points.length*3000
+          setTimeout(() => {
+            // this.intervalId = setInterval(() => {
+              this.updateCurrentTime()
+            // }, this.currentSpeed); // 时间间隔改为5秒
+          }, stoptime);
+
+
+
+
+          console.log("stoptime",stoptime)
+
+          // that.stopTimer(false);
+          // if(this.stopRealFlag=false){
+
+          // }
+        }
+
+
+
+        // console.log(points)
         let param = bool === false ? false : true
         cesiumPlot.drawPoints(points,param);
       }
@@ -1136,10 +1142,11 @@ export default {
     toggleTimer() {
       // 如果计时器未运行，则初始化计时器线
       if (!this.isTimerRunning) {
-        this.initTimerLine();
+        this.initTimerLine(true);
       } else {
         // 如果计时器正在运行，则停止计时器
         this.stopTimer();
+        // this.stopRealFlag=true
       }
     },
 
@@ -1147,109 +1154,112 @@ export default {
      * 初始化计时线
      * 启动计时器，每隔一段时间更新当前时间位置
      */
-    initTimerLine() {
-
-      this.jumpTimes.forEach(item => {
-        // console.log(new Date(item),new Date(this.eqstartTime.getTime()))
-        var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
-        // console.log("jumpnode",jumpnode)
-        this.jumpNodes[jumpnode]=1
-      })
-
-      console.log("this.jumpNodes",this.jumpNodes)
-      // 标记计时器为运行状态
-      this.isTimerRunning = true;
-
-      // 播放一遍完成（停止，如果计算结果超过，设为最大值）
-      if (this.currentTimePosition >= 100) {
-        this.currentTimePosition = 0;
-        this.currentTime = this.eqstartTime;
-        this.currentNodeIndex = 0;
-        // 从 dataSource 中删除点
-        this.plots.forEach(item => {
-          if(this.plotisshow[item.plotId]===1){
-            this.plotisshow[item.plotId] = 0
-            const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            if(entityToRemove){
-              window.pointDataSource.entities.remove(entityToRemove); // 移除点
-            }
-            const entityDonghua = window.viewer.entities.getById(item.plotId);
-            if (entityDonghua) {
-              window.viewer.entities.remove(entityDonghua); // 移除点
-            }
-            const entitylabel = window.labeldataSource.entities.getById(item.plotId);
-            if (entitylabel) {
-              window.labeldataSource.entities.remove(entitylabel); // 移除点
-            }
+    initTimerLine(bool) {
+      if(bool==false)//运行中
+        { if (this.currentTimePosition >= 100)
+          {
+            this.stopTimer()
           }
+      }
+      else{
+        this.jumpTimes.forEach(item => {
+          // console.log(new Date(item),new Date(this.eqstartTime.getTime()))
+          var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+          // console.log("jumpnode",jumpnode)
+          this.jumpNodes[jumpnode]=1
         })
 
-        viewer.entities.removeById(this.centerPoint.plotid);
+        console.log("this.jumpNodes",this.jumpNodes)
+        // 标记计时器为运行状态
+        this.isTimerRunning = true;
 
-        let colorFactor = 1.0;
-        const intervalTime = 500; // 切换颜色的时间间隔
-        const animationDuration = 3000; // 动画总持续时间（3秒）
-        const intervalId = setInterval(() => {
-          colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
-        }, intervalTime);
+        // 播放一遍完成（停止，如果计算结果超过，设为最大值）
+        if (this.currentTimePosition >= 100) {
+          this.currentTimePosition = 0;
+          this.currentTime = this.eqstartTime;
+          this.currentNodeIndex = 0;
+          // 从 dataSource 中删除点
+          this.plots.forEach(item => {
+            if(this.plotisshow[item.plotId]===1){
+              this.plotisshow[item.plotId] = 0
+              const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
+              if(entityToRemove){
+                window.pointDataSource.entities.remove(entityToRemove); // 移除点
+              }
+              const entityDonghua = window.viewer.entities.getById(item.plotId);
+              if (entityDonghua) {
+                window.viewer.entities.remove(entityDonghua); // 移除点
+              }
+              const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+              if (entitylabel) {
+                window.labeldataSource.entities.remove(entitylabel); // 移除点
+              }
+            }
+          })
 
-        setTimeout(() => {
-          clearInterval(intervalId); // 停止颜色切换
-        }, animationDuration);
+          viewer.entities.removeById(this.centerPoint.plotid);
 
-        //加载中心点
-        viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
-              parseFloat(this.centerPoint.height || 0)
-          ),
-          billboard: {
-            image: centerstar,
-            width: 40,
-            height: 40,
-            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-            scale: 0.8,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            depthTest: false,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            color: new Cesium.CallbackProperty(() => {
-              return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
-            }, false),
-          },
-          label: {
-            text: this.centerPoint.earthquakeName,
-            show: true,
-            font: '14px sans-serif',
-            fillColor: Cesium.Color.RED,        //字体颜色
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            outlineWidth: 2,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -16),
-          },
-          id: this.centerPoint.plotid,
-          plottype: "震中",
-          layer: "标绘点"
-        });
+          let colorFactor = 1.0;
+          const intervalTime = 500; // 切换颜色的时间间隔
+          const animationDuration = 3000; // 动画总持续时间（3秒）
+          const intervalIdcolor = setInterval(() => {
+            colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
+          }, intervalTime);
+
+          setTimeout(() => {
+            clearInterval(intervalIdcolor); // 停止颜色切换
+          }, animationDuration);
+
+          //加载中心点
+          viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(
+                parseFloat(this.centerPoint.geom.coordinates[0]),
+                parseFloat(this.centerPoint.geom.coordinates[1]),
+                parseFloat(this.centerPoint.height || 0)
+            ),
+            billboard: {
+              image: centerstar,
+              width: 40,
+              height: 40,
+              eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+              scale: 0.8,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              depthTest: false,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              color: new Cesium.CallbackProperty(() => {
+                return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+              }, false),
+            },
+            label: {
+              text: this.centerPoint.earthquakeName,
+              show: true,
+              font: '14px sans-serif',
+              fillColor: Cesium.Color.RED,        //字体颜色
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+              outlineWidth: 2,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+              pixelOffset: new Cesium.Cartesian2(0, -16),
+            },
+            id: this.centerPoint.plotid,
+            plottype: "震中",
+            layer: "标绘点"
+          });
 
 
-        setTimeout(() => {
+          setTimeout(() => {
 
-          this.updatePlot(false)
+            this.updatePlot(false)
+          }, 3000);
+        }
+
+        // 每隔100毫秒更新一次当前时间
+        this.intervalId = setInterval(() => {
+          this.updateCurrentTime();
         }, 3000);
-
-
-
-
       }
 
-
-      // 每隔100毫秒更新一次当前时间
-      this.intervalId = setInterval(() => {
-        this.updateCurrentTime();
-      }, 3000);
     },
 
 
@@ -1260,13 +1270,7 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      console.log("this.currentSpeed",this.currentSpeed)
-      // let inter=3000*this.currentSpeed
-      // this.intervalId = setInterval(() => {
-      //   this.updateCurrentTime();
-      // }, inter); // 时间间隔改为5秒
-      // 根据当前速度和节点索引计算新的节点索引，实现时间的前进
-      // 找到下一个值为1的节点索引
+      // console.log("this.currentSpeed",this.currentSpeed)
       let nextNodeIndex = null;
       for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
@@ -1274,38 +1278,17 @@ export default {
           break;
         }
       }
-
-
       // 停止
       if (nextNodeIndex === null) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.stopTimer();
-        this.isTimerRunning = false
+        // this.isTimerRunning = false
       }
       //更新到下一跳
       else{
-        // this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
         this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
-        // 计算时间进度条的当前位置增量
-        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
         this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
-
-        // 检查是否达到或超过终点
-        // if (this.currentTimePosition >= 100) {
-        //   // 达到终点时的处理
-        //   this.currentTimePosition = 100;
-        //   this.currentTime = this.eqendTime
-        //   this.stopTimer();
-        //   this.isTimerRunning = false
-        //   this.intimexuanran(this.eqid)
-        //   // this.xuanran(this.eqid)
-        // }
-        // else {
-        // 未达到终点时的处理
-        // this.currentTimePosition = this.currentTimePosition % 100
-        // 根据当前节点索引计算实际时间
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // 根据是否需要显示标绘层来更新图层
         if (this.isMarkingLayer) {
@@ -1313,8 +1296,6 @@ export default {
         } else {
           this.MarkingLayerRemove()
         }
-        // end 图层控制 是否显示标绘点（时间轴仍然需要往前）
-        // }
       }
     },
 
@@ -1325,7 +1306,7 @@ export default {
      * 定时器停止后，不会再执行任何操作，确保资源得到正确释放
      */
     stopTimer() {
-
+      console.log("stopTimer")
       // 清除定时器
       clearInterval(this.intervalId);
       // 重置定时器标识为null
@@ -1333,7 +1314,6 @@ export default {
       // 设置定时器运行状态为false
       this.isTimerRunning = false;
 
-      // console.log("stopTimer")
     },
 
     /**
@@ -1436,7 +1416,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
-      let currentTimeTmp=this.currentTIme
+      let currentTimeTmp=this.currentTime
       // 获取时间轴的矩形区域，用于计算点击位置对应的进度
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
       // 计算点击位置相对于时间轴左边缘的距离
@@ -1482,10 +1462,11 @@ export default {
      * @param {MouseEvent} event - 鼠标事件对象，包含拖拽开始时的坐标信息
      */
     startDrag(event) {
+
       this.isDragging = true; // 标记当前开始进入拖拽状态
       this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
       document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
-      document.addEventListener('mouseup', this.stopDrag(this.currentTIme)); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
+      document.addEventListener('mouseup', this.stopDrag(this.currentTime)); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
       // 添加禁用选择的 CSS 样式
       document.body.style.userSelect = 'none';
       document.body.style.WebkitUserSelect = 'none';
@@ -1508,13 +1489,9 @@ export default {
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
       // 更新当前时间进度位置
       this.currentTimePosition = newPosition;
-      // 更新当前节点索引，根据时间线的总进度数进行比例转换
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-      // 根据开始时间和当前节点索引计算当前时间
-      // 注意：此处将时间增量从15分钟调整为5分钟
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // 更新时间进度条的宽度，以反映新的进度位置
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
+      this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
+
     },
 
     /**
@@ -1529,27 +1506,27 @@ export default {
       document.removeEventListener('mousemove', this.drag);
       // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
       document.removeEventListener('mouseup', this.stopDrag);
+      // 更新当前节点索引，根据时间线的总进度数进行比例转换
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
+      // 根据开始时间和当前节点索引计算当前时间
+      // 注意：此处将时间增量从15分钟调整为5分钟
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // 更新时间进度条的宽度，以反映新的进度位置
 
       // 当currentTimePosition达到或超过100时，进行特殊处理
       if (this.currentTimePosition >= 100) {
-        // 将currentTimePosition和currentTime设置为结束时间
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime;
-        // 停止计时器
         this.stopTimer();
-        // this.isTimerRunning = false
-        // this.xuanran(this.eqid)
-        // 调用另一个方法进行处理，传入eqid作为参数
         this.intimexuanran(this.eqid)
-      } else {
+      }
+      else {
         if(time>this.currentTime){
           this.updatePlot(false);
         }
         else{
           this.updatePlot();
         }
-        // 如果不满足上述条件，调用updatePlot方法更新图表
-
       }
       // 恢复默认的选择行为
       document.body.style.userSelect = 'auto';

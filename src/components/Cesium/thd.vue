@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <!--    地震列表切换-->
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
@@ -38,29 +39,7 @@
         </div>
       </div>
     </div>
-    <!--   图层要素-->
-    <!--    <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">-->
-    <!--      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900;">-->
-    <!--        <div class="list-dialog__header">-->
-    <!--          <span>图层要素</span>-->
-    <!--        </div>-->
-    <!--        <div class="list-dialog__content" style="height: calc(100% - 40px);">-->
-    <!--          <el-tree-->
-    <!--              v-model="selectedlayersLocal"-->
-    <!--              :data="layerTree"-->
-    <!--              show-checkbox-->
-    <!--              node-key="id"-->
-    <!--              ref="layerTree"-->
-    <!--              default-expand-all-->
-    <!--              highlight-current-->
-    <!--              :props="defaultProps"-->
-    <!--              @check-change="handleLayerTreeChange">-->
-    <!--          </el-tree>-->
-    <!--          <div @click="toggleExpand" style="text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">-->
-    <!--          </div>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
+
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
       <div class="list-dialog" style="width: 100%; height: 100%; z-index: 900;">
         <div class="list-dialog__header">
@@ -308,51 +287,51 @@
 
     <!--    两侧组件-->
     <div v-show="showSidebarComponents">
-    <!--   应急响应-左上   -->
-    <timeLineEmergencyResponse
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
-    <!--   人员伤亡-左中   -->
-    <timeLinePersonnelCasualties
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
-    <!--   救援出队-左下   -->
-    <timeLineRescueTeam
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
-    <!--  新闻-右上  -->
-    <div>
-      <news
+      <!--   应急响应-左上   -->
+      <timeLineEmergencyResponse
           :eqid="eqid"
           :currentTime="currentTime"
-          @ifShowDialog="ifShowDialog"
-          @detailedNews="detailedNews"
           @addJumpNodes="addJumpNodes"
-      ></news>
-    </div>
-    <!--      新闻弹框-->
-    <div>
-      <news-dialog
-          :showDetailedNewsDialog="showDetailedNewsDialog"
-          :showingNewsContent="showingNewsContent"
-          @hideNewsDialog="hideNewsDialog"
-      ></news-dialog>
-    </div>
-    <!--      缩略图-->
-    <div>
-      <mini-map></mini-map>
-    </div>
+      />
+      <!--   人员伤亡-左中   -->
+      <timeLinePersonnelCasualties
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @addJumpNodes="addJumpNodes"
+      />
+      <!--   救援出队-左下   -->
+      <timeLineRescueTeam
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @addJumpNodes="addJumpNodes"
+      />
+      <!--  新闻-右上  -->
+      <div>
+        <news
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @ifShowDialog="ifShowDialog"
+            @detailedNews="detailedNews"
+            @addJumpNodes="addJumpNodes"
+        ></news>
+      </div>
+      <!--      新闻弹框-->
+      <div>
+        <news-dialog
+            :showDetailedNewsDialog="showDetailedNewsDialog"
+            :showingNewsContent="showingNewsContent"
+            @hideNewsDialog="hideNewsDialog"
+        ></news-dialog>
+      </div>
+      <!--      缩略图-->
+      <div>
+        <mini-map></mini-map>
+      </div>
 
-    <timeLineLegend
-        :activeComponent="activeComponent"
-        @toggleComponent="toggleComponent"
-    ></timeLineLegend>
+      <timeLineLegend
+          :activeComponent="activeComponent"
+          @toggleComponent="toggleComponent"
+      ></timeLineLegend>
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
@@ -387,6 +366,7 @@
     ></thematicMapPreview>
   </div>
 </template>
+
 
 <script>
 import * as Cesium from 'cesium'
@@ -701,29 +681,14 @@ export default {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
     this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
-    // console.log(this.thematicMapitems);
   },
   mounted() {
     this.init()
-    // this.initWebSocket()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
-    this.initModelTable(); // 初始化模型table数据
+    // this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
     this.initPlot(); // 初始化加载应急数据
-    // // ---------------------------------------------------
-    // // 生成实体点击事件的handler
-    this.entitiesClickPonpHandler()
-    // 确保 tree 渲染完成后再设置选中的图层
-    this.$nextTick(() => {
-      const tree = this.$refs.layerTree;
-      if (tree) {
-        tree.setCheckedKeys(['0-0']); // 用“标绘点图层”的 ID 替换
-        this.handleLayerTreeChange(); // 触发选中变化处理
-      } else {
-        console.warn('layerTree ref is not defined.');
-      }
-    });
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -735,7 +700,6 @@ export default {
       window.smallViewer = null;
     }
   },
-  // 图层要素
   methods: {
     clearResource(viewer) {
       let gl = viewer.scene.context._gl
@@ -984,9 +948,9 @@ export default {
       this.initcesiumPlot()
     },
 
-      // 初始化ws
+    // 初始化ws
     initWebSocket() {
-        this.websock = initWebSocket(this.eqid)
+      this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
     },
     initcesiumPlot(){
@@ -1305,7 +1269,7 @@ export default {
       // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
-        console.log("this.plots-------------------",this.plots)
+      console.log("this.plots-------------------",this.plots)
 
 
       // --------------------------点绘制------------------------------
@@ -1459,15 +1423,15 @@ export default {
       }
 
 
-        let straightArr = this.plots.filter(e => e.drawtype === 'straight');
-        console.log("straightArr----------------",straightArr)
-        Arrow.showStraightArrow(straightArr)
+      let straightArr = this.plots.filter(e => e.drawtype === 'straight');
+      console.log("straightArr----------------",straightArr)
+      Arrow.showStraightArrow(straightArr)
 
-        let attackArr = this.plots.filter(e => e.drawtype === 'attack');
-        Arrow.showAttackArrow(attackArr)
+      let attackArr = this.plots.filter(e => e.drawtype === 'attack');
+      Arrow.showAttackArrow(attackArr)
 
-        let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
-        Arrow.showPincerArrow(pincerArr)
+      let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
+      Arrow.showPincerArrow(pincerArr)
     },
 
     //时间轴操作-----------------------------------------------
@@ -1771,7 +1735,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
-      let currentTimeTmp=this.currentTIme
+      let currentTimeTmp=this.currentTime
       // 获取时间轴的矩形区域，用于计算点击位置对应的进度
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
       // 计算点击位置相对于时间轴左边缘的距离
@@ -1809,89 +1773,47 @@ export default {
       }
     },
 
-    /**
-     * 时间轴的开始拖拽事件处理函数
-     * 该函数用于初始化拖拽操作，记录拖拽开始的位置，并设置拖拽过程中的事件监听器
-     * 同时，为了防止在拖拽过程中选中内容，设置了禁止选择的CSS样式
-     *
-     * @param {MouseEvent} event - 鼠标事件对象，包含拖拽开始时的坐标信息
-     */
-    /**
-     * 时间轴的开始拖拽事件处理函数
-     * 该函数用于初始化拖拽操作，记录拖拽开始的位置，并设置拖拽过程中的事件监听器
-     * 同时，为了防止在拖拽过程中选中内容，设置了禁止选择的CSS样式
-     *
-     * @param {MouseEvent} event - 鼠标事件对象，包含拖拽开始时的坐标信息
-     */
     startDrag(event) {
-      this.isDragging = true; // 标记当前开始进入拖拽状态
-      this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
-      document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
-      document.addEventListener('mouseup', this.stopDrag(this.currentTIme)); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
+      this.isDragging = true;
+      this.dragStartX = event.clientX;
+      document.addEventListener('mousemove', this.drag);
+      document.addEventListener('mouseup', this.stopDrag);
       // 添加禁用选择的 CSS 样式
       document.body.style.userSelect = 'none';
       document.body.style.WebkitUserSelect = 'none';
       document.body.style.MozUserSelect = 'none';
       document.body.style.msUserSelect = 'none';
     },
-
-    /**
-     * 处理鼠标拖动事件
-     * @param {MouseEvent} event - 鼠标拖动事件对象
-     */
     drag(event) {
-      // 如果没有拖动，则不执行后续操作
       if (!this.isDragging) return;
-      // 获取时间尺的矩形信息
       const timeRulerRect = this.$el.querySelector('.time-ruler').getBoundingClientRect();
-      // 计算鼠标点击位置相对于时间尺左边缘的水平距离
       const clickedPosition = Math.max(timeRulerRect.left, Math.min(event.clientX, timeRulerRect.right)) - timeRulerRect.left;
-      // 计算新的进度位置百分比
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
-      // 更新当前时间进度位置
       this.currentTimePosition = newPosition;
-      // 更新当前节点索引，根据时间线的总进度数进行比例转换
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-      // 根据开始时间和当前节点索引计算当前时间
-      // 注意：此处将时间增量从15分钟调整为5分钟
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // 更新时间进度条的宽度，以反映新的进度位置
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
+      this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
+
     },
-
-    /**
-     * 停止拖拽操作
-     * 当用户释放鼠标按钮时调用此方法，以重置拖拽状态并停止监听鼠标事件
-     */
-    stopDrag(time) {
-      // let timetmp=this.currentTime
-      // 重置isDragging状态，表示不再拖拽中
+    stopDrag() {
       this.isDragging = false;
-      // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
       document.removeEventListener('mousemove', this.drag);
-      // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
       document.removeEventListener('mouseup', this.stopDrag);
-
-      // 当currentTimePosition达到或超过100时，进行特殊处理
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+// 当currentTimePosition达到或超过100时，进行特殊处理
       if (this.currentTimePosition >= 100) {
-        // 将currentTimePosition和currentTime设置为结束时间
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime;
-        // 停止计时器
         this.stopTimer();
-        // this.isTimerRunning = false
-        // this.xuanran(this.eqid)
-        // 调用另一个方法进行处理，传入eqid作为参数
         this.intimexuanran(this.eqid)
-      } else {
+      }
+      else {
         if(time>this.currentTime){
           this.updatePlot(false);
         }
         else{
           this.updatePlot();
         }
-        // 如果不满足上述条件，调用updatePlot方法更新图表
-
       }
       // 恢复默认的选择行为
       document.body.style.userSelect = 'auto';
@@ -2285,7 +2207,7 @@ export default {
       let that = this
       getAllEq().then(res => {
         that.eqtableData = res
-          // 建立WS
+        // 建立WS
 
         // console.log("that.eqtableData", that.eqtableData)
       })
@@ -3288,6 +3210,8 @@ export default {
       setInterval(updateTime, 1000);
     }
   }
+
+
 }
 </script>
 
