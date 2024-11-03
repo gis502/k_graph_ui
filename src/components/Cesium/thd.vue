@@ -1774,10 +1774,13 @@ export default {
     },
 
     startDrag(event) {
+      //鼠标按下
       this.isDragging = true;
+      //点击位置
       this.dragStartX = event.clientX;
+      //监听事件
       document.addEventListener('mousemove', this.drag);
-      document.addEventListener('mouseup', this.stopDrag);
+      document.addEventListener('mouseup', this.stopDrag(this.currentTime));
       // 添加禁用选择的 CSS 样式
       document.body.style.userSelect = 'none';
       document.body.style.WebkitUserSelect = 'none';
@@ -1785,22 +1788,24 @@ export default {
       document.body.style.msUserSelect = 'none';
     },
     drag(event) {
-      if (!this.isDragging) return;
+      if (!this.isDragging) return;//如果不是拖拽，不进行后续操作
+      //响应式更新dom元素位置
       const timeRulerRect = this.$el.querySelector('.time-ruler').getBoundingClientRect();
       const clickedPosition = Math.max(timeRulerRect.left, Math.min(event.clientX, timeRulerRect.right)) - timeRulerRect.left;
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
       this.currentTimePosition = newPosition;
+      //响应式更新dom元素位置
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
       this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
-
     },
-    stopDrag() {
+    stopDrag(time) {
+      //抬起鼠标后更新数据
       this.isDragging = false;
       document.removeEventListener('mousemove', this.drag);
       document.removeEventListener('mouseup', this.stopDrag);
       this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
       this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-// 当currentTimePosition达到或超过100时，进行特殊处理
+      // 当currentTimePosition达到或超过100时，进行特殊处理
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime;
