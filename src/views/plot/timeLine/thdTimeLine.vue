@@ -4,8 +4,8 @@
       <eqTable :eqData="tableData"/>
     </div>
     <!--    title-->
-    <div class="mars-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
-      <div class="mars-dialog__content" style="height: 100%;">
+    <div class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
+      <div class="pop-dialog__content" style="height: 100%;">
         <div class="logo-title">
           <div class="logo-title-content" style="padding: 0 0 15px 0;">
             <p >{{ this.eqyear }}年{{ this.eqmonth }}月{{this.eqday }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</p></div>
@@ -14,7 +14,7 @@
         <div class="logo-left-weather">
           <!-- 以下是实时获取时间的代码 -->
             <div class="logo-time-hour">
-            <span class="mars-icon">
+            <span class="pop-icon">
               <svg width="20" height="20" viewBox="0 0 48 48">
                 <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="#BEE1FF" stroke-width="4"></path>
                 <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4" stroke-linecap="round"></path>
@@ -3269,15 +3269,15 @@ export default {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.mars-dialog .mars-dialog__content{
+.pop-dialog .pop-dialog__content{
   height: 100%;
   overflow: auto;
   background-color: #1d3043 ;
 }
-.mars-dialog {
+.pop-dialog {
   height: 3.5rem;
 }
-.mars-icon {
+.pop-icon {
   margin-right: 10px;
   margin-left: 6px;
   vertical-align: middle;
