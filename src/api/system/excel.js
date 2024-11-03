@@ -81,3 +81,11 @@ export function getResettlementData() {
         method: 'post',
     })
 }
+
+export function searchData(data) {
+    return request({
+        url: '/excel/searchData',
+        method: 'post',
+        data
+    })
+}
