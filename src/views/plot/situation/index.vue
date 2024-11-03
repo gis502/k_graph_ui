@@ -127,14 +127,18 @@
         :position="dataSourcePopupPosition"
         :popupData="dataSourcePopupData"
       />
-      <el-button type="primary" icon="Download" @click="downloadPlot(this.plotList)"
-                 style="position: absolute;top: 50px;right: 100px;z-index: 100;">标绘导出
+
+      <el-button type="primary" @click="exportCesiumScene"
+                 style="position: absolute;top: 50px;right: 100px;z-index: 100;">导出专题图
       </el-button>
 
-      <el-button type="primary" @click="showSelect()"
-                 style="position: absolute;top: 100px;right: 100px;z-index: 100;">下载导入标绘模板
+      <el-button type="primary" @click="showSelect('import')"
+                 style="position: absolute;top: 100px;right: 100px;z-index: 100;">下载导入标绘数据模板
       </el-button>
 
+      <el-button type="primary" @click="showSelect('export')"
+                 style="position: absolute;top: 200px;right: 100px;z-index: 100;">导出当前地震标绘数据
+      </el-button>
 
       <el-upload
         :action="uploadUrl"
@@ -154,7 +158,7 @@
         @close="selectVisible=false"
       >
         <template #title>
-          <div style="text-align: center;">下载导入标绘模板</div>
+          <div style="text-align: center;">{{ this.excelPanel }}</div>
         </template>
 
         <div>
@@ -206,8 +210,48 @@
       </el-dialog>
 
     </div>
-      <!-- Cesium 视图 -->
-      <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
+    <!-- Cesium 视图 -->
+    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
+
+    <!-- 预览图片的 div -->
+    <div v-if="previewImage" class="preview-container">
+      <div class="export-image">
+        <div class="export-info">
+          <p>{{ this.title }}</p>
+        </div>
+        <div class="main_coantainer">
+          <div class="top_container">
+            <div class="box"></div>
+            <div class="top"></div>
+            <div class="box"></div>
+          </div>
+          <div class="middow">
+            <div class="left"></div>
+            <div class="main">
+              <img :src="previewImage" alt="导出图片">
+            </div>
+            <div class="right"></div>
+          </div>
+          <div class="bottom_container">
+            <div class="box"></div>
+            <div class="bottom"></div>
+            <div class="box"></div>
+          </div>
+        </div>
+        <div
+          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+          <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
+          <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
+          <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
+        </div>
+
+      </div>
+      <div class="preview-buttons">
+        <button @click="downloadImage" class="download-button">下载</button>
+        <button @click="closePreview" class="cancel-button">取消</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -229,10 +273,12 @@ import centerstar from "@/assets/icons/TimeLine/震中.png";
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import {plotType} from "../../../cesium/plot/plotType.js";
-import {downloadPlotExcel, exportPlotExcel} from "../../../api/system/excel.js";
+import {downloadPlotExcel} from "../../../api/system/excel.js";
 import {getToken} from "../../../utils/auth.js";
 import * as XLSX from "xlsx";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
+import * as echarts from "echarts";
+import html2canvas from "html2canvas";
 
 export default {
   components: {
@@ -319,6 +365,9 @@ export default {
             // },
           ]
         },
+        // {
+        //   label: '量算工具',
+        // }
       ],
       defaultProps: {
         label: 'label',
@@ -362,12 +411,30 @@ export default {
       selectVisible: false,
       selectedNodes: [], // 用于存储选中的节点信息
 
-
       uploadUrl: '',
       headers: {
         Authorization: "Bearer " + getToken()
       },
-      fieldMapping: []
+      fieldMapping: [],
+      excelContent: [],
+      excelPanel: '',
+      // ----------------------------------
+      previewImage: null, // 保存预览图片的 URL
+      loading: false, // 控制加载状态
+      pictureCreateTime: '',
+      // 导出图片时经纬度线
+      rectangleBounds: [],//按东南西北的顺序存储
+      latLonEntities: [], // 用于存储经纬度线实体的数组
+      //下面的是用来解决导出图片边框和经纬度数字展示用的
+      topStart: null,
+      topEnd: null,
+      leftStart: null,
+      leftEnd: null,
+      step: 0.5,
+      divBoxCount: 0,
+      flexPercentages: [],
+      points: [],
+      hasGeneratedPoints: false,
     };
   },
   mounted() {
@@ -467,6 +534,7 @@ export default {
               icon: item.icon,
             }
             points.push(point)
+            that.renderedPlotIds.add(item.plotId);
           }
         })
         that.drawPoints(points)
@@ -474,7 +542,7 @@ export default {
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
         console.log("pointArr",pointArr)
-        // console.log("polylineArr",polylineArr)
+        console.log("polylineArr", polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
 
@@ -594,120 +662,10 @@ export default {
       // fetchData();
     },
 
-    downloadPlot(plotList) {
-      // console.log("plotList:", plotList)
-
-      // 标题与表头
-      const plotIds = plotList.map(plot => plot.plotId);
-      const plotTypes = plotList.map(plot => plot.plotType);
-
-      getExcelPlotInfo(plotIds, plotTypes).then(res => {
-        console.log("res:", res)
-
-        // 只提取部分字段
-        // const headersAndContent = res.filter(item =>
-        //   item.plotInfo &&
-        //   (item.plotInfo.plotType === "待命队伍" ||
-        //     item.plotInfo.plotType === "已出发队伍" ||
-        //     item.plotInfo.plotType === "正在参与队伍")
-        // ).map(item => {
-
-          //提取全部字段，记得规范！！！
-          const headersAndContent = res.filter(item => item.plotInfo).map(item => {
-
-          const {plotInfo, plotTypeInfo} = item;
-
-          const plotTypeFields = Object.values(plotType).find(team => team.name === plotInfo.plotType);
-
-          const filteredPlotTypeInfo = Object.keys(plotTypeFields)
-            .filter(key => key !== 'name')
-            .reduce((obj, key) => {
-              if (plotTypeInfo[key] !== undefined) {
-                // 使用 plotType 中的 name 作为中文字段名
-                obj[plotTypeFields[key].name] = plotTypeInfo[key];
-              }
-              return obj;
-            }, {});
-
-          const drawTypeMap = new Map([
-            ["point", "点"],
-            ["polyline", "线"],
-            ["polygon", "面"]
-          ]);
-
-          // 创建结果对象，移除 result 字段的封装
-          return {
-            "绘制类型": drawTypeMap.get(plotInfo.drawtype) || "未知类型",
-            "标绘类型": plotInfo.plotType,
-            "经度": plotInfo.longitude,
-            "纬度": plotInfo.latitude,
-            "高程": plotInfo.elevation,
-            "角度": plotInfo.angle,
-            "开始时间": plotInfo.startTime.replace("T", " "),
-            "结束时间": plotInfo.endTime.replace("T", " "),
-            ...filteredPlotTypeInfo,
-          };
-        });
-
-        const eqTitle = this.title.replace("T", " ") + "级地震"
-
-        // 假设 headersAndContent 已经定义并包含相关数据
-
-        const uniqueFields = new Set();
-
-        headersAndContent.forEach(item => {
-          // if (item["标绘类型"] === "正在参与队伍" ||
-          //   item["标绘类型"] === "已出发队伍" ||
-          //   item["标绘类型"] === "待命队伍") {
-
-          // 将字段名称添加到 uniqueFields 中
-          Object.keys(item).forEach(key => {
-            uniqueFields.add(key);
-          });
-          // }
-        });
-
-        const fields = Array.from(uniqueFields);
-
-        console.log("字段:", fields);
-        console.log("地震名:", eqTitle)
-        console.log("表头和内容:", headersAndContent);
-
-        exportPlotExcel({
-          eqTitle,
-          fields,
-          headersAndContent,
-          fileName: eqTitle
-        }).then(res => {
-
-          const excelTitle = eqTitle.replace(/:/g, '：') + "标绘数据";
-
-          // 检查返回的是否是 Blob
-          if (res && res instanceof Blob) {
-            // 创建 Blob 对象
-            const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-            // 创建下载链接
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `${excelTitle}.xlsx`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            // window.URL.revokeObjectURL(url);
-          } else {
-            console.error('下载失败，返回的数据不是 Blob', res);
-          }
-        }).catch(error => {
-          console.error('请求错误', error);
-        });
-      })
-
-    },
-
-    showSelect() {
+    showSelect(flag) {
       this.selectVisible = true
-      this.initializeTreeChildren()
+      this.initializeTreeChildren(flag)
+      // console.log("数据：",this.excelContent)
     },
 
     handleCheck() {
@@ -734,6 +692,7 @@ export default {
     },
 
     confirmDownload() {
+
       const sheet = this.selectedNodes.map(node => {
         // 反向查找键
         const typeKey = Object.keys(plotType).find(key => plotType[key].name === node);
@@ -770,35 +729,43 @@ export default {
       });
 
       const plotBTO = {
-        sheets: sheet
+        sheets: sheet,
+        excelContent: this.excelContent
       };
 
-      console.log(sheet)
+      // console.log("sheet:",sheet)
 
       downloadPlotExcel(plotBTO).then(res => {
         const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        const excelTitle ="标绘数据模板";
+
+        const excelTitle = this.excelContent.length > 0 ? `${this.title.replace(
+          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+          "$1年$2月$3日"
+        )}级地震-标绘数据` : "标绘数据模板";
+
         link.setAttribute('download', `${excelTitle}.xlsx`);
         document.body.appendChild(link);
         link.click();
         link.remove();
+
+        this.excelContent = []
+        this.selectVisible = false;
+        this.selectedNodes = [];
+        // 获取当前勾选的节点
+        const checkedNodes = this.$refs.tree.getCheckedNodes();
+
+        // 逐个取消勾选
+        checkedNodes.forEach(node => {
+          this.$refs.tree.setChecked(node, false);
+        });
       })
-
-      this.selectVisible = false;
-      this.selectedNodes = [];
-      // 获取当前勾选的节点
-      const checkedNodes = this.$refs.tree.getCheckedNodes();
-
-      // 逐个取消勾选
-      checkedNodes.forEach(node => {
-        this.$refs.tree.setChecked(node, false);
-      });
     },
 
     cancelDownload() {
+      this.excelContent = []
       this.selectVisible = false;
       this.selectedNodes = []
       // 获取当前勾选的节点
@@ -811,22 +778,131 @@ export default {
     },
 
     // 新方法展示与点击节点相关的name字段
-    initializeTreeChildren() {
+    initializeTreeChildren(flag) {
+      if (flag === 'export') {
+
+        this.excelPanel = "标绘点数据导出"
+
+        const plotIds = this.plotList.map(plot => plot.plotId);
+        const plotTypes = this.plotList.map(plot => plot.plotType);
+
+        getExcelPlotInfo(plotIds, plotTypes).then(res => {
+
+          // 提取 excelContent
+          const excelContent = res.filter(item => item.plotInfo).map(item => {
+            const { plotInfo, plotTypeInfo } = item;
+
+            // 先提取绘制类型
+            const drawTypeMap = new Map([
+              ["point", "点"],
+              ["polyline", "线"],
+              ["polygon", "面"]
+            ]);
+
+            // 提取 plotTypeInfo 中的字段
+            const plotTypeFields = Object.values(plotType).find(team => team.name === plotInfo.plotType);
+
+            const filteredPlotTypeInfo = Object.keys(plotTypeFields).filter(key => key !== 'name')
+              .reduce((obj, key) => {
+                if (plotTypeInfo[key] !== undefined) {
+                  obj[plotTypeFields[key].name] = plotTypeInfo[key];
+                }
+                return obj;
+              }, {});
+
+            // 返回提取的字段
+            return {
+              "绘制类型": drawTypeMap.get(plotInfo.drawtype) || "未知类型",
+              "标绘类型": plotInfo.plotType,
+              "经度": plotInfo.longitude,
+              "纬度": plotInfo.latitude,
+              "高程": plotInfo.elevation,
+              "角度": plotInfo.angle,
+              "开始时间": plotInfo.startTime,
+              "结束时间": plotInfo.endTime,
+              ...filteredPlotTypeInfo, // 保留 plotTypeInfo 中的字段
+            };
+          });
+
+          // 将数据调整为目标格式
+          this.excelContent = excelContent.reduce((acc, item) => {
+            const plotName = item["标绘类型"];
+            const plotData = {
+              "绘制类型": item["绘制类型"],
+              "经度": item["经度"],
+              "纬度": item["纬度"],
+              "高程": item["高程"],
+              "角度": item["角度"],
+              "开始时间": item["开始时间"],
+              "结束时间": item["结束时间"],
+              // 将 plotTypeInfo 中的其他字段加入
+              ...Object.fromEntries(
+                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
+              )
+            };
+
+            // 查找已有的标绘名称对象
+            const existingPlot = acc.find(plot => plot[plotName]);
+
+            if (existingPlot) {
+              // 如果存在，则将新数据推入数组
+              existingPlot[plotName].push(plotData);
+            } else {
+              // 如果不存在，则新建一个对象
+              acc.push({
+                [plotName]: [plotData]
+              });
+            }
+
+            return acc;
+          }, []);
+
+          // console.log("调整后的数据格式:", this.excelContent);
+
+        });
+      } else {
+        this.excelPanel = "下载导入标绘模板"
+      }
+
+      const excludedNames = [
+        "直线箭头",
+        "攻击箭头",
+        "钳击箭头",
+        "限制通行公路",
+        "不可通行公路",
+        "不可通行铁路",
+        "不可用输、配电线路",
+        "不可用输气管线",
+        "不可用供水管网",
+        "未搜索区域",
+        "已搜索区域",
+        "未营救区域",
+        "已营救区域",
+        "正在营救区域",
+        "泥石流",
+        "滑坡",
+        "崩塌",
+        "地面塌陷",
+        "地面沉降"
+      ];
+
       this.plotTreeData.forEach(rootNode => {
         if (rootNode.children) {
           rootNode.children.forEach(child => {
             let arr = this.plotPicture.filter(item => item.type === child.label);
-            // 将 arr 中的每个项的 name 添加到 children 中
-            child.children = arr.map(item => ({
-              label: item.name,
-              uuid: item.uuid,
-              children: [] // 初始化为空数组
-            }));
+
+            // 根据 flag 值决定是否应用过滤
+            child.children = arr
+              .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
+              .map(item => ({
+                label: item.name,
+                uuid: item.uuid,
+                children: [] // 初始化为空数组
+              }));
           });
         }
       });
     },
-
 
     beforeUpload(file) {
       const type = file.name.split('.')[1];
@@ -849,7 +925,7 @@ export default {
         const workbook = XLSX.read(data, { type: 'array' });
 
         // 检查是否正确读取工作簿内容
-        console.log("工作簿内容：", workbook);
+        // console.log("工作簿内容：", workbook);
 
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
@@ -873,7 +949,423 @@ export default {
 
     handleSuccess() {
       console.log("上传成功")
+      this.initPlot(this.eqid)
     },
+    // =================================================================================================================
+
+    async exportCesiumScene() {
+
+
+
+      // 开始导出时，显示加载动画
+      this.loading = true;
+
+      //  1: 禁用 Cesium 相机交互功能，防止用户在导出时误操作
+      const cameraController = window.viewer.scene.screenSpaceCameraController;
+      cameraController.enableRotate = false;
+      cameraController.enableZoom = false;
+      cameraController.enableTranslate = false;
+      console.log("Cesium相机：",cameraController)
+
+      //  2: 获取地图当前视野范围的经纬度，并加载经纬度线
+      this.getLatLonBounds();  // 获取当前视野经纬度范围
+      this.addLatLonLines();   // 添加经纬度线
+      await this.waitForEntitiesToRender(this.latLonEntities.length);  // 等待经纬度线渲染完成
+
+      try {
+        //  3: 等待 Cesium 渲染完成并请求重新渲染
+        await this.waitForCesiumRender();
+        window.viewer.scene.requestRender();
+
+        //  4: 获取 Cesium 场景的 Canvas 图像
+        const cesiumCanvas = window.viewer.scene.canvas;
+        const cesiumImage = cesiumCanvas.toDataURL('image/png');  // Cesium 场景导出为图片
+
+        //  5-7: 分别渲染图例、距离标尺和指南针
+        // const legendCanvas = await this.renderElementToCanvas('.noteContainer', '图例');
+        const distanceLegendCanvas = await this.renderElementToCanvas('.distance-legend', '距离标尺');
+        const compassCanvas = await this.renderElementToCanvas('.compass', '指南针');
+
+        //  8: 创建一个新的合成 Canvas
+        const finalCanvas = this.createFinalCanvas();
+        const finalContext = finalCanvas.getContext('2d', {willReadFrequently: true});
+
+        //  9: 将 Cesium 场景绘制到合成 Canvas 上
+        await this.drawImageToCanvas(finalContext, cesiumImage, 0, 0);
+
+        //  10-12: 分别绘制图例、距离标尺和指南针到合成 Canvas 上
+
+        // 计算 legendCanvas 的右下角位置，设置 10px 的边距
+        // const x = finalCanvas.width - legendCanvas.width - 10; // 计算右侧位置
+        // const y = finalCanvas.height - legendCanvas.height - 10; // 计算底部位置
+
+        // 绘制 legendCanvas 到合成 Canvas 的右下角
+        // finalContext.drawImage(legendCanvas, x, y);
+        finalContext.drawImage(distanceLegendCanvas, 20, finalCanvas.height - distanceLegendCanvas.height - 20);
+        finalContext.drawImage(compassCanvas, finalCanvas.width - compassCanvas.width - 20, 20);
+
+        //  14: 将合成后的 Canvas 转换为图片
+        this.previewImage = finalCanvas.toDataURL('image/png');
+
+      } catch (error) {
+        console.error('导出场景失败:', error);
+      } finally {
+        this.setPictureCreateTime()
+        //  15: 恢复 Cesium 相机交互，并移除经纬度线
+        cameraController.enableRotate = true;
+        cameraController.enableZoom = true;
+        cameraController.enableTranslate = true;
+
+        this.latLonEntities.forEach(entity => {
+          window.viewer.entities.remove(entity);  // 移除经纬度线
+        });
+        this.latLonEntities = [];
+
+        this.getScreenCorners()
+        // 分别处理四条边的数据
+        const topData = {};
+        const sideData = {};
+        const bottomData = {};
+
+        // 生成点数据
+        this.generatePointsWithPercentage(this.corners.topStart, this.corners.topEnd, topData);
+        this.generatePointsWithPercentage(this.corners.leftStart, this.corners.leftEnd, sideData);
+        this.generatePointsWithPercentage(this.corners.bottomStart, this.corners.bottomEnd, bottomData);
+
+        // 等待 DOM 渲染完成
+        await nextTick();
+        // 添加盒子
+        const topContainer = document.querySelector('.top');
+        const bottomContainer = document.querySelector('.bottom');
+        const leftContainer = document.querySelector('.left');
+        const rightContainer = document.querySelector('.right');
+
+        // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
+        [topContainer].forEach(container => this.addBoxes(container, 'div_t', topData));
+
+        // 为 leftContainer 和 rightContainer 生成盒子（反转顺序，从下往上显示）
+        [leftContainer, rightContainer].forEach(container => this.addBoxes(container, 'div_l', sideData, true));
+
+        // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
+        [bottomContainer].forEach(container => this.addBoxes(container, 'div_t', bottomData));
+
+        this.loading = false;
+      }
+    },
+
+    // 将元素渲染为 Canvas
+    async renderElementToCanvas(selector, elementName) {
+      const element = document.querySelector(selector);
+      return await html2canvas(element, {
+        useCORS: true,
+        scale: 1,
+        backgroundColor: null
+      });
+    },
+
+    // 创建最终合成的 Canvas
+    createFinalCanvas() {
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = document.querySelector('#cesiumContainer').offsetWidth;
+      finalCanvas.height = document.querySelector('#cesiumContainer').offsetHeight;
+      return finalCanvas;
+    },
+
+    // 将图像绘制到 Canvas 上
+    async drawImageToCanvas(context, imageSrc, x, y) {
+      const img = new Image();
+      img.src = imageSrc;
+      await new Promise(resolve => img.onload = resolve);
+      context.drawImage(img, x, y);
+    },
+
+    // 获取地图当前视野范围的最东、最西、最南、最北的经纬度，用于经纬度线的绘制
+    getLatLonBounds() {
+      const viewer = window.viewer;
+
+      // 通过摄像机视角获取视野范围的边界矩形
+      const rectangle = viewer.camera.computeViewRectangle();
+
+      if (rectangle) {
+        // 获取最西经度（west）、最东经度（east）、最南纬度（south）、最北纬度（north）
+        this.rectangleBounds[0] = Math.ceil(Cesium.Math.toDegrees(rectangle.east));//向上取整，东方
+        this.rectangleBounds[1] = Math.floor(Cesium.Math.toDegrees(rectangle.south));//南方
+        this.rectangleBounds[2] = Math.floor(Cesium.Math.toDegrees(rectangle.west));//向下取整,西方
+        this.rectangleBounds[3] = Math.ceil(Cesium.Math.toDegrees(rectangle.north));//北方
+      }
+    },
+
+    waitForEntitiesToRender(entityCount) {
+      return new Promise(resolve => {
+        const scene = window.viewer.scene;
+
+        // 监听渲染循环是否完成
+        const checkEntitiesRendered = () => {
+          const isRendered = this.latLonEntities.filter(entity => entity.show).length === entityCount;
+          if (isRendered) {
+            // 等待 Cesium 完成渲染
+            const removePostRender = scene.postRender.addEventListener(() => {
+              removePostRender(); // 确保只监听一次
+              resolve();          // 确保渲染完成后再 resolve
+            });
+          } else {
+            setTimeout(checkEntitiesRendered, 100); // 每100ms检查一次
+          }
+        };
+
+        checkEntitiesRendered();
+      });
+    },
+
+    // 下载图片
+    downloadImage() {
+      // 获取要截取的 DOM 元素
+      const elementToCapture = document.querySelector('.export-image');
+
+      // 使用 html2canvas 截图
+      html2canvas(elementToCapture, {
+        useCORS: true, // 允许跨域请求，确保图片加载
+        logging: true, // 打开日志以查看可能的错误
+        scale: 2, // 提高图像质量
+        backgroundColor: null // 使背景透明
+      }).then(canvas => {
+        // 将 canvas 转换为图片
+        const finalImage = canvas.toDataURL('image/png');
+
+        // 创建下载链接并触发下载
+        const link = document.createElement('a');
+        link.download = `${this.title.replace(
+          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+          "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
+        link.href = finalImage; // 设置图片来源
+        link.click(); // 触发下载
+      }).catch(error => {
+        console.error('Error capturing the screenshot:', error);
+      });
+    },
+
+    // 关闭预览窗口
+    closePreview() {
+      this.previewImage = null;
+    },
+
+
+    // 添加经纬度线到 Cesium 场景
+    addLatLonLines() {
+      const viewer = window.viewer;
+      const step = 0.5; // 间隔为 0.5 度
+      const alpha = 0.7; // 白色透明度
+
+      // 添加经度或纬度线所用的函数
+      const addLines = (start, end, constantCoord, isLongitude) => {
+        //start 和 end：表示线段的起始和结束位置。对于经度线，start 和 end 是经度的范围；对于纬度线，是纬度的范围。
+        for (let coord = start; coord <= end; coord += step) {
+          const positions = [];
+
+          // 根据是否是经度线，调整另一个坐标的范围
+          //isLongitude：指示当前绘制的是经度线（true）还是纬度线（false）。
+          for (let varCoord = isLongitude ? this.rectangleBounds[1] : this.rectangleBounds[2];
+               varCoord <= (isLongitude ? this.rectangleBounds[3] : this.rectangleBounds[0]);
+               varCoord += step) {
+            if (isLongitude) {
+              positions.push(Cesium.Cartesian3.fromDegrees(coord, varCoord)); // 经度线：lon 固定，lat 变化
+            } else {
+              positions.push(Cesium.Cartesian3.fromDegrees(varCoord, coord)); // 纬度线：lat 固定，lon 变化
+            }
+          }
+
+          const entity = viewer.entities.add({
+            polyline: {
+              positions: positions,
+              width: 1,
+              material: Cesium.Color.WHITE.withAlpha(alpha),  // 白色透明度稍高
+              clampToGround: true
+            }
+          });
+          this.latLonEntities.push(entity); // 将实体存储到数组中
+        }
+      };
+      // 添加中国区域内的经度线
+      addLines(this.rectangleBounds[2], this.rectangleBounds[0], 'longitude', true);
+
+      // 添加中国区域内的纬度线
+      addLines(this.rectangleBounds[1], this.rectangleBounds[3], 'latitude', false);
+    },
+
+    waitForCesiumRender() {
+      return new Promise(resolve => {
+        const scene = window.viewer.scene;
+        const removeListener = scene.postRender.addEventListener(() => {
+          removeListener();
+          setTimeout(resolve, 500);  // 增加等待时间确保渲染完成
+        });
+        scene.requestRender();
+      });
+    },
+
+    // 设置图片创建时间
+    setPictureCreateTime() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1; // 月份从0开始，需要加1
+      const day = date.getDate();
+
+      // 格式化日期为 YYYY年MM月DD日
+      this.pictureCreateTime = `${year}年${month}月${day}日`;
+    },
+
+    getScreenCorners() {
+      const viewer = window.viewer;
+      const scene = viewer.scene;
+      const canvas = scene.canvas;
+
+      // 获取四个角的屏幕坐标
+      const topLeft = new Cesium.Cartesian2(0, 0);
+      const topRight = new Cesium.Cartesian2(canvas.width, 0);
+      const bottomLeft = new Cesium.Cartesian2(0, canvas.height);
+      const bottomRight = new Cesium.Cartesian2(canvas.width, canvas.height);
+
+      // 将屏幕坐标转换为地球坐标
+      const topLeftCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(topLeft));
+      const topRightCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(topRight));
+      const bottomLeftCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomLeft));
+      const bottomRightCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomRight));
+
+      // 获取经纬度
+      this.corners = {
+        topStart: Cesium.Math.toDegrees(topLeftCartographic.longitude),
+        topEnd: Cesium.Math.toDegrees(topRightCartographic.longitude),
+        leftStart: Cesium.Math.toDegrees(bottomLeftCartographic.latitude),
+        leftEnd: Cesium.Math.toDegrees(topLeftCartographic.latitude),
+        bottomStart: Cesium.Math.toDegrees(bottomLeftCartographic.longitude),
+        bottomEnd: Cesium.Math.toDegrees(bottomRightCartographic.longitude)
+      };
+
+      console.log(this.corners);
+    },
+    // 生成点和百分比，传入不同的标识符，避免共享同一数据集
+    generatePointsWithPercentage(start, end, dataContext) {
+      dataContext.points = [];
+      dataContext.flexPercentages = [];
+
+      const adjustedStart = Math.ceil(start / this.step) * this.step;
+      const adjustedEnd = Math.floor(end / this.step) * this.step;
+
+      for (let current = adjustedStart; current <= adjustedEnd; current += this.step) {
+        dataContext.points.push(Number(current.toFixed(2)));
+      }
+
+      const basePercentage = (this.step / (end - start)) * 100;
+      dataContext.divBoxCount = dataContext.points.length;
+      dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
+
+      this.calculateCustomValues(
+        dataContext.points[0],
+        dataContext.points[dataContext.points.length - 1],
+        start,
+        end,
+        dataContext
+      );
+    },
+
+    // 计算自定义值并保存到特定的数据上下文
+    calculateCustomValues(firstPoint, lastPoint, start, end, dataContext) {
+      const halfStep = this.step / 2;
+      const number1 = end - start;
+
+      const diffFirst = firstPoint - start;
+      if (diffFirst > halfStep) {
+        const percentageFirst = ((firstPoint - start - halfStep) / number1) * 100;
+        dataContext.flexPercentages.unshift(percentageFirst);
+        dataContext.points.unshift('');
+      } else if (diffFirst < halfStep) {
+        const percentage1 = (2 * (firstPoint - start) / number1) * 100;
+        const percentage2 = ((halfStep - (firstPoint - start)) / number1) * 100;
+        dataContext.flexPercentages.unshift(percentage1);
+        dataContext.flexPercentages[1] = percentage2;
+        dataContext.points.splice(1, 0, '');
+      }
+
+      const diffLast = end - lastPoint;
+      if (diffLast > halfStep) {
+        const percentageLast = ((end - lastPoint - halfStep) / number1) * 100;
+        dataContext.flexPercentages.push(percentageLast);
+        dataContext.points.push('');
+      } else if (diffLast < halfStep) {
+        const percentage1 = ((halfStep - (end - lastPoint)) / number1) * 100;
+        const percentage2 = (2 * (end - lastPoint) / number1) * 100;
+        dataContext.flexPercentages[dataContext.flexPercentages.length - 1] = percentage1;
+        dataContext.flexPercentages.push(percentage2);
+        dataContext.points.splice(-1, 0, '');
+      }
+
+      dataContext.divBoxCount = dataContext.points.length;
+    },
+
+    addBoxes(container, prefix, dataContext, reverse = false) {
+      if (!container) return;
+      let points = dataContext.points;
+      let flexPercentages = dataContext.flexPercentages;
+
+      // 如果需要反转顺序
+      if (reverse) {
+        points = [...points].reverse();
+        flexPercentages = [...flexPercentages].reverse();
+      }
+      Array.from({length: dataContext.divBoxCount}).forEach((_, i) => {
+        const box = document.createElement('div');
+        box.className = `${prefix}${i}`;
+        // 只对有效的数值进行转换
+        if (points[i]) {
+          box.textContent = this.convertToDMS(points[i], reverse);  // 转换为度分秒格式
+        } else {
+          box.textContent = '';  // 保留空值
+        }
+        container.appendChild(box);
+
+        // 设置盒子样式
+        const boxStyles = {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'black',
+          width: '19.47px',
+          height: '19.47px',
+          fontSize: '10px',
+          flex: flexPercentages[i], // 使用反转后的 flexPercentages
+          whiteSpace: 'nowrap', // 防止文字换行
+        };
+
+        // 如果 reverse 为 true，才旋转 90 度
+        if (reverse) {
+          boxStyles.transform = 'rotate(-90deg)';
+        }
+
+        // 应用样式
+        Object.assign(box.style, boxStyles);
+      });
+    },
+
+    // 将浮点数转换为度分秒格式
+    convertToDMS(point, reverse) {
+      const absolute = Math.abs(point);
+      const degrees = Math.floor(absolute);  // 整数部分为度
+      const minutes = Math.floor((absolute - degrees) * 60);  // 小数部分乘以 60 得到分
+      const seconds = Math.floor(((absolute - degrees) * 60 - minutes) * 60);  // 小数部分乘以 60 再得到秒
+
+      let direction;
+
+      if (reverse) {
+        // 只考虑南北方向
+        direction = point >= 0 ? '北' : '南';
+      } else {
+        // 只考虑东西方向
+        direction = point >= 0 ? '东' : '西';
+      }
+
+      return `${degrees}°${minutes}'${seconds}"${direction}`;
+    },
+
     // -----------------------------------------------------------------------------------------------------------------
 
     getCheckedNodes() {
@@ -891,7 +1383,7 @@ export default {
     initPolygon(eqid) {
       let that = this
       getPlot({eqid}).then(res => {
-        console.log(res,8888)
+        console.log(res, 8888)
         let data = res
         let polygonArr = data.filter(e => e.drawtype === 'polygon');
         // console.log('index.polygonArr', polygonArr)
@@ -905,7 +1397,7 @@ export default {
         });
         Object.keys(polygonMap).forEach(plotId => {
           let polygonData = polygonMap[plotId];
-          console.log(polygonData,8889)
+          console.log(polygonData, 8889)
           that.getDrawPolygonInfo(polygonData);
         });
       })
@@ -922,6 +1414,7 @@ export default {
 
 
         let pickedEntity = window.viewer.scene.pick(click.position);
+        // console.log("pickedEntity",pickedEntity)
         window.selectedEntity = pickedEntity?.id
           // console.log("entity------------------",window.selectedEntity)
 
@@ -1195,6 +1688,7 @@ export default {
       // console.log("row",row)
       this.eqid = row.eqid
       this.websock.eqid = this.eqid
+      this.renderedPlotIds.clear(); // 清空已渲染 ID 集合
       this.initPlot(row.eqid)
       this.title = row.occurrenceTime + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
@@ -1282,9 +1776,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          parseFloat(this.centerPoint.height || 0)
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -1969,4 +2463,142 @@ export default {
 :deep(.el-table--fit .el-table__inner-wrapper:before) {
   width: 0 !important;
 }
+
+.download-button,
+.cancel-button {
+  margin: 5px;
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.preview-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 0px 20px 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10000;
+}
+
+img {
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.preview-buttons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.download-button,
+.cancel-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.download-button:hover,
+.cancel-button:hover {
+  background-color: #2980b9;
+}
+
+/* 确保按钮显示在图片的下方正中央 */
+.preview-buttons {
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.export-info {
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  width: 100%;
+}
+
+.img_outbox {
+  border: 3px solid black;
+  padding: 20px;
+}
+
+
+.main_coantainer {
+  border: 3px solid black;
+  background-color: white;
+}
+
+.top_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.middow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.bottom_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.box {
+  width: 19.47px;
+}
+
+.top {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.main {
+  flex: 1;
+  border: 2px solid black;
+  align-items: stretch;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bottom_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 </style>
