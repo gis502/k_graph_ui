@@ -77,11 +77,11 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-          <div v-for="node in importantNodes" :key="node.position" class="time-node"
-               :style="{ left: `${node.position}%`, backgroundColor: node.color }"
-               >
+<!--          <div v-for="node in importantNodes" :key="node.position" class="time-node"-->
+<!--               :style="{ left: `${node.position}%`, backgroundColor: node.color }"-->
+<!--               >-->
 <!--            @click="jumpToNode(node)"-->
-          </div>
+<!--          </div>-->
         </div>
                 <span class="speedButton">{{ speedOption }}</span>
                 <div class="chooseSpeed">
@@ -303,7 +303,7 @@ export default {
       //时间轴当前前进步
       currentNodeIndex: 2076,
       realtimeinterval: null,
-      intervalId: null,
+      // intervalId: null,
       eqendtimeinterval: null,
       // 倍速
       currentSpeed: 1,
@@ -390,12 +390,13 @@ export default {
       selectReportItem:'',
 
       jumpTimes:[],
-      importantNodes: [
-        { position: 20, label: '事件1', color: 'red' },
-        { position: 40, label: '事件2', color: 'blue' },
-        { position: 60, label: '事件3', color: 'green' }
-      ],
+      // importantNodes: [
+      //   { position: 20, label: '事件1', color: 'red' },
+      //   { position: 40, label: '事件2', color: 'blue' },
+      //   { position: 60, label: '事件3', color: 'green' }
+      // ],
       // stopRealFlag:true,//为true是点击暂停按钮，真的暂停，为false时在动画过程中
+      nextNodeIndex:1,
     };
   },
   created() {
@@ -953,10 +954,10 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        console.log("time",startDate,currentDate,endDate)
+        // console.log("time",startDate,currentDate,endDate)
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          console.log("item.plotId",item.plotId)
+          // console.log("item.plotId",item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -977,7 +978,7 @@ export default {
         // 如果点应该消失
         if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
-          console.log(item.plotId, "end");
+          // console.log(item.plotId, "end");
 
           // 从 dataSource 中删除点
           if (window.pointDataSource) {
@@ -995,50 +996,23 @@ export default {
               if (entitylabel) {
                 window.labeldataSource.entities.remove(entitylabel); // 移除点
               }
-            // }
-            // const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId+'_ellipse'));
-            // console.log("entityToRemove", entityToRemove)
-            //
-            // if(ellipseEntityToRemove){
-            //   window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
-            // }
           }
         }
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
-      console.log(points,"points")
+      // console.log(points,"points")
+      let stoptime=3000
       if (points.length > 0) {
-        console.log(bool,"bool")
-        if(bool!=false){
-          if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-          }
-          let stoptime=points.length*3000
-          setTimeout(() => {
-            // this.intervalId = setInterval(() => {
-              this.updateCurrentTime()
-            // }, this.currentSpeed); // 时间间隔改为5秒
-          }, stoptime);
+        stoptime=points.length*3000
 
-
-
-
-          console.log("stoptime",stoptime)
-
-          // that.stopTimer(false);
-          // if(this.stopRealFlag=false){
-
-          // }
-        }
-
-
-
-        // console.log(points)
         let param = bool === false ? false : true
         cesiumPlot.drawPoints(points,param);
       }
-
+      if(this.isTimerRunning){
+        setTimeout(() => {
+          this.updateCurrentTime()
+        }, stoptime);
+      }
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
@@ -1047,10 +1021,10 @@ export default {
       let filteredPolylineArr = []; // 用于存储符合条件的线条数据
 
       polylineArr.forEach(item => {
-        console.log("isshow", this.plotisshow)
+        // console.log("isshow", this.plotisshow)
         // that.drawPolyline(item)
         const currentDate = new Date(this.currentTime);
-        console.log(currentDate)
+        // console.log(currentDate)
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
         // 检查线条的显示状态和时间范围
@@ -1141,12 +1115,16 @@ export default {
     // 暂停播放切换
     toggleTimer() {
       // 如果计时器未运行，则初始化计时器线
-      if (!this.isTimerRunning) {
-        this.initTimerLine(true);
-      } else {
+      if (!this.isTimerRunning&&this.currentTimePosition >= 100) {
+        this.initTimerLine();
+        setTimeout(() => {
+          this.updateCurrentTime();
+        }, 3000);
+      }
+      else {
+        if(!this.isTimerRunning){this.isTimerRunning=true;this.updateCurrentTime();}
         // 如果计时器正在运行，则停止计时器
-        this.stopTimer();
-        // this.stopRealFlag=true
+        else{this.stopTimer();}
       }
     },
 
@@ -1154,16 +1132,8 @@ export default {
      * 初始化计时线
      * 启动计时器，每隔一段时间更新当前时间位置
      */
-    initTimerLine(bool) {
-      if(bool==false)//运行中
-        { if (this.currentTimePosition >= 100)
-          {
-            this.stopTimer()
-          }
-      }
-      else{
+    initTimerLine() {
         this.jumpTimes.forEach(item => {
-          // console.log(new Date(item),new Date(this.eqstartTime.getTime()))
           var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
           // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode]=1
@@ -1174,7 +1144,7 @@ export default {
         this.isTimerRunning = true;
 
         // 播放一遍完成（停止，如果计算结果超过，设为最大值）
-        if (this.currentTimePosition >= 100) {
+        // if (this.currentTimePosition >= 100) {
           this.currentTimePosition = 0;
           this.currentTime = this.eqstartTime;
           this.currentNodeIndex = 0;
@@ -1246,22 +1216,7 @@ export default {
             plottype: "震中",
             layer: "标绘点"
           });
-
-
-          setTimeout(() => {
-
-            this.updatePlot(false)
-          }, 3000);
-        }
-
-        // 每隔100毫秒更新一次当前时间
-        this.intervalId = setInterval(() => {
-          this.updateCurrentTime();
-        }, 3000);
-      }
-
     },
-
 
     /**
      * 更新当前时间
@@ -1270,24 +1225,20 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      // console.log("this.currentSpeed",this.currentSpeed)
-      let nextNodeIndex = null;
       for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
-          nextNodeIndex = i;
+          this.nextNodeIndex = i;
+          break;
+        }
+        if(i===this.timelineAdvancesNumber-1){
+          this.currentTimePosition = 100;
+          this.currentTime = this.eqendTime
+          this.stopTimer();
           break;
         }
       }
-      // 停止
-      if (nextNodeIndex === null) {
-        this.currentTimePosition = 100;
-        this.currentTime = this.eqendTime
-        this.stopTimer();
-        // this.isTimerRunning = false
-      }
-      //更新到下一跳
-      else{
-        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+
+        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
         this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // 根据是否需要显示标绘层来更新图层
@@ -1296,7 +1247,6 @@ export default {
         } else {
           this.MarkingLayerRemove()
         }
-      }
     },
 
 
@@ -1306,12 +1256,6 @@ export default {
      * 定时器停止后，不会再执行任何操作，确保资源得到正确释放
      */
     stopTimer() {
-      console.log("stopTimer")
-      // 清除定时器
-      clearInterval(this.intervalId);
-      // 重置定时器标识为null
-      this.intervalId = null;
-      // 设置定时器运行状态为false
       this.isTimerRunning = false;
 
     },
@@ -1333,15 +1277,15 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
-      let nextNodeIndex = null;
+      // let nextNodeIndex = null;
       for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
-          nextNodeIndex = i;
+          this.nextNodeIndex = i;
           break;
         }
       }
       // 停止
-      if (nextNodeIndex === null) {
+      if (this.nextNodeIndex === null) {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime
         this.stopTimer();
@@ -1350,7 +1294,7 @@ export default {
       //更新到下一跳
       else {
         // this.currentNodeIndex = (this.currentNodeIndex + 1 * this.currentSpeed) % this.timelineAdvancesNumber //前进timelineAdvancesNumber次，每次5分钟，
-        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
         // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
         // 计算时间进度条的当前位置增量
         // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
@@ -1384,15 +1328,15 @@ export default {
      * 并更新图表显示
      */
     backward() {
-      let nextNodeIndex = null;
+      // let nextNodeIndex = null;
       for (let i = this.currentNodeIndex -1; i > 0; i--) {
         if (this.jumpNodes[i] === 1) {
-          nextNodeIndex = i;
+          this.nextNodeIndex = i;
           break;
         }
       }
       // 停止
-      if (nextNodeIndex === null) {
+      if (this.nextNodeIndex === null) {
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime
         this.stopTimer();
@@ -1400,7 +1344,7 @@ export default {
       }
       //更新到下一跳
       else {
-        this.currentNodeIndex = nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
         // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
         // 计算时间进度条的当前位置增量
         // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
@@ -1546,14 +1490,6 @@ export default {
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
-      if (this.intervalId) {
-        clearInterval(this.intervalId);
-        this.intervalId = null;
-      }
-      let speedtime=3000*1.0/this.currentSpeed
-      this.intervalId = setInterval(() => {
-              this.updateCurrentTime();
-            }, speedtime); // 时间间隔改为5秒
     },
 
     addImportantNodes(){},

@@ -364,6 +364,7 @@
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
+
   </div>
 </template>
 
@@ -433,7 +434,7 @@ export default {
   computed: {
     Edit() {
       return Edit
-    }
+    },
   },
   components: {
     thematicMapPreview,
@@ -453,6 +454,7 @@ export default {
     earthquakeTable,
     modelTable,
   },
+
   data: function () {
     return {
 // -----------弹窗们的状态变量-------------
@@ -1761,7 +1763,7 @@ export default {
         this.isTimerRunning = false
         // 调用 intimexuanran 方法，传入地震ID
         this.intimexuanran(this.eqid)
-        // this.xuanran(this.eqid)
+
       } else {
         if(currentTimeTmp>this.currentTime){
           this.updatePlot(false);
@@ -1777,7 +1779,7 @@ export default {
       this.isDragging = true;
       this.dragStartX = event.clientX;
       document.addEventListener('mousemove', this.drag);
-      document.addEventListener('mouseup', this.stopDrag(this.currentTime));
+      document.addEventListener('mouseup', this.stopDrag);
       // 添加禁用选择的 CSS 样式
       document.body.style.userSelect = 'none';
       document.body.style.WebkitUserSelect = 'none';
@@ -1791,18 +1793,22 @@ export default {
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
       this.currentTimePosition = newPosition;
       this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
 
-      this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
-      this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
+      // this.currentTime= new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // console.log(this.currentTime,"this.currentTime")
+      // this.set(this.data, 'currentTime', time);
+      // this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
+      // this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
 
     },
-    stopDrag(time) {
+    stopDrag() {
       this.isDragging = false;
       document.removeEventListener('mousemove', this.drag);
       document.removeEventListener('mouseup', this.stopDrag);
       // this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-      // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+
 // 当currentTimePosition达到或超过100时，进行特殊处理
       if (this.currentTimePosition >= 100) {
         this.currentTimePosition = 100;
@@ -1810,14 +1816,9 @@ export default {
         this.stopTimer();
         this.intimexuanran(this.eqid)
       }
-      else {
-        if(time>this.currentTime){
-          this.updatePlot(false);
-        }
-        else{
-          this.updatePlot();
-        }
-      }
+
+      this.updatePlot();
+
       // 恢复默认的选择行为
       document.body.style.userSelect = 'auto';
       document.body.style.WebkitUserSelect = 'auto';
