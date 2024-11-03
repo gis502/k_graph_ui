@@ -1487,6 +1487,13 @@ export default {
       const clickedPosition = Math.max(timeRulerRect.left, Math.min(event.clientX, timeRulerRect.right)) - timeRulerRect.left;
       // 计算新的进度位置百分比
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
+      // 更新当前节点索引，根据时间线的总进度数进行比例转换
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
+      // 根据开始时间和当前节点索引计算当前时间
+      // 注意：此处将时间增量从15分钟调整为5分钟
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // 更新时间进度条的宽度，以反映新的进度位置
+
       // 更新当前时间进度位置
       this.currentTimePosition = newPosition;
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
@@ -1506,12 +1513,6 @@ export default {
       document.removeEventListener('mousemove', this.drag);
       // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
       document.removeEventListener('mouseup', this.stopDrag);
-      // 更新当前节点索引，根据时间线的总进度数进行比例转换
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-      // 根据开始时间和当前节点索引计算当前时间
-      // 注意：此处将时间增量从15分钟调整为5分钟
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // 更新时间进度条的宽度，以反映新的进度位置
 
       // 当currentTimePosition达到或超过100时，进行特殊处理
       if (this.currentTimePosition >= 100) {
