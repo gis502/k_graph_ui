@@ -7,13 +7,14 @@
       <div class="compassContainer" ref="compassContainer"></div>
       <!-- 图例 -->
       <el-form class="noteContainer" v-if="this.selectedComponentKey === 'EarthquakeCasualties'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
         <p style="color: white; text-align: left; margin: 5px 0; font-size: 15px;">余震次数累计：</p>
-        <div class="legend_item" v-for="(item, index) in getLegendData()" :key="index">
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
         </div>
         <p style="color: white; text-align: left; margin: 5px 0; padding: 0;font-size: 15px">累积受伤人数：</p>
-        <div class="legend_item" v-for="(item, index) in injuredLegendData" :key="index">
+        <div class="legend_item" v-for="(item, index) in getColorsLegendData()" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
         </div>
@@ -22,6 +23,64 @@
           <img :src="item.img" class="block-img" alt="icon" style="height: 20px;margin-right: 7px;margin-left: 5px"/>
           {{ item.name }}
         </div>
+      </el-form>
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'TransportationElectricity'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
+          <span class="block" :style="{ backgroundColor: item.color }"
+                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
+        </div>
+      </el-form>
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'BuildingDamageInformation'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
+          <span class="block" :style="{ backgroundColor: item.color }"
+                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
+        </div>
+        <div class="legend_item" v-for="(item, index) in this.buildingDamageInformationLegendData" :key="index">
+  <span class="block"
+        :style="{
+          backgroundImage: 'url(' + item.img + ')',
+          backgroundSize: 'cover',
+          height: '30px',
+          width: '30px',
+          marginLeft: '5px',
+        }">
+  </span>
+          {{ item.name }}
+        </div>
+      </el-form>
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'SecondaryDisaster'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
+          <span class="block" :style="{ backgroundColor: item.color }"
+                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
+        </div>
+
+
+
+
+        <div class="legend_container" style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="legend_group" v-for="(legend, legendIndex) in this.secondaryDisasterLegendData" :key="legendIndex">
+            <p style="color: white; font-weight: bold; margin: 5px 0;">{{ legend.name }}</p>
+            <div class="legend_item" v-for="(item, itemIndex) in legend.data" :key="itemIndex"
+                 style="display: flex; align-items: center; margin: 5px 0;">
+              <span class="block"
+                    :style="{
+                      backgroundImage: 'url(' + item.img + ')',
+                      backgroundSize: 'cover',
+                      height: item.height + 'px',
+                      width: item.width + 'px',
+                      marginRight: '10px',
+                    }">
+              </span>
+              <span style="color: white;">{{ item.name }}</span>
+            </div>
+          </div>
+        </div>
+
+
+
       </el-form>
       <!-- ECharts 图表容器 -->
       <div v-for="(location, index) in locations" :key="index" class="echarts-container" ref="echartsContainer"
@@ -117,50 +176,125 @@ import * as Cesium from 'cesium';
 import CesiumNavigation from 'cesium-navigation-es6';
 import * as echarts from 'echarts';
 import {initCesium} from '@/cesium/tool/initCesium.js';
-import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getGeomById} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
+import damagedWaterSupply from '@/assets/images/damagedWaterSupply.png'
+import guaranteeWaterSupply from '@/assets/images/guaranteeWaterSupply.png'
 import earthQuakeCenterImg from '@/assets/icons/TimeLine/震中.png'
+import fimg from '@/assets/icons/TimeLine/前进箭头.png'
+import gimg from '@/assets/icons/TimeLine/后退箭头.png'
+import himg from '@/assets/icons/TimeLine/暂停.png'
 import {getTotal as getAftershock} from "@/api/system/statistics";
 import {getCasualty} from "@/api/system/casualtystats" ;
 import {getTransferInfo} from "@/api/system/relocation";
+import {getPowerSupply} from "@/api/system/powerSupply.js";
 import {TianDiTuToken} from "@/cesium/tool/config.js";
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import {getVillagesName} from "@/api/system/ZhongDuanVillage.js";
+import {getHousingSituationList} from "@/api/system/housingSituation.js";
+import {getSupplySituationList} from "@/api/system/supplySituation.js";
+import {getEnsureWaterSupply} from "@/api/system/supplyWater.js";
+import {getSecondaryDisaster} from "@/api/system/mountainFlood.js";
+import {getRiskConstructionGeohazards} from "@/api/system/geologicalDisaster.js";
+import {getBarrierlakeSituation} from "@/api/system/barrierlakeSituation.js";
 
 export default {
+  components: {dataSourcePanel},
   data() {
     return {
       viewer: null, // 保存 Cesium Viewer
       pollingInterval: null, // 保存轮询定时器的引用
 
       //-------echarts所用到的-----------
-      //下面是各个模块的echarts图例数据
-      echartsLegendData: [
-        {
-          name: 'EarthquakeCasualties',
-          data: [
-            {name: '3.0-3.9级', color: '#2c933e'},
-            {name: '4.0-4.9级', color: '#ff6d39'},
-            {name: '5.0-5.9级', color: '#53a8ff'},
-            {name: '6.0级以上', color: '#ff7c88'},
-          ]
-        },
-        {
-          name: 'TransportationElectricity',
-          data: []
-        },
-      ],
+      echartsInstances: [],
       locations: [
         {name: '雨城区', longitude: 103.0, latitude: 29.87},
         {name: '名山区', longitude: 103.22, latitude: 30.15},
         {name: '荥经县', longitude: 102.77, latitude: 29.71},
         {name: '汉源县', longitude: 102.71, latitude: 29.38},
-        {name: '石棉县', longitude: 102.29, latitude: 29.27},
+        {name: '石棉县', longitude: 102.33, latitude: 29.14},
         {name: '天全县', longitude: 102.47, latitude: 30.11},
         {name: '芦山县', longitude: 103.029, latitude: 30.41},
         {name: '宝兴县', longitude: 102.75, latitude: 30.52}
       ],
-      echartsInstances: [],
+      //下面是各个模块的echarts图例数据
+      //echartsLegendData中data里的
+      //name是echarts图例的文字和echarts柱子的xAxis的数据
+      //color是图例和echarts柱子的颜色
+      //chartType即为图表类型，柱状图还是饼图
+      echartsLegendData: [
+        {
+          name: 'EarthquakeCasualties',
+          chartType: 'bar',
+          data: [
+            {name: '3.0-3.9级', color: '#2c933e'},
+            {name: '4.0-4.9级', color: '#53a8ff'},
+            {name: '5.0-5.9级', color: '#ff6d39'},
+            {name: '6.0级以上', color: '#ff7c88'},
+          ]
+        },
+        {
+          name: 'TransportationElectricity',
+          chartType: 'pie',
+          data: [
+            {name: '已恢复主网供电用户数', color: '#2c933e'},
+            {name: '应急供电用户数', color: '#53a8ff'},
+            {name: '累计主网停电用户数', color: '#ff6d39'},
+          ]
+        },
+        {
+          name: 'BuildingDamageInformation',
+          chartType: 'pie',
+          data: [
+            {name: '目前房屋受损数量', color: '#2c933e'},
+            {name: '目前房屋禁用数量', color: '#53a8ff'},
+            {name: '目前房屋限用数量', color: '#ff6d39'},
+            {name: '目前房屋可用数量', color: '#ff7c88'},
+          ]
+        },
+        {
+          name: 'SecondaryDisaster',
+          chartType: 'bar',
+          data: [
+            {name: '疏散数量', color: '#2c933e'},
+            {name: '正在施工点', color: '#53a8ff'},
+            {name: '现有风险点', color: '#ff6d39'},
+            {name: '警报数量', color: '#ff7c88'},
+          ]
+        },
+      ],
+      //echartsConfigMap中
+      //locationKey是后端获取数据方法返回的对应区县名称
+      //dataKeys是后端返回数据的名称
+      //labels是鼠标悬浮到echarts柱子上label会展示的文字
+      echartsConfigMap: {
+        EarthquakeCasualties: {
+          locationKey: 'affected_area',
+          dataKeys: ['magnitude_3_3_9', 'magnitude_4_4_9', 'magnitude_5_5_9', 'magnitude_6'],
+          legendName: 'EarthquakeCasualties',
+          labels: '余震次数'
+        },
+        TransportationElectricity: {
+          locationKey: 'affectedArea',
+          dataKeys: ['restoredPowerUsers', 'emergencyPowerUsers', 'totalBlackoutUsers'],
+          legendName: 'TransportationElectricity',
+          labels: ['已恢复供电数：', '应急供电数：', '累计停电户数：']
+        },
+        BuildingDamageInformation: {
+          locationKey: 'affectedAreaName',
+          dataKeys: ['currentlyDamaged', 'currentlyDisabled', 'currentlyRestricted', 'currentlyAvailable'],
+          legendName: 'BuildingDamageInformation',
+          labels: ['房屋受损数量：', '房屋禁用数量：', '房屋限用数量：', '房屋可用数量：']
+        },
+        SecondaryDisaster: {
+          locationKey: 'quakeAreaName',
+          dataKeys: ['evacuationCount', 'constructionPoints', 'existingRiskPoints', 'alarmCount'],
+          legendName: 'SecondaryDisaster',
+          labels: ['疏散数量：', '正在施工点数量：', '现有风险点数量：', '警报数量：']
+        }
+      },
 
       //----------地震选择列表------------
       eqlists: [],
@@ -170,41 +304,40 @@ export default {
       selectedComponentKey: 'EarthquakeCasualties',
       options: [
         {label: '震情伤亡信息专题图', value: 'EarthquakeCasualties'},
-        {label: '交通电力通信信息专题图', value: 'TransportationElectricity'}
+        {label: '交通电力通信信息专题图', value: 'TransportationElectricity'},
+        {label: '建筑物受损信息专题图', value: 'BuildingDamageInformation'},
+        {label: '次生灾害信息专题图', value: 'SecondaryDisaster'}
       ],
 
       //---------板块颜色------------
       dataSource: null,//这个别的也能用
-      injuredLegendData: [
-        {name: '0-50人', color: '#ffb3b3', range: [0, 50]},// 非常浅的红色
-        // {name: '10-20人', color: '#ff6666'},// 浅红色
-        // {name: '20-50人', color: '#ff4d4d'},// 略深的红色
-        {name: '50-200人', color: '#ff3333', range: [51, 200]},// 中等红色
-        // {name: '100-500人', color: '#ff1a1a'},// 深红色
-        // {name: '500-1000人', color: '#e60000'},// 更深的红色
-        {name: '>200人', color: '#b30000', range: [201, Infinity]},// 深红带棕
-        // {name: '>2000人', color: '#800000'}, // 非常深的红色
+      districtColorsLegendData: [
+        {
+          name: 'EarthquakeCasualties',
+          data: [
+            {name: '0-50人', color: '#ffb3b3', range: [0, 50]},// 非常浅的红色
+            // {name: '10-20人', color: '#ff6666'},// 浅红色
+            // {name: '20-50人', color: '#ff4d4d'},// 略深的红色
+            {name: '50-200人', color: '#ff3333', range: [51, 200]},// 中等红色
+            // {name: '100-500人', color: '#ff1a1a'},// 深红色
+            // {name: '500-1000人', color: '#e60000'},// 更深的红色
+            {name: '>200人', color: '#b30000', range: [201, Infinity]},// 深红带棕
+            // {name: '>2000人', color: '#800000'}, // 非常深的红色
+          ]
+        },
       ],
-
-      //----------转移安置，地图上图标----------
-      transferredImgLegendData: [
-        {name: '转移安置人数', img: cumulativeTransferredImg}
-      ],
-      transferLocations: [
-        {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
-        {name: '名山区', longitude: 103.31, latitude: 30.17},  // 向西南偏移
-        {name: '荥经县', longitude: 102.55, latitude: 29.79},  // 向东北偏移
-        {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
-        {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
-        {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
-        {name: '芦山县', longitude: 103.10, latitude: 30.56},  // 向西偏移
-        {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
-      ],
+      districtColorsConfigMap: {
+        EarthquakeCasualties: {
+          locationKey: 'affectedAreaName',
+          dataKey: 'affectedPopulation',
+          legendName: 'EarthquakeCasualties',
+        },
+      },
 
       //-----------导出图片----------------
       previewImage: null, // 保存预览图片的 URL
       loading: false, // 控制加载状态
-      exportTitle: '震情伤亡信息专题图',
+      exportTitle: '震情伤亡信息专题图',//默认的
       pictureCreateTime: '',
       // 导出图片时经纬度线
       rectangleBounds: [],//按东南西北的顺序存储
@@ -218,7 +351,70 @@ export default {
       divBoxCount: 0,
       flexPercentages: [],
       points: [],
-      hasGeneratedPoints: false,
+
+      //----------转移安置，地图上图标----------
+      transferredImgLegendData: [
+        {name: '转移安置人数', img: cumulativeTransferredImg}
+      ],
+      transferLocations: [
+        {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+        {name: '名山区', longitude: 103.31, latitude: 30.17},  // 向西南偏移
+        {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+        {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+        {name: '石棉县', longitude: 102.35, latitude: 29.35},  // 向东北偏移
+        {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+        {name: '芦山县', longitude: 103.10, latitude: 30.56},  // 向西偏移
+        {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+      ],
+
+      //---------标绘点所用到的------------
+      pointsLegendData: [
+        {
+          name: 'TransportationElectricity',
+          data: [
+            {name: '目前道路中断村', img: fimg},
+            {name: '目前通信中断村', img: gimg},
+            {name: '目前主网供电中断村', img: himg},
+          ]
+        },
+      ],
+      pointsConfigMap: {
+        TransportationElectricity: {
+          //村镇名称
+          villagesName: ['roadBlockVillagesName', 'currentInterruptedVillagesName', 'currentlyBlackedOutVillagesName'],
+          //区县名称
+          districtNames: ['affectedAreasRoad', 'affectedAreasPower', 'earthquakeZoneNames'],
+          legendName: 'TransportationElectricity',
+        }
+      },
+      buildingDamageInformationLegendData: [
+        {
+          img: damagedWaterSupply,
+          name: '集中供水工程受损'
+        },
+        {
+          img: guaranteeWaterSupply,
+          name: '保障安置点供水'
+        },
+      ],
+      secondaryDisasterLegendData: [
+        {
+          name: '受威胁群众(户或人)',
+          data: [
+            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity]},
+            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200]},
+            {name: '0-50人', img: damagedWaterSupply, width: 20, height: 20, range: [0, 50]},
+          ]
+        },
+        {
+          name: '避险转移(户或人)',
+          data: [
+            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity]},
+            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200]},
+            {name: '0-50人', img: guaranteeWaterSupply, width: 20, height: 20, range: [0, 50]},
+          ]
+        },
+      ]
     };
   },
   mounted() {
@@ -228,6 +424,7 @@ export default {
     this.startPolling();
     // 加载雅安边界线
     this.loadYaAnBoundary();
+
   },
   beforeDestroy() {
     // 在组件销毁时清除轮询
@@ -308,48 +505,72 @@ export default {
     handleEqListChange(value) {
       // 获取选择的 eqid
       this.eqid = value;
-
+      this.viewer.entities.removeAll();
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
-        // 清除当前所有转移安置的实体
-        this.viewer.entities.removeAll();
         this.getPoints(value)
         //获取震源中心的点数据
         // this.getEarthQuakeCenter(value)
         this.getDistrictColor(value)
         this.getEcharts(value)
       }
-
       if (this.selectedComponentKey === 'TransportationElectricity') {
-        //这里根据this.eqid来获取对应的数据
-        console.log('选中了交通的对应eqid：', this.eqid)
+        this.getEcharts(value)
       }
+      if (this.selectedComponentKey === 'BuildingDamageInformation') {
+        getHousingSituationList(this.eqid).then(res => {
+          this.getEcharts(res)
+        })
+        getSupplySituationList(this.eqid).then(res => {
+          const locations = [
+            {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+            {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+            {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+            {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+            {name: '石棉县', longitude: 102.45, latitude: 29.3},  // 向东北偏移
+            {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+            {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+            {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+          ]
+          this.updatePoints(res, locations, damagedWaterSupply)
+        })
+        getEnsureWaterSupply(this.eqid).then(res => {
+          const locations = [
+            {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+            {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+            {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+            {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+            {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
+            {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+            {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+            {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+          ]
+          this.updatePoints(res, locations, guaranteeWaterSupply)
+        })
+      }
+      if (this.selectedComponentKey === 'SecondaryDisaster') {
+        this.getEcharts(value)
+        this.addDistrictLabels(this.dataSource)
+        this.getPoints(value)
+      }
+
     },
 
     // 切换模块组件
     handleComponentChange(value) {
-
       //这里是修改exportTitle，导出图片的标题会对应变化
       const selectedOption = this.options.find(option => option.value === this.selectedComponentKey);
       if (selectedOption) {
         this.exportTitle = selectedOption.label; // 设置 exportTitle 为对应的 label
       }
-
+      // 清除当前所有点标绘实体
+      this.viewer.entities.removeAll();
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
-        // 清除当前所有转移安置的实体
-        this.viewer.entities.removeAll();
         this.getPoints(this.eqid)
-        // 由于之前删除了所有实体，所以要添加标签
-        this.addDistrictLabels(this.dataSource)
         //获取震源中心的点数据
         // this.getEarthQuakeCenter(this.eqid)
         this.getDistrictColor(this.eqid)
         this.getEcharts(this.eqid)
-      } else {
-        // 清除当前所有转移安置的实体
-        this.viewer.entities.removeAll();
-        this.clearMultipleECharts();
       }
-
       if (this.selectedComponentKey === 'TransportationElectricity') {
         this.addTrafficLayer();
         this.updateDistrictColors(this.dataSource)
@@ -359,17 +580,41 @@ export default {
         this.removeImageryLayer('TrafficLayer');
         this.removeImageryLayer('TrafficTxtLayer');
       }
+      if (this.selectedComponentKey === 'BuildingDamageInformation') {
+        // 这里有点特殊，一个方法获取了两个数据，echarts数据和板块颜色数据，所以就在这里先获取数据，再传过去
+        getHousingSituationList(this.eqid).then(res => {
+          this.getEcharts(res)
+        })
+        this.updateDistrictColors(this.dataSource)
+        this.addDistrictLabels(this.dataSource)
+        this.getPoints(this.eqid)
+      }
+      if (this.selectedComponentKey === 'SecondaryDisaster') {
+        this.updateDistrictColors(this.dataSource)
+        this.addDistrictLabels(this.dataSource)
+        this.getEcharts(this.eqid)
+        this.getPoints(this.eqid)
+      }
+
     },
 
-    // 切换组件获取图例数据
-    getLegendData() {
+    // 切换组件获取Echarts图例数据
+    getEchartsLegendData() {
       const legend = this.echartsLegendData.find(
           legendItem => legendItem.name === this.selectedComponentKey
       );
       return legend ? legend.data : [];
     },
 
-    //--------------------------------------------------下面是后端获取数据的方法------------------------------------------
+    // 切换组件获取板块颜色数据
+    getColorsLegendData() {
+      const legend = this.districtColorsLegendData.find(
+          legendItem => legendItem.name === this.selectedComponentKey
+      );
+      return legend ? legend.data : [];
+    },
+
+    // --------------------------------------------------下面是后端获取数据的方法------------------------------------------
 
     //获取地震列表数据
     getEarthquake() {
@@ -402,9 +647,9 @@ export default {
 
     //获取震源中心
     getEarthQuakeCenter(eqid) {
-      // getGeomById(eqid).then(res => {
-      //   this.updateEarthQuakeCenter(res[0])
-      // })
+      getGeomById(eqid).then(res => {
+        this.updateEarthQuakeCenter(res[0])
+      })
     },
 
     //获取echarts展示的数据
@@ -415,7 +660,17 @@ export default {
         })
       }
       if (this.selectedComponentKey === 'TransportationElectricity') {
-
+        getPowerSupply(eqid).then(res => {
+          this.updateMultipleECharts(res);
+        })
+      }
+      if (this.selectedComponentKey === 'BuildingDamageInformation') {
+        this.updateMultipleECharts(eqid);
+      }
+      if (this.selectedComponentKey === 'SecondaryDisaster') {
+        getRiskConstructionGeohazards(eqid).then(res => {
+          this.updateMultipleECharts(res);
+        })
       }
     },
 
@@ -424,6 +679,7 @@ export default {
       //获取受灾人数数据
       getCasualty(eqid).then(res => {
         this.updateDistrictColors(this.dataSource, res)
+        this.addDistrictLabels(this.dataSource)
       })
     },
 
@@ -432,12 +688,115 @@ export default {
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         //获取转移安置人数数据
         getTransferInfo(eqid).then(res => {
-          this.updatePoints(res);
+          this.updatePoints(res)
         })
       }
       if (this.selectedComponentKey === 'TransportationElectricity') {
-
+        // getVillagesName(eqid).then(res => {
+        //   console.log('返回中断村镇数据：', res)
+        //   const config = this.pointsConfigMap[this.selectedComponentKey];
+        //   const legend = this.pointsLegendData.find(legend => legend.name === config.legendName);
+        //
+        //   if (!legend) return;
+        //
+        //   // 存储原始村镇名称和拼接后的名称
+        //   const villageData = config.villagesName.map((villageKey, index) => {
+        //     const villageNames = res[villageKey] || [];
+        //     const districtNames = res[config.districtNames[index]] || [];
+        //
+        //     return villageNames.map((villageName, villageIndex) => {
+        //       const districtName = districtNames[villageIndex] || '';
+        //       const combinedName = `${districtName}${villageName}`; // 拼接名称
+        //       return { combinedName, originalName: villageName }; // 保存原始名称
+        //     });
+        //   });
+        //
+        //   // 展平 villageData
+        //   const flatVillageData = villageData.flat();
+        //
+        //   // 查询每个村镇的经纬度，并保留原始名称
+        //   this.searchLocations(flatVillageData.map(v => v.combinedName))
+        //       .then(locations => {
+        //         // 处理每个位置，绑定图标和原始村镇名称
+        //         const allLocations = locations.map((location, index) => {
+        //           const originalVillageName = flatVillageData[index].originalName; // 获取原始村镇名称
+        //
+        //           return {
+        //             name: originalVillageName, // 使用原始名称
+        //             longitude: location.longitude,
+        //             latitude: location.latitude,
+        //             img: legend.data[Math.floor(index / (flatVillageData.length / legend.data.length))].img, // 绑定对应图标
+        //           };
+        //         });
+        //         // 更新标绘
+        //         this.updateMultiplePoints(allLocations);
+        //       })
+        //       .catch(error => {
+        //         console.error('地理编码请求处理错误:', error);
+        //       });
+        // });
       }
+      if (this.selectedComponentKey === 'BuildingDamageInformation') {
+        getSupplySituationList(eqid).then(res => {
+          const locations = [
+            {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+            {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+            {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+            {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+            {name: '石棉县', longitude: 102.45, latitude: 29.3},  // 向东北偏移
+            {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+            {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+            {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+          ]
+          this.updatePoints(res, locations)
+        })
+        getEnsureWaterSupply(eqid).then(res => {
+          const locations = [
+            {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+            {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+            {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+            {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+            {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
+            {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+            {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+            {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+          ]
+          this.updatePoints(res, locations)
+        })
+      }
+      if (this.selectedComponentKey === 'SecondaryDisaster') {
+        // 定义 dataMap 用于按 affectedArea 合并数据
+        const dataMap = {};
+        // 获取第一个数据源并合并
+        getSecondaryDisaster(eqid).then(res1 => {
+          // 检查 res1 是否为数组，若不是则将其包装为数组
+          const data1 = Array.isArray(res1) ? res1 : [res1];
+          data1.forEach(item => {
+            const {affectedArea, evacuation, threatenedPopulation} = item;
+            if (!dataMap[affectedArea]) {
+              dataMap[affectedArea] = {affectedArea, evacuation: 0, threatenedPopulation: 0};
+            }
+            dataMap[affectedArea].evacuation += evacuation;
+            dataMap[affectedArea].threatenedPopulation += threatenedPopulation;
+          });
+
+          getBarrierlakeSituation(eqid).then(res2 => {
+            const data2 = Array.isArray(res2) ? res2 : [res2];
+            data2.forEach(item => {
+              const {affectedArea, evacuation, threatenedPopulation} = item;
+              if (!dataMap[affectedArea]) {
+                dataMap[affectedArea] = {affectedArea, evacuation: 0, threatenedPopulation: 0};
+              }
+              dataMap[affectedArea].evacuation += evacuation;
+              dataMap[affectedArea].threatenedPopulation += threatenedPopulation;
+            });
+
+            const combinedData = Object.values(dataMap);
+            this.updatePoints(combinedData);
+          });
+        });
+      }
+
     },
 
     //-----------------------------------------------下面是交通图层的方法-------------------------------------------------
@@ -607,7 +966,138 @@ export default {
 
     //-----------------------------下面主要是标绘点的方法，创建转移安置点，以及震源中心的方法--------------------------------
 
-    updatePoints(data) {
+    async searchLocations(villageList) {
+      const positionList = []; // 用于存储所有结果
+      const key = '4bf87471d3584b4b83c650b7fcbe67a1'; // 请替换为您的高德API密钥
+
+      for (const village of villageList) {
+        const result = await this.fetchLocation(village, key);
+        if (result) {
+          positionList.push(result);
+        } else {
+          console.warn(`未找到对应的村镇: ${village}`);
+        }
+      }
+
+      this.positionList = positionList; // 假设 positionList 是一个用于存储结果的数组
+      console.log('所有经纬度:', positionList);
+      return positionList; // 返回结果
+    },
+
+    async fetchLocation(village, key) {
+      const encodedVillage = encodeURIComponent(village);
+      const requestString = `https://restapi.amap.com/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
+
+      console.log(`请求 URL: ${requestString}`); // 打印请求的 URL 以便调试
+
+      try {
+        const response = await fetch(requestString);
+        if (!response.ok) {
+          throw new Error(`网络响应错误: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('API 返回数据:', data); // 打印 API 返回的数据以便调试
+
+        if (data.geocodes && data.geocodes.length > 0) {
+          const geocode = data.geocodes[0];
+          if (geocode && geocode.location) {
+            const location = geocode.location.split(',');
+            return {
+              name: village, // 村镇名称
+              longitude: Number(location[0]),
+              latitude: Number(location[1]),
+            };
+          }
+        } else {
+          console.warn(`未找到村镇: ${village}`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`地理编码请求错误:`, error);
+        return null; // 返回 null 表示请求失败
+      }
+    },
+
+    updateMultiplePoints(allLocations) {
+      // 遍历所有位置点
+      allLocations.forEach(location => {
+        if (this.selectedComponentKey === 'TransportationElectricity') {
+          this.viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
+            billboard: {
+              image: location.img,  // 使用图片路径作为图标
+              scale: 1.0,  // 固定缩放大小
+              height: 40,
+              width: 40,
+              verticalOrigin: Cesium.VerticalOrigin.CENTER,
+              horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+              eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+            },
+            label: {
+              text: location.name,  // 显示村落名字
+              font: '12px sans-serif',
+              fillColor: Cesium.Color.BLACK,
+              showBackground: false,
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+              horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+              pixelOffset: new Cesium.Cartesian2(0, -15),  // 调整文字偏移
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+            }
+          });
+        }
+      });
+    },
+    // 更新点标绘函数
+    // updateMultiplePoints(locations) {
+    //   locations.forEach(location => {
+    //     this.viewer.entities.add({
+    //       position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
+    //       billboard: {
+    //         image: location.img,
+    //         scale: 0.8,
+    //         verticalOrigin: Cesium.VerticalOrigin.CENTER,
+    //         horizontalOrigin: Cesium.HorizontalOrigin.CENTER
+    //       },
+    //       label: {
+    //         text: location.name,
+    //         font: 'bold 12px sans-serif',
+    //         fillColor: Cesium.Color.BLACK,
+    //         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+    //         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+    //         disableDepthTestDistance: Number.POSITIVE_INFINITY
+    //       }
+    //     });
+    //   });
+    // },
+
+    updatePoints(data, situations) {
+      const addLocationEntity = (location, count, img, height, width) => {
+        this.viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
+          billboard: {
+            image: img,
+            scale: 1.0,  // 固定缩放大小
+            height: height,
+            width: width,
+            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+          },
+          label: {
+            text: `${count}`,
+            font: '14px sans-serif',
+            fillColor: Cesium.Color.BLACK,
+            showBackground: false,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+            pixelOffset: new Cesium.Cartesian2(0, -15),  // 调整文字偏移
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+          }
+        });
+      };
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         // 遍历所有的转移位置
         this.transferLocations.forEach(location => {
@@ -616,6 +1106,10 @@ export default {
 
           // 如果找不到对应的转移数据，设定人数为0
           const count = transferItem ? transferItem.cumulativeTransferred : 0;
+
+          if (count === 0) {
+            return;
+          }
 
           // 当人数小于10时，设为10
           const adjustedCount = count < 10 ? 10 : count;
@@ -627,7 +1121,6 @@ export default {
 
           // 添加到 Cesium 实体
           this.viewer.entities.add({
-            id: location.name,
             position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
             billboard: {
               image: cumulativeTransferredImg,  // 图标
@@ -650,10 +1143,85 @@ export default {
           });
         });
       }
-      if (this.selectedComponentKey === 'TransportationElectricity') {
-
+      if (this.selectedComponentKey === 'BuildingDamageInformation') {
+        // 遍历所有位置点
+        situations.forEach(location => {
+          const countItem = data.find(item => item.earthquakeAreaName === location.name);
+          let count = null;
+          let img = null;
+          // 检查 countItem 是否存在
+          if (countItem) {
+            if (countItem.centralizedWaterProjectDamage) {
+              count = countItem.centralizedWaterProjectDamage;
+              img = damagedWaterSupply;
+            } else if (countItem.waterSupplyPoints) {
+              count = countItem.waterSupplyPoints;
+              img = guaranteeWaterSupply;
+            } else {
+              return; // 如果两个属性都不存在，则跳过当前项
+            }
+          } else {
+            return;// 如果 countItem 不存在，则跳过当前项
+          }
+          addLocationEntity(location, count, img, 35, 35)
+        });
       }
+      if (this.selectedComponentKey === 'SecondaryDisaster') {
+        // 遍历所有数据
+        data.forEach(dataItem => {
+          let evacuationCount = null;
+          let threatenedCount = null;
 
+          // 定义函数来根据 count 查找对应的宽度和高度
+          const getSizeByCount = (count, type) => {
+            const legend = this.secondaryDisasterLegendData.find(legendItem => legendItem.name === type);
+            if (legend) {
+              const dataItem = legend.data.find(item => count >= item.range[0] && count <= item.range[1]);
+              if (dataItem) {
+                return {width: dataItem.width, height: dataItem.height, img: dataItem.img};
+              }
+            }
+            return {width: 35, height: 35}; // 默认宽度和高度
+          };
+
+          if (dataItem.evacuation) {
+            evacuationCount = dataItem.evacuation;
+            const locations = [
+              {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+              {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+              {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+              {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+              {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
+              {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+              {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+              {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+            ]
+            let location = locations.find(loc => loc.name === dataItem.affectedArea);
+            const {width, height, img} = getSizeByCount(evacuationCount, '避险转移(户或人)');
+            addLocationEntity(location, evacuationCount, img, width, height)
+          }
+          if (dataItem.threatenedPopulation) {
+            threatenedCount = dataItem.threatenedPopulation;
+            const locations = [
+              {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+              {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+              {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+              {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+              {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
+              {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+              {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+              {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+            ]
+            let location = locations.find(loc => loc.name === dataItem.affectedArea);
+            const { width, height, img } = getSizeByCount(threatenedCount, '受威胁群众(户或人)');
+            addLocationEntity(location, threatenedCount, img, height, width)
+          }
+          // 如果 evacuationCount 和 threatenedCount 都为 null，则跳过当前项
+          if (evacuationCount === null && threatenedCount === null) {
+            return;
+          }
+        });
+      }
     },
 
     updateEarthQuakeCenter(data) {
@@ -666,185 +1234,133 @@ export default {
       });
     },
 
-    //------------------------------------------------------------------------------------------------------------------
-
-
     //--------------------------------------------------下面是创建echarts的方法------------------------------------------
 
-    // 创建多个 ECharts 实例，位置为雅安市各区县
     updateMultipleECharts(data) {
-      const locations = this.locations; // 获取 locations
-      const echartsLegendData = this.echartsLegendData;
+      const locations = this.locations;
+      const config = this.echartsConfigMap[this.selectedComponentKey];
 
+      if (!config) return; // 若没有配置，跳过
+
+      // 将 data 转换为 Map 以提高查找效率
+      const districtMap = new Map(data.map(district => [district[config.locationKey], district]));
+
+      // 这里是将echarts的xAxis的数据和颜色对应上，不会出现x轴和颜色不对应的问题
+      let colorMapping = {};
+      let categories = [];
+      let chartType = ''
+      const legend = this.echartsLegendData.find(legend => legend.name === config.legendName);
+      if (legend) {
+        chartType = legend.chartType;
+        legend.data.forEach(item => {
+          colorMapping[item.name] = item.color;
+          categories.push(item.name);
+        });
+      }
+
+      //循环遍历，生成图表
       locations.forEach((location, index) => {
-        const chartContainer = this.$refs.echartsContainer[index]; // 获取容器
+        const chartContainer = this.$refs.echartsContainer[index];
+        let chartInstance = this.echartsInstances[index];
 
         // 销毁旧的 ECharts 实例，避免重复渲染
-        let chartInstance = this.echartsInstances[index];
-        if (chartInstance) {
-          chartInstance.dispose(); // 销毁旧实例
-        }
-
-        // 创建一个新的 ECharts 实例
+        if (chartInstance) chartInstance.dispose();
         chartInstance = echarts.init(chartContainer);
-        this.echartsInstances[index] = chartInstance; // 保存实例
+        this.echartsInstances[index] = chartInstance;
 
-        if (this.selectedComponentKey === 'EarthquakeCasualties') {
-          const districtInfo = data.find(district => district.affected_area === location.name);
-          // 处理地震数据
-          if (districtInfo) {
-            const values = [
-              districtInfo.magnitude_3_3_9,
-              districtInfo.magnitude_4_4_9,
-              districtInfo.magnitude_5_5_9,
-              districtInfo.magnitude_6
-            ];
-
-            // 创建颜色映射对象和类别数组
-            const colorMapping = {};
-            const categories = []; // 新增用于存储类别
-            echartsLegendData.forEach(legend => {
-              if (legend.name === 'EarthquakeCasualties') {
-                legend.data.forEach(item => {
-                  colorMapping[item.name] = item.color; // 通过名称映射颜色
-                  categories.push(item.name); // 添加类别
-                });
-              }
-            });
-
-            // 过滤有效数据
-            const filteredValues = values.filter(value => value > 0); // 过滤掉值为 0 的柱子
-            const filteredCategories = categories.filter((_, index) => values[index] > 0); // 过滤掉对应的类别
-
-            // 如果没有有效的数据，清空图表
-            if (filteredValues.length === 0) {
-              chartInstance.clear(); // 清空图表内容
-              return; // 结束当前迭代
-            }
-
-            // 更新图表
-            this.updateChart(chartInstance, filteredValues, filteredCategories, colorMapping);
-          } else {
-            // 如果没有数据，清空图表内容
-            chartInstance.clear();
-          }
+        // 检查是否存在对应地区数据，如果不存在，则不在该区域生成图表
+        const districtInfo = districtMap.get(location.name);
+        if (!districtInfo) {
+          chartInstance.clear();
+          return;
         }
 
-        if (this.selectedComponentKey === 'TransportationElectricity') {
-          const dataInfo = data.find(district => district.affectedArea === location.name);
-          // 处理地震数据
-          if (dataInfo) {
-            const values = [
-              dataInfo.restoredSubstations,
-              dataInfo.restoredCircuits,
-              dataInfo.restoredPowerUsers,
-            ];
-
-            // 创建颜色映射对象和类别数组
-            const colorMapping = {};
-            const categories = []; // 新增用于存储类别
-            echartsLegendData.forEach(legend => {
-              if (legend.name === 'TransportationElectricity') {
-                legend.data.forEach(item => {
-                  colorMapping[item.name] = item.color; // 通过名称映射颜色
-                  categories.push(item.name); // 添加类别
-                });
-              }
-            });
-
-            // 过滤有效数据
-            const filteredValues = values.filter(value => value > 0); // 过滤掉值为 0 的柱子
-            const filteredCategories = categories.filter((_, index) => values[index] > 0); // 过滤掉对应的类别
-
-            // 如果没有有效的数据，清空图表
-            if (filteredValues.length === 0) {
-              chartInstance.clear(); // 清空图表内容
-              return; // 结束当前迭代
-            }
-
-            // 更新图表
-            this.updateChart(chartInstance, filteredValues, filteredCategories, colorMapping);
-          } else {
-            // 如果没有数据，清空图表内容
-            chartInstance.clear();
+        // 获取值并进行过滤
+        //确保只保留大于 0 的有效值,当有数据为0时，删除对应的echarts里的柱子
+        const values = config.dataKeys.map(key => districtInfo[key] || 0);
+        const filteredValues = [];
+        const filteredCategories = [];
+        categories.forEach((category, index) => {
+          if (values[index] > 0) {
+            filteredValues.push(values[index]);
+            filteredCategories.push(category);
           }
+        });
+
+        // 如果该区域数据全部为0，清空图表
+        if (filteredValues.length === 0) {
+          chartInstance.clear();
+          return;
         }
+
+        // 更新图表
+        this.updateChart(chartInstance, filteredValues, filteredCategories, colorMapping, config.labels, chartType);
       });
 
-      // 添加 Cesium 场景的 postRender 事件，在每次渲染后更新图表位置
+      // 添加 Cesium 场景的 postRender 事件
       if (!this.isPostRenderAdded) {
         this.viewer.scene.postRender.addEventListener(this.syncEChartsWithCesium);
         this.isPostRenderAdded = true;
       }
     },
 
-    // 更新图表方法
-    updateChart(chartInstance, values, categories, colorMapping) {
-      let labelText = '余震次数';
-      // 设置图表选项
+    // 更新图表
+    updateChart(chartInstance, values, categories, colorMapping, labelText, chartType = 'bar') {
+      const isBarChart = chartType === 'bar';
+
       const option = {
         tooltip: {
-          trigger: 'axis',
-          show: true,
+          trigger: 'item',
           formatter: (params) => {
-            // 根据 dataIndex 修改 labelText
-            if (this.selectedComponentKey === 'TransportationElectricity') {
-              if (params[0].dataIndex === 0) {
-                labelText = '已恢复变（发）电站（座）';
-              } else if (params[0].dataIndex === 1) {
-                labelText = '已恢复线路（条）';
-              } else if (params[0].dataIndex === 2) {
-                labelText = '已恢复主网供电用户数（户）';
-              }
-            } else {
-              labelText = '余震次数'; // 其他情况仍然是余震次数
-            }
-
+            const index = params.dataIndex;
+            const displayLabelText = Array.isArray(labelText) ? labelText[index] : labelText;
             return `<div style="font-size: 14px; background-color: rgba(255, 255, 255, 0.95);
-      border: 1px solid #ddd; border-radius: 4px; padding: 10px; width: auto;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-      <strong style="color: #333;">${params[0].name}</strong><br/>
-      <div style="color: #555;"><span style="font-weight: bold;">${labelText}:</span> ${params[0].value}</div></div>`;
+                    border: 1px solid #ddd; border-radius: 4px; padding: 10px; width: auto;
+                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                    <strong style="color: #333;">${params.name}</strong><br/>
+                    <div style="color: #555;"><span style="font-weight: bold;">${displayLabelText}:</span> ${params.value}</div></div>`;
           },
         },
-        xAxis: {
+        xAxis: isBarChart ? {
           type: 'category',
-          data: categories, // 类别数据
-          axisLabel: { show: false },
-          axisLine: { show: false },
-          axisTick: { show: false },
-        },
-        yAxis: {
+          data: categories,
+          axisLabel: {show: false},
+          axisLine: {show: false},
+          axisTick: {show: false}
+        } : null,
+        yAxis: isBarChart ? {
           show: false,
           type: 'value',
-          splitLine: { show: false },
-          axisLine: { show: false },
-          axisTick: { show: false },
-        },
-        series: [{
-          name: '数据类型',
-          type: 'bar',
-          data: values, // 数据
-          itemStyle: {
-            color: (params) => {
-              // 使用颜色映射对象
-              return colorMapping[params.name] || '#ccc'; // 如果没有对应的值，返回灰色
+          splitLine: {show: false},
+          axisLine: {show: false},
+          axisTick: {show: false}
+        } : null,
+        series: [
+          {
+            name: '数据类型',
+            type: isBarChart ? 'bar' : 'pie',
+            data: isBarChart
+                ? values
+                : values.map((value, i) => ({value, name: categories[i]})),
+            itemStyle: {
+              color: (params) => colorMapping[params.name] || '#ccc',
             },
+            label: {
+              show: true,
+              position: 'inside',
+              formatter: '{c}',  // 显示数值
+              color: '#fff',
+              fontSize: 12,
+            },
+            barCategoryGap: isBarChart ? '0%' : undefined,
+            barWidth: isBarChart ? '100%' : undefined,
+            radius: isBarChart ? undefined : '50%', // 设置为全圆饼图，没有空心区域
           },
-          label: {
-            show: true,
-            position: 'inside',
-            formatter: '{c}',
-            color: '#fff',
-            fontSize: 12,
-          },
-          barCategoryGap: '0%',
-          barWidth: '100%',
-        }],
+        ],
       };
 
-      chartInstance.setOption(option); // 设置图表选项
+      chartInstance.setOption(option);
     },
 
 
@@ -878,10 +1394,64 @@ export default {
       });
     },
 
-    //------------------------------------------------------------------------------------------------------------------
-
-
     //-------------------------------下面是地图 区块边界线 和 地域标签 以及 板块颜色 的设置---------------------------------
+
+    // 设置区块颜色的方法
+    updateDistrictColors(dataSource, districtData) {
+      if (districtData) {
+        const config = this.districtColorsConfigMap[this.selectedComponentKey];
+        if (!config) return; // 若没有配置，跳过
+        const legend = this.districtColorsLegendData.find(legend => legend.name === config.legendName);
+
+        // 遍历后端传回的数据，判断并更新区块颜色
+        dataSource.entities.values.forEach(entity => {
+          const districtName = entity.name;
+          const districtInfo = districtData.find(d => d[config.locationKey] === districtName);
+
+          // 如果没有找到对应的数据，则将 affectedCount 设为 0
+          const affectedCount = districtInfo ? districtInfo[config.dataKey] : 0;
+
+          // 根据数量范围匹配相应的颜色
+          const legendItem = legend.data.find(item =>
+              affectedCount >= item.range[0] && affectedCount <= item.range[1]
+          );
+
+          if (legendItem) {
+            const color = Cesium.Color.fromCssColorString(legendItem.color).withAlpha(0.8);
+            // 更新区块的填充颜色
+            entity.polygon.material = new Cesium.ColorMaterialProperty(color);
+          }
+        });
+      } else if (this.selectedComponentKey === 'BuildingDamageInformation' || this.selectedComponentKey === 'SecondaryDisaster') {
+        const colors = [
+          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+          {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+          {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+          {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+          {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+          {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+          {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+          {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+        ];
+        // 遍历数据源的实体，根据名字设置颜色
+        dataSource.entities.values.forEach(entity => {
+          const entityName = entity.name;
+          const colorEntry = colors.find(color => color.name === entityName);
+
+          if (colorEntry) {
+            // 更新区块的填充颜色
+            entity.polygon.material = new Cesium.ColorMaterialProperty(colorEntry.color);
+          }
+        });
+      } else {
+        // 如果没有数据，设置默认颜色
+        const defaultColor = Cesium.Color.fromCssColorString('#ffb3b3').withAlpha(0.6);
+        dataSource.entities.values.forEach(entity => {
+          entity.polygon.material = new Cesium.ColorMaterialProperty(defaultColor);
+        });
+      }
+    },
 
     // 加载雅安的边界线并设置视角
     loadYaAnBoundary() {
@@ -908,10 +1478,6 @@ export default {
 
         // 为每个区块添加红色边界线
         this.addBoundaryLines(dataSource);
-
-        // 添加各区县的名称标签
-        this.addDistrictLabels(dataSource);
-
 
       }).catch(error => {
         console.error('加载 GeoJSON 时出错：', error);  // 捕获并显示错误信息
@@ -941,7 +1507,7 @@ export default {
         '名山区': {lon: 103.19, lat: 30.05},
         '荥经县': {lon: 102.80, lat: 29.57},
         '汉源县': {lon: 102.70, lat: 29.25},
-        '石棉县': {lon: 102.29, lat: 29.15},
+        '石棉县': {lon: 102.34, lat: 28.99},
         '天全县': {lon: 102.50, lat: 29.95},
         '芦山县': {lon: 102.98, lat: 30.25},
         '宝兴县': {lon: 102.75, lat: 30.4}
@@ -965,39 +1531,6 @@ export default {
         });
       });
     },
-
-    // 设置区块颜色的方法
-    updateDistrictColors(dataSource, districtData) {
-      if (districtData) {
-        // 遍历后端传回的区县受灾数据，并更新区块颜色
-        dataSource.entities.values.forEach(entity => {
-          const districtName = entity.name;
-          const districtInfo = districtData.find(d => d.affectedAreaName === districtName);
-
-          // 如果没有找到对应的区县数据，则将 affectedPopulation 设为 0
-          const affectedPopulation = districtInfo ? districtInfo.affectedPopulation : 0;
-
-          // 根据受灾人口数量范围匹配相应的颜色
-          const legendItem = this.injuredLegendData.find(item =>
-              affectedPopulation >= item.range[0] && affectedPopulation <= item.range[1]
-          );
-
-          if (legendItem) {
-            const color = Cesium.Color.fromCssColorString(legendItem.color).withAlpha(0.8);
-            // 更新区块的填充颜色
-            entity.polygon.material = new Cesium.ColorMaterialProperty(color);
-          }
-        });
-      } else {
-        dataSource.entities.values.forEach(entity => {
-          entity.polygon.material = new Cesium.ColorMaterialProperty(Cesium.Color.fromCssColorString('#ffb3b3').withAlpha(0.6));
-        })
-      }
-
-    },
-
-    //------------------------------------------------------------------------------------------------------------------
-
 
     //--------------------------------------------------下面是导出图片用的方法--------------------------------------------
 
@@ -1622,8 +2155,6 @@ export default {
     //   link.click();
     //   this.previewImage = null;
     // },
-
-    //------------------------------------------------------------------------------------------------------------------
   }
 };
 </script>
@@ -1635,7 +2166,7 @@ export default {
   border-radius: 5px;
   bottom: 10px; /* 固定在底部 */
   right: 10px; /* 固定在右侧 */
-  width: 155px; /* 宽度自适应内容 */
+  width: auto; /* 宽度自适应内容 */
   z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);
 }
