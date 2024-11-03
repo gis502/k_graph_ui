@@ -7,7 +7,8 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getEquipment} from "../../api/system/rescueEquipment";
+import {getBarrierlakeSituation} from "../../api/system/barrierlakeSituation";
+import {getMaterialDonation} from "../../api/system/materialDonation";
 const props = defineProps({
   eqid: {
     type: String,
@@ -17,9 +18,8 @@ const props = defineProps({
 const eqid = ref('');
 const latestTime = ref('') // 时间
 const earthquakeAreaName = ref(["抱歉暂无数据"]) //地点
-const helicopterCount = ref([]) // 直升机数量
-const bridgeBoatCount = ref([]) // 舟桥数量
-const wingDroneCount = ref([]) // 翼龙无人机数量
+const materialDonationCount = ref([0]) // 捐赠物资
+const drugsDonationCount = ref([0]) // 药品
 const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
@@ -42,15 +42,15 @@ function formatDate(dateString) {
 }
 
 setTimeout(()=>{
-  getEquipment(store.globalEqId).then(res => {
+  getMaterialDonation(store.globalEqId).then(res => {
     update(res)
   })
 },500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getEquipment(eqid.value).then(res => {
-    console.log("sssssssssssssssssssssssssssssssssssssssssssssssss",res)
+  getMaterialDonation(eqid.value).then(res => {
+    console.log("getBarrierlakeSituation",res)
     update(res)
   })
 })
@@ -58,18 +58,16 @@ watch(() => props.eqid, (newValue) => {
 function update(data){
   if(data.length === 0){
     earthquakeAreaName.value = ["抱歉暂无数据"]
-    helicopterCount.value = [0]
-    bridgeBoatCount.value = [0]
-    wingDroneCount.value = [0]
+    materialDonationCount.value = [0]
+    drugsDonationCount.value = [0]
     latestTime.value = ''
   }else {
     earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || "抱歉暂无数据")
-    helicopterCount.value = data.map(item => item.helicopterCount || 0)
-    bridgeBoatCount.value = data.map(item => item.bridgeBoatCount || 0)
-    wingDroneCount.value = data.map(item => item.wingDroneCount || 0)
+    materialDonationCount.value = data.map(item => item.materialDonationCount || 0)
+    drugsDonationCount.value = data.map(item => item.drugsDonationCount || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? max : formatDate(item.systemInsertTime);
-    },formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
+    }, formatDate(data[0].systemInsertTime)); // 确保初始值
   }
 
 
@@ -93,13 +91,10 @@ function update(data){
     },
     series: [
       {
-        data: helicopterCount.value,
+        data: materialDonationCount.value,
       },
       {
-        data: bridgeBoatCount.value,
-      },
-      {
-        data: wingDroneCount.value,
+        data: drugsDonationCount.value,
       }
     ]
   })
@@ -158,7 +153,7 @@ const initChart = () => {
     ],
     series: [
       {
-        name: '直升机数量（架）',
+        name: '捐赠物资（万件）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -167,32 +162,20 @@ const initChart = () => {
         itemStyle: {
           color: '#4A90E2',
         },
-        data: helicopterCount.value,
+        data: materialDonationCount.value,
       },
       {
-        name: '舟桥（座）',
+        name: '药品（箱）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
           focus: 'series',
         },
         itemStyle: {
-          color: '#007BB8',
+          color: '#005193',
         },
-        data: bridgeBoatCount.value,
-      },
-      {
-        name: '翼龙无人机（架）',
-        type: 'bar',
-        stack: 'Ad',
-        emphasis: {
-          focus: 'series',
-        },
-        itemStyle: {
-          color: '#005F8C',
-        },
-        data: wingDroneCount.value,
-      },
+        data: drugsDonationCount.value,
+      }
     ]
   };
   echartsInstance.setOption(option);

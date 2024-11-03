@@ -24,6 +24,23 @@ const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
 
+function formatDate(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (isNaN(date)) return '无效日期'; // 检查日期有效性
+
+  const pad = (num) => (num < 10 ? '0' + num : num); // 补零函数
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1); // 月份从 0 开始
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 setTimeout(()=>{
   getSecondaryDisaster(store.globalEqId).then(res => {
     update(res)
@@ -36,6 +53,8 @@ watch(() => props.eqid, (newValue) => {
     update(res)
   })
 })
+
+
 
 function update(data){
   if(data.length === 0){
@@ -50,8 +69,8 @@ function update(data){
     hazardPoints.value = data.map(item => item.hazardPoints || 0)
     evacuation.value = data.map(item => item.evacuation || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
-    },data[0].systemInsertTime); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
+    }, formatDate(data[0].systemInsertTime)); // 确保初始值
   }
 
 

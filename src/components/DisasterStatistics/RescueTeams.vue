@@ -1,4 +1,5 @@
 <template>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
   <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
 </template>
 
@@ -492,7 +493,9 @@ function update(data){
     transportationCommunicationPowerCount.value = data.map(item => item.transportationCommunicationPowerCount || 0);
     airRescueCount.value = data.map(item => item.airRescueCount || 0);
     volunteerRescueTeamCount.value = data.map(item => item.volunteerRescueTeamCount || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
+    latestTime.value = data.reduce((max,item)=> {
+      return formatDate(max) > formatDate(item.systemInsertTime) ? formatDate(max) : formatDate(item.systemInsertTime)
+    },formatDate(data[0].systemInsertTime))
   }
 
 
