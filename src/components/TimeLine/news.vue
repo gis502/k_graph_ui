@@ -20,6 +20,7 @@
             </div>
             <div class="sub-content">
               <p class="sub-time">{{ timestampToTime(item.publishTime) }}</p>
+              <p class="sub-source">新闻来源：{{ item.sourceName}}</p>
               <p class="sub-text">{{ item.title }}</p>
             </div>
           </li>
@@ -80,6 +81,7 @@ export default {
             return 0;
         });
         this.showNews = activities.reverse()
+        // console.log(this.showNews)
         this.recordTime=this.timestampToTime(activities[0].publishTime)
       }else{
         this.showNews = []
@@ -179,7 +181,7 @@ export default {
 .sub-ul li {
   display: flex;
   align-items: center; /* Center items vertically */
-  margin-bottom: -14px; /* Optional: Add some space between items */
+  margin-bottom: -21px; /* Optional: Add some space between items */
   /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
   padding: 0; /* Optional: Add padding for better spacing */
 }
@@ -209,15 +211,20 @@ export default {
   padding: 0;
   line-height: .2rem
 }
-
+.sub-source{
+  font-size: 14px; /* 设置字体大小为16像素 */
+  padding: 0;
+  line-height: .2rem;
+}
 .sub-text {
+  padding: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 显示前两行 */
   -webkit-box-orient: vertical;
   overflow: hidden; /* 隐藏超出部分 */
   text-overflow: ellipsis; /* 超出部分用省略号表示 */
-  line-height: 1.1; /* 行高，调整以适应你的字体 */
-  height: 2.1em; /* 高度设置为两行的高度 */
+  line-height: 1; /* 行高，调整以适应你的字体 */
+  height: 2.2em; /* 高度设置为两行的高度 */
   left: 10%
 }
 
