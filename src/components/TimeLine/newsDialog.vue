@@ -7,12 +7,12 @@
       &times; <!-- 叉号字符 -->
     </div>
 
-    <div>
+    <div class="news-head">
       <h2 class="news-title">{{ showingNewsContent.title }}</h2>
       <div class="news-time">
-        来源：{{ showingNewsContent.sourceName }}|{{ this.timestampToTime(showingNewsContent.publishTime) }}
+        <span class="publish-time">时间：{{ this.timestampToTime(showingNewsContent.publishTime) }}</span>
+        <span class="source">来源：{{ showingNewsContent.sourceName }}</span>
       </div>
-
     </div>
     <div class="news-main">
       <div v-html="formattedNewsContent"></div>
@@ -98,13 +98,14 @@ export default {
   width: 40%;
   height: 54%;
   position: absolute;
-  padding: 0 5px 5px;
+  //padding: 0 5px 5px;
+  padding:15px;
   border-radius: 5px;
   top:20%;
   right: 30%;
   z-index: 30; /* 更高的层级 */
-  background-color: rgb(255, 255, 255);
-  color: #000000;
+  background-color: rgb(22, 53, 77,0.9);
+  color: #ffffff;
 }
 .close-button {
   position: absolute; /* Position the button absolutely */
@@ -112,38 +113,63 @@ export default {
   right: 10px; /* Distance from the right */
   cursor: pointer; /* Change cursor to pointer */
   font-size: 24px; /* Adjust font size */
-  color: #000000; /* Optional: Set color */
+  color: #ffffff; /* Optional: Set color */
 }
 .news-title {
   font-family: myFirstFont;
   font-size: 1.2rem;
+  font-weight: 900 !important;
   line-height: 1.9rem;
-  /*padding: 1rem 0 1rem !important;*/
-  color: #000000;
+  color: #ffffff;
   letter-spacing: 0;
-  //text-shadow: 0.2rem 0.3rem 0 rgba(0, 0, 0, 0.39);
-  /*border-bottom: 0.1rem solid #ffffff;*/
   margin: 0;
-  padding-top: 5px;
   text-align: center;
+  padding-bottom: 12px;
 }
-.news-title-in{
-  margin-bottom: 10px;
+.news-title:before {
+  content: "";
+  width: 11px;
+  height: 23px;
+  position: relative;
+  top: 7px;
+  margin: 0 10px;
+  display: inline-block;
+  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.news-title:after {
+  content: "";
+  width: 95%;
+  height: 6px;
+  position: absolute;
+  top: 15%;
+  left: 1.5%;
+  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 .news-main{
   padding-left: 5px;
   padding-right: 5px;
   max-height: 85%;
   overflow-y: auto;
+  margin-top: 3%;
 }
 .news-time{
-  font-size: .9rem;
-  line-height: 1.5rem;
+  display: flex;
+  justify-content: space-between; /* 平均排列 */
+  font-size: 0.9rem;
+  line-height: 0.5rem;
   margin-bottom: 1px;
 }
-.news-content{
-  font-size: .9rem;
-  line-height: 1.3rem;
+.source,
+.publish-time {
+  flex: 1; /* 每个元素占用相同的空间 */
+  text-align: center; /* 中间对齐文本 */
+}
+.news-head{
+  line-height: 1rem;
 }
 .news-img {
   padding-top: 5px;
@@ -151,5 +177,22 @@ export default {
 }
 .news-img img {
   display: inline-block;
+}
+/* 整个滚动条 */
+::-webkit-scrollbar {
+  width: 6px;               /* 滚动条的宽度 */
+  height: 12px;              /* 滚动条的高度，对水平滚动条有效 */
+}
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #008aff70; /* 轨道的背景颜色 */
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #1f9dca; /* 滑块的背景颜色 */
+  border: 3px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 </style>

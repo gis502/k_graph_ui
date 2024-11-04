@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <!--    地震列表切换-->
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
@@ -39,42 +38,70 @@
         </div>
       </div>
     </div>
-
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
       <div class="list-dialog" style="width: 100%; height: 100%; z-index: 900;">
-        <div class="list-dialog__header">
+        <div class="list-dialog__other_header">
           <span>图层要素</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
-          <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-            <el-checkbox
-                v-for="item in layeritems"
-                :key="item.id"
-                :label="item.name"
-                style="margin: 0 0;"
-            >
-              {{ item.name }}
-            </el-checkbox>
-          </el-checkbox-group>
 
-          <!-- 行政区划按钮 -->
-          <div class="district-buttons" style="margin-top: 20px;">
-            <div class="city-button">
-              <el-button @click="addYaanImageryDistrict">雅安市</el-button>
-            </div>
-            <div class="city-button">
-              <el-button @click="backcenter">回到震中</el-button>
-            </div>
-          </div>
-          <!-- 下属区县按钮 -->
-          <div class="district-buttons">
-            <div v-for="district in districts" :key="district.adcode" class="district-button">
-              <el-button @click="handleDistrictClick(district)">{{ district.name }}</el-button>
-            </div>
-          </div>
+          <!-- 图层要素可展开 -->
+          <el-collapse>
+            <el-collapse-item>
+              <template #title>
+                <div style="display: flex; align-items: center;">
+                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
+                    <path d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z" p-id="6182" fill="#ffffff"></path>
+                  </svg>
+                  <span>图层管理</span>
+                </div>
+              </template>
+              <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
+                <el-checkbox
+                    v-for="item in layeritems"
+                    :key="item.id"
+                    :label="item.name"
+                    style="margin: 0 0;"
+                >
+                  {{ item.name }}
+                </el-checkbox>
+              </el-checkbox-group>
+            </el-collapse-item>
+          </el-collapse>
 
-          <div @click="toggleExpand" style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-          </div>
+          <!-- 视角跳转可展开 -->
+          <el-collapse>
+            <el-collapse-item>
+              <template #title>
+                <div style="display: flex; align-items: center;">
+                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
+                    <path d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z" fill="#ffffff" p-id="2696"></path>
+                  </svg>
+                  <span>视角跳转</span>
+                </div>
+              </template>
+              <!-- 行政区划单选按钮 -->
+              <div class="district-buttons" >
+                <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
+                  <el-radio label="雅安市">雅安市</el-radio>
+                  <el-radio label="回到震中">回到震中</el-radio>
+                </el-radio-group>
+              </div>
+
+              <!-- 下属区县单选按钮 -->
+              <div class="district-buttons">
+                <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
+                  <el-radio
+                      v-for="district in districts"
+                      :key="district.adcode"
+                      :label="district.name"
+                  >
+                    {{ district.name }}
+                  </el-radio>
+                </el-radio-group>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
         </div>
       </div>
     </div>
@@ -126,8 +153,8 @@
       </div>
     </div>
 
-    <div class="mars-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
-      <div class="mars-dialog__content" style="height: 100%;">
+    <div class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
+      <div class="pop-dialog__content" style="height: 100%;">
         <div class="logo-title">
           <div class="logo-title-content" style="padding: 0 0 15px 0;">
             <p >雅安市地震应急<br>信息服务技术支持平台</p></div>
@@ -199,7 +226,7 @@
           <!-- 以下是实时获取时间的代码 -->
           <div class="logo-left-time">
             <div class="logo-time-hour">
-            <span class="mars-icon">
+            <span class="pop-icon">
               <svg width="20" height="20" viewBox="0 0 48 48">
                 <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="#BEE1FF" stroke-width="4"></path>
                 <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4" stroke-linecap="round"></path>
@@ -327,7 +354,6 @@
       <div>
         <mini-map></mini-map>
       </div>
-
       <timeLineLegend
           :activeComponent="activeComponent"
           @toggleComponent="toggleComponent"
@@ -364,10 +390,8 @@
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
-
   </div>
 </template>
-
 
 <script>
 import * as Cesium from 'cesium'
@@ -454,7 +478,6 @@ export default {
     earthquakeTable,
     modelTable,
   },
-
   data: function () {
     return {
 // -----------弹窗们的状态变量-------------
@@ -563,6 +586,7 @@ export default {
       // districtLayer: null,
       //------------------按钮下拉框------
       // visible: false,
+      selectedDistrict: '', // 用于追踪选中的复选框
       districts: [
         {adcode: 511802, name: "雨城区"},
         {adcode: 511803, name: "名山区"},
@@ -592,39 +616,6 @@ export default {
         {id: '7', name: '历史地震要素图层'},
         {id: '8', name: '断裂带要素图层'},
       ],
-      // layerTree: [
-      //   {
-      //     id: '0',
-      //     label: '图层要素',
-      //     children: [
-      //       {id: '0-0', label: '标绘点图层'},
-      //       {id: '0-1', label: '行政区划要素图层'},
-      //       {id: '0-2', label: '人口密度要素图层'},
-      //       {id: '0-3', label: '交通网络要素图层'},
-      //       {id: '0-4', label: '避难场所要素图层'},
-      //       {id: '0-5', label: '救援队伍分布要素图层'},
-      //       {id: '0-6', label: '应急物资存储要素图层'},
-      //       {id: '0-7', label: '历史地震要素图层'},
-      //       {id: '0-8', label: '断裂带要素图层'},
-      //       {id: '0-9', label: '烈度圈要素图层'},
-      //     ]
-      //   },
-      //   {
-      //     id: '1',
-      //     label: '视角跳转',
-      //     children: [
-      //       {id: '1-0', label: '人口密度要素图层'},
-      //       {id: '1-1', label: '交通网络要素图层'},
-      //       {id: '1-2', label: '避难场所要素图层'},
-      //       {id: '1-3', label: '救援队伍分布要素图层'},
-      //       {id: '1-4', label: '应急物资存储要素图层'}
-      //     ]
-      //   },
-      // ],
-      // defaultProps: {
-      //   children: 'children',
-      //   label: 'label'
-      // },
       selectedlayersLocal: ['标绘点图层'],
       isMarkingLayerLocal: true,
       disasterReserves: [],
@@ -687,10 +678,13 @@ export default {
   mounted() {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
-    // this.initModelTable(); // 初始化模型table数据
+    this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
     this.initPlot(); // 初始化加载应急数据
+    // // ---------------------------------------------------
+    // // 生成实体点击事件的handler
+    this.entitiesClickPonpHandler()
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -776,8 +770,8 @@ export default {
       if (component === 'dataStats') {
         // 切换 showSidebarComponents 以显示/隐藏两侧组件
         this.showSidebarComponents = !this.showSidebarComponents;
-      } else {
-        // 当点击其他按钮时，隐藏两侧组件
+      } else if (component !== 'legend') {
+        // 点击其他按钮时隐藏侧边栏组件，但图例按钮不会触发隐藏
         this.showSidebarComponents = false;
       }
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
@@ -1793,14 +1787,11 @@ export default {
       const newPosition = (clickedPosition / timeRulerRect.width) * 100;
       this.currentTimePosition = newPosition;
       this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-
-      // this.currentTime= new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // console.log(this.currentTime,"this.currentTime")
-      // this.set(this.data, 'currentTime', time);
-      // this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
-      // this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
-
+      // 根据开始时间和当前节点索引计算当前时间
+      // 注意：此处将时间增量从15分钟调整为5分钟
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // 更新时间进度条的宽度，以反映新的进度位置
+      this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
     },
     stopDrag() {
       this.isDragging = false;
@@ -2262,53 +2253,6 @@ export default {
         console.error("加载GeoJSON数据失败:", error);
       });
 
-      // 检查是否已添加“行政区划要素图层”
-      // if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
-      //   // 加载雅安行政区划的GeoJSON数据，并设置显示样式
-      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-      //     clampToGround: true, //贴地显示
-      //     stroke: Cesium.Color.RED,
-      //     fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-      //     strokeWidth: 4,
-      //   });
-      //   // 处理加载成功的GeoJSON数据
-      //   geoPromise.then((dataSource) => {
-      //     // 添加 geojson
-      //     window.regionLayerJump = dataSource;
-      //     window.viewer.dataSources.add(dataSource);
-      //     // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-      //     dataSource.name = "thd_yaanregion";
-      //     // 视角跳转到 geojson
-      //     viewer.flyTo(dataSource.entities.values);
-      //
-      //   }).catch((error) => {
-      //     // 处理加载失败的情况
-      //     console.error("加载GeoJSON数据失败:", error);
-      //   });
-      // }
-      // else {
-      //   // 如果图层已存在，加载一个透明的GeoJSON数据，以保持图层的存在而不显示内容
-      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-      //     stroke: Cesium.Color.TRANSPARENT,
-      //     fill: Cesium.Color.TRANSPARENT,
-      //     markerColor: Cesium.Color.TRANSPARENT,
-      //     markerSize: 0,
-      //     strokeWidth: 0,
-      //     clampToGround: true, //贴地显示
-      //     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      //     depthTest: true,
-      //   });
-      //   // 处理加载成功的透明GeoJSON数据
-      //   geoPromise.then((dataSource) => {
-      //     window.viewer.dataSources.add(dataSource);
-      //     viewer.flyTo(dataSource.entities.values);
-      //   }).catch((error) => {
-      //     // 处理加载失败的情况
-      //     console.error("加载GeoJSON数据失败:", error);
-      //   });
-      // }
-
-
       // 添加雅安市的标签
       let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
       let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
@@ -2473,16 +2417,26 @@ export default {
         // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
       });
     },
-
     /*
-    * 更新地图图层
-    * 点击图层复选框时在地图上展示相应的图层数据
+    * 视角跳转互斥复选框
+    * 每次只能选中一个视角，其他复选框默认关闭
     * */
-    handleLayerTreeChange(data, checked, indeterminate) {
-      console.log('①this.selectedlayersLocal',this.selectedlayersLocal)
-      this.selectedlayersLocal = this.$refs.layerTree.getCheckedNodes().map(node => node.label);
-      console.log('赋值后this.selectedlayersLocal',this.selectedlayersLocal)
-      this.updateMapLayers();
+    handleDistrictSelect(districtName) {
+      // 清除其他实体标签
+      this.removethdRegions();
+      this.removeDataSourcesLayer('YaanRegionLayer');
+
+      // 根据选中的区域进行处理
+      if (districtName === '雅安市') {
+        this.addYaanImageryDistrict();
+      } else if (districtName === '回到震中') {
+        this.backcenter();
+      } else {
+        const district = this.districts.find(d => d.name === districtName);
+        if (district) {
+          this.handleDistrictClick(district);
+        }
+      }
     },
     updateMapLayers() {
       this.zoomLevel = "1"
@@ -2614,7 +2568,6 @@ export default {
         viewer.camera.flyTo({destination: position,})
       }
       //视角跳转 end
-
     },
 
     /**
@@ -3214,8 +3167,6 @@ export default {
       setInterval(updateTime, 1000);
     }
   }
-
-
 }
 </script>
 
@@ -3318,15 +3269,15 @@ export default {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.mars-dialog .mars-dialog__content{
+.pop-dialog .pop-dialog__content{
   height: 100%;
   overflow: auto;
   background-color: #1d3043 ;
 }
-.mars-dialog {
+.pop-dialog {
   height: 6.5rem;
 }
-.mars-icon {
+.pop-icon {
   margin-right: 10px;
   margin-left: 6px;
   vertical-align: middle;
@@ -3694,6 +3645,21 @@ export default {
   background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
   background-size: 100% 100%;
 }
+.list-dialog__other_header {
+  height: 41px;
+  width: 100%;
+  line-height: 41px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  padding: 0 5px 0 10px;
+  position: relative;
+  top: 0;
+  left: 0;
+  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
+  background-size: 100% 100%;
+}
 .list-dialog {
   height: 100%;
   width: 100%;
@@ -3719,5 +3685,46 @@ export default {
   overflow: hidden;
   position: relative;
   background-color: rgb(23, 54, 76);
+}
+/* 设置“图层要素”样式 */
+:deep(.collapse ){
+  font-size: 16px; /* 标题字号 */
+  font-weight: bold; /* 标题加粗 */
+  color: white; /* 标题文字颜色 */
+  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
+  border: none !important; /* 取消边框 */
+}
+:deep(.el-collapse-item ){
+}
+:deep(.el-checkbox__label ){
+  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
+  color: white; /* 内容文字颜色 */
+  font-size: 14px; /* 内容字号 */
+  padding: 10px; /* 内容内边距 */
+}
+:deep(.el-collapse-item__header ){
+  background-color: rgba(41, 68, 89, 0.9); /* 背景色 */
+  color: #ffffff; /* 内容文字颜色 */
+  font-size: 16px; /* 内容字号 */
+  padding: 10px; /* 内容内边距 */
+  font-weight: 580;
+}
+:deep(.el-collapse-item__wrap){
+  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
+  color: #ffffff; /* 内容文字颜色 */
+}
+:deep(.el-collapse-item__content){
+  padding: 10px;
+}
+:deep(.el-radio){
+  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
+  color: #ffffff; /* 内容文字颜色 */
+}
+/* 影像服务-弹框样式 */
+:deep(.cesium-baseLayerPicker-dropDown) {
+  left: 3px !important;
+  bottom: 41px;
+  width: 398px !important;
+  height: 310px !important;
 }
 </style>
