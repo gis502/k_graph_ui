@@ -1003,10 +1003,9 @@ export default {
       // console.log(points,"points")
       let stoptime=3000
       if (points.length > 0) {
-        stoptime=points.length*3000
-
+        stoptime=points.length*3000/this.currentSpeed
         let param = bool === false ? false : true
-        cesiumPlot.drawPoints(points,param);
+        cesiumPlot.drawPoints(points,param,stoptime);
       }
       if(this.isTimerRunning){
         setTimeout(() => {
@@ -1133,6 +1132,7 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+      console.log("initTimerLine")
         this.jumpTimes.forEach(item => {
           var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
           // console.log("jumpnode",jumpnode)
@@ -1233,6 +1233,20 @@ export default {
         if(i===this.timelineAdvancesNumber-1){
           this.currentTimePosition = 100;
           this.currentTime = this.eqendTime
+          viewer.scene.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(
+                parseFloat(this.centerPoint.geom.coordinates[0]),
+                parseFloat(this.centerPoint.geom.coordinates[1]),
+                120000),
+            orientation: {
+              // 指向
+              heading: 6.283185307179581,
+              // 视角
+              pitch: -1.5688168484696687,
+              roll: 0.0
+            },
+            duration : 3 // 飞行动画持续时间（秒）
+          });
           this.stopTimer();
           break;
         }

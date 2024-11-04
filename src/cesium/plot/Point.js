@@ -128,7 +128,7 @@ export default class Point {
 
     }
 
-    drawPoints(points, bool) {
+    drawPoints(points, bool,stoptime) {
         // 判断 points 是否为数组，不是数组则将它包装为数组
         if (!Array.isArray(points)) {
             let data = {
@@ -309,7 +309,7 @@ export default class Point {
                 var plotType = data.plotType
                 let colorFactor = 1.0;
                 const intervalTime1 = 200;
-                const animationDuration = 2000;
+                const animationDuration = stoptime;
                 const intervalId1 = setInterval(() => {
                     colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
                 }, intervalTime1);
@@ -353,7 +353,7 @@ export default class Point {
 
 
 
-                        if (!viewer.entities.getById(data.plotId)) {
+                    if (!viewer.entities.getById(data.plotId)) {
 
                         var entity = viewer.entities.add({
                             id: data.plotId,
@@ -378,6 +378,22 @@ export default class Point {
                                 data
                             }
                         });
+                        viewer.scene.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(
+
+                                Number(data.longitude),
+                                Number(data.latitude),
+                                20000),
+                            orientation: {
+                                // 指向
+                                heading: 6.283185307179581,
+                                // 视角
+                                pitch: -1.5688168484696687,
+                                roll: 0.0
+                            },
+                            // duration : 2 // 飞行动画持续时间（秒）
+                        });
+
                         labeldataSource.entities.add(entity)
                         // -----------------------------------------
                         // 设置动画逻辑
@@ -429,29 +445,7 @@ export default class Point {
             })
         }
     }
-    // removePointsDonghua(){
-    //     console.log("removePointsDonghua")
-    //     clearInterval(intervaladddonghua);
-    //     const entities = viewer.entities.values;
-    //     // console.log("removePointsDonghua entities",entities)
-    //     // 倒序遍历实体数组，这样在移除实体时不会影响到索引
-    //     for (let i = entities.length - 1; i >= 0; i--) {
-    //         const entity = entities[i];
-    //         // 检查实体是否有layer属性，并且它的值是否为"标绘点动画"
-    //         if (entity.layer === "标绘点动画") {
-    //             console.log("removePointsDonghua",entity)
-    //             // 移除实体
-    //             viewer.entities.remove(entity);
-    //         }
-    //     }
-    //     if(window.labeldataSource){
-    //         // console.log("removePointsDonghua window.labeldataSource.entities ",window.labeldataSource)
-    //         window.labeldataSource.entities.removeAll()
-    //     }
-    //
-    //
-    // }
-    // 删除点
+
     deletePoint(point) {
         viewer.entities.remove(point)
     }
