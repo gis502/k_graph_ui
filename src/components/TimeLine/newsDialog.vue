@@ -143,7 +143,7 @@ export default {
   width: 95%;
   height: 6px;
   position: absolute;
-  top: 15%;
+  top: 16%;
   left: 1.5%;
   background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
   background-size: 100% 100%;
@@ -170,6 +170,7 @@ export default {
 }
 .news-head{
   line-height: 1rem;
+  //height: 30%;
 }
 .news-img {
   padding-top: 5px;

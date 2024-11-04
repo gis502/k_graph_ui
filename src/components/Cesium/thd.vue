@@ -3129,6 +3129,7 @@ export default {
     },
     //model style end
     /*获取目前相机所属高度*/
+
     updateZoomLevel(cameraHeight) {
       console.log("层级",cameraHeight)
       // 根据相机高度设置 zoomLevel
@@ -3142,7 +3143,6 @@ export default {
         this.zoomLevel = '村'
       }
     },
-
     //   菜单栏左上角实时获取时间代码
     startRealTimeClock(timeElementId, dateElementId) {
       function updateTime() {

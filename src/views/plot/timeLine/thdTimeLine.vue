@@ -59,6 +59,8 @@
         :popupData="routerPopupData"
     />
 
+    <!--展示弹框伤亡统计-->
+    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
 
     <!-- 进度条-->
     <div class="bottom">
@@ -219,8 +221,10 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../../cesium
 import {MapPicUrl,ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {initWebSocket} from "@/cesium/WS.js";
+import layeredShowPlot from "@/components/Cesium/layeredShowPlot.vue";
 export default {
   components: {
+    layeredShowPlot,
     thematicMapPreview,
     RouterPanel,
     dataSourcePanel,
@@ -397,6 +401,8 @@ export default {
       // ],
       // stopRealFlag:true,//为true是点击暂停按钮，真的暂停，为false时在动画过程中
       nextNodeIndex:1,
+      zoomLevel: '市' , // 初始化缩放层级
+      pointsLayer :[], //传到子组件
     };
   },
   created() {
@@ -410,8 +416,8 @@ export default {
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
-    // this.entitiesClickPonpHandler()
-    // this.watchTerrainProviderChanged()
+    this.entitiesClickPonpHandler()
+    this.watchTerrainProviderChanged()
   },
   beforeUnmount() {
     if (window.viewer){
@@ -744,7 +750,10 @@ export default {
         },
         duration : 3 // 飞行动画持续时间（秒）
       });
-
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       setTimeout(() => {
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
@@ -929,6 +938,9 @@ export default {
         })
         // 更新绘图
         this.updatePlot(false)
+        let pointArr = this.plots.filter(e => e.drawtype === 'point')
+        this.pointsLayer = [...pointArr]
+        console.log("获取",this.pointsLayer)
       })
     },
     /*
@@ -2734,6 +2746,19 @@ export default {
       //   console.log("jumpnode",jumpnode)
       //   this.jumpNodes[jumpnode]=1
       // })
+    },
+    updateZoomLevel(cameraHeight) {
+      console.log("层级",cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if(cameraHeight > 8000){
+        this.zoomLevel = '乡/镇'
+      }else{
+        this.zoomLevel = '村'
+      }
     },
     //   菜单栏左上角实时获取时间代码
     startRealTimeClock(timeElementId, dateElementId) {
