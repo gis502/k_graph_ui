@@ -9,19 +9,10 @@ export function getYaanAftershockStatistics(data) {
 }
 
 export function exportExcel(data) {
-    return request({
-        url: '/excel/exportExcel',
-        method: 'post',
-        responseType: 'blob', // 确保响应类型为blob
-        data
-    })
-}
-
-export function exportPlotExcel(data) {
   return request({
-    url: '/excel/exportPlotExcel',
+    url: '/excel/exportExcel',
     method: 'post',
-    responseType: 'blob',
+    responseType: 'blob', // 确保响应类型为blob
     data
   })
 }

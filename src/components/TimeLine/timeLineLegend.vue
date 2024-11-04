@@ -63,7 +63,11 @@ export default {
   methods: {
     toggleLegend() {
       const newComponent = this.activeComponent === 'legend' ? null : 'legend';
-      this.$emit('toggleComponent', newComponent);
+      if (newComponent === 'legend') {
+        this.$emit('toggleComponent', 'legend');  // 只在切换到 legend 展开 时触发
+      } else {
+        this.$emit('toggleComponent', 'legend');  // 只在切换到 legend 收缩 时触发
+      }
     },
     getPlotPicture() {
       let that=this

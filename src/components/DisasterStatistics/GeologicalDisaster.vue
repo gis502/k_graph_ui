@@ -7,10 +7,11 @@ import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
+import {getRiskConstructionGeohazards} from "../../api/system/geologicalDisaster";
 
 
 const chart = ref(null);
-const FieldName = ref(['目前受损（个）','目前禁用（个）','目前限用（个）','目前可用（个）']);
+const FieldName = ref(['现有隐患点（个）','新增隐患点（个）','正在施工点（个）','基础设施检查点（个）','预警发布（次）','转移避险（人）']);
 let echartsInstance = null; // 全局变量
 const eqid = ref('');
 const props = defineProps({
@@ -19,56 +20,69 @@ const props = defineProps({
     required: true,
   },
 });
-const currentlyDamaged = ref([]) // 目前受损
-const currentlyDisabled = ref([]) // 目前禁用
-const currentlyRestricted = ref([]) // 目前限用
-const currentlyAvailable = ref([]) // 目前可用
-const affectedAreaName = ref([]) // 地点
+
+const existingRiskPoints = ref([]) // 现有隐患点
+const newRiskPoints = ref([]) // 新增隐患点
+const constructionPoints = ref([]) // 正在施工点
+const infrastructureCheckpoints = ref([]) // 基础设施检查点
+const alarmCount = ref([]) // 预警发布
+const evacuationCount = ref([]) // 转移避险
+const quakeAreaName = ref([]) // 地点
 const latestTime = ref('')
-const latestTimes = ref('')
 const store = useGlobalStore()
 
 setTimeout(()=>{
-  getHousingSituationList(store.globalEqId).then(res => {
+  getRiskConstructionGeohazards(store.globalEqId).then(res => {
     update(res)
   });
 },500)
 
+quakeAreaName
+
 function update(data){
   // 如果返回的数组为空，设置默认值
   if (data.length === 0) {
-    affectedAreaName.value = ['抱歉暂无数据'];
-    currentlyDamaged.value = [0];
-    currentlyDisabled.value = [0];
-    currentlyRestricted.value = [0];
-    currentlyAvailable.value = [0];
+    quakeAreaName.value = ['抱歉暂无数据'];
+    existingRiskPoints.value = [0];
+    newRiskPoints.value = [0];
+    constructionPoints.value = [0];
+    infrastructureCheckpoints.value = [0];
+    alarmCount.value = [0];
+    evacuationCount.value = [0];
     latestTime.value = '';
   } else {
-    affectedAreaName.value = data.map(item => item.affectedAreaName || '无数据');
-    currentlyDamaged.value = data.map(item => item.currentlyDamaged || 0);
-    currentlyDisabled.value = data.map(item => item.currentlyDisabled || 0);
-    currentlyRestricted.value = data.map(item => item.currentlyRestricted || 0);
-    currentlyAvailable.value = data.map(item => item.currentlyAvailable || 0);
+    quakeAreaName.value = data.map(item => item.quakeAreaName || '无数据');
+    existingRiskPoints.value = data.map(item => item.existingRiskPoints || 0);
+    newRiskPoints.value = data.map(item => item.newRiskPoints || 0);
+    constructionPoints.value = data.map(item => item.constructionPoints || 0);
+    infrastructureCheckpoints.value = data.map(item => item.infrastructureCheckpoints || 0);
+    alarmCount.value = data.map(item => item.alarmCount || 0);
+    evacuationCount.value = data.map(item => item.evacuationCount || 0);
     latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
-    latestTimes.value = data.map(item => item.systemInsertTime || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({
     xAxis: {
-      data: affectedAreaName.value
+      data: quakeAreaName.value
     },
     series: [
       {
-        data: currentlyDamaged.value
+        data: existingRiskPoints.value
       },
       {
-        data: currentlyDisabled.value
+        data: newRiskPoints.value
       },
       {
-        data: currentlyRestricted.value
+        data: constructionPoints.value
       },
       {
-        data: currentlyAvailable.value
+        data: infrastructureCheckpoints.value
+      },
+      {
+        data: alarmCount.value
+      },
+      {
+        data: evacuationCount.value
       }
     ]
   });
@@ -93,7 +107,8 @@ function formatDate(dateString) {
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getHousingSituationList(eqid.value).then(res => {
+  getRiskConstructionGeohazards(eqid.value).then(res => {
+    console.log('getRiskConstructionGeohazards',res)
     update(res)
   });
 });
@@ -138,7 +153,7 @@ const initChart = () => {
     },
     xAxis: [{
       type: 'category',
-      data: affectedAreaName.value, // 使用动态获取的区域数据
+      data: quakeAreaName.value, // 使用动态获取的区域数据
       axisLine: {
         show: true,
         lineStyle: {
@@ -182,9 +197,9 @@ const initChart = () => {
     }],
     series: [
       {
-        name: '目前受损（个）',
+        name: '现有隐患点（个）',
         type: 'bar',
-        data: currentlyDamaged.value,
+        data: existingRiskPoints.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -195,9 +210,9 @@ const initChart = () => {
         }
       },
       {
-        name: '目前禁用（个）',
+        name: '新增隐患点（个）',
         type: 'bar',
-        data: currentlyDisabled.value,
+        data: newRiskPoints.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -208,9 +223,9 @@ const initChart = () => {
         }
       },
       {
-        name: '目前限用（个）',
+        name: '正在施工点（个）',
         type: 'bar',
-        data: currentlyRestricted.value,
+        data: constructionPoints.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -221,9 +236,9 @@ const initChart = () => {
         }
       },
       {
-        name: '目前可用（个）',
+        name: '基础设施检查点（个）',
         type: 'bar',
-        data: currentlyAvailable.value,
+        data: infrastructureCheckpoints.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -232,7 +247,33 @@ const initChart = () => {
             opacity: 1
           }
         }
-      }
+      },
+      {
+        name: '预警发布（次）',
+        type: 'bar',
+        data: alarmCount.value,
+        barWidth: 13,
+        barGap: 1,
+        itemStyle: {
+          normal: {
+            color:'#00B2A9',
+            opacity: 1
+          }
+        }
+      },
+      {
+        name: '转移避险（人）',
+        type: 'bar',
+        data: evacuationCount.value,
+        barWidth: 13,
+        barGap: 1,
+        itemStyle: {
+          normal: {
+            color:'#3B99E0',
+            opacity: 1
+          }
+        }
+      },
     ]
   };
   echartsInstance.setOption(option);
