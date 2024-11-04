@@ -11,11 +11,45 @@
     <!--    </div>-->
     <!--指南针-->
     <div class="compassContainer"></div>
+    <div class="map-container">
+      <!--    地图-->
+      <div @contextmenu.prevent id="emap" class="map_container"></div>
+      <!-- 自制图例 -->
+      <div class="legend">
 
-    <!--    地图-->
-    <div @contextmenu.prevent id="emap" class="map_container"></div>
+        <div class="row">
+          <!-- 左列（最新，红色）-->
+          <div class="column_left">
+            <div
+                class="line latest"
+                v-for="(item, itemIndex) in eqGroups[1].items"
+                :key="'latest-' + itemIndex"
+            >
 
+              {{ item.label }}<span
+                :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
+                @click="toggleSeriesVisibility('latest', item.type)"
+            ></span>
+            </div>
+          </div>
 
+          <!-- 右列（历史，黄色）-->
+          <div class="column_right">
+            <div
+                class="line history"
+                v-for="(item, itemIndex) in eqGroups[0].items"
+                :key="'history-' + itemIndex"
+            >
+              {{ item.label }}<span
+                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
+                @click="toggleSeriesVisibility('history', item.type)"
+            ></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
     <!-- 信息窗组件 -->
     <InfoWindow
         v-if="showInfoWindow"
@@ -25,53 +59,18 @@
         @callback="infoWindowCallback"
     />
   </div>
-  <!-- 自制图例 -->
-  <div class="legend">
 
-    <div class="row">
-      <!-- 左列（最新，红色）-->
-      <div class="column">
-        <div
-            class="line latest"
-            v-for="(item, itemIndex) in eqGroups[1].items"
-            :key="'latest-' + itemIndex"
-        >
-
-          {{ item.label }}<span
-            :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
-            @click="toggleSeriesVisibility('latest', item.type)"
-        ></span>
-        </div>
-      </div>
-
-      <!-- 右列（历史，黄色）-->
-      <div class="column">
-        <div
-            class="line history"
-            v-for="(item, itemIndex) in eqGroups[0].items"
-            :key="'history-' + itemIndex"
-        >
-          {{ item.label }}<span
-            :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
-            @click="toggleSeriesVisibility('history', item.type)"
-        ></span>
-        </div>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script>
 import red from '@/assets/star.gif';
 import yellow from '@/assets/yellow3.png';
-import {ref, onMounted,  watch,  onBeforeUnmount  } from 'vue';
+import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
 // 引入地理json文件
 import * as d3 from 'd3';
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
 import yaan from '@/assets/geoJson/yaan.json'
-
-
 
 
 // 图例分类
@@ -112,7 +111,7 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({ x: 0, y: -620 }); //信息窗的初始位置
+    const infoWindowPosition = ref({x: 0, y: -620}); //信息窗的初始位置
     const weight = ref(210); // 默认weight值
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
@@ -138,7 +137,7 @@ export default {
 
     onMounted(() => {
       // if (!mapConfig.value.map) {
-      //   initMap();
+      initMap();
       // }
     });
 
@@ -150,7 +149,7 @@ export default {
 
       // 处理数据分组
       processData();
-      initMap(); // 初始化地图
+      // initMap(); // 初始化地图
       addMarkers();//标点
     });
 
@@ -193,7 +192,6 @@ export default {
 
 
     };
-
 
 
     // 初始化地图
@@ -244,7 +242,6 @@ export default {
       // });
 
       // addMarkers();//标点
-
 
 
       initMapAfter();//加载地图后方法
@@ -335,8 +332,6 @@ export default {
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
 
 
-
-
       sel.selectAll('text.yaan-label')
           .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
@@ -367,11 +362,8 @@ export default {
           .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
     }
- //---------------------------------------------------------------------------------------
 
-
-
-
+    //---------------------------------------------------------------------------------------
 
 
     // 启动画笔工具
@@ -390,7 +382,6 @@ export default {
     const stopEvent = (event) => {
       event.stopPropagation();
     };
-
 
 
     // 鼠标松开时的处理
@@ -468,9 +459,9 @@ export default {
 // 故通过该函数与自制的图例div配合实现legend自带的筛选效果
 
     const toggleSeriesVisibility = (groupType, itemType) => {
-      const key = `${groupType}-${itemType}`;
-      seriesVisibility.value[key] = !seriesVisibility.value[key]; // 切换可见性
-      addMarkers(); // 根据新的可见性状态更新标记
+      // const key = `${groupType}-${itemType}`;
+      // seriesVisibility.value[key] = !seriesVisibility.value[key]; // 切换可见性
+      // addMarkers(); // 根据新的可见性状态更新标记
     };
     const getMarkerSize = type => (type === 'slight' ? 'small' : type === 'moderate' ? 'medium' : 'large');
     const capitalize = (str) => {
@@ -478,7 +469,7 @@ export default {
     };
 
 
-    const addMarker1 = (lng, lat, color, size,item) => {
+    const addMarker1 = (lng, lat, color, size, item) => {
       let iconUrl;
       let iconSize;
 
@@ -490,13 +481,13 @@ export default {
             iconSize = new T.Point(15, 15);
             break;
           case 'medium':
-            iconSize = new T.Point(25, 25);
+            iconSize = new T.Point(20, 20);
             break;
           case 'large':
-            iconSize = new T.Point(35, 35);
+            iconSize = new T.Point(26, 26);
             break;
           default:
-            iconSize = new T.Point(25, 25);
+            iconSize = new T.Point(20, 20);
         }
       } else {
         iconUrl = yellow;
@@ -514,7 +505,6 @@ export default {
             iconSize = new T.Point(20, 20);
         }
       }
-
 
 
       // 自定义标记点图标
@@ -540,11 +530,11 @@ export default {
         console.log(e)
         showInfoWindow.value = true;
         mapConfig.value.infoWindowData = item;
-        console.log("weight.value*********",weight.value)
+        console.log("weight.value*********", weight.value)
 
-        infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 150// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 190// 获取鼠标位置
-        console.log("item-----------------",item)
+        infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 200// 获取鼠标位置
+        console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
             document.querySelector('#infoWindow'),
@@ -555,7 +545,6 @@ export default {
         // }, 0);
 
       });
-
 
 
 // // 添加鼠标移开事件，关闭信息窗
@@ -569,11 +558,7 @@ export default {
       mapConfig.value.map.addOverLay(marker);
 
 
-
     };
-
-
-
 
 
     // 添加点击事件返回，将中心点变为点击点
@@ -585,7 +570,6 @@ export default {
 
       });
     };
-
 
 
     // 信息窗口点击回调
@@ -703,11 +687,12 @@ export default {
 <style lang="scss" scoped>
 /* 自定义 比例尺 */
 
-:deep(.tdt-bottom .tdt-control-scale ){
+:deep(.tdt-bottom .tdt-control-scale ) {
   margin-bottom: 8px;
 }
+
 //公里及其对应的白线
-:deep(.tdt-control-scale-line ){
+:deep(.tdt-control-scale-line ) {
   border: 3px solid #f8f4f4;
   color: #faf8f8;
   border-top: none;
@@ -722,7 +707,7 @@ export default {
 
 
 //英制单位（英里）及其对应的黑线
-:deep(.tdt-control-scale-linebottom  ){
+:deep(.tdt-control-scale-linebottom  ) {
   display: none; /* 隐藏该元素 */
 }
 
@@ -782,28 +767,57 @@ export default {
 
 
 //图例
+.map-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 可选，用于居中地图和图例 */
+}
+
+
+
 .breathing-marker {
   animation: breathe 1.5s infinite; /* 1.5秒循环动画 */
 }
 
 
 .legend {
-  position: absolute;
+  display: flex;
+  //position: absolute;
   bottom: 0;
-  left: 10px;
+  left: 20%;
   z-index: 20;
   background-color: transparent;
-  width: 400px;
-  height: 70px;
+  width: 100%;
+  //height: auto; /* 自适应高度 */
 }
 
 
-/*!*改为左边红右边黄*!*/
+///*!*改为左边红右边黄*!*/
+//.row {
+//  display: flex;
+//  //justify-content: space-between; /* 左右分列 */
+//  width: 20%;
+//}
+
 .row {
-  display: flex;
-  justify-content: space-between; /* 左右分列 */
-  width: 20%;
+  //display: flex; /* 使用 flexbox 使所有元素在一行中显示 */
+  display: inline-flex; /* 保持在一行内 */
+  flex-wrap: wrap; /* 允许换行 */
+  align-items: center; /* 垂直居中对齐 */
+  //justify-content: space-between; /* 分散排列 */
+  width: 100%; /* 宽度为100% */
 }
+
+.column_left {
+  display: inline-flex; /* 保持在一行内 */
+  margin-right: 60px;
+}
+
+.column_right {
+  display: inline-flex; /* 保持在一行内 */
+
+}
+
 
 .line {
   display: flex;
@@ -815,7 +829,8 @@ export default {
 }
 
 .line span {
-  display: flex;
+  //display: flex;
+  display: inline-flex; /* 保持在一行内 */
   align-items: center; /* 圆点在其父容器中垂直居中 */
   /*display: inline-block; !* 确保点是块级元素 *!*/
   border-radius: 50%; /* 确保点是圆形 */
@@ -830,9 +845,10 @@ export default {
   background-color: #f0a72e; /* 黄色 */
 }
 
-.inactive {
-  background-color: #888 !important; /* 灰色 */
-}
+//
+//.inactive {
+//  background-color: #888 !important; /* 灰色 */
+//}
 
 .line span {
   display: inline-flex; /* 使用 inline-flex 使得文本与圆点在一行 */

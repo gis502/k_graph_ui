@@ -1,155 +1,169 @@
 <template>
   <div class="infowindowClass">
     <div class="windows_close" @click="close" title="关闭信息窗口"></div>
-    <div class="_head">信息窗口</div>
-    <div class="_body">
-      <div class="info-item"><strong>位置:</strong> {{ position }}</div>
-      <div class="info-item"><strong>发震时间:</strong> {{ time }}</div>
-      <div class="info-item"><strong>震级:</strong> {{ magnitude }}</div>
-      <div class="info-item"><strong>震源深度:</strong> {{ depth }}</div>
-      <div class="info-item"><strong>经纬度:</strong>{{ latitude }}, {{ longitude }}</div>
+    <div class="_head" style="margin-bottom: 10px">
+      <div class="info-item">
+        <strong style="margin: 6px">{{ position }}</strong>
+      </div>
     </div>
-<!--    <div class="_foot">-->
-<!--      <el-button type="primary" @click="callback">确定</el-button>-->
-<!--    </div>-->
+    <div class="_body">
+      <div class="info-item" style="margin-bottom: 3px">
+        <strong style="margin: 0 6px">发震时间:</strong> {{ time }}
+      </div>
+      <div class="info-item" style="margin-bottom: 3px">
+        <strong style="margin: 0 6px">地震震级: </strong> {{ magnitude }} <span style="margin: 0 5px">级</span>
+      </div>
+      <div class="info-item" style="margin-bottom: 3px">
+        <strong style="margin: 0 6px">震源深度:</strong> {{ depth }}<span style="margin: 0 5px">千米</span>
+      </div>
+      <div class="info-item" style="margin-bottom: 3px">
+        <strong style="margin: 0 6px">震中经纬: </strong><span>东经</span>{{ latitude }}<span>度</span>
+        <span style="margin-left:5px">北纬</span>{{ longitude }}<span>度</span>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
-  export default {
-    props: {
-
-      // 传递数据对象
-      data: {
-        type: Object,
-        default: () => ({}),  // 可以返回一个空对象
-      },
-      // 信息窗口对象
-      infoWindow: {
-        type: Object,
-        default: () => ({}),  // 可以返回一个空对象
-      },
+export default {
+  props: {
+    data: {
+      type: Object,
+      default: () => ({}),
     },
-
-    computed: {
-      // 计算属性从 data 中提取信息
-      position() { return this.data.position || '未知位置'; },
-      time() { return this.data.time || '未知时间'; },
-      magnitude() { return this.data.magnitude || '未知震级'; },
-      depth() { return this.data.depth || '未知深度'; },
-      latitude() { return this.data.latitude || '未知纬度'; },
-      longitude() { return this.data.longitude || '未知经度'; }
+    infoWindow: {
+      type: Object,
+      default: () => ({}),
     },
+  },
+  computed: {
+    position() { return this.data.position || '未知位置'; },
+    // time() {
+    //   if (!this.data.time) return '未知时间';
+    //
+    //   const date = new Date(this.data.time);
+    //   const year = date.getFullYear();
+    //   const month = String(date.getMonth() + 1).padStart(2, '0'); // 补零到两位
+    //   const day = String(date.getDate()).padStart(2, '0'); // 补零到两位
+    //
+    //   return `${year}年${month}月${day}日`;
+    // },
+    time() {
+      if (!this.data.time) return '未知时间';
 
-    methods: {
-      // 关闭
-      close() {
-        this.$emit('update:showInfoWindow', false);
-        this.infoWindow.closeInfoWindow();
-      },
-      // 确认回调
-      callback() {
-        this.$emit('callback', this.data);
-      },
+      const date = new Date(this.data.time);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      // const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+      return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
     },
-  }
+    magnitude() { return this.data.magnitude || '未知震级'; },
+    depth() { return this.data.depth || '未知深度'; },
+    latitude() { return this.data.latitude || '未知纬度'; },
+    longitude() { return this.data.longitude || '未知经度'; }
+  },
+  methods: {
+    close() {
+      this.$emit('update:showInfoWindow', false);
+      this.infoWindow.closeInfoWindow();
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-$tooltip-background: rgba(241, 229, 229, 0.7);
-$tooltip-border-color: #fff;
-$tooltip-text-color: #fff;
+$tooltip-background: rgba(10, 24, 48, 0.9);
+$tooltip-border-color: #00a1ff;
+$tooltip-text-color: #00a1ff;
+$closeColor: #ff4c4c;
 
+.infowindowClass {
+  position: relative;
+  width: 340px;
+  padding: 20px;
+  background-color: $tooltip-background;
+  color: $tooltip-text-color;
+  border-radius: 10px;
+  border: 2px solid $tooltip-border-color;
+  box-shadow: 0 0 15px rgba(0, 161, 255, 0.6);
+  text-align: left;
+  overflow: hidden;
 
-  // $color: red;
-  $color: rgba(255, 255, 255, 1);
+  transform: scale(0.8); // 将整个框缩小到 80%
+  transform-origin: top left; // 保持缩放从左上角开始
 
-  // 信息窗口隐藏源码样式
-  .tdt-infowindow-content-wrapper,
-  .tdt-infowindow-tiptdt-infowindow-content-wrapper {
-    color: unset;
-    background: transparent;
-    box-shadow: unset;
-  }
-  .tdt-infowindow-content {
-    margin: 0;
-  }
-
-  .tdt-infowindow-tip-container {
-    display: none;
-  }
-
-  // 信息窗口隐藏源码样式 - end
-  .infowindowClass {
-    position: relative;
-    // position: absolute;
-    // top: 0;
-    // left: 0;
-    display: flex;
-    flex-direction: column;
-    width: 300px;
-    height: 150px;
-    padding: 10px;
-    background-color: $tooltip-background;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
     border-radius: 10px;
-    // zhtips: 三角形
-    &::before {
-      position: absolute;
-      bottom: -9px;
-      left: 50%;
-      width: 0;
-      height: 0;
-      content: '';
-      border-color: $color transparent transparent transparent;
-      border-style: solid;
-      border-width: 10px 10px 0 10px;
-      transform: translate(-50%, 0);
-    }
-
-    ._head {
-      padding-bottom: 2px;
-    }
-    ._body {
-      flex: 1;
-    }
-    ._foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    border: 2px solid $tooltip-border-color;
+    pointer-events: none;
+    animation: pulse-border 2s infinite alternate;
   }
 
-  //zhtips: 窗口右上角关闭按钮X
-  $closeColor: #333;
+  &::before {
+    top: -4px;
+    left: -4px;
+  }
+
+  &::after {
+    bottom: -4px;
+    right: -4px;
+  }
+
+  ._head,
+  ._body {
+    margin: 5px 0;
+  }
+
   .windows_close {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 30px;
-    height: 30px;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
     transform: rotate(45deg);
-    &::before {
+
+    &::before,
+    &::after {
+      content: '';
       position: absolute;
+      //background-color: $closeColor;
+    }
+
+    &::before {
+      width: 12px;
+      height: 2px;
       top: 50%;
       left: 50%;
-      display: block;
-      width: 10px;
-      height: 1px;
-      content: '';
-      background-color: $closeColor;
-      transform: translate3d(-50%, -50%, 0);
+      transform: translate(-50%, -50%);
     }
 
     &::after {
-      position: absolute;
+      width: 2px;
+      height: 12px;
       top: 50%;
       left: 50%;
-      display: block;
-      width: 1px;
-      height: 10px;
-      content: '';
-      background-color: $closeColor;
-      transform: translate3d(-50%, -50%, 0);
+      transform: translate(-50%, -50%);
     }
   }
-</style>
+}
 
+@keyframes pulse-border {
+  from {
+    box-shadow: 0 0 15px rgba(0, 161, 255, 0.8);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(0, 161, 255, 0.4);
+  }
+}
+</style>
