@@ -14,12 +14,27 @@
     <div class="map-container">
       <!--    地图-->
       <div @contextmenu.prevent id="emap" class="map_container"></div>
+
       <!-- 自制图例 -->
       <div class="legend">
 
         <div class="row">
-          <!-- 左列（最新，红色）-->
+          <!-- 左列（历史，黄色）-->
           <div class="column_left">
+            <div
+                class="line history"
+                v-for="(item, itemIndex) in eqGroups[0].items"
+                :key="'history-' + itemIndex"
+            >
+              {{ item.label }}<span
+                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
+                @click="toggleSeriesVisibility('history', item.type)"
+            ></span>
+            </div>
+          </div>
+
+          <!-- 右列（最新，红色）-->
+          <div class="column_right">
             <div
                 class="line latest"
                 v-for="(item, itemIndex) in eqGroups[1].items"
@@ -31,20 +46,7 @@
                 @click="toggleSeriesVisibility('latest', item.type)"
             ></span>
             </div>
-          </div>
 
-          <!-- 右列（历史，黄色）-->
-          <div class="column_right">
-            <div
-                class="line history"
-                v-for="(item, itemIndex) in eqGroups[0].items"
-                :key="'history-' + itemIndex"
-            >
-              {{ item.label }}<span
-                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
-                @click="toggleSeriesVisibility('history', item.type)"
-            ></span>
-            </div>
           </div>
         </div>
       </div>
@@ -533,7 +535,7 @@ export default {
         console.log("weight.value*********", weight.value)
 
         infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 200// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 240// 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -786,6 +788,7 @@ export default {
   bottom: 0;
   left: 20%;
   z-index: 20;
+  margin-top: 10px;
   background-color: transparent;
   width: 100%;
   //height: auto; /* 自适应高度 */
@@ -810,7 +813,7 @@ export default {
 
 .column_left {
   display: inline-flex; /* 保持在一行内 */
-  margin-right: 60px;
+  margin-right: 40px;
 }
 
 .column_right {
@@ -901,7 +904,7 @@ export default {
 
 .map_container {
   width: 100%;
-  height: 620px;
+  height: 640px;
   margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/

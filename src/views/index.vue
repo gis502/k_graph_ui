@@ -381,7 +381,7 @@ onMounted(() => {
 
 .left-body .left-bottom {
   width: 100%;
-  height: 30%;
+  height: 44%;
   margin-top: 1.6%;
 }
 
