@@ -370,7 +370,7 @@ export default {
       marchSupplyDialog: false, // 物资匹配dialog是否显示
       searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
-      marchRegionsDialog: true,  //行政区划匹配dialog是否显示
+      marchRegionsDialog: false,  //行政区划匹配dialog是否显示
       ifDrawEllipse: false,
       marchSupplyRadius: 0,
       toolValue: "隐藏数据列表",
