@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form-item label="应急物资存储" >
+    <el-form-item label="应急物资存储">
       <el-input
           v-model="queryParams"
           placeholder="请输入物资存储信息"
@@ -10,7 +10,7 @@
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-<!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
     </el-form-item>
 
     <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
@@ -30,29 +30,29 @@
           show-overflow-tooltip
       >
         <!-- 为表格单元格内容定义默认模板 -->
-<!--        <template #default="scope">-->
-<!--          &lt;!&ndash; 对特定表头，使用Popover显示完整信息 &ndash;&gt;-->
-<!--          <div v-if="header.label === '地址'">-->
-<!--            <el-popover placement="top" :width="200" trigger="hover">-->
-<!--              <div style="text-align: left">{{ scope.row[header.prop] }}</div>-->
-<!--              &lt;!&ndash; 定义触发Popover显示的参考元素 &ndash;&gt;-->
-<!--              <template #reference>-->
-<!--                <div-->
-<!--                    :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"-->
-<!--                >-->
-<!--                  &lt;!&ndash; 在参考元素内显示截断的字段值 &ndash;&gt;-->
-<!--                  <span class="myNote" style="text-align: left">-->
-<!--                                             {{ scope.row[header.prop] }}-->
-<!--                                         </span>-->
-<!--                </div>-->
-<!--              </template>-->
-<!--            </el-popover>-->
-<!--          </div>-->
-<!--          &lt;!&ndash; 对其他表头，直接显示字段值 &ndash;&gt;-->
-<!--          <div v-else>-->
-<!--            {{ scope.row[header.prop] }}-->
-<!--          </div>-->
-<!--        </template>-->
+        <!--        <template #default="scope">-->
+        <!--          &lt;!&ndash; 对特定表头，使用Popover显示完整信息 &ndash;&gt;-->
+        <!--          <div v-if="header.label === '地址'">-->
+        <!--            <el-popover placement="top" :width="200" trigger="hover">-->
+        <!--              <div style="text-align: left">{{ scope.row[header.prop] }}</div>-->
+        <!--              &lt;!&ndash; 定义触发Popover显示的参考元素 &ndash;&gt;-->
+        <!--              <template #reference>-->
+        <!--                <div-->
+        <!--                    :style="{ width: header.width + 'px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }"-->
+        <!--                >-->
+        <!--                  &lt;!&ndash; 在参考元素内显示截断的字段值 &ndash;&gt;-->
+        <!--                  <span class="myNote" style="text-align: left">-->
+        <!--                                             {{ scope.row[header.prop] }}-->
+        <!--                                         </span>-->
+        <!--                </div>-->
+        <!--              </template>-->
+        <!--            </el-popover>-->
+        <!--          </div>-->
+        <!--          &lt;!&ndash; 对其他表头，直接显示字段值 &ndash;&gt;-->
+        <!--          <div v-else>-->
+        <!--            {{ scope.row[header.prop] }}-->
+        <!--          </div>-->
+        <!--        </template>-->
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="150" fixed="right">
@@ -73,23 +73,264 @@
         :total="total">
     </el-pagination>
 
-    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" :show-close="false">
-      <!-- 省略部分代码 -->
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="35%" :show-close="false">
+      <el-form ref="from" :model="dialogContent" :rules="rules">
+        <el-row>
+          <el-col :span="13">
+            <el-form-item label="县(区)：" prop="earthquakeName">
+              <el-input v-model="dialogContent.county" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18">
+            <el-form-item label="插入时间：" prop="time">
+              <el-date-picker
+                  v-model="dialogContent.time"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="x"
+                  size="large">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="经度(度分)：" prop="longitude">
+              <el-input v-model="dialogContent.longitude" placeholder="请输入内容" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="纬度(度分)：" prop="latitude">
+              <el-input v-model="dialogContent.latitude" placeholder="请输入内容" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!--        ------------------------------------------------------------------------------------------->
+
+
+        <el-row :gutter="10">
+          <el-col :span="8">
+            <el-form-item label="储备库点数量" prop="storagePointsCount">
+              <el-input v-model="dialogContent.storagePointsCount" placeholder="请输入数量" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="合计总件套数" prop="totalItemsCount">
+              <el-input v-model="dialogContent.totalItemsCount" placeholder="请输入数量" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="救灾帐篷" prop="tents">
+              <el-input v-model="dialogContent.tents" placeholder="请输入数量" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="棉被" prop="quilts">
+              <el-input v-model="dialogContent.quilts" placeholder="请输入数量" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="其他被子" prop="otherBlankets">
+              <el-input v-model="dialogContent.otherBlankets" placeholder="请输入数量" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="棉衣裤" prop="cottonClothing">
+              <el-input v-model="dialogContent.cottonClothing" placeholder="请输入棉衣裤" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="棉大衣" prop="cottonCoats">
+              <el-input v-model="dialogContent.cottonCoats" placeholder="请输入棉大衣" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="其他衣物" prop="otherClothing">
+              <el-input v-model="dialogContent.otherClothing" placeholder="请输入其他衣物" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="毛毯" prop="blankets">
+              <el-input v-model="dialogContent.blankets" placeholder="请输入毛毯" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="折叠床" prop="foldingBeds">
+              <el-input v-model="dialogContent.foldingBeds" placeholder="请输入折叠床" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="高低床" prop="bunkBeds">
+              <el-input v-model="dialogContent.bunkBeds" placeholder="请输入高低床" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="彩条布" prop="tarpaulins">
+              <el-input v-model="dialogContent.tarpaulins" placeholder="请输入彩条布" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="防潮垫" prop="moistureProofPads">
+              <el-input v-model="dialogContent.moistureProofPads" placeholder="请输入防潮垫" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="发电机" prop="generators">
+              <el-input v-model="dialogContent.generators" placeholder="请输入发电机" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="照明灯具" prop="lightingFixtures">
+              <el-input v-model="dialogContent.lightingFixtures" placeholder="请输入照明灯具" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="照明灯组" prop="lightingSets">
+              <el-input v-model="dialogContent.lightingSets" placeholder="请输入照明灯组" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="手电筒" prop="flashlights">
+              <el-input v-model="dialogContent.flashlights" placeholder="请输入手电筒" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="雨衣" prop="raincoats">
+              <el-input v-model="dialogContent.raincoats" placeholder="请输入雨衣" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="雨靴" prop="rainBoots">
+              <el-input v-model="dialogContent.rainBoots" placeholder="请输入雨靴" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="其他装备数量" prop="otherEquipment">
+              <el-input v-model="dialogContent.otherEquipment" placeholder="请输入其他装备数量" type="number"/>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="8">
+            <el-form-item label="赈济家庭箱" prop="reliefFamiliesBox">
+              <el-input v-model="dialogContent.reliefFamiliesBox" placeholder="请输入赈济家庭箱" type="number"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+
+        <!--        -------------------------------------------------------          -->
+
+
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="commit">确 定</el-button>
+      </span>
+
+      </el-form>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import {
-  addOrUpdateSuppliesReserves,
+  addDisasterReserves,updateDisasterReserves,
   delSuppliesReserves, reservesList,
   suppliesReservesList, searchDisasterReserves, searchMaterialData
 } from "../../api/system/emergency.js";
+import {addEq, updataEq} from "@/api/system/eqlist.js";
 
 export default {
   name: "disasterReserves",
-  data(){
+  data() {
     return {
+      rules: {
+        storagePointsCount: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: ['blur', 'change'],}
+        ],
+        totalItemsCount: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        tents: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        quilts: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        otherBlankets: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        cottonClothing: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        cottonCoats: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        otherClothing: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        blankets: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        foldingBeds: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        bunkBeds: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        tarpaulins: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        moistureProofPads: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        generators: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        lightingFixtures: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        lightingSets: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        flashlights: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        raincoats: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        rainBoots: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        otherEquipment: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+        reliefFamiliesBox: [
+          {type: 'number', min: 0, message: '数量必须大于或等于0', trigger: 'blur'}
+        ],
+      },
+
+
       reservesData: [],
       tableData: [],
       total: 0,
@@ -98,33 +339,33 @@ export default {
       currentPage: 1,
       // ---表头---
       headersArr: [
-        { prop: 'county', label: "县(区)", width: 160 },
-        { prop: 'storagePointsCount', label: "储备库点数量(个)", width: 180 },
-        { prop: 'address', label: "地址", width: 360 },
-        { prop: 'contactPerson', label: "联系人", width: 100 },
-        { prop: 'contactPhone', label: "联系电话", width: 180 },
-        { prop: 'totalItemsCount', label: "合计总件套数", width: 120 },
-        { prop: 'tents', label: "救灾帐篷(顶)", width: 120 },
-        { prop: 'quilts', label: "棉被(床)", width: 120 },
-        { prop: 'otherBlankets', label: "其他被子(床)", width: 120 },
-        { prop: 'cottonClothing', label: "棉衣裤(套)", width: 120 },
-        { prop: 'cottonCoats', label: "棉大衣(件)", width: 120 },
-        { prop: 'otherClothing', label: "其他衣物(套、件)", width: 150 },
-        { prop: 'blankets', label: "毛毯(床)", width: 120 },
-        { prop: 'foldingBeds', label: "折叠床(张)", width: 120 },
-        { prop: 'bunkBeds', label: "高低床(套)", width: 120 },
-        { prop: 'tarpaulins', label: "彩条布(包)", width: 120 },
-        { prop: 'moistureProofPads', label: "防潮垫(张)", width: 120 },
-        { prop: 'generators', label: "发电机(台)", width: 120 },
-        { prop: 'lightingFixtures', label: "照明灯具(个)", width: 120 },
-        { prop: 'lightingSets', label: "照明灯组(套)", width: 120 },
-        { prop: 'flashlights', label: "手电筒(支)", width: 120 },
-        { prop: 'raincoats', label: "雨衣(件)", width: 120 },
-        { prop: 'rainBoots', label: "雨靴(双)", width: 120 },
-        { prop: 'otherEquipment', label: "其他装备数量(个)", width: 150 },
-        { prop: 'longitude', label: "经度", width: 150 },
-        { prop: 'latitude', label: "纬度", width: 150 },
-        { prop: 'insertTime', label: "插入时间", width: 180 }
+        {prop: 'county', label: "县(区)", width: 160},
+        {prop: 'storagePointsCount', label: "储备库点数量(个)", width: 180},
+        {prop: 'address', label: "地址", width: 360},
+        {prop: 'contactPerson', label: "联系人", width: 100},
+        {prop: 'contactPhone', label: "联系电话", width: 180},
+        {prop: 'totalItemsCount', label: "合计总件套数", width: 120},
+        {prop: 'tents', label: "救灾帐篷(顶)", width: 120},
+        {prop: 'quilts', label: "棉被(床)", width: 120},
+        {prop: 'otherBlankets', label: "其他被子(床)", width: 120},
+        {prop: 'cottonClothing', label: "棉衣裤(套)", width: 120},
+        {prop: 'cottonCoats', label: "棉大衣(件)", width: 120},
+        {prop: 'otherClothing', label: "其他衣物(套、件)", width: 150},
+        {prop: 'blankets', label: "毛毯(床)", width: 120},
+        {prop: 'foldingBeds', label: "折叠床(张)", width: 120},
+        {prop: 'bunkBeds', label: "高低床(套)", width: 120},
+        {prop: 'tarpaulins', label: "彩条布(包)", width: 120},
+        {prop: 'moistureProofPads', label: "防潮垫(张)", width: 120},
+        {prop: 'generators', label: "发电机(台)", width: 120},
+        {prop: 'lightingFixtures', label: "照明灯具(个)", width: 120},
+        {prop: 'lightingSets', label: "照明灯组(套)", width: 120},
+        {prop: 'flashlights', label: "手电筒(支)", width: 120},
+        {prop: 'raincoats', label: "雨衣(件)", width: 120},
+        {prop: 'rainBoots', label: "雨靴(双)", width: 120},
+        {prop: 'otherEquipment', label: "其他装备数量(个)", width: 150},
+        {prop: 'longitude', label: "经度", width: 150},
+        {prop: 'latitude', label: "纬度", width: 150},
+        {prop: 'insertTime', label: "插入时间", width: 180}
       ],
       // 查询功能
       queryParams: '',   // 搜索关键字
@@ -133,20 +374,57 @@ export default {
       dialogTitle: null,
       dialogContent: {
         position: '',
-        time: '',
+        time: Date.now(), // 初始化为当前时间的时间戳
         magnitude: '',
         longitude: '',
         latitude: '',
         depth: '',
-        eqid: ''
+        eqid: '',
+        county: '',
+        storagePointsCount: '',
+        totalItemsCount: '',
+        tents: '',
+        quilts: '',
+        otherBlankets: '',
+        cottonClothing: '',
+        cottonCoats: '',
+        otherClothing: '',
+        blankets: '',
+        foldingBeds: '',
+        bunkBeds: '',
+        tarpaulins: '',
+        moistureProofPads: '',
+        generators: '',
+        lightingFixtures: '',
+        lightingSets: '',
+        flashlights: '',
+        raincoats: '',
+        rainBoots: '',
+        otherEquipment: '',
+        address: '',
+        geom: '',
+        contactPerson: '',
+        contactPhone: '',
+        insertTime: '',
+        other: '',
+        reliefFamiliesBox: '',
       },
+      // dialogContent: {
+      //   position: '',
+      //   time: '',
+      //   magnitude: '',
+      //   longitude: '',
+      //   latitude: '',
+      //   depth: '',
+      //   eqid: ''
+      // },
     }
   },
   mounted() {
     this.getDate()
   },
-  methods:{
-    getDate(){
+  methods: {
+    getDate() {
       reservesList().then(res => {
         this.reservesData = res
         this.total = res.length
@@ -154,12 +432,19 @@ export default {
         console.log("-----------------", this.reservesData)
       })
     },
-    handleOpen(feature, row){
-      // console.log("row------",row)
-      // this.dialogShow = false
-      // this.dialogTitle = feature
+    handleOpen(feature, row) {
+      console.log("row------", row);
+      this.dialogShow = true; // 确保 dialogShow 设置为 true 以显示弹窗
+      this.dialogTitle = feature;
+      if (feature === '新增') {
+        this.clearDialogContent(); // 清空表单内容
+      } else if (feature === '修改') {
+        // 根据 row 的内容填充表单
+        this.dialogContent = {...row};
+      }
     },
-    handleDelete(row){
+
+    handleDelete(row) {
       // delSuppliesReserves(row.uniqueId).then(res => {
       //     console.log("delete--------",res)
       // })
@@ -192,6 +477,61 @@ export default {
     resetQuery() {
       this.queryParams = '';  // 清空搜索输入框
       this.getDate();  // 重新加载所有数据
+    },
+
+    //新增或修改
+    commit() {
+      this.$refs.from.validate((valid) => {
+        if (valid) {
+          // 发送请求
+          // 提交表单逻辑
+          console.log("表单验证通过，提交数据");
+        } else {
+          console.log("表单验证失败，请检查输入！");
+          // this.$message.error('表单验证失败，请检查输入！');
+        }
+      });
+
+// 检查发震时间是否已选择，如果未选择，则设置为当前时间
+      if (!this.dialogContent.time) {
+        this.dialogContent.time = new Date().toISOString();
+      } else {
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.time = new Date(this.dialogContent.time).toISOString();
+      }
+
+      let that = this;
+      if (this.dialogTitle === "新增") {
+        this.dialogContent.eqid = this.guid();
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.time = new Date(this.dialogContent.time).toISOString();
+
+        // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
+        addDisasterReserves(this.dialogContent).then(res => {
+          that.getDate();
+          that.dialogShow = false;
+          this.clearDialogContent();
+        });
+      } else {
+        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
+        this.dialogContent.time = new Date(this.dialogContent.time).toISOString();
+
+        // console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
+        updateDisasterReserves(this.dialogContent).then(res => {
+          that.getDate();
+          that.dialogShow = false;
+          this.clearDialogContent();
+        });
+      }
+    },
+
+
+    guid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
     },
     getPageArr(data = this.reservesData) {
       let arr = [];
@@ -283,5 +623,28 @@ export default {
 </script>
 
 <style scoped>
+
+
+:deep(.el-dialog) {
+  transform: none;
+  left: 0;
+  top: 13%;
+  position: relative;
+  margin: 0 auto;
+}
+
+:deep(.el-form-item--default .el-form-item__error) {
+  font-size: 14px !important; /* 字体大小 */
+  padding-top: 5px !important;
+}
+
+.el-input__inner::placeholder {
+  font-size: 10px !important; /* 设置 placeholder 字体大小 */
+  color: #999; /* 你可以调整 placeholder 的颜色 */
+}
+
+.el-input__inner {
+  font-size: 12px; /* 设置输入框内字体大小，调整以适应设计需求 */
+}
 
 </style>
