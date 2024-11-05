@@ -372,6 +372,7 @@ export default {
       // ---新增/修改---
       dialogShow: false,
       dialogTitle: null,
+      //--表单
       dialogContent: {
         position: '',
         time: Date.now(), // 初始化为当前时间的时间戳
@@ -483,6 +484,7 @@ export default {
     commit() {
       this.$refs.from.validate((valid) => {
         if (valid) {
+
           // 发送请求
           // 提交表单逻辑
           console.log("表单验证通过，提交数据");
@@ -500,13 +502,21 @@ export default {
         this.dialogContent.time = new Date(this.dialogContent.time).toISOString();
       }
 
+      const { longitude, latitude } = this.dialogContent;
+      if (longitude !== '' && latitude !== '') {
+        this.dialogContent.geom = `POINT(${longitude} ${latitude})`;
+      } else {
+        this.dialogContent.geom = '';  // Or handle the case when they are not provided
+      }
+
       let that = this;
       if (this.dialogTitle === "新增") {
         this.dialogContent.eqid = this.guid();
         // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
         this.dialogContent.time = new Date(this.dialogContent.time).toISOString();
 
-        // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
+
+        console.log("this.dialogContent新增+++++++++++++++++++：", this.dialogContent);
         addDisasterReserves(this.dialogContent).then(res => {
           that.getDate();
           that.dialogShow = false;
