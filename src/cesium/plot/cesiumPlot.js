@@ -29,11 +29,11 @@ let cesiumPlot= {
     this.point.drawPoint(pointInfo)
   },
 
-  drawPoints(points,bool){
+  drawPoints(points,bool,stoptime){
     console.log("?",points)
     console.log("?",bool)
     console.log(this.point,'this.point')
-    this.point.drawPoints(points,bool)
+    this.point.drawPoints(points,bool,stoptime)
   },
 
   deletePoint(point){
