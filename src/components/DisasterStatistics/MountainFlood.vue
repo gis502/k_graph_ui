@@ -6,8 +6,8 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
-import {getFacility} from "../../api/system/CommunicationFacilityDamageRepairStatus";
 import {useGlobalStore} from "../../store";
+import {getSecondaryDisaster} from "../../api/system/mountainFlood";
 const props = defineProps({
   eqid: {
     type: String,
@@ -16,40 +16,63 @@ const props = defineProps({
 });
 const eqid = ref('');
 const latestTime = ref('') // 时间
-const earthquakeZoneName = ref([]) //地点
-const repairedCableLength = ref([]) //已修复
-const currentPendingRepairCableLength = ref([]) //待修复
+const affectedArea = ref(["抱歉暂无数据"]) //地点
+const threatenedPopulation = ref([0]) // 受威胁群众人数
+const hazardPoints = ref([0]) // 隐患点
+const evacuation = ref([0]) // 避险转移人数
 const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
 
+function formatDate(dateString) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (isNaN(date)) return '无效日期'; // 检查日期有效性
+
+  const pad = (num) => (num < 10 ? '0' + num : num); // 补零函数
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1); // 月份从 0 开始
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 setTimeout(()=>{
-  getFacility(store.globalEqId).then(res => {
+  getSecondaryDisaster(store.globalEqId).then(res => {
     update(res)
   })
 },500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getFacility(eqid.value).then(res => {
+  getSecondaryDisaster(eqid.value).then(res => {
     update(res)
   })
 })
 
+
+
 function update(data){
   if(data.length === 0){
-    earthquakeZoneName.value = ["抱歉暂无数据"]
-    repairedCableLength.value = [0]
-    currentPendingRepairCableLength.value = [0]
+    affectedArea.value = ["抱歉暂无数据"]
+    threatenedPopulation.value = [0]
+    hazardPoints.value = [0]
+    evacuation.value = [0]
     latestTime.value = ''
   }else {
-    earthquakeZoneName.value = data.map(item => item.earthquakeZoneName || "抱歉暂无数据")
-    repairedCableLength.value = data.map(item => item.repairedCableLength || 0)
-    currentPendingRepairCableLength.value = data.map(item => item.currentPendingRepairCableLength || 0)
+    affectedArea.value = data.map(item => item.affectedArea || "抱歉暂无数据")
+    threatenedPopulation.value = data.map(item => item.threatenedPopulation || 0)
+    hazardPoints.value = data.map(item => item.hazardPoints || 0)
+    evacuation.value = data.map(item => item.evacuation || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(max) > new Date(item.systemInsertionTime) ? max : item.systemInsertionTime;
-    },data[0].systemInsertionTime); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
+    }, formatDate(data[0].systemInsertTime)); // 确保初始值
   }
+
 
   echartsInstance.setOption({
     tooltip: {
@@ -61,20 +84,23 @@ function update(data){
         let tooltipContent = '';
         params.forEach(item => {
           tooltipContent += `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
-                             ${item.seriesName}: ${item.value} 公里<br/>`;
+                             ${item.seriesName}: ${item.value} 人<br/>`;
         });
         return tooltipContent;
       }
     },
     xAxis: {
-        data: earthquakeZoneName.value,
-      },
+      data: affectedArea.value,
+    },
     series: [
       {
-        data: repairedCableLength.value,
+        data: threatenedPopulation.value,
       },
       {
-        data: currentPendingRepairCableLength.value,
+        data: evacuation.value,
+      },
+      {
+        data: hazardPoints.value,
       }
     ]
   })
@@ -111,7 +137,7 @@ const initChart = () => {
     xAxis: [
       {
         type: 'category',
-        data: earthquakeZoneName.value,
+        data: affectedArea.value,
         axisLabel: {
           color: '#ffffff',
         }
@@ -133,7 +159,7 @@ const initChart = () => {
     ],
     series: [
       {
-        name: '抢通恢复光缆',
+        name: '受威胁群众人数',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -142,20 +168,32 @@ const initChart = () => {
         itemStyle: {
           color: '#4A90E2',
         },
-        data: repairedCableLength.value,
+        data: threatenedPopulation.value,
       },
       {
-        name: '目前待修复光缆',
+        name: '避险转移人数',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
           focus: 'series',
         },
         itemStyle: {
-          color: '#005193',
+          color: '#007BB8',
         },
-        data: currentPendingRepairCableLength.value,
-      }
+        data: evacuation.value,
+      },
+      {
+        name: '隐患点数',
+        type: 'bar',
+        stack: 'Ad',
+        emphasis: {
+          focus: 'series',
+        },
+        itemStyle: {
+          color: '#005F8C',
+        },
+        data: hazardPoints.value,
+      },
     ]
   };
   echartsInstance.setOption(option);

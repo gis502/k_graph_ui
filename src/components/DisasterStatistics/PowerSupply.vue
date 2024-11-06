@@ -76,6 +76,7 @@ function updataData(data){
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getPowerSupply(eqid.value).then(res => {
+    console.log("res powerSupply",res)
     updataData(res)
   });
 });

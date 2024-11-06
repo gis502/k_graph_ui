@@ -48,7 +48,10 @@ import {getField} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
-import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingDamageInformation.vue"
+import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingDamageInformation.vue";
+import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster.vue";
+import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
+import MaterialDonation from "@/components/DisasterStatistics/MaterialDonation.vue"
 
 
 // 选项数据
@@ -56,6 +59,9 @@ const options = [
   {label: '震情伤亡信息可视化', value: 'EarthquakeCasualties'},
   {label: '交通电力通信信息可视化', value: 'TransportationElectricity'},
   {label: '建筑物受损信息可视化', value: 'BuildingDamageInformation'},
+  {label: '次生灾害信息可视化',value: 'SecondaryDisaster'},
+  {label: '力量物资信息可视化',value: 'ResourceStrength'},
+  {label: '资金及物资捐赠可视化', value: 'MaterialDonation'}
 ]
 
 // 当前选择的组件标识符
@@ -66,11 +72,14 @@ const components = {
   EarthquakeCasualties,
   TransportationElectricity,
   BuildingDamageInformation,
+  SecondaryDisaster,
+  ResourceStrength,
+  MaterialDonation,
 }
 
 // 动态获取选定的组件
-const selectedComponent = computed(() => {
-  return components[selectedComponentKey.value]
+  const selectedComponent = computed(() => {
+    return components[selectedComponentKey.value]
 })
 
 

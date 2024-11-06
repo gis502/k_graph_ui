@@ -146,6 +146,7 @@ setTimeout(()=>{
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getVillages(eqid.value).then(res => {
+    console.log("中断村 res",res)
     update(res);
   })
 })
