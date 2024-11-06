@@ -427,84 +427,147 @@ export default class Polygon {
     // console.log(polygonArr,765645)
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
-    // console.log("onlyPlotid",onlyPlotid)
-    // 1-2根据Plotid来画面
-    onlyPlotid.forEach(onlyPlotidItem => {
-      const existingEntity = window.viewer.entities.getById(onlyPlotidItem+"_polygon");
-      if (existingEntity) {
-        console.log("存在重复实体")
-        window.viewer.entities.removeById(onlyPlotidItem+"_polygon"); // 先删除现有实体
-      }
-      console.log("onlyPlotidItem",onlyPlotidItem)
-      // 1-3 把数据库同一Plotid的点数据放入此数组
-      let polygon = []
-      polygonArr.forEach(polygonElement => {
-        if (polygonElement.plotId === onlyPlotidItem) {
-          polygon.push(polygonElement)
+
+    console.log("onlyPlotid",polygonArr)
+    if(polygonArr[0].plotType === "未搜索区域"|| polygonArr[0].plotType === "已搜索区域"||polygonArr[0].plotType === "已营救区域"||polygonArr[0].plotType === "正在营救区域"){
+      onlyPlotid.forEach(onlyPlotidItem => {
+        // 1-3 把数据库同一Plotid的点数据放入此数组
+        let polygon = []
+        polygonArr.forEach(polygonElement => {
+          if (polygonElement.plotId === onlyPlotidItem) {
+            polygon.push(polygonElement)
+          }
+        })
+        // 1-4 pointLinePoints用来存构成面的点实体
+        let pointLinePoints = []
+        let coords = polygon[0].geom.coordinates[0]
+        // console.log("coords",coords)
+        for (let i = 0; i < coords.length; i++) {
+          let polygonCoords = coords[i]
+
+          // 转换为Cartesian3坐标
+          let cartographic = Cesium.Cartographic.fromDegrees(
+              parseFloat(polygonCoords[0]),
+              parseFloat(polygonCoords[1]),
+              parseFloat(0)
+          );
+          let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
+          pointLinePoints.push(cartesian);
+          // 添加调试输出
+          // this.viewer.entities.add({
+          //   // id: `${onlyPlotidItem}_Point_${i}`,
+          //   //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
+          //   position: cartesian,
+          //   point: {
+          //     // color: Cesium.Color.SKYBLUE,
+          //     // pixelSize: 10,
+          //     // outlineColor: Cesium.Color.YELLOW,
+          //     // outlineWidth: 3,
+          //     // disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          //     // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          //   }
+          // });
+          // === 检查并删除已经存在的多边形实体 ===
+          let polygonId = onlyPlotidItem;
+          if (this.viewer.entities.getById(polygonId)) {
+            this.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
+          }
+          window.viewer.entities.add({
+            id: onlyPlotidItem,
+            layer: "标绘点",
+            polygon: {
+              hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
+              material: polygon[0].icon,
+              // stRotation: Cesium.Math.toRadians(polygon[0].angle),
+              clampToGround: true,
+            },
+            properties: {
+              pointPosition: this.positions,
+              linePoint: this.polygonPointEntity,
+              data:polygon //弹出框
+            }
+          });
         }
       })
-      // 1-4 pointLinePoints用来存构成面的点实体
-      let pointLinePoints = []
-      let coords = polygon[0].geom.coordinates[0]
-      // console.log("coords",coords)
-      for (let i = 0; i < coords.length; i++) {
-        let polygonCoords = coords[i]
-        // 转换为Cartesian3坐标
-        let cartographic = Cesium.Cartographic.fromDegrees(
-            parseFloat(polygonCoords[0]),
-            parseFloat(polygonCoords[1]),
-            parseFloat(0)
-        );
-        let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
-        pointLinePoints.push(cartesian);
-        // === 检查并删除已经存在的多边形实体 ===
-        let polygonId = onlyPlotidItem;
-        if (this.viewer.entities.getById(polygonId)) {
-          this.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
+    }else {
+      // 1-2根据Plotid来画面
+      onlyPlotid.forEach(onlyPlotidItem => {
+        const existingEntity = window.viewer.entities.getById(onlyPlotidItem + "_polygon");
+        if (existingEntity) {
+          console.log("存在重复实体")
+          window.viewer.entities.removeById(onlyPlotidItem + "_polygon"); // 先删除现有实体
         }
-      }
-      const width = 9000;  // 矩形宽度
-      const height = 9000; // 矩形高度
-      // 获取大多边形的中心点
-      const center = this.getPolygonCenter(pointLinePoints);
-      // 生成小矩形的四个角点
-      const smallRectanglePositions = this.createContainedRectangle(center, width, height, polygon[0].angle, pointLinePoints);
-      window.viewer.entities.add({
-        id: onlyPlotidItem,
-        layer: "标绘点",
-        polygon: {
-          hierarchy: new Cesium.PolygonHierarchy(pointLinePoints),
-          material: new Cesium.ImageMaterialProperty({
-            color: Cesium.Color.WHITE.withAlpha(0.4),
-          }),
-          clampToGround: true,
-        },
-        properties: {
-          pointPosition: this.positions,
-          linePoint: this.polygonPointEntity,
-          data:polygon //弹出框
+        console.log("onlyPlotidItem", onlyPlotidItem)
+        // 1-3 把数据库同一Plotid的点数据放入此数组
+        let polygon = []
+        polygonArr.forEach(polygonElement => {
+          if (polygonElement.plotId === onlyPlotidItem) {
+            polygon.push(polygonElement)
+          }
+        })
+        // 1-4 pointLinePoints用来存构成面的点实体
+        let pointLinePoints = []
+        let coords = polygon[0].geom.coordinates[0]
+        // console.log("coords",coords)
+        for (let i = 0; i < coords.length; i++) {
+          let polygonCoords = coords[i]
+          // 转换为Cartesian3坐标
+          let cartographic = Cesium.Cartographic.fromDegrees(
+              parseFloat(polygonCoords[0]),
+              parseFloat(polygonCoords[1]),
+              parseFloat(0)
+          );
+          let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
+          pointLinePoints.push(cartesian);
+          // === 检查并删除已经存在的多边形实体 ===
+          let polygonId = onlyPlotidItem;
+          if (this.viewer.entities.getById(polygonId)) {
+            this.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
+          }
         }
-      });
-      // 添加小多边形
-      window.viewer.entities.add({
-        id :onlyPlotidItem + "_polygon" ,
-        polygon: {
-          hierarchy: new Cesium.PolygonHierarchy(smallRectanglePositions),
-          material: new Cesium.ImageMaterialProperty({
-            image: polygon[0].icon,
-            repeat: new Cesium.Cartesian2(1.13, 1.07), // 控制图片的缩放
-            color: Cesium.Color.WHITE.withAlpha(1.0) // 完全不透明以便清晰显示
-          }),
-          stRotation: Cesium.Math.toRadians(polygon[0].angle), // 可调整图像旋转
-          clampToGround: true
-        },
-        properties: {
-          pointPosition: this.positions,
-          linePoint: this.polygonPointEntity,
-          data:polygon //弹出框
-        }
-      });
-    })
+        const width = 9000;  // 矩形宽度
+        const height = 9000; // 矩形高度
+        // 获取大多边形的中心点
+        const center = this.getPolygonCenter(pointLinePoints);
+        // 生成小矩形的四个角点
+        const smallRectanglePositions = this.createContainedRectangle(center, width, height, polygon[0].angle, pointLinePoints);
+        window.viewer.entities.add({
+          id: onlyPlotidItem,
+          layer: "标绘点",
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(pointLinePoints),
+            material: new Cesium.ImageMaterialProperty({
+              color: Cesium.Color.WHITE.withAlpha(0.4),
+            }),
+            clampToGround: true,
+          },
+          properties: {
+            pointPosition: this.positions,
+            linePoint: this.polygonPointEntity,
+            data: polygon //弹出框
+          }
+        });
+        // 添加小多边形
+        window.viewer.entities.add({
+          id: onlyPlotidItem + "_polygon",
+          polygon: {
+            hierarchy: new Cesium.PolygonHierarchy(smallRectanglePositions),
+            material: new Cesium.ImageMaterialProperty({
+              image: polygon[0].icon,
+              repeat: new Cesium.Cartesian2(1.13, 1.07), // 控制图片的缩放
+              color: Cesium.Color.WHITE.withAlpha(1.0) // 完全不透明以便清晰显示
+            }),
+            stRotation: Cesium.Math.toRadians(polygon[0].angle), // 可调整图像旋转
+            clampToGround: true
+          },
+          properties: {
+            pointPosition: this.positions,
+            linePoint: this.polygonPointEntity,
+            data: polygon //弹出框
+          }
+        });
+      })
+    }
   }
 
   // 在重复的drwaid中获取所有面的唯一drwaid
