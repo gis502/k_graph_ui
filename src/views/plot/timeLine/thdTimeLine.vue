@@ -668,15 +668,10 @@ export default {
         console.log("thd eqid---------------", eqid)
         //震中标绘点
         this.centerPoint = res
-        // console.log(res)
-        // console.log(res)
         // 设置中心点的标识和时间信息
         this.centerPoint.plotid = "center"
         this.centerPoint.starttime = new Date(res.occurrenceTime)
-        // this.centerPoint.endtime=new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5*60*1000+1000);
-        //默认结束时间（设置得大一点，防止按时间渲染随时间长度更新消失了）10天
         this.centerPoint.endtime = new Date(this.centerPoint.starttime.getTime() + 10 * 24 * 36000 * 1000);
-        // console.log(this.centerPoint.starttime,this.centerPoint.endtime,this.timelineAdvancesNumber)
         //变量初始化
         this.eqstartTime = this.centerPoint.starttime
         this.eqyear = this.eqstartTime.getFullYear()
@@ -735,6 +730,10 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
+      let data={
+        ...this.centerPoint,
+        drawtype: "center"
+      }
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
@@ -754,7 +753,9 @@ export default {
         const cameraHeight = viewer.camera.positionCartographic.height
         this.updateZoomLevel(cameraHeight)
       })
+
       setTimeout(() => {
+
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
         const animationDuration = 3000; // 动画总持续时间（30秒）
@@ -766,6 +767,9 @@ export default {
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
+          properties: {
+            data
+          },
           position: Cesium.Cartesian3.fromDegrees(
               parseFloat(this.centerPoint.geom.coordinates[0]),
               parseFloat(this.centerPoint.geom.coordinates[1]),
@@ -1191,9 +1195,16 @@ export default {
           setTimeout(() => {
             clearInterval(intervalIdcolor); // 停止颜色切换
           }, animationDuration);
-
+          // let data=
+          let data={
+            ...this.centerPoint,
+            drawtype: this.centerPoint.plotid
+          }
           //加载中心点
           viewer.entities.add({
+            properties: {
+              data
+            },
             position: Cesium.Cartesian3.fromDegrees(
                 parseFloat(this.centerPoint.geom.coordinates[0]),
                 parseFloat(this.centerPoint.geom.coordinates[1]),
@@ -1228,6 +1239,8 @@ export default {
             plottype: "震中",
             layer: "标绘点"
           });
+
+          // 震中面板展开
     },
 
     /**
@@ -1283,7 +1296,6 @@ export default {
      */
     stopTimer() {
       this.isTimerRunning = false;
-
     },
 
     /**
@@ -1529,6 +1541,7 @@ export default {
       let that = this;
       // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+        if (window.isDrawingPolygon) return;
         // 检查点击位置是否拾取到实体
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id;
@@ -1536,6 +1549,11 @@ export default {
         // 获取故障信息的 div 元素
         const faultInfoDiv = document.getElementById('faultInfo');
 
+        if (window.selectedEntity === undefined) {
+          this.popupVisible = false
+          this.dataSourcePopupVisible = false
+          this.popupData = {}
+        }
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
@@ -1583,9 +1601,8 @@ export default {
             this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.timelinePopupData={}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-
-            // this.timelinePopupData = this.extractDataForTimeline(entity);
             this.routerPopupVisible = false;
+            this.dataSourcePopupVisible = false
           } else if (entity._billboard) {
             // 如果点击的是路标
             this.routerPopupVisible = true;
@@ -1593,9 +1610,13 @@ export default {
             this.routerPopupData = this.extractDataForRouter(entity);
 
             this.timelinePopupVisible = false;
-          } else if(Object.prototype.toString.call(entity) === '[object Array]') {
+            this.dataSourcePopupVisible = false
+          }
+          else if(Object.prototype.toString.call(entity) === '[object Array]') {
             this.dataSourcePopupData = entity
             this.dataSourcePopupVisible = true
+            this.timelinePopupVisible = false
+            this.routerPopupVisible = false;
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
