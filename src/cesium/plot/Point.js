@@ -250,7 +250,7 @@ export default class Point {
             const labeldataSourcePromise = window.viewer.dataSources.add(labeldataSource)
             labeldataSourcePromise.then(function (labeldataSource) {
                 labeldataSource.clustering.enabled = true; // 开启聚合
-                labeldataSource.clustering.pixelRange = 20; // 聚合像素范围
+                labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
                 labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
                 let removeListener;
@@ -320,7 +320,7 @@ export default class Point {
                     console.log("res.plotInfo", res.plotInfo)
                     // console.log("点击获取",res.ployInfo.latitude)
                     // var labeltext = ""
-                    var labeltext = "新增" + plotType
+                    var labeltext = "  "+ "\n"+plotType
                     // console.log()
                     if (res.plotTypeInfo && res.plotTypeInfo.location) {
                         labeltext = res.plotTypeInfo.location + labeltext
@@ -329,7 +329,7 @@ export default class Point {
                     //人员伤亡类文字：新增xxx人员xx人
                     if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
                         if(res.plotTypeInfo.newCount){
-                            labeltext =labeltext+res.plotTypeInfo.newCount +"人"
+                            labeltext =labeltext+res.plotTypeInfo.newCount +"人"+"\n"+'  '
                         }
                     }
                     //救援队伍 单位,人数人
@@ -338,7 +338,7 @@ export default class Point {
                             labeltext =labeltext+":"+res.plotTypeInfo.teamName
                         }
                         if(res.plotTypeInfo.personnelCount){
-                            labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"
+                            labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"+ "\n"+'  '
                         }
                     }
 
@@ -348,7 +348,7 @@ export default class Point {
                         labeltext =labeltext+res.plotTypeInfo.casualties+"人员伤亡"
                     }
                     if(res.plotTypeInfo&&res.plotTypeInfo.initialDisposalPhase) {
-                        labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase
+                        labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase+"\n"+"  "
                     }
 
 
@@ -391,7 +391,7 @@ export default class Point {
                                 pitch: -1.5688168484696687,
                                 roll: 0.0
                             },
-                            // duration : 2 // 飞行动画持续时间（秒）
+                            duration : 2 // 飞行动画持续时间（秒）
                         });
 
                         labeldataSource.entities.add(entity)
@@ -403,7 +403,12 @@ export default class Point {
                             clearInterval(intervalId1);
                             colorFactor = 1.0;
                             viewer.entities.remove(entity) //清除动画
-                            labeldataSource.entities.remove(entity);  //清除标签
+                            // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"||plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
+                            // }
+                            // else{
+                                labeldataSource.entities.remove(entity);  //清除标签
+                            // }
+                            // }
                             if (!dataSource.entities.getById(data.plotId)) {
                                 // 实体不存在，可以添加
                                 dataSource.entities.add(entity)//加到点聚合图层

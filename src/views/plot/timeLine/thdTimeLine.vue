@@ -60,7 +60,7 @@
     />
 
     <!--展示弹框伤亡统计-->
-    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
 
     <!-- 进度条-->
     <div class="bottom">
