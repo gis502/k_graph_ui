@@ -250,7 +250,7 @@ export default class Point {
             const labeldataSourcePromise = window.viewer.dataSources.add(labeldataSource)
             labeldataSourcePromise.then(function (labeldataSource) {
                 labeldataSource.clustering.enabled = true; // 开启聚合
-                labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
+                labeldataSource.clustering.pixelRange = 1; // 聚合像素范围
                 labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
                 let removeListener;
@@ -278,7 +278,7 @@ export default class Point {
 
                             // 设置标签的其他样式属性
                             // 设置标签的其他样式属性
-                            cluster.label.font = '14px Helvetica';
+                            cluster.label.font = '18px Helvetica';
                             cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
                             cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
                             cluster.label.outlineWidth = 2; // 外框宽度
@@ -320,7 +320,7 @@ export default class Point {
                     console.log("res.plotInfo", res.plotInfo)
                     // console.log("点击获取",res.ployInfo.latitude)
                     // var labeltext = ""
-                    var labeltext = "  "+ "\n"+plotType
+                    var labeltext =plotType
                     // console.log()
                     if (res.plotTypeInfo && res.plotTypeInfo.location) {
                         labeltext = res.plotTypeInfo.location + labeltext
@@ -329,7 +329,7 @@ export default class Point {
                     //人员伤亡类文字：新增xxx人员xx人
                     if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
                         if(res.plotTypeInfo.newCount){
-                            labeltext =labeltext+res.plotTypeInfo.newCount +"人"+"\n"+'  '
+                            labeltext =labeltext+res.plotTypeInfo.newCount +"人"
                         }
                     }
                     //救援队伍 单位,人数人
@@ -338,7 +338,7 @@ export default class Point {
                             labeltext =labeltext+":"+res.plotTypeInfo.teamName
                         }
                         if(res.plotTypeInfo.personnelCount){
-                            labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"+ "\n"+'  '
+                            labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"
                         }
                     }
 
@@ -348,7 +348,7 @@ export default class Point {
                         labeltext =labeltext+res.plotTypeInfo.casualties+"人员伤亡"
                     }
                     if(res.plotTypeInfo&&res.plotTypeInfo.initialDisposalPhase) {
-                        labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase+"\n"+"  "
+                        labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase
                     }
 
 
