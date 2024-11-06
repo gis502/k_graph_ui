@@ -75,11 +75,11 @@
 
     <el-table
         table-layout="fixed"
+        height="510px"
+        fit
         ref="multipleTableRef"
         :data="tableData"
-        height="510px"
         class="table tableMove"
-        fit
         :row-key="getRowKey"
         :row-style="{ height: '6.3vh' }"
         @selection-change="handleSelectionChange">

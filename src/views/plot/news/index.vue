@@ -12,21 +12,35 @@
       <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
     </el-form-item>
 
-    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor"
+              style="width: 100%"
+              height="700px"
+    >
       <el-table-column label="序号" align="center" width="100">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="url" label="新闻网址" align="center" width="200"></el-table-column>
-      <el-table-column prop="title" label="新闻标题" align="center" width="200"></el-table-column>
-      <el-table-column prop="publishTime" label="发布时间" align="center" width="200"></el-table-column>
-      <el-table-column prop="content" label="新闻内容" align="center" width="300"></el-table-column>
-      <el-table-column prop="sourceName" label="新闻来源" align="center" width="200"></el-table-column>
-      <el-table-column prop="image" label="新闻封面图片路径" align="center" width="200"></el-table-column>
+      <el-table-column prop="url" label="新闻网址" align="center" width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="title" label="新闻标题" align="center" width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="publishTime" label="发布时间" align="center" width="200" show-overflow-tooltip>
+        <template #default="scope">
+          <span>{{ formatDate(scope.row.publishTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="content" label="新闻内容" align="center" width="300"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="sourceName" label="新闻来源" align="center" width="200"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="image" label="新闻封面图片" align="center" width="200"
+                       show-overflow-tooltip>
+        <template #default="scope">
+          <el-image style="width: 100px; height: 50px" :src="scope.row.image"></el-image>
+        </template>
+      </el-table-column>
       <el-table-column prop="sourceLogo" label="来源网站标识" align="center" width="200">
         <template #default="scope">
-          <el-image style="width: 100px; height: 50px" :src="scope.row.newsImageUrl"></el-image>
+          <el-image style="width: 100px; height: 50px" :src="scope.row.sourceLogo"></el-image>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
@@ -51,7 +65,7 @@
       <el-form ref="ruleFormRef" style="max-width: 600px" :model="dialogContent" :rules="rules" label-width="auto"
                status-icon>
         <el-form-item label="新闻网址：">
-          <el-input v-model="dialogContent.url" placeholder="请输入新闻标题"></el-input>
+          <el-input v-model="dialogContent.url" placeholder="请输入新闻网址"></el-input>
         </el-form-item>
         <el-form-item label="新闻标题：">
           <el-input v-model="dialogContent.title" placeholder="请输入新闻标题"></el-input>
@@ -67,13 +81,12 @@
         <el-form-item label="新闻内容：">
           <el-input type="textarea"
                     :rows="2"
-                    placeholder="请输入内容"
+                    placeholder="请输入新闻内容"
                     v-model="dialogContent.content"></el-input>
         </el-form-item>
         <el-form-item label="新闻来源：">
-          <el-input v-model="dialogContent.sourceName" placeholder="请输入新闻标题"></el-input>
+          <el-input v-model="dialogContent.sourceName" placeholder="请输入新闻来源"></el-input>
         </el-form-item>
-
         <el-form-item label="新闻封面：" prop="image">
           <el-input v-model="dialogContent.image" v-if="false"></el-input>
           <el-upload
@@ -82,7 +95,6 @@
               :headers="headers"
               :file-list="fileList"
               :on-change="handlerChange"
-              :on-error="handleError"
               :auto-upload="false"
               :limit="1">
             <el-icon>
@@ -103,6 +115,35 @@
           </el-dialog>
         </el-form-item>
 
+        <el-form-item label="来源网站标识：" prop="sourceLogo">
+          <el-input v-model="dialogContent.sourceLogo" v-if="false"></el-input>
+          <el-upload
+              action="#"
+              list-type="picture-card"
+              :headers="headers"
+              :file-list="fileListLogo"
+              :on-change="handlerChangeCover"
+              :auto-upload="false"
+              :limit="1">
+            <el-icon>
+              <Plus/>
+            </el-icon>
+            <template #fileLogo="{ fileLogo }">
+              <img class="el-upload-list__item-thumbnail" :src="fileLogo.url">
+              <span class="el-upload-list__item-actions">
+                  <span class="el-upload-list__item-delete" @click="deleteLogoUnloadPic()">
+                    <el-icon><Delete/></el-icon>
+                  </span>
+                </span>
+              <!--</div>-->
+            </template>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible">
+            <img width="100%" :src="dialogContent.sourceLogo" alt="">
+          </el-dialog>
+        </el-form-item>
+
+
         <span slot="footer" class="dialog-footer">
           <el-button @click="cancel">取 消</el-button>
           <el-button type="primary" @click="submitForm(ruleFormRef)">确 定</el-button>
@@ -115,16 +156,18 @@
 
 <script setup>
 import {insert, update, removeById, list} from "@/api/system/security.js";
-import { upload,getNewsList } from '@/api/system/news.js'
+import {upload, getNewsList, save} from '@/api/system/news.js'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {throwError} from "element-plus/es/utils/index";
+import {ref} from "vue";
 
 let getData = ref([]) // 后端获取的所有数据
 let total = ref(12) // 一共多少条数据
 let tableData = ref([]) // 表格中显示的数据数组
 let currentPage = ref(1) // 当前是第几页
-let pageSizes = ref([10, 20]) //选择一页显示多少条数据
 let pageSize = ref(10) // 当前一页显示多少条数据
+let pageSizes = ref([10, 30, 50, 100, 200, 500]) //选择一页显示多少条数据
+const requestParams = ref("")
 // 新增和修改弹窗相关变量
 let dialogTitle = ref("") // 弹窗的标题
 let dialogShow = ref(false) // 弹窗的显示与否的属性
@@ -145,7 +188,13 @@ let file = ref({
   name: '',
   url: ''
 })
+
+let fileLogo = ref({
+  name: '',
+  url: ''
+})
 const fileList = ref([])
+const fileListLogo = ref([])
 const ruleFormRef = ref()
 const rules = reactive({
   newsSource: [
@@ -183,9 +232,11 @@ function resetQuery() {
 // 查全部数据
 function getList() {
   getNewsList().then(res => {
+    console.log("新闻数据=》 ", res)
     getData.value = res.data
     total.value = res.data.length
     tableData.value = getPageArr();
+
   })
 }
 
@@ -234,14 +285,14 @@ function getPageArr(data = getData.value) {
 function handleSizeChange(val) {
   pageSize.value = val
   tableData.value = getPageArr()
-  // console.log(`每页 ${val} 条`);
+  console.log(`每页 ${val} 条`);
 }
 
 // `当前页: ${val}`
 function handleCurrentChange(val) {
   currentPage.value = val
   tableData.value = getPageArr()
-  // console.log(`当前页: ${val}`);
+  console.log(`当前页: ${val}`);
 }
 
 // 新增与修改弹窗的取消按钮
@@ -270,19 +321,33 @@ function commit() {
     dialogContent.value.uuid = guid()
     let data = JSON.parse(JSON.stringify(dialogContent.value));
 
+
     upload({file: file.value.url})
         .then(res => {
-          console.log("图片上传成功 => ", res)
+          console.log("封面图片上传成功 => ", res)
           //在这个地方将图片地址更换
-          data.newsImageUrl = res.fileName
+          data.image = res.url
         })
         .catch(ex => {
-          console.log("上传失败 => ", ex)
+          console.log("封面上传失败 => ", ex)
         })
+    upload({file: fileLogo.value.url})
+        .then(res => {
+          console.log("Logo图片上传成功 => ", res)
+          //在这个地方将图片地址更换
+          data.sourceLogo = res.url
+        })
+        .catch(ex => {
+          console.log("Logo上传失败 => ", ex)
+        })
+    console.log("待上传的数据：", data)
+    save(data).then(res => {
+      console.log(res, "插入成功")
+    }).catch(ex => {
+      console.log(ex, "插入数据失败")
+    })
 
 
-
-    console.log(data, "=================================>")
   }
 }
 
@@ -341,26 +406,54 @@ function guid() {
 }
 
 function handlerChange(res) {
-  try {
-    console.log("res:", res)
-    if (res.status === 'ready') {
-      console.log("准备上传...")
-      file.value.url = res.raw
-    } else {
-      console.log("上传失败：", res)
-    }
-  } catch (ex) {
-    new throwError("上传失败", ex);
+
+  console.log("res:", res)
+  if (res.status === 'ready') {
+    console.log("准备上传...")
+    file.value.url = res.raw
+  } else {
+    console.log("上传失败：", res)
   }
+
 }
 
+function handlerChangeCover(res, fileList) {
+  console.log("res:", res)
+  if (res.status === 'ready') {
+    console.log("准备上传...")
+    fileLogo.value.url = res.raw
+  } else {
+    console.log("上传失败：", res)
+  }
+}
 
 function handleError(err, file, fileList) {
   console.log("上传失败：", err)
 }
 
 function deleteUnloadPic(file) {
-  this.fileList = []
+  fileList.value = []
+}
+
+function deleteLogoUnloadPic(file) {
+  fileListLogo.value = []
+}
+
+function formatDate(value) {
+  if (!value) return '';
+  // 将字符串转换为 Date 对象
+  const date = new Date(value);
+  // 获取年、月、日、时、分、秒
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // getMonth() 返回的月份从 0 开始，所以需要 +1
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
+  // 格式化月、日、时、分、秒，不足两位数的前面补零
+  const formatNumber = n => n < 10 ? '0' + n : n;
+  // 拼接成最终的格式
+  return `${year}-${formatNumber(month)}-${formatNumber(day)} ${formatNumber(hour)}:${formatNumber(minute)}:${formatNumber(second)}`;
 }
 
 </script>
