@@ -278,7 +278,7 @@ export default class Point {
 
                             // 设置标签的其他样式属性
                             // 设置标签的其他样式属性
-                            cluster.label.font = '14px Helvetica';
+                            cluster.label.font = '18px Helvetica';
                             cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
                             cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
                             cluster.label.outlineWidth = 2; // 外框宽度

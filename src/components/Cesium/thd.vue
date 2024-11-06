@@ -361,7 +361,7 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
