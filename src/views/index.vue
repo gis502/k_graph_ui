@@ -30,7 +30,7 @@
           </div>
           <div class="left-bottom public-bg">
             <dv-border-box7>
-              <div class="public-title">最新地震余震情况统计(次)</div>
+<!--              <div class="public-title">最新地震余震情况统计(次)</div>-->
               <chart2 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
@@ -225,7 +225,6 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
-    console.log(res)
     EqAll.value = res
     tableData.value = res
     lastEqData.value = res[0]
