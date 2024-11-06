@@ -178,6 +178,8 @@
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
+
+<!--    <div style="background-color: #0d325f;height:20%;width:20%;top:20%;position:absolute;z-index:50;color:#FFFFFF">{{this.timestampToTime(this.currentTime)}}</div>-->
   </div>
 </template>
 
