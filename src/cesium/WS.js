@@ -1,10 +1,11 @@
 import * as Cesium from 'cesium'
 import  {StraightArrow, AttackArrow, PincerArrow,} from "@/cesium/drawArrow/arrowClass.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
+import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 
 let webSocket
 let ip = "ws://localhost:8080/ws/"
-
+// import cesiumPlot from '@/cesium/plot/cesiumPlot'
 export function initWebSocket(eqid) {
     const wsuri = ip + eqid;
     if (typeof (WebSocket) == "undefined") {
@@ -23,7 +24,7 @@ export function initWebSocket(eqid) {
 //连接建立之后执行send方法发送数据
 function websocketonopen() {
     // let actions = {"test": "我已在线"};
-    webSocket.send(JSON.stringify(actions));
+    // webSocket.send(JSON.stringify(actions));
 }
 
 //连接建立失败重连
@@ -37,8 +38,9 @@ function websocketclose(e) {
 }
 
 function websocketonmessage(e) {
+    // console.log("e",e)
     try {
-        console.log(JSON.parse(e.data))
+        console.log("socketmessage",JSON.parse(e.data))
         let markType = JSON.parse(e.data).type
         let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
         if (markOperate === "add") {
@@ -87,49 +89,20 @@ function websocketonmessage(e) {
 
 function wsAdd(type, data) {
     if (type === "point") {
-        let id = data.plot.plotId
-        let longitude = Number(data.plot.geom.coordinates[0])
-        let latitude = Number(data.plot.geom.coordinates[1])
-        let height = Number(data.plot.elevation)
-        let img = data.plot.icon
-
-        window.viewer.dataSources.getByName('pointData')[0].entities.add({
-            id: id,
-            layer: "标绘点",
-            position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
-            billboard: {
-                image: img,
-                width: 50,//图片宽度,单位px
-                height: 50,//图片高度，单位px // 会影响data大小，离谱
-                eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
-                color: Cesium.Color.WHITE.withAlpha(1),//颜色
-                scale: 0.8,//缩放比例
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-                depthTest: false,//禁止深度测试但是没有下面那句有用
-                disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-            },
-            properties: {
-                data: data.plot
-            }
-        })
-        // window.viewer.entities.add({
-        //     id: id,
-        //     position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
-        //     billboard: {
-        //         image: img,
-        //         width: 50,//图片宽度,单位px
-        //         height: 50,//图片高度，单位px // 会影响data大小，离谱
-        //         eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
-        //         color: Cesium.Color.WHITE.withAlpha(1),//颜色
-        //         scale: 0.8,//缩放比例
-        //         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-        //         depthTest: false,//禁止深度测试但是没有下面那句有用
-        //         disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-        //     },
-        //     properties: {
-        //         data:data.plot
-        //     }
-        // })
+        let points = [];
+        let point = {
+            earthquakeId: data.plot.earthquakeId,
+            plotId: data.plot.plotId,
+            time: data.plot.creationTime.replace("T", " "),
+            plotType: data.plot.plotType,
+            drawtype: data.plot.drawtype,
+            latitude: Number(data.plot.geom.coordinates[1]),
+            longitude: Number(data.plot.geom.coordinates[0]),
+            height: Number(data.plot.elevation),
+            icon:  data.plot.icon
+        };
+        points.push(point); // 收集点数据
+        cesiumPlot.drawPoints(points,true);
     } else if (type === "polyline") {
         // 绘制所需的信息
         let points = data.plot.geom.coordinates

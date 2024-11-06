@@ -7,7 +7,7 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getSecondaryDisaster} from "../../api/system/mountainFlood";
+import {getEquipment} from "../../api/system/rescueEquipment";
 const props = defineProps({
   eqid: {
     type: String,
@@ -16,10 +16,10 @@ const props = defineProps({
 });
 const eqid = ref('');
 const latestTime = ref('') // 时间
-const affectedArea = ref(["抱歉暂无数据"]) //地点
-const threatenedPopulation = ref([0]) // 受威胁群众人数
-const hazardPoints = ref([0]) // 隐患点
-const evacuation = ref([0]) // 避险转移人数
+const earthquakeAreaName = ref(["抱歉暂无数据"]) //地点
+const helicopterCount = ref([]) // 直升机数量
+const bridgeBoatCount = ref([]) // 舟桥数量
+const wingDroneCount = ref([]) // 翼龙无人机数量
 const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
@@ -42,35 +42,34 @@ function formatDate(dateString) {
 }
 
 setTimeout(()=>{
-  getSecondaryDisaster(store.globalEqId).then(res => {
+  getEquipment(store.globalEqId).then(res => {
     update(res)
   })
 },500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getSecondaryDisaster(eqid.value).then(res => {
+  getEquipment(eqid.value).then(res => {
+    console.log("sssssssssssssssssssssssssssssssssssssssssssssssss",res)
     update(res)
   })
 })
 
-
-
 function update(data){
   if(data.length === 0){
-    affectedArea.value = ["抱歉暂无数据"]
-    threatenedPopulation.value = [0]
-    hazardPoints.value = [0]
-    evacuation.value = [0]
+    earthquakeAreaName.value = ["抱歉暂无数据"]
+    helicopterCount.value = [0]
+    bridgeBoatCount.value = [0]
+    wingDroneCount.value = [0]
     latestTime.value = ''
   }else {
-    affectedArea.value = data.map(item => item.affectedArea || "抱歉暂无数据")
-    threatenedPopulation.value = data.map(item => item.threatenedPopulation || 0)
-    hazardPoints.value = data.map(item => item.hazardPoints || 0)
-    evacuation.value = data.map(item => item.evacuation || 0)
+    earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || "抱歉暂无数据")
+    helicopterCount.value = data.map(item => item.helicopterCount || 0)
+    bridgeBoatCount.value = data.map(item => item.bridgeBoatCount || 0)
+    wingDroneCount.value = data.map(item => item.wingDroneCount || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
-    }, formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? max : formatDate(item.systemInsertTime);
+    },formatDate(data[0].systemInsertTime)); // 确保初始值
   }
 
 
@@ -90,17 +89,17 @@ function update(data){
       }
     },
     xAxis: {
-      data: affectedArea.value,
+      data: earthquakeAreaName.value,
     },
     series: [
       {
-        data: threatenedPopulation.value,
+        data: helicopterCount.value,
       },
       {
-        data: evacuation.value,
+        data: bridgeBoatCount.value,
       },
       {
-        data: hazardPoints.value,
+        data: wingDroneCount.value,
       }
     ]
   })
@@ -137,7 +136,7 @@ const initChart = () => {
     xAxis: [
       {
         type: 'category',
-        data: affectedArea.value,
+        data: earthquakeAreaName.value,
         axisLabel: {
           color: '#ffffff',
         }
@@ -159,7 +158,7 @@ const initChart = () => {
     ],
     series: [
       {
-        name: '受威胁群众人数',
+        name: '直升机数量（架）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -168,10 +167,10 @@ const initChart = () => {
         itemStyle: {
           color: '#4A90E2',
         },
-        data: threatenedPopulation.value,
+        data: helicopterCount.value,
       },
       {
-        name: '避险转移人数',
+        name: '舟桥（座）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -180,10 +179,10 @@ const initChart = () => {
         itemStyle: {
           color: '#007BB8',
         },
-        data: evacuation.value,
+        data: bridgeBoatCount.value,
       },
       {
-        name: '隐患点数',
+        name: '翼龙无人机（架）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -192,7 +191,7 @@ const initChart = () => {
         itemStyle: {
           color: '#005F8C',
         },
-        data: hazardPoints.value,
+        data: wingDroneCount.value,
       },
     ]
   };

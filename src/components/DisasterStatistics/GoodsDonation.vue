@@ -7,7 +7,8 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getSecondaryDisaster} from "../../api/system/mountainFlood";
+import {getBarrierlakeSituation} from "../../api/system/barrierlakeSituation";
+import {getMaterialDonation} from "../../api/system/materialDonation";
 const props = defineProps({
   eqid: {
     type: String,
@@ -16,10 +17,9 @@ const props = defineProps({
 });
 const eqid = ref('');
 const latestTime = ref('') // 时间
-const affectedArea = ref(["抱歉暂无数据"]) //地点
-const threatenedPopulation = ref([0]) // 受威胁群众人数
-const hazardPoints = ref([0]) // 隐患点
-const evacuation = ref([0]) // 避险转移人数
+const earthquakeAreaName = ref(["抱歉暂无数据"]) //地点
+const materialDonationCount = ref([0]) // 捐赠物资
+const drugsDonationCount = ref([0]) // 药品
 const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
@@ -42,32 +42,29 @@ function formatDate(dateString) {
 }
 
 setTimeout(()=>{
-  getSecondaryDisaster(store.globalEqId).then(res => {
+  getMaterialDonation(store.globalEqId).then(res => {
     update(res)
   })
 },500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getSecondaryDisaster(eqid.value).then(res => {
+  getMaterialDonation(eqid.value).then(res => {
+    console.log("getBarrierlakeSituation",res)
     update(res)
   })
 })
 
-
-
 function update(data){
   if(data.length === 0){
-    affectedArea.value = ["抱歉暂无数据"]
-    threatenedPopulation.value = [0]
-    hazardPoints.value = [0]
-    evacuation.value = [0]
+    earthquakeAreaName.value = ["抱歉暂无数据"]
+    materialDonationCount.value = [0]
+    drugsDonationCount.value = [0]
     latestTime.value = ''
   }else {
-    affectedArea.value = data.map(item => item.affectedArea || "抱歉暂无数据")
-    threatenedPopulation.value = data.map(item => item.threatenedPopulation || 0)
-    hazardPoints.value = data.map(item => item.hazardPoints || 0)
-    evacuation.value = data.map(item => item.evacuation || 0)
+    earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || "抱歉暂无数据")
+    materialDonationCount.value = data.map(item => item.materialDonationCount || 0)
+    drugsDonationCount.value = data.map(item => item.drugsDonationCount || 0)
     latestTime.value = data.reduce((max, item) => {
       return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
     }, formatDate(data[0].systemInsertTime)); // 确保初始值
@@ -90,17 +87,14 @@ function update(data){
       }
     },
     xAxis: {
-      data: affectedArea.value,
+      data: earthquakeAreaName.value,
     },
     series: [
       {
-        data: threatenedPopulation.value,
+        data: materialDonationCount.value,
       },
       {
-        data: evacuation.value,
-      },
-      {
-        data: hazardPoints.value,
+        data: drugsDonationCount.value,
       }
     ]
   })
@@ -137,7 +131,7 @@ const initChart = () => {
     xAxis: [
       {
         type: 'category',
-        data: affectedArea.value,
+        data: earthquakeAreaName.value,
         axisLabel: {
           color: '#ffffff',
         }
@@ -159,7 +153,7 @@ const initChart = () => {
     ],
     series: [
       {
-        name: '受威胁群众人数',
+        name: '捐赠物资（万件）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -168,32 +162,20 @@ const initChart = () => {
         itemStyle: {
           color: '#4A90E2',
         },
-        data: threatenedPopulation.value,
+        data: materialDonationCount.value,
       },
       {
-        name: '避险转移人数',
+        name: '药品（箱）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
           focus: 'series',
         },
         itemStyle: {
-          color: '#007BB8',
+          color: '#005193',
         },
-        data: evacuation.value,
-      },
-      {
-        name: '隐患点数',
-        type: 'bar',
-        stack: 'Ad',
-        emphasis: {
-          focus: 'series',
-        },
-        itemStyle: {
-          color: '#005F8C',
-        },
-        data: hazardPoints.value,
-      },
+        data: drugsDonationCount.value,
+      }
     ]
   };
   echartsInstance.setOption(option);
