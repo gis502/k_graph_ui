@@ -35,6 +35,10 @@
               @mouseleave="resumeSlide"
               style="margin-top: -20px"
           >
+            <div class="button-top" style="margin-bottom: 5px;">
+              <span @click="slideUp" class="white-text">▲</span>
+            </div>
+
             <div class="container" :style="{ transform: `translateY(${translateY.value}px)`, transition: 'transform 0.5s ease' }">
               <el-col>
                 <div class="newColCommon">
@@ -62,9 +66,14 @@
                 </div>
               </el-col>
             </div>
+
+            <div class="button-bottom" style="margin-top: 5px;">
+              <span @click="slideDown" class="white-text">▼</span>
+            </div>
           </div>
         </div>
       </el-carousel-item>
+
     </el-carousel>
   </div>
 </template>
@@ -314,6 +323,24 @@ const resumeSlide = () => {
   startSlide();
 };
 
+const slideUp = () => {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+  } else {
+    currentIndex.value = riskPointData.value.length - 1; // 到达顶部后回到最后一个
+  }
+  updateRiskPointInfo();
+};
+
+const slideDown = () => {
+  if (currentIndex.value < riskPointData.value.length - 1) {
+    currentIndex.value++;
+  } else {
+    currentIndex.value = 0; // 到达底部后回到第一个
+  }
+  updateRiskPointInfo();
+};
+
 // 监听lastEq属性的变化，调用处理余震数据的函数
 watch(() => props.lastEq,() => {
   handleAftershockData();
@@ -410,8 +437,19 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform 0.5s ease; /* 平滑过渡效果 */
+  margin: 0; /* Ensure no margin is applied */
+
 }
 
+.button-top {
+  text-align: center;
+  margin: 5px 0;
+}
+.button-bottom {
+  text-align: center;
+}
+.white-text {
+  color: white;
+}
 
 </style>
