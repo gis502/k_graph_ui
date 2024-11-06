@@ -3131,7 +3131,7 @@ export default {
     /*获取目前相机所属高度*/
 
     updateZoomLevel(cameraHeight) {
-      console.log("层级",cameraHeight)
+      // console.log("层级",cameraHeight)
       // 根据相机高度设置 zoomLevel
       if (cameraHeight > 200000) {
         this.zoomLevel = '市'

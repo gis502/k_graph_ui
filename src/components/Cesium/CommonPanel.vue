@@ -317,6 +317,7 @@ export default {
       deletePlotInfo(data).then(res => {
         // 从 dataSource 中删除点
         window.viewer.entities.removeById(data.plotId)
+        window.viewer.entities.removeById(data.plotId + "_polygon")
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(data.plotId);
           console.log("entityToRemove", entityToRemove)
