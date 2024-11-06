@@ -997,7 +997,7 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log("popupData 11",this.popupData)
+          // console.log("popupData 11",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗

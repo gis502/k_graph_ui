@@ -1055,6 +1055,8 @@ export default {
         }, intervalTime);
         setTimeout(() => {
           clearInterval(intervalId); // 停止颜色切换
+          this.timelinePopupVisible = false;
+          this.xuanran(this.eqid)
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
@@ -1130,10 +1132,14 @@ export default {
           plottype: "震中",
         });
 
+        this.timelinePopupPosition = {
+          x: cesiumContainer.offsetWidth/2,
+          y: cesiumContainer.offsetHeight/2+50
+        };
+        this.timelinePopupVisible = true;
+        this.timelinePopupData =  data
       }, 3000);
-      setTimeout(() => {
-        this.xuanran(this.eqid)
-      }, 6000);
+
 
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
@@ -1331,6 +1337,7 @@ export default {
 
       setTimeout(() => {
         clearInterval(intervalIdcolor); // 停止颜色切换
+        this.timelinePopupVisible = false;
       }, animationDuration);
       // let data=
       let data={
@@ -1376,6 +1383,12 @@ export default {
         plottype: "震中",
         layer: "标绘点"
       });
+      this.timelinePopupPosition = {
+        x: cesiumContainer.offsetWidth/2,
+        y: cesiumContainer.offsetHeight/2+50
+      };
+      this.timelinePopupVisible = true;
+      this.timelinePopupData =  data
     },
 
     /**

@@ -4,7 +4,7 @@
       <eqTable :eqData="tableData"/>
     </div>
     <!--    title-->
-    <div class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
+    <div id="title" class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
       <div class="pop-dialog__content" style="height: 100%;">
         <div class="logo-title">
           <div class="logo-title-content" style="padding: 0 0 15px 0;">
@@ -764,6 +764,8 @@ export default {
         }, intervalTime);
         setTimeout(() => {
           clearInterval(intervalIdcolor); // 停止颜色切换
+          this.timelinePopupVisible = false;
+          this.xuanran(this.eqid)
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
@@ -839,10 +841,13 @@ export default {
           plottype: "震中",
         });
 
+        this.timelinePopupPosition = {
+          x: cesiumContainer.offsetWidth/2,
+          y: cesiumContainer.offsetHeight/2+50
+        };
+        this.timelinePopupVisible = true;
+        this.timelinePopupData =  data
       }, 3000);
-      setTimeout(() => {
-        this.xuanran(this.eqid)
-    }, 6000);
     },
     //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
 
@@ -1194,6 +1199,7 @@ export default {
 
           setTimeout(() => {
             clearInterval(intervalIdcolor); // 停止颜色切换
+            this.timelinePopupVisible = false;
           }, animationDuration);
           // let data=
           let data={
@@ -1240,7 +1246,14 @@ export default {
             layer: "标绘点"
           });
 
-          // 震中面板展开
+
+      this.timelinePopupPosition = {
+        x: cesiumContainer.offsetWidth/2,
+        y: cesiumContainer.offsetHeight/2+50
+      };
+      this.timelinePopupVisible = true;
+      this.timelinePopupData =  data
+
     },
 
     /**
@@ -1598,7 +1611,8 @@ export default {
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
+            // this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
+            // this.updatePopupPosition();
             this.timelinePopupData={}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
             this.routerPopupVisible = false;
@@ -1606,7 +1620,7 @@ export default {
           } else if (entity._billboard) {
             // 如果点击的是路标
             this.routerPopupVisible = true;
-            this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
+            // this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
             this.routerPopupData = this.extractDataForRouter(entity);
 
             this.timelinePopupVisible = false;
