@@ -58,10 +58,9 @@
         </div>
 
 
-
-
         <div class="legend_container" style="display: flex; flex-direction: column; gap: 10px;">
-          <div class="legend_group" v-for="(legend, legendIndex) in this.secondaryDisasterLegendData" :key="legendIndex">
+          <div class="legend_group" v-for="(legend, legendIndex) in this.secondaryDisasterLegendData"
+               :key="legendIndex">
             <p style="color: white; font-weight: bold; margin: 5px 0;">{{ legend.name }}</p>
             <div class="legend_item" v-for="(item, itemIndex) in legend.data" :key="itemIndex"
                  style="display: flex; align-items: center; margin: 5px 0;">
@@ -78,7 +77,6 @@
             </div>
           </div>
         </div>
-
 
 
       </el-form>
@@ -180,6 +178,7 @@ import {getExcelUploadEarthquake, getGeomById} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
+// import cumulativeTransferredImg from '@/assets/images/emergencySheltersLogo.png'
 import damagedWaterSupply from '@/assets/images/damagedWaterSupply.png'
 import guaranteeWaterSupply from '@/assets/images/guaranteeWaterSupply.png'
 import earthQuakeCenterImg from '@/assets/icons/TimeLine/震中.png'
@@ -306,7 +305,9 @@ export default {
         {label: '震情伤亡信息专题图', value: 'EarthquakeCasualties'},
         {label: '交通电力通信信息专题图', value: 'TransportationElectricity'},
         {label: '建筑物受损信息专题图', value: 'BuildingDamageInformation'},
-        {label: '次生灾害信息专题图', value: 'SecondaryDisaster'}
+        {label: '次生灾害信息专题图', value: 'SecondaryDisaster'},
+        {label: '力量物资信息可视化', value: 'ResourceStrength'},
+        {label: '资金及物资捐赠可视化', value: 'MaterialDonation'}
       ],
 
       //---------板块颜色------------
@@ -403,7 +404,7 @@ export default {
           data: [
             {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity]},
             {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200]},
-            {name: '0-50人', img: damagedWaterSupply, width: 20, height: 20, range: [0, 50]},
+            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50]},
           ]
         },
         {
@@ -411,10 +412,10 @@ export default {
           data: [
             {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity]},
             {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200]},
-            {name: '0-50人', img: guaranteeWaterSupply, width: 20, height: 20, range: [0, 50]},
+            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50]},
           ]
         },
-      ]
+      ],
     };
   },
   mounted() {
@@ -509,7 +510,7 @@ export default {
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(value)
         //获取震源中心的点数据
-        // this.getEarthQuakeCenter(value)
+        this.getEarthQuakeCenter(value)
         this.getDistrictColor(value)
         this.getEcharts(value)
       }
@@ -552,6 +553,12 @@ export default {
         this.addDistrictLabels(this.dataSource)
         this.getPoints(value)
       }
+      if (this.selectedComponentKey === 'ResourceStrength') {
+        this.clearMultipleECharts()
+      }
+      if (this.selectedComponentKey === 'MaterialDonation') {
+        this.clearMultipleECharts()
+      }
 
     },
 
@@ -567,7 +574,7 @@ export default {
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(this.eqid)
         //获取震源中心的点数据
-        // this.getEarthQuakeCenter(this.eqid)
+        this.getEarthQuakeCenter(this.eqid)
         this.getDistrictColor(this.eqid)
         this.getEcharts(this.eqid)
       }
@@ -594,6 +601,14 @@ export default {
         this.addDistrictLabels(this.dataSource)
         this.getEcharts(this.eqid)
         this.getPoints(this.eqid)
+      }
+      if (this.selectedComponentKey === 'ResourceStrength') {
+        this.addDistrictLabels(this.dataSource)
+        this.clearMultipleECharts()
+      }
+      if (this.selectedComponentKey === 'MaterialDonation') {
+        this.addDistrictLabels(this.dataSource)
+        this.clearMultipleECharts()
       }
 
     },
@@ -1213,7 +1228,7 @@ export default {
               {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
             ]
             let location = locations.find(loc => loc.name === dataItem.affectedArea);
-            const { width, height, img } = getSizeByCount(threatenedCount, '受威胁群众(户或人)');
+            const {width, height, img} = getSizeByCount(threatenedCount, '受威胁群众(户或人)');
             addLocationEntity(location, threatenedCount, img, height, width)
           }
           // 如果 evacuationCount 和 threatenedCount 都为 null，则跳过当前项
@@ -1538,8 +1553,6 @@ export default {
     async exportCesiumScene() {
       // 开始导出时，显示加载动画
       this.loading = true;
-      const startTime = performance.now();  // 记录开始时间
-      let stepStartTime = startTime;  // 记录每个步骤的开始时间
 
       //  1: 禁用 Cesium 相机和 ECharts 图表的交互功能，防止用户在导出时误操作
       const cameraController = this.viewer.scene.screenSpaceCameraController;
@@ -1558,31 +1571,19 @@ export default {
         }
       });
 
-      console.log(`Step 1: 禁用交互 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-      stepStartTime = performance.now();  // 记录下一个步骤的开始时间
-
       //  2: 获取地图当前视野范围的经纬度，并加载经纬度线
       this.getLatLonBounds();  // 获取当前视野经纬度范围
       this.addLatLonLines();   // 添加经纬度线
       await this.waitForEntitiesToRender(this.latLonEntities.length);  // 等待经纬度线渲染完成
-
-      console.log(`Step 2: 加载经纬度线 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-      stepStartTime = performance.now();
 
       try {
         //  3: 等待 Cesium 渲染完成并请求重新渲染
         await this.waitForCesiumRender();
         this.viewer.scene.requestRender();
 
-        console.log(`Step 3: Cesium 渲染完成 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-        stepStartTime = performance.now();
-
         //  4: 获取 Cesium 场景的 Canvas 图像
         const cesiumCanvas = this.viewer.scene.canvas;
         const cesiumImage = cesiumCanvas.toDataURL('image/png');  // Cesium 场景导出为图片
-
-        console.log(`Step 4: 获取 Cesium Canvas 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-        stepStartTime = performance.now();
 
         //  5-7: 分别渲染图例、距离标尺和指南针
         const legendCanvas = await this.renderElementToCanvas('.noteContainer', '图例');
@@ -1593,14 +1594,8 @@ export default {
         const finalCanvas = this.createFinalCanvas();
         const finalContext = finalCanvas.getContext('2d', {willReadFrequently: true});
 
-        console.log(`Step 8: 创建最终 Canvas 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-        stepStartTime = performance.now();
-
         //  9: 将 Cesium 场景绘制到合成 Canvas 上
         await this.drawImageToCanvas(finalContext, cesiumImage, 0, 0);
-
-        console.log(`Step 9: 绘制 Cesium 场景 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-        stepStartTime = performance.now();
 
         //  10-12: 分别绘制图例、距离标尺和指南针到合成 Canvas 上
 
@@ -1613,19 +1608,12 @@ export default {
         finalContext.drawImage(distanceLegendCanvas, 20, finalCanvas.height - distanceLegendCanvas.height - 20);
         finalContext.drawImage(compassCanvas, finalCanvas.width - compassCanvas.width - 20, 20);
 
-        console.log(`Step 12: 绘制指南针 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-        stepStartTime = performance.now();
-
         // 13: 渲染并绘制所有 ECharts 图表
         const echartsImages = await this.renderAllECharts();
         echartsImages.forEach((img, index) => {
           const container = this.$refs.echartsContainer[index];
           finalContext.drawImage(img, container.offsetLeft, container.offsetTop);  // 绘制 ECharts 图表
         });
-
-        console.log(`Step 13: 绘制 ECharts 图表 花费时间: ${(performance.now() - stepStartTime).toFixed(2)} 毫秒`);
-        stepStartTime = performance.now();
-
 
         //  14: 将合成后的 Canvas 转换为图片
         this.previewImage = finalCanvas.toDataURL('image/png');
@@ -1655,11 +1643,6 @@ export default {
         });
         this.latLonEntities = [];
 
-        const endTime = performance.now();  // 记录结束时间
-        console.log(`exportCesiumScene 方法总执行时间: ${(endTime - startTime).toFixed(2)} 毫秒`);
-
-
-        this.getScreenCorners()
         // 分别处理四条边的数据
         const topData = {};
         const sideData = {};
@@ -1677,16 +1660,12 @@ export default {
         const bottomContainer = document.querySelector('.bottom');
         const leftContainer = document.querySelector('.left');
         const rightContainer = document.querySelector('.right');
-
         // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
         [topContainer].forEach(container => this.addBoxes(container, 'div_t', topData));
-
         // 为 leftContainer 和 rightContainer 生成盒子（反转顺序，从下往上显示）
         [leftContainer, rightContainer].forEach(container => this.addBoxes(container, 'div_l', sideData, true));
-
         // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
         [bottomContainer].forEach(container => this.addBoxes(container, 'div_t', bottomData));
-
         this.loading = false;
       }
     },
@@ -1771,97 +1750,6 @@ export default {
     },
 
     // 下载图片
-    // downloadImage() {
-    //   // 创建 canvas 元素并获取其上下文
-    //   const finalCanvas = document.createElement('canvas');
-    //   const ctx = finalCanvas.getContext('2d');
-    //
-    //   // 获取页面中的两个 div 内容和样式
-    //   const exportInfoDiv = document.querySelector('.export-info');
-    //   const exportTitle = exportInfoDiv ? exportInfoDiv.textContent.trim() : '';
-    //
-    //   const additionalInfoDiv = document.querySelector('div[style*="background-color: white"]');
-    //   const unitText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(1)').textContent : '';
-    //   const dateText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(2)').textContent : '';
-    //   const versionText = additionalInfoDiv ? additionalInfoDiv.querySelector('p:nth-child(3)').textContent : '';
-    //   const backgroundColor = additionalInfoDiv ? window.getComputedStyle(additionalInfoDiv).backgroundColor : 'white';
-    //
-    //   // 获取 img_outbox 和 mainImage 的样式
-    //   const imgOutbox = document.querySelector('.img_outbox');
-    //
-    //   // 获取样式信息
-    //   const imgOutboxStyles = imgOutbox ? window.getComputedStyle(imgOutbox) : null;
-    //
-    //   // 设置 canvas 大小，确保包含图片、标题、边框和文字
-    //   const image = new Image();
-    //   image.src = this.previewImage; // this.previewImage 是之前合成的图片
-    //   image.onload = () => {
-    //     // 计算标题、边框和额外信息的高度
-    //     const titleHeight = 60; // exportTitle 的高度
-    //     const footerHeight = 50; // 底部信息的高度
-    //     const borderWidth = imgOutboxStyles ? parseInt(imgOutboxStyles.borderWidth) : 0; // 获取边框宽度
-    //     const padding = imgOutboxStyles ? parseInt(imgOutboxStyles.padding) : 0; // 获取 padding
-    //
-    //     // 根据图片大小和边框设置 canvas 尺寸
-    //     finalCanvas.width = image.width + borderWidth * 2 + padding * 4;
-    //     finalCanvas.height = image.height + titleHeight + footerHeight + borderWidth * 2 + padding * 2;
-    //
-    //     // 绘制 exportTitle 背景颜色
-    //     ctx.fillStyle = backgroundColor;
-    //     ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height); // 填充标题背景区域
-    //
-    //     // 设置标题文字样式并绘制 exportTitle
-    //     ctx.font = '26px Arial';
-    //     ctx.fillStyle = 'black';
-    //     ctx.textAlign = 'center';
-    //     ctx.fillText(exportTitle, finalCanvas.width / 2, 40); // 绘制标题
-    //
-    //     // 绘制 img_outbox 的边框
-    //     if (imgOutboxStyles) {
-    //       ctx.strokeStyle = imgOutboxStyles.borderColor || 'black';
-    //       ctx.lineWidth = borderWidth;
-    //       ctx.strokeRect(padding, titleHeight, finalCanvas.width - padding * 2, image.height + padding * 2); // 绘制外框
-    //     }
-    //
-    //     // 绘制 mainImage 图片内容
-    //     ctx.drawImage(image, padding + borderWidth + padding, titleHeight + padding); // 将图片绘制到 canvas 中，应用内边距和边框
-    //
-    //     // 绘制底部背景
-    //     ctx.fillStyle = backgroundColor;
-    //     ctx.fillRect(0, image.height + titleHeight + padding * 2 + borderWidth * 2, finalCanvas.width, footerHeight); // 填充底部背景
-    //
-    //     // 设置文字样式
-    //     ctx.font = '16px Arial';
-    //     ctx.fillStyle = 'black';
-    //     ctx.textAlign = 'center'; // 设置文本居中对齐
-    //
-    //     // 计算每个文本的水平位置
-    //     const unitX = finalCanvas.width * 0.2; // 单位文本居左 20% 位置
-    //     const dateX = finalCanvas.width * 0.5; // 时间文本居中
-    //     const versionX = finalCanvas.width * 0.8; // 版本文本居右 80% 位置
-    //
-    //     const textY = image.height + titleHeight + padding * 2 + borderWidth * 2 + 30; // 计算垂直位置
-    //
-    //     // 绘制单位、时间和版本信息
-    //     ctx.fillText(unitText, unitX, textY);   // 绘制单位
-    //     ctx.fillText(dateText, dateX, textY);   // 绘制时间
-    //     ctx.fillText(versionText, versionX, textY); // 绘制版本
-    //
-    //     // 将 canvas 转换为图片
-    //     const finalImage = finalCanvas.toDataURL('image/png');
-    //
-    //     // 创建下载链接并触发下载
-    //     const link = document.createElement('a');
-    //     link.download = '震情伤亡信息专题图.png';
-    //     link.href = finalImage;
-    //     link.click();
-    //
-    //     // 清理 previewImage
-    //     this.previewImage = null;
-    //   };
-    // },
-
-    // 下载图片
     downloadImage() {
       // 获取要截取的 DOM 元素
       const elementToCapture = document.querySelector('.export-image');
@@ -1917,20 +1805,19 @@ export default {
     // 添加经纬度线到 Cesium 场景
     addLatLonLines() {
       const viewer = this.viewer;
-      const step = 0.5; // 间隔为 0.5 度
       const alpha = 0.7; // 白色透明度
 
       // 添加经度或纬度线所用的函数
       const addLines = (start, end, constantCoord, isLongitude) => {
         //start 和 end：表示线段的起始和结束位置。对于经度线，start 和 end 是经度的范围；对于纬度线，是纬度的范围。
-        for (let coord = start; coord <= end; coord += step) {
+        for (let coord = start; coord <= end; coord += this.step) {
           const positions = [];
 
           // 根据是否是经度线，调整另一个坐标的范围
           //isLongitude：指示当前绘制的是经度线（true）还是纬度线（false）。
-          for (let varCoord = isLongitude ? this.rectangleBounds[1] : this.rectangleBounds[2];
-               varCoord <= (isLongitude ? this.rectangleBounds[3] : this.rectangleBounds[0]);
-               varCoord += step) {
+          for (let varCoord = isLongitude ? this.rectangleBounds[2] : this.rectangleBounds[0];
+               varCoord <= (isLongitude ? this.rectangleBounds[3] : this.rectangleBounds[1]);
+               varCoord += this.step) {
             if (isLongitude) {
               positions.push(Cesium.Cartesian3.fromDegrees(coord, varCoord)); // 经度线：lon 固定，lat 变化
             } else {
@@ -1949,57 +1836,42 @@ export default {
           this.latLonEntities.push(entity); // 将实体存储到数组中
         }
       };
-
-      // 添加中国区域内的经度线
-      addLines(this.rectangleBounds[2], this.rectangleBounds[0], 'longitude', true);
-
-      // 添加中国区域内的纬度线
-      addLines(this.rectangleBounds[1], this.rectangleBounds[3], 'latitude', false);
+      // 添加经度线
+      addLines(this.rectangleBounds[0], this.rectangleBounds[1], 'longitude', true);
+      // 添加纬度线
+      addLines(this.rectangleBounds[2], this.rectangleBounds[3], 'latitude', false);
     },
 
     // 获取地图当前视野范围的最东、最西、最南、最北的经纬度，用于经纬度线的绘制
     getLatLonBounds() {
       const viewer = this.viewer;
-
-      // 通过摄像机视角获取视野范围的边界矩形
-      const rectangle = viewer.camera.computeViewRectangle();
-
-      if (rectangle) {
-        // 获取最西经度（west）、最东经度（east）、最南纬度（south）、最北纬度（north）
-        this.rectangleBounds[0] = Math.ceil(Cesium.Math.toDegrees(rectangle.east));//向上取整，东方
-        this.rectangleBounds[1] = Math.floor(Cesium.Math.toDegrees(rectangle.south));//南方
-        this.rectangleBounds[2] = Math.floor(Cesium.Math.toDegrees(rectangle.west));//向下取整,西方
-        this.rectangleBounds[3] = Math.ceil(Cesium.Math.toDegrees(rectangle.north));//北方
-      }
-    },
-
-    // 获取屏幕四个角的坐标经纬度
-    // getScreenCorners() {
-    //   let extent = this.viewer.camera.computeViewRectangle();
-    //
-    //   // 提取四个角的经纬度
-    //   let southwest = Cesium.Rectangle.southwest(extent);
-    //   let southeast = Cesium.Rectangle.southeast(extent);
-    //   let northeast = Cesium.Rectangle.northeast(extent);
-    //   let northwest = Cesium.Rectangle.northwest(extent);
-    //   console.log('southwest:', southwest)
-    //   console.log('southeast:', southeast)
-    //   console.log('northeast:', northeast)
-    //   console.log('northwest:', northwest)
-    //   this.corners = {
-    //     topStart: Cesium.Math.toDegrees(northwest.longitude),
-    //     topEnd: Cesium.Math.toDegrees(northeast.longitude),
-    //     leftStart: Cesium.Math.toDegrees(southwest.latitude),
-    //     leftEnd: Cesium.Math.toDegrees(northwest.latitude),
-    //     bottomStart: Cesium.Math.toDegrees(southwest.longitude),
-    //     bottomEnd: Cesium.Math.toDegrees(southeast.longitude)
-    //   };
-    // },
-
-    getScreenCorners() {
-      const viewer = this.viewer;
       const scene = viewer.scene;
       const canvas = scene.canvas;
+
+      const cameraHeight = this.viewer.camera.positionCartographic.height;
+      if (cameraHeight >= 550000){
+        this.step = 2;
+      } else if (cameraHeight >= 350000 && cameraHeight < 550000) {
+        this.step = 0.7;
+      } else if (cameraHeight >= 200000 && cameraHeight < 350000) {
+        this.step = 0.5;
+      } else if (cameraHeight >= 150000 && cameraHeight < 200000) {
+        this.step = 0.4;
+      } else if (cameraHeight >= 100000 && cameraHeight < 150000) {
+        this.step = 0.3;
+      } else if (cameraHeight >= 50000 && cameraHeight < 100000) {
+        this.step = 0.2;
+      } else if (cameraHeight >= 25000 && cameraHeight < 50000) {
+        this.step = 0.1;
+      } else if (cameraHeight >= 10000 && cameraHeight < 25000) {
+        this.step = 0.05;
+      } else if (cameraHeight >= 6000 && cameraHeight < 10000) {
+        this.step = 0.02;
+      } else if (cameraHeight >= 1500 && cameraHeight < 6000) {
+        this.step = 0.01;
+      } else if (cameraHeight >= 0 && cameraHeight < 1500) {
+        this.step = 0.005;
+      }
 
       // 获取四个角的屏幕坐标
       const topLeft = new Cesium.Cartesian2(0, 0);
@@ -2013,7 +1885,7 @@ export default {
       const bottomLeftCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomLeft));
       const bottomRightCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomRight));
 
-      // 获取经纬度
+      // 用于生成盒子的参数
       this.corners = {
         topStart: Cesium.Math.toDegrees(topLeftCartographic.longitude),
         topEnd: Cesium.Math.toDegrees(topRightCartographic.longitude),
@@ -2023,8 +1895,13 @@ export default {
         bottomEnd: Cesium.Math.toDegrees(bottomRightCartographic.longitude)
       };
 
-      console.log(this.corners);
+
+      this.rectangleBounds[0] = Math.ceil(this.corners.topStart / this.step) * this.step - this.step;
+      this.rectangleBounds[1] = Math.floor(this.corners.topEnd / this.step) * this.step + 2 * this.step;
+      this.rectangleBounds[2] = Math.ceil(this.corners.leftStart / this.step) * this.step - this.step;
+      this.rectangleBounds[3] = Math.floor(this.corners.leftEnd / this.step) * this.step + 2 * this.step;
     },
+
     // 生成点和百分比，传入不同的标识符，避免共享同一数据集
     generatePointsWithPercentage(start, end, dataContext) {
       dataContext.points = [];
@@ -2033,14 +1910,25 @@ export default {
       const adjustedStart = Math.ceil(start / this.step) * this.step;
       const adjustedEnd = Math.floor(end / this.step) * this.step;
 
+      // 生成点
       for (let current = adjustedStart; current <= adjustedEnd; current += this.step) {
-        dataContext.points.push(Number(current.toFixed(2)));
+        const roundedPoint = Number(current.toFixed(3)); // 处理浮点精度问题
+        if (!dataContext.points.includes(roundedPoint)) { // 确保唯一性
+          dataContext.points.push(roundedPoint);
+        }
+      }
+
+      // 如果最后一个点不等于 adjustedEnd，手动添加 adjustedEnd
+      if (dataContext.points[dataContext.points.length - 1] !== adjustedEnd) {
+        const roundedEnd = Number(adjustedEnd.toFixed(2));
+        if (!dataContext.points.includes(roundedEnd)) { // 检查是否重复
+          dataContext.points.push(roundedEnd);
+        }
       }
 
       const basePercentage = (this.step / (end - start)) * 100;
       dataContext.divBoxCount = dataContext.points.length;
       dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
-
       this.calculateCustomValues(
           dataContext.points[0],
           dataContext.points[dataContext.points.length - 1],
@@ -2084,6 +1972,7 @@ export default {
       dataContext.divBoxCount = dataContext.points.length;
     },
 
+    //动态添加盒子方法
     addBoxes(container, prefix, dataContext, reverse = false) {
       if (!container) return;
       let points = dataContext.points;
@@ -2099,6 +1988,7 @@ export default {
         box.className = `${prefix}${i}`;
         // 只对有效的数值进行转换
         if (points[i]) {
+          // box.textContent = points[i]
           box.textContent = this.convertToDMS(points[i], reverse);  // 转换为度分秒格式
         } else {
           box.textContent = '';  // 保留空值
@@ -2147,14 +2037,6 @@ export default {
 
       return `${degrees}°${minutes}'${seconds}"${direction}`;
     },
-
-    // downloadImage() {
-    //   const link = document.createElement('a');
-    //   link.download = '震情伤亡-震情灾情统计表.png';
-    //   link.href = this.previewImage;
-    //   link.click();
-    //   this.previewImage = null;
-    // },
   }
 };
 </script>
