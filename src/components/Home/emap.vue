@@ -70,9 +70,18 @@ import yellow from '@/assets/yellow3.png';
 import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
 // 引入地理json文件
-import * as d3 from 'd3';
+// import * as d3 from 'd3';
+// import * as d3 from '@/assets/json/homeEmap/d3.js'; // Adjust the path based on where the file is located
+// import { D3SvgOverlay } from '@/assets/json/homeEmap/D3SvgOverlay.js'; // Same here
+// window.d3 = d3;
+
+// import * as d3 from '@/assets/json/homeEmap/d3.js';  // 引入 D3.js
+// import '@/assets/json/homeEmap/D3SvgOverlay.js';  // 引入 D3SvgOverlay.js（不需要作为模块导入）
+// import D3SvgOverlay from '@/assets/json/homeEmap/D3SvgOverlay.js';
+
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
 import yaan from '@/assets/geoJson/yaan.json'
+
 
 
 // 图例分类
@@ -138,9 +147,13 @@ export default {
     });
 
     onMounted(() => {
-      // if (!mapConfig.value.map) {
+      // Ensure d3 and D3SvgOverlay are available globally
+      if (window.d3) {
+        console.log("D3 is loaded!", window.d3);
+      }
+
+      // Initialize map and overlays using D3
       initMap();
-      // }
     });
 
     watch(() => props.eqData, () => {
