@@ -39,7 +39,7 @@ import { getRescueActionCasualties } from "../../api/system/timeLine.js";
 export default {
   data() {
     return {
-      Responsecontent: '',
+      Responsecontent: [],
       activity: {
         time: '',
         death: '0',
@@ -63,10 +63,46 @@ export default {
   methods: {
     init() {
       getRescueActionCasualties({ eqid: this.eqid }).then(res => {
-        console.log("res人员伤亡:", res)
-        this.Responsecontent = res
-        const times = res.map(item => item.recordTime);
-        this.$emit('addJumpNodes', times)
+        res.sort((a, b) => a.recordTime < b.recordTime ? -1 : 1);
+        // console.log(res,"人员伤亡排序")
+        let deathtotal=0
+        let misstotal=0
+        let injurytotal=0
+        let RACOneRecord;
+        for (let i=0;i<res.length;i++) {
+          switch (res[i].casualtyStatus) {
+            case '死亡':
+              RACOneRecord = {
+                recordTime: res[i].recordTime,
+                death: deathtotal + res[i].newCount,
+                miss: misstotal,
+                injury: injurytotal
+              };
+              deathtotal= deathtotal + res[i].newCount
+              this.Responsecontent.push(RACOneRecord)
+              break;
+            case '失踪':
+              RACOneRecord = {
+                recordTime: res[i].recordTime,
+                death: deathtotal,
+                miss: misstotal + res[i].newCount,
+                injury: injurytotal
+              };
+              misstotal= misstotal + res[i].newCount
+              this.Responsecontent.push(RACOneRecord)
+              break;
+            default:
+              RACOneRecord = {
+                recordTime: res[i].recordTime,
+                death: deathtotal,
+                miss: misstotal ,
+                injury: injurytotal+ res[i].newCount
+              };
+              injurytotal= injurytotal + res[i].newCount
+              this.Responsecontent.push(RACOneRecord)
+              break;
+          }
+        }
         this.personnel_casualties_update(this.currentTime)
       })
     },
@@ -75,12 +111,17 @@ export default {
         return new Date(activity.recordTime) <= currentTime;
       });
       if (activities.length >= 1) {
-        activities.sort((a, b) => a.recordTime < b.recordTime ? -1 : 1);
+        // activities.sort((a, b) => a.recordTime < b.recordTime ? -1 : 1);
         let tmp = activities[activities.length - 1];
-        this.activity.time = this.timestampToTime(tmp.recordTime);
-        this.activity.death = tmp.totalDeathCount;
-        this.activity.miss = 0;
-        this.activity.injure = tmp.totalSeriousInjuryCount + tmp.totalMildInjuryCount + tmp.totalCriticalInjuryCount;
+        if(tmp.recordTime){
+          this.activity.time = this.timestampToTime(tmp.recordTime);
+        }
+        else {
+          this.activity.time = '';
+        }
+        this.activity.death = tmp.death;
+        this.activity.miss = tmp.miss;
+        this.activity.injure = tmp.injury;
       } else {
         this.activity.time = this.timestampToTime(currentTime);
         this.activity.death = '0';
@@ -88,6 +129,7 @@ export default {
         this.activity.injure = '0';
       }
     },
+
     timestampToTime(timestamp) {
       let DateObj = new Date(timestamp);
       let year = DateObj.getFullYear();

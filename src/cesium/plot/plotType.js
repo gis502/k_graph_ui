@@ -574,7 +574,7 @@ const plotType = {
         rescueEquipmentType: {
             type: "selectMultiple",
             name: "救援装备类型",
-            value: [],
+            value: "",
             content: [
                 {
                     value: "rescueEquipmentType",
@@ -1668,7 +1668,7 @@ const plotType = {
         threatenedTarget: {
             type: "selectMultiple",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {value: "threatenedTarget", label: "地表建筑"},
                 {value: "threatenedTarget", label: "交通线路"},
