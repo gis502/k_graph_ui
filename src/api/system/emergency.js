@@ -23,13 +23,26 @@ export function suppliesReservesList() {
         method: 'get',
     })
 }
-export function addOrUpdateSuppliesReserves(data) {
+
+// ----应急物资储备---
+export function updateDisasterReserves(data) {
     return request({
-        url: '/emergencyResources/addOrUpdateSuppliesReserves',
+        url: '/emergencyResources/updateDisasterReserves',
         method: 'post',
         data: data
     })
 }
+export function addDisasterReserves(data) {
+    return request({
+        url: '/emergencyResources/addDisasterReserves',
+        method: 'post',
+        data: data
+    })
+}
+
+
+
+
 export function delSuppliesReserves(uniqueId) {
     return request({
         url: '/emergencyResources/delSuppliesReserves',

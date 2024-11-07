@@ -113,7 +113,10 @@ const initChart = () => {
         type: 'category',
         data: earthquakeZoneName.value,
         axisLabel: {
-          color: '#ffffff',
+          show: true,
+          textStyle: {
+            color: "#00c7ff"
+          }
         }
       }
     ],

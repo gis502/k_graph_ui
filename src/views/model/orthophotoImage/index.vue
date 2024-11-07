@@ -12,7 +12,7 @@
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="正射影像名称" width="250" align="center"></el-table-column>
+      <el-table-column prop="name" label="正射影像名称" width="150" align="center"></el-table-column>
       <el-table-column prop="height" label="正射影像高度" width="200" align="center"></el-table-column>
       <el-table-column prop="createTime" label="添加时间" align="center" width="180"></el-table-column>
       <el-table-column prop="path" label="正射影像路径" width="200" align="center"></el-table-column>

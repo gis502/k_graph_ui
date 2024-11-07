@@ -69,10 +69,11 @@ import red from '@/assets/star.gif';
 import yellow from '@/assets/yellow3.png';
 import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
-// 引入地理json文件
-import * as d3 from 'd3';
+
+
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
 import yaan from '@/assets/geoJson/yaan.json'
+
 
 
 // 图例分类
@@ -138,9 +139,18 @@ export default {
     });
 
     onMounted(() => {
-      // if (!mapConfig.value.map) {
-      initMap();
-      // }
+      if (window.d3) {
+        console.log("D3 is loaded!", window.d3);
+      } else {
+        console.error("D3 is not loaded.");
+      }
+
+      if (window.T && window.T.D3Overlay) {
+        console.log("T.D3Overlay is loaded!", window.T.D3Overlay);
+        initMap();
+      } else {
+        console.error("T.D3Overlay is not defined. Make sure D3SvgOverlay.js is loaded.");
+      }
     });
 
     watch(() => props.eqData, () => {
@@ -267,8 +277,7 @@ export default {
 
     // 初始化函数
     function init(sel, transform) {
-
-      const pathGenerator = d3.geoPath(transform.projection);  // 使用投影函数
+      const pathGenerator = d3.geo.path(transform.projection);  // 使用投影函数
 
       const upd = sel.selectAll('path.geojson').data(sichuan.features); // 使用四川的 GeoJSON 数据
       // console.log("sichuan.features1111111111111111111111111111111111",sichuan.features);
@@ -276,7 +285,8 @@ export default {
 
       upd.enter()
           .append('path')
-          .attr("class", "geojson")
+          .attr("class", "sichuan")
+          .attr('d', pathGenerator) // 设置路径
           .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
           // .attr('stroke', '#05CEE5') // 边界线颜色
           .attr('stroke-width', '1px') // 边界线宽度
@@ -305,15 +315,17 @@ export default {
           .text(d => d.properties.name);  // 显示区域名称
 
 
+
       // 绘制雅安的行政区划
       const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
       yaanUpd.enter()
           .append('path')
           .attr("class", "yaan")  // 设置类名
+          .attr('d', pathGenerator) // 设置路径
           .attr('stroke', '#05CEE5') // 边界线颜色
           .attr('stroke-width', '1px')
           .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
-          .attr('fill-opacity', 0.3);
+          .attr('fill-opacity', 0.3);  //透明度
 
       // 添加雅安区域名称
       const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
@@ -329,41 +341,39 @@ export default {
           .text(d => d.properties.name); // 显示区域名称
 
       // 更新文本位置
+      updateTextPositions(sel, transform);
+
+
+    }
+
+    function updateTextPositions(sel, transform) {
       sel.selectAll('text.region-label')
           .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
 
-
       sel.selectAll('text.yaan-label')
           .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
-
-
     }
 
     // 重绘函数
     function redraw(sel, transform) {
-
-      // 四川
-      sel.selectAll('path.geojson').each(function () {
-        d3.select(this).attr('d', transform.pathFromGeojson); // 更新路径
+      // 更新四川路径
+      sel.selectAll('path.sichuan').each(function (d) {
+        console.log("Selected path:", this); // 检查当前选择的路径
+        d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
 
       // 更新文本位置
-      sel.selectAll('text.region-label')
-          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
-          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+      updateTextPositions(sel, transform);
 
-      // 雅安
-
-      sel.selectAll('path.yaan').each(function () {
-        d3.select(this).attr('d', transform.pathFromGeojson); // 更新雅安路径
+      // 更新雅安路径
+      sel.selectAll('path.yaan').each(function (d) {
+        console.log("Selected yaan path:", this); // 检查当前选择的雅安路径
+        d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
-
-      sel.selectAll('text.yaan-label')
-          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
-          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
     }
+
 
     //---------------------------------------------------------------------------------------
 
