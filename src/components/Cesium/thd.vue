@@ -1150,8 +1150,8 @@ export default {
         });
 
         this.timelinePopupPosition = {
-          x: cesiumContainer.offsetWidth/2,
-          y: cesiumContainer.offsetHeight/2+50
+          x: cesiumContainer.offsetWidth/2-400,
+          y: cesiumContainer.offsetHeight/2-200
         };
         this.timelinePopupVisible = true;
         this.timelinePopupData =  data
@@ -1263,21 +1263,23 @@ export default {
         this.plots = res
         // 遍历更新后的绘图信息，确保每个点都有起止时间
         this.plots.forEach(item => {
-          if (!item.endTime || new Date(item.endTime) < new Date(this.eqstartTime) || new Date(item.endTime) < new Date(item.startTime)) {
-            // 为没有结束时间的点设置默认结束时间
-            item.endTime = new Date(this.eqstartTime.getTime() + 20 * 24 * 36000 * 1000);  //20天 错误时间设置结束时间地震发生20天以后
-          }
-          if (!item.startTime || new Date(item.startTime) < new Date(this.eqstartTime)) {
-            // 为没有开始时间的点设置默认开始时间
-            item.startTime = this.eqstartTime;
-          }
-          var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
-          // console.log(jumpnode1)
-          this.jumpNodes[jumpnode1]=1
-          var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
-          // console.log(jumpnode1)
-          this.jumpNodes[jumpnode2]=1
-        })
+              if (!item.endTime || new Date(item.endTime) < new Date(this.eqstartTime) || new Date(item.endTime) < new Date(item.startTime)) {
+                // 为没有结束时间的点设置默认结束时间
+                item.endTime = new Date(this.eqstartTime.getTime() + 20 * 24 * 36000 * 1000);  //20天 错误时间设置结束时间地震发生20天以后
+              }
+              if (!item.startTime || new Date(item.startTime) < new Date(this.eqstartTime)) {
+                // 为没有开始时间的点设置默认开始时间
+                item.startTime = this.eqstartTime;
+              }
+              var jumpnode1 = Math.ceil ((new Date(item.startTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
+              // console.log("jumpnode1",jumpnode1)
+              this.jumpNodes[jumpnode1] = 1
+              var jumpnode2 = Math.ceil ((new Date(item.endTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
+              // console.log("jumpnode1",jumpnode2)
+              this.jumpNodes[jumpnode2] = 1
+            }
+        )
+          // console.log(this.jumpNodes,"this.jumpNodes")
         // 更新绘图
         this.updatePlot(false)
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -1310,8 +1312,8 @@ export default {
     initTimerLine() {
       console.log("initTimerLine")
       this.jumpTimes.forEach(item => {
-        var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
-        // console.log("jumpnode",jumpnode)
+        var jumpnode=Math.ceil ((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+        console.log("jumpnode",jumpnode)
         this.jumpNodes[jumpnode]=1
       })
 
@@ -1401,8 +1403,8 @@ export default {
         layer: "标绘点"
       });
       this.timelinePopupPosition = {
-        x: cesiumContainer.offsetWidth/2,
-        y: cesiumContainer.offsetHeight/2+50
+        x: cesiumContainer.offsetWidth/2-400,
+        y: cesiumContainer.offsetHeight/2-200
       };
       this.timelinePopupVisible = true;
       this.timelinePopupData =  data
@@ -1415,13 +1417,20 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+      let flag=1
+      for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
+          flag=1
           break;
         }
-        if(i===this.timelineAdvancesNumber-1){
+        console.log("i,this.timelineAdvancesNumber",i,this.timelineAdvancesNumber)
+        if(i>=this.timelineAdvancesNumber){
+          flag=0
+          console.log("over")
+          console.log("this.currentTime",this.currentTime,this.eqendTime)
           this.currentTimePosition = 100;
+
           this.currentTime = this.eqendTime
           viewer.scene.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
@@ -1441,16 +1450,18 @@ export default {
           break;
         }
       }
-
-      this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-      this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // 根据是否需要显示标绘层来更新图层
-      if (this.isMarkingLayer) {
-        this.updatePlot()
-      } else {
-        this.MarkingLayerRemove()
+      if(flag===1){
+        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // 根据是否需要显示标绘层来更新图层
+        if (this.isMarkingLayer) {
+          this.updatePlot()
+        } else {
+          this.MarkingLayerRemove()
+        }
       }
+
     },
     updatePlot(bool) {
       // this.stopRealFlag=false
@@ -1471,10 +1482,11 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        // console.log("time",startDate,currentDate,endDate)
+        console.log("time",startDate,currentDate,endDate, this.plotisshow[item.plotId])
+
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          // console.log("item.plotId",item.plotId)
+          console.log("item.plotId",item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -1495,7 +1507,7 @@ export default {
         // 如果点应该消失
         if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
-          // console.log(item.plotId, "end");
+          console.log(item.plotId, "end");
 
           // 从 dataSource 中删除点
           if (window.pointDataSource) {

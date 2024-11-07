@@ -863,8 +863,8 @@ export default {
         });
 
         this.timelinePopupPosition = {
-          x: cesiumContainer.offsetWidth/2,
-          y: cesiumContainer.offsetHeight/2+50
+          x: cesiumContainer.offsetWidth/2-400,
+          y: cesiumContainer.offsetHeight/2-250
         };
         this.timelinePopupVisible = true;
         this.timelinePopupData =  data
@@ -962,9 +962,9 @@ export default {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
-          var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          var jumpnode1=Math.ceil((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
           this.jumpNodes[jumpnode1]=1
-          var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          var jumpnode2=Math.ceil((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
           this.jumpNodes[jumpnode2]=1
         })
         // 更新绘图
@@ -1177,7 +1177,7 @@ export default {
     initTimerLine() {
       console.log("initTimerLine")
         this.jumpTimes.forEach(item => {
-          var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+          var jumpnode=Math.ceil((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
           // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode]=1
         })
@@ -1270,8 +1270,8 @@ export default {
 
 
       this.timelinePopupPosition = {
-        x: cesiumContainer.offsetWidth/2,
-        y: cesiumContainer.offsetHeight/2+50
+        x: cesiumContainer.offsetWidth/2-400,
+        y: cesiumContainer.offsetHeight/2-250
       };
       this.timelinePopupVisible = true;
       this.timelinePopupData =  data
@@ -1285,13 +1285,20 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+      let flag=1
+      for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
+          flag=1
           break;
         }
-        if(i===this.timelineAdvancesNumber-1){
+        console.log("i,this.timelineAdvancesNumber",i,this.timelineAdvancesNumber)
+        if(i>=this.timelineAdvancesNumber){
+          flag=0
+          console.log("over")
+          console.log("this.currentTime",this.currentTime,this.eqendTime)
           this.currentTimePosition = 100;
+
           this.currentTime = this.eqendTime
           viewer.scene.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
@@ -1311,7 +1318,7 @@ export default {
           break;
         }
       }
-
+      if(flag===1){
         this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
         this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
@@ -1321,6 +1328,8 @@ export default {
         } else {
           this.MarkingLayerRemove()
         }
+      }
+
     },
 
 
@@ -1592,7 +1601,7 @@ export default {
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-
+          console.log("entity",entity)
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
@@ -1629,12 +1638,10 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
-
+//
           // 如果点击的是标绘点
-          if (entity._layer === "标绘点") {
+          if (entity._layer === "标绘点"||entity._layer === "label") {
             this.timelinePopupVisible = true;
-            // this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            // this.updatePopupPosition();
             this.timelinePopupData={}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
             this.routerPopupVisible = false;
@@ -1648,11 +1655,22 @@ export default {
             this.timelinePopupVisible = false;
             this.dataSourcePopupVisible = false
           }
+          //聚合弹框
           else if(Object.prototype.toString.call(entity) === '[object Array]') {
-            this.dataSourcePopupData = entity
-            this.dataSourcePopupVisible = true
-            this.timelinePopupVisible = false
-            this.routerPopupVisible = false;
+            //点击标签无弹框
+            if(entity[0]._layer==="label"){
+              this.dataSourcePopupVisible = false
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            }
+            else{
+              this.dataSourcePopupData = entity
+              this.dataSourcePopupVisible = true
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            }
+            console.log("entity dataSourcePopupVisibletrue",entity)
+
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
