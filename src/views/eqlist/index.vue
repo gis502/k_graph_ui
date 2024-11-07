@@ -538,6 +538,7 @@ export default {
         // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
         this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
 
+
         // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
         addEq(this.dialogContent).then(res => {
           that.getEq();
