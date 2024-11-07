@@ -100,7 +100,7 @@
       <addMarkCollectionDialog
         :addMarkDialogFormVisible="addMarkDialogFormVisible"
         @wsSendPoint="wsSendPoint"
-        @drawPoint="drawPoint"
+        @drawPoints="drawPoints"
         @ifPointAnimate="ifPointAnimation"
         @clearMarkDialogForm="resetAddMarkCollection"
       />
@@ -2056,15 +2056,20 @@ export default {
       }
     },
     // 画点
-    drawPoint(pointInfo) {
+    // drawPoint(pointInfo) {
+    //   if (this.ifPointAnimate) {
+    //     cesiumPlot.drawPoint(pointInfo, true)
+    //   } else {
+    //     cesiumPlot.drawPoint(pointInfo)
+    //   }
+    // },
+    drawPoints(pointInfo) {
       if (this.ifPointAnimate) {
-        cesiumPlot.drawPoint(pointInfo, true)
+        cesiumPlot.drawPoints(pointInfo,true,3000);
       } else {
-        cesiumPlot.drawPoint(pointInfo)
+        cesiumPlot.drawPoints(pointInfo,false,3000);
       }
-    },
-    drawPoints(pointInfo, bool) {
-      cesiumPlot.drawPoints(pointInfo, bool,3000)
+
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val

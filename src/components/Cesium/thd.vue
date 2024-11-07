@@ -1338,7 +1338,7 @@ export default {
           if (entityDonghua) {
             window.viewer.entities.remove(entityDonghua); // 移除点
           }
-          const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+          const entitylabel = window.labeldataSource.entities.getById(item.plotId+'_label');
           if (entitylabel) {
             window.labeldataSource.entities.remove(entitylabel); // 移除点
           }
@@ -1521,7 +1521,7 @@ export default {
               window.viewer.entities.remove(entityDonghua); // 移除点
             }
             // if(window.labeldataSource) {
-            const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+            const entitylabel = window.labeldataSource.entities.getById(item.plotId+'_label');
             if (entitylabel) {
               window.labeldataSource.entities.remove(entitylabel); // 移除点
             }
@@ -1957,10 +1957,18 @@ export default {
             this.timelinePopupVisible = false;
           }
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
-            this.dataSourcePopupData = entity
-            this.dataSourcePopupVisible = true
-            this.timelinePopupVisible = false
-            this.routerPopupVisible = false;
+            if(entity[0].entityCollection.owner.name==="label"){
+              this.dataSourcePopupVisible = false
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            }
+            else{
+              this.dataSourcePopupData = entity
+              this.dataSourcePopupVisible = true
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+
+            }
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
