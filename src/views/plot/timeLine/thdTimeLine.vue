@@ -179,7 +179,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-<!--    <div style="background-color: #0d325f;height:20%;width:20%;top:20%;position:absolute;z-index:50;color:#FFFFFF">{{this.timestampToTime(this.currentTime)}}</div>-->
+    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">回溯时间：{{this.timestampToTimeChinese(this.currentTime)}}</div>
   </div>
 </template>
 
@@ -415,6 +415,7 @@ export default {
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
     this.addImportantNodes()
+    this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -728,6 +729,24 @@ export default {
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
+    timestampToTimeChinese(timestamp) {
+      let DateObj = new Date(timestamp)
+
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+    },
+
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
@@ -860,7 +879,8 @@ export default {
      */
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
-      this.getPlotwithStartandEndTime(eqid)
+      // this.getPlotwithStartandEndTime(eqid)
+      this.updatePlot(false)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
       this.intimexuanran(eqid)
     },
@@ -948,7 +968,7 @@ export default {
           this.jumpNodes[jumpnode2]=1
         })
         // 更新绘图
-        this.updatePlot(false)
+        // this.updatePlot(false)
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
         console.log("获取",this.pointsLayer)
@@ -3276,6 +3296,22 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #cdcdcd;
+}
+.timelineRunningTimeLabel{
+  background-color: #163253;
+  border-radius: 20px;
+  height: 6%;
+  width: 30%;
+  top: 12%;
+  position: absolute;
+  z-index: 50;
+  color: #FFFFFF;
+  font-size: 23px;
+  left: 32%;
+  //text-align: center;
+  display: flex; /* 使用Flexbox布局 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
 }
 
 </style>

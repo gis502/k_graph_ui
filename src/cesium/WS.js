@@ -102,7 +102,7 @@ function wsAdd(type, data) {
             icon:  data.plot.icon
         };
         points.push(point); // 收集点数据
-        cesiumPlot.drawPoints(points,true);
+        cesiumPlot.drawPoints(points,true,3000);
     } else if (type === "polyline") {
         // 绘制所需的信息
         let points = data.plot.geom.coordinates

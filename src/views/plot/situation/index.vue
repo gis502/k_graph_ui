@@ -2064,7 +2064,7 @@ export default {
       }
     },
     drawPoints(pointInfo, bool) {
-      cesiumPlot.drawPoints(pointInfo, bool)
+      cesiumPlot.drawPoints(pointInfo, bool,3000)
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
