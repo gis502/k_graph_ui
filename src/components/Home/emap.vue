@@ -535,7 +535,7 @@ export default {
         console.log("weight.value*********", weight.value)
 
         infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 240// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 180// 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -788,7 +788,7 @@ export default {
   bottom: 0;
   left: 20%;
   z-index: 20;
-  margin-top: 10px;
+  margin-top: 5px;
   background-color: transparent;
   width: 100%;
   //height: auto; /* 自适应高度 */
@@ -813,7 +813,6 @@ export default {
 
 .column_left {
   display: inline-flex; /* 保持在一行内 */
-  margin-right: 40px;
 }
 
 .column_right {
@@ -825,10 +824,10 @@ export default {
 .line {
   display: flex;
   align-items: center; /* 圆点与文本垂直居中对齐 */
-  width: 130px;
   color: white;
-  margin-top: 8px; /* 添加间距 */
+  margin-top: 5px; /* 添加间距 */
   font-size: 14px;
+  width: 120px;
 }
 
 .line span {
@@ -870,7 +869,7 @@ export default {
   width: 15px; /* 中等点的宽度 */
   height: 15px; /* 中等点的高度 */
   border-radius: 50%; /* 圆形 */
-  margin-left: 13px;
+  margin-left: 5px;
   margin-right: 10px; /* 圆点和文本之间的间距 */
 }
 
@@ -878,7 +877,7 @@ export default {
   width: 20px; /* 大点的宽度 */
   height: 20px; /* 大点的高度 */
   border-radius: 50%; /* 圆形 */
-  margin-left: 15px;
+  margin-left: 5px;
   margin-right: 1px; /* 圆点和文本之间的间距 */
 }
 
@@ -904,7 +903,7 @@ export default {
 
 .map_container {
   width: 100%;
-  height: 640px;
+  height: 600px;
   margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/

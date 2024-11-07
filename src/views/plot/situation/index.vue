@@ -1440,6 +1440,7 @@ export default {
 
           this.updatePopupPosition(); // 更新弹窗的位置
           this.dataSourcePopupData = window.selectedEntity
+          // console.log("dataSourcePopupData 22" this.dataSourcePopupData)
           this.dataSourcePopupVisible = true
           this.popupVisible = false
         }
@@ -1489,11 +1490,13 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          // console.log("popupData 11",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗
           // this.popupData = {}
         }
+
         // 3-1 选中面时触发
         if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
           // 2-2 获取点击点的经纬度
@@ -1530,6 +1533,7 @@ export default {
           this.popupData = {}
           console.log(window.selectedEntity)
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          console.log("popupData 22",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity
@@ -1573,7 +1577,8 @@ export default {
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log(this.popupData)
+          // console.log(this.popupData)
+          console.log("popupData 33",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -1631,6 +1636,7 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
+          console.log("popupData 44",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
 
         }else {
@@ -2317,7 +2323,7 @@ export default {
     },
     /*获取目前相机所属高度*/
     updateZoomLevel(cameraHeight) {
-      console.log("层级",cameraHeight)
+      // console.log("层级",cameraHeight)
       // 根据相机高度设置 zoomLevel
       if (cameraHeight > 200000) {
         this.zoomLevel = '市'
