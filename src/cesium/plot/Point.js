@@ -250,7 +250,7 @@ export default class Point {
             const labeldataSourcePromise = window.viewer.dataSources.add(labeldataSource)
             labeldataSourcePromise.then(function (labeldataSource) {
                 labeldataSource.clustering.enabled = true; // 开启聚合
-                labeldataSource.clustering.pixelRange = 1; // 聚合像素范围
+                labeldataSource.clustering.pixelRange = 0; // 聚合像素范围
                 labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
                 let removeListener;
@@ -299,62 +299,60 @@ export default class Point {
         }
 
 
+        points.forEach(data => {
+            var plotId = data.plotId
+            var plotType = data.plotType
+            let colorFactor = 1.0;
+            const intervalTime1 = 200;
+            const animationDuration = stoptime;
+            const intervalId1 = setInterval(() => {
+                colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
+            }, intervalTime1);
 
+            //标签
+            getPlotInfos({plotId, plotType}).then(res => {
+                console.log("点击获取", res)
+                console.log("res.plotInfo", res.plotInfo)
+                // console.log("点击获取",res.ployInfo.latitude)
+                // var labeltext = ""
+                var labeltext =plotType
+                // console.log()
+                if (res.plotTypeInfo && res.plotTypeInfo.location) {
+                    labeltext = res.plotTypeInfo.location + labeltext
+                }
 
-
-        if (bool) {
-
-            points.forEach(data => {
-                var plotId = data.plotId
-                var plotType = data.plotType
-                let colorFactor = 1.0;
-                const intervalTime1 = 200;
-                const animationDuration = stoptime;
-                const intervalId1 = setInterval(() => {
-                    colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
-                }, intervalTime1);
-
-                //标签
-                getPlotInfos({plotId, plotType}).then(res => {
-                    console.log("点击获取", res)
-                    console.log("res.plotInfo", res.plotInfo)
-                    // console.log("点击获取",res.ployInfo.latitude)
-                    // var labeltext = ""
-                    var labeltext =plotType
-                    // console.log()
-                    if (res.plotTypeInfo && res.plotTypeInfo.location) {
-                        labeltext = res.plotTypeInfo.location + labeltext
+                //人员伤亡类文字：新增xxx人员xx人
+                // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
+                if(plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
+                    if(res.plotTypeInfo.newCount){
+                        labeltext =labeltext+res.plotTypeInfo.newCount +"人"
                     }
-
-                    //人员伤亡类文字：新增xxx人员xx人
-                    if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
-                        if(res.plotTypeInfo.newCount){
-                            labeltext =labeltext+res.plotTypeInfo.newCount +"人"
-                        }
+                }
+                //救援队伍 单位,人数人
+                if(plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
+                    if(res.plotTypeInfo.teamName){
+                        labeltext =labeltext+":"+res.plotTypeInfo.teamName
                     }
-                    //救援队伍 单位,人数人
-                    if(plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
-                        if(res.plotTypeInfo.teamName){
-                            labeltext =labeltext+":"+res.plotTypeInfo.teamName
-                        }
-                        if(res.plotTypeInfo.personnelCount){
-                            labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"
-                        }
+                    if(res.plotTypeInfo.personnelCount){
+                        labeltext =labeltext+res.plotTypeInfo.personnelCount +"人"
                     }
-
-                    // 是否出现人员伤亡，是否处置（次生灾害）
-                    //
-                    if(res.plotTypeInfo&&res.plotTypeInfo.casualties) {
-                        labeltext =labeltext+res.plotTypeInfo.casualties+"人员伤亡"
+                    if(res.plotTypeInfo.teamName==null&&res.plotTypeInfo.personnelCount==0){
+                        labeltext =labeltext+"1队"
                     }
-                    if(res.plotTypeInfo&&res.plotTypeInfo.initialDisposalPhase) {
-                        labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase
-                    }
+                }
+
+                // 是否出现人员伤亡，是否处置（次生灾害）
+                //
+                if(res.plotTypeInfo&&res.plotTypeInfo.casualties) {
+                    labeltext =labeltext+res.plotTypeInfo.casualties+"人员伤亡"
+                }
+                if(res.plotTypeInfo&&res.plotTypeInfo.initialDisposalPhase) {
+                    labeltext =labeltext+","+res.plotTypeInfo.initialDisposalPhase
+                }
 
 
-
+                if(bool){
                     if (!viewer.entities.getById(data.plotId)) {
-
                         var entity = viewer.entities.add({
                             id: data.plotId,
                             plottype: data.plotType,
@@ -403,11 +401,11 @@ export default class Point {
                             clearInterval(intervalId1);
                             colorFactor = 1.0;
                             viewer.entities.remove(entity) //清除动画
-                            // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"||plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
-                            // }
-                            // else{
+                            if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"||plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
+                            }
+                            else{
                                 labeldataSource.entities.remove(entity);  //清除标签
-                            // }
+                            }
                             // }
                             if (!dataSource.entities.getById(data.plotId)) {
                                 // 实体不存在，可以添加
@@ -415,40 +413,43 @@ export default class Point {
                             }
 
                         }, animationDuration);
-
-
                     }
-
-
-
-     })
-
-            });
-
-        } else {
-            points.forEach(data => {
-                dataSource.entities.add({
-                    id: data.plotId,
-                    plottype: data.plotType,
-                    layer: "标绘点",
-                    position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
-                    billboard: {
-                        image: data.icon,
-                        width: 50,//图片宽度,单位px
-                        height: 50,//图片高度，单位px // 会影响point大小，离谱
-                        eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
-                        color: Cesium.Color.WHITE.withAlpha(1),//颜色
-                        scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
-                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-                        depthTest: false,//禁止深度测试但是没有下面那句有用
-                        disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-                    },
-                    properties: {
-                        data
+                }
+                else{
+                    let entity=dataSource.entities.add({
+                                       id: data.plotId,
+                                       plottype: data.plotType,
+                                       layer: "标绘点",
+                                       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
+                        labeltext: labeltext,
+                        billboard: {
+                                           image: data.icon,
+                                           width: 50,//图片宽度,单位px
+                                           height: 50,//图片高度，单位px // 会影响point大小，离谱
+                                           eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
+                                           color: Cesium.Color.WHITE.withAlpha(1),//颜色
+                                           scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+                                           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+                                           depthTest: false,//禁止深度测试但是没有下面那句有用
+                                           disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
+                                       },
+                                       properties: {
+                                           data
+                                       }
+                                   })
+                    if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"||plotType==="已出发队伍"||plotType==="正在参与队伍"||plotType==="待命队伍"){
+                        labeldataSource.entities.add(entity)
                     }
-                })
+                }
+
+
+
+
             })
-        }
+
+        });
+
+
     }
 
     deletePoint(point) {

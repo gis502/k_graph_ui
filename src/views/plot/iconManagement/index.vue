@@ -7,7 +7,7 @@
             placeholder="请输入标绘名称"
             clearable
             style="width: 200px"
-            @keyup.enter="handleQuery"
+            @keydown.enter.prevent="handleQuery"
         />
       </el-form-item>
 
@@ -448,11 +448,12 @@ export default {
     getList() {
       this.loading = true;
       let that = this;
+
       searchploticon(this.queryParams.menuName).then(res => {
         that.menuList = res;
         that.getPicData=[]
         that.getPicData = that.menuList
-        console.log("3",that.tableData)
+        // console.log("3",that.tableData)
         that.total = res.length
         that.tableData = that.getPageArr()
         that.loading = false;
@@ -462,8 +463,8 @@ export default {
       });
     },
     // 搜索按钮操作
-    handleQuery() {
-      this.getList();
+    handleQuery(event) {
+      this.getList(); // 调用getList来根据用户输入的菜单名称进行查询
     },
     // 重置按钮操作
     resetQuery() {

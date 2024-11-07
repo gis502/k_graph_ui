@@ -179,7 +179,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-<!--    <div style="background-color: #0d325f;height:20%;width:20%;top:20%;position:absolute;z-index:50;color:#FFFFFF">{{this.timestampToTime(this.currentTime)}}</div>-->
+    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">回溯时间：{{this.timestampToTimeChinese(this.currentTime)}}</div>
   </div>
 </template>
 
@@ -415,6 +415,7 @@ export default {
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
     this.addImportantNodes()
+    this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -728,6 +729,24 @@ export default {
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
+    timestampToTimeChinese(timestamp) {
+      let DateObj = new Date(timestamp)
+
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+    },
+
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
@@ -844,8 +863,8 @@ export default {
         });
 
         this.timelinePopupPosition = {
-          x: cesiumContainer.offsetWidth/2,
-          y: cesiumContainer.offsetHeight/2+50
+          x: cesiumContainer.offsetWidth/2-400,
+          y: cesiumContainer.offsetHeight/2-250
         };
         this.timelinePopupVisible = true;
         this.timelinePopupData =  data
@@ -860,7 +879,8 @@ export default {
      */
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
-      this.getPlotwithStartandEndTime(eqid)
+      // this.getPlotwithStartandEndTime(eqid)
+      this.updatePlot(false)
       // 初始化定时器，用于定期从数据库请求新的绘图数据
       this.intimexuanran(eqid)
     },
@@ -942,13 +962,13 @@ export default {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.eqstartTime;
           }
-          var jumpnode1=Math.round((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          var jumpnode1=Math.ceil((new Date(item.startTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
           this.jumpNodes[jumpnode1]=1
-          var jumpnode2=Math.round((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
+          var jumpnode2=Math.ceil((new Date(item.endTime)-new Date(this.eqstartTime))/(5*60*1000))//5分钟一个节点
           this.jumpNodes[jumpnode2]=1
         })
         // 更新绘图
-        this.updatePlot(false)
+        // this.updatePlot(false)
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
         console.log("获取",this.pointsLayer)
@@ -1157,7 +1177,7 @@ export default {
     initTimerLine() {
       console.log("initTimerLine")
         this.jumpTimes.forEach(item => {
-          var jumpnode=Math.round((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
+          var jumpnode=Math.ceil((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
           // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode]=1
         })
@@ -1250,8 +1270,8 @@ export default {
 
 
       this.timelinePopupPosition = {
-        x: cesiumContainer.offsetWidth/2,
-        y: cesiumContainer.offsetHeight/2+50
+        x: cesiumContainer.offsetWidth/2-400,
+        y: cesiumContainer.offsetHeight/2-250
       };
       this.timelinePopupVisible = true;
       this.timelinePopupData =  data
@@ -1265,13 +1285,20 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      for (let i = this.currentNodeIndex + 1; i < this.timelineAdvancesNumber; i++) {
+      let flag=1
+      for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
+          flag=1
           break;
         }
-        if(i===this.timelineAdvancesNumber-1){
+        console.log("i,this.timelineAdvancesNumber",i,this.timelineAdvancesNumber)
+        if(i>=this.timelineAdvancesNumber){
+          flag=0
+          console.log("over")
+          console.log("this.currentTime",this.currentTime,this.eqendTime)
           this.currentTimePosition = 100;
+
           this.currentTime = this.eqendTime
           viewer.scene.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
@@ -1291,7 +1318,7 @@ export default {
           break;
         }
       }
-
+      if(flag===1){
         this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
         this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
@@ -1301,6 +1328,8 @@ export default {
         } else {
           this.MarkingLayerRemove()
         }
+      }
+
     },
 
 
@@ -1572,7 +1601,7 @@ export default {
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-
+          console.log("entity",entity)
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
@@ -1609,12 +1638,10 @@ export default {
             faultInfoDiv.style.display = 'none';
           }
 
-
+//
           // 如果点击的是标绘点
-          if (entity._layer === "标绘点") {
+          if (entity._layer === "标绘点"||entity._layer === "label") {
             this.timelinePopupVisible = true;
-            // this.timelinePopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            // this.updatePopupPosition();
             this.timelinePopupData={}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
             this.routerPopupVisible = false;
@@ -1628,11 +1655,22 @@ export default {
             this.timelinePopupVisible = false;
             this.dataSourcePopupVisible = false
           }
+          //聚合弹框
           else if(Object.prototype.toString.call(entity) === '[object Array]') {
-            this.dataSourcePopupData = entity
-            this.dataSourcePopupVisible = true
-            this.timelinePopupVisible = false
-            this.routerPopupVisible = false;
+            //点击标签无弹框
+            if(entity[0]._layer==="label"){
+              this.dataSourcePopupVisible = false
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            }
+            else{
+              this.dataSourcePopupData = entity
+              this.dataSourcePopupVisible = true
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            }
+            console.log("entity dataSourcePopupVisibletrue",entity)
+
           } else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
@@ -3276,6 +3314,22 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #cdcdcd;
+}
+.timelineRunningTimeLabel{
+  background-color: #163253;
+  border-radius: 20px;
+  height: 6%;
+  width: 30%;
+  top: 12%;
+  position: absolute;
+  z-index: 50;
+  color: #FFFFFF;
+  font-size: 23px;
+  left: 32%;
+  //text-align: center;
+  display: flex; /* 使用Flexbox布局 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
 }
 
 </style>
