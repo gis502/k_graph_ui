@@ -5,10 +5,10 @@
       <earthquakeTable :eqData="eqtableData"/>
     </div>
     <!--  三维模型  -->
-    <div class="thd-listTable"  v-if="activeComponent === 'model'">
+    <div class="thd-listTable" v-if="activeComponent === 'model'">
       <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="list-dialog__header" >
-          <span >三维模型</span>
+        <div class="list-dialog__header">
+          <span>三维模型</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-table :data="modelTableData"
@@ -17,7 +17,8 @@
                     :row-style="{ height: '37.5px', fontSize: '12px'}"
                     :cell-style="tableColor" @row-click="">
 
-            <el-table-column prop="name" label="模型名称" width="auto" min-width="130px" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="name" label="模型名称" width="auto" min-width="130px"
+                             show-overflow-tooltip></el-table-column>
             <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
 
               <template #default="scope">
@@ -50,8 +51,11 @@
             <el-collapse-item>
               <template #title>
                 <div style="display: flex; align-items: center;">
-                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
-                    <path d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z" p-id="6182" fill="#ffffff"></path>
+                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                       xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
+                    <path
+                        d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                        p-id="6182" fill="#ffffff"></path>
                   </svg>
                   <span>图层管理</span>
                 </div>
@@ -74,14 +78,17 @@
             <el-collapse-item>
               <template #title>
                 <div style="display: flex; align-items: center;">
-                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
-                    <path d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z" fill="#ffffff" p-id="2696"></path>
+                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
+                    <path
+                        d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                        fill="#ffffff" p-id="2696"></path>
                   </svg>
                   <span>视角跳转</span>
                 </div>
               </template>
               <!-- 行政区划单选按钮 -->
-              <div class="district-buttons" >
+              <div class="district-buttons">
                 <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
                   <el-radio label="雅安市">雅安市</el-radio>
                   <el-radio label="回到震中">回到震中</el-radio>
@@ -109,8 +116,8 @@
     <!-- 专题图产出 -->
     <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
       <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="list-dialog__header" >
-          <span >专题图产出</span>
+        <div class="list-dialog__header">
+          <span>专题图产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
@@ -132,8 +139,8 @@
     <!--  报告导出  -->
     <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
       <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="list-dialog__header" >
-          <span >专题图产出</span>
+        <div class="list-dialog__header">
+          <span>专题图产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
@@ -157,7 +164,7 @@
       <div class="pop-dialog__content" style="height: 100%;">
         <div class="logo-title">
           <div class="logo-title-content" style="padding: 0 0 15px 0;">
-            <p >雅安市地震应急<br>信息服务技术支持平台</p></div>
+            <p>雅安市地震应急<br>信息服务技术支持平台</p></div>
         </div>
         <div class="logo-menu menue-left">
           <div
@@ -222,14 +229,20 @@
 
         <div class="logo-left-weather">
           <div class="logo-left-eqtitle" style="font-size:17px;font-weight: 600;">
-            {{ this.eqyear }}年{{ this.eqmonth }}月{{this.eqday }}日{{ this.centerPoint.earthquakeName }}{{ this.centerPoint.magnitude }}级地震</div>
+            {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日{{
+              this.centerPoint.earthquakeName
+            }}{{ this.centerPoint.magnitude }}级地震
+          </div>
           <!-- 以下是实时获取时间的代码 -->
           <div class="logo-left-time">
             <div class="logo-time-hour">
             <span class="pop-icon">
               <svg width="20" height="20" viewBox="0 0 48 48">
-                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" fill="none" stroke="#BEE1FF" stroke-width="4"></path>
-                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4" stroke-linecap="round"></path>
+                <path
+                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
+                    fill="none" stroke="#BEE1FF" stroke-width="4"></path>
+                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
+                      stroke-linecap="round"></path>
               </svg>
             </span>
               <span id="current-time">--:--:--</span>
@@ -361,7 +374,7 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
+    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -390,7 +403,9 @@
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
-    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">回溯时间：{{this.timestampToTimeChinese(this.currentTime)}}</div>
+    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">
+      回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
+    </div>
   </div>
 </template>
 
@@ -525,11 +540,11 @@ export default {
         id: '',
         content: '',
         earthquakeId: '',
-        image:'',
-        publishTime:'',
-        sourceName:'',
-        sourceLogo:'',
-        title:'',
+        image: '',
+        publishTime: '',
+        sourceName: '',
+        sourceLogo: '',
+        title: '',
       },
       showDetailedNewsDialog: false,
 
@@ -565,8 +580,8 @@ export default {
       //时间轴拖拽
       isDragging: false,
       dragStartX: 0,
-      jumpTimes:[],
-      jumpNodes:{},
+      jumpTimes: [],
+      jumpNodes: {},
       smallViewer: null,
 
       //-------------ws---------------------
@@ -656,7 +671,7 @@ export default {
       modelTableData: [],
       modelList: [],
 
-      modelInfo:{
+      modelInfo: {
         name: null,
         path: null,
         rz: null,
@@ -667,8 +682,8 @@ export default {
         modelid: null
       },
       //----------------------------------
-      zoomLevel: '市' , // 初始化缩放层级
-      pointsLayer :[], //传到子组件
+      zoomLevel: '市', // 初始化缩放层级
+      pointsLayer: [], //传到子组件
     };
   },
   created() {
@@ -950,7 +965,7 @@ export default {
       this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
     },
-    initcesiumPlot(){
+    initcesiumPlot() {
       let cesiumStore = useCesiumStore()
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
     },
@@ -1000,7 +1015,6 @@ export default {
       })
 
 
-
     },
 
     /*
@@ -1044,7 +1058,7 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
-      let data={
+      let data = {
         ...this.centerPoint,
         drawtype: "center"
       }
@@ -1060,7 +1074,7 @@ export default {
           pitch: -1.5688168484696687,
           roll: 0.0
         },
-        duration : 3 // 飞行动画持续时间（秒）
+        duration: 3 // 飞行动画持续时间（秒）
       });
 
       setTimeout(() => {
@@ -1077,7 +1091,7 @@ export default {
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
-            properties: {
+          properties: {
             data
           },
           position: Cesium.Cartesian3.fromDegrees(
@@ -1150,11 +1164,11 @@ export default {
         });
 
         this.timelinePopupPosition = {
-          x: cesiumContainer.offsetWidth/2-400,
-          y: cesiumContainer.offsetHeight/2-200
+          x: cesiumContainer.offsetWidth / 2 - 400,
+          y: cesiumContainer.offsetHeight / 2 - 200
         };
         this.timelinePopupVisible = true;
-        this.timelinePopupData =  data
+        this.timelinePopupData = data
       }, 3000);
 
 
@@ -1271,20 +1285,20 @@ export default {
                 // 为没有开始时间的点设置默认开始时间
                 item.startTime = this.eqstartTime;
               }
-              var jumpnode1 = Math.ceil ((new Date(item.startTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
+              var jumpnode1 = Math.ceil((new Date(item.startTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
               // console.log("jumpnode1",jumpnode1)
               this.jumpNodes[jumpnode1] = 1
-              var jumpnode2 = Math.ceil ((new Date(item.endTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
+              var jumpnode2 = Math.ceil((new Date(item.endTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
               // console.log("jumpnode1",jumpnode2)
               this.jumpNodes[jumpnode2] = 1
             }
         )
-          // console.log(this.jumpNodes,"this.jumpNodes")
+        // console.log(this.jumpNodes,"this.jumpNodes")
         // 更新绘图
         this.updatePlot(false)
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
-        console.log("获取",this.pointsLayer)
+        console.log("获取", this.pointsLayer)
       })
     },
 
@@ -1292,16 +1306,20 @@ export default {
     // 暂停播放切换
     toggleTimer() {
       // 如果计时器未运行，则初始化计时器线
-      if (!this.isTimerRunning&&this.currentTimePosition >= 100) {
+      if (!this.isTimerRunning && this.currentTimePosition >= 100) {
         this.initTimerLine();
         setTimeout(() => {
           this.updateCurrentTime();
         }, 3000);
-      }
-      else {
-        if(!this.isTimerRunning){this.isTimerRunning=true;this.updateCurrentTime();}
+      } else {
+        if (!this.isTimerRunning) {
+          this.isTimerRunning = true;
+          this.updateCurrentTime();
+        }
         // 如果计时器正在运行，则停止计时器
-        else{this.stopTimer();}
+        else {
+          this.stopTimer();
+        }
       }
     },
 
@@ -1312,12 +1330,12 @@ export default {
     initTimerLine() {
       console.log("initTimerLine")
       this.jumpTimes.forEach(item => {
-        var jumpnode=Math.ceil ((new Date(item)-new Date(this.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
-        console.log("jumpnode",jumpnode)
-        this.jumpNodes[jumpnode]=1
+        var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
+        console.log("jumpnode", jumpnode)
+        this.jumpNodes[jumpnode] = 1
       })
 
-      console.log("this.jumpNodes",this.jumpNodes)
+      console.log("this.jumpNodes", this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
 
@@ -1328,17 +1346,17 @@ export default {
       this.currentNodeIndex = 0;
       // 从 dataSource 中删除点
       this.plots.forEach(item => {
-        if(this.plotisshow[item.plotId]===1){
+        if (this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
           const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-          if(entityToRemove){
+          if (entityToRemove) {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
           }
           const entityDonghua = window.viewer.entities.getById(item.plotId);
           if (entityDonghua) {
             window.viewer.entities.remove(entityDonghua); // 移除点
           }
-          const entitylabel = window.labeldataSource.entities.getById(item.plotId+'_label');
+          const entitylabel = window.labeldataSource.entities.getById(item.plotId + '_label');
           if (entitylabel) {
             window.labeldataSource.entities.remove(entitylabel); // 移除点
           }
@@ -1359,7 +1377,7 @@ export default {
         this.timelinePopupVisible = false;
       }, animationDuration);
       // let data=
-      let data={
+      let data = {
         ...this.centerPoint,
         drawtype: this.centerPoint.plotid
       }
@@ -1403,11 +1421,11 @@ export default {
         layer: "标绘点"
       });
       this.timelinePopupPosition = {
-        x: cesiumContainer.offsetWidth/2-400,
-        y: cesiumContainer.offsetHeight/2-200
+        x: cesiumContainer.offsetWidth / 2 - 400,
+        y: cesiumContainer.offsetHeight / 2 - 200
       };
       this.timelinePopupVisible = true;
-      this.timelinePopupData =  data
+      this.timelinePopupData = data
     },
 
     /**
@@ -1417,18 +1435,18 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      let flag=1
+      let flag = 1
       for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
-          flag=1
+          flag = 1
           break;
         }
-        console.log("i,this.timelineAdvancesNumber",i,this.timelineAdvancesNumber)
-        if(i>=this.timelineAdvancesNumber){
-          flag=0
+        console.log("i,this.timelineAdvancesNumber", i, this.timelineAdvancesNumber)
+        if (i >= this.timelineAdvancesNumber) {
+          flag = 0
           console.log("over")
-          console.log("this.currentTime",this.currentTime,this.eqendTime)
+          console.log("this.currentTime", this.currentTime, this.eqendTime)
           this.currentTimePosition = 100;
 
           this.currentTime = this.eqendTime
@@ -1444,15 +1462,15 @@ export default {
               pitch: -1.5688168484696687,
               roll: 0.0
             },
-            duration : 3 // 飞行动画持续时间（秒）
+            duration: 3 // 飞行动画持续时间（秒）
           });
           this.stopTimer();
           break;
         }
       }
-      if(flag===1){
+      if (flag === 1) {
         this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-        this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
+        this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // 根据是否需要显示标绘层来更新图层
         if (this.isMarkingLayer) {
@@ -1482,11 +1500,11 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        console.log("time",startDate,currentDate,endDate, this.plotisshow[item.plotId])
+        console.log("time", startDate, currentDate, endDate, this.plotisshow[item.plotId])
 
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          console.log("item.plotId",item.plotId)
+          console.log("item.plotId", item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -1521,7 +1539,7 @@ export default {
               window.viewer.entities.remove(entityDonghua); // 移除点
             }
             // if(window.labeldataSource) {
-            const entitylabel = window.labeldataSource.entities.getById(item.plotId+'_label');
+            const entitylabel = window.labeldataSource.entities.getById(item.plotId + '_label');
             if (entitylabel) {
               window.labeldataSource.entities.remove(entitylabel); // 移除点
             }
@@ -1530,13 +1548,13 @@ export default {
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
       // console.log(points,"points")
-      let stoptime=3000
+      let stoptime = 3000
       if (points.length > 0) {
-        stoptime=points.length*3000/this.currentSpeed
+        stoptime = points.length * 3000 / this.currentSpeed
         let param = bool === false ? false : true
-        cesiumPlot.drawPoints(points,param,stoptime);
+        cesiumPlot.drawPoints(points, param, stoptime);
       }
-      if(this.isTimerRunning){
+      if (this.isTimerRunning) {
         setTimeout(() => {
           this.updateCurrentTime()
         }, stoptime);
@@ -1626,7 +1644,7 @@ export default {
 
 
       let straightArr = this.plots.filter(e => e.drawtype === 'straight');
-      console.log("straightArr----------------",straightArr)
+      console.log("straightArr----------------", straightArr)
       Arrow.showStraightArrow(straightArr)
 
       let attackArr = this.plots.filter(e => e.drawtype === 'attack');
@@ -1716,7 +1734,7 @@ export default {
      */
     backward() {
       // let nextNodeIndex = null;
-      for (let i = this.currentNodeIndex -1; i > 0; i--) {
+      for (let i = this.currentNodeIndex - 1; i > 0; i--) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
           break;
@@ -1747,7 +1765,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
-      let currentTimeTmp=this.currentTime
+      let currentTimeTmp = this.currentTime
       // 获取时间轴的矩形区域，用于计算点击位置对应的进度
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
       // 计算点击位置相对于时间轴左边缘的距离
@@ -1775,10 +1793,9 @@ export default {
         this.intimexuanran(this.eqid)
         // this.xuanran(this.eqid)
       } else {
-        if(currentTimeTmp>this.currentTime){
+        if (currentTimeTmp > this.currentTime) {
           this.updatePlot(false);
-        }
-        else{
+        } else {
           this.updatePlot();
         }
 
@@ -1828,7 +1845,7 @@ export default {
       // 更新当前时间进度位置
       this.currentTimePosition = newPosition;
       this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
-      this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition-0.5}%`;
+      this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition - 0.5}%`;
 
     },
 
@@ -1851,12 +1868,10 @@ export default {
         this.currentTime = this.eqendTime;
         this.stopTimer();
         this.intimexuanran(this.eqid)
-      }
-      else {
-        if(time>this.currentTime){
+      } else {
+        if (time > this.currentTime) {
           this.updatePlot(false);
-        }
-        else{
+        } else {
           this.updatePlot();
         }
       }
@@ -1946,8 +1961,7 @@ export default {
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
-          }
-          else if (entity._billboard) {
+          } else if (entity._billboard) {
             // 如果点击的是路标
             this.routerPopupVisible = true;
             this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
@@ -1955,14 +1969,12 @@ export default {
 
             this.dataSourcePopupVisible = false
             this.timelinePopupVisible = false;
-          }
-          else if (Object.prototype.toString.call(entity) === '[object Array]') {
-            if(entity[0].entityCollection.owner.name==="label"){
+          } else if (Object.prototype.toString.call(entity) === '[object Array]') {
+            if (entity[0].entityCollection.owner.name === "label") {
               this.dataSourcePopupVisible = false
               this.timelinePopupVisible = false
               this.routerPopupVisible = false;
-            }
-            else{
+            } else {
               this.dataSourcePopupData = entity
               this.dataSourcePopupVisible = true
               this.timelinePopupVisible = false
@@ -3083,7 +3095,7 @@ export default {
         }, 1000); // 1000 毫秒后执行
       }
     },
-    addJumpNodes(val){
+    addJumpNodes(val) {
       val.forEach(item => {
         this.jumpTimes.push(item)
       })
@@ -3186,9 +3198,9 @@ export default {
         this.zoomLevel = '市'
       } else if (cameraHeight > 70000) {
         this.zoomLevel = '区/县'
-      } else if(cameraHeight > 8000){
+      } else if (cameraHeight > 8000) {
         this.zoomLevel = '乡/镇'
-      }else{
+      } else {
         this.zoomLevel = '村'
       }
     },
@@ -3227,6 +3239,7 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
 .logo-title-content {
   color: #fff;
   width: 680px;
@@ -3252,17 +3265,21 @@ export default {
     font-size: 19px !important;
   }
 }
+
 @media screen and (max-width: 1835px) {
   .logo-title-content {
     width: 580px !important;
   }
 }
+
 .menue-left {
   left: 176px;
 }
+
 .logo-menu .logo-menu-active {
   background-image: url(@/assets/images/CommandScreen/橙色按钮.png);
 }
+
 .logo-menu-tittle {
   color: #fff;
   width: 141px;
@@ -3275,40 +3292,48 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
 @media screen and (max-width: 1490px) {
   .logo-menu-tittle {
     width: 92px !important;
   }
 }
+
 @media screen and (max-width: 1835px) {
   .logo-menu-tittle {
     width: 125px !important;
     font-size: 18px !important;
   }
 }
+
 .logo-menu {
   position: absolute;
   top: 13px;
   display: flex;
 }
+
 .menue-right {
   right: 50px;
 }
+
 .logo-left-weather {
   color: #fff;
   position: absolute;
   top: 5px;
   left: 9px;
 }
+
 .logo-left-time {
   position: absolute;
   top: 28px;
 }
+
 .logo-right-time {
   position: absolute;
   top: 18px;
   right: 26px;
 }
+
 .logo-time-hour {
   font-size: 19px;
   font-weight: 500;
@@ -3318,19 +3343,23 @@ export default {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.pop-dialog .pop-dialog__content{
+
+.pop-dialog .pop-dialog__content {
   height: 100%;
   overflow: auto;
-  background-color: #1d3043 ;
+  background-color: #1d3043;
 }
+
 .pop-dialog {
   height: 6.5rem;
 }
+
 .pop-icon {
   margin-right: 10px;
   margin-left: 6px;
   vertical-align: middle;
 }
+
 .logo-time-year {
   font-size: 14px;
   font-weight: 500;
@@ -3342,6 +3371,7 @@ export default {
   background-color: rgba(255, 255, 255, 0);
   color: #FFFFFF;
 }
+
 #box {
   height: calc(100vh - 104px);
   width: 100%;
@@ -3611,8 +3641,8 @@ export default {
   gap: 8px; /* 列间距 */
 }
 
-:deep(.search-results){
-  z-index:99 !important;
+:deep(.search-results) {
+  z-index: 99 !important;
 }
 
 /*图层要素选项颜色改为白色*/
@@ -3672,6 +3702,7 @@ export default {
 :deep(.el-pagination>.is-last) {
   color: #FFFFFF;
 }
+
 /* 更改搜索、切换地形图组件位置*/
 :deep(.cesium-viewer-toolbar) {
   display: block;
@@ -3679,6 +3710,7 @@ export default {
   top: 87%;
   left: 1%;
 }
+
 .list-dialog .list-dialog__header {
   height: 41px;
   width: 100%;
@@ -3694,6 +3726,7 @@ export default {
   background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
   background-size: 100% 100%;
 }
+
 .list-dialog__other_header {
   height: 41px;
   width: 100%;
@@ -3709,66 +3742,78 @@ export default {
   background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
   background-size: 100% 100%;
 }
+
 .list-dialog {
   height: 100%;
   width: 100%;
-  background-color: rgb(22, 53, 77,0.9);
-  padding: 0!important;
-  backdrop-filter: none!important;
+  background-color: rgb(22, 53, 77, 0.9);
+  padding: 0 !important;
+  backdrop-filter: none !important;
   border: 1px solid #008aff70;
 }
+
 .list-dialog .list-dialog__content {
   height: 100%;
   padding: 11px;
   overflow: auto;
   border-radius: 4px;
 }
+
 .table {
   width: 100%;
   height: 98%;
   margin-bottom: 8px;
   text-align: center;
 }
+
 :deep(.el-table__body-wrapper) {
   flex: 1;
   overflow: hidden;
   position: relative;
   background-color: rgb(23, 54, 76);
 }
+
 /* 设置“图层要素”样式 */
-:deep(.collapse ){
+:deep(.collapse ) {
   font-size: 16px; /* 标题字号 */
   font-weight: bold; /* 标题加粗 */
   color: white; /* 标题文字颜色 */
   background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   border: none !important; /* 取消边框 */
 }
-:deep(.el-collapse-item ){
+
+:deep(.el-collapse-item ) {
 }
-:deep(.el-checkbox__label ){
+
+:deep(.el-checkbox__label ) {
   background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   color: white; /* 内容文字颜色 */
   font-size: 14px; /* 内容字号 */
   padding: 10px; /* 内容内边距 */
 }
-:deep(.el-collapse-item__header ){
+
+:deep(.el-collapse-item__header ) {
   background-color: rgba(41, 68, 89, 0.9); /* 背景色 */
   color: #ffffff; /* 内容文字颜色 */
   font-size: 16px; /* 内容字号 */
   padding: 10px; /* 内容内边距 */
   font-weight: 580;
 }
-:deep(.el-collapse-item__wrap){
+
+:deep(.el-collapse-item__wrap) {
   background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   color: #ffffff; /* 内容文字颜色 */
 }
-:deep(.el-collapse-item__content){
+
+:deep(.el-collapse-item__content) {
   padding: 10px;
 }
-:deep(.el-radio){
+
+:deep(.el-radio) {
   background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   color: #ffffff; /* 内容文字颜色 */
 }
+
 /* 影像服务-弹框样式 */
 :deep(.cesium-baseLayerPicker-dropDown) {
   left: 3px !important;
@@ -3777,7 +3822,7 @@ export default {
   height: 310px !important;
 }
 
-.timelineRunningTimeLabel{
+.timelineRunningTimeLabel {
   background-color: #163253;
   border-radius: 20px;
   height: 6%;
