@@ -10,7 +10,7 @@
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+            <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
     </el-form-item>
 
     <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
@@ -72,11 +72,177 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
     </el-pagination>
+
+<!--表单-->
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="35%" :show-close="false">
+      <el-form ref="form" :model="dialogContent" :rules="rules">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="所属机构:" prop="affiliatedAgency">
+              <el-input v-model="dialogContent.affiliatedAgency" placeholder="请输入内容" required></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="级别名称:" prop="levelName">
+              <el-input v-model="dialogContent.levelName" placeholder="请输入内容" required></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="队伍类型名称:" prop="teamTypeName">
+              <el-input v-model="dialogContent.teamTypeName" placeholder="请输入内容" required></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="地址:" prop="address">
+              <el-input v-model="dialogContent.address" placeholder="请输入内容" required></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="总人数:" prop="totalMembers">
+              <el-input v-model.number="dialogContent.totalMembers" placeholder="请输入人数" type="number" min="0" required></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="成立时间:" prop="establishmentDate">
+              <el-date-picker
+                  v-model="dialogContent.establishmentDate"
+                  type="date"
+                  placeholder="选择日期"
+                  value-format="yyyy-MM-dd"
+                  required
+              ></el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="主要职责:" prop="mainResponsibilities">
+              <el-input v-model="dialogContent.mainResponsibilities" placeholder="请输入主要职责"></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="专长描述:" prop="expertiseDescription">
+              <el-input v-model="dialogContent.expertiseDescription" placeholder="请输入专长描述"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="应急通讯方式:" prop="emergencyCommunicationMethods">
+              <el-input v-model="dialogContent.emergencyCommunicationMethods" placeholder="请输入通讯方式"></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="预计准备时间:" prop="preparationTime">
+              <el-input v-model="dialogContent.preparationTime" placeholder="例如：30分钟"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="集合出发地点:" prop="assemblyLocation">
+              <el-input v-model="dialogContent.assemblyLocation" placeholder="请输入地点" required></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="自备交通工具:" prop="selfTransportation">
+              <el-input v-model="dialogContent.selfTransportation" placeholder="请输入交通工具"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="经度:" prop="longitude">
+              <el-input v-model.number="dialogContent.longitude" placeholder="请输入经度" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="纬度:" prop="latitude">
+              <el-input v-model.number="dialogContent.latitude" placeholder="请输入纬度" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="负责人:" prop="personInCharge">
+              <el-input v-model="dialogContent.personInCharge" placeholder="请输入负责人" required></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="负责人电话:" prop="chargePhone">
+              <el-input v-model="dialogContent.chargePhone" placeholder="请输入电话" required></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="密级名称:" prop="confidentialityName">
+              <el-input v-model="dialogContent.confidentialityName" placeholder="请输入密级"></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="修改人名称:" prop="modifierName">
+              <el-input v-model="dialogContent.modifierName" placeholder="请输入修改人名称"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="资质等级:" prop="qualificationLevel">
+              <el-input v-model="dialogContent.qualificationLevel" placeholder="请输入资质等级"></el-input>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
+            <el-form-item label="数据来源:" prop="dataSource">
+              <el-input v-model="dialogContent.dataSource" placeholder="请输入数据来源"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="备注:" prop="notes">
+              <el-input type="textarea" v-model="dialogContent.notes" placeholder="请输入备注"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" @click="commit">确 定</el-button>
+      </span>
+      </el-form>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
 import {rescueTeamList, searchEmergencyTeam} from "../../api/system/emergency.js";
+import {addEq, updataEq} from "@/api/system/eqlist.js";
 
 export default {
   name: "emergencyTeams",
@@ -117,6 +283,59 @@ export default {
       ],
       // 查询功能
       queryParams: '',   // 搜索关键字
+
+      dialogShow: false,
+      dialogTitle: null,
+      //--表单--
+      dialogContent: {
+        affiliatedAgency: '',
+        levelName: '',
+        teamTypeName: '',
+        address: '',
+        totalMembers: null,
+        establishmentDate: null,
+        mainResponsibilities: '',
+        expertiseDescription: '',
+        emergencyCommunicationMethods: '',
+        preparationTime: '',
+        assemblyLocation: '',
+        selfTransportation: '',
+        longitude: null,
+        latitude: null,
+        personInCharge: '',
+        chargePhone: '',
+        confidentialityName: '',
+        modifierName: '',
+        qualificationLevel: '',
+        dataSource: '',
+        notes: ''
+      },
+
+      rules: {
+        affiliatedAgency: [{ required: true, message: '请输入所属机构', trigger: 'blur' }],
+        levelName: [{ required: true, message: '请输入级别名称', trigger: 'blur' }],
+        teamTypeName: [{ required: true, message: '请输入队伍类型名称', trigger: 'blur' }],
+        address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
+        totalMembers: [
+          { required: true, message: '请输入总人数', trigger: 'blur' },
+          { type: 'number', message: '总人数必须为数字', trigger: ['blur', 'change'] }
+        ],
+        establishmentDate: [{ required: true, message: '请选择成立时间', trigger: 'change' }],
+        personInCharge: [{ required: true, message: '请输入负责人', trigger: 'blur' }],
+        chargePhone: [
+          { required: true, message: '请输入负责人电话', trigger: 'blur' },
+          { pattern: /^[0-9]*$/, message: '负责人电话必须为数字', trigger: 'blur' }
+        ],
+        longitude: [
+          { required: true, message: '请输入经度', trigger: 'blur' },
+          { type: 'number', message: '经度必须为数字', trigger: ['blur', 'change'] }
+        ],
+        latitude: [
+          { required: true, message: '请输入纬度', trigger: 'blur' },
+          { type: 'number', message: '纬度必须为数字', trigger: ['blur', 'change'] }
+        ]
+      }
+
     }
   },
   mounted() {
@@ -131,7 +350,17 @@ export default {
         console.log("-----------------",res[0])
       })
     },
-    handleOpen(feature, row){
+
+    handleOpen(feature, row) {
+      console.log("row------", row);
+      this.dialogShow = true; // 确保 dialogShow 设置为 true 以显示弹窗
+      this.dialogTitle = feature;
+      if (feature === '新增') {
+        this.clearDialogContent(); // 清空表单内容
+      } else if (feature === '修改') {
+        // 根据 row 的内容填充表单
+        this.dialogContent = {...row};
+      }
     },
     handleDelete(row){
     },
@@ -164,6 +393,58 @@ export default {
       this.queryParams = '';  // 清空搜索输入框
       this.getDate();  // 重新加载所有数据
     },
+
+    //新增或修改
+    commit() {
+      this.$refs.from.validate((valid) => {
+        if (valid) {
+          // 发送请求
+          // 提交表单逻辑
+          console.log("表单验证通过，提交数据");
+        } else {
+          console.log("表单验证失败，请检查输入！");
+          // this.$message.error('表单验证失败，请检查输入！');
+        }
+      });
+
+
+      let that = this;
+      if (this.dialogTitle === "新增") {
+        this.dialogContent.eqid = this.guid();
+        // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
+        addEq(this.dialogContent).then(res => {
+          that.getDate();
+          that.dialogShow = false;
+          this.clearDialogContent();
+        });
+      } else {
+        // console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
+        updataEq(this.dialogContent).then(res => {
+          that.getDate();
+          that.dialogShow = false;
+          this.clearDialogContent();
+        });
+      }
+    },
+
+    // 关闭dialog对话框
+    cancel() {
+      this.dialogShow = false
+      this.clearDialogContent()
+      this.$refs.from.resetFields(); // 重置表单
+      this.$refs.from.clearValidate(); // 清除验证状态
+    },
+
+
+
+    // 清除DialogContent中的数据
+    clearDialogContent() {
+      Object.keys(this.dialogContent).forEach(key => {
+        this.dialogContent[key] = ''
+      });
+    },
+
+
     getPageArr(data = this.rescueTeamData) {
       let arr = [];
       let start = (this.currentPage - 1) * this.pageSize;
