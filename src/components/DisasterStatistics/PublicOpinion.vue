@@ -5,13 +5,12 @@
 <script setup>
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
-import {getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
-import {getRiskConstructionGeohazards} from "../../api/system/geologicalDisaster";
+import {getPublicOpinion} from "../../api/system/publicOpinion";
 
 
 const chart = ref(null);
-const FieldName = ref(['现有隐患点（个）','新增隐患点（个）','正在施工点（个）','基础设施检查点（个）','预警发布（次）','转移避险（人）']);
+const FieldName = ref(['宣传报道（篇）','中省主要媒体报道（篇）','舆论风情提示（条）','发布会（场）','处置负面舆论（条）']);
 let echartsInstance = null; // 全局变量
 const eqid = ref('');
 const props = defineProps({
@@ -27,70 +26,56 @@ const publicOpinionRiskWarning = ref ([]) // 舆情风险提示
 const pressConference = ref([]) // 发布会
 const negativeOpinionDisposal = ref([]) // 处置负面舆论
 const earthquakeZoneName = ref([]) // 地点
-
-const existingRiskPoints = ref([]) // 现有隐患点
-const newRiskPoints = ref([]) // 新增隐患点
-const constructionPoints = ref([]) // 正在施工点
-const infrastructureCheckpoints = ref([]) // 基础设施检查点
-const alarmCount = ref([]) // 预警发布
-const evacuationCount = ref([]) // 转移避险
-const quakeAreaName = ref([]) // 地点
 const latestTime = ref('')
 const store = useGlobalStore()
 
 setTimeout(()=>{
-  getRiskConstructionGeohazards(store.globalEqId).then(res => {
+  getPublicOpinion(store.globalEqId).then(res => {
     update(res)
   });
 },500)
 
-quakeAreaName
 
 function update(data){
   // 如果返回的数组为空，设置默认值
   if (data.length === 0) {
-    quakeAreaName.value = ['抱歉暂无数据'];
-    existingRiskPoints.value = [0];
-    newRiskPoints.value = [0];
-    constructionPoints.value = [0];
-    infrastructureCheckpoints.value = [0];
-    alarmCount.value = [0];
-    evacuationCount.value = [0];
+    earthquakeZoneName.value = ['抱歉暂无数据'];
+    publicityReport.value = [0];
+    provincialMediaReport.value = [0];
+    publicOpinionRiskWarning.value = [0];
+    pressConference.value = [0];
+    negativeOpinionDisposal.value = [0];
     latestTime.value = '';
   } else {
-    quakeAreaName.value = data.map(item => item.quakeAreaName || '无数据');
-    existingRiskPoints.value = data.map(item => item.existingRiskPoints || 0);
-    newRiskPoints.value = data.map(item => item.newRiskPoints || 0);
-    constructionPoints.value = data.map(item => item.constructionPoints || 0);
-    infrastructureCheckpoints.value = data.map(item => item.infrastructureCheckpoints || 0);
-    alarmCount.value = data.map(item => item.alarmCount || 0);
-    evacuationCount.value = data.map(item => item.evacuationCount || 0);
+    earthquakeZoneName.value = data.map(item => item.earthquakeZoneName || '无数据');
+    publicityReport.value = data.map(item => item.publicityReport || 0);
+    provincialMediaReport.value = data.map(item => item.provincialMediaReport || 0);
+    publicOpinionRiskWarning.value = data.map(item => item.publicOpinionRiskWarning || 0);
+    pressConference.value = data.map(item => item.pressConference || 0);
+    negativeOpinionDisposal.value = data.map(item => item.negativeOpinionDisposal || 0);
     latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({
     xAxis: {
-      data: quakeAreaName.value
+      data: earthquakeZoneName.value
     },
     series: [
       {
-        data: existingRiskPoints.value
+        data: publicityReport.value
       },
       {
-        data: newRiskPoints.value
+        data: provincialMediaReport.value
       },
       {
-        data: constructionPoints.value
+        data: publicOpinionRiskWarning.value
       },
       {
-        data: infrastructureCheckpoints.value
+        data: pressConference.value
       },
       {
-        data: alarmCount.value
+        data: negativeOpinionDisposal.value
       },
-      {
-        data: evacuationCount.value
-      }
     ]
   });
 }
@@ -114,8 +99,7 @@ function formatDate(dateString) {
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getRiskConstructionGeohazards(eqid.value).then(res => {
-    console.log('getRiskConstructionGeohazards',res)
+  getPublicOpinion(eqid.value).then(res => {
     update(res)
   });
 });
@@ -160,7 +144,7 @@ const initChart = () => {
     },
     xAxis: [{
       type: 'category',
-      data: quakeAreaName.value, // 使用动态获取的区域数据
+      data: earthquakeZoneName.value, // 使用动态获取的区域数据
       axisLine: {
         show: true,
         lineStyle: {
@@ -204,9 +188,9 @@ const initChart = () => {
     }],
     series: [
       {
-        name: '现有隐患点（个）',
+        name: '宣传报道（篇）',
         type: 'bar',
-        data: existingRiskPoints.value,
+        data: publicityReport.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -217,9 +201,9 @@ const initChart = () => {
         }
       },
       {
-        name: '新增隐患点（个）',
+        name: '中省主要媒体报道（篇）',
         type: 'bar',
-        data: newRiskPoints.value,
+        data: provincialMediaReport.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -230,9 +214,9 @@ const initChart = () => {
         }
       },
       {
-        name: '正在施工点（个）',
+        name: '舆论风情提示（条）',
         type: 'bar',
-        data: constructionPoints.value,
+        data: publicOpinionRiskWarning.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -243,9 +227,9 @@ const initChart = () => {
         }
       },
       {
-        name: '基础设施检查点（个）',
+        name: '发布会（场）',
         type: 'bar',
-        data: infrastructureCheckpoints.value,
+        data: pressConference.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -256,27 +240,14 @@ const initChart = () => {
         }
       },
       {
-        name: '预警发布（次）',
+        name: '处置负面舆论（条）',
         type: 'bar',
-        data: alarmCount.value,
+        data: negativeOpinionDisposal.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
           normal: {
             color:'#00B2A9',
-            opacity: 1
-          }
-        }
-      },
-      {
-        name: '转移避险（人）',
-        type: 'bar',
-        data: evacuationCount.value,
-        barWidth: 13,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color:'#3B99E0',
             opacity: 1
           }
         }

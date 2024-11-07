@@ -88,6 +88,12 @@ function update(data){
     },
     xAxis: {
       data: earthquakeAreaName.value,
+      axisLabel: {
+        show: true,
+        textStyle: {
+          color: "#00c7ff"
+        }
+      }
     },
     series: [
       {
