@@ -179,6 +179,7 @@ export default {
           startTime:null,
           endTime:null,
           severity:null,
+          angle:null,
           isDeleted:null,
         },
         plotinfo:{
@@ -213,6 +214,7 @@ export default {
       assemblyData.plot.geom = data1.situationPlotData[0].geom
       assemblyData.plot.elevation = data1.situationPlotData[0].elevation
       assemblyData.plot.icon = data1.situationPlotData[0].icon
+      assemblyData.plot.angle = data1.situationPlotData[0].angle
       assemblyData.plot.startTime = this.timestampToTime(startTime)
       assemblyData.plot.endTime = this.timestampToTime(endTime)
       // 组装plotinfo)
