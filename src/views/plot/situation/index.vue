@@ -100,7 +100,7 @@
       <addMarkCollectionDialog
         :addMarkDialogFormVisible="addMarkDialogFormVisible"
         @wsSendPoint="wsSendPoint"
-        @drawPoint="drawPoint"
+        @drawPoints="drawPoints"
         @ifPointAnimate="ifPointAnimation"
         @clearMarkDialogForm="resetAddMarkCollection"
       />
@@ -535,7 +535,6 @@ export default {
         let data = res
 
         that.plotList = data
-        console.log("数据：",data)
 
         let pointArr = data.filter(e => e.drawtype === 'point')
         let points = []
@@ -1642,6 +1641,7 @@ export default {
 
           this.updatePopupPosition(); // 更新弹窗的位置
           this.dataSourcePopupData = window.selectedEntity
+          // console.log("dataSourcePopupData 22" this.dataSourcePopupData)
           this.dataSourcePopupVisible = true
           this.popupVisible = false
         }
@@ -1691,6 +1691,7 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          // console.log("popupData 11",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗
@@ -1711,7 +1712,7 @@ export default {
           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
           // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
           if (this.isTerrainLoaded()) {
-            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            // const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
             let l = Cesium.Cartographic.fromCartesian(position)
             let lon = Cesium.Math.toDegrees(l.longitude)
             let lat = Cesium.Math.toDegrees(l.latitude)
@@ -1732,6 +1733,7 @@ export default {
           this.popupData = {}
           console.log(window.selectedEntity)
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          // console.log("popupData 22",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity
@@ -1802,7 +1804,7 @@ export default {
           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
           // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
           if (this.isTerrainLoaded()) {
-            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            // const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
             let l = Cesium.Cartographic.fromCartesian(position)
             let lon = Cesium.Math.toDegrees(l.longitude)
             let lat = Cesium.Math.toDegrees(l.latitude)
@@ -1833,6 +1835,7 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
+          // console.log("popupData 44",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
 
         }else {
@@ -1944,8 +1947,6 @@ export default {
         // 初始化标绘所需的viewer、ws、pinia
         let cesiumStore = useCesiumStore()
         cesiumPlot.init(window.viewer, this.websock, cesiumStore)
-
-        console.log("websock:",this.websock)
       })
     },
     // /取地震信息+开始结束当前时间初始化
@@ -2286,7 +2287,6 @@ export default {
     // ws发送数据（只有点的是在这里）
     wsSendPoint(data) {
       this.websock.send(data)
-      // console.log("websocketData:",data)
     },
 
     //------------线------------
