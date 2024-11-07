@@ -21,7 +21,7 @@
 import { ref, watch } from "vue";
 import GoodsDonation from "./GoodsDonation";
 import RedCrossDonation from "./RedCrossDonation";
-import GovernmentDepartmentDonation from "./ GovernmentDepartmentDonation";
+import GovernmentDepartmentDonation from "./GovernmentDepartmentDonation";
 import CharitableOrganization from "./CharitableOrganization";
 
 // 获取父组件的 eqid
