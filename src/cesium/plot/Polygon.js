@@ -430,7 +430,7 @@ export default class Polygon {
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
 
-    console.log("onlyPlotid",polygonArr)
+    // console.log("onlyPlotid",polygonArr)
     if(polygonArr[0].plotType === "未搜索区域"|| polygonArr[0].plotType === "已搜索区域"||polygonArr[0].plotType === "已营救区域"||polygonArr[0].plotType === "正在营救区域"){
       onlyPlotid.forEach(onlyPlotidItem => {
         // 1-3 把数据库同一Plotid的点数据放入此数组
@@ -499,7 +499,6 @@ export default class Polygon {
           console.log("存在重复实体")
           window.viewer.entities.removeById(onlyPlotidItem + "_polygon"); // 先删除现有实体
         }
-        console.log("onlyPlotidItem", onlyPlotidItem)
         // 1-3 把数据库同一Plotid的点数据放入此数组
         let polygon = []
         polygonArr.forEach(polygonElement => {
@@ -534,7 +533,6 @@ export default class Polygon {
         // 生成小矩形的四个角点
         const smallRectanglePositions = this.createContainedRectangle(center, width, height, polygon[0].angle, pointLinePoints);
         const diameter = Cesium.Cartesian3.distance(smallRectanglePositions[0], smallRectanglePositions[2]);
-        console.log("diameter",diameter)
         window.viewer.entities.add({
           id: onlyPlotidItem,
           layer: "标绘点",
@@ -646,8 +644,6 @@ export default class Polygon {
       });
 
       isContained = rectangleCartographics.every(pt => this.isPointInPolygon(polyPoints, pt));
-      console.log("isContained", isContained);
-
       if (!isContained) {
         scaleFactor *= 0.9;
         adjustmentAngle += 2;
