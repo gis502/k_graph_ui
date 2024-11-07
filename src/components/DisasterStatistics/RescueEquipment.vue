@@ -67,8 +67,8 @@ function update(data){
     bridgeBoatCount.value = data.map(item => item.bridgeBoatCount || 0)
     wingDroneCount.value = data.map(item => item.wingDroneCount || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? max : formatDate(item.systemInsertTime);
-    },formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.submissionDeadline)) ? max : formatDate(item.submissionDeadline);
+    },formatDate(data[0].submissionDeadline)); // 确保初始值
   }
 
 

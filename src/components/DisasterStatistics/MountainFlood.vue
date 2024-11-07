@@ -69,8 +69,8 @@ function update(data){
     hazardPoints.value = data.map(item => item.hazardPoints || 0)
     evacuation.value = data.map(item => item.evacuation || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
-    }, formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.reportingDeadline)) ? formatDate(max) : formatDate(item.reportingDeadline);
+    }, formatDate(data[0].reportingDeadline)); // 确保初始值
   }
 
 

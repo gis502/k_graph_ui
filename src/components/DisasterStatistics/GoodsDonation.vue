@@ -66,8 +66,8 @@ function update(data){
     materialDonationCount.value = data.map(item => item.materialDonationCount || 0)
     drugsDonationCount.value = data.map(item => item.drugsDonationCount || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
-    }, formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.reportDeadline)) ? formatDate(max) : formatDate(item.reportDeadline);
+    }, formatDate(data[0].reportDeadline)); // 确保初始值
   }
 
 
