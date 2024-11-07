@@ -19,7 +19,7 @@
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
         </div>
         <p style="color: white; text-align: left; margin: 5px 0; padding: 0;">转移安置人数：</p>
-        <div class="legend_item" v-for="(item, index) in transferredImgLegendData" :key="index">
+        <div class="legend_item" v-for="(item, index) in earthquakeCasualtiesLegendData" :key="index">
           <img :src="item.img" class="block-img" alt="icon" style="height: 20px;margin-right: 7px;margin-left: 5px"/>
           {{ item.name }}
         </div>
@@ -79,6 +79,63 @@
         </div>
 
 
+      </el-form>
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'ResourceStrength'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
+          <span class="block" :style="{ backgroundColor: item.color }"
+                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
+        </div>
+        <div class="legend_item" v-for="(item, index) in this.resourceStrengthLegendData" :key="index">
+  <span class="block"
+        :style="{
+          backgroundImage: 'url(' + item.img + ')',
+          backgroundSize: 'cover',
+          height: '30px',
+          width: '30px',
+          marginLeft: '5px',
+        }">
+  </span>
+          {{ item.name }}
+        </div>
+      </el-form>
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'MaterialDonation'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
+          <span class="block" :style="{ backgroundColor: item.color }"
+                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
+        </div>
+        <div class="legend_item" v-for="(item, index) in this.materialDonationLegendData" :key="index">
+  <span class="block"
+        :style="{
+          backgroundImage: 'url(' + item.img + ')',
+          backgroundSize: 'cover',
+          height: '30px',
+          width: '30px',
+          marginLeft: '5px',
+        }">
+  </span>
+          {{ item.name }}
+        </div>
+      </el-form>
+      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'PublicSentiment'">
+        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
+        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
+          <span class="block" :style="{ backgroundColor: item.color }"
+                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
+        </div>
+        <div class="legend_item" v-for="(item, index) in this.publicSentimentLegendData" :key="index">
+  <span class="block"
+        :style="{
+          backgroundImage: 'url(' + item.img + ')',
+          backgroundSize: 'cover',
+          height: '30px',
+          width: '30px',
+          marginLeft: '5px',
+        }">
+  </span>
+          {{ item.name }}
+        </div>
       </el-form>
       <!-- ECharts 图表容器 -->
       <div v-for="(location, index) in locations" :key="index" class="echarts-container" ref="echartsContainer"
@@ -198,6 +255,16 @@ import {getEnsureWaterSupply} from "@/api/system/supplyWater.js";
 import {getSecondaryDisaster} from "@/api/system/mountainFlood.js";
 import {getRiskConstructionGeohazards} from "@/api/system/geologicalDisaster.js";
 import {getBarrierlakeSituation} from "@/api/system/barrierlakeSituation.js";
+import {getRescueForces} from "@/api/system/rescueTeams.js";
+import {getDisasterreLiefMaterials} from "@/api/system/reliefSupplies.js";
+import {getEquipment} from "@/api/system/rescueEquipment.js";
+import {getCharity} from "@/api/system/charitableOrganization.js";
+import {getGovernment} from "@/api/system/governmentDepartmentDonations.JS";
+import {getRedCrossDonations} from "@/api/system/redCrossDonation.js";
+import {getMaterialDonation} from "@/api/system/materialDonation.js";
+import {getPublicOpinion} from "@/api/system/publicOpinion.js";
+import {getSocialOrder} from "@/api/system/socialOrder.js";
+import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.js";
 
 export default {
   components: {dataSourcePanel},
@@ -238,9 +305,10 @@ export default {
           name: 'TransportationElectricity',
           chartType: 'pie',
           data: [
-            {name: '已恢复主网供电用户数', color: '#2c933e'},
-            {name: '应急供电用户数', color: '#53a8ff'},
-            {name: '累计主网停电用户数', color: '#ff6d39'},
+            {name: '累计停运变电站(座)', color: '#2c933e'},
+            {name: '已恢复变电站(座)', color: '#53a8ff'},
+            {name: '抢通恢复基站(个)', color: '#ff6d39'},
+            {name: '累计退服基站(个)', color: '#ff7c88'},
           ]
         },
         {
@@ -257,10 +325,39 @@ export default {
           name: 'SecondaryDisaster',
           chartType: 'bar',
           data: [
-            {name: '疏散数量', color: '#2c933e'},
-            {name: '正在施工点', color: '#53a8ff'},
-            {name: '现有风险点', color: '#ff6d39'},
-            {name: '警报数量', color: '#ff7c88'},
+            {name: '疏散数量(个)', color: '#2c933e'},
+            {name: '正在施工点(个)', color: '#53a8ff'},
+            {name: '现有风险点(个)', color: '#ff6d39'},
+            {name: '警报数量(个)', color: '#ff7c88'},
+          ]
+        },
+        {
+          name: 'ResourceStrength',
+          chartType: 'pie',
+          data: [
+            {name: '帐篷(顶)', color: '#2c933e'},
+            {name: '棉被(床)', color: '#53a8ff'},
+            {name: '折叠床(张)', color: '#ff6d39'},
+            // {name: '警报数量', color: '#ff7c88'},
+          ]
+        },
+        {
+          name: 'MaterialDonation',
+          chartType: 'bar',
+          data: [
+            {name: '政府部门接收捐赠资金(万元)', color: '#2c933e'},
+            {name: '慈善组织接收捐赠资金(万元)', color: '#53a8ff'},
+            {name: '红十字会接收捐赠资金(万元)', color: '#ff6d39'},
+            // {name: '警报数量', color: '#ff7c88'},
+          ]
+        },
+        {
+          name: 'PublicSentiment',
+          chartType: 'pie',
+          data: [
+            {name: '宣传报道(篇)', color: '#2c933e'},
+            {name: '舆情风险提示(条)', color: '#53a8ff'},
+            {name: '处置负面舆论(条)', color: '#ff6d39'},
           ]
         },
       ],
@@ -276,10 +373,10 @@ export default {
           labels: '余震次数'
         },
         TransportationElectricity: {
-          locationKey: 'affectedArea',
-          dataKeys: ['restoredPowerUsers', 'emergencyPowerUsers', 'totalBlackoutUsers'],
+          locationKey: 'areaName',
+          dataKeys: ['totalOutOfServiceSubstations', 'restoredSubstations', 'restoredBaseStations','totalDisabledBaseStations'],
           legendName: 'TransportationElectricity',
-          labels: ['已恢复供电数：', '应急供电数：', '累计停电户数：']
+          labels: ['累计停运变电站(座)：', '已恢复变电站(座)：', '抢通恢复基站(个)：','累计退服基站(个)']
         },
         BuildingDamageInformation: {
           locationKey: 'affectedAreaName',
@@ -292,6 +389,24 @@ export default {
           dataKeys: ['evacuationCount', 'constructionPoints', 'existingRiskPoints', 'alarmCount'],
           legendName: 'SecondaryDisaster',
           labels: ['疏散数量：', '正在施工点数量：', '现有风险点数量：', '警报数量：']
+        },
+        ResourceStrength: {
+          locationKey: 'earthquakeAreaName',
+          dataKeys: ['tentsCount', 'quiltsCount', 'foldingBedsCount'],
+          legendName: 'ResourceStrength',
+          labels: ['帐篷数：', '棉被床数：', '折叠床数：']
+        },
+        MaterialDonation: {
+          locationKey: 'earthquakeAreaName',
+          dataKeys: ['governmentDonationAmount', 'charityDonationAmount', 'redCrossDonationAmount'],
+          legendName: 'MaterialDonation',
+          labels: '接收捐赠资金(万元)：'
+        },
+        PublicSentiment: {
+          locationKey: 'earthquakeZoneName',
+          dataKeys: ['publicityReport', 'publicOpinionRiskWarning', 'negativeOpinionDisposal'],
+          legendName: 'PublicSentiment',
+          labels: ['宣传报道(篇)：', '舆情风险提示(条)：', '处置负面舆论(条)：']
         }
       },
 
@@ -306,8 +421,9 @@ export default {
         {label: '交通电力通信信息专题图', value: 'TransportationElectricity'},
         {label: '建筑物受损信息专题图', value: 'BuildingDamageInformation'},
         {label: '次生灾害信息专题图', value: 'SecondaryDisaster'},
-        {label: '力量物资信息可视化', value: 'ResourceStrength'},
-        {label: '资金及物资捐赠可视化', value: 'MaterialDonation'}
+        {label: '力量物资信息专题图', value: 'ResourceStrength'},
+        {label: '资金及物资捐赠专题图', value: 'MaterialDonation'},
+        {label: '宣传舆情治安专题图', value: 'PublicSentiment'}
       ],
 
       //---------板块颜色------------
@@ -353,21 +469,6 @@ export default {
       flexPercentages: [],
       points: [],
 
-      //----------转移安置，地图上图标----------
-      transferredImgLegendData: [
-        {name: '转移安置人数', img: cumulativeTransferredImg}
-      ],
-      transferLocations: [
-        {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
-        {name: '名山区', longitude: 103.31, latitude: 30.17},  // 向西南偏移
-        {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
-        {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
-        {name: '石棉县', longitude: 102.35, latitude: 29.35},  // 向东北偏移
-        {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
-        {name: '芦山县', longitude: 103.10, latitude: 30.56},  // 向西偏移
-        {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
-      ],
-
       //---------标绘点所用到的------------
       pointsLegendData: [
         {
@@ -388,6 +489,12 @@ export default {
           legendName: 'TransportationElectricity',
         }
       },
+      earthquakeCasualtiesLegendData: [
+        {name: '转移安置人数', img: cumulativeTransferredImg}
+      ],
+      transportationElectricityLegendData: [
+        {name: '应急供电用户数（户）', img: cumulativeTransferredImg}
+      ],
       buildingDamageInformationLegendData: [
         {
           img: damagedWaterSupply,
@@ -415,6 +522,19 @@ export default {
             {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50]},
           ]
         },
+      ],
+      resourceStrengthLegendData: [
+        {name: '直升机', img: fimg},
+        {name: '翼龙无人机', img: gimg},
+        {name: '救援力量人数', img: himg}
+      ],
+      materialDonationLegendData: [
+        {name: '捐赠物资(万件)', img: damagedWaterSupply},
+        {name: '药品(箱)', img: guaranteeWaterSupply},
+      ],
+      publicSentimentLegendData: [
+        {name: '接报救助信息(起)', img: damagedWaterSupply},
+        {name: '投入警力(人)', img: guaranteeWaterSupply},
       ],
     };
   },
@@ -507,46 +627,21 @@ export default {
       // 获取选择的 eqid
       this.eqid = value;
       this.viewer.entities.removeAll();
+      this.getEarthQuakeCenter(value)
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(value)
         //获取震源中心的点数据
-        this.getEarthQuakeCenter(value)
         this.getDistrictColor(value)
         this.getEcharts(value)
       }
       if (this.selectedComponentKey === 'TransportationElectricity') {
+        //这里代码较为特殊，我在getEcharts里面调用了getPoints
         this.getEcharts(value)
       }
       if (this.selectedComponentKey === 'BuildingDamageInformation') {
-        getHousingSituationList(this.eqid).then(res => {
-          this.getEcharts(res)
-        })
-        getSupplySituationList(this.eqid).then(res => {
-          const locations = [
-            {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
-            {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
-            {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
-            {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
-            {name: '石棉县', longitude: 102.45, latitude: 29.3},  // 向东北偏移
-            {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
-            {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
-            {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
-          ]
-          this.updatePoints(res, locations, damagedWaterSupply)
-        })
-        getEnsureWaterSupply(this.eqid).then(res => {
-          const locations = [
-            {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
-            {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
-            {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
-            {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
-            {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
-            {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
-            {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
-            {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
-          ]
-          this.updatePoints(res, locations, guaranteeWaterSupply)
-        })
+        this.addDistrictLabels(this.dataSource)
+        this.getEcharts(value)
+        this.getPoints(value)
       }
       if (this.selectedComponentKey === 'SecondaryDisaster') {
         this.getEcharts(value)
@@ -554,12 +649,20 @@ export default {
         this.getPoints(value)
       }
       if (this.selectedComponentKey === 'ResourceStrength') {
-        this.clearMultipleECharts()
+        this.addDistrictLabels(this.dataSource)
+        this.getEcharts(value)
+        this.getPoints(value)
       }
       if (this.selectedComponentKey === 'MaterialDonation') {
-        this.clearMultipleECharts()
+        this.addDistrictLabels(this.dataSource)
+        this.getEcharts(value)
+        this.getPoints(value)
       }
-
+      if (this.selectedComponentKey === 'PublicSentiment') {
+        this.addDistrictLabels(this.dataSource)
+        this.getEcharts(value)
+        this.getPoints(value)
+      }
     },
 
     // 切换模块组件
@@ -571,27 +674,24 @@ export default {
       }
       // 清除当前所有点标绘实体
       this.viewer.entities.removeAll();
+      //获取震源中心的点数据
+      this.getEarthQuakeCenter(this.eqid)
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(this.eqid)
-        //获取震源中心的点数据
-        this.getEarthQuakeCenter(this.eqid)
         this.getDistrictColor(this.eqid)
         this.getEcharts(this.eqid)
       }
       if (this.selectedComponentKey === 'TransportationElectricity') {
+        //这里代码较为特殊，我在getEcharts里面调用了getPoints
         this.addTrafficLayer();
         this.updateDistrictColors(this.dataSource)
         this.getEcharts(this.eqid)
-        this.getPoints(this.eqid)
       } else {
         this.removeImageryLayer('TrafficLayer');
         this.removeImageryLayer('TrafficTxtLayer');
       }
       if (this.selectedComponentKey === 'BuildingDamageInformation') {
-        // 这里有点特殊，一个方法获取了两个数据，echarts数据和板块颜色数据，所以就在这里先获取数据，再传过去
-        getHousingSituationList(this.eqid).then(res => {
-          this.getEcharts(res)
-        })
+        this.getEcharts(this.eqid)
         this.updateDistrictColors(this.dataSource)
         this.addDistrictLabels(this.dataSource)
         this.getPoints(this.eqid)
@@ -603,14 +703,23 @@ export default {
         this.getPoints(this.eqid)
       }
       if (this.selectedComponentKey === 'ResourceStrength') {
+        this.updateDistrictColors(this.dataSource)
         this.addDistrictLabels(this.dataSource)
-        this.clearMultipleECharts()
+        this.getEcharts(this.eqid)
+        this.getPoints(this.eqid)
       }
       if (this.selectedComponentKey === 'MaterialDonation') {
+        this.updateDistrictColors(this.dataSource)
         this.addDistrictLabels(this.dataSource)
-        this.clearMultipleECharts()
+        this.getEcharts(this.eqid)
+        this.getPoints(this.eqid)
       }
-
+      if (this.selectedComponentKey === 'PublicSentiment') {
+        this.updateDistrictColors(this.dataSource)
+        this.addDistrictLabels(this.dataSource)
+        this.getEcharts(this.eqid)
+        this.getPoints(this.eqid)
+      }
     },
 
     // 切换组件获取Echarts图例数据
@@ -675,16 +784,95 @@ export default {
         })
       }
       if (this.selectedComponentKey === 'TransportationElectricity') {
-        getPowerSupply(eqid).then(res => {
-          this.updateMultipleECharts(res);
-        })
+        let data = [];  // 初始化空数组存储合并后的数据
+
+        // 辅助函数：查找或创建地震区域条目
+        function findOrCreateEntry(data, areaName) {
+          let entry = data.find(item => item.areaName === areaName);
+          if (!entry) {
+            entry = { areaName: areaName }; // 统一使用 areaName 作为字段名
+            data.push(entry);
+          }
+          return entry;
+        }
+
+        // 处理电力供应数据
+        function processPowerSupply(response) {
+          response.forEach(item => {
+            const entry = findOrCreateEntry(data, item.affectedArea);  // 使用 affectedArea 作为区域名
+            entry.totalOutOfServiceSubstations = item.totalOutOfServiceSubstations || 0; // 累计停运变（发）电站（座）
+            entry.restoredSubstations = item.restoredSubstations || 0; // 已恢复变（发）电站（座）
+          });
+        }
+
+        // 处理通信基站数据
+        function processFacility(response) {
+          response.forEach(item => {
+            const entry = findOrCreateEntry(data, item.earthquakeZoneName);  // 使用 earthquakeZoneName 作为区域名
+            entry.totalDisabledBaseStations = item.totalDisabledBaseStations || 0; // 累计退服基站（个）
+            entry.restoredBaseStations = item.restoredBaseStations || 0; // 抢通恢复基站（个）
+          });
+        }
+
+        // 获取数据并处理
+        Promise.all([
+          getPowerSupply(eqid).then(res =>{
+            processPowerSupply(res)
+            this.getPoints(res)
+          }),
+          getFacility(eqid).then(res => processFacility(res))
+        ]).then(() => {
+          this.updateMultipleECharts(data);
+        });
       }
       if (this.selectedComponentKey === 'BuildingDamageInformation') {
-        this.updateMultipleECharts(eqid);
+        getHousingSituationList(eqid).then(res => {
+          this.updateMultipleECharts(res);
+        })
       }
       if (this.selectedComponentKey === 'SecondaryDisaster') {
         getRiskConstructionGeohazards(eqid).then(res => {
           this.updateMultipleECharts(res);
+        })
+      }
+      if (this.selectedComponentKey === 'ResourceStrength') {
+        getDisasterreLiefMaterials(eqid).then(res => {
+          this.updateMultipleECharts(res);
+        })
+      }
+      if (this.selectedComponentKey === 'MaterialDonation') {
+        let data = [];  // 初始化空数组存储合并后的数据
+        // 辅助函数：查找或创建地震区域条目
+        function findOrCreateEntry(data, areaName) {
+          let entry = data.find(item => item.earthquakeAreaName === areaName);
+          if (!entry) {
+            entry = {earthquakeAreaName: areaName};
+            data.push(entry);
+          }
+          return entry;
+        }
+
+        // 通用的处理函数：将捐赠数据合并到 data 中
+        function processDonations(response, donationKey) {
+          response.forEach(item => {
+            const entry = findOrCreateEntry(data, item.earthquakeAreaName);
+            entry[donationKey] = item.donationAmount || 0;  // 动态设置捐赠金额
+          });
+        }
+
+        // 获取捐赠数据并处理
+        Promise.all([
+          getGovernment(eqid).then(res => processDonations(res, 'governmentDonationAmount')),
+          getCharity(eqid).then(res => processDonations(res, 'charityDonationAmount')),
+          getRedCrossDonations(eqid).then(res => processDonations(res, 'redCrossDonationAmount'))
+        ]).then(() => {
+          this.updateMultipleECharts(data);
+        });
+
+      }
+      if (this.selectedComponentKey === 'PublicSentiment') {
+        getPublicOpinion(eqid).then(res => {
+          this.updateMultipleECharts(res)
         })
       }
     },
@@ -750,33 +938,14 @@ export default {
         //         console.error('地理编码请求处理错误:', error);
         //       });
         // });
+        this.updatePoints(eqid)
       }
       if (this.selectedComponentKey === 'BuildingDamageInformation') {
         getSupplySituationList(eqid).then(res => {
-          const locations = [
-            {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
-            {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
-            {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
-            {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
-            {name: '石棉县', longitude: 102.45, latitude: 29.3},  // 向东北偏移
-            {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
-            {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
-            {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
-          ]
-          this.updatePoints(res, locations)
+          this.updatePoints(res)
         })
         getEnsureWaterSupply(eqid).then(res => {
-          const locations = [
-            {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
-            {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
-            {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
-            {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
-            {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
-            {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
-            {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
-            {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
-          ]
-          this.updatePoints(res, locations)
+          this.updatePoints(res)
         })
       }
       if (this.selectedComponentKey === 'SecondaryDisaster') {
@@ -811,7 +980,57 @@ export default {
           });
         });
       }
+      if (this.selectedComponentKey === 'ResourceStrength') {
+        function getTotalRescueForces(data) {
+          // 需要相加的字段列表
+          const fieldsToSum = [
+            'plaCount',
+            'armedPoliceCount',
+            'militiaCount',
+            'fireRescueCount',
+            'forestFireRescueCount',
+            'professionalForcesCount',
+            'emergencyProductionSafetyCount',
+            'medicalRescueCount',
+            'transportationCommunicationPowerCount',
+            'airRescueCount',
+            'volunteerRescueTeamCount',
+            'partyMemberCommandoCount'
+          ];
 
+          // 遍历并生成新的数据
+          return data.map(item => {
+            // 使用 reduce 累加需要的字段，默认值为 0，处理可能的 null
+            const totalCount = fieldsToSum.reduce((sum, field) => sum + (item[field] || 0), 0);
+
+            // 返回新对象，包含原有字段和计算后的总人数
+            return {
+              earthquakeAreaName: item.earthquakeAreaName,
+              totalCount
+            };
+          });
+        }
+
+        //  直升机，翼龙无人机
+        getEquipment(eqid).then(res => {
+          this.updatePoints(res)
+        })
+        //  救援力量所有累积人数
+        getRescueForces(eqid).then(res => {
+          const newData = getTotalRescueForces(res);
+          this.updatePoints(newData)
+        })
+      }
+      if (this.selectedComponentKey === 'MaterialDonation') {
+        getMaterialDonation(eqid).then(res => {
+          this.updatePoints(res)
+        })
+      }
+      if (this.selectedComponentKey === 'PublicSentiment') {
+        getSocialOrder(eqid).then(res => {
+          this.updatePoints(res)
+        })
+      }
     },
 
     //-----------------------------------------------下面是交通图层的方法-------------------------------------------------
@@ -1047,7 +1266,7 @@ export default {
               width: 40,
               verticalOrigin: Cesium.VerticalOrigin.CENTER,
               horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-              eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+              eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
             },
             label: {
               text: location.name,  // 显示村落名字
@@ -1058,7 +1277,7 @@ export default {
               horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
               pixelOffset: new Cesium.Cartesian2(0, -15),  // 调整文字偏移
               disableDepthTestDistance: Number.POSITIVE_INFINITY,
-              eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+              eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
             }
           });
         }
@@ -1087,7 +1306,7 @@ export default {
     //   });
     // },
 
-    updatePoints(data, situations) {
+    updatePoints(data) {
       const addLocationEntity = (location, count, img, height, width) => {
         this.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(location.longitude, location.latitude),
@@ -1098,7 +1317,7 @@ export default {
             width: width,
             verticalOrigin: Cesium.VerticalOrigin.CENTER,
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
             text: `${count}`,
@@ -1109,13 +1328,23 @@ export default {
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
             pixelOffset: new Cesium.Cartesian2(0, -15),  // 调整文字偏移
             disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           }
         });
       };
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
+        const locations = [
+          {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.17},  // 向西南偏移
+          {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+          {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+          {name: '石棉县', longitude: 102.35, latitude: 29.35},  // 向东北偏移
+          {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+          {name: '芦山县', longitude: 103.10, latitude: 30.56},  // 向西偏移
+          {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+        ]
         // 遍历所有的转移位置
-        this.transferLocations.forEach(location => {
+        locations.forEach(location => {
           // 在 transferDataFromBackend 中查找对应位置的数据
           const transferItem = data.find(item => item.earthquakeAreaName === location.name);
 
@@ -1142,7 +1371,7 @@ export default {
               scale: scale,
               verticalOrigin: Cesium.VerticalOrigin.CENTER,  // 图标在位置的中心
               horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
-              eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
+              eyeOffset: new Cesium.Cartesian3(0, 0, -5000) // 确保标签浮在最上面
             },
             label: {
               text: `${count}`,  // 显示实际人数
@@ -1153,33 +1382,67 @@ export default {
               horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
               pixelOffset: new Cesium.Cartesian2(0, dynamicOffsetY),  // 动态调整文本位置
               disableDepthTestDistance: Number.POSITIVE_INFINITY,  // 禁用深度测试，使标签不被遮挡
-              eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
+              eyeOffset: new Cesium.Cartesian3(0, 0, -5000) // 确保标签浮在最上面
             }
           });
         });
       }
-      if (this.selectedComponentKey === 'BuildingDamageInformation') {
-        // 遍历所有位置点
-        situations.forEach(location => {
-          const countItem = data.find(item => item.earthquakeAreaName === location.name);
-          let count = null;
+      if (this.selectedComponentKey === 'TransportationElectricity'){
+        const locations = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.45, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        data.forEach(item => {
           let img = null;
-          // 检查 countItem 是否存在
-          if (countItem) {
-            if (countItem.centralizedWaterProjectDamage) {
-              count = countItem.centralizedWaterProjectDamage;
-              img = damagedWaterSupply;
-            } else if (countItem.waterSupplyPoints) {
-              count = countItem.waterSupplyPoints;
-              img = guaranteeWaterSupply;
-            } else {
-              return; // 如果两个属性都不存在，则跳过当前项
+          if (item.emergencyPowerUsers) {
+            let location = locations.find(location => location.name === item.affectedArea);
+            if (location){
+              img = this.transportationElectricityLegendData[0].img
+              addLocationEntity(location, item.emergencyPowerUsers, img, 35, 35)
             }
-          } else {
-            return;// 如果 countItem 不存在，则跳过当前项
           }
-          addLocationEntity(location, count, img, 35, 35)
-        });
+        })
+      }
+      if (this.selectedComponentKey === 'BuildingDamageInformation') {
+        const locations1 = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.45, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        const locations2 = [
+          {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+          {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+          {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+          {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
+          {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+          {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+          {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+        ]
+        data.forEach(item => {
+          let img = null;
+          if (item.centralizedWaterProjectDamage) {
+            let location = locations1.find(location => location.name === item.earthquakeAreaName);
+            img = this.buildingDamageInformationLegendData[0].img
+            addLocationEntity(location, item.centralizedWaterProjectDamage, img, 35, 35)
+          }
+          if (item.waterSupplyPoints) {
+            let location = locations2.find(location => location.name === item.earthquakeAreaName);
+            img = this.buildingDamageInformationLegendData[1].img
+            addLocationEntity(location, item.waterSupplyPoints, img, 35, 35)
+          }
+        })
       }
       if (this.selectedComponentKey === 'SecondaryDisaster') {
         // 遍历所有数据
@@ -1237,6 +1500,184 @@ export default {
           }
         });
       }
+      if (this.selectedComponentKey === 'ResourceStrength') {
+        const locations1 = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        const locations2 = [
+          {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+          {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+          {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+          {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+          {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+          {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+        ]
+        const locations3 = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        data.forEach(item => {
+          if (item.helicopterCount) {
+            let location = locations1.find(location => location.name === item.earthquakeAreaName);
+            let img = this.resourceStrengthLegendData[0].img
+            addLocationEntity(location, item.helicopterCount, img, 35, 35)
+          }
+          if (item.wingDroneCount) {
+            let location = locations2.find(location => location.name === item.earthquakeAreaName);
+            let img = this.resourceStrengthLegendData[1].img
+            addLocationEntity(location, item.wingDroneCount, img, 35, 35)
+          }
+          if (item.totalCount) {
+            let location = locations3.find(location => location.name === item.earthquakeAreaName);
+            let img = this.resourceStrengthLegendData[2].img
+            addLocationEntity(location, item.totalCount, img, 35, 35)
+          }
+        });
+      }
+      if (this.selectedComponentKey === 'MaterialDonation') {
+        const locations1 = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        const locations2 = [
+          {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+          {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+          {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+          {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+          {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+          {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+        ]
+        // 遍历所有数据
+        data.forEach(dataItem => {
+          let materialDonationCount = null;
+          let drugsDonationCount = null;
+
+          if (dataItem.materialDonationCount) {
+            materialDonationCount = dataItem.materialDonationCount;
+            let location = locations1.find(loc => loc.name === dataItem.earthquakeAreaName);
+            let img = this.materialDonationLegendData[0].img
+            addLocationEntity(location, materialDonationCount, img, 35, 35)
+          }
+          if (dataItem.drugsDonationCount) {
+            drugsDonationCount = dataItem.drugsDonationCount;
+            let location = locations2.find(loc => loc.name === dataItem.earthquakeAreaName);
+            let img = this.materialDonationLegendData[1].img
+            addLocationEntity(location, drugsDonationCount, img, 35, 35)
+          }
+          if (materialDonationCount === null && drugsDonationCount === null) {
+            return;
+          }
+        });
+      }
+      if (this.selectedComponentKey === 'PublicSentiment') {
+        const locations1 = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        const locations2 = [
+          {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+          {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+          {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+          {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+          {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+          {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+        ]
+        // 遍历所有数据
+        data.forEach(dataItem => {
+          let materialDonationCount = null;
+          let drugsDonationCount = null;
+
+          if (dataItem.materialDonationCount) {
+            materialDonationCount = dataItem.materialDonationCount;
+            let location = locations1.find(loc => loc.name === dataItem.earthquakeAreaName);
+            let img = this.publicSentimentLegendData[0].img
+            addLocationEntity(location, materialDonationCount, img, 35, 35)
+          }
+          if (dataItem.drugsDonationCount) {
+            drugsDonationCount = dataItem.drugsDonationCount;
+            let location = locations2.find(loc => loc.name === dataItem.earthquakeAreaName);
+            let img = this.publicSentimentLegendData[1].img
+            addLocationEntity(location, drugsDonationCount, img, 35, 35)
+          }
+          if (materialDonationCount === null && drugsDonationCount === null) {
+            return;
+          }
+        });
+      }
+      if (this.selectedComponentKey === 'PublicSentiment') {
+        const locations1 = [
+          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
+          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
+          {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
+          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+        ]
+        const locations2 = [
+          {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+          {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
+          {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
+          {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
+          {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
+          {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
+          {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
+        ]
+        // 遍历所有数据
+        data.forEach(dataItem => {
+          let reportedRescueCount = null;
+          let policeForceCount = null;
+
+          if (dataItem.reportedRescueInfo) {
+            reportedRescueCount = dataItem.reportedRescueInfo;
+            let location = locations1.find(loc => loc.name === dataItem.earthquakeAreaName);
+            let img = this.publicSentimentLegendData[0].img
+            addLocationEntity(location, reportedRescueCount, img, 35, 35)
+          }
+          if (dataItem.policeForce) {
+            policeForceCount = dataItem.policeForce;
+            let location = locations2.find(loc => loc.name === dataItem.earthquakeAreaName);
+            let img = this.publicSentimentLegendData[1].img
+            addLocationEntity(location, policeForceCount, img, 35, 35)
+          }
+          if (reportedRescueCount === null && policeForceCount === null) {
+            return;
+          }
+        });
+      }
     },
 
     updateEarthQuakeCenter(data) {
@@ -1244,7 +1685,8 @@ export default {
       this.viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(data.longitude, data.latitude),
         billboard: {
-          image: earthQuakeCenterImg,  // 图标
+          image: earthQuakeCenterImg, // 图标
+          eyeOffset: new Cesium.Cartesian3(0.0, 0.0, -10000.0) // 设置图标偏移，让其显示在最上层
         }
       });
     },
@@ -1437,7 +1879,7 @@ export default {
             entity.polygon.material = new Cesium.ColorMaterialProperty(color);
           }
         });
-      } else if (this.selectedComponentKey === 'BuildingDamageInformation' || this.selectedComponentKey === 'SecondaryDisaster') {
+      } else if (this.selectedComponentKey === 'BuildingDamageInformation' || this.selectedComponentKey === 'SecondaryDisaster' || this.selectedComponentKey === 'MaterialDonation' || this.selectedComponentKey === 'ResourceStrength' || this.selectedComponentKey === 'PublicSentiment') {
         const colors = [
           {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
           {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
@@ -1541,7 +1983,7 @@ export default {
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 填充文字并加上轮廓
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,  // 标签在位置上方显示
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,  // 标签贴地显示
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000) // 确保标签浮在最上面
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000) // 确保标签浮在最上面
           }
         });
       });
@@ -1849,7 +2291,7 @@ export default {
       const canvas = scene.canvas;
 
       const cameraHeight = this.viewer.camera.positionCartographic.height;
-      if (cameraHeight >= 550000){
+      if (cameraHeight >= 550000) {
         this.step = 2;
       } else if (cameraHeight >= 350000 && cameraHeight < 550000) {
         this.step = 0.7;
