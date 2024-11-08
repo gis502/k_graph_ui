@@ -52,7 +52,7 @@ import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingD
 import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster.vue";
 import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
 import MaterialDonation from "@/components/DisasterStatistics/MaterialDonation.vue"
-
+import PublicSentiment from "@/components/DisasterStatistics/PublicSentiment.vue"
 
 // 选项数据
 const options = [
@@ -61,7 +61,8 @@ const options = [
   {label: '建筑物受损信息可视化', value: 'BuildingDamageInformation'},
   {label: '次生灾害信息可视化',value: 'SecondaryDisaster'},
   {label: '力量物资信息可视化',value: 'ResourceStrength'},
-  {label: '资金及物资捐赠可视化', value: 'MaterialDonation'}
+  {label: '资金及物资捐赠可视化', value: 'MaterialDonation'},
+  {label: '宣传舆情信息可视化',value: 'PublicSentiment'},
 ]
 
 // 当前选择的组件标识符
@@ -75,6 +76,7 @@ const components = {
   SecondaryDisaster,
   ResourceStrength,
   MaterialDonation,
+  PublicSentiment,
 }
 
 // 动态获取选定的组件

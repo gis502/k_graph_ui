@@ -1,6 +1,6 @@
 <template>
   <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
-  <div ref="chart" style="width: 100%; height: 200px;"></div>
+  <div ref="chart" style="width: 100%; height: 250px;"></div>
 </template>
 
 <script setup>
@@ -8,7 +8,8 @@ import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
 import {getBarrierlakeSituation} from "../../api/system/barrierlakeSituation";
-import {getRedCrossDonations} from "../../api/system/redCrossDonation";
+import {getMaterialDonation} from "../../api/system/materialDonation";
+import {getSocialOrder} from "../../api/system/socialOrder";
 const props = defineProps({
   eqid: {
     type: String,
@@ -18,8 +19,8 @@ const props = defineProps({
 const eqid = ref('');
 const latestTime = ref('') // 时间
 const earthquakeAreaName = ref(["抱歉暂无数据"]) //地点
-const donationAmount = ref([0]) // 累计
-const todayAmount = ref([0]) // 当日
+const policeForce = ref([0]) // 投入警力
+const reportedRescueInfo = ref([0]) // 接报救助信息
 const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
@@ -42,14 +43,14 @@ function formatDate(dateString) {
 }
 
 setTimeout(()=>{
-  getRedCrossDonations(store.globalEqId).then(res => {
+  getSocialOrder(store.globalEqId).then(res => {
     update(res)
   })
 },500)
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getRedCrossDonations(eqid.value).then(res => {
+  getSocialOrder(eqid.value).then(res => {
     update(res)
   })
 })
@@ -57,16 +58,16 @@ watch(() => props.eqid, (newValue) => {
 function update(data){
   if(data.length === 0){
     earthquakeAreaName.value = ["抱歉暂无数据"]
-    donationAmount.value = [0]
-    todayAmount.value = [0]
+    policeForce.value = [0]
+    reportedRescueInfo.value = [0]
     latestTime.value = ''
   }else {
     earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || "抱歉暂无数据")
-    donationAmount.value = data.map(item => item.donationAmount || 0)
-    todayAmount.value = data.map(item => item.todayAmount || 0)
+    policeForce.value = data.map(item => item.policeForce || 0)
+    reportedRescueInfo.value = data.map(item => item.reportedRescueInfo || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.submissionDeadline)) ? formatDate(max) : formatDate(item.submissionDeadline);
-    }, formatDate(data[0].submissionDeadline)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.reportingDeadline)) ? formatDate(max) : formatDate(item.reportingDeadline);
+    }, formatDate(data[0].reportingDeadline)); // 确保初始值
   }
 
 
@@ -96,10 +97,10 @@ function update(data){
     },
     series: [
       {
-        data: donationAmount.value,
+        data: policeForce.value,
       },
       {
-        data:todayAmount.value,
+        data: reportedRescueInfo.value,
       }
     ]
   })
@@ -158,7 +159,7 @@ const initChart = () => {
     ],
     series: [
       {
-        name: '红十字会系统累计接收捐赠资金（万元）',
+        name: '投入警力（人）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -167,10 +168,10 @@ const initChart = () => {
         itemStyle: {
           color: '#4A90E2',
         },
-        data: donationAmount.value,
+        data: policeForce.value,
       },
       {
-        name: '红十字会系统当日接收捐赠资金（万元）',
+        name: '接收救助信息（起）',
         type: 'bar',
         stack: 'Ad',
         emphasis: {
@@ -179,7 +180,7 @@ const initChart = () => {
         itemStyle: {
           color: '#005193',
         },
-        data:todayAmount.value,
+        data: reportedRescueInfo.value,
       }
     ]
   };

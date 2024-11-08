@@ -34,20 +34,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                size="small"
-                @click="plotAdj(scope.row)">查看
+                  size="small"
+                  @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next"
-          :total="total">
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next"
+            :total="total">
         </el-pagination>
 
       </el-form>
@@ -98,37 +98,37 @@
         </el-row>
       </el-form>
       <addMarkCollectionDialog
-        :addMarkDialogFormVisible="addMarkDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @drawPoint="drawPoint"
-        @ifPointAnimate="ifPointAnimation"
-        @clearMarkDialogForm="resetAddMarkCollection"
+          :addMarkDialogFormVisible="addMarkDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @drawPoints="drawPoints"
+          @ifPointAnimate="ifPointAnimation"
+          @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolyline"
+          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolygon"
+          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-        :visible="popupVisible"
-        :position="popupPosition"
-        :popupData="popupData"
-        :ifedit="true"
-        @wsSendPoint="wsSendPoint"
-        @closePlotPop="closePlotPop"
+          :visible="popupVisible"
+          :position="popupPosition"
+          :popupData="popupData"
+          :ifedit="true"
+          @wsSendPoint="wsSendPoint"
+          @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-        :visible="dataSourcePopupVisible"
-        :position="dataSourcePopupPosition"
-        :popupData="dataSourcePopupData"
+          :visible="dataSourcePopupVisible"
+          :position="dataSourcePopupPosition"
+          :popupData="dataSourcePopupData"
       />
 
-      <el-button type="primary" @click="exportCesiumScene"
+      <el-button type="primary" @click="exportCesiumTheme"
                  style="position: absolute;top: 50px;right: 100px;z-index: 100;">导出专题图
       </el-button>
 
@@ -141,21 +141,21 @@
       </el-button>
 
       <el-upload
-        :action="uploadUrl"
-        :multiple="false"
-        :show-file-list="false"
-        :on-success="handleSuccess"
-        :before-upload="beforeUpload"
-        :headers="this.headers"
-        style="position: absolute;top: 150px;right: 100px;z-index: 100;"
+          :action="uploadUrl"
+          :multiple="false"
+          :show-file-list="false"
+          :on-success="handleSuccess"
+          :before-upload="beforeUpload"
+          :headers="this.headers"
+          style="position: absolute;top: 150px;right: 100px;z-index: 100;"
       >
         <el-button type="primary" @click="">上传当前地震标绘数据</el-button>
       </el-upload>
 
       <el-dialog
-        v-model="selectVisible"
-        width="30%"
-        @close="selectVisible=false"
+          v-model="selectVisible"
+          width="30%"
+          @close="selectVisible=false"
       >
         <template #title>
           <div style="text-align: center;">{{ this.excelPanel }}</div>
@@ -168,12 +168,12 @@
               <div>可选择标绘名称</div>
               <el-row>
                 <el-tree
-                  ref="tree"
-                  :data="plotTreeData"
-                  :props="defaultProps"
-                  accordion
-                  show-checkbox
-                  @check-change="handleCheck"
+                    ref="tree"
+                    :data="plotTreeData"
+                    :props="defaultProps"
+                    accordion
+                    show-checkbox
+                    @check-change="handleCheck"
                 >
                 </el-tree>
               </el-row>
@@ -217,7 +217,8 @@
     <div v-if="previewImage" class="preview-container">
       <div class="export-image">
         <div class="export-info">
-          <p>{{ this.title }}</p>
+          <p>{{ this.title.replace("T", " ") + "级地震-标绘专题图" }}</p>
+
         </div>
         <div class="main_coantainer">
           <div class="top_container">
@@ -239,7 +240,7 @@
           </div>
         </div>
         <div
-          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+            style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
           <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
           <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
           <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
@@ -250,6 +251,19 @@
         <button @click="downloadImage" class="download-button">下载</button>
         <button @click="closePreview" class="cancel-button">取消</button>
       </div>
+    </div>
+
+    <div class="legend-container" style="position: absolute;bottom: 0;right: 0;" v-if="showLegend">
+      <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }"  :data="legendPlotData" style="width: 100%">
+        <el-table-column label="图标" width="50">
+          <template v-slot="scope">
+            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="plotType" label="类型" width="180"></el-table-column>
+        <el-table-column prop="count" label="数量" width="50"></el-table-column>
+      </el-table>
+      <div class="compassContainer" ref="compassContainer"></div>
     </div>
 
   </div>
@@ -277,7 +291,6 @@ import {downloadPlotExcel} from "../../../api/system/excel.js";
 import {getToken} from "../../../utils/auth.js";
 import * as XLSX from "xlsx";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
-import * as echarts from "echarts";
 import html2canvas from "html2canvas";
 
 export default {
@@ -419,6 +432,7 @@ export default {
       excelContent: [],
       excelPanel: '',
       // ----------------------------------
+      legendTableData: [],
       previewImage: null, // 保存预览图片的 URL
       loading: false, // 控制加载状态
       pictureCreateTime: '',
@@ -435,6 +449,10 @@ export default {
       flexPercentages: [],
       points: [],
       hasGeneratedPoints: false,
+      legendPlotData : [],
+      showLegend: false,
+      eqInfo: {},
+      sheetData: {},
     };
   },
   mounted() {
@@ -451,6 +469,7 @@ export default {
   beforeUnmount() {
     console.log("111", window.viewer)
     if (window.viewer) {
+      Arrow.disable();
       let viewer = window.viewer
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
@@ -502,7 +521,7 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
-        console.log("this.eqid---------------------",this.eqid)
+      console.log("this.eqid---------------------",this.eqid)
       this.websock = initWebSocket(this.eqid)
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
@@ -537,7 +556,7 @@ export default {
             that.renderedPlotIds.add(item.plotId);
           }
         })
-        that.drawPoints(points)
+        that.drawPoints(points,false)
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
@@ -572,7 +591,7 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight');
         Arrow.showStraightArrow(straightArr)
-          console.log("straightArr----------------",straightArr)
+        console.log("straightArr----------------",straightArr)
 
         let attackArr = data.filter(e => e.drawtype === 'attack');
         Arrow.showAttackArrow(attackArr)
@@ -686,9 +705,9 @@ export default {
 
       // 过滤掉最高级和第二级的label
       this.selectedNodes = checkedNodes
-        .map(node => node.label)
-        // 过滤掉最高级和第二级的 label
-        .filter(label => !highestAndSecondLabels.includes(label));
+          .map(node => node.label)
+          // 过滤掉最高级和第二级的 label
+          .filter(label => !highestAndSecondLabels.includes(label));
     },
 
     confirmDownload() {
@@ -698,13 +717,13 @@ export default {
         const typeKey = Object.keys(plotType).find(key => plotType[key].name === node);
         const fields = [];
         fields.unshift(
-          {name: "绘制类型", type: "text"},
-          {name: "经度", type: "text"},
-          {name: "纬度", type: "text"},
-          {name: "高程", type: "text"},
-          {name: "角度", type: "text"},
-          {name: "开始时间", type: "text"},
-          {name: "结束时间", type: "text"}
+            {name: "绘制类型", type: "text"},
+            {name: "经度", type: "text"},
+            {name: "纬度", type: "text"},
+            {name: "高程", type: "text"},
+            {name: "角度", type: "text"},
+            {name: "开始时间", type: "text"},
+            {name: "结束时间", type: "text"}
         );
 
         if (typeKey) {
@@ -742,8 +761,8 @@ export default {
         link.href = url;
 
         const excelTitle = this.excelContent.length > 0 ? `${this.title.replace(
-          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
-          "$1年$2月$3日"
+            /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+            "$1年$2月$3日"
         )}级地震-标绘数据` : "标绘数据模板";
 
         link.setAttribute('download', `${excelTitle}.xlsx`);
@@ -803,12 +822,12 @@ export default {
             const plotTypeFields = Object.values(plotType).find(team => team.name === plotInfo.plotType);
 
             const filteredPlotTypeInfo = Object.keys(plotTypeFields).filter(key => key !== 'name')
-              .reduce((obj, key) => {
-                if (plotTypeInfo[key] !== undefined) {
-                  obj[plotTypeFields[key].name] = plotTypeInfo[key];
-                }
-                return obj;
-              }, {});
+                .reduce((obj, key) => {
+                  if (plotTypeInfo[key] !== undefined) {
+                    obj[plotTypeFields[key].name] = plotTypeInfo[key];
+                  }
+                  return obj;
+                }, {});
 
             // 返回提取的字段
             return {
@@ -837,7 +856,7 @@ export default {
               "结束时间": item["结束时间"],
               // 将 plotTypeInfo 中的其他字段加入
               ...Object.fromEntries(
-                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
+                  Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
               )
             };
 
@@ -893,12 +912,12 @@ export default {
 
             // 根据 flag 值决定是否应用过滤
             child.children = arr
-              .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
-              .map(item => ({
-                label: item.name,
-                uuid: item.uuid,
-                children: [] // 初始化为空数组
-              }));
+                .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
+                .map(item => ({
+                  label: item.name,
+                  uuid: item.uuid,
+                  children: [] // 初始化为空数组
+                }));
           });
         }
       });
@@ -925,7 +944,9 @@ export default {
         const workbook = XLSX.read(data, { type: 'array' });
 
         // 检查是否正确读取工作簿内容
-        // console.log("工作簿内容：", workbook);
+        // console.log("工作簿内容：", workbook.Sheets);
+
+        this.sheetData = workbook.Sheets
 
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
@@ -934,9 +955,9 @@ export default {
         const firstCell = worksheet['A1'];
         if (!firstCell && firstCell !== "绘制类型") {
           this.$message({
-              type: 'error',
-              message: `文件的第一行数据有误，请检查文件内容！`
-            }
+                type: 'error',
+                message: `文件的第一行数据有误，请检查文件内容！`
+              }
           );
         }
       };
@@ -947,15 +968,195 @@ export default {
       return true;
     },
 
-    handleSuccess() {
+    handleSuccess(response) {
       console.log("上传成功")
-      this.initPlot(this.eqid)
+      this.handleData(response.data.plotIds)
+      // this.initPlot(this.eqid)
     },
+
+    convertToDateTimeString(excelDate) {
+      if (!excelDate) return null;
+      const date = new Date((excelDate - 25569) * 86400 * 1000);
+
+      // 将小时减去8小时
+      date.setHours(date.getHours() - 8);
+
+      // 格式化日期为 "YYYY/MM/DD HH:MM:SS"
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+    },
+
+    handleData(responseData) {
+      // console.log("工作簿内容：", this.sheetData);
+      // console.log("响应数据：", responseData);
+
+      const plotIds = responseData;  // 获取 plotIds 数组
+      let plotIdIndex = 0;  // 初始化索引来追踪当前 plotId
+
+      const result = Object.keys(this.sheetData).map(sheetName => {
+        const sheet = this.sheetData[sheetName];
+        const headers = [];
+        const rows = [];
+
+        // 提取列标题
+        for (const cell in sheet) {
+          if (cell[0] !== '!') { // 排除 meta 信息
+            const row = cell.match(/\d+/)[0];
+            const col = cell.match(/[A-Z]+/)[0];
+
+            if (row === '1') {
+              headers.push({ col, header: sheet[cell].v });
+            }
+          }
+        }
+
+        // 确定从 H 列开始提取字段
+        const startColumnIndex = headers.findIndex(header => header.col === 'H');
+
+        // 提取每一行数据
+        for (let i = 2; i <= parseInt(sheet['!ref'].split(':')[1].match(/\d+/)[0]); i++) {
+          const rowData = {};
+          const plotInfo = {};
+
+          headers.forEach((header, index) => {
+            const cellAddress = `${header.col}${i}`;
+            if (sheet[cellAddress] && sheet[cellAddress].v !== undefined) {
+              let value = sheet[cellAddress].v;
+
+              // 如果是开始时间或结束时间列，转换为精确日期时间格式
+              if (header.header === "开始时间" || header.header === "结束时间") {
+                value = this.convertToDateTimeString(value);
+              }
+
+              rowData[header.header] = value;
+
+              // 从 H 列开始动态填充 plotInfo
+              if (index >= startColumnIndex && header.header) { // 只处理从 H 列开始的标题
+                plotInfo[header.header] = value;
+              }
+            }
+          });
+
+          // 将 plotInfo 中的字段映射到对应的 plotType 键
+          const mappedPlotInfo = {};
+          for (const key in plotInfo) {
+            for (const teamKey in plotType) {
+              const team = plotType[teamKey];
+              for (const field in team) {
+                if (team[field].name === key) {
+                  mappedPlotInfo[field] = plotInfo[key];
+                }
+              }
+            }
+          }
+
+          // 仅添加含有有效数据的行
+          const hasValidData = Object.values(rowData).some(value => value !== null && value !== undefined && value !== '');
+          if (hasValidData) {
+            // 获取当前的 plotId，并递增索引
+            const plotId = plotIds[plotIdIndex];
+            plotIdIndex++;  // 增加索引，确保每行使用不同的 plotId
+
+            const plotIcon = this.plotPicture.find(icon => icon.name === sheetName)?.img;
+            rows.push({
+              type: "point",
+              operate: "add",
+              data: {
+                plot: {
+                  earthquakeId: this.eqid,
+                  plotId: plotId,  // 使用从 plotIds 数组中获取的 plotId
+                  plotType: sheetName,
+                  drawtype: "point",
+                  icon: plotIcon,
+                  geom: {
+                    type: "Point",
+                    coordinates: [rowData["经度"], rowData["纬度"]]
+                  },
+                  elevation: rowData["高程"] || 0,
+                  startTime: rowData["开始时间"],
+                  endTime: rowData["结束时间"],
+                  severity: null,
+                  isDeleted: null,
+                  creationTime: new Date().toISOString().slice(0, 19)
+                },
+                plotInfo: Object.keys(mappedPlotInfo).length > 0 ? { ...mappedPlotInfo, plotId } : undefined // 只添加非空的 plotInfo
+              },
+            });
+          }
+        }
+
+        return rows;
+      });
+
+      // 将结果扁平化成单个数组
+      const flattenedResult = result.flat();
+
+      // console.log("解析结果：", flattenedResult);
+
+      this.ifPointAnimation(true)
+
+      flattenedResult.forEach(data => {
+        this.wsSendPoint(JSON.stringify(data)); // 将 data 转换为 JSON 字符串发送
+        this.drawPoints(data.data.plot,true)
+      });
+
+      return flattenedResult;
+    },
+
     // =================================================================================================================
 
+    exportCesiumTheme() {
+
+      const targetInfo = Object.keys(this.eqInfo).length === 0 ? this.tableData[0] : this.eqInfo;
+
+      window.viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+            parseFloat(targetInfo.longitude),
+            parseFloat(targetInfo.latitude),
+            70000
+        ),
+        orientation: {
+          heading: 6.283185307179581,
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        }
+      });
+
+      this.showLegend = true;
+
+      const plotList = this.plotList;
+
+      plotList.forEach(item => {
+        const { plotType, icon } = item;
+
+        if (plotType) {
+          // 检查 this.legendPlotData 是否已有相同 plotType 的项
+          const existingEntry = this.legendPlotData.find(entry => entry.plotType === plotType);
+
+          if (existingEntry) {
+            // 如果已有相同 plotType 的项，增加计数
+            existingEntry.count += 1;
+          } else {
+            // 如果没有相同 plotType 的项，添加新项
+            this.legendPlotData.push({ plotType, count: 1, icon });
+          }
+        }
+      });
+
+      // console.log("标绘数据：",this.legendPlotData);
+
+      setTimeout(() => {
+        this.exportCesiumScene()
+      }, 3000);
+    },
+
     async exportCesiumScene() {
-
-
 
       // 开始导出时，显示加载动画
       this.loading = true;
@@ -984,7 +1185,8 @@ export default {
         //  5-7: 分别渲染图例、距离标尺和指南针
         // const legendCanvas = await this.renderElementToCanvas('.noteContainer', '图例');
         const distanceLegendCanvas = await this.renderElementToCanvas('.distance-legend', '距离标尺');
-        const compassCanvas = await this.renderElementToCanvas('.compass', '指南针');
+        const compassCanvas = await this.renderElementToCanvas('.compassContainer', '指南针');
+        const legendCanvas = await this.renderElementToCanvas('.legend-container', '图例');
 
         //  8: 创建一个新的合成 Canvas
         const finalCanvas = this.createFinalCanvas();
@@ -995,14 +1197,11 @@ export default {
 
         //  10-12: 分别绘制图例、距离标尺和指南针到合成 Canvas 上
 
-        // 计算 legendCanvas 的右下角位置，设置 10px 的边距
-        // const x = finalCanvas.width - legendCanvas.width - 10; // 计算右侧位置
-        // const y = finalCanvas.height - legendCanvas.height - 10; // 计算底部位置
-
         // 绘制 legendCanvas 到合成 Canvas 的右下角
         // finalContext.drawImage(legendCanvas, x, y);
         finalContext.drawImage(distanceLegendCanvas, 20, finalCanvas.height - distanceLegendCanvas.height - 20);
         finalContext.drawImage(compassCanvas, finalCanvas.width - compassCanvas.width - 20, 20);
+        finalContext.drawImage(legendCanvas, finalCanvas.width - legendCanvas.width, finalCanvas.height - legendCanvas.height)
 
         //  14: 将合成后的 Canvas 转换为图片
         this.previewImage = finalCanvas.toDataURL('image/png');
@@ -1119,9 +1318,10 @@ export default {
 
     // 下载图片
     downloadImage() {
+      this.showLegend = false;
+      this.legendPlotData = []
       // 获取要截取的 DOM 元素
       const elementToCapture = document.querySelector('.export-image');
-
       // 使用 html2canvas 截图
       html2canvas(elementToCapture, {
         useCORS: true, // 允许跨域请求，确保图片加载
@@ -1135,8 +1335,8 @@ export default {
         // 创建下载链接并触发下载
         const link = document.createElement('a');
         link.download = `${this.title.replace(
-          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
-          "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
+            /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+            "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
         link.href = finalImage; // 设置图片来源
         link.click(); // 触发下载
       }).catch(error => {
@@ -1147,6 +1347,8 @@ export default {
     // 关闭预览窗口
     closePreview() {
       this.previewImage = null;
+      this.showLegend = false;
+      this.legendPlotData = []
     },
 
 
@@ -1260,11 +1462,11 @@ export default {
       dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
 
       this.calculateCustomValues(
-        dataContext.points[0],
-        dataContext.points[dataContext.points.length - 1],
-        start,
-        end,
-        dataContext
+          dataContext.points[0],
+          dataContext.points[dataContext.points.length - 1],
+          start,
+          end,
+          dataContext
       );
     },
 
@@ -1416,7 +1618,7 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         // console.log("pickedEntity",pickedEntity)
         window.selectedEntity = pickedEntity?.id
-          // console.log("entity------------------",window.selectedEntity)
+        // console.log("entity------------------",window.selectedEntity)
 
         this.dataSourcePopupVisible = false
         if (window.selectedEntity === undefined) {
@@ -1496,7 +1698,6 @@ export default {
           // this.popupVisible = false; // 隐藏弹窗
           // this.popupData = {}
         }
-
         // 3-1 选中面时触发
         if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
           // 2-2 获取点击点的经纬度
@@ -1512,7 +1713,7 @@ export default {
           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
           // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
           if (this.isTerrainLoaded()) {
-            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            // const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
             let l = Cesium.Cartographic.fromCartesian(position)
             let lon = Cesium.Math.toDegrees(l.longitude)
             let lat = Cesium.Math.toDegrees(l.latitude)
@@ -1533,7 +1734,7 @@ export default {
           this.popupData = {}
           console.log(window.selectedEntity)
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log("popupData 22",this.popupData)
+          // console.log("popupData 22",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
           // that.polygonPosition = window.selectedEntity
@@ -1577,8 +1778,7 @@ export default {
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          // console.log(this.popupData)
-          console.log("popupData 33",this.popupData)
+          console.log(this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -1605,7 +1805,7 @@ export default {
           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
           // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
           if (this.isTerrainLoaded()) {
-            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            // const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
             let l = Cesium.Cartographic.fromCartesian(position)
             let lon = Cesium.Math.toDegrees(l.longitude)
             let lat = Cesium.Math.toDegrees(l.latitude)
@@ -1636,7 +1836,7 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
-          console.log("popupData 44",this.popupData)
+          // console.log("popupData 44",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
 
         }else {
@@ -1685,10 +1885,12 @@ export default {
 
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
+      this.eqInfo = row
+
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {
-       window.pointDataSource.entities.removeAll();
+        window.pointDataSource.entities.removeAll();
       }
       Arrow.drawArr = []
       // console.log("row",row)
@@ -2063,8 +2265,12 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo, bool) {
-      cesiumPlot.drawPoints(pointInfo, bool)
+    drawPoints(pointInfo,bool) {
+      if (this.ifPointAnimate) {
+        cesiumPlot.drawPoints(pointInfo, bool, 3000);
+      } else {
+        cesiumPlot.drawPoints(pointInfo, bool, 3000);
+      }
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
@@ -2263,7 +2469,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-          v = c == 'x' ? r : (r & 0x3 | 0x8);
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -2607,4 +2813,15 @@ img {
   justify-content: space-between;
 }
 
+.compassContainer {
+  position: absolute;
+  top: 20px; /* 距离顶部的像素 */
+  right: 20px; /* 距离右侧的像素 */
+  height: 120px;
+  width: 160px;
+  background: url(@/assets/compass.png) no-repeat center / cover;
+  z-index: 20;
+  transform-origin: center; /* 设置旋转中心 */
+  transition: transform 0.5s; /* 动画效果 */
+}
 </style>
