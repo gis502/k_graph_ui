@@ -477,6 +477,7 @@ export default {
   beforeUnmount() {
     console.log("111", window.viewer)
     if (window.viewer) {
+      Arrow.disable();
       let viewer = window.viewer
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
