@@ -5,7 +5,7 @@ export function upload(data) {
         url: '/common/upload',
         method: 'post',
         headers: {'Content-Type': 'multipart/form-data'},
-        data: data
+        data
     })
 }
 
@@ -21,6 +21,30 @@ export function save(data) {
     return request({
         url:'/news/save',
         method:'post',
+        data
+    })
+}
+
+export function removeById(params) {
+    return request({
+        url: '/news/removeById',
+        method: 'delete',
+        params
+    })
+}
+
+export function searchData(data) {
+    return request({
+        url: '/news/searchData',
+        method: 'post',
+        data
+    })
+}
+
+export function update(data) {
+    return request({
+        url: '/news/update',
+        method: 'put',
         data
     })
 }

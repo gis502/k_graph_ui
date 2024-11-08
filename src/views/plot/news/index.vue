@@ -1,9 +1,9 @@
 <template>
   <div>
-    <el-form-item style="padding-top:20px;padding-left:20px;">
+    <el-form-item label="新闻信息 " style="padding-top:20px;padding-left:20px;">
       <el-input
           v-model="queryParams"
-          placeholder="请输入查询信息"
+          placeholder="请输入新闻信息"
           clearable
           style="width: 200px"
           @keyup.enter="handleQuery"/>
@@ -155,10 +155,9 @@
 </template>
 
 <script setup>
-import {insert, update, removeById, list} from "@/api/system/security.js";
-import {upload, getNewsList, save} from '@/api/system/news.js'
+
+import {upload, getNewsList, save, removeById, searchData, update} from '@/api/system/news.js'
 import {ElMessage, ElMessageBox} from 'element-plus'
-import {throwError} from "element-plus/es/utils/index";
 import {ref} from "vue";
 
 let getData = ref([]) // 后端获取的所有数据
@@ -197,30 +196,39 @@ const fileList = ref([])
 const fileListLogo = ref([])
 const ruleFormRef = ref()
 const rules = reactive({
-  newsSource: [
-    {required: true, message: '请输入新闻来源', trigger: 'blur'}
-  ],
+
 });
+
 const headers = {'Content-Type': 'multipart/form-data'}
 
 onMounted(() => {
   getList()
 })
 
-function createFilter(queryString) {
-  return (restaurants) => {
-    return (restaurants.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-  };
-}
-
 // 搜索
 function handleQuery() {
-  let searchKey = queryParams.value.trim();
+  const searchKey = queryParams.value.trim();
   // 如果搜索关键字为空，恢复为原始数据
   if (searchKey === "") {
     getList()
     return;
   }
+  // 发送搜索请求
+  searchData({
+    currentPage: currentPage.value,
+    pageSize: pageSize.value,
+    requestParams: searchKey,
+  },).then(res => {
+    console.log("search----------", res);
+    // 更新 tableData 以显示搜索结果
+    total.value = res.data.total;  // 更新总数
+    tableData.value = res.data.records; // 使用更新后的数据进行分页
+  })
+      .catch(error => {
+        console.error("搜索时出现错误:", error);
+      });
+
+
 }
 
 // 重置搜索信息
@@ -236,7 +244,6 @@ function getList() {
     getData.value = res.data
     total.value = res.data.length
     tableData.value = getPageArr();
-
   })
 }
 
@@ -285,14 +292,14 @@ function getPageArr(data = getData.value) {
 function handleSizeChange(val) {
   pageSize.value = val
   tableData.value = getPageArr()
-  console.log(`每页 ${val} 条`);
+  // console.log(`每页 ${val} 条`);
 }
 
 // `当前页: ${val}`
 function handleCurrentChange(val) {
   currentPage.value = val
   tableData.value = getPageArr()
-  console.log(`当前页: ${val}`);
+  // console.log(`当前页: ${val}`);
 }
 
 // 新增与修改弹窗的取消按钮
@@ -315,39 +322,45 @@ const submitForm = async (formEl) => {
 }
 
 // 新增与修改弹窗的确认按钮
-function commit() {
+async function commit() {
 
   if (dialogTitle.value === "新增") {
     dialogContent.value.uuid = guid()
-    let data = JSON.parse(JSON.stringify(dialogContent.value));
+    const data = JSON.parse(JSON.stringify(dialogContent.value));
 
-
-    upload({file: file.value.url})
+    await upload({file: file.value.url})
         .then(res => {
-          console.log("封面图片上传成功 => ", res)
           //在这个地方将图片地址更换
           data.image = res.url
         })
         .catch(ex => {
           console.log("封面上传失败 => ", ex)
         })
-    upload({file: fileLogo.value.url})
+    await upload({file: fileLogo.value.url})
         .then(res => {
-          console.log("Logo图片上传成功 => ", res)
           //在这个地方将图片地址更换
           data.sourceLogo = res.url
         })
         .catch(ex => {
           console.log("Logo上传失败 => ", ex)
         })
-    console.log("待上传的数据：", data)
-    save(data).then(res => {
-      console.log(res, "插入成功")
-    }).catch(ex => {
+    await save(data).then().catch(ex => {
       console.log(ex, "插入数据失败")
     })
+    getList()
+  }
 
+  if (dialogTitle.value === "修改") {
+    const data = JSON.parse(JSON.stringify(dialogContent.value));
 
+    console.log(data,'----------> 要修改的数据')
+    await update(data).then(res => {
+      dialogShow.value = false
+      clearDialogContent()
+      getList()
+    }).catch(ex => {
+      console.log(ex,'修改数据失败')
+    })
   }
 }
 
@@ -372,8 +385,9 @@ function handleDelete(row) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    removeById({id: row.uuid}).then(res => {
-      console.log(res)
+    console.log(row,'-----------------------------')
+
+    removeById({ id: row.id} ).then(res => {
       ElMessage({
         type: 'success',
         message: '删除成功'
@@ -391,7 +405,7 @@ function handleOpen(title, row) {
     dialogTitle.value = title
   } else {
     dialogTitle.value = title
-    dialogContent.value = {...row}
+    dialogContent.value = { ...row }
   }
   dialogShow.value = !dialogShow.value
 }
@@ -406,7 +420,6 @@ function guid() {
 }
 
 function handlerChange(res) {
-
   console.log("res:", res)
   if (res.status === 'ready') {
     console.log("准备上传...")
@@ -414,7 +427,6 @@ function handlerChange(res) {
   } else {
     console.log("上传失败：", res)
   }
-
 }
 
 function handlerChangeCover(res, fileList) {
@@ -425,10 +437,6 @@ function handlerChangeCover(res, fileList) {
   } else {
     console.log("上传失败：", res)
   }
-}
-
-function handleError(err, file, fileList) {
-  console.log("上传失败：", err)
 }
 
 function deleteUnloadPic(file) {

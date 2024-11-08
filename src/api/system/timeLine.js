@@ -6,15 +6,16 @@ export function getEmergencyResponse(data) {
     return request({
         url: '/timeLine/emergencyResponse',
         method: 'get',
-        params:data
+        params: data
     })
 }
+
 // 获取 人员伤亡
 export function getRescueActionCasualties(data) {
     return request({
         url: '/timeLine/rescueActionCasualties',
         method: 'get',
-        params:data
+        params: data
     });
 }
 
@@ -26,6 +27,7 @@ export function getRescueTeam(data) {
         params: data
     })
 }
+
 // 获取 新闻
 export function getNews(data) {
     return request({
@@ -34,3 +36,5 @@ export function getNews(data) {
         params: data
     })
 }
+
+
