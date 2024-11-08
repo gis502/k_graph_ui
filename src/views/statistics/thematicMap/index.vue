@@ -30,6 +30,18 @@
           <span class="block" :style="{ backgroundColor: item.color }"
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
         </div>
+        <div class="legend_item" v-for="(item, index) in this.transportationElectricityLegendData" :key="index">
+  <span class="block"
+        :style="{
+          backgroundImage: 'url(' + item.img + ')',
+          backgroundSize: 'cover',
+          height: '30px',
+          width: '30px',
+          marginLeft: '5px',
+        }">
+  </span>
+          {{ item.name }}
+        </div>
       </el-form>
       <el-form class="noteContainer" v-if="this.selectedComponentKey === 'BuildingDamageInformation'">
         <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
@@ -51,6 +63,9 @@
         </div>
       </el-form>
       <el-form class="noteContainer" v-if="this.selectedComponentKey === 'SecondaryDisaster'">
+
+
+
         <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
         <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
@@ -58,12 +73,14 @@
         </div>
 
 
-        <div class="legend_container" style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="legend_container" style="display: flex; flex-direction: column; gap: 0px;">
           <div class="legend_group" v-for="(legend, legendIndex) in this.secondaryDisasterLegendData"
                :key="legendIndex">
-            <p style="color: white; font-weight: bold; margin: 5px 0;">{{ legend.name }}</p>
-            <div class="legend_item" v-for="(item, itemIndex) in legend.data" :key="itemIndex"
-                 style="display: flex; align-items: center; margin: 5px 0;">
+
+            <p style="color: white; font-weight: bold; margin: 5px 0 ">{{ legend.name }}</p>
+
+            <div class="legend_item1" v-for="(item, itemIndex) in legend.data" :key="itemIndex"
+                 style="display: flex; align-items: center; ">
               <span class="block"
                     :style="{
                       backgroundImage: 'url(' + item.img + ')',
@@ -71,9 +88,11 @@
                       height: item.height + 'px',
                       width: item.width + 'px',
                       marginRight: '10px',
+                      marginLeft:item.marginLeft + 'px',
+                      marginBottom: '2px',
                     }">
               </span>
-              <span style="color: white;">{{ item.name }}</span>
+              <span style="color: white;" :style="{marginLeft:item.marginLeft + 'px',}">{{ item.name }}</span>
             </div>
           </div>
         </div>
@@ -326,7 +345,7 @@ export default {
           chartType: 'bar',
           data: [
             {name: '疏散数量(个)', color: '#2c933e'},
-            {name: '正在施工点(个)', color: '#53a8ff'},
+            // {name: '正在施工点(个)', color: '#53a8ff'},
             {name: '现有风险点(个)', color: '#ff6d39'},
             {name: '警报数量(个)', color: '#ff7c88'},
           ]
@@ -386,9 +405,9 @@ export default {
         },
         SecondaryDisaster: {
           locationKey: 'quakeAreaName',
-          dataKeys: ['evacuationCount', 'constructionPoints', 'existingRiskPoints', 'alarmCount'],
+          dataKeys: ['evacuationCount', 'existingRiskPoints', 'alarmCount'],
           legendName: 'SecondaryDisaster',
-          labels: ['疏散数量：', '正在施工点数量：', '现有风险点数量：', '警报数量：']
+          labels: ['疏散数量：', '现有风险点数量：', '警报数量：']
         },
         ResourceStrength: {
           locationKey: 'earthquakeAreaName',
@@ -509,17 +528,17 @@ export default {
         {
           name: '受威胁群众(户或人)',
           data: [
-            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity]},
-            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200]},
-            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50]},
+            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity],marginLeft: 0},
+            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200],marginLeft: 5},
+            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50],marginLeft: 7.5},
           ]
         },
         {
           name: '避险转移(户或人)',
           data: [
-            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity]},
-            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200]},
-            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50]},
+            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity],marginLeft: 0},
+            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200],marginLeft: 5},
+            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50],marginLeft: 7.5},
           ]
         },
       ],
@@ -1482,7 +1501,7 @@ export default {
             threatenedCount = dataItem.threatenedPopulation;
             const locations = [
               {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
-              {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+              {name: '名山区', longitude: 103.37, latitude: 30.12},  // 向西南偏移
               {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
               {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
               {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
@@ -2537,6 +2556,16 @@ export default {
   align-items: center;
   font-size: 16px;
   margin-bottom: 5px;
+  color: white;
+}
+
+.legend_item1 {
+  width: 100%;
+//height: 26px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+//margin-bottom: 5px;
   color: white;
 }
 
