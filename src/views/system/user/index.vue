@@ -701,7 +701,9 @@ function handleUpdate(row) {
 /** 提交按钮 */
 function submitForm() {
   // 若依框架存储为数组格式
-  form.value.roleIds = [form.value.roleIds]
+  if (!Array.isArray(form.value.roleIds)){
+    form.value.roleIds = [form.value.roleIds]
+  }
   proxy.$refs["userRef"].validate(valid => {
     if (valid) {
       if (form.value.userId !== undefined) {
