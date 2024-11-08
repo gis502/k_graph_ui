@@ -56,7 +56,7 @@ function websocketonmessage(e) {
                 console.log(5629)
                 let polygonRemoved = window.viewer.entities.removeById(id);
                 let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
-
+                window.viewer.entities.removeById(id + "_polygon")
                 console.log(polygonRemoved, pointDataRemoved);
 
             } else if (markType === "polyline") {
@@ -68,11 +68,13 @@ function websocketonmessage(e) {
                 window.viewer.entities.remove(polyline)
             } else if (markType === "polygon") {
                 let polygon = window.viewer.entities.getById(id)
+                console.log("1123",polygon)
                 let polygonPosition = polygon.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
                 polygonPosition.linePoint.forEach((item, index) => {
                     window.viewer.entities.remove(item)
                 })
                 window.viewer.entities.remove(polygon)
+                window.viewer.entities.removeById(id + "_polygon")
             } else if(markType === "arrow"){
                 console.log("arrow------------------")
                 arrow.clearById(id)
@@ -158,54 +160,7 @@ function wsAdd(type, data) {
         })
     } else if (type === "polygon") {
         let polygonArr = [data.plot]
-        // 1-1 根据面的Plotid记录有多少个面
-        let onlyPlotid = distinguishPolygonId(polygonArr)
-        // console.log("onlyPlotid",onlyPlotid)
-        // 1-2根据Plotid来画面
-        onlyPlotid.forEach(onlyPlotidItem => {
-            // 1-3 把数据库同一Plotid的点数据放入此数组
-            let polygon = []
-            polygonArr.forEach(polygonElement => {
-                if (polygonElement.plotId === onlyPlotidItem) {
-                    polygon.push(polygonElement)
-                }
-            })
-            // 1-4 pointLinePoints用来存构成面的点实体
-            let pointLinePoints = []
-            let coords = polygon[0].geom.coordinates[0]
-            // console.log("coords",coords)
-            for (let i = 0; i < coords.length; i++) {
-                let polygonCoords = coords[i]
-
-                // 转换为Cartesian3坐标
-                let cartographic = Cesium.Cartographic.fromDegrees(
-                    parseFloat(polygonCoords[0]),
-                    parseFloat(polygonCoords[1]),
-                    parseFloat(0)
-                );
-                let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
-                pointLinePoints.push(cartesian);
-                // === 检查并删除已经存在的多边形实体 ===
-                let polygonId = onlyPlotidItem;
-                if (window.viewer.entities.getById(polygonId)) {
-                    window.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
-                }
-                window.viewer.entities.add({
-                    id: onlyPlotidItem,
-                    polygon: {
-                        hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
-                        material: polygon[0].icon,
-                        // stRotation: Cesium.Math.toRadians(polygon[0].angle),
-                        clampToGround: true,
-                    },
-                    properties: {
-                        // pointPosition: this.positions,
-                        // linePoint: this.polygonPointEntity,
-                        data: polygon //弹出框
-                    }
-                });
-            }
-        })
+        cesiumPlot.getDrawPolygon(polygonArr);
     }else if(type === "arrow"){
         console.log(45678)
 
