@@ -179,7 +179,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">回溯时间：{{this.timestampToTimeChinese(this.currentTime)}}</div>
+    <div v-if="this.isTimerRunning || this.currentTimePosition !== '100'" class="timelineRunningTimeLabel">回溯时间：{{this.timestampToTimeChinese(this.currentTime)}}</div>
   </div>
 </template>
 
@@ -1035,7 +1035,7 @@ export default {
               window.viewer.entities.remove(entityDonghua); // 移除点
             }
             // if(window.labeldataSource) {
-              const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+              const entitylabel = window.labeldataSource.entities.getById(item.plotId+'_label');
               if (entitylabel) {
                 window.labeldataSource.entities.remove(entitylabel); // 移除点
               }
@@ -1044,12 +1044,22 @@ export default {
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
       // console.log(points,"points")
-      let stoptime=3000
+      let stoptime=5000
       if (points.length > 0) {
-        stoptime=points.length*3000/this.currentSpeed
-        let param = bool === false ? false : true
-        cesiumPlot.drawPoints(points,param,stoptime);
+        points.forEach(item=>{
+          setTimeout(() => {
+            let tmparr=[]
+            tmparr.push(item)
+            let param = bool === false ? false : true
+            cesiumPlot.drawPoints(tmparr,param,stoptime);
+          }, stoptime);
+
+        })
+        // stoptime=points.length*3000/this.currentSpeed
+        // let param = bool === false ? false : true
+        // cesiumPlot.drawPoints(points,param,stoptime);
       }
+
       if(this.isTimerRunning){
         setTimeout(() => {
           this.updateCurrentTime()
@@ -1077,6 +1087,7 @@ export default {
         // 处理线条消失的逻辑
         if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
+
           // console.log(item.plotId,"end")
           viewer.entities.removeById(item.plotId)
           /*因为封装好渲染线的函数中，将每个点都进行了渲染，清除时也要将每个点清除*/
@@ -1203,7 +1214,7 @@ export default {
               if (entityDonghua) {
                 window.viewer.entities.remove(entityDonghua); // 移除点
               }
-              const entitylabel = window.labeldataSource.entities.getById(item.plotId);
+              const entitylabel =window.labeldataSource.entities.getById(item.plotId+'_label');
               if (entitylabel) {
                 window.labeldataSource.entities.remove(entitylabel); // 移除点
               }
@@ -1640,13 +1651,14 @@ export default {
 
 //
           // 如果点击的是标绘点
-          if (entity._layer === "标绘点"||entity._layer === "label") {
+          if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
             this.timelinePopupData={}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
             this.routerPopupVisible = false;
             this.dataSourcePopupVisible = false
-          } else if (entity._billboard) {
+          }
+          else if (entity._billboard) {
             // 如果点击的是路标
             this.routerPopupVisible = true;
             // this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
@@ -1658,18 +1670,20 @@ export default {
           //聚合弹框
           else if(Object.prototype.toString.call(entity) === '[object Array]') {
             //点击标签无弹框
-            if(entity[0]._layer==="label"){
+         if(entity[0].entityCollection.owner.name==="label"){
               this.dataSourcePopupVisible = false
               this.timelinePopupVisible = false
               this.routerPopupVisible = false;
             }
-            else{
-              this.dataSourcePopupData = entity
-              this.dataSourcePopupVisible = true
-              this.timelinePopupVisible = false
-              this.routerPopupVisible = false;
-            }
-            console.log("entity dataSourcePopupVisibletrue",entity)
+         else{
+           this.dataSourcePopupData = entity
+           this.dataSourcePopupVisible = true
+           this.timelinePopupVisible = false
+           this.routerPopupVisible = false;
+
+         }
+
+            // console.log("entity dataSourcePopupVisibletrue",entity)
 
           } else {
             // 如果不是标绘点或路标

@@ -43,9 +43,9 @@ const updateData = (data) =>{
     total_magnitude_5_5_9.value += item.magnitude_5_5_9;
     all_aftershocks.value += item.total_aftershocks;
 
-    if (item.system_insert_time) {
-      const formattedTime = formatDate(new Date(item.system_insert_time));
-      if (!latest_time.value || new Date(item.system_insert_time) > new Date(latest_time.value)) {
+    if (item.submission_deadline) {
+      const formattedTime = formatDate(new Date(item.submission_deadline));
+      if (!latest_time.value || new Date(item.submission_deadline) > new Date(latest_time.value)) {
         latest_time.value = formattedTime;
       }
     }

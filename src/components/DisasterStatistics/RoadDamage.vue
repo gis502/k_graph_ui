@@ -52,8 +52,8 @@ function update(data) {
     restoredKm.value = data.map(item => item.restoredKm || 0);
     pendingRepairKm.value = data.map(item => item.pendingRepairKm || 0);
     latestTime.value = data.reduce((max, item) => {
-      return new Date(max) > new Date(item.systemInsertTime) ? max : item.systemInsertTime;
-    }, data[0].systemInsertTime); // 确保初始值
+      return new Date(max) > new Date(item.reportingDeadline) ? max : item.reportingDeadline;
+    }, data[0].reportingDeadline); // 确保初始值
   }
 
   echartsInstance.setOption({
