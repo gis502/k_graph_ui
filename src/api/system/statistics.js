@@ -12,8 +12,27 @@ export function getAftershockMagnitude(eqid) {
         method: 'get',
         params: {eqid: eqid}
     });
-
 }
+
+/**
+ * 获取各区人口总数
+ * @returns {*}
+ */
+export function getPopulationData() {
+    return request({
+        url: '/system/populationdata/list',
+        method: 'post',
+    });
+}
+
+export function getRiskPoint(eqid) {
+    return request({
+        url: `/risk_points/list/${eqid}`, // 使用模板字符串插入 eqid
+        method: 'get',
+    });
+}
+
+
 
 export function getAfterShockInformation(eqid) {
     return request({

@@ -1,16 +1,16 @@
 <template>
-  <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
+  <div ref="chart" style="width:100%; height:230px;margin-top: 30px" ></div>
 </template>
 
 <script setup>
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
-import {getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
+import {getPublicOpinion} from "../../api/system/publicOpinion";
 
 
 const chart = ref(null);
-const FieldName = ref(['目前受损（个）','目前禁用（个）','目前限用（个）','目前可用（个）']);
+const FieldName = ref(['宣传报道（篇）','中省主要媒体报道（篇）','舆论风情提示（条）','发布会（场）','处置负面舆论（条）']);
 let echartsInstance = null; // 全局变量
 const eqid = ref('');
 const props = defineProps({
@@ -19,61 +19,63 @@ const props = defineProps({
     required: true,
   },
 });
-const currentlyDamaged = ref([]) // 目前受损
-const currentlyDisabled = ref([]) // 目前禁用
-const currentlyRestricted = ref([]) // 目前限用
-const currentlyAvailable = ref([]) // 目前可用
-const affectedAreaName = ref([]) // 地点
+
+const publicityReport = ref([]) // 宣传报道
+const provincialMediaReport = ref([]) // 中省主要媒体报道
+const publicOpinionRiskWarning = ref ([]) // 舆情风险提示
+const pressConference = ref([]) // 发布会
+const negativeOpinionDisposal = ref([]) // 处置负面舆论
+const earthquakeZoneName = ref([]) // 地点
 const latestTime = ref('')
-const latestTimes = ref('')
 const store = useGlobalStore()
 
 setTimeout(()=>{
-  getHousingSituationList(store.globalEqId).then(res => {
-
-    console.log('jiwdjwjdjwdjjwdidjiwjdjwidjiwjd',res)
+  getPublicOpinion(store.globalEqId).then(res => {
     update(res)
   });
 },500)
 
 
-
 function update(data){
   // 如果返回的数组为空，设置默认值
   if (data.length === 0) {
-    affectedAreaName.value = ['抱歉暂无数据'];
-    currentlyDamaged.value = [0];
-    currentlyDisabled.value = [0];
-    currentlyRestricted.value = [0];
-    currentlyAvailable.value = [0];
+    earthquakeZoneName.value = ['抱歉暂无数据'];
+    publicityReport.value = [0];
+    provincialMediaReport.value = [0];
+    publicOpinionRiskWarning.value = [0];
+    pressConference.value = [0];
+    negativeOpinionDisposal.value = [0];
     latestTime.value = '';
   } else {
-    affectedAreaName.value = data.map(item => item.affectedAreaName || '无数据');
-    currentlyDamaged.value = data.map(item => item.currentlyDamaged || 0);
-    currentlyDisabled.value = data.map(item => item.currentlyDisabled || 0);
-    currentlyRestricted.value = data.map(item => item.currentlyRestricted || 0);
-    currentlyAvailable.value = data.map(item => item.currentlyAvailable || 0);
+    earthquakeZoneName.value = data.map(item => item.earthquakeZoneName || '无数据');
+    publicityReport.value = data.map(item => item.publicityReport || 0);
+    provincialMediaReport.value = data.map(item => item.provincialMediaReport || 0);
+    publicOpinionRiskWarning.value = data.map(item => item.publicOpinionRiskWarning || 0);
+    pressConference.value = data.map(item => item.pressConference || 0);
+    negativeOpinionDisposal.value = data.map(item => item.negativeOpinionDisposal || 0);
     latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
-    latestTimes.value = data.map(item => item.submissionDeadline || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({
     xAxis: {
-      data: affectedAreaName.value
+      data: earthquakeZoneName.value
     },
     series: [
       {
-        data: currentlyDamaged.value
+        data: publicityReport.value
       },
       {
-        data: currentlyDisabled.value
+        data: provincialMediaReport.value
       },
       {
-        data: currentlyRestricted.value
+        data: publicOpinionRiskWarning.value
       },
       {
-        data: currentlyAvailable.value
-      }
+        data: pressConference.value
+      },
+      {
+        data: negativeOpinionDisposal.value
+      },
     ]
   });
 }
@@ -97,7 +99,7 @@ function formatDate(dateString) {
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getHousingSituationList(eqid.value).then(res => {
+  getPublicOpinion(eqid.value).then(res => {
     update(res)
   });
 });
@@ -142,7 +144,7 @@ const initChart = () => {
     },
     xAxis: [{
       type: 'category',
-      data: affectedAreaName.value, // 使用动态获取的区域数据
+      data: earthquakeZoneName.value, // 使用动态获取的区域数据
       axisLine: {
         show: true,
         lineStyle: {
@@ -186,9 +188,9 @@ const initChart = () => {
     }],
     series: [
       {
-        name: '目前受损（个）',
+        name: '宣传报道（篇）',
         type: 'bar',
-        data: currentlyDamaged.value,
+        data: publicityReport.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -199,9 +201,9 @@ const initChart = () => {
         }
       },
       {
-        name: '目前禁用（个）',
+        name: '中省主要媒体报道（篇）',
         type: 'bar',
-        data: currentlyDisabled.value,
+        data: provincialMediaReport.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -212,9 +214,9 @@ const initChart = () => {
         }
       },
       {
-        name: '目前限用（个）',
+        name: '舆论风情提示（条）',
         type: 'bar',
-        data: currentlyRestricted.value,
+        data: publicOpinionRiskWarning.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -225,9 +227,9 @@ const initChart = () => {
         }
       },
       {
-        name: '目前可用（个）',
+        name: '发布会（场）',
         type: 'bar',
-        data: currentlyAvailable.value,
+        data: pressConference.value,
         barWidth: 13,
         barGap: 1,
         itemStyle: {
@@ -236,7 +238,20 @@ const initChart = () => {
             opacity: 1
           }
         }
-      }
+      },
+      {
+        name: '处置负面舆论（条）',
+        type: 'bar',
+        data: negativeOpinionDisposal.value,
+        barWidth: 13,
+        barGap: 1,
+        itemStyle: {
+          normal: {
+            color:'#00B2A9',
+            opacity: 1
+          }
+        }
+      },
     ]
   };
   echartsInstance.setOption(option);

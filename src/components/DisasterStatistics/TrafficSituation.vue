@@ -47,8 +47,8 @@ function update(data){
     repairedCableLength.value = data.map(item => item.repairedCableLength || 0)
     currentPendingRepairCableLength.value = data.map(item => item.currentPendingRepairCableLength || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(max) > new Date(item.systemInsertionTime) ? max : item.systemInsertionTime;
-    },data[0].systemInsertionTime); // 确保初始值
+      return new Date(max) > new Date(item.reportingDeadline) ? max : item.reportingDeadline;
+    },data[0].reportingDeadline); // 确保初始值
   }
 
   echartsInstance.setOption({
@@ -113,7 +113,10 @@ const initChart = () => {
         type: 'category',
         data: earthquakeZoneName.value,
         axisLabel: {
-          color: '#ffffff',
+          show: true,
+          textStyle: {
+            color: "#00c7ff"
+          }
         }
       }
     ],

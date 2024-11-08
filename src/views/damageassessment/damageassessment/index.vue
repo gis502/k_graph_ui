@@ -490,7 +490,10 @@ export default {
         }
         // 如果点击其他位置，隐藏所有地震点的标签，并关闭 faultInfoDiv
         else {
-          this.selectedEqPoint.label._show._value = false;
+          if (this.selectedEqPoint) {
+            this.selectedEqPoint.label._show._value = false;
+          }
+
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
@@ -1335,56 +1338,59 @@ export default {
 
       this.renderLayers("");
 
-      const entries = Object.entries(layerData);
-      const counties = entries.map(([key]) => key);
-      const numbers = entries.map(([, value]) => value);
-      const layerName = `${type}`;
+      if (layerData) {
+        const entries = Object.entries(layerData);
+        const counties = entries.map(([key]) => key);
+        const numbers = entries.map(([, value]) => value);
+        const layerName = `${type}`;
 
-      // 加载 sichuanCounty.json 数据
-      Cesium.GeoJsonDataSource.load(sichuanCounty).then((geoJsonDataSource) => {
-        viewer.dataSources.add(geoJsonDataSource);
-        geoJsonDataSource.name = layerName;
+        // 加载 sichuanCounty.json 数据
+        Cesium.GeoJsonDataSource.load(sichuanCounty).then((geoJsonDataSource) => {
+          viewer.dataSources.add(geoJsonDataSource);
+          geoJsonDataSource.name = layerName;
 
-        const entities = geoJsonDataSource.entities.values;
+          const entities = geoJsonDataSource.entities.values;
 
-        entities.forEach((entity) => {
-          const countyName = entity.name;
+          entities.forEach((entity) => {
+            const countyName = entity.name;
 
-          // 如果县区存在于传入的 layerData 中
-          if (counties.includes(countyName)) {
-            const index = counties.indexOf(countyName);
-            const number = numbers[index];
+            // 如果县区存在于传入的 layerData 中
+            if (counties.includes(countyName)) {
+              const index = counties.indexOf(countyName);
+              const number = numbers[index];
 
-            let colorIndex, legendColorArray;
+              let colorIndex, legendColorArray;
 
-            // 根据不同的图层类型计算颜色索引
-            if (type === 'economicLoss') {
-              colorIndex = this.getColorIndex(number, this.ecoLegendColor, [10000, 50000, 100000, 200000, 500000, 1000000]);
-              legendColorArray = this.ecoLegendColor;
-            } else if (type === 'buildingDamage') {
-              colorIndex = this.getColorIndex(number, this.bddLegendColor, [1, 5, 10, 20, 50, 100]);
-              legendColorArray = this.bddLegendColor;
-            } else if (type === 'personalCasualty') {
-              if (number < 1) {
-                this.setPolygonTransparent(entity);
-                return;
+              // 根据不同的图层类型计算颜色索引
+              if (type === 'economicLoss') {
+                colorIndex = this.getColorIndex(number, this.ecoLegendColor, [10000, 50000, 100000, 200000, 500000, 1000000]);
+                legendColorArray = this.ecoLegendColor;
+              } else if (type === 'buildingDamage') {
+                colorIndex = this.getColorIndex(number, this.bddLegendColor, [1, 5, 10, 20, 50, 100]);
+                legendColorArray = this.bddLegendColor;
+              } else if (type === 'personalCasualty') {
+                if (number < 1) {
+                  this.setPolygonTransparent(entity);
+                  return;
+                }
+                colorIndex = this.getColorIndex(number, this.pcLegendColor, [1, 5, 10, 20, 50, 100, 250, 500]);
+                legendColorArray = this.pcLegendColor;
               }
-              colorIndex = this.getColorIndex(number, this.pcLegendColor, [1, 5, 10, 20, 50, 100, 250, 500]);
-              legendColorArray = this.pcLegendColor;
+
+              // 设置填充颜色和边框
+              this.setPolygonColor(entity, legendColorArray[colorIndex]);
+              // 添加标签
+              this.addRegionLabel(entity, countyName, type);
+            } else {
+              // 如果县区不在 layerData 中，设置为透明并隐藏边线
+              this.setPolygonTransparent(entity);
             }
+          });
 
-            // 设置填充颜色和边框
-            this.setPolygonColor(entity, legendColorArray[colorIndex]);
-            // 添加标签
-            this.addRegionLabel(entity, countyName, type);
-          } else {
-            // 如果县区不在 layerData 中，设置为透明并隐藏边线
-            this.setPolygonTransparent(entity);
-          }
+          this.renderLayers(type);
         });
+      }
 
-        this.renderLayers(type);
-      });
     },
 
     // 获取颜色索引
