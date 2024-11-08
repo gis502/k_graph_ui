@@ -34,20 +34,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                  size="small"
-                  @click="plotAdj(scope.row)">查看
+                size="small"
+                @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            layout="total, prev, pager, next"
-            :total="total">
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          layout="total, prev, pager, next"
+          :total="total">
         </el-pagination>
 
       </el-form>
@@ -98,34 +98,34 @@
         </el-row>
       </el-form>
       <addMarkCollectionDialog
-          :addMarkDialogFormVisible="addMarkDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @drawPoints="drawPoints"
-          @ifPointAnimate="ifPointAnimation"
-          @clearMarkDialogForm="resetAddMarkCollection"
+        :addMarkDialogFormVisible="addMarkDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @drawPoint="drawPoint"
+        @ifPointAnimate="ifPointAnimation"
+        @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolyline"
+        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolygon"
+        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-          :visible="popupVisible"
-          :position="popupPosition"
-          :popupData="popupData"
-          :ifedit="true"
-          @wsSendPoint="wsSendPoint"
-          @closePlotPop="closePlotPop"
+        :visible="popupVisible"
+        :position="popupPosition"
+        :popupData="popupData"
+        :ifedit="true"
+        @wsSendPoint="wsSendPoint"
+        @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-          :visible="dataSourcePopupVisible"
-          :position="dataSourcePopupPosition"
-          :popupData="dataSourcePopupData"
+        :visible="dataSourcePopupVisible"
+        :position="dataSourcePopupPosition"
+        :popupData="dataSourcePopupData"
       />
 
       <el-button type="primary" @click="exportCesiumTheme"
@@ -211,7 +211,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
+    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -254,10 +254,11 @@
     </div>
 
     <div class="legend-container" style="position: absolute;bottom: 0;right: 0;" v-if="showLegend">
-      <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }"  :data="legendPlotData" style="width: 100%">
+      <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }" :data="legendPlotData"
+                style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;" />
+            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
         <el-table-column prop="plotType" label="类型" width="180"></el-table-column>
@@ -300,7 +301,7 @@ import html2canvas from "html2canvas";
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog,layeredShowPlot
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot
   },
   data: function () {
     return {
@@ -421,8 +422,8 @@ export default {
       //----------------------------------
       renderedPlotIds: new Set(), // 用于存储已经渲染的 plotid
       //----------------------------------
-      zoomLevel: '市' , // 初始化缩放层级
-      pointsLayer :[], //传到子组件
+      zoomLevel: '市', // 初始化缩放层级
+      pointsLayer: [], //传到子组件
       //----------------------------------
       plotList: [], // 用于指定地震标绘点导出
       selectVisible: false,
@@ -453,7 +454,7 @@ export default {
       flexPercentages: [],
       points: [],
       hasGeneratedPoints: false,
-      legendPlotData : [],
+      legendPlotData: [],
       showLegend: false,
       eqInfo: {},
       sheet: [],
@@ -476,7 +477,6 @@ export default {
   beforeUnmount() {
     console.log("111", window.viewer)
     if (window.viewer) {
-      Arrow.disable();
       let viewer = window.viewer
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
@@ -584,7 +584,7 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
-        console.log("this.eqid---------------------",this.eqid)
+      console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
@@ -599,7 +599,7 @@ export default {
         let data = res
 
         that.plotList = data
-        console.log("数据：",data)
+        console.log("数据：", data)
 
         let pointArr = data.filter(e => e.drawtype === 'point')
         let points = []
@@ -620,11 +620,11 @@ export default {
             that.renderedPlotIds.add(item.plotId);
           }
         })
-        that.drawPoints(points,false)
+        that.drawPoints(points)
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("pointArr",pointArr)
+        console.log("pointArr", pointArr)
         console.log("polylineArr", polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
@@ -655,7 +655,7 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight');
         Arrow.showStraightArrow(straightArr)
-          console.log("straightArr----------------",straightArr)
+        console.log("straightArr----------------", straightArr)
 
         let attackArr = data.filter(e => e.drawtype === 'attack');
         Arrow.showAttackArrow(attackArr)
@@ -834,6 +834,7 @@ export default {
 
     // 新方法展示与点击节点相关的name字段
     initializeTreeChildren(flag) {
+      console.log(flag)
       if (flag === 'export') {
 
         this.excelPanel = "标绘点数据导出"
@@ -842,10 +843,11 @@ export default {
         const plotTypes = this.plotList.map(plot => plot.plotType);
 
         getExcelPlotInfo(plotIds, plotTypes).then(res => {
+          console.log(res)
 
           // 提取 excelContent
           const excelContent = res.filter(item => item.plotInfo).map(item => {
-            const { plotInfo, plotTypeInfo } = item;
+            const {plotInfo, plotTypeInfo} = item;
 
             // 先提取绘制类型
             const drawTypeMap = new Map([
@@ -877,6 +879,7 @@ export default {
               ...filteredPlotTypeInfo, // 保留 plotTypeInfo 中的字段
             };
           });
+          console.log(excelContent)
 
           // 将数据调整为目标格式
           this.excelContent = excelContent.reduce((acc, item) => {
@@ -911,7 +914,7 @@ export default {
             return acc;
           }, []);
 
-          // console.log("调整后的数据格式:", this.excelContent);
+          console.log("调整后的数据格式:", this.excelContent);
 
           this.loading = false;
           this.isLoaded = true;
@@ -978,7 +981,7 @@ export default {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
+        const workbook = XLSX.read(data, {type: 'array'});
 
         // 检查是否正确读取工作簿内容
         // console.log("工作簿内容：", workbook.Sheets);
@@ -1048,7 +1051,7 @@ export default {
             const col = cell.match(/[A-Z]+/)[0];
 
             if (row === '1') {
-              headers.push({ col, header: sheet[cell].v });
+              headers.push({col, header: sheet[cell].v});
             }
           }
         }
@@ -1203,7 +1206,7 @@ export default {
       cameraController.enableRotate = false;
       cameraController.enableZoom = false;
       cameraController.enableTranslate = false;
-      console.log("Cesium相机：",cameraController)
+      console.log("Cesium相机：", cameraController)
 
       //  2: 获取地图当前视野范围的经纬度，并加载经纬度线
       this.getLatLonBounds();  // 获取当前视野经纬度范围
@@ -1655,7 +1658,7 @@ export default {
         let pickedEntity = window.viewer.scene.pick(click.position);
         // console.log("pickedEntity",pickedEntity)
         window.selectedEntity = pickedEntity?.id
-          // console.log("entity------------------",window.selectedEntity)
+        // console.log("entity------------------",window.selectedEntity)
 
         this.dataSourcePopupVisible = false
         if (window.selectedEntity === undefined) {
@@ -1812,7 +1815,6 @@ export default {
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log(this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -1872,7 +1874,7 @@ export default {
           this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
 
-        }else {
+        } else {
 
         }
 
@@ -1923,7 +1925,7 @@ export default {
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {
-       window.pointDataSource.entities.removeAll();
+        window.pointDataSource.entities.removeAll();
       }
       Arrow.drawArr = []
       // console.log("row",row)
@@ -1982,7 +1984,7 @@ export default {
         let cesiumStore = useCesiumStore()
         cesiumPlot.init(window.viewer, this.websock, cesiumStore)
 
-        console.log("websock:",this.websock)
+        console.log("websock:", this.websock)
       })
     },
     // /取地震信息+开始结束当前时间初始化
@@ -2009,7 +2011,7 @@ export default {
     },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
     updateMapandVariablebeforInit(data) {
-      let centerData={
+      let centerData = {
         ...data,
         drawtype: data.plotid
       }
@@ -2019,9 +2021,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            parseFloat(this.centerPoint.height || 0)
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -2301,7 +2303,7 @@ export default {
       }
     },
     drawPoints(pointInfo, bool) {
-      cesiumPlot.drawPoints(pointInfo, bool,3000)
+      cesiumPlot.drawPoints(pointInfo, bool)
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
@@ -2567,9 +2569,9 @@ export default {
         this.zoomLevel = '市'
       } else if (cameraHeight > 70000) {
         this.zoomLevel = '区/县'
-      } else if(cameraHeight > 4000){
+      } else if (cameraHeight > 4000) {
         this.zoomLevel = '乡/镇'
-      }else{
+      } else {
         this.zoomLevel = '村'
       }
     }
