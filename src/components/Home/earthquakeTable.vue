@@ -7,7 +7,7 @@
       <div class="table">
         <el-table
             :data="tableData"
-            style="width: 100%; margin-bottom: 2px;height: 35.5vw;"
+            style="width: 100%; margin-bottom: 2px;height: 32vw;"
             :header-cell-style="tableHeaderColor"
             :cell-style="tableColor"
             :row-style="{ height: '37.5px', fontSize: '12px'}"
@@ -92,7 +92,7 @@ const tableHeaderColor = () => ({
   'background-color': '#293038 !important',
   'color': '#fff',
   'text-align': 'center',
-  'font-size': '13px',
+  'font-size': '.8rem',
   'padding': '0',
   'margin': '0'
 });
@@ -135,7 +135,7 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
   width: 100%;
   line-height: 41px;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 1.1rem;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
   padding: 0 5px 0 10px;
@@ -189,6 +189,23 @@ const formatTime = (time) => time ? time.replace('T', ' ') : '';
 .custom-pagination >>> .el-pagination__right-wrapper {
   color: white;
   font-size: 13px;
+}
+/* 整个滚动条 */
+::-webkit-scrollbar {
+  width: 6px;               /* 滚动条的宽度 */
+  height: 12px;              /* 滚动条的高度，对水平滚动条有效 */
+}
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #008aff70; /* 轨道的背景颜色 */
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #1f9dca; /* 滑块的背景颜色 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 </style>
 

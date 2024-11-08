@@ -10,9 +10,9 @@
         <div class="list-dialog__header">
           <span>三维模型</span>
         </div>
-        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+        <div class="list-dialog__content" style="height: calc(100% - 30);">
           <el-table :data="modelTableData"
-                    style="width: 100%; margin-bottom: 2px;height: 35vw;"
+                    style="width: 100%; margin-bottom: 2px;height: 32vw;"
                     :header-cell-style="tableHeaderColor"
                     :row-style="{ height: '37.5px', fontSize: '12px'}"
                     :cell-style="tableColor" @row-click="">
@@ -125,7 +125,7 @@
                 v-for="item in thematicMapitems"
                 :key="item.id"
                 :label="item.name"
-                style="margin: 0 0;color:white"
+                style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
             >
               {{ item.name }}
             </el-radio>
@@ -148,7 +148,7 @@
                 v-for="item in reportItems"
                 :key="item.id"
                 :label="item.name"
-                style="margin: 0 0;color:white"
+                style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
             >
               {{ item.name }}
             </el-radio>
@@ -3260,15 +3260,15 @@ export default {
 @media screen and (max-width: 1645px) {
   .logo-title-content {
     width: 434px !important;
-    padding-top: 29px !important;
-    padding-right: 45px !important;
-    font-size: 19px !important;
+    padding-top: 3px !important;
+    padding-right: 0px !important;
+    font-size: 23px !important;
   }
 }
 
 @media screen and (max-width: 1835px) {
   .logo-title-content {
-    width: 580px !important;
+    width: 526px !important;
   }
 }
 
@@ -3283,8 +3283,8 @@ export default {
 .logo-menu-tittle {
   color: #fff;
   width: 141px;
-  height: 41px;
-  margin-top: 20px;
+  height: 35px;
+  margin-top: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3301,14 +3301,14 @@ export default {
 
 @media screen and (max-width: 1835px) {
   .logo-menu-tittle {
-    width: 125px !important;
-    font-size: 18px !important;
+    width: 103px !important;
+    font-size: 16px !important;
   }
 }
 
 .logo-menu {
   position: absolute;
-  top: 13px;
+  top: 3px;
   display: flex;
 }
 
@@ -3325,7 +3325,7 @@ export default {
 
 .logo-left-time {
   position: absolute;
-  top: 28px;
+  top: 20px;
 }
 
 .logo-right-time {
@@ -3335,7 +3335,7 @@ export default {
 }
 
 .logo-time-hour {
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 500;
   color: #fff;
   text-shadow: 0px 2px 6px #123756;
@@ -3351,7 +3351,7 @@ export default {
 }
 
 .pop-dialog {
-  height: 6.5rem;
+  height: 5.5rem;
 }
 
 .pop-icon {
@@ -3361,7 +3361,7 @@ export default {
 }
 
 .logo-time-year {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: #cdcdcd;
 }
@@ -3373,7 +3373,7 @@ export default {
 }
 
 #box {
-  height: calc(100vh - 104px);
+  height: calc(100vh - 88px);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -3583,7 +3583,7 @@ export default {
 }
 
 .thd-listTable {
-  width: 23.5%;
+  width: 26.5%;
   top: 13%;
   height: 79%;
   z-index: 30;
@@ -3666,7 +3666,7 @@ export default {
 }
 
 :deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 100 !important;
+  z-index: 600 !important;
   background-color: #2b323a;
 }
 
@@ -3716,7 +3716,7 @@ export default {
   width: 100%;
   line-height: 41px;
   color: #ffffff;
-  font-size: 18px;
+  font-size: 1.1rem;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
   padding: 0 5px 0 10px;
@@ -3837,5 +3837,22 @@ export default {
   display: flex; /* 使用Flexbox布局 */
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
+}
+/* 整个滚动条 */
+::-webkit-scrollbar {
+  width: 6px;               /* 滚动条的宽度 */
+  height: 12px;              /* 滚动条的高度，对水平滚动条有效 */
+}
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #008aff70; /* 轨道的背景颜色 */
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #1f9dca; /* 滑块的背景颜色 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 </style>
