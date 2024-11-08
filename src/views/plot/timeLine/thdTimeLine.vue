@@ -1021,50 +1021,48 @@ export default {
         // 如果点应该消失
         if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0;
-          // console.log(item.plotId, "end");
-
-          // 从 dataSource 中删除点
-          if (window.pointDataSource) {
-            const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-            if (entityToRemove) {
-              window.pointDataSource.entities.remove(entityToRemove); // 移除点
-            }
-
-            const entityDonghua = window.viewer.entities.getById(item.plotId);
-            if (entityDonghua) {
-              window.viewer.entities.remove(entityDonghua); // 移除点
-            }
-            // if(window.labeldataSource) {
-              const entitylabel = window.labeldataSource.entities.getById(item.plotId+'_label');
-              if (entitylabel) {
-                window.labeldataSource.entities.remove(entitylabel); // 移除点
-              }
-          }
+          cesiumPlot.deletePointById(item.plotId);
         }
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
       // console.log(points,"points")
       let stoptime=5000
       if (points.length > 0) {
-        points.forEach(item=>{
-          setTimeout(() => {
-            let tmparr=[]
-            tmparr.push(item)
-            let param = bool === false ? false : true
-            cesiumPlot.drawPoints(tmparr,param,stoptime);
-          }, stoptime);
+        // this.drawPointsOneByOne()
+        // stoptime=stoptime*points.length
+        let param = bool === false ? false : true
+        cesiumPlot.drawPoints(points,param,5000);
+        // this.drawPointsRecursive(points)
 
-        })
-        // stoptime=points.length*3000/this.currentSpeed
-        // let param = bool === false ? false : true
-        // cesiumPlot.drawPoints(points,param,stoptime);
+
+        // points.forEach(item=>{
+        //   setTimeout(() => {
+        //     let param = bool === false ? false : true
+        //     cesiumPlot.drawPoints(item,param,5000);
+        //     if(param===true){
+        //       viewer.scene.camera.flyTo({
+        //         destination: Cesium.Cartesian3.fromDegrees(
+        //             Number(item.longitude),
+        //             Number(item.latitude),
+        //             20000),
+        //         orientation: {
+        //           // 指向
+        //           heading: 6.283185307179581,
+        //           // 视角
+        //           pitch: -1.5688168484696687,
+        //           roll: 0.0
+        //         },
+        //         duration: 3 // 飞行动画持续时间（秒）
+        //       });
+        //     }
+        //   }, 5000);
+        // })
       }
 
-      if(this.isTimerRunning){
         setTimeout(() => {
           this.updateCurrentTime()
-        }, stoptime);
-      }
+        }, 5000);
+
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
@@ -1161,6 +1159,31 @@ export default {
         Arrow.showPincerArrow(pincerArr)
 
     },
+    drawPointsRecursive(points){
+
+      points.forEach(item=>{
+        setTimeout(() => {
+          let param = bool === false ? false : true
+          cesiumPlot.drawPoints(item,param,5000);
+          if(param===true){
+            viewer.scene.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(
+                  Number(item.longitude),
+                  Number(item.latitude),
+                  20000),
+              orientation: {
+                // 指向
+                heading: 6.283185307179581,
+                // 视角
+                pitch: -1.5688168484696687,
+                roll: 0.0
+              },
+              duration: 3 // 飞行动画持续时间（秒）
+            });
+          }
+        }, 5000);
+      })
+    },
     // addlabel(points,param){
     //
     // },
@@ -1206,18 +1229,7 @@ export default {
           this.plots.forEach(item => {
             if(this.plotisshow[item.plotId]===1){
               this.plotisshow[item.plotId] = 0
-              const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-              if(entityToRemove){
-                window.pointDataSource.entities.remove(entityToRemove); // 移除点
-              }
-              const entityDonghua = window.viewer.entities.getById(item.plotId);
-              if (entityDonghua) {
-                window.viewer.entities.remove(entityDonghua); // 移除点
-              }
-              const entitylabel =window.labeldataSource.entities.getById(item.plotId+'_label');
-              if (entitylabel) {
-                window.labeldataSource.entities.remove(entitylabel); // 移除点
-              }
+              cesiumPlot.deletePointById(item.plotId);
             }
           })
 
@@ -1296,49 +1308,53 @@ export default {
      * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
      */
     updateCurrentTime() {
-      let flag=1
-      for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
-        if (this.jumpNodes[i] === 1) {
-          this.nextNodeIndex = i;
-          flag=1
-          break;
-        }
-        console.log("i,this.timelineAdvancesNumber",i,this.timelineAdvancesNumber)
-        if(i>=this.timelineAdvancesNumber){
-          flag=0
-          console.log("over")
-          console.log("this.currentTime",this.currentTime,this.eqendTime)
-          this.currentTimePosition = 100;
+      if(!this.isTimerRunning){}
+      else{
+        let flag=1
+        for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
+          if (this.jumpNodes[i] === 1) {
+            this.nextNodeIndex = i;
+            flag=1
+            break;
+          }
+          console.log("i,this.timelineAdvancesNumber",i,this.timelineAdvancesNumber)
+          if(i>=this.timelineAdvancesNumber){
+            flag=0
+            console.log("over")
+            console.log("this.currentTime",this.currentTime,this.eqendTime)
+            this.currentTimePosition = 100;
 
-          this.currentTime = this.eqendTime
-          viewer.scene.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
-                parseFloat(this.centerPoint.geom.coordinates[0]),
-                parseFloat(this.centerPoint.geom.coordinates[1]),
-                120000),
-            orientation: {
-              // 指向
-              heading: 6.283185307179581,
-              // 视角
-              pitch: -1.5688168484696687,
-              roll: 0.0
-            },
-            duration : 3 // 飞行动画持续时间（秒）
-          });
-          this.stopTimer();
-          break;
+            this.currentTime = this.eqendTime
+            viewer.scene.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(
+                  parseFloat(this.centerPoint.geom.coordinates[0]),
+                  parseFloat(this.centerPoint.geom.coordinates[1]),
+                  120000),
+              orientation: {
+                // 指向
+                heading: 6.283185307179581,
+                // 视角
+                pitch: -1.5688168484696687,
+                roll: 0.0
+              },
+              duration : 3 // 飞行动画持续时间（秒）
+            });
+            this.stopTimer();
+            break;
+          }
         }
-      }
-      if(flag===1){
-        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-        this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // 根据是否需要显示标绘层来更新图层
-        if (this.isMarkingLayer) {
-          this.updatePlot()
-        } else {
-          this.MarkingLayerRemove()
+        if(flag===1){
+          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+          this.currentTimePosition= 100.0 / (this.timelineAdvancesNumber * 1.0)*this.currentNodeIndex;
+          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+          // 根据是否需要显示标绘层来更新图层
+          if (this.isMarkingLayer) {
+            this.updatePlot()
+          } else {
+            this.MarkingLayerRemove()
+          }
         }
+
       }
 
     },

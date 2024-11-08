@@ -131,11 +131,21 @@ export default class Point {
     drawPoints(points, bool, stoptime) {
         // 判断 points 是否为数组，不是数组则将它包装为数组
         if (!Array.isArray(points)) {
-            let data = {
-                longitude: Number(points.geom.coordinates[0]),
-                latitude: Number(points.geom.coordinates[1]),
-                ...points
+            let data = {}
+            if (points.longitude) {
+                data = {
+                    longitude: Number(points.longitude),
+                    latitude: Number(points.latitude),
+                    ...points
+                }
+            } else {
+                data = {
+                    longitude: Number(points.geom.coordinates[0]),
+                    latitude: Number(points.geom.coordinates[1]),
+                    ...points
+                }
             }
+
             points = data
             points = [points];
         }
@@ -146,7 +156,7 @@ export default class Point {
             let plotType = data.plotType
             let colorFactor = 1.0;
             const intervalTime1 = 200;
-            const animationDuration = 3000;
+            const animationDuration = 5000;
             const intervalId1 = setInterval(() => {
                 colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
             }, intervalTime1);
@@ -158,7 +168,7 @@ export default class Point {
                     if (!viewer.entities.getById(data.plotId)) {
                         this.addMakerPointActive(data)
                         this.addPointToLabel(data, labeltext)
-                        this.flyTo(data)
+                        // this.flyTo(data)
 
                         // 结束但隔断闪烁动效后：
                         // 1.移除挂在在viewer下的单个点，
@@ -173,8 +183,7 @@ export default class Point {
                                 window.pointDataSource.entities.add(entityDonghua)//加到点聚合图层
                             }
                             if (plotType === "失踪人员" || plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员" || plotType === "已出发队伍" || plotType === "正在参与队伍" || plotType === "待命队伍") {
-                            }
-                            else {
+                            } else {
                                 const entitylabel = window.labeldataSource.entities.getById(data.plotId + "_label");
                                 if (entitylabel) {
                                     window.labeldataSource.entities.remove(entitylabel); // 移除点
@@ -197,7 +206,26 @@ export default class Point {
         viewer.entities.remove(point)
     }
 
-    //匹配图标
+    deletePointById(plotId) {
+        if (window.pointDataSource) {
+            const entityToRemove = window.pointDataSource.entities.getById(plotId);
+            if (entityToRemove) {
+                window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            }
+        }
+        const entityDonghua = window.viewer.entities.getById(plotId);
+        if (entityDonghua) {
+            window.viewer.entities.remove(entityDonghua); // 移除点
+        }
+        if (window.labeldataSource) {
+            const entitylabel = window.labeldataSource.entities.getById(plotId + '_label');
+            if (entitylabel) {
+                window.labeldataSource.entities.remove(entitylabel); // 移除点
+            }
+        }
+    }
+
+//匹配图标
     matchIcon(type) {
         let list = matchMark() // 封装的marchMark
         return list[type]
@@ -223,8 +251,8 @@ export default class Point {
         };
     }
 
-    //---------工具函数 start-----------------
-    //聚合图层数据源，挂载到windows
+//---------工具函数 start-----------------
+//聚合图层数据源，挂载到windows
     addDataSourceLayer(datasourcename) {
         if (datasourcename === "pointData") {
             let pointDataSource = null
@@ -327,8 +355,7 @@ export default class Point {
                 window.pointDataSource = pointDataSource;
             }
             return pointDataSource
-        }
-        else if (datasourcename === "label") {
+        } else if (datasourcename === "label") {
             let labeldataSource = null
             if (window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'label')) {
                 labeldataSource = window.labeldataSource
@@ -370,11 +397,17 @@ export default class Point {
                                     cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
                                     cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
                                     cluster.label.outlineWidth = 2; // 外框宽度
-                                    cluster.label.pixelOffset = new Cesium.Cartesian2(20, 20); // 偏移量
+                                    cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // 偏移量
                                     cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; // 垂直原点
 
-                                    // 设置标签的背景颜色
-                                    cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
+                                    // // 设置标签的背景颜色
+                                    // cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
+                                    // cluster.label.showBackground = true; // 显示背景
+                                    // cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+
+                                    // 设置标签的背景颜色为透明
+                                    cluster.label.backgroundColor = new Cesium.Color(1.0, 1.0, 1.0, 0.5); // 背
+
                                     cluster.label.showBackground = true; // 显示背景
                                     cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
@@ -399,7 +432,7 @@ export default class Point {
     }
 
 
-    //标签文字
+//标签文字
     labeltext(plotType, res) {
         let labeltext = plotType
         if (res.plotTypeInfo && res.plotTypeInfo.location) {
@@ -434,7 +467,7 @@ export default class Point {
         return labeltext
     }
 
-    //单个点动画
+//单个点动画
     addMakerPointActive(data) {
         const intervalTime1 = 200;
         let colorFactor = 1.0;
@@ -467,10 +500,11 @@ export default class Point {
         setTimeout(() => {
             clearInterval(intervalId1);
             colorFactor = 1.0;
-        }, 3000);
+        }, 5000);
     }
-    //pointData聚合图层
-    addPointToPointData(data){
+
+//pointData聚合图层
+    addPointToPointData(data) {
         window.pointDataSource.entities.add({
             id: data.plotId,
             plottype: data.plotType,
@@ -493,7 +527,8 @@ export default class Point {
             }
         })
     }
-    //标签图层
+
+//标签图层
     addPointToLabel(data, labeltext) {
         labeldataSource.entities.add({
             id: data.plotId + '_label',
@@ -518,7 +553,7 @@ export default class Point {
         })
     }
 
-    flyTo(data){
+    flyTo(data) {
         viewer.scene.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
                 Number(data.longitude),

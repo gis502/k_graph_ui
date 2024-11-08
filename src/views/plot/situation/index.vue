@@ -1892,6 +1892,9 @@ export default {
       if (window.pointDataSource) {
         window.pointDataSource.entities.removeAll();
       }
+      if (window.labeldataSource) {
+          window.labeldataSource.entities.removeAll();; // 移除点
+      }
       Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
