@@ -1,5 +1,5 @@
 <template>
-  <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
+  <div ref="chart" style="width:100%; height:230px;margin-top: 30px" ></div>
 </template>
 
 <script setup>
@@ -53,7 +53,7 @@ function update(data){
     publicOpinionRiskWarning.value = data.map(item => item.publicOpinionRiskWarning || 0);
     pressConference.value = data.map(item => item.pressConference || 0);
     negativeOpinionDisposal.value = data.map(item => item.negativeOpinionDisposal || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
+    latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({

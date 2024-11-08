@@ -65,7 +65,7 @@ function update(data){
     infrastructureCheckpoints.value = data.map(item => item.infrastructureCheckpoints || 0);
     alarmCount.value = data.map(item => item.alarmCount || 0);
     evacuationCount.value = data.map(item => item.evacuationCount || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
+    latestTime.value = data.map(item => formatDate(item.reportDeadline) || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({
@@ -115,7 +115,6 @@ function formatDate(dateString) {
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getRiskConstructionGeohazards(eqid.value).then(res => {
-    console.log('getRiskConstructionGeohazards',res)
     update(res)
   });
 });

@@ -30,9 +30,13 @@ const store = useGlobalStore()
 
 setTimeout(()=>{
   getHousingSituationList(store.globalEqId).then(res => {
+
+    console.log('jiwdjwjdjwdjjwdidjiwjdjwidjiwjd',res)
     update(res)
   });
 },500)
+
+
 
 function update(data){
   // 如果返回的数组为空，设置默认值
@@ -49,8 +53,8 @@ function update(data){
     currentlyDisabled.value = data.map(item => item.currentlyDisabled || 0);
     currentlyRestricted.value = data.map(item => item.currentlyRestricted || 0);
     currentlyAvailable.value = data.map(item => item.currentlyAvailable || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
-    latestTimes.value = data.map(item => item.systemInsertTime || '抱歉暂无数据');
+    latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
+    latestTimes.value = data.map(item => item.submissionDeadline || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({

@@ -1,6 +1,6 @@
 <template>
   <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
-  <div ref="chart" style="width: 100%; height: 250px;"></div>
+  <div ref="chart" style="width: 100%; height: 200px;"></div>
 </template>
 
 <script setup>
@@ -55,6 +55,7 @@ watch(() => props.eqid, (newValue) => {
   })
 })
 
+
 function update(data){
   if(data.length === 0){
     earthquakeAreaName.value = ["抱歉暂无数据"]
@@ -68,8 +69,8 @@ function update(data){
     quiltsCount.value = data.map(item => item.quiltsCount || 0)
     foldingBedsCount.value = data.map(item => item.foldingBedsCount || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? max : formatDate(item.systemInsertTime) ;
-    },formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.submissionDeadline)) ? max : formatDate(item.submissionDeadline) ;
+    },formatDate(data[0].submissionDeadline)); // 确保初始值
   }
 
 

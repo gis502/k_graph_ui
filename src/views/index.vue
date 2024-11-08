@@ -30,7 +30,7 @@
           </div>
           <div class="left-bottom public-bg">
             <dv-border-box7>
-              <div class="public-title">最新地震余震情况统计(次)</div>
+<!--              <div class="public-title">最新地震余震情况统计(次)</div>-->
               <chart2 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
@@ -108,6 +108,7 @@
 </template>
 
 <script setup>
+
 import {BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5} from '@kjgl77/datav-vue3'
 import {onMounted, ref} from 'vue';
 import EMap from '@/components/Home/emap.vue';
@@ -225,7 +226,6 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
-    console.log(res)
     EqAll.value = res
     tableData.value = res
     lastEqData.value = res[0]
