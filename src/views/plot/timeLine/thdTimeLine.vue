@@ -620,76 +620,6 @@ export default {
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
     },
 
-    // 关闭弹窗
-    closePlotPop() {
-      this.timelinePopupVisible = !this.timelinePopupVisible
-    },
-    // ws发送数据（只有点的是在这里）
-    wsSendPoint(data) {
-      this.websock.send(data)
-    },
-
-    clearResource(viewer) {
-      let gl = viewer.scene.context._gl
-      viewer.entities.removeAll()
-      // viewer.scene.primitives.removeAll()
-      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
-      viewer.destroy()
-      gl.getExtension("WEBGL_lose_context").loseContext();
-      gl = null
-    },
-    /**
-     * 计算复选框列表的高度
-     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
-     *
-     * @returns {number} 返回复选框列表的总高度
-     */
-    getHeight() {
-      // 每个复选框的高度
-      const checkboxHeight = 50;
-      // 复选框之间的间距值
-      const margin = 10;
-      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
-      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
-      console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
-      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
-      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
-    },
-
-    /**
-     * 图层要素 切换展开状态
-     *
-     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
-     *
-     * @returns {void} 无返回值
-     */
-    toggleExpand() {
-      console.log("Toggle expand clicked");
-      this.isExpanded = !this.isExpanded;
-    },
-
-    /**
-     * 设置组件展开的面板互斥,避免堆叠
-     * 切换组件的显示状态
-     * @param {String} component - 要切换的组件名称
-     */
-    toggleComponent(component) {
-      // 收起图层要素
-      this.isExpanded = false;
-      // 清除主题地图预览的显示状态
-      this.isshowThematicMapPreview = null;
-      // 清除选择的主题地图
-      this.selectthematicMap = null;
-
-      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
-      this.activeComponent = this.activeComponent === component ? null : component;
-
-      // 如果激活的组件是地震列表，则获取地震数据
-      // if (this.activeComponent === 'eqList') {
-      //   this.getEq();
-      // }
-    },
-
 
     /**
      * 取地震信息+开始结束当前时间初始化
@@ -739,46 +669,6 @@ export default {
       })
 
     },
-
-    /*
-    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-    * */
-    timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    },
-
-    timestampToTimeChinese(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
-    },
-
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
@@ -902,8 +792,6 @@ export default {
         this.timelinePopupData = data
       }, 3000);
     },
-    //请求控制（当前时间还在地震应急处置时间内，就每分钟发送一共查询请求，如果以及大于结束时间，只请求一次就行）
-
     /**
      * 根据指定的eqid渲染数据
      * 此方法主要负责针对特定的eqid获取并渲染数据，包括初始化渲染和动态更新数据
@@ -994,46 +882,12 @@ export default {
         this.updatePlotOnce(false)
       })
     },
-
-    // flyPointsForOneIndex(points, index) {
-    //   if (index >= points.length) {
-    //     return;
-    //   }
-    //   if (!this.isTimerRunning) {
-    //     return;
-    //     // cesiumPlot.drawPoints(points, false, 5000);
-    //     // this.drawPointsForOneIndex(points,index+1)
-    //   } else {
-    //     let timeEachPoint = 5000 / this.currentSpeed
-    //     let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
-    //     // cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
-    //
-    //     viewer.scene.camera.flyTo({
-    //       destination: Cesium.Cartesian3.fromDegrees(
-    //           parseFloat(points[index].longitude),
-    //           parseFloat(points[index].latitude),
-    //           20000),
-    //       orientation: {
-    //         // 指向
-    //         heading: 6.283185307179581,
-    //         // 视角
-    //         pitch: -1.5688168484696687,
-    //         roll: 0.0
-    //       },
-    //       duration: flytime // 飞行动画持续时间（秒）
-    //     });
-    //     setTimeout(() => {
-    //       this.flyPointsForOneIndex(points, index + 1)
-    //     }, timeEachPoint);
-    //
-    //   }
-    // },
-
+    //控制视角跳转的递归函数
     flyPointsForOneIndex(points) {
-      let timeEachPoint=0
+      let timeEachPoint = 0
 
       points.forEach((point) => {
-        timeEachPoint = timeEachPoint+5000 / this.currentSpeed
+        timeEachPoint = timeEachPoint + 5000 / this.currentSpeed
         let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
@@ -1048,19 +902,15 @@ export default {
           duration: flytime // 飞行动画持续时间（秒）
         });
 
-        if(this.isTimerRunning){
+        if (this.isTimerRunning) {
           setTimeout(() => {
           }, timeEachPoint); // 根据速度计算每个点的延迟时间
-        }
-
-
-        else{
+        } else {
           return;
         }
 
       });
     },
-
     updatePlotOnce(type) {
       // this.stopRealFlag=false
       // 原始代码：console.log(this.plots)
@@ -1243,18 +1093,29 @@ export default {
       // this.stopTimeforAddEntityOneIndex=5000
     },
 
-    /**
-     * 根据设备ID获取带有起止时间的绘图信息
-     * @param {string} eqid - 设备ID
-     */
+    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
+    // 暂停播放切换
+    toggleTimer() {
+      // 如果计时器未运行，则初始化计时器线
+      if (!this.isTimerRunning && this.currentTimePosition >= 100) {
+        this.isTimerRunning = true
+        this.initTimerLine();
 
-    /*
-    * 更新标绘点
-    * */
+        setTimeout(() => {
+          this.bofang(1);
 
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------
-    //时间轴操作-----------------------------------------------
+        }, 3000);
+      } else {
+        if (!this.isTimerRunning) {
+          this.isTimerRunning = true
+          this.bofang(1);
+        }
+        // 如果计时器正在运行，则停止计时器
+        else {
+          this.stopTimer();
+        }
+      }
+    },
     /**
      * 初始化计时线
      * 启动计时器，每隔一段时间更新当前时间位置
@@ -1351,31 +1212,6 @@ export default {
       this.timelinePopupData = data
 
     },
-
-    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
-    // 暂停播放切换
-    toggleTimer() {
-      // 如果计时器未运行，则初始化计时器线
-      if (!this.isTimerRunning && this.currentTimePosition >= 100) {
-        this.isTimerRunning = true
-        this.initTimerLine();
-
-        setTimeout(() => {
-          this.bofang(1);
-
-        }, 3000);
-      } else {
-        if (!this.isTimerRunning) {
-          this.isTimerRunning = true
-          this.bofang(1);
-        }
-        // 如果计时器正在运行，则停止计时器
-        else {
-          this.stopTimer();
-        }
-      }
-    },
-
     bofang() { //正向播放
       // let count = this.jumpNodes.filter(item => item === 1).length;
       // let junmpCount
@@ -1386,8 +1222,6 @@ export default {
         this.stopTimer();
         return;
       } else {
-
-        // console.log(flag,this.isTimerRunning,this.stopTimeforAddEntityOneIndex,"flag111")
         if (this.isTimerRunning) {
           let flag = this.updateCurrentTimeOnce();
           if (flag) {
@@ -1403,7 +1237,6 @@ export default {
         }
       }
     },
-
     updateCurrentTimeOnce() {
       let flag = 1
       for (let i = this.currentNodeIndex + 1; i <= this.timelineAdvancesNumber; i++) {
@@ -1446,208 +1279,6 @@ export default {
       }
       return flag
     },
-
-
-    //---------------------------------------------------------------------------------------------
-    updatePlot(bool) {
-      // this.stopRealFlag=false
-      // 原始代码：console.log(this.plots)
-      // 创建一个指向当前上下文的变量，用于在闭包中访问this
-      let that = this
-      // --------------------------点绘制------------------------------
-      // 过滤出绘制类型为点的plots
-      let pointArr = this.plots.filter(e => e.drawtype === 'point')
-      console.log("点渲染", pointArr)
-
-      let points = [];
-
-      // 遍历点数组，处理每个点的绘制或删除
-      pointArr.forEach(item => {
-        // 获取当前时间
-        const currentDate = new Date(this.currentTime);
-        // 获取点的开始和结束时间
-        const startDate = new Date(item.startTime);
-        const endDate = new Date(item.endTime);
-        console.log("time", startDate, currentDate, endDate)
-        // 如果点应该显示
-        // 如果点应该显示
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          console.log("item.plotId add", item.plotId)
-          this.plotisshow[item.plotId] = 1;
-
-          // 创建点数据
-          let point = {
-            earthquakeId: item.earthquakeId,
-            plotId: item.plotId,
-            time: item.creationTime.replace("T", " "),
-            plotType: item.plotType,
-            drawtype: item.drawtype,
-            latitude: item.latitude,
-            longitude: item.longitude,
-            height: item.elevation,
-            icon: item.icon
-          };
-
-          points.push(point); // 收集点数据
-        }
-        // 如果点应该消失
-        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
-          console.log("item.plotId del", item.plotId)
-          this.plotisshow[item.plotId] = 0;
-          cesiumPlot.deletePointById(item.plotId);
-        }
-      });
-      // 批量渲染点 + 非初始化状态渲染标会点动画
-      // console.log(points,"points")
-      let stoptime = 5000
-      if (points.length > 0) {
-        // this.drawPointsOneByOne()
-        // stoptime=stoptime*points.length
-        let param = bool === false ? false : true
-        cesiumPlot.drawPoints(points, param, stoptime);
-
-
-        // this.drawPointsRecursive(points)
-
-
-        // points.forEach(item=>{
-        //   setTimeout(() => {
-        //     let param = bool === false ? false : true
-        //     cesiumPlot.drawPoints(item,param,5000);
-        //     if(param===true){
-        //       viewer.scene.camera.flyTo({
-        //         destination: Cesium.Cartesian3.fromDegrees(
-        //             Number(item.longitude),
-        //             Number(item.latitude),
-        //             20000),
-        //         orientation: {
-        //           // 指向
-        //           heading: 6.283185307179581,
-        //           // 视角
-        //           pitch: -1.5688168484696687,
-        //           roll: 0.0
-        //         },
-        //         duration: 3 // 飞行动画持续时间（秒）
-        //       });
-        //     }
-        //   }, 5000);
-        // })
-      }
-
-      setTimeout(() => {
-        if (!this.isTimerRunning) {
-          this.updateCurrentTime()
-        }
-
-      }, 5000);
-
-      //--------------------------线绘制------------------------------
-      // 根据当前时间和显示状态过滤并更新线条数据
-      let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
-      console.log("polylineArr", polylineArr)
-
-      let filteredPolylineArr = []; // 用于存储符合条件的线条数据
-
-      polylineArr.forEach(item => {
-        // console.log("isshow", this.plotisshow)
-        // that.drawPolyline(item)
-        const currentDate = new Date(this.currentTime);
-        // console.log(currentDate)
-        const startDate = new Date(item.startTime);
-        const endDate = new Date(item.endTime);
-        // 检查线条的显示状态和时间范围
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          this.plotisshow[item.plotId] = 1
-          filteredPolylineArr.push(item); // 收集符合条件的线条
-        }
-        // 处理线条消失的逻辑
-        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
-          this.plotisshow[item.plotId] = 0
-
-          // console.log(item.plotId,"end")
-          viewer.entities.removeById(item.plotId)
-          /*因为封装好渲染线的函数中，将每个点都进行了渲染，清除时也要将每个点清除*/
-          for (let i = 0; i < item.geom.coordinates.length; i++) {
-            viewer.entities.removeById(item.plotId + 'point' + (i + 1))
-          }
-        }
-
-      })
-      // console.log("filteredPolylineArr",filteredPolylineArr)
-      // 将过滤后的线条数据传递给绘制函数
-      cesiumPlot.getDrawPolyline(filteredPolylineArr)
-
-      //--------------------------面绘制------------------------------
-      // 过滤出绘制类型为多边形的数据
-      let polygonArr = this.plots.filter(e => e.drawtype === 'polygon')
-      // 用于存储符合条件的多边形数据
-      let filteredPolygonArr = [];
-
-      // 遍历多边形数据，根据时间判断是否显示
-      polygonArr.forEach(item => {
-        // 获取当前时间、多边形的开始时间和结束时间
-        const currentDate = new Date(this.currentTime);
-        const startDate = new Date(item.startTime);
-        const endDate = new Date(item.endTime);
-        // 如果当前时间在多边形的开始和结束时间内，且多边形未显示，则添加到显示列表
-        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          this.plotisshow[item.plotId] = 1
-          filteredPolygonArr.push(item);// 收集符合条件的面
-        }
-        // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
-        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
-          this.plotisshow[item.plotId] = 0
-          console.log(item.geom.coordinates, "endPOlygon")
-          viewer.entities.removeById(item.plotId)
-          /*因为封装好渲染面的函数中，将每个点都进行了渲染，清除时也要将每个点清除*/
-          // let coords = item.geom.coordinates[0]
-          // for (let i = 0; i < coords.length; i++) {
-          //   console.log(i)
-          //   viewer.entities.removeById(item.plotId + 'point' + (i + 1))
-          //   console.log("wanchan")
-          // }
-        }
-      })
-
-      // 将符合条件的多边形数据按plotId分组
-      let polygonMap = {};
-      filteredPolygonArr.forEach(item => {
-        if (!polygonMap[item.plotId]) {
-          polygonMap[item.plotId] = [];
-        }
-        polygonMap[item.plotId].push(item);
-      });
-
-      // 遍历分组后的多边形数据，调用绘制多边形的函数进行渲染
-      Object.keys(polygonMap).forEach(plotId => {
-        let polygonData = polygonMap[plotId];
-        console.log("polygonData", polygonData)
-        cesiumPlot.getDrawPolygon(polygonData)
-      });
-
-
-      let straightArr = this.plots.filter(e => e.drawtype === 'straight');
-      console.log("straightArr----------------", straightArr)
-      Arrow.showStraightArrow(straightArr)
-
-      let attackArr = this.plots.filter(e => e.drawtype === 'attack');
-      Arrow.showAttackArrow(attackArr)
-
-      let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
-      Arrow.showPincerArrow(pincerArr)
-
-    },
-    /**
-     * 更新当前时间
-     * 此方法用于模拟时间进度条的前进，根据当前速度和节点索引更新当前时间
-     * 如果时间进度达到终点，将停止时间进度条并触发相关事件
-     * 否则，将根据当前节点索引计算实际时间，并更新时间轴上的标绘点
-     */
-
-
-
-
-
     /**
      * 时间轴停止
      * 此方法用于停止当前正在运行的定时器它通过清除间隔标识并重置相关状态来实现
@@ -1793,7 +1424,6 @@ export default {
         if (currentTimeTmp > this.currentTime) {
           this.updatePlotOnce("3")
         } else {
-          // this.updatePlot();
           this.updatePlotOnce("3")
         }
 
@@ -1868,10 +1498,8 @@ export default {
         this.intimexuanran(this.eqid)
       } else {
         if (time > this.currentTime) {
-          // this.updatePlot(false);
           this.updatePlotOnce("3")
         } else {
-          // this.updatePlot();
           this.updatePlotOnce("3")
         }
       }
@@ -1895,11 +1523,49 @@ export default {
       this.currentSpeed = parseFloat(speed.split('-')[0])
     },
 
+    //---------------------------------------------------------------------------------------------
+
     addImportantNodes() {
     },
     //时间轴end-------------
 
+    /*
+    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+    * */
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
 
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+    timestampToTimeChinese(timestamp) {
+      let DateObj = new Date(timestamp)
+
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+    },
     /**
      * 处理实体点击事件的弹窗显示逻辑
      */
@@ -2554,7 +2220,6 @@ export default {
         // 确认标绘图层变更，参数为true表示已选中
         this.handleMarkingLayerChange(true);
         // 更新绘图状态
-        // this.updatePlot();
         this.updatePlotOnce(false)
       } else {
         // 确认标绘图层变更，参数为false表示未选中
@@ -3161,6 +2826,75 @@ export default {
       }
     },
 
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
+    },
+
+    clearResource(viewer) {
+      let gl = viewer.scene.context._gl
+      viewer.entities.removeAll()
+      // viewer.scene.primitives.removeAll()
+      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+      viewer.destroy()
+      gl.getExtension("WEBGL_lose_context").loseContext();
+      gl = null
+    },
+    /**
+     * 计算复选框列表的高度
+     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
+     *
+     * @returns {number} 返回复选框列表的总高度
+     */
+    getHeight() {
+      // 每个复选框的高度
+      const checkboxHeight = 50;
+      // 复选框之间的间距值
+      const margin = 10;
+      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
+      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
+      console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
+      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
+      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
+    },
+
+    /**
+     * 图层要素 切换展开状态
+     *
+     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
+     *
+     * @returns {void} 无返回值
+     */
+    toggleExpand() {
+      console.log("Toggle expand clicked");
+      this.isExpanded = !this.isExpanded;
+    },
+
+    /**
+     * 设置组件展开的面板互斥,避免堆叠
+     * 切换组件的显示状态
+     * @param {String} component - 要切换的组件名称
+     */
+    toggleComponent(component) {
+      // 收起图层要素
+      this.isExpanded = false;
+      // 清除主题地图预览的显示状态
+      this.isshowThematicMapPreview = null;
+      // 清除选择的主题地图
+      this.selectthematicMap = null;
+
+      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+      this.activeComponent = this.activeComponent === component ? null : component;
+
+      // 如果激活的组件是地震列表，则获取地震数据
+      // if (this.activeComponent === 'eqList') {
+      //   this.getEq();
+      // }
+    },
 
   }
 }

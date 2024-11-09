@@ -370,7 +370,7 @@ export default class Point {
                     labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
                     // 监听相机变化事件来动态调整聚合像素范围
-                    let cameraChangeListener = viewer.camera.changed.addEventListener(function() {
+                    let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
                         const cameraHeight = viewer.camera.positionCartographic.height;
                         if (cameraHeight < 50000) {
                             labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
@@ -378,7 +378,6 @@ export default class Point {
                             labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
                         }
                     });
-
 
 
                     let removeListener
