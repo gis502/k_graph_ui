@@ -201,6 +201,7 @@ const widthList = {
 
 }
 const queryParams = ref("")
+const queryEqId = ref("")
 
 /** 监听 */
 watch(flag, (newFlag) => {
@@ -333,6 +334,8 @@ const getEarthquake = () => {
 const handleEqListChange = (selectedEqid) => {
   // 将选中的 eqid 添加到 requestParams 中
   requestParams.value = selectedEqid;
+  queryEqId.value = selectedEqid;
+
   console.log(111111)
   console.log(requestParams.value)
   getList(); // 调用获取数据的方法，传递筛选后的 eqid
@@ -514,13 +517,15 @@ const handleQuery = () => {
     currentPage: currentPage.value,
     pageSize: pageSize.value,
     requestParams: searchKeys,
-    flag: flag.value
+    flag: flag.value,
+    queryEqId: queryEqId.value
   },).then(res => {
-        console.log("search----------", res);
-        // 更新 tableData 以显示搜索结果
-        total.value = res.data.total;  // 更新总数
-        tableData.value = res.data.records; // 使用更新后的数据进行分页
-      })
+    console.log("search----------", res);
+    console.log("queryEqId----------", queryEqId.value,'---------------')
+    // 更新 tableData 以显示搜索结果
+    total.value = res.data.total;  // 更新总数
+    tableData.value = res.data.records; // 使用更新后的数据进行分页
+  })
       .catch(error => {
         console.error("搜索时出现错误:", error);
       });
