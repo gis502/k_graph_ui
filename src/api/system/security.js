@@ -9,13 +9,23 @@ export function insert(data) {
     })
 }
 
-//增
+//查全部
 export function list() {
     return request({
         url: '/safety_protection/list',
         method: 'post',
     })
 }
+
+//条件查询
+export function searchSafetyProtection(data) {
+    return request({
+        url: '/safety_protection/searchSafetyProtection',
+        method: 'post',
+        params: data
+    })
+}
+
 
 //改
 export function update(data) {

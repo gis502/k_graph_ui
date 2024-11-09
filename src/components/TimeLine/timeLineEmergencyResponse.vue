@@ -1,9 +1,11 @@
 <template>
   <div>
     <div class="pop">
-        <p class="pop_title">应急响应</p>
+      <h2 class="pop_title">
+        应急响应:
+        <span class="time">{{ recordTime }}</span>
+      </h2>
       <div class="pop_content">
-      <p class="pop_txt">{{ this.activity.time }}</p>
       <p class="pop_txt"><span>{{ this.activity.department }}</span></p>
       <p class="pop_responseName">
         <span>{{ this.activity.ResponseName }}</span>
@@ -13,8 +15,6 @@
 
       <div class="pop_time_div">
         <div class="pop_title-underline"></div>
-        <p class="time_text">数据更新时间</p>
-        <p class="time">{{ this.recordTime }}</p>
       </div>
     </div>
   </div>
@@ -98,10 +98,10 @@ export default {
 .pop {
   position: absolute;
   width: 25%; /* 调整宽度 */
-  height: 23%;
+  height: 21%;
   padding: 10px;
   border-radius: 5px;
-  top:12%;
+  top:13%;
   left: 1%;
   z-index: 20; /* 提高层级 */
   background-color: rgb(22, 53, 77,0.9);
@@ -110,7 +110,7 @@ export default {
 }
 .pop_title {
   color: #FFFFFF;
-  font-size: 19px;
+  font-size: 1.1rem;
   font-weight: 550;
   top:-16px;
   position: relative;
@@ -147,20 +147,20 @@ export default {
 }
 .pop_title-underline {
   width: 100%;
-  height: 1px;
+  height: 0.5px;
   background-color: #1f9dca;
   margin-top: 1px;
 }
 .pop_responseName{
   font-size: 1.1rem;
-  line-height: 0.5rem;
+  line-height: 0.6rem;
   font-weight: bold;
   font-family: 'myFirstFont', sans-serif;
   color: #419fff;
 }
 .pop_txt{
-  font-size: 1rem;
-  line-height: 0.5rem;
+  line-height: 0.6rem;
+  font-size: 1.1rem;
   font-weight: 550;
   color: #ffffff;
 }
@@ -168,17 +168,10 @@ export default {
 .pop_time_div{
   position: absolute;
   width: 94%;
-  height: 10%;
+  height: 5%;
   bottom:16%;
 }
 
-.time_text{
-  margin: 1px;
-  font-size: 0.9rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
-}
 .time{
   margin: 0px;
   font-size: 0.9rem;

@@ -211,7 +211,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -477,6 +477,7 @@ export default {
   beforeUnmount() {
     console.log("111", window.viewer)
     if (window.viewer) {
+      Arrow.disable();
       let viewer = window.viewer
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()

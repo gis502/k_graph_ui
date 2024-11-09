@@ -101,7 +101,6 @@ export default {
   width: 40%;
   height: 54%;
   position: absolute;
-  //padding: 0 5px 5px;
   padding:15px;
   border-radius: 5px;
   top:20%;
@@ -144,9 +143,9 @@ export default {
 .news-title:after {
   content: "";
   width: 95%;
-  height: 6px;
+  height: 1.5%;
   position: absolute;
-  top: 16%;
+  top: 19%;
   left: 1.5%;
   background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
   background-size: 100% 100%;
@@ -197,6 +196,6 @@ export default {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
-  border: 3px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 </style>

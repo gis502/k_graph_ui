@@ -199,12 +199,13 @@ export default {
     },
     // 在dialog对话框中上传img时触发
     async uploadOnChange(file, fileList) {
+      console.log('==================================',file.raw)
       let imgBase64 = await this.getBase64(file.raw);
       this.img = imgBase64;
       this.fileList = fileList;
       this.formData.img.push(imgBase64);
-      console.log("上传后");
-      console.log(this.formData.img);
+      //console.log("上传后");
+      //console.log(this.formData.img);
     },
     getBase64(file) {
       return new Promise((resolve, reject) => {
