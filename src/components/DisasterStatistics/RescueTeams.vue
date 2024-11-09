@@ -62,7 +62,6 @@ setTimeout(()=>{
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getRescueForces(eqid.value).then(res => {
-    console.log("47832748932784738297489327487384",res)
     update(res)
   })
 })
@@ -81,6 +80,26 @@ function update(data){
     transportationCommunicationPowerCount.value = [0]
     airRescueCount.value = [0]
     latestTime.value = ''
+
+    xName.value = ['抱歉暂无数据']
+
+    yCount.value = [0]
+
+    seriesData.value = yCount.value.map(item => ({
+      value: [0],
+      groupId: '抱歉暂时无数据'
+    }));
+
+    drilldownData.value = [0]
+
+    echartsInstance.setOption({
+      xAxis: {
+        data: xName.value,
+      },
+      series: {
+        data: seriesData.value,
+      },
+    })
   }else {
     earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || '抱歉无数据');
     plaCount.value = data.map(item => item.plaCount || 0);
@@ -112,7 +131,6 @@ function update(data){
         counts: totalCount
       }
     })
-
 
     seriesData.value = yCount.value.map(item => ({
       value: item.counts,
