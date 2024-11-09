@@ -995,39 +995,72 @@ export default {
       })
     },
 
-    flyPointsForOneIndex(points, index) {
-      if (index >= points.length) {
-        return;
-      }
-      if (!this.isTimerRunning) {
-        return;
-        // cesiumPlot.drawPoints(points, false, 5000);
-        // this.drawPointsForOneIndex(points,index+1)
-      } else {
-        let timeEachPoint = 5000 / this.currentSpeed
-        let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
-        // cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
+    // flyPointsForOneIndex(points, index) {
+    //   if (index >= points.length) {
+    //     return;
+    //   }
+    //   if (!this.isTimerRunning) {
+    //     return;
+    //     // cesiumPlot.drawPoints(points, false, 5000);
+    //     // this.drawPointsForOneIndex(points,index+1)
+    //   } else {
+    //     let timeEachPoint = 5000 / this.currentSpeed
+    //     let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
+    //     // cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
+    //
+    //     viewer.scene.camera.flyTo({
+    //       destination: Cesium.Cartesian3.fromDegrees(
+    //           parseFloat(points[index].longitude),
+    //           parseFloat(points[index].latitude),
+    //           20000),
+    //       orientation: {
+    //         // 指向
+    //         heading: 6.283185307179581,
+    //         // 视角
+    //         pitch: -1.5688168484696687,
+    //         roll: 0.0
+    //       },
+    //       duration: flytime // 飞行动画持续时间（秒）
+    //     });
+    //     setTimeout(() => {
+    //       this.flyPointsForOneIndex(points, index + 1)
+    //     }, timeEachPoint);
+    //
+    //   }
+    // },
 
+    flyPointsForOneIndex(points) {
+      let timeEachPoint=0
+
+      points.forEach((point) => {
+        timeEachPoint = timeEachPoint+5000 / this.currentSpeed
+        let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
-              parseFloat(points[index].longitude),
-              parseFloat(points[index].latitude),
+              parseFloat(point.longitude),
+              parseFloat(point.latitude),
               20000),
           orientation: {
-            // 指向
             heading: 6.283185307179581,
-            // 视角
             pitch: -1.5688168484696687,
             roll: 0.0
           },
           duration: flytime // 飞行动画持续时间（秒）
         });
-        setTimeout(() => {
-          this.flyPointsForOneIndex(points, index + 1)
-        }, timeEachPoint);
 
-      }
+        if(this.isTimerRunning){
+          setTimeout(() => {
+          }, timeEachPoint); // 根据速度计算每个点的延迟时间
+        }
+
+
+        else{
+          return;
+        }
+
+      });
     },
+
     updatePlotOnce(type) {
       // this.stopRealFlag=false
       // 原始代码：console.log(this.plots)
@@ -1391,7 +1424,7 @@ export default {
             destination: Cesium.Cartesian3.fromDegrees(
                 parseFloat(this.centerPoint.geom.coordinates[0]),
                 parseFloat(this.centerPoint.geom.coordinates[1]),
-                120000),
+                60000),
             orientation: {
               // 指向
               heading: 6.283185307179581,
