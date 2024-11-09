@@ -52,9 +52,9 @@ export default class Point {
         console.log("end")
         if (bool) {
             let colorFactor = 1.0;
-            const intervalTime = 500; // 切换颜色的时间间隔
-            const animationDuration = 3000; // 动画总持续时间（10秒）
-            const intervalId = setInterval(() => {
+            let intervalTime = 500; // 切换颜色的时间间隔
+            let animationDuration = 3000; // 动画总持续时间（10秒）
+            let intervalId = setInterval(() => {
                 colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
             }, intervalTime);
             // 使用 setTimeout 在动画持续时间结束后清除 interval
@@ -155,9 +155,10 @@ export default class Point {
             let plotId = data.plotId
             let plotType = data.plotType
             let colorFactor = 1.0;
-            const intervalTime1 = 200;
-            const animationDuration = 5000;
-            const intervalId1 = setInterval(() => {
+            let intervalTime1 = 200;
+            // let animationDuration = stoptime;
+            //200毫秒闪烁一次
+            let intervalId1 = setInterval(() => {
                 colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
             }, intervalTime1);
 
@@ -166,7 +167,8 @@ export default class Point {
                 let labeltext = this.labeltext(plotType, res)
                 if (bool) {
                     if (!viewer.entities.getById(data.plotId)) {
-                        this.addMakerPointActive(data)
+                        this.addMakerPointActive(data,stoptime)
+
                         this.addPointToLabel(data, labeltext)
                         // this.flyTo(data)
 
@@ -175,7 +177,7 @@ export default class Point {
                         // 2、将点放入pointData聚合图层下
                         // 3、除人员伤亡和救援出队，移除标签文字
                         setTimeout(() => {
-                            const entityDonghua = window.viewer.entities.getById(data.plotId);
+                            let entityDonghua = window.viewer.entities.getById(data.plotId);
                             if (entityDonghua) {
                                 window.viewer.entities.remove(entityDonghua); // 移除点
                             }
@@ -184,12 +186,12 @@ export default class Point {
                             }
                             if (plotType === "失踪人员" || plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员" || plotType === "已出发队伍" || plotType === "正在参与队伍" || plotType === "待命队伍") {
                             } else {
-                                const entitylabel = window.labeldataSource.entities.getById(data.plotId + "_label");
+                                let entitylabel = window.labeldataSource.entities.getById(data.plotId + "_label");
                                 if (entitylabel) {
                                     window.labeldataSource.entities.remove(entitylabel); // 移除点
                                 }
                             }
-                        }, animationDuration);
+                        }, stoptime);
                     }
                 } else {
                     this.addPointToPointData(data)
@@ -208,17 +210,17 @@ export default class Point {
 
     deletePointById(plotId) {
         if (window.pointDataSource) {
-            const entityToRemove = window.pointDataSource.entities.getById(plotId);
+            let entityToRemove = window.pointDataSource.entities.getById(plotId);
             if (entityToRemove) {
                 window.pointDataSource.entities.remove(entityToRemove); // 移除点
             }
         }
-        const entityDonghua = window.viewer.entities.getById(plotId);
+        let entityDonghua = window.viewer.entities.getById(plotId);
         if (entityDonghua) {
             window.viewer.entities.remove(entityDonghua); // 移除点
         }
         if (window.labeldataSource) {
-            const entitylabel = window.labeldataSource.entities.getById(plotId + '_label');
+            let entitylabel = window.labeldataSource.entities.getById(plotId + '_label');
             if (entitylabel) {
                 window.labeldataSource.entities.remove(entitylabel); // 移除点
             }
@@ -261,40 +263,40 @@ export default class Point {
 
             } else {
                 pointDataSource = new Cesium.CustomDataSource("pointData");
-                const dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
+                let dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
                 dataSourcePromise.then(function (pointDataSource) {
-                    const pixelRange = 10;
-                    const minimumClusterSize = 3;
-                    const enabled = true;
+                    let pixelRange = 10;
+                    let minimumClusterSize = 3;
+                    let enabled = true;
                     pointDataSource.clustering.enabled = enabled; //是否聚合
                     pointDataSource.clustering.pixelRange = pixelRange;
                     pointDataSource.clustering.minimumClusterSize = minimumClusterSize;
-                    const pinBuilder = new Cesium.PinBuilder();
-                    const pin1000 = pinBuilder
+                    let pinBuilder = new Cesium.PinBuilder();
+                    let pin1000 = pinBuilder
                         .fromText("1000+", Cesium.Color.RED, 48)
                         .toDataURL();
-                    const pin500 = pinBuilder
+                    let pin500 = pinBuilder
                         .fromText("100+", Cesium.Color.RED, 48)
                         .toDataURL();
-                    const pin100 = pinBuilder
+                    let pin100 = pinBuilder
                         .fromText("100+", Cesium.Color.RED, 48)
                         .toDataURL();
-                    const pin50 = pinBuilder
+                    let pin50 = pinBuilder
                         .fromText("50+", Cesium.Color.RED, 48)
                         .toDataURL();
-                    const pin40 = pinBuilder
+                    let pin40 = pinBuilder
                         .fromText("40+", Cesium.Color.ORANGE, 48)
                         .toDataURL();
-                    const pin30 = pinBuilder
+                    let pin30 = pinBuilder
                         .fromText("30+", Cesium.Color.YELLOW, 48)
                         .toDataURL();
-                    const pin20 = pinBuilder
+                    let pin20 = pinBuilder
                         .fromText("20+", Cesium.Color.GREEN, 48)
                         .toDataURL();
-                    const pin10 = pinBuilder
+                    let pin10 = pinBuilder
                         .fromText("10+", Cesium.Color.BLUE, 48)
                         .toDataURL();
-                    const singleDigitPins = new Array(8);
+                    let singleDigitPins = new Array(8);
                     for (let i = 0; i < singleDigitPins.length; ++i) {
                         singleDigitPins[i] = pinBuilder
                             .fromText(`${i + 2}`, Cesium.Color.VIOLET, 48)
@@ -345,7 +347,7 @@ export default class Point {
                             );
                         }
 
-                        const pixelRange = pointDataSource.clustering.pixelRange;
+                        let pixelRange = pointDataSource.clustering.pixelRange;
                         pointDataSource.clustering.pixelRange = 0;
                         pointDataSource.clustering.pixelRange = pixelRange;
                     }
@@ -361,7 +363,7 @@ export default class Point {
                 labeldataSource = window.labeldataSource
             } else {
                 labeldataSource = new Cesium.CustomDataSource("label");
-                const dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
+                let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
                 dataSourcePromise.then(function (labeldataSource) {
                     labeldataSource.clustering.enabled = true; // 开启聚合
                     labeldataSource.clustering.pixelRange = 0; // 聚合像素范围
@@ -417,7 +419,7 @@ export default class Point {
                             );
                         }
 
-                        // const pixelRange = labeldataSource.clustering.pixelRange;
+                        // let pixelRange = labeldataSource.clustering.pixelRange;
                         // labeldataSource.clustering.pixelRange = 0;
                         // labeldataSource.clustering.pixelRange = pixelRange;
                     }
@@ -468,10 +470,10 @@ export default class Point {
     }
 
 //单个点动画
-    addMakerPointActive(data) {
-        const intervalTime1 = 200;
+    addMakerPointActive(data,stoptime) {
+        let intervalTime1 = 200;
         let colorFactor = 1.0;
-        const intervalId1 = setInterval(() => {
+        let intervalId1 = setInterval(() => {
             colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
         }, intervalTime1);
         viewer.entities.add({
@@ -500,7 +502,7 @@ export default class Point {
         setTimeout(() => {
             clearInterval(intervalId1);
             colorFactor = 1.0;
-        }, 5000);
+        }, stoptime);
     }
 
 //pointData聚合图层

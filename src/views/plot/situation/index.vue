@@ -2269,11 +2269,12 @@ export default {
       }
     },
     drawPoints(pointInfo,bool) {
-      if (this.ifPointAnimate) {
-        cesiumPlot.drawPoints(pointInfo, bool, 3000);
-      } else {
-        cesiumPlot.drawPoints(pointInfo, bool, 3000);
-      }
+      cesiumPlot.drawPoints(pointInfo, bool, 5000);
+      // if (this.ifPointAnimate) {
+      //   cesiumPlot.drawPoints(pointInfo, bool, 5000);
+      // } else {
+      //   cesiumPlot.drawPoints(pointInfo, bool, 5000);
+      // }
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
