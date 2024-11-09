@@ -1066,7 +1066,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
-            120000),
+            60000),
         orientation: {
           // 指向
           heading: 6.283185307179581,

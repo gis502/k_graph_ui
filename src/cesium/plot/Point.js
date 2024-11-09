@@ -167,7 +167,7 @@ export default class Point {
                 let labeltext = this.labeltext(plotType, res)
                 if (bool) {
                     if (!viewer.entities.getById(data.plotId)) {
-                        this.addMakerPointActive(data,stoptime)
+                        this.addMakerPointActive(data, stoptime)
 
                         this.addPointToLabel(data, labeltext)
                         // this.flyTo(data)
@@ -365,8 +365,16 @@ export default class Point {
                 labeldataSource = new Cesium.CustomDataSource("label");
                 let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
                 dataSourcePromise.then(function (labeldataSource) {
+                    const cameraHeight = viewer.camera.positionCartographic.height
+                    if (cameraHeight < 50000) {
+                        labeldataSource.clustering.pixelRange = 1;
+                    } // 聚合像素范围}
+                    else {
+                        labeldataSource.clustering.pixelRange = 100;
+                        // labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
+                    }
                     labeldataSource.clustering.enabled = true; // 开启聚合
-                    labeldataSource.clustering.pixelRange = 0; // 聚合像素范围
+                    // labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
                     labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
                     let removeListener
 
@@ -418,10 +426,6 @@ export default class Point {
                                 }
                             );
                         }
-
-                        // let pixelRange = labeldataSource.clustering.pixelRange;
-                        // labeldataSource.clustering.pixelRange = 0;
-                        // labeldataSource.clustering.pixelRange = pixelRange;
                     }
 
                     customStyle();
@@ -443,7 +447,7 @@ export default class Point {
         //人员伤亡类文字：新增xxx人员xx人
         // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
         if (plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员") {
-            if (res.plotTypeInfo.newCount) {
+            if (res.plotTypeInfo && res.plotTypeInfo.newCount) {
                 labeltext = labeltext + res.plotTypeInfo.newCount + "人"
             }
         }
@@ -470,7 +474,7 @@ export default class Point {
     }
 
 //单个点动画
-    addMakerPointActive(data,stoptime) {
+    addMakerPointActive(data, stoptime) {
         let intervalTime1 = 200;
         let colorFactor = 1.0;
         let intervalId1 = setInterval(() => {

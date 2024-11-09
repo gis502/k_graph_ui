@@ -425,7 +425,7 @@ export default {
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
     this.addImportantNodes()
-    this.getPlotwithStartandEndTime(this.eqid)
+    // this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -467,6 +467,7 @@ export default {
       updateTime();
       setInterval(updateTime, 1000);
     },
+
     // 初始化控件等
     init() {
       // console.log(this.eqid)
@@ -684,9 +685,9 @@ export default {
       this.activeComponent = this.activeComponent === component ? null : component;
 
       // 如果激活的组件是地震列表，则获取地震数据
-      if (this.activeComponent === 'eqList') {
-        this.getEq();
-      }
+      // if (this.activeComponent === 'eqList') {
+      //   this.getEq();
+      // }
     },
 
 
@@ -731,7 +732,7 @@ export default {
         }
 
         // 获取地震数据并更新地图和变量
-        this.getEq()
+        // this.getEq()
         this.checkIfOvalCircleLayer();
         this.updateMapandVariablebeforInit()
 
@@ -791,7 +792,7 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
-            120000),
+            60000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -910,8 +911,8 @@ export default {
      */
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
-      // this.getPlotwithStartandEndTime(eqid)
-      this.updatePlotOnce(false)
+      this.getPlotwithStartandEndTime(eqid)
+
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -990,10 +991,43 @@ export default {
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
         console.log("获取", this.pointsLayer)
+        this.updatePlotOnce(false)
       })
     },
 
+    flyPointsForOneIndex(points, index) {
+      if (index >= points.length) {
+        return;
+      }
+      if (!this.isTimerRunning) {
+        return;
+        // cesiumPlot.drawPoints(points, false, 5000);
+        // this.drawPointsForOneIndex(points,index+1)
+      } else {
+        let timeEachPoint = 5000 / this.currentSpeed
+        let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
+        // cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
 
+        viewer.scene.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(
+              parseFloat(points[index].longitude),
+              parseFloat(points[index].latitude),
+              20000),
+          orientation: {
+            // 指向
+            heading: 6.283185307179581,
+            // 视角
+            pitch: -1.5688168484696687,
+            roll: 0.0
+          },
+          duration: flytime // 飞行动画持续时间（秒）
+        });
+        setTimeout(() => {
+          this.flyPointsForOneIndex(points, index + 1)
+        }, timeEachPoint);
+
+      }
+    },
     updatePlotOnce(type) {
       // this.stopRealFlag=false
       // 原始代码：console.log(this.plots)
@@ -1061,8 +1095,21 @@ export default {
         } else {
           console.log("more update")
           this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
-          // cesiumPlot.drawPoints(points, true, 5000);
+
+          // this.timeEach
+          console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
           cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
+
+          this.flyPointsForOneIndex(points, 0)
+
+
+          // points.forEach(item=>{
+          //
+          // })
+
+          // cesiumPlot.drawPoints(points, true, 5000);
+
+
         }
 
       }
