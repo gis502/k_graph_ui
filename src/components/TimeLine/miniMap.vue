@@ -42,11 +42,11 @@ export default {
 <style scoped>
 .small-map {
   width: 27%;
-  height: 34%;
+  height: 31%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 57.5%;
+  top: 64%;
   right: 1%;
   z-index: 20; /* 提高层级 */
   background-color: rgb(22, 53, 77,0.9);

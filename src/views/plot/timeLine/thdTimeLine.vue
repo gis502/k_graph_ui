@@ -150,6 +150,11 @@
           @hideNewsDialog="hideNewsDialog"
       ></news-dialog>
     </div>
+
+    <timeLineCasualtyStatistic
+        :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"
+    />
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <!--      缩略图-->
     <div>
       <mini-map></mini-map>
@@ -205,6 +210,8 @@ import newsDialog from "@/components/TimeLine/newsDialog.vue";
 import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
 import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
 import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
+import timeLineCasualtyStatistic from "@/components/TimeLine/timeLineCasualtyStatistic.vue"
+
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
@@ -244,10 +251,12 @@ export default {
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
+    timeLineCasualtyStatistic,
     timeLineLegend,
     newsDialog,
     commonPanel,
     eqTable,
+
   },
   data: function () {
     return {
@@ -470,9 +479,12 @@ export default {
 
     // 初始化控件等
     init() {
-      // console.log(this.eqid)
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
@@ -526,9 +538,6 @@ export default {
           let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
           // 获取相机的海拔高度作为视角高度/km
           let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
-          // console.log(latString);
-          // console.log(logString);
-          // console.log(altiString);
           that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude))
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -626,11 +635,8 @@ export default {
      * @param {string} eqid - 地震ID
      */
     getEqInfo(eqid) {
-
-      // 调用接口根据ID获取地震信息
-      console.log("eqid", eqid)
       getEqById({id: eqid}).then(res => {
-        console.log("thd eqid---------------", eqid)
+        // console.log("thd eqid---------------", eqid)
         //震中标绘点
         this.centerPoint = res
         // 设置中心点的标识和时间信息
@@ -667,7 +673,6 @@ export default {
         this.updateMapandVariablebeforInit()
 
       })
-
     },
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
@@ -692,10 +697,7 @@ export default {
         },
         duration: 3 // 飞行动画持续时间（秒）
       });
-      viewer.camera.changed.addEventListener(() => {
-        const cameraHeight = viewer.camera.positionCartographic.height
-        this.updateZoomLevel(cameraHeight)
-      })
+
 
       setTimeout(() => {
 
@@ -832,7 +834,7 @@ export default {
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
 
         // 显示标记，追加新的点 （增）
-        console.log(res, "res")
+        console.log(res, "getPlotwithStartandEndTime")
         // 遍历返回的绘图信息，检查每个点是否已存在，如果不存在则添加
         res.forEach(item => {
           const plotexists = this.plots.some(plot => plot.plotId === item.plotId);
@@ -878,7 +880,7 @@ export default {
         // 更新绘图
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
-        console.log("获取", this.pointsLayer)
+        // console.log("获取 pointsLayer", this.pointsLayer)
         this.updatePlotOnce(false)
       })
     },
@@ -912,8 +914,6 @@ export default {
       });
     },
     updatePlotOnce(type) {
-      // this.stopRealFlag=false
-      // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
       // --------------------------点绘制------------------------------
@@ -930,11 +930,11 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        console.log("time", startDate, currentDate, endDate)
+        // console.log("time", startDate, currentDate, endDate)
         // 如果点应该显示
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          console.log("item.plotId add", item.plotId)
+          // console.log("item.plotId add", item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -955,7 +955,7 @@ export default {
         }
         // 如果点应该消失
         if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
-          console.log("item.plotId del", item.plotId)
+          // console.log("item.plotId del", item.plotId)
           this.plotisshow[item.plotId] = 0;
           cesiumPlot.deletePointById(item.plotId);
         }
@@ -968,19 +968,19 @@ export default {
 
         // let param = type === false ? false : true
         if (type == false) {
-          console.log("false update")
+          // console.log("false update")
           this.stopTimeforAddEntityOneIndex = 5000
           cesiumPlot.drawPoints(points, false, 5000);
         } else if (type == "3") {
-          console.log("333 update")
+          // console.log("333 update")
           this.stopTimeforAddEntityOneIndex = 5000
           cesiumPlot.drawPoints(points, true, 5000);
         } else {
-          console.log("more update")
+          // console.log("more update")
           this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
 
           // this.timeEach
-          console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
+          // console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
           cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
 
           this.flyPointsForOneIndex(points, 0)
@@ -1121,14 +1121,14 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
-      console.log("initTimerLine")
+      // console.log("initTimerLine")
       this.jumpTimes.forEach(item => {
         var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
         // console.log("jumpnode",jumpnode)
         this.jumpNodes[jumpnode] = 1
       })
 
-      console.log("this.jumpNodes", this.jumpNodes)
+      // console.log("this.jumpNodes", this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
 
@@ -1245,11 +1245,11 @@ export default {
           flag = 1
           break;
         }
-        console.log("i,this.timelineAdvancesNumber", i, this.timelineAdvancesNumber)
+        // console.log("i,this.timelineAdvancesNumber", i, this.timelineAdvancesNumber)
         if (i >= this.timelineAdvancesNumber) {
           flag = 0
-          console.log("over")
-          console.log("this.currentTime", this.currentTime, this.eqendTime)
+          // console.log("over")
+          // console.log("this.currentTime", this.currentTime, this.eqendTime)
           this.currentTimePosition = 100;
           this.currentNodeIndex = this.timelineAdvancesNumber
           this.currentTime = this.eqendTime
@@ -1330,11 +1330,11 @@ export default {
       for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
-          console.log("this.nextNodeIndex", this.nextNodeIndex)
+          // console.log("this.nextNodeIndex", this.nextNodeIndex)
           flag = 1;
           break;
         }
-        console.log(i, "i")
+        // console.log(i, "i")
         if (i <= 0) {
           flag = 0
           // console.log("over")
@@ -1589,7 +1589,7 @@ export default {
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-          console.log("entity", entity)
+          console.log("entity picked", entity)
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
@@ -1809,7 +1809,7 @@ export default {
               window.viewer.scene,
               Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
-          console.log(canvasPosition)
+          // console.log("canvasPosition",canvasPosition)
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
             this.routerPopupPosition = {
@@ -2761,7 +2761,7 @@ export default {
       if (this.selectthematicMap) {
         this.ifShowMapPreview = true
         const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name === this.selectthematicMap);
-        console.log(selectedData)
+        // console.log(selectedData)
         this.imgurlFromDate = selectedData.path
         this.imgName = selectedData.name
         // console.log("11111",this.imgurlFromDate, this.imgName)
@@ -2783,7 +2783,7 @@ export default {
     //报告产出
     updateReportItem() {
       if (this.selectReportItem) {
-        console.log(this.selectReportItem)
+        // console.log(this.selectReportItem)
         const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name === this.selectReportItem);
         const link = document.createElement('a');
         link.href = selectedData.path;
@@ -2801,16 +2801,6 @@ export default {
       val.forEach(item => {
         this.jumpTimes.push(item)
       })
-      // console.log(".eqstartTime",this.eqstartTime)
-      // // console.log(new Date(item),new Date(that.eqstartTime.getTime()))
-      // let that=this
-      // console.log("val",val)
-      // val.forEach(item => {
-      //   console.log(new Date(item),new Date(that.eqstartTime.getTime()))
-      //   var jumpnode=Math.round((new Date(item)-new Date(that.eqstartTime.getTime()))/(5*60*1000))//5分钟一个节点
-      //   console.log("jumpnode",jumpnode)
-      //   this.jumpNodes[jumpnode]=1
-      // })
     },
     updateZoomLevel(cameraHeight) {
       console.log("层级", cameraHeight)
@@ -2855,9 +2845,8 @@ export default {
       const checkboxHeight = 50;
       // 复选框之间的间距值
       const margin = 10;
-      // console.log(this.layeritems.length/2 , this.layeritems.length%2)
       // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
-      console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
+      // console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
       // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
       return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
     },
@@ -2870,7 +2859,7 @@ export default {
      * @returns {void} 无返回值
      */
     toggleExpand() {
-      console.log("Toggle expand clicked");
+      // console.log("Toggle expand clicked");
       this.isExpanded = !this.isExpanded;
     },
 

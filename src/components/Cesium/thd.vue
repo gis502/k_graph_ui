@@ -363,6 +363,9 @@
             @hideNewsDialog="hideNewsDialog"
         ></news-dialog>
       </div>
+      <timeLineCasualtyStatistic
+          :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"
+      />
       <!--      缩略图-->
       <div>
         <mini-map></mini-map>
@@ -468,6 +471,7 @@ import {
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
+import timeLineCasualtyStatistic from "@/components/TimeLine/timeLineCasualtyStatistic.vue";
 
 
 export default {
@@ -477,6 +481,7 @@ export default {
     },
   },
   components: {
+    timeLineCasualtyStatistic,
     thematicMapPreview,
     RouterPanel,
     TimeLinePanel,
