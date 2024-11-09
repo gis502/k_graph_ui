@@ -56,7 +56,7 @@ function update(data){
     infrastructureCheckpoints.value = [0];
     alarmCount.value = [0];
     evacuationCount.value = [0];
-    latestTime.value = '';
+    latestTime.value = ['抱歉暂无数据'];
   } else {
     quakeAreaName.value = data.map(item => item.quakeAreaName || '无数据');
     existingRiskPoints.value = data.map(item => item.existingRiskPoints || 0);
