@@ -66,8 +66,8 @@ function update(data){
     policeForce.value = data.map(item => item.policeForce || 0)
     reportedRescueInfo.value = data.map(item => item.reportedRescueInfo || 0)
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
-    }, formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.reportingDeadline)) ? formatDate(max) : formatDate(item.reportingDeadline);
+    }, formatDate(data[0].reportingDeadline)); // 确保初始值
   }
 
 

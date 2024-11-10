@@ -25,13 +25,24 @@ export function suppliesReservesList() {
 }
 
 // ----应急物资储备---
-export function updateDisasterReserves(data) {
+
+export function reservesList() {
     return request({
-        url: '/emergencyResources/updateDisasterReserves',
-        method: 'post',
-        data: data
+        url: '/emergencyResources/reservesList',
+        method: 'get',
     })
 }
+
+
+export function searchDisasterReserves(inputData) {
+    return request({
+        url: '/emergencyResources/searchDisasterReserves',
+        method: 'post',
+        params: {'inputData':inputData}
+    })
+}
+
+
 export function addDisasterReserves(data) {
     return request({
         url: '/emergencyResources/addDisasterReserves',
@@ -41,24 +52,41 @@ export function addDisasterReserves(data) {
 }
 
 
-
-
-export function delSuppliesReserves(uniqueId) {
+export function updateDisasterReserves(data) {
     return request({
-        url: '/emergencyResources/delSuppliesReserves',
-        method: 'delete',
-        params: {
-            uniqueId: uniqueId
-        }
+        url: '/emergencyResources/updateDisasterReserves',
+        method: 'put',
+        data: data
+    })
+}
+
+
+/**
+ * 删除功能
+ * @param uuid
+ * @returns {*}
+ */
+export function deleteDisasterReserves(uuid) {
+    return request({
+        url: `/emergencyResources/deleteDisasterReserves/${uuid}`,
+        method: 'delete'
     });
 }
 
+
+//  -----------------------------------------------
+
+
+
+// --------------避难场所---------------
 export function sheltersList() {
     return request({
         url: '/emergencyResources/sheltersList',
         method: 'get',
     })
 }
+
+
 export function searchEmergencyShelters(inputData) {
     return request({
         url: '/emergencyResources/searchEmergencyShelters',
@@ -66,13 +94,40 @@ export function searchEmergencyShelters(inputData) {
         params: {'inputData':inputData}
     })
 }
-export function reservesList() {
+
+//    避难场所页面--增加功能
+export function addEmergencyShelters(data) {
     return request({
-        url: '/emergencyResources/reservesList',
-        method: 'get',
+        url: '/emergencyResources/addEmergencyShelters',
+        method: 'post',
+        data: data
     })
 }
 
+//    避难场所页面--修改功能
+export function updateEmergencyShelters(data) {
+    return request({
+        url: '/emergencyResources/updateEmergencyShelters',
+        method: 'put',
+        data: data
+    })
+}
+
+//    避难场所页面--删除功能
+export function deleteEmergencyShelters(uuid) {
+    return request({
+        url: `/emergencyResources/deleteEmergencyShelters/${uuid}`,
+        method: 'delete'
+    });
+}
+
+
+// -------------------------------------------------
+
+
+
+
+// --------------应急救援队伍---------------
 export function rescueTeamList() {
     return request({
         url: '/emergencyResources/rescueTeamList',
@@ -87,6 +142,34 @@ export function searchEmergencyTeam(inputData) {
         params: {'inputData':inputData}
     })
 }
+
+//救援队伍页面--增加功能
+export function addEmergencyTeam(data) {
+    return request({
+        url: '/emergencyResources/addEmergencyTeam',
+        method: 'post',
+        data: data
+    })
+}
+
+//救援队伍页面--修改功能
+export function updateEmergencyTeam(data) {
+    return request({
+        url: '/emergencyResources/updateEmergencyTeam',
+        method: 'put',
+        data: data
+    })
+}
+
+//救援队伍页面--删除功能
+export function deleteEmergencyTeam(uuid) {
+    return request({
+        url: `/emergencyResources/deleteEmergencyTeam/${uuid}`,
+        method: 'delete'
+    });
+}
+
+//---------------------------------------
 
 export function searchMaterialData(inputData) {
     return request({
@@ -104,13 +187,6 @@ export function searchEmergencyTeamData(inputData) {
     })
 }
 
-export function searchDisasterReserves(inputData) {
-    return request({
-        url: '/emergencyResources/searchDisasterReserves',
-        method: 'post',
-        params: {'inputData':inputData}
-    })
-}
 
 export function marchByRegion(regionCode) {
     return request({

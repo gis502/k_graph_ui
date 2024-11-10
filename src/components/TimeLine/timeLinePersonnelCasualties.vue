@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="pop">
-      <p class="pop_title">人员伤亡</p>
+      <p class="pop_title">人员伤亡:
+        <span class="time">{{ activity.time }}</span>
+      </p>
 
       <ul class="total-list">
         <li>
@@ -26,8 +28,6 @@
 
       <div class="pop_time_div">
         <div class="title-underline"></div>
-        <p class="time_text">数据更新时间</p>
-        <p class="time">{{ activity.time }}</p>
       </div>
     </div>
   </div>
@@ -147,9 +147,9 @@ export default {
 <style scoped>
 .pop {
   position: absolute;
-  top: 35.5%;
+  top: 34.5%;
   width: 25%;
-  height: 20%;
+  height: 21%;
   padding: 10px;
   border-radius: 5px;
   left: 1%;
@@ -161,7 +161,7 @@ export default {
 
 .pop_title {
   color: #FFFFFF;
-  font-size: 19px;
+  font-size: 1.1rem;
   font-weight: 550;
   top:-16px;
   position: relative;
@@ -193,7 +193,7 @@ export default {
 }
 .title-underline {
   width: 100%;
-  height: 1px;
+  height: 0.5px;
   background-color: #1f9dca;
   margin-top: 1px;
 }

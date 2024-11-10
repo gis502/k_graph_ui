@@ -1,6 +1,6 @@
 <template>
   <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
-  <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
+  <div ref="chart" style="width:100%; height:230px;margin-top: 30px" ></div>
 </template>
 
 <script setup>
@@ -15,8 +15,6 @@ const props = defineProps({
   },
 });
 const eqid = ref('');
-
-
 const plaCount = ref([]) // 解放军数量
 const armedPoliceCount = ref([]) // 武警数量
 const militiaCount = ref ([]) // 民兵数量
@@ -30,7 +28,10 @@ const airRescueCount = ref([]) // 空中救援
 const volunteerRescueTeamCount = ref([]) // 志愿抢险队
 const earthquakeAreaName = ref([]) // 地点
 const latestTime = ref('')
-
+const drilldownData = ref() // echarts 配置 分类详情
+const xName = ref([])// echarts 配置 地区数据
+const yCount = ref([]) // echarts 配置 主类y轴计数数据
+const seriesData = ref([]) // echarts 配置 主类相关数据
 const chart = ref(null);
 let echartsInstance = null;
 const store = useGlobalStore()
@@ -61,7 +62,6 @@ setTimeout(()=>{
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getRescueForces(eqid.value).then(res => {
-    console.log("getRescueForces",res)
     update(res)
   })
 })
@@ -80,6 +80,26 @@ function update(data){
     transportationCommunicationPowerCount.value = [0]
     airRescueCount.value = [0]
     latestTime.value = ''
+
+    xName.value = ['抱歉暂无数据']
+
+    yCount.value = [0]
+
+    seriesData.value = yCount.value.map(item => ({
+      value: [0],
+      groupId: '抱歉暂时无数据'
+    }));
+
+    drilldownData.value = [0]
+
+    echartsInstance.setOption({
+      xAxis: {
+        data: xName.value,
+      },
+      series: {
+        data: seriesData.value,
+      },
+    })
   }else {
     earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || '抱歉无数据');
     plaCount.value = data.map(item => item.plaCount || 0);
@@ -94,262 +114,74 @@ function update(data){
     airRescueCount.value = data.map(item => item.airRescueCount || 0);
     volunteerRescueTeamCount.value = data.map(item => item.volunteerRescueTeamCount || 0);
     latestTime.value = data.reduce((max,item)=> {
-      return formatDate(max) > formatDate(item.systemInsertTime) ? formatDate(max) : formatDate(item.systemInsertTime)
-    },formatDate(data[0].systemInsertTime))
-  }
+      return formatDate(max) > formatDate(item.submissionDeadline) ? formatDate(max) : formatDate(item.submissionDeadline)
+    },formatDate(data[0].submissionDeadline))
 
+    xName.value = data.map(item => item.earthquakeAreaName || '抱歉暂无数据')
 
-  echartsInstance.setOption({
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow',
-      },
-      formatter: (params) => {
-        let tooltipContent = '';
-        params.forEach(item => {
-          tooltipContent += `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
-                             ${item.seriesName}: ${item.value} 人<br/>`;
-        });
-        return tooltipContent;
+    yCount.value = data.map(item =>{
+      const totalCount = item.plaCount + item.armedPoliceCount + item.militiaCount +
+          item.fireRescueCount + item.forestFireRescueCount +
+          item.professionalForcesCount + item.emergencyProductionSafetyCount +
+          item.medicalRescueCount + item.transportationCommunicationPowerCount +
+          item.airRescueCount + item.volunteerRescueTeamCount;
+
+      return {
+        areaName: item.earthquakeAreaName,
+        counts: totalCount
       }
+    })
+
+    seriesData.value = yCount.value.map(item => ({
+      value: item.counts,
+      groupId: `'${item.areaName}'`
+    }));
+
+    drilldownData.value = data.map(item => ({
+      dataGroupId: `'${item.earthquakeAreaName}'`,  // 使用单引号包裹地区名称
+      data: [
+        ['解放军', item.plaCount],
+        ['武警', item.armedPoliceCount],
+        ['民兵', item.militiaCount],
+        ['消防救援', item.fireRescueCount],
+        ['森林消防', item.forestFireRescueCount],
+        ['专业力量', item.professionalForcesCount],
+        ['应急安全', item.emergencyProductionSafetyCount],
+        ['医疗救援', item.medicalRescueCount],
+        ['交通通信电力', item.transportationCommunicationPowerCount],
+        ['空中救援', item.airRescueCount],
+        ['志愿抢险队', item.volunteerRescueTeamCount],
+      ]
+    }));
+
+    echartsInstance.setOption({
+      xAxis: {
+        data: xName.value,
+      },
+      series: {
+        data: seriesData.value,
+      },
+    })
+  }
+}
+
+const initChart = () => {
+  echartsInstance = echarts.init(chart.value);
+
+  const option = {
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
     },
     xAxis: {
-      data: earthquakeAreaName.value,
       axisLabel: {
         show: true,
         textStyle: {
           color: "#00c7ff"
         }
-      }
-    },
-    series: [
-      {
-        data: plaCount.value
       },
-      {
-        data: armedPoliceCount.value
-      },
-      {
-        data: militiaCount.value
-      },
-      {
-        data: fireRescueCount.value
-      },
-      {
-        data: forestFireRescueCount.value
-      },
-      {
-        data: professionalForcesCount.value
-      },
-      {
-        data: emergencyProductionSafetyCount.value
-      },
-      {
-        data: medicalRescueCount.value
-      },
-      {
-        data: transportationCommunicationPowerCount.value
-      },
-      {
-        data: airRescueCount.value
-      },
-      {
-        data: volunteerRescueTeamCount.value
-      },
-    ]
-  })
-}
-
-const initChart = () => {
-  echartsInstance = echarts.init(chart.value);
-  // const option = {
-  //   tooltip: {
-  //     trigger: 'axis',
-  //     axisPointer: {
-  //       type: 'shadow',
-  //     },
-  //     formatter: (params) => {
-  //       let tooltipContent = '';
-  //       params.forEach(item => {
-  //         tooltipContent += `<span style="display:inline-block;width:10px;height:10px;margin-right:5px;background-color:${item.color};border-radius:50%;"></span>
-  //                            ${item.seriesName}: ${item.value} 公里<br/>`;
-  //       });
-  //       return tooltipContent;
-  //     }
-  //   },
-  //   legend: {
-  //     textStyle: {
-  //       color: '#ffffff',
-  //     }
-  //   },
-  //   grid: {
-  //     left: '3%',
-  //     right: '4%',
-  //     bottom: '3%',
-  //     containLabel: true,
-  //   },
-  //   xAxis: [
-  //     {
-  //       type: 'category',
-  //       data: earthquakeAreaName.value,
-  //       axisLabel: {
-  //         color: '#ffffff',
-  //       }
-  //     }
-  //   ],
-  //   yAxis: [
-  //     {
-  //       type: 'value',
-  //       splitLine: {
-  //         lineStyle: {
-  //           color: 'rgba(255, 255, 255, 0.3)',
-  //           width: 1,
-  //         }
-  //       },
-  //       axisLabel: {
-  //         color: '#ffffff',
-  //       }
-  //     }
-  //   ],
-  //   series: [
-  //     {
-  //       name: '解放军数量（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //         color:'#FF0000',
-  //       },
-  //       data: plaCount.value,
-  //     },
-  //     {
-  //       name: '武警数量（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //         color:'#0000FF',
-  //       },
-  //       data: armedPoliceCount.value,
-  //     },
-  //     {
-  //       name: '民兵数量（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#008000',
-  //       },
-  //       data: militiaCount.value,
-  //     },
-  //     {
-  //       name: '消防救援数量（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#FFA500',
-  //       },
-  //       data: fireRescueCount.value,
-  //     },
-  //     {
-  //       name: '森林消防数量（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       data: forestFireRescueCount.value,
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#800080',
-  //       }
-  //     },
-  //     {
-  //       name: '专业力量人数（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  /*      data: professionalForcesCount.value,*/
-  /*      emphasis: {*/
-  /*        focus: 'series',*/
-  /*      },*/
-  /*      itemStyle: {*/
-  /*          color:'#FFFF00',*/
-  /*      }*/
-  /*    },*/
-  //     {
-  //       name: '应急安全生产人数（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       data: emergencyProductionSafetyCount.value,
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#00FFFF',
-  //       }
-  //     },
-  //     {
-  //       name: '医疗救援人数（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       data: medicalRescueCount.value,
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#FFC0CB',
-  //       }
-  //     },
-  //     {
-  //       name: '交通通信电力人数（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       data: transportationCommunicationPowerCount.value,
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#A52A2A',
-  //       }
-  //     },
-  //     {
-  //       name: '空中救援人数（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       data: airRescueCount.value,
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#808080',
-  //       }
-  //     },
-  //     {
-  //       name: '志愿抢修队（人）',
-  //       type: 'bar',
-  //       stack: 'Ad',
-  //       data: volunteerRescueTeamCount.value,
-  //       emphasis: {
-  //         focus: 'series',
-  //       },
-  //       itemStyle: {
-  //           color:'#00008B',
-  //       }
-  //     },
-  //   ]
-  // };
-
-  const option = {
-    xAxis: {
       data: earthquakeAreaName.value
     },
     yAxis: [
@@ -371,62 +203,24 @@ const initChart = () => {
     series: {
       type: 'bar',
       id: 'sales',
-      data: [
-        {
-          value: 5,
-          groupId: 'animals'
-        },
-        {
-          value: 2,
-          groupId: 'fruits'
-        },
-        {
-          value: 4,
-          groupId: 'cars'
-        }
-      ],
+      data: seriesData.value,
       universalTransition: {
         enabled: true,
         divideShape: 'clone'
       }
     }
   };
-  const drilldownData = [
-    {
-      dataGroupId: 'animals',
-      data: [
-        ['Cats', 4],
-        ['Dogs', 2],
-        ['Cows', 1],
-        ['Sheep', 2],
-        ['Pigs', 1]
-      ]
-    },
-    {
-      dataGroupId: 'fruits',
-      data: [
-        ['Apples', 4],
-        ['Oranges', 2]
-      ]
-    },
-    {
-      dataGroupId: 'cars',
-      data: [
-        ['Toyota', 4],
-        ['Opel', 2],
-        ['Volkswagen', 2]
-      ]
-    }
-  ];
-  myChart.on('click', function (event) {
+  echartsInstance.setOption(option);
+  echartsInstance.on('click', function (event) {
     if (event.data) {
-      var subData = drilldownData.find(function (data) {
+      var subData = drilldownData.value.find(function (data) {
         return data.dataGroupId === event.data.groupId;
       });
       if (!subData) {
         return;
       }
-      myChart.setOption({
+
+      echartsInstance.setOption({
         xAxis: {
           data: subData.data.map(function (item) {
             return item[0];
@@ -448,21 +242,72 @@ const initChart = () => {
           {
             type: 'text',
             left: 50,
-            top: 20,
+            top: 0,
             style: {
-              text: 'Back',
-              fontSize: 18
+              text: '返回',
+              fontSize: 16,
+              fontFamily: 'Arial', // 字体类型
+              fontWeight: 'bold',  // 字体粗细
+              fill: '#00c7ff',
+              padding: [10, 20],  // 内边距，格式为：[上下, 左右]
+              borderRadius: 10,   // 圆角
+              borderColor: '#ffffff', // 边框颜色
+              borderWidth: 2,     // 边框宽度
+              cursor: 'pointer',  // 鼠标悬停时的样式
+              textAlign: 'center', // 水平居中对齐
+              verticalAlign: 'middle', // 垂直居中对齐
             },
             onclick: function () {
-              myChart.setOption(option);
+              // 初始的 option 配置
+              const initialOption = {
+                grid: {
+                  left: '3%',
+                  right: '4%',
+                  bottom: '3%',
+                  containLabel: true
+                },
+                xAxis: {
+                  axisLabel: {
+                    show: true,
+                    textStyle: {
+                      color: "#00c7ff"
+                    }
+                  },
+                  data: earthquakeAreaName.value
+                },
+                yAxis: [
+                  {
+                    type: 'value',
+                    splitLine: {
+                      lineStyle: {
+                        color: 'rgba(255, 255, 255, 0.3)',
+                        width: 1,
+                      }
+                    },
+                    axisLabel: {
+                      color: '#ffffff',
+                    }
+                  }
+                ],
+                dataGroupId: '',
+                animationDurationUpdate: 500,
+                series: {
+                  type: 'bar',
+                  id: 'sales',
+                  data: seriesData.value,
+                  universalTransition: {
+                    enabled: true,
+                    divideShape: 'clone'
+                  }
+                }
+              };
+              echartsInstance.setOption(initialOption);
             }
           }
         ]
       });
     }
   });
-
-  echartsInstance.setOption(option);
 }
 
 onMounted(() => {
@@ -475,7 +320,4 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped >
-.container-left {
-  /* 自定义样式 */
-}
 </style>

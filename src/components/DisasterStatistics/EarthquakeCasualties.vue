@@ -46,7 +46,7 @@ setTimeout(()=>{
       const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
       const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
       const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
-      const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
+      const times = res.length > 0 ? res.map(item => item.submissionDeadline) : ["抱歉暂无数据"];
 
       // 初始化 ECharts 实例
       const chartInstance = echarts.init(chart.value);
@@ -153,13 +153,12 @@ watch(() => props.newEqId, (newValue) => {
   console.log("儿子中的新 eqId:", eqid.value); // 确认更新后的值
   // 其他处理逻辑
   gettotal(eqid.value).then(res =>{
-
     // 得到后端数据开始操作：
     const areas = res.length > 0 ? res.map(item => item.affectedAreaName) : ["抱歉暂无数据"];
     const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
     const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
     const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
-    const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
+    const times = res.length > 0 ? res.map(item => item.submissionDeadline) : ["抱歉暂无数据"];
 
     // 初始化 ECharts 实例
     const chartInstance = echarts.init(chart.value);
@@ -307,7 +306,7 @@ onMounted(() => {
     const totalDeceased = res.length > 0 ? res.map(item => item.totalDeceased) : [0];
     const totalMissing = res.length > 0 ? res.map(item => item.totalMissing) : [0];
     const totalInjured = res.length > 0 ? res.map(item => item.totalInjured) : [0];
-    const times = res.length > 0 ? res.map(item => item.systemInsertTime) : ["抱歉暂无数据"];
+    const times = res.length > 0 ? res.map(item => item.submissionDeadline) : ["抱歉暂无数据"];
 
     // 初始化 ECharts 实例
     const chartInstance = echarts.init(chart.value);

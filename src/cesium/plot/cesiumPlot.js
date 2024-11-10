@@ -39,6 +39,9 @@ let cesiumPlot= {
   deletePoint(point){
     this.point.deletePoint(point)
   },
+  deletePointById(plotId){
+    this.point.deletePointById(plotId)
+  },
   //----------------------------------------------------------------
 
   //------------------------------线---------------------------------

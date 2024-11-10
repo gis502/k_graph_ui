@@ -111,11 +111,11 @@ export default {
 <style scoped>
 #news {
   width: 27%;
-  height: 45%;
+  height: 26%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 12%;
+  top:13%;
   right: 1%;
   color: #FFFFFF;
   z-index: 20; /* 提高层级 */
@@ -126,7 +126,7 @@ export default {
 
 .sub-title-new {
   color: #FFFFFF;
-  font-size: 19px;
+  font-size: 1.1rem;
   font-weight: 550;
   top:-16px;
   position: relative;
@@ -149,14 +149,14 @@ export default {
   width: 90%;
   height: 6px;
   position: absolute;
-  bottom: -15px;
+  bottom: -9px;
   left: 9px;
   background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
 .title-time {
-  font-size: 16px;
+  font-size: 0.9rem;
   font-weight: normal;
   color: #ffeb00;
   line-height: 1.8rem;
@@ -164,7 +164,7 @@ export default {
 
 .sub-main {
   margin-top: -14px;
-  max-height: 88%;
+  max-height: 79%;
   overflow-y: auto;
   padding: 0px;
 }
@@ -172,7 +172,7 @@ export default {
 .sub-ul {
   padding: 0;
   margin: 0;
-  font-size: .9rem;
+  font-size: .6rem;
   line-height: 1rem;
   overflow-y: hidden; /* 当内容超出时隐藏垂直滚动条 */
   list-style-type: none; /* 去除列表项默认的项目符号 */
@@ -189,7 +189,7 @@ export default {
 .sub-content {
   padding: 0;
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   flex: 1;
 }
 
@@ -212,7 +212,7 @@ export default {
   line-height: .2rem
 }
 .sub-source{
-  font-size: 14px; /* 设置字体大小为16像素 */
+  font-size: 12px; /* 设置字体大小为16像素 */
   padding: 0;
   line-height: .2rem;
 }
@@ -227,30 +227,6 @@ export default {
   height: 2.2em; /* 高度设置为两行的高度 */
   left: 10%
 }
-
-.showNewsButton {
-  position: absolute;
-  padding: 4px;
-  border-radius: 2px;
-  top: 80px;
-  right: 10px;
-  z-index: 100; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-  color: white;
-  width: 20px;
-  height: 20px;
-  display: flex;
-}
-
-.showNewsButton img {
-  max-width: 20px; /* 设置图片最大宽度 */
-  max-height: 20px; /* 设置图片最大高度 */
-  width: auto; /* 自动调整宽度以保持比例 */
-  height: auto; /* 自动调整高度以保持比例 */
-  justify-content: center;
-  align-content: center;
-}
-
 /* 整个滚动条 */
 ::-webkit-scrollbar {
   width: 6px;               /* 滚动条的宽度 */
@@ -266,6 +242,6 @@ export default {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
-  border: 3px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 </style>

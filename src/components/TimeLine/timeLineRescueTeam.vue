@@ -1,7 +1,8 @@
 <template>
-  <div>
     <div class="rescue_team">
-      <p class="title">救援出队</p>
+      <h2 class="title">救援出队:
+        <span class="time">{{ this.recordtime }}</span>
+      </h2>
       <div class="sub-main">
         <ul class="sub-ul">
           <li
@@ -18,11 +19,8 @@
 
       <div class="rescue_team_time_div">
         <div class="title-underline"></div>
-        <p class="time_text"> 数据更新时间</p>
-        <p class="time">{{ this.recordtime }}</p>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -141,9 +139,9 @@ export default {
 <style scoped>
 .rescue_team {
   position: absolute;
-  top: 56%;
+  top: 56.4%;
   width: 25%; /* 调整宽度 */
-  height: 30%;
+  height: 28%;
   padding: 10px;
   border-radius: 5px;
   left: 1%;
@@ -156,7 +154,7 @@ export default {
 .title {
   font-family: 'myFirstFont', sans-serif;
   color: #FFFFFF;
-  font-size: 19px;
+  font-size: 1.1rem;
   font-weight: 550;
   top:-6%;
   position: relative;
@@ -187,7 +185,7 @@ export default {
 }
 .title-underline {
   width: 100%;
-  height: 1px;
+  height: 0.5px;
   background-color: #1f9dca;
   margin-top: 1px;
 }
@@ -195,23 +193,14 @@ export default {
 .rescue_team_time_div {
   position: absolute;
   width: 94%;
-  height: 23%;
+  height: 19%;
   bottom: -3%;
 }
-
-
 .rescue_team_p {
   margin-top: 1em;
   margin: 1px;
-  font-size: 1rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
-}
-
-.time_text {
-  margin: 1px;
   font-size: 0.9rem;
+  line-height: 1.2rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
@@ -226,8 +215,8 @@ export default {
 }
 :deep(.sub-main) {
   margin-top: -16px;
-  top: 0px;
-  max-height: 63%;
+  top: 3px;
+  max-height: 65%;
   overflow-y: auto;
   padding: 0px;
   left: 3%;
@@ -248,7 +237,7 @@ export default {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
-  border: 3px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 .sub-ul {
   padding: 0;
@@ -258,7 +247,6 @@ export default {
   overflow-y: auto; /* 当内容超出时显示垂直滚动条 */
   list-style-type: none; /* 去除列表项默认的项目符号 */
 }
-
 .sub-ul li {
   display: flex;
   align-items: center; /* Center items vertically */
@@ -266,7 +254,6 @@ export default {
   /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
   padding: 0; /* Optional: Add padding for better spacing */
 }
-
 .sub-content {
   padding: 0;
   margin: 0;

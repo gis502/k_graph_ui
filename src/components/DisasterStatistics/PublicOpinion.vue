@@ -1,5 +1,5 @@
 <template>
-  <div ref="chart" style="width:100%; height:250px;margin-top: 30px" ></div>
+  <div ref="chart" style="width:100%; height:230px;margin-top: 30px" ></div>
 </template>
 
 <script setup>
@@ -45,7 +45,7 @@ function update(data){
     publicOpinionRiskWarning.value = [0];
     pressConference.value = [0];
     negativeOpinionDisposal.value = [0];
-    latestTime.value = '';
+    latestTime.value = ['抱歉暂无数据'];
   } else {
     earthquakeZoneName.value = data.map(item => item.earthquakeZoneName || '无数据');
     publicityReport.value = data.map(item => item.publicityReport || 0);
@@ -53,7 +53,7 @@ function update(data){
     publicOpinionRiskWarning.value = data.map(item => item.publicOpinionRiskWarning || 0);
     pressConference.value = data.map(item => item.pressConference || 0);
     negativeOpinionDisposal.value = data.map(item => item.negativeOpinionDisposal || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
+    latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({

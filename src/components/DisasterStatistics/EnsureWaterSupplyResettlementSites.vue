@@ -1,7 +1,7 @@
 <template>
   <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latestTime}}</p>
   <div>
-    <div ref="chart" style="width: 100%; height: 250px;" className="container-left"></div>
+    <div ref="chart" style="width: 100%; height: 200px;" className="container-left"></div>
   </div>
 </template>
 
@@ -66,9 +66,10 @@ function update(data){
     earthquakeAreaName.value = data.map(item => item.earthquakeAreaName || '无数据');
     waterSupplyPoints.value = data.map(item => item.waterSupplyPoints || 0);
     latestTime.value = data.reduce((max, item) => {
-      return new Date(formatDate(max)) > new Date(formatDate(item.systemInsertTime)) ? formatDate(max) : formatDate(item.systemInsertTime);
-    }, formatDate(data[0].systemInsertTime)); // 确保初始值
+      return new Date(formatDate(max)) > new Date(formatDate(item.reportDeadline)) ? formatDate(max) : formatDate(item.reportDeadline);
+    }, formatDate(data[0].reportDeadline)); // 确保初始值
   }
+
 
   echartsInstance.setOption({
     tooltip: {

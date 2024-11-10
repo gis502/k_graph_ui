@@ -34,20 +34,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                  size="small"
-                  @click="plotAdj(scope.row)">查看
+                size="small"
+                @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            layout="total, prev, pager, next"
-            :total="total">
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          layout="total, prev, pager, next"
+          :total="total">
         </el-pagination>
 
       </el-form>
@@ -105,27 +105,27 @@
           @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolyline"
+        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolygon"
+        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-          :visible="popupVisible"
-          :position="popupPosition"
-          :popupData="popupData"
-          :ifedit="true"
-          @wsSendPoint="wsSendPoint"
-          @closePlotPop="closePlotPop"
+        :visible="popupVisible"
+        :position="popupPosition"
+        :popupData="popupData"
+        :ifedit="true"
+        @wsSendPoint="wsSendPoint"
+        @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-          :visible="dataSourcePopupVisible"
-          :position="dataSourcePopupPosition"
-          :popupData="dataSourcePopupData"
+        :visible="dataSourcePopupVisible"
+        :position="dataSourcePopupPosition"
+        :popupData="dataSourcePopupData"
       />
 
       <el-button type="primary" @click="exportCesiumTheme"
@@ -141,21 +141,21 @@
       </el-button>
 
       <el-upload
-          :action="uploadUrl"
-          :multiple="false"
-          :show-file-list="false"
-          :on-success="handleSuccess"
-          :before-upload="beforeUpload"
-          :headers="this.headers"
-          style="position: absolute;top: 150px;right: 100px;z-index: 100;"
+        :action="uploadUrl"
+        :multiple="false"
+        :show-file-list="false"
+        :on-success="handleSuccess"
+        :before-upload="beforeUpload"
+        :headers="this.headers"
+        style="position: absolute;top: 150px;right: 100px;z-index: 100;"
       >
         <el-button type="primary" @click="">上传当前地震标绘数据</el-button>
       </el-upload>
 
       <el-dialog
-          v-model="selectVisible"
-          width="30%"
-          @close="selectVisible=false"
+        v-model="selectVisible"
+        width="30%"
+        @close="selectVisible=false"
       >
         <template #title>
           <div style="text-align: center;">{{ this.excelPanel }}</div>
@@ -168,12 +168,12 @@
               <div>可选择标绘名称</div>
               <el-row>
                 <el-tree
-                    ref="tree"
-                    :data="plotTreeData"
-                    :props="defaultProps"
-                    accordion
-                    show-checkbox
-                    @check-change="handleCheck"
+                  ref="tree"
+                  :data="filteredPlotTreeData"
+                  :props="defaultProps"
+                  show-checkbox
+                  node-key="id"
+                  @check-change="handleCheck"
                 >
                 </el-tree>
               </el-row>
@@ -202,8 +202,6 @@
               </div>
             </div>
           </div>
-
-
         </div>
 
 
@@ -211,7 +209,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -240,7 +238,7 @@
           </div>
         </div>
         <div
-            style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
           <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
           <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
           <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
@@ -254,16 +252,21 @@
     </div>
 
     <div class="legend-container" style="position: absolute;bottom: 0;right: 0;" v-if="showLegend">
-      <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }"  :data="legendPlotData" style="width: 100%">
+      <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }" :data="legendPlotData"
+                style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;" />
+            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
         <el-table-column prop="plotType" label="类型" width="180"></el-table-column>
         <el-table-column prop="count" label="数量" width="50"></el-table-column>
       </el-table>
       <div class="compassContainer" ref="compassContainer"></div>
+    </div>
+
+    <div v-if="loading" class="loading-container">
+      <p>正在导出，请稍候...</p>
     </div>
 
   </div>
@@ -296,7 +299,7 @@ import html2canvas from "html2canvas";
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog,layeredShowPlot
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot
   },
   data: function () {
     return {
@@ -382,6 +385,7 @@ export default {
         //   label: '量算工具',
         // }
       ],
+      filteredPlotTreeData: [],
       defaultProps: {
         label: 'label',
         children: 'children',
@@ -417,8 +421,8 @@ export default {
       //----------------------------------
       renderedPlotIds: new Set(), // 用于存储已经渲染的 plotid
       //----------------------------------
-      zoomLevel: '市' , // 初始化缩放层级
-      pointsLayer :[], //传到子组件
+      zoomLevel: '市', // 初始化缩放层级
+      pointsLayer: [], //传到子组件
       //----------------------------------
       plotList: [], // 用于指定地震标绘点导出
       selectVisible: false,
@@ -449,10 +453,13 @@ export default {
       flexPercentages: [],
       points: [],
       hasGeneratedPoints: false,
-      legendPlotData : [],
+      legendPlotData: [],
       showLegend: false,
       eqInfo: {},
+      sheet: [],
       sheetData: {},
+      isLoaded: false,
+      downloadConfirmed: false,
     };
   },
   mounted() {
@@ -482,10 +489,67 @@ export default {
       window.viewer = null;
     }
   },
+
+  watch: {
+    isLoaded(val) {
+      if(val && this.downloadConfirmed) {
+        this.downloadExcel()
+      }
+    }
+  },
+
   // unmounted() {
   //   this.websock.close()
   // },
   methods: {
+
+    downloadExcel() {
+      const plotBTO = {
+        sheets: this.sheet,
+        excelContent: this.excelContent
+      };
+
+      // console.log("sheet:",sheet)
+
+      downloadPlotExcel(plotBTO).then(res => {
+        const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        console.log(this.excelContent)
+
+        const formattedTitle = this.title
+          // 首先删除时间部分，例如 T17_00_08
+          .replace(/T\d{2}:\d{2}:\d{2}/, "")
+          // 然后将日期部分 2022-06-01 转换为 2022年6月1日
+          .replace(/^(\d{4})-(\d{2})-(\d{2})/, (match, year, month, day) =>
+            `${year}年${parseInt(month, 10)}月${parseInt(day, 10)}日`
+          );
+
+
+        const excelTitle = this.excelContent.length > 0 ? `${formattedTitle}级地震-标绘数据` : "标绘数据模板";
+
+        link.setAttribute('download', `${excelTitle}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        this.excelContent = []
+        this.selectVisible = false;
+        this.selectedNodes = [];
+        // 获取当前勾选的节点
+        const checkedNodes = this.$refs.tree.getCheckedNodes();
+
+        // 逐个取消勾选
+        checkedNodes.forEach(node => {
+          this.$refs.tree.setChecked(node, false);
+        });
+      })
+      this.isLoaded = false
+      this.downloadConfirmed = false
+      this.loading = false
+    },
     // 初始化控件等
     init() {
       let viewer = initCesium(Cesium)
@@ -521,7 +585,7 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
-      console.log("this.eqid---------------------",this.eqid)
+      console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
@@ -536,6 +600,7 @@ export default {
         let data = res
 
         that.plotList = data
+        console.log("数据：", data)
 
         let pointArr = data.filter(e => e.drawtype === 'point')
         let points = []
@@ -560,7 +625,7 @@ export default {
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
-        console.log("pointArr",pointArr)
+        console.log("pointArr", pointArr)
         console.log("polylineArr", polylineArr)
         // 过滤掉已经渲染的项
         let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
@@ -591,7 +656,7 @@ export default {
         });
         let straightArr = data.filter(e => e.drawtype === 'straight');
         Arrow.showStraightArrow(straightArr)
-        console.log("straightArr----------------",straightArr)
+        console.log("straightArr----------------", straightArr)
 
         let attackArr = data.filter(e => e.drawtype === 'attack');
         Arrow.showAttackArrow(attackArr)
@@ -682,6 +747,17 @@ export default {
     },
 
     showSelect(flag) {
+      this.filteredPlotTreeData = this.plotTreeData.map((category) => {
+        if (category.children) {
+          return {
+            ...category,
+            children: category.children.filter(
+              (child) => child.label !== 'I类（次生地质灾害）'
+            ),
+          };
+        }
+        return category;
+      });
       this.selectVisible = true
       this.initializeTreeChildren(flag)
       // console.log("数据：",this.excelContent)
@@ -692,7 +768,7 @@ export default {
 
       // 提取所有的最高级和第二级的label
       const highestAndSecondLabels = [];
-      this.plotTreeData.forEach(item => {
+      this.filteredPlotTreeData.forEach(item => {
         // 添加最高级label
         highestAndSecondLabels.push(item.label);
         // 添加每个子项的label
@@ -705,25 +781,25 @@ export default {
 
       // 过滤掉最高级和第二级的label
       this.selectedNodes = checkedNodes
-          .map(node => node.label)
-          // 过滤掉最高级和第二级的 label
-          .filter(label => !highestAndSecondLabels.includes(label));
+        .map(node => node.label)
+        // 过滤掉最高级和第二级的 label
+        .filter(label => !highestAndSecondLabels.includes(label));
     },
 
     confirmDownload() {
-
-      const sheet = this.selectedNodes.map(node => {
+      this.loading = true
+      this.sheet = this.selectedNodes.map(node => {
         // 反向查找键
         const typeKey = Object.keys(plotType).find(key => plotType[key].name === node);
         const fields = [];
         fields.unshift(
-            {name: "绘制类型", type: "text"},
-            {name: "经度", type: "text"},
-            {name: "纬度", type: "text"},
-            {name: "高程", type: "text"},
-            {name: "角度", type: "text"},
-            {name: "开始时间", type: "text"},
-            {name: "结束时间", type: "text"}
+          {name: "绘制类型", type: "text"},
+          {name: "经度", type: "text"},
+          {name: "纬度", type: "text"},
+          {name: "高程", type: "text"},
+          {name: "角度", type: "text"},
+          {name: "开始时间", type: "text"},
+          {name: "结束时间", type: "text"}
         );
 
         if (typeKey) {
@@ -746,58 +822,27 @@ export default {
           fields: fields
         };
       });
+      this.downloadConfirmed = true
 
-      const plotBTO = {
-        sheets: sheet,
-        excelContent: this.excelContent
-      };
-
-      // console.log("sheet:",sheet)
-
-      downloadPlotExcel(plotBTO).then(res => {
-        const blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-
-        const excelTitle = this.excelContent.length > 0 ? `${this.title.replace(
-            /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
-            "$1年$2月$3日"
-        )}级地震-标绘数据` : "标绘数据模板";
-
-        link.setAttribute('download', `${excelTitle}.xlsx`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        this.excelContent = []
-        this.selectVisible = false;
-        this.selectedNodes = [];
-        // 获取当前勾选的节点
-        const checkedNodes = this.$refs.tree.getCheckedNodes();
-
-        // 逐个取消勾选
-        checkedNodes.forEach(node => {
-          this.$refs.tree.setChecked(node, false);
-        });
-      })
+      if(this.isLoaded) {
+        this.downloadExcel()
+      }
     },
 
     cancelDownload() {
       this.excelContent = []
       this.selectVisible = false;
       this.selectedNodes = []
-      // 获取当前勾选的节点
-      const checkedNodes = this.$refs.tree.getCheckedNodes();
+      this.isLoaded = false
+      this.loading = false
 
       // 逐个取消勾选
-      checkedNodes.forEach(node => {
-        this.$refs.tree.setChecked(node, false);
-      });
+      this.$refs.tree.setCheckedNodes([])
     },
 
     // 新方法展示与点击节点相关的name字段
     initializeTreeChildren(flag) {
+      console.log(flag)
       if (flag === 'export') {
 
         this.excelPanel = "标绘点数据导出"
@@ -806,10 +851,11 @@ export default {
         const plotTypes = this.plotList.map(plot => plot.plotType);
 
         getExcelPlotInfo(plotIds, plotTypes).then(res => {
+          console.log(res)
 
           // 提取 excelContent
           const excelContent = res.filter(item => item.plotInfo).map(item => {
-            const { plotInfo, plotTypeInfo } = item;
+            const {plotInfo, plotTypeInfo} = item;
 
             // 先提取绘制类型
             const drawTypeMap = new Map([
@@ -819,15 +865,14 @@ export default {
             ]);
 
             // 提取 plotTypeInfo 中的字段
-            const plotTypeFields = Object.values(plotType).find(team => team.name === plotInfo.plotType);
-
+            const plotTypeFields = plotInfo.plotType ? Object.values(plotType).find(team => team.name === plotInfo.plotType) : null;
             const filteredPlotTypeInfo = Object.keys(plotTypeFields).filter(key => key !== 'name')
-                .reduce((obj, key) => {
-                  if (plotTypeInfo[key] !== undefined) {
-                    obj[plotTypeFields[key].name] = plotTypeInfo[key];
-                  }
-                  return obj;
-                }, {});
+              .reduce((obj, key) => {
+                if (plotTypeInfo[key] !== undefined) {
+                  obj[plotTypeFields[key].name] = plotTypeInfo[key];
+                }
+                return obj;
+              }, {});
 
             // 返回提取的字段
             return {
@@ -842,6 +887,7 @@ export default {
               ...filteredPlotTypeInfo, // 保留 plotTypeInfo 中的字段
             };
           });
+          console.log(excelContent)
 
           // 将数据调整为目标格式
           this.excelContent = excelContent.reduce((acc, item) => {
@@ -856,7 +902,7 @@ export default {
               "结束时间": item["结束时间"],
               // 将 plotTypeInfo 中的其他字段加入
               ...Object.fromEntries(
-                  Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
+                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
               )
             };
 
@@ -876,7 +922,7 @@ export default {
             return acc;
           }, []);
 
-          // console.log("调整后的数据格式:", this.excelContent);
+          console.log("调整后的数据格式:", this.excelContent);
 
         });
       } else {
@@ -905,22 +951,24 @@ export default {
         "地面沉降"
       ];
 
-      this.plotTreeData.forEach(rootNode => {
+      this.filteredPlotTreeData.forEach(rootNode => {
         if (rootNode.children) {
           rootNode.children.forEach(child => {
             let arr = this.plotPicture.filter(item => item.type === child.label);
 
             // 根据 flag 值决定是否应用过滤
             child.children = arr
-                .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
-                .map(item => ({
-                  label: item.name,
-                  uuid: item.uuid,
-                  children: [] // 初始化为空数组
-                }));
+              .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
+              .map(item => ({
+                label: item.name,
+                uuid: item.uuid,
+                children: [] // 初始化为空数组
+              }));
           });
         }
       });
+      this.loading = false;
+      this.isLoaded = true;
     },
 
     beforeUpload(file) {
@@ -941,7 +989,7 @@ export default {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
+        const workbook = XLSX.read(data, {type: 'array'});
 
         // 检查是否正确读取工作簿内容
         // console.log("工作簿内容：", workbook.Sheets);
@@ -955,9 +1003,9 @@ export default {
         const firstCell = worksheet['A1'];
         if (!firstCell && firstCell !== "绘制类型") {
           this.$message({
-                type: 'error',
-                message: `文件的第一行数据有误，请检查文件内容！`
-              }
+              type: 'error',
+              message: `文件的第一行数据有误，请检查文件内容！`
+            }
           );
         }
       };
@@ -1011,7 +1059,7 @@ export default {
             const col = cell.match(/[A-Z]+/)[0];
 
             if (row === '1') {
-              headers.push({ col, header: sheet[cell].v });
+              headers.push({col, header: sheet[cell].v});
             }
           }
         }
@@ -1085,7 +1133,7 @@ export default {
                   isDeleted: null,
                   creationTime: new Date().toISOString().slice(0, 19)
                 },
-                plotInfo: Object.keys(mappedPlotInfo).length > 0 ? { ...mappedPlotInfo, plotId } : undefined // 只添加非空的 plotInfo
+                plotInfo: Object.keys(mappedPlotInfo).length > 0 ? {...mappedPlotInfo, plotId} : undefined // 只添加非空的 plotInfo
               },
             });
           }
@@ -1103,7 +1151,7 @@ export default {
 
       flattenedResult.forEach(data => {
         this.wsSendPoint(JSON.stringify(data)); // 将 data 转换为 JSON 字符串发送
-        this.drawPoints(data.data.plot,true)
+        this.drawPoints(data.data.plot, true)
       });
 
       return flattenedResult;
@@ -1117,9 +1165,9 @@ export default {
 
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(targetInfo.longitude),
-            parseFloat(targetInfo.latitude),
-            70000
+          parseFloat(targetInfo.longitude),
+          parseFloat(targetInfo.latitude),
+          70000
         ),
         orientation: {
           heading: 6.283185307179581,
@@ -1133,7 +1181,7 @@ export default {
       const plotList = this.plotList;
 
       plotList.forEach(item => {
-        const { plotType, icon } = item;
+        const {plotType, icon} = item;
 
         if (plotType) {
           // 检查 this.legendPlotData 是否已有相同 plotType 的项
@@ -1144,7 +1192,7 @@ export default {
             existingEntry.count += 1;
           } else {
             // 如果没有相同 plotType 的项，添加新项
-            this.legendPlotData.push({ plotType, count: 1, icon });
+            this.legendPlotData.push({plotType, count: 1, icon});
           }
         }
       });
@@ -1166,7 +1214,7 @@ export default {
       cameraController.enableRotate = false;
       cameraController.enableZoom = false;
       cameraController.enableTranslate = false;
-      console.log("Cesium相机：",cameraController)
+      console.log("Cesium相机：", cameraController)
 
       //  2: 获取地图当前视野范围的经纬度，并加载经纬度线
       this.getLatLonBounds();  // 获取当前视野经纬度范围
@@ -1335,8 +1383,8 @@ export default {
         // 创建下载链接并触发下载
         const link = document.createElement('a');
         link.download = `${this.title.replace(
-            /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
-            "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
+          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+          "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
         link.href = finalImage; // 设置图片来源
         link.click(); // 触发下载
       }).catch(error => {
@@ -1462,11 +1510,11 @@ export default {
       dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
 
       this.calculateCustomValues(
-          dataContext.points[0],
-          dataContext.points[dataContext.points.length - 1],
-          start,
-          end,
-          dataContext
+        dataContext.points[0],
+        dataContext.points[dataContext.points.length - 1],
+        start,
+        end,
+        dataContext
       );
     },
 
@@ -1627,7 +1675,10 @@ export default {
           this.popupData = {}
         }
 
-        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]') {
+        console.log(window.selectedEntity)
+
+        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]' && window.selectedEntity[0]._layer !== "聚合标绘点") {
+
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -1642,12 +1693,12 @@ export default {
 
           this.updatePopupPosition(); // 更新弹窗的位置
           this.dataSourcePopupData = window.selectedEntity
-          // console.log("dataSourcePopupData 22" this.dataSourcePopupData)
           this.dataSourcePopupVisible = true
           this.popupVisible = false
         }
         // 2-1 判断点击物体是否为点实体（billboard）
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
+
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -1692,7 +1743,6 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          // console.log("popupData 11",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
         } else {
           // this.popupVisible = false; // 隐藏弹窗
@@ -1700,50 +1750,6 @@ export default {
         }
         // 3-1 选中面时触发
         if (Cesium.defined(pickedEntity) && window.selectedEntity._polygon !== undefined) {
-          // 2-2 获取点击点的经纬度
-          let ray = viewer.camera.getPickRay(click.position)
-          let position = viewer.scene.globe.pick(ray, viewer.scene)
-          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
-          let cartographic = Cesium.Cartographic.fromCartesian(position);
-          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-
-          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
-          let height = 0
-          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
-          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
-          if (this.isTerrainLoaded()) {
-            // const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
-            let l = Cesium.Cartographic.fromCartesian(position)
-            let lon = Cesium.Math.toDegrees(l.longitude)
-            let lat = Cesium.Math.toDegrees(l.latitude)
-            let hei = l.height
-            let height
-            // 将笛卡尔坐标转换为地理坐标角度
-            let cartographic = Cesium.Cartographic.fromCartesian(position);
-            // 将地理坐标角度换为弧度
-            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
-            // 将经纬度和高度生成新的笛卡尔坐标
-            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
-            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
-          }
-          this.popupVisible = false
-          this.popupVisible = true; // 显示弹窗
-          this.popupData = {}
-          console.log(window.selectedEntity)
-          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          // console.log("popupData 22",this.popupData)
-          this.updatePopupPosition(); // 更新弹窗的位置
-          // that.showPolygon = true
-          // that.polygonPosition = window.selectedEntity
-        } else {
-          // this.showPolygon = false
-        }
-        // 4-1选中线时触发
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined && window.selectedEntity.properties.data && that.polylineStatus === 0) {
-
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -1773,12 +1779,55 @@ export default {
             that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
             // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
           }
+          this.popupVisible = false
+          this.popupVisible = true; // 显示弹窗
+          this.popupData = {}
+          console.log(window.selectedEntity)
+          this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          this.updatePopupPosition(); // 更新弹窗的位置
+          // that.showPolygon = true
+          // that.polygonPosition = window.selectedEntity
+        } else {
+          // this.showPolygon = false
+        }
+        // 4-1选中线时触发
+        if (Cesium.defined(pickedEntity) && window.selectedEntity._polyline !== undefined && window.selectedEntity.properties.data && that.polylineStatus === 0) {
+
+          // 2-2 获取点击点的经纬度
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          // 2-3 将笛卡尔坐标转换为地理坐标角度,再将地理坐标角度换为弧度
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+          // 2-4-1 将经纬度和高度生成新的笛卡尔坐标，用来解决弹窗偏移（不加载地形的情况）
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
+          // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
+          if (this.isTerrainLoaded()) {
+            console.log("虚拟位置")
+            const cesiumPosition = window.selectedEntity.position;//获取时间？？？？？？？？？？？？
+            let l = Cesium.Cartographic.fromCartesian(position)
+            let lon = Cesium.Math.toDegrees(l.longitude)
+            let lat = Cesium.Math.toDegrees(l.latitude)
+            let hei = l.height
+            let height
+            // 将笛卡尔坐标转换为地理坐标角度
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            // 将地理坐标角度换为弧度
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            height = window.viewer.scene.globe.getHeight(cartographic) // 获取当前位置的高度
+            // 将经纬度和高度生成新的笛卡尔坐标
+            that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(Number(longitude.toFixed(6)), Number(latitude.toFixed(6)), height);
+            // console.log("虚拟位置",{longitude, latitude, height},"真实位置",{lon,lat,hei})
+          }
           // console.log(window.selectedEntity,123)
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          console.log(this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
           // let status = cesiumPlot.drawPolylineStatus()
           // if (status === 0) {
@@ -1790,7 +1839,7 @@ export default {
           // this.showPolyline = false
           // this.popupData = {}
         }
-        if (Cesium.defined(pickedEntity) && window.selectedEntity._billboard && window.selectedEntity._id=== 'center'){
+        if (Cesium.defined(pickedEntity) && window.selectedEntity._billboard && window.selectedEntity._id === 'center') {
           console.log("1123")
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
@@ -1805,7 +1854,7 @@ export default {
           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
           // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
           if (this.isTerrainLoaded()) {
-            // const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
             let l = Cesium.Cartographic.fromCartesian(position)
             let lon = Cesium.Math.toDegrees(l.longitude)
             let lat = Cesium.Math.toDegrees(l.latitude)
@@ -1836,11 +1885,16 @@ export default {
           this.popupData = {}
 
           this.popupData = window.selectedEntity.properties.centerData ? window.selectedEntity.properties.centerData.getValue() : ""
-          // console.log("popupData 44",this.popupData)
           this.updatePopupPosition(); // 更新弹窗的位置
 
-        }else {
-
+        } else {
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
         }
 
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
@@ -1886,11 +1940,13 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       this.eqInfo = row
-
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {
         window.pointDataSource.entities.removeAll();
+      }
+      if (window.labeldataSource) {
+          window.labeldataSource.entities.removeAll();; // 移除点
       }
       Arrow.drawArr = []
       // console.log("row",row)
@@ -1948,6 +2004,8 @@ export default {
         // 初始化标绘所需的viewer、ws、pinia
         let cesiumStore = useCesiumStore()
         cesiumPlot.init(window.viewer, this.websock, cesiumStore)
+
+        console.log("websock:", this.websock)
       })
     },
     // /取地震信息+开始结束当前时间初始化
@@ -1974,7 +2032,7 @@ export default {
     },
     //更新地图中心视角，更新变量：地震起止时间，渲染点
     updateMapandVariablebeforInit(data) {
-      let centerData={
+      let centerData = {
         ...data,
         drawtype: data.plotid
       }
@@ -1984,9 +2042,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            parseFloat(this.centerPoint.height || 0)
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -2266,11 +2324,7 @@ export default {
       }
     },
     drawPoints(pointInfo,bool) {
-      if (this.ifPointAnimate) {
-        cesiumPlot.drawPoints(pointInfo, bool, 3000);
-      } else {
-        cesiumPlot.drawPoints(pointInfo, bool, 3000);
-      }
+      cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
@@ -2469,7 +2523,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -2535,9 +2589,9 @@ export default {
         this.zoomLevel = '市'
       } else if (cameraHeight > 70000) {
         this.zoomLevel = '区/县'
-      } else if(cameraHeight > 4000){
+      } else if (cameraHeight > 4000) {
         this.zoomLevel = '乡/镇'
-      }else{
+      } else {
         this.zoomLevel = '村'
       }
     }
@@ -2823,5 +2877,17 @@ img {
   z-index: 20;
   transform-origin: center; /* 设置旋转中心 */
   transition: transform 0.5s; /* 动画效果 */
+}
+
+.loading-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 10000;
 }
 </style>
