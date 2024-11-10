@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;" indicator-position="none">
+    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;" indicator-position="none" :key="carouselKey">
       <!-- 余震数量图表 -->
       <el-carousel-item style="height: 100%;">
         <div class="chart-container" style="height: 100%;">
@@ -29,12 +29,9 @@
       <el-carousel-item>
         <div class="chart-container">
           <div class="public-title">避难点</div>
-          <div
-              class="riskPoint"
-              @mouseenter="pauseSlide"
-              @mouseleave="resumeSlide"
-              style="margin-top: -20px"
-          >
+
+          <!-- 风险点信息 -->
+          <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
             <div class="button-top" style="margin-bottom: 5px;">
               <span @click="slideUp" class="white-text">▲</span>
             </div>
@@ -42,27 +39,27 @@
             <div class="container" :style="{ transform: `translateY(${translateY.value}px)`, transition: 'transform 0.5s ease' }">
               <el-col>
                 <div class="newColCommon">
-                  <span class="label">隐患点地点：</span>{{ location }}
+                  <span class="label">隐患点地点：</span>{{ location || '暂无数据' }}
                 </div>
               </el-col>
               <el-col>
                 <div class="newColCommon">
-                  <span class="label">隐患点类型：</span>{{ riskPointType }}
+                  <span class="label">隐患点类型：</span>{{ riskPointType || '暂无数据' }}
                 </div>
               </el-col>
               <el-col>
                 <div class="newColCommon">
-                  <span class="label">与震中距离：</span>{{ distance }} 千米
+                  <span class="label">与震中距离：</span>{{ distance ? distance + ' 千米' : '暂无数据' }}
                 </div>
               </el-col>
               <el-col>
                 <div class="newColCommon">
-                  <span class="label">险情等级：</span>{{ riskLevel }}
+                  <span class="label">险情等级：</span>{{ riskLevel || '暂无数据' }}
                 </div>
               </el-col>
               <el-col>
                 <div class="newColCommon">
-                  <span class="label">稳定性：</span>{{ stability }}
+                  <span class="label">稳定性：</span>{{ stability || '暂无数据' }}
                 </div>
               </el-col>
             </div>
@@ -71,8 +68,18 @@
               <span @click="slideDown" class="white-text">▼</span>
             </div>
           </div>
+
+          <!-- 如果没有数据，显示暂无数据 -->
+          <div v-else class="no-data">
+            <div>与震中距离：暂无数据</div>
+            <div>隐患点地点：暂无数据</div>
+            <div>隐患点类型：暂无数据</div>
+            <div>险情等级：暂无数据</div>
+            <div>稳定性：暂无数据</div>
+          </div>
         </div>
       </el-carousel-item>
+
 
     </el-carousel>
   </div>
@@ -98,7 +105,7 @@ const stability = ref('');
 const translateY = ref(0); // 用于动画
 const currentIndex = ref(0); // 当前显示的隐患点索引
 const riskPointData = ref([]); // 存储从 API 获取的隐患点数据
-
+const carouselKey = ref(0)
 let myAftershockChart = null; // 余震图表实例
 let myPopulationDataChart = null; // 人口数据图表实例
 
@@ -143,7 +150,6 @@ const initAftershockChart = () => {
       }
     ]
   };
-
   myAftershockChart.setOption(option);
 };
 
@@ -168,21 +174,37 @@ const updateAftershockChart = (data) => {
 
 
 // 处理余震数据
+
 const handleAftershockData = () => {
   if (props.lastEq) {
     getAftershockMagnitude(props.lastEq.eqid).then((res) => {
       updateAftershockChart(res); // 更新余震图表
+      console.log("getAftershockMagnitude", res);
       updateTime.value = res.submission_deadline; // 更新时间
 
       // 根据余震数据是否存在决定初始展示的图表
-      const hasAftershockData = res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9;
-      initialIndex.value = hasAftershockData ? 0 : 1; // 有数据则展示余震图，无数据则展示静态图
+      const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
+      console.log("hasAftershockData", hasAftershockData);
+
+      // 设置 initialIndex 的值
+      initialIndex.value = hasAftershockData ? 0 : 1;
+      console.log("initialIndex 值:", initialIndex.value);
+
+      carouselKey.value++;
+
+      nextTick(() => {
+
+          initAftershockChart()
+          initPopulationDataChart()
+          updateAftershockChart(res); // 重新初始化余震图表
+      });
     });
   } else {
     updateTime.value = new Date().toLocaleString(); // 设置当前时间
     initialIndex.value = 1; // 如果没有lastEq，默认展示静态图
   }
 };
+
 
 // 存储人口数据
 const populationData = ref({});
@@ -450,6 +472,27 @@ onBeforeUnmount(() => {
 }
 .white-text {
   color: white;
+}
+/* 3. 没有数据时的显示样式 */
+.no-data {
+  margin-top: -80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  gap: 15px; /* 增加行与行之间的间距 */
+
+}
+
+
+.no-data div {
+  margin: 5px 0;
 }
 
 </style>

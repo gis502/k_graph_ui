@@ -5,6 +5,7 @@
         <el-button type="primary" plain size="mini" @click="handleEdit('新增')">新增</el-button>
       </el-col>
     </el-row>
+
     <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor"
               :cell-style="tableColor">
       <el-table-column label="序号" align="center" width="100">
@@ -19,14 +20,16 @@
       <el-table-column prop="angle" label="旋转角度" width="180" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template v-slot="scope">
-          <el-button size="mini" type="text" icon="el-icon-view" @click="handleOpen(scope.row)">浏览</el-button>
+          <el-button size="mini" type="text" icon="el-icon-view" @click="handleOpen('浏览', scope.row)">浏览</el-button>
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleEdit('修改', scope.row)">修改</el-button>
           <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
+    <!--分页按钮-->
     <el-pagination
+        class="pagination"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
@@ -53,8 +56,8 @@
               placeholder="选择日期时间"
               value-format="x"
               size="large"
-              style="width: 100%;">
-          </el-date-picker>
+              style="width: 100%;"
+          ></el-date-picker>
         </el-col>
       </el-row>
 
@@ -84,12 +87,12 @@
         <el-button type="primary" @click="commit">确定</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
 import { list, insert, update, removeById } from '@/api/system/orthophotoImage.js';
+import { ElMessage, ElMessageBox } from "element-plus";
 
 export default {
   name: "index",
@@ -105,7 +108,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         name: '',
-        createTime: new Date().getTime(), // 初始化为当前时间戳
+        createTime: new Date().getTime(), // Current timestamp
         path: '',
         height: '',
         angle: '',
@@ -118,100 +121,134 @@ export default {
   },
   methods: {
     fetchData() {
-      list().then(response => {
-        console.log("查询后端返回的数据:", response.data);
-        this.tableData = response.data; // 根据后端返回的数据结构调整
-        this.total = response.data.total;   // 获取总数
+      list().then(res => {
+        console.log("查询后端返回的数据:", res.data);
+        this.tableData = res.data.map((item, index) => ({
+          serialNumber: index + 1,
+          uuid: item.uuid,
+          name: item.name,
+          path: item.path,
+          createTime: this.formatDate(item.createTime),  // 格式化日期
+          height: item.height,
+          angle: item.angle,
+        }));
+        this.total = res.data.total || 0;
+      }).catch((error) => {
+        ElMessage.error('数据加载失败，请稍后重试');
       });
     },
-    formatDate(dateString) {
-      if (!dateString) return ''; // 处理空值
-      const date = new Date(dateString);
-      return date.toLocaleString(); // 以本地时间格式显示
+
+// 用来解析日期的函数
+
+    formatDate(dateStr) {
+      const date = new Date(dateStr);
+      if (isNaN(date)) {
+        return dateStr;  // 如果是无效的日期格式，直接返回原始字符串
+      }
+      return date.toISOString().slice(0, 19).replace('T', ' ');  // 转换为 'yyyy-MM-dd HH:mm:ss'
     },
-    handleDelete(row) {
-      removeById({ uuid: row.uuid }).then(() => {
-        this.fetchData();
-      });
+
+    getEmptyDialogContent() {
+      return {
+        name: '',
+        createTime: new Date().getTime(), // Current timestamp
+        path: '',
+        height: '',
+        angle: '',
+        uuid: ''
+      };
     },
-    handleOpen(row) {
-      console.log(row);
-      window.open('/orthophotographViewer', "_blank");
-    },
-    handleEdit(title, row) {
-      console.log('按钮被点击了', title, row);
-      this.dialogShow = true;
+
+    handleEdit(title, row = {}) {
+      this.dialogTitle = title;
+
       if (title === "新增") {
-        this.dialogTitle = title;
+        this.dialogContent = this.getEmptyDialogContent();
+      } else if (title === "修改") {
         this.dialogContent = {
-          name: '',
-          createTime: new Date().getTime(), // 初始化为当前时间戳
-          path: '',
-          height: '',
-          angle: '',
-          uuid: ''
+          name: row.name,
+          path: row.path,
+          createTime: new Date(row.createTime).getTime(), // Ensure it's in timestamp format
+          height: row.height,
+          angle: row.angle,
+          uuid: row.uuid
         };
-      } else {
-        this.dialogTitle = title;
-        this.dialogContent = { ...row };
-        // 如果后端传过来的createTime是ISO字符串，则转换为时间戳
-        if (this.dialogContent.createTime) {
-          this.dialogContent.createTime = new Date(this.dialogContent.createTime).getTime();
-        }
       }
+
+      this.dialogShow = true;
     },
+
+    handleOpen(title, row) {
+      this.handleEdit(title, row);
+    },
+
+    handleDelete(row) {
+      ElMessageBox.confirm('确定要删除该条记录吗?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+          .then(() => {
+            removeById({ uuid: row.uuid })
+                .then(() => {
+                  this.fetchData();
+                  ElMessage.success('删除成功');
+                })
+                .catch(() => {
+                  ElMessage.error('删除失败，请重试');
+                });
+          })
+          .catch(() => {
+            ElMessage.info('删除操作已取消');
+          });
+    },
+
     commit() {
-      // 将 createTime 转换为 YYYY:MM:DD HH:MM:SS 格式
-      const date = new Date(this.dialogContent.createTime);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要 +1，确保两位
-      const day = String(date.getDate()).padStart(2, '0');        // 确保两位
-      const hours = String(date.getHours()).padStart(2, '0');     // 确保两位
-      const minutes = String(date.getMinutes()).padStart(2, '0'); // 确保两位
-      const seconds = String(date.getSeconds()).padStart(2, '0'); // 确保两位
+      const modelData = {
+        name: this.dialogContent.name,
+        path: this.dialogContent.path,
+        height: this.dialogContent.height,
+        angle: this.dialogContent.angle,
+        createTime: new Date(this.dialogContent.createTime).toISOString().slice(0, 19).replace('T', ' '),
+        uuid: this.dialogContent.uuid,
+      };
 
-      // 拼接为 YYYY:MM:DD HH:MM:SS 格式
-      this.dialogContent.createTime = `${year}:${month}:${day} ${hours}:${minutes}:${seconds}`;
-
-      if (this.dialogTitle === "新增") {
-        console.log("数据:", this.dialogContent);
-        insert(this.dialogContent).then(() => {
-          this.fetchData();
-          this.dialogShow = false;
-          this.clearDialogContent();
-          console.log("新增完后");
-        });
-      } else {
-        update(this.dialogContent).then(() => {
-          this.fetchData();
-          this.dialogShow = false;
-          this.clearDialogContent();
-        });
-      }
+      const action = this.dialogTitle === '新增' ? insert : update;
+      action(modelData).then(() => {
+        this.fetchData();
+        this.dialogShow = false;
+        this.clearDialogContent();
+        ElMessage.success(`${this.dialogTitle}成功`);
+      }).catch(() => {
+        ElMessage.error(`${this.dialogTitle}失败，请重试`);
+      });
     },
 
     cancel() {
       this.dialogShow = false;
       this.clearDialogContent();
     },
+
     clearDialogContent() {
-      Object.keys(this.dialogContent).forEach(key => {
-        this.dialogContent[key] = key === 'createTime' ? new Date().getTime() : ''; // 初始化为当前时间戳
-      });
+      this.dialogContent = this.getEmptyDialogContent();
     },
+
     handleSizeChange(val) {
       this.pageSize = val;
       this.fetchData();
     },
+
     handleCurrentChange(val) {
       this.currentPage = val;
       this.fetchData();
     },
+
     tableHeaderColor() {
       return {
         'font-size': '16px'
-      }
+      };
     },
+
     tableColor({ rowIndex }) {
       return {
         'padding-top': '10px',
@@ -229,15 +266,9 @@ export default {
   text-align: center;
 }
 
-.pagination-container {
-  display: flex;
+.pagination {
   justify-content: center;
   margin-top: 20px;
-}
-
-.el-pagination {
-  margin-top: 10px;
-  justify-content: center;
 }
 
 :deep(.el-dialog__body) {

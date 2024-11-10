@@ -229,6 +229,7 @@ export default {
               this.fetchTotalCount();
               this.dialogShow = false;
               this.clearDialogContent();
+              ElMessage.success('新增已完成');
             })
             .catch(error => {
               console.error("新增模型失败:", error);
@@ -240,6 +241,7 @@ export default {
               this.fetchTotalCount();
               this.dialogShow = false;
               this.clearDialogContent();
+              ElMessage.success('编辑已完成');    // 提示编辑完成
             })
             .catch(error => {
               console.error("更新模型失败:", error);

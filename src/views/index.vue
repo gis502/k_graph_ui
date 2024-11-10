@@ -1,6 +1,5 @@
 <template>
   <div class="content-body">
-
     <div class="header">
       <div class="header-center">
         <span>雅安市地震应急信息服务技术支撑平台</span>
@@ -13,24 +12,23 @@
 
     <div class="content">
       <div class="content-con">
-
         <div class="left-body">
-          <div class="left-top public-bg">
-            <dv-border-box7>
+          <div class="left-top public-bg" ref="leftTop">
+            <dv-border-box7 :style="borderBoxStyles1">
               <div class="public-title">最新地震</div>
               <new-info :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
 
-          <div class="left-con public-bg">
-            <dv-border-box7>
+          <div class="left-con public-bg" ref="leftCon">
+            <dv-border-box7 :style="borderBoxStyles2">
               <div class="public-title">最新地震受灾人员统计</div>
               <chart3 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
-          <div class="left-bottom public-bg">
-            <dv-border-box7>
-<!--              <div class="public-title">最新地震余震情况统计(次)</div>-->
+
+          <div class="left-bottom public-bg" ref="leftBottom">
+            <dv-border-box7 :style="borderBoxStyles3">
               <chart2 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
@@ -41,19 +39,15 @@
         </div>
 
         <div class="right-body">
-          <div class="right-top public-bg">
-            <dv-border-box7>
-              <div class="public-title">
-                地震列表
-                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams" @keyup.enter="query()"></el-input>
-                <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
-                <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
-              </div>
+          <div class="right-top public-bg" ref="rightTop">
+            <dv-border-box7 :style="borderBoxStyles4">
+              <div class="public-title">地震列表</div>
               <eq-table :eq-data="tableData"/>
             </dv-border-box7>
           </div>
-          <div class="right-bottom public-bg">
-            <dv-border-box7>
+
+          <div class="right-bottom public-bg" ref="rightBottom">
+            <dv-border-box7 :style="borderBoxStyles5">
               <div class="public-title">历史地震统计(次)</div>
               <chart1 :eq-data="EqAll"/>
             </dv-border-box7>
@@ -62,12 +56,7 @@
       </div>
     </div>
 
-    <el-dialog
-        v-model="queryFormVisible"
-        title="筛选"
-        width="28vw"
-        style="top:20vh"
-    >
+    <el-dialog v-model="queryFormVisible" title="筛选" width="28vw" style="top:20vh">
       <el-form :inline="true" :model="formValue">
         <el-form-item label="地震位置">
           <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
@@ -108,100 +97,118 @@
 </template>
 
 <script setup>
-
-import {BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5} from '@kjgl77/datav-vue3'
-import {onMounted, ref} from 'vue';
+import { BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5 } from '@kjgl77/datav-vue3';
+import { onMounted, ref, reactive, nextTick } from 'vue';
 import EMap from '@/components/Home/emap.vue';
 import EqTable from '@/components/Home/eqtable.vue';
 import NewInfo from '@/components/Home/newInfo.vue';
 import Chart1 from '@/components/Home/chart1.vue';
 import Chart2 from '@/components/Home/chart2.vue';
 import Chart3 from '@/components/Home/chart3.vue';
-import {fromEq, getAllEq, queryEq} from '@/api/system/eqlist';
+import { fromEq, getAllEq, queryEq } from '@/api/system/eqlist';
 
 const nowTime = ref(null);
 const tableData = ref([]);
-const EqAll = ref([])
-const lastEqData = ref()
-const requestParams = ref("")
+const EqAll = ref([]);
+const lastEqData = ref();
+const requestParams = ref('');
 
-const queryFormVisible = ref(false)
+const queryFormVisible = ref(false);
+
+const borderBoxStyles1 = ref({});
+const borderBoxStyles2 = ref({});
+const borderBoxStyles3 = ref({});
+const borderBoxStyles4 = ref({});
+const borderBoxStyles5 = ref({});
+
+// ResizeObserver
+const resizeObserver = new ResizeObserver(() => {
+  // Adjust styles dynamically instead of using key
+  updateStyles();
+});
+
+// Element refs
+const leftTop = ref(null);
+const leftCon = ref(null);
+const leftBottom = ref(null);
+const rightTop = ref(null);
+const rightBottom = ref(null);
 
 const shortcuts = [
   {
     text: '近一周',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+      return [start, end];
     },
   },
   {
     text: '近一个月',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+      return [start, end];
     },
   },
   {
     text: '近三个月',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+      return [start, end];
     },
   },
   {
     text: '近一年',
     value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 360)
-      return [start, end]
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 360);
+      return [start, end];
     },
   },
-]
+];
 
 const formValue = reactive({
-  earthquakeName: "",
-  occurrenceTime: "",
-  startMagnitude: "",
-  endMagnitude: "",
-  startDepth: "",
-  endDepth: "",
-})
+  earthquakeName: '',
+  occurrenceTime: '',
+  startMagnitude: '',
+  endMagnitude: '',
+  startDepth: '',
+  endDepth: '',
+});
 
 const onSubmit = () => {
-  if (formValue.occurrenceTime !== "") {
+  if (formValue.occurrenceTime !== '') {
     const [startTime, endTime] = formValue.occurrenceTime;
     const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
     const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
 
     formValue.occurrenceTime = `${startDate} 至 ${endDate}`;
   }
-  fromEq(formValue).then(res => {
+  fromEq(formValue).then((res) => {
     tableData.value = res;
   });
   queryFormVisible.value = false;
-}
+};
 
 const openQueryFrom = () => {
   queryFormVisible.value = true;
-}
+};
 
 const query = () => {
-  if (requestParams.value === "") {
-    tableData.value = EqAll.value
-    return
+  if (requestParams.value === '') {
+    tableData.value = EqAll.value;
+    return;
   }
-  queryEq({queryValue: requestParams.value}).then(res => {
-    tableData.value = res
-  })
-}
+  queryEq({ queryValue: requestParams.value }).then((res) => {
+    tableData.value = res;
+  });
+};
 
 const updateTime = () => {
   nowTime.value = now_time();
@@ -209,15 +216,28 @@ const updateTime = () => {
 
 const now_time = () => {
   let myDate = new Date();
-  let myYear = myDate.getFullYear(); //获取完整的年份(4位,1970-????)
-  let myMonth = myDate.getMonth() + 1; //获取当前月份(0-11,0代表1月)
-  let myToday = myDate.getDate(); //获取当前日(1-31)
-  let myDay = myDate.getDay(); //获取当前星期X(0-6,0代表星期天)
-  let myHour = myDate.getHours(); //获取当前小时数(0-23)
-  let myMinute = myDate.getMinutes(); //获取当前分钟数(0-59)
-  let mySecond = myDate.getSeconds(); //获取当前秒数(0-59)
+  let myYear = myDate.getFullYear(); // 获取完整的年份(4位,1970-????)
+  let myMonth = myDate.getMonth() + 1; // 获取当前月份(0-11,0代表1月)
+  let myToday = myDate.getDate(); // 获取当前日(1-31)
+  let myDay = myDate.getDay(); // 获取当前星期X(0-6,0代表星期天)
+  let myHour = myDate.getHours(); // 获取当前小时数(0-23)
+  let myMinute = myDate.getMinutes(); // 获取当前分钟数(0-59)
+  let mySecond = myDate.getSeconds(); // 获取当前秒数(0-59)
   let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-  return myYear + '年' + fillZero(myMonth) + '月' + fillZero(myToday) + '日' + fillZero(myHour) + ':' + fillZero(myMinute) + ':' + fillZero(mySecond) + week[myDay];
+  return (
+      myYear +
+      '年' +
+      fillZero(myMonth) +
+      '月' +
+      fillZero(myToday) +
+      '日' +
+      fillZero(myHour) +
+      ':' +
+      fillZero(myMinute) +
+      ':' +
+      fillZero(mySecond) +
+      week[myDay]
+  );
 };
 
 const fillZero = (str) => {
@@ -226,23 +246,41 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
-    EqAll.value = res
-    tableData.value = res
-    lastEqData.value = res[0]
-    console.log("res----------",res)
+    EqAll.value = res;
+    tableData.value = res;
+    lastEqData.value = res[0];
+    console.log('res----------', res);
 
     // 打印最新的 eqid
     if (lastEqData.value) {
-      console.log("最新地震的 eqid:", lastEqData.value.eqid);
+      console.log('最新地震的 eqid:', lastEqData.value.eqid);
     }
-  })
+  });
+};
+
+const updateStyles = () => {
+  // Dynamically update styles without using key
+  borderBoxStyles1.value = { width: leftTop.value.offsetWidth + 'px', height: leftTop.value.offsetHeight + 'px' };
+  borderBoxStyles2.value = { width: leftCon.value.offsetWidth + 'px', height: leftCon.value.offsetHeight + 'px' };
+  borderBoxStyles3.value = { width: leftBottom.value.offsetWidth + 'px', height: leftBottom.value.offsetHeight + 'px' };
+  borderBoxStyles4.value = { width: rightTop.value.offsetWidth + 'px', height: rightTop.value.offsetHeight + 'px' };
+  borderBoxStyles5.value = { width: rightBottom.value.offsetWidth + 'px', height: rightBottom.value.offsetHeight + 'px' };
 };
 
 onMounted(() => {
+  nextTick(() => {
+    // Start observing the elements
+    resizeObserver.observe(leftTop.value);
+    resizeObserver.observe(leftCon.value);
+    resizeObserver.observe(leftBottom.value);
+    resizeObserver.observe(rightTop.value);
+    resizeObserver.observe(rightBottom.value);
+  });
   setInterval(updateTime, 500);
   getEq();
 });
 </script>
+
 
 <style scoped>
 .public-bg {
