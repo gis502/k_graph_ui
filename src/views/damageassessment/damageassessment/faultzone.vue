@@ -132,7 +132,7 @@ import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import {addFaultZones, addYaanLayer} from "../../../cesium/plot/eqThemes.js";
+import {addFaultZones} from "../../../cesium/plot/eqThemes.js";
 
 export default {
   components: {
@@ -240,9 +240,65 @@ export default {
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
-      addYaanLayer()
+      this.addYaanLayer()
     },
 
+    addYaanLayer() {
+      //雅安行政区加载
+      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+        strokeWidth: 4,
+      });
+      geoPromise.then((dataSource) => {
+        window.viewer.dataSources.add(dataSource);
+        dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
+
+        const colors = [
+          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+          {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+          {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+          {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+          {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+          {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+          {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+          {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+          {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+        ];
+        dataSource.entities.values.forEach((entity, index) => {
+          // console.log("dataSource entity",entity)
+          // 根据实体索引依次从颜色数组中取颜色
+          const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
+          const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
+          entity.polygon.material = colorMaterial; // 设置填充颜色
+          // console.log("--------", index, "----------------", entity)
+        });
+        yaan.features.forEach((feature) => {
+          let center = feature.properties.center;
+
+          if (center && center.length === 2) {
+            let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+            let regionlabel = viewer.entities.add(new Cesium.Entity({
+              position: position,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name,
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                pixelOffset: new Cesium.Cartesian2(0, 0)
+              })
+            }));
+            this.RegionLabels.push(regionlabel)
+          }
+        })
+
+        //雅安行政区加载 end
+      })
+    },
 
     toggleYaanLayer() {
       // 切换图层显示与隐藏
@@ -328,11 +384,10 @@ export default {
         }
         // 如果点击其他位置，隐藏所有地震点的标签，并关闭 faultInfoDiv
         else {
-          this.selectedEqPoint.label._show._value = false;
+          if (this.selectedEqPoint) {
+            this.selectedEqPoint.label._show._value = false;
+          }
           this.listEqPoints.forEach(entity => {
-            entity.label._show._value = false;
-          });
-          this.historyEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
           // 隐藏 faultInfoDiv
@@ -644,7 +699,7 @@ export default {
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 50px) !important;
+  height: calc(100vh - 85px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -734,7 +789,7 @@ export default {
 // 地震列表
 .eqList {
   position: relative;
-  height: 85vh;
+  height: calc(85vh - 88px);
   overflow-y: auto;
 }
 
@@ -817,8 +872,9 @@ export default {
 .pagination {
   position: absolute;
   bottom: 0;
-  width: 327px;
+  width: 333px;
   background-color: #2d3d51;
+  border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
 ::v-deep .pagination .el-pagination__total {

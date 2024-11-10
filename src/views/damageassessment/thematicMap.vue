@@ -581,7 +581,7 @@
 
 <style scoped lang="less">
   .situation_cesiumContainer {
-    height: calc(100vh - 50px) !important;
+    height: calc(100vh - 85px) !important;
     width: 100%;
     margin: 0;
     padding: 0;

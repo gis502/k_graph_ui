@@ -169,10 +169,10 @@
               <el-row>
                 <el-tree
                   ref="tree"
-                  :data="plotTreeData"
+                  :data="filteredPlotTreeData"
                   :props="defaultProps"
-                  accordion
                   show-checkbox
+                  node-key="id"
                   @check-change="handleCheck"
                 >
                 </el-tree>
@@ -387,6 +387,7 @@ export default {
         //   label: '量算工具',
         // }
       ],
+      filteredPlotTreeData: [],
       defaultProps: {
         label: 'label',
         children: 'children',
@@ -503,6 +504,7 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
     downloadExcel() {
       const plotBTO = {
         sheets: this.sheet,
@@ -747,6 +749,17 @@ export default {
     },
 
     showSelect(flag) {
+      this.filteredPlotTreeData = this.plotTreeData.map((category) => {
+        if (category.children) {
+          return {
+            ...category,
+            children: category.children.filter(
+              (child) => child.label !== 'I类（次生地质灾害）'
+            ),
+          };
+        }
+        return category;
+      });
       this.selectVisible = true
       this.initializeTreeChildren(flag)
       // console.log("数据：",this.excelContent)
@@ -757,7 +770,7 @@ export default {
 
       // 提取所有的最高级和第二级的label
       const highestAndSecondLabels = [];
-      this.plotTreeData.forEach(item => {
+      this.filteredPlotTreeData.forEach(item => {
         // 添加最高级label
         highestAndSecondLabels.push(item.label);
         // 添加每个子项的label
@@ -824,13 +837,9 @@ export default {
       this.selectedNodes = []
       this.isLoaded = false
       this.loading = false
-      // 获取当前勾选的节点
-      const checkedNodes = this.$refs.tree.getCheckedNodes();
 
       // 逐个取消勾选
-      checkedNodes.forEach(node => {
-        this.$refs.tree.setChecked(node, false);
-      });
+      this.$refs.tree.setCheckedNodes([])
     },
 
     // 新方法展示与点击节点相关的name字段
@@ -917,8 +926,6 @@ export default {
 
           console.log("调整后的数据格式:", this.excelContent);
 
-          this.loading = false;
-          this.isLoaded = true;
         });
       } else {
         this.excelPanel = "下载导入标绘模板"
@@ -946,7 +953,7 @@ export default {
         "地面沉降"
       ];
 
-      this.plotTreeData.forEach(rootNode => {
+      this.filteredPlotTreeData.forEach(rootNode => {
         if (rootNode.children) {
           rootNode.children.forEach(child => {
             let arr = this.plotPicture.filter(item => item.type === child.label);
@@ -962,6 +969,8 @@ export default {
           });
         }
       });
+      this.loading = false;
+      this.isLoaded = true;
     },
 
     beforeUpload(file) {
@@ -1668,7 +1677,10 @@ export default {
           this.popupData = {}
         }
 
-        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]') {
+        console.log(window.selectedEntity)
+
+        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]' && window.selectedEntity[0]._layer !== "聚合标绘点") {
+
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -1688,6 +1700,7 @@ export default {
         }
         // 2-1 判断点击物体是否为点实体（billboard）
         if (Cesium.defined(pickedEntity) && window.selectedEntity !== undefined && window.selectedEntity._billboard !== undefined) {
+
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
           let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -1795,7 +1808,8 @@ export default {
           that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);// 这种可以存data吗？？？？？？？？？？？？？？？
           // 2-4-2 加载地形时，构建虚拟的已添加实体，让弹窗定位到虚拟的实体上
           if (this.isTerrainLoaded()) {
-            const cesiumPosition = window.selectedEntity.position.getValue(window.viewer.clock.currentTime);//获取时间？？？？？？？？？？？？
+            console.log("虚拟位置")
+            const cesiumPosition = window.selectedEntity.position;//获取时间？？？？？？？？？？？？
             let l = Cesium.Cartographic.fromCartesian(position)
             let lon = Cesium.Math.toDegrees(l.longitude)
             let lat = Cesium.Math.toDegrees(l.latitude)
@@ -1876,7 +1890,13 @@ export default {
           this.updatePopupPosition(); // 更新弹窗的位置
 
         } else {
-
+          let ray = viewer.camera.getPickRay(click.position)
+          let position = viewer.scene.globe.pick(ray, viewer.scene)
+          let cartographic = Cesium.Cartographic.fromCartesian(position);
+          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+          let height = 0
+          that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
         }
 
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK); //LEFT_DOUBLE_CLICK
@@ -1922,7 +1942,6 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       this.eqInfo = row
-
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {

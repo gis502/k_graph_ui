@@ -493,7 +493,6 @@ export default {
           if (this.selectedEqPoint) {
             this.selectedEqPoint.label._show._value = false;
           }
-
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
           });
@@ -1570,7 +1569,7 @@ export default {
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 50px) !important;
+  height: calc(100vh - 85px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -1633,7 +1632,7 @@ export default {
 // 地震列表
 .eqList {
   position: relative;
-  height: calc(85vh - 60px);
+  height: calc(85vh - 88px);
   overflow-y: auto;
 }
 
