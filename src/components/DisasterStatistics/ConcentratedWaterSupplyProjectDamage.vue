@@ -10,7 +10,7 @@
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useGlobalStore} from "../../store";
-import {getWatterSupplyProjectDamage} from "../../api/system/supplySituation";
+import {getSupplySituationList} from "../../api/system/supplySituation";
 const latestTime = ref(''); // 时间
 const earthquakeAreaName = ref([]); // 地点
 const centralizedWaterProjectDamages = ref([]); // 受损数量
@@ -20,7 +20,7 @@ const eqid = ref('');
 let echartsInstance = null; // 全局变量
 
 setTimeout(()=>{
-  getWatterSupplyProjectDamage(store.globalEqId).then(res => {
+  getSupplySituationList(store.globalEqId).then(res => {
     update(res)
   })
 },500)
@@ -34,7 +34,7 @@ const props = defineProps({
 
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
-  getWatterSupplyProjectDamage(eqid.value).then(res => {
+  getSupplySituationList(eqid.value).then(res => {
     update(res)
   })
 });

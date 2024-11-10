@@ -1,7 +1,8 @@
 <template>
   <div>
     <div id="news">
-      <h2 class="sub-title-new">最新新闻:
+      <h2 class="sub-title-new">
+        最新新闻:
         <span class="title-time">{{ recordTime }}</span>
       </h2>
       <div class="sub-main">
@@ -110,7 +111,7 @@ export default {
 <style scoped>
 #news {
   width: 27%;
-  height: 45%;
+  height: 26%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
@@ -162,8 +163,8 @@ export default {
 }
 
 .sub-main {
-  margin-top: -20px;
-  max-height: 88%;
+  margin-top: -14px;
+  max-height: 79%;
   overflow-y: auto;
   padding: 0px;
 }

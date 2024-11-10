@@ -45,7 +45,7 @@ function update(data){
     publicOpinionRiskWarning.value = [0];
     pressConference.value = [0];
     negativeOpinionDisposal.value = [0];
-    latestTime.value = '';
+    latestTime.value = ['抱歉暂无数据'];
   } else {
     earthquakeZoneName.value = data.map(item => item.earthquakeZoneName || '无数据');
     publicityReport.value = data.map(item => item.publicityReport || 0);
