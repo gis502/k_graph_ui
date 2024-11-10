@@ -331,7 +331,7 @@ import rescueTeamsInfoLogo from "@/assets/images/rescueTeamsInfoLogo.png";
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {Entity} from "cesium";
-import {getWay, getWayByGaoDe} from "@/api/system/routeplan.js";
+import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
@@ -346,6 +346,9 @@ export default {
   name: "index",
   data() {
     return {
+      handler: null, // 创建共享的 handler
+      isRouting: false, // 路径规划是否在进行中
+      isAddingArea: false, // 是否在添加受灾区域
       pos: [],
       areas: [],
       RouteTime: " ", //全程所需时间
@@ -476,6 +479,7 @@ export default {
     this.init();
     this.entitiesClickPonpHandler();
     this.initPlot(this.id);
+    this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -1373,6 +1377,12 @@ export default {
     },
     // 添加物资点
     addDisasterPoint() {
+      if (this.isRouting) {
+        this.isRouting = false;
+      }
+      if (this.isAddingArea) {
+        this.isAddingArea = false;
+      }
       this.canMarkPoint = true;
     },
     // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
@@ -1480,6 +1490,9 @@ export default {
     walkStyle() {
       this.visibleGuilde = false;
       this.RouteTime = this.formatTime(this.humantime);
+      if (this.RouteTime === "0分钟") {
+        this.RouteTime = "1分钟";
+      }
       this.RouteWay = "步行";
       this.selectedDrive = "backcolor: red";
       this.selectedWalk = "backcolor: white";
@@ -1490,6 +1503,9 @@ export default {
         this.RouteTime = "1分钟";
       } else {
         this.RouteTime = this.formatTime(this.cartime);
+      }
+      if (this.RouteTime === "0分钟") {
+        this.RouteTime = "1分钟";
       }
       this.RouteWay = "驾驶";
     },
@@ -1518,18 +1534,22 @@ export default {
       return []; // 返回新的指南数据
     },
     route() {
-      let handler = new Cesium.ScreenSpaceEventHandler(
-          window.viewer.scene.canvas
-      );
+      if (this.canMarkPoint) {
+        this.canMarkPoint = false;
+      }
+      this.clearHandler(); // 清除之前的监听器
+      this.isRouting = true; // 设置路径规划标志
       let that = this;
       let propertiesId = [];
-      handler.setInputAction((event) => {
-        // 1-1 获取点击的位置的坐标信息（经度、纬度、高度）
+
+      this.handler.setInputAction((event) => {
+        if (!this.isRouting) return; // 如果路径规划已完成，则不执行后续代码
+
+        // 获取点击位置的坐标信息
         let ray = viewer.camera.getPickRay(event.position);
         let position = viewer.scene.globe.pick(ray, viewer.scene);
-        // // 1-2 坐标系转换
-        let cartographic = Cesium.Cartographic.fromCartesian(position); //把笛卡尔坐标转换成制图实例，单位是弧度
-        let lon = Cesium.Math.toDegrees(cartographic.longitude); //把弧度转换成度
+        let cartographic = Cesium.Cartographic.fromCartesian(position);
+        let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
 
         that.pos.push([lon, lat]);
@@ -1541,99 +1561,58 @@ export default {
           that.billboardD(position, end, billBoardId);
           propertiesId.push(billBoardId);
         }
-        if (that.pos.length === 2) {
-          let path = ""
-          let pathName = []
-          let pathM = 0
 
-          let from = wgs84togcj02(that.pos[0][0], that.pos[0][1])
-          let end = wgs84togcj02(that.pos[1][0], that.pos[1][1])
-          let avoidArea = ""
+        if (that.pos.length === 2) {
+          // 已获取两个点，开始路径规划
+          let path = "";
+          let pathName = [];
+          let pathM = 0;
+
+          let from = wgs84togcj02(that.pos[0][0], that.pos[0][1]);
+          let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
+          let avoidArea = "";
+
+          // 添加受灾区域逻辑
           if (that.areas.length > 0) {
-            let area = JSON.parse(JSON.stringify(that.areas))
+            let area = JSON.parse(JSON.stringify(that.areas));
             for (let i = 0; i < area.length; i++) {
               for (let j = 0; j < area[i].area.length; j += 2) {
-                avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";"
+                avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";";
               }
-              avoidArea += "|"
+              avoidArea += "|";
             }
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
 
+          axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+              .then(res => {
+                pathM += parseInt(res.data.route.paths[0].distance);
+                res.data.route.paths[0].steps.forEach(step => {
+                  pathName.push(step.instruction);
+                  path += step.polyline + ";";
+                });
 
-          getWayByGaoDe({'origin': from, 'destination': end, 'avoidpolygons': avoidArea}).then(res => {
-            pathM += parseInt(res.route.paths[0].distance)
-            res.route.paths[0].steps.map(step => {
-                  pathName.push(step.instruction)
-                  path += (step.polyline + ";")
-                }
-            )
+                let pathSegments = path.split(";")
+                    .map(segment => segment.replace(/"/g, "").split(",").map(Number).filter(seg => !isNaN(seg)))
+                    .filter(segment => segment.length === 2)
+                    .map(segment => gcj02towgs84(segment[0], segment[1]));
 
-            let pathSegments = path.split(";")
-                .map(segment =>
-                    segment
-                        .replace(/"/g, "")  // 去除双引号
-                        .split(",")  // 按逗号分割成经纬度数组
-                        .map(Number)  // 将字符串转换为数字
-                        .filter(seg => !isNaN(seg))  // 去除无效数字
-                )
-                .filter(segment => segment.length === 2)
-                .map(segment => gcj02towgs84(segment[0], segment[1]))
-// 在pathSegments数组开头插入起点
-            pathSegments.unshift(that.pos[0]);
+                pathSegments.unshift(that.pos[0]);
+                pathSegments.push(that.pos[1]);
+                that.pos = [];
+                that.polylineD(pathSegments, propertiesId);
 
-// 在pathSegments数组结尾添加终点
-            pathSegments.push(that.pos[1]);
-            that.pos = [];
-            that.polylineD(pathSegments, propertiesId);
-            this.cartime = (parseFloat(res.route.paths[0].duration) / 60).toFixed(2);
-            this.humantime = (pathM * 0.7 / 60).toFixed(2);
-            this.driveStyle();
-            this.walkStyle();
-            this.totalRoute = pathM;
-            this.RouteGuilde = pathName;
-          })
-
-
-//           axios.get("https://restapi.amap.com/v3/direction/driving?origin=" + from + "&destination=" + end + "&extensions=base&strategy=0&avoidpolygons=" + avoidArea + "&key=7b0b64174ef6951cc6ee669de03e4f59", {}).then(res => {
-//
-//             pathM += parseInt(res.data.route.paths[0].distance)
-//             res.data.route.paths[0].steps.map(step => {
-//                   pathName.push(step.instruction)
-//                   path += (step.polyline + ";")
-//                 }
-//             )
-//
-//             let pathSegments = path.split(";")
-//                 .map(segment =>
-//                     segment
-//                         .replace(/"/g, "")  // 去除双引号
-//                         .split(",")  // 按逗号分割成经纬度数组
-//                         .map(Number)  // 将字符串转换为数字
-//                         .filter(seg => !isNaN(seg))  // 去除无效数字
-//                 )
-//                 .filter(segment => segment.length === 2)
-//                 .map(segment => gcj02towgs84(segment[0], segment[1]))
-// // 在pathSegments数组开头插入起点
-//             pathSegments.unshift(that.pos[0]);
-//
-// // 在pathSegments数组结尾添加终点
-//             pathSegments.push(that.pos[1]);
-//             that.pos = [];
-//             that.polylineD(pathSegments, propertiesId);
-//             this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
-//             this.humantime = (pathM * 0.7 / 60).toFixed(2);
-//             this.driveStyle();
-//             this.walkStyle();
-//             this.totalRoute = pathM;
-//             this.RouteGuilde = pathName;
-//           })
+                this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
+                this.humantime = (pathM * 0.7 / 60).toFixed(2);
+                this.driveStyle();
+                this.walkStyle();
+                this.totalRoute = pathM;
+                this.RouteGuilde = pathName;
+              });
 
           that.showTips = true;
-          //路径规划好后弹出气泡框
-          // this.bubbleTips(position);
-          // this.initTool(this.viewer.cesiumWidget.container);
-          handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+          this.isRouting = false; // 路径规划完成，设置标志
+          this.clearHandler(); // 移除点击事件监听器
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
@@ -1709,25 +1688,37 @@ export default {
       });
     },
     addArea() {
-      let handler = new Cesium.ScreenSpaceEventHandler(
-          window.viewer.scene.canvas
-      );
+      if (this.canMarkPoint) {
+        this.canMarkPoint = false;
+      }
+      this.clearHandler(); // 清除之前的监听器
+      this.isAddingArea = true; // 设置添加受灾区域标志
       let that = this;
-      handler.setInputAction((event) => {
-        // 1-1 获取点击的位置的坐标信息（经度、纬度、高度）
+
+      this.handler.setInputAction((event) => {
+        if (!this.isAddingArea) return; // 如果已添加区域，则不执行后续代码
+
+        // 获取点击位置的坐标信息
         let ray = viewer.camera.getPickRay(event.position);
         let position = viewer.scene.globe.pick(ray, viewer.scene);
-        // // 1-2 坐标系转换
-        let cartographic = Cesium.Cartographic.fromCartesian(position); //把笛卡尔坐标转换成制图实例，单位是弧度
-        let lon = Cesium.Math.toDegrees(cartographic.longitude); //把弧度转换成度
+        let cartographic = Cesium.Cartographic.fromCartesian(position);
+        let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
         let ar = that.CreateSimpleCircle(lon, lat, 50, 24);
         that.areas.push({area: ar, name: "area_" + Date.now()});
         let id = "area_" + Date.now();
         that.pointD(position, id);
         that.polygonD(ar, id + "a");
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        this.isAddingArea = false; // 添加区域完成，设置标志
+        this.clearHandler(); // 移除点击事件监听器
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    },
+    clearHandler() {
+      // 清除所有之前的 LEFT_CLICK 监听器
+      if (this.handler) {
+        this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      }
     },
     removeAll() {
       viewer.entities.removeAll();
