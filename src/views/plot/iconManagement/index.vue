@@ -362,7 +362,10 @@ export default {
       } else {
         this.dialogTitle = title
         this.dialogContent = {...row}
-        this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
+        // this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
+        if (this.dialogContent.img) {
+          this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
+        }
         console.log(this.dialogShow, this.dialogTitle, this.dialogContent)
       }
       this.dialogShow = !this.dialogShow
