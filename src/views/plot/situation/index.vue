@@ -98,11 +98,11 @@
         </el-row>
       </el-form>
       <addMarkCollectionDialog
-        :addMarkDialogFormVisible="addMarkDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @drawPoint="drawPoint"
-        @ifPointAnimate="ifPointAnimation"
-        @clearMarkDialogForm="resetAddMarkCollection"
+          :addMarkDialogFormVisible="addMarkDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @drawPoints="drawPoints"
+          @ifPointAnimate="ifPointAnimation"
+          @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
         :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
@@ -202,8 +202,6 @@
               </div>
             </div>
           </div>
-
-
         </div>
 
 
@@ -623,7 +621,7 @@ export default {
             that.renderedPlotIds.add(item.plotId);
           }
         })
-        that.drawPoints(points)
+        that.drawPoints(points,false)
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
@@ -1947,6 +1945,9 @@ export default {
       if (window.pointDataSource) {
         window.pointDataSource.entities.removeAll();
       }
+      if (window.labeldataSource) {
+          window.labeldataSource.entities.removeAll();; // 移除点
+      }
       Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
@@ -2322,8 +2323,8 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo, bool) {
-      cesiumPlot.drawPoints(pointInfo, bool)
+    drawPoints(pointInfo,bool) {
+      cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
     ifPointAnimation(val) {
       this.ifPointAnimate = val
@@ -2345,7 +2346,6 @@ export default {
     // ws发送数据（只有点的是在这里）
     wsSendPoint(data) {
       this.websock.send(data)
-      // console.log("websocketData:",data)
     },
 
     //------------线------------
