@@ -265,6 +265,12 @@
       <div class="compassContainer" ref="compassContainer"></div>
     </div>
 
+    <div v-if="isShowMessageIcon" style="position: fixed; top: 120px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
+      <p style="color: #fff; margin: 0;">您正在进行标绘：</p>
+      <img :src="this.messageIcon" style="width: 30px; height: 30px;">
+    </div>
+
+
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
@@ -460,6 +466,8 @@ export default {
       sheetData: {},
       isLoaded: false,
       downloadConfirmed: false,
+      isShowMessageIcon: false,
+      messageIcon: '',
     };
   },
   mounted() {
@@ -520,15 +528,16 @@ export default {
         console.log(this.excelContent)
 
         const formattedTitle = this.title
-          // 首先删除时间部分，例如 T17_00_08
-          .replace(/T\d{2}:\d{2}:\d{2}/, "")
-          // 然后将日期部分 2022-06-01 转换为 2022年6月1日
+          // 删除时间部分，例如 T17:07:10 或 11:07:10
+          .replace(/\s?T?\d{2}:\d{2}:\d{2}/, "")
+          // 然后将日期部分 2024-05-27 转换为 2024年5月27日
           .replace(/^(\d{4})-(\d{2})-(\d{2})/, (match, year, month, day) =>
             `${year}年${parseInt(month, 10)}月${parseInt(day, 10)}日`
           );
 
-
         const excelTitle = this.excelContent.length > 0 ? `${formattedTitle}级地震-标绘数据` : "标绘数据模板";
+
+        console.log("标题：",excelTitle)
 
         link.setAttribute('download', `${excelTitle}.xlsx`);
         document.body.appendChild(link);
@@ -972,11 +981,15 @@ export default {
     },
 
     beforeUpload(file) {
-      const type = file.name.split('.')[1];
+      const type = file.name.split('.').pop();
       // 获取不带扩展名的文件名
-      const filename = file.name.slice(0, -(type.length + 1));
+      const filename = file.name.slice(0, file.name.lastIndexOf('.'));
+
+      console.log(filename)
 
       const isExcel = (type === "xlsx") || (type === 'xls');
+
+      console.log(type)
       if (!isExcel) {
         this.$message({
           type: 'error',
@@ -1017,9 +1030,18 @@ export default {
     },
 
     handleSuccess(response) {
-      console.log("上传成功")
-      this.handleData(response.data.plotIds)
-      // this.initPlot(this.eqid)
+
+      try {
+        // 直接处理数据
+        this.handleData(response.data.plotIds);
+      } catch (error) {
+        // 捕获异常并提示错误
+        ElMessage({
+          message: '不能上传重复数据',
+          type: 'error',
+          duration: 3000,
+        });
+      }
     },
 
     convertToDateTimeString(excelDate) {
@@ -1677,7 +1699,7 @@ export default {
 
         console.log(window.selectedEntity)
 
-        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]' && window.selectedEntity[0]._layer !== "聚合标绘点") {
+        if (Object.prototype.toString.call(window.selectedEntity) === '[object Array]' && window.selectedEntity[0]._layers !== "聚合标绘点") {
 
           // 2-2 获取点击点的经纬度
           let ray = viewer.camera.getPickRay(click.position)
@@ -1782,7 +1804,7 @@ export default {
           this.popupVisible = false
           this.popupVisible = true; // 显示弹窗
           this.popupData = {}
-          console.log(window.selectedEntity)
+          console.log("实体：", window.selectedEntity)
           this.popupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
           this.updatePopupPosition(); // 更新弹窗的位置
           // that.showPolygon = true
@@ -1906,6 +1928,23 @@ export default {
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
+
+    // 控制标绘时左侧面板是否禁用：传'none'禁用；传'auto'解禁
+    toggleEnable(able) {
+
+      const situationEqTableElements = document.querySelectorAll('.situation_eqTable');
+      const noteContainerElements = document.querySelectorAll('.noteContainer');
+
+      situationEqTableElements.forEach(element => {
+        element.style.pointerEvents = able;
+      });
+
+      noteContainerElements.forEach(element => {
+        element.style.pointerEvents = able;
+      });
+    },
+
+
     // 更新弹窗的位置
     updatePopupPosition() {
       // 笛卡尔3转笛卡尔2（屏幕坐标）
@@ -1940,14 +1979,18 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       this.eqInfo = row
+
+      console.log("剩余1：", window.pointDataSource.entities)
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {
         window.pointDataSource.entities.removeAll();
+        labeldataSource.entities.removeAll()
       }
       if (window.labeldataSource) {
           window.labeldataSource.entities.removeAll();; // 移除点
       }
+      // console.log("剩余2：", window.pointDataSource.entities)
       Arrow.drawArr = []
       // console.log("row",row)
       this.eqid = row.eqid
@@ -2213,30 +2256,40 @@ export default {
         },
         plotinfo: null
       }
+
       let that = this
       // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
       window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
+      this.isShowMessageIcon = true
+      this.messageIcon = item.img
+
       if (item.plottype === '点图层') {
+        console.log("点图层")
+        this.toggleEnable('none')
         this.openPointPop(item.name, item.img)
       } else if (item.name === '直线箭头') {
+        this.toggleEnable('none')
         new Promise((resolve, reject) => {
           Arrow.drawStraightArrow(data, resolve)
         }).then((res) => {
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.name === '攻击箭头') {
+        this.toggleEnable('none')
         new Promise((resolve, reject) => {
           Arrow.drawAttackArrow(data, resolve)
         }).then((res) => {
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.name === '钳击箭头') {
+        this.toggleEnable('none')
         new Promise((resolve, reject) => {
           Arrow.drawPincerArrow(data, resolve)
         }).then((res) => {
           this.openPolygonPop(res.plot.plotType, res.plot)
         })
       } else if (item.plottype === '线图层') {
+        this.toggleEnable('none')
         new Promise((resolve, reject) => {
           this.drawPolyline(item, resolve)
           this.polylineStatus = cesiumPlot.drawPolylineStatus()
@@ -2266,6 +2319,7 @@ export default {
           this.openPolylinePop(item.name, situationPlotData)
         })
       } else {
+        this.toggleEnable('none')
         new Promise((resolve, reject) => {
           this.drawPolygon(item, resolve)
           this.polygonStatus = cesiumPlot.drawPolygonStatus()
@@ -2296,23 +2350,24 @@ export default {
     //--------------点------------------------
 
     // 打开添加点标绘对话框
+    // 打开添加点标绘对话框
     openPointPop(type, img) {
-      let that = this
-      let cesiumStore = useCesiumStore()
+      let that = this;
+      let cesiumStore = useCesiumStore();
+
       if (this.openAddStatus) {
         // 1-1 更改添加点标注按钮状态
-        this.openAddStatus = !this.openAddStatus
-        // 1-2 提示弹窗
-        this.message = ElMessage({
-          message: '请点击地图添加标注点',
-          type: 'info',
-          duration: 0
-        })
+        this.openAddStatus = !this.openAddStatus;
+
         // 1-3 生成点标注的handler
+        console.log(111);
         cesiumPlot.initPointHandler(type, img, this.eqid, true).then(res => {
-          that.addMarkDialogFormVisible = true
-          this.message.close(that.addMarkDialogFormVisible)
-        })
+          that.addMarkDialogFormVisible = true;
+          this.isShowMessageIcon = false;
+          this.messageIcon = '';
+          console.log(222);
+          this.toggleEnable('auto')
+        });
       }
     },
     // 画点
@@ -2350,6 +2405,7 @@ export default {
 
     //------------线------------
     openPolylinePop(plotType, situationPlotData) {
+      this.toggleEnable('auto')
       //*在这里用promise传的值*/
       let that = this
       let cesiumStore = useCesiumStore()
@@ -2364,6 +2420,9 @@ export default {
         // })
         cesiumStore.setPolyilneInfo({plotType, situationPlotData})
         that.addPolylineDialogFormVisible = true
+        this.isShowMessageIcon = false;
+        this.messageIcon = '';
+
         // 1-3 生成点标注的handler
         // cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {
         //   that.addMarkDialogFormVisible = true
@@ -2400,6 +2459,8 @@ export default {
 
     //------------面-------------
     openPolygonPop(plotType, situationPlotData) {
+      this.toggleEnable('auto')
+
       let that = this
       let cesiumStore = useCesiumStore()
       if (this.openAddStatus) {
@@ -2415,6 +2476,8 @@ export default {
         cesiumStore.setPolygonInfo({plotType, situationPlotData})
         console.log("123", situationPlotData)
         that.addPolygonDialogFormVisible = true
+        this.isShowMessageIcon = false;
+        this.messageIcon = '';
         // 1-3 生成点标注的handler
         // cesiumPlot.initPointHandler(type, img, this.eqid).then(res => {
         //   that.addMarkDialogFormVisible = true
@@ -2890,4 +2953,6 @@ img {
   border-radius: 10px;
   z-index: 10000;
 }
+
+
 </style>

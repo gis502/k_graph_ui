@@ -258,8 +258,9 @@ export default {
     addYaanLayer() {
       //雅安行政区加载
       let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+        clampToGround: true, //贴地显示
         stroke: Cesium.Color.RED,
-        fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+        fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
         strokeWidth: 4,
       });
       geoPromise.then((dataSource) => {
@@ -404,6 +405,8 @@ export default {
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             showBackground: true,
             show: false,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            clampToGround: true,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,  // 左侧对齐
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,   // 底部对齐
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000)

@@ -241,6 +241,8 @@ export default {
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             showBackground: true,
             show: false,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            clampToGround: true,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
