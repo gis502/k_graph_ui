@@ -25,7 +25,7 @@ const currentlyRestricted = ref([]) // 目前限用
 const currentlyAvailable = ref([]) // 目前可用
 const affectedAreaName = ref([]) // 地点
 const latestTime = ref('')
-const latestTimes = ref('')
+const latestTimes = ref('抱歉暂无数据')
 const store = useGlobalStore()
 
 setTimeout(()=>{
@@ -46,7 +46,7 @@ function update(data){
     currentlyDisabled.value = [0];
     currentlyRestricted.value = [0];
     currentlyAvailable.value = [0];
-    latestTime.value = '';
+    latestTime.value = ['抱歉暂无数据'];
   } else {
     affectedAreaName.value = data.map(item => item.affectedAreaName || '无数据');
     currentlyDamaged.value = data.map(item => item.currentlyDamaged || 0);

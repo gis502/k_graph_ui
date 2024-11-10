@@ -8,8 +8,6 @@
   </div>
 </template>
 
-
-
 <script setup>
 import { ref, onMounted, watch, nextTick } from 'vue';
 import * as echarts from 'echarts';

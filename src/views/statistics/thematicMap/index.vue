@@ -5,6 +5,17 @@
       <div id="cesiumContainer" class="situation_cesiumContainer"></div>
       <!--  指南针  -->
       <div class="compassContainer" ref="compassContainer"></div>
+      <!-- 自定义缩放控件容器 -->
+      <div class="zoomContainer" ref="zoomContainer">
+        <!-- 放大按钮 -->
+        <div class="zoomIn" @click="zoomIn">
+          <i class="el-icon-zoom-in">+</i>
+        </div>
+        <!-- 缩小按钮 -->
+        <div class="zoomOut" @click="zoomOut">
+          <i class="el-icon-zoom-out">-</i>
+        </div>
+      </div>
       <!-- 图例 -->
       <el-form class="noteContainer" v-if="this.selectedComponentKey === 'EarthquakeCasualties'">
         <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
@@ -588,7 +599,7 @@ export default {
       let options = {
         defaultResetView: Cesium.Cartographic.fromDegrees(103.00, 29.98, 1500),
         enableCompass: false,
-        enableZoomControls: true,
+        enableZoomControls: false,
         enableDistanceLegend: true,
         enableCompassOuterRing: false,
         resetTooltip: "重置视图",
@@ -755,6 +766,40 @@ export default {
           legendItem => legendItem.name === this.selectedComponentKey
       );
       return legend ? legend.data : [];
+    },
+
+    // 放大方法
+    zoomIn() {
+      const camera = this.viewer.camera;
+      const currentHeight = camera.positionCartographic.height;
+      const newHeight = currentHeight * 0.63; // 放大
+      if (newHeight > 5000){
+        // 获取当前屏幕中心的经纬度
+        const center = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
+        const longitude = Cesium.Math.toDegrees(center.longitude);
+        const latitude = Cesium.Math.toDegrees(center.latitude);
+        camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, newHeight),
+          duration: 1.0
+        });
+      }
+    },
+
+    // 缩小方法
+    zoomOut() {
+      const camera = this.viewer.camera;
+      const currentHeight = camera.positionCartographic.height;
+      const newHeight = currentHeight * 1.37; // 放大
+      if (newHeight < 500000){
+        // 获取当前屏幕中心的经纬度
+        const center = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
+        const longitude = Cesium.Math.toDegrees(center.longitude);
+        const latitude = Cesium.Math.toDegrees(center.latitude);
+        camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, newHeight),
+          duration: 1.0
+        });
+      }
     },
 
     // --------------------------------------------------下面是后端获取数据的方法------------------------------------------
@@ -2601,10 +2646,10 @@ export default {
 
 .compassContainer {
   position: absolute;
-  top: 20px; /* 距离顶部的像素 */
+  top: 35px; /* 距离顶部的像素 */
   right: 20px; /* 距离右侧的像素 */
   height: 120px;
-  width: 160px;
+  width: 140px;
   background: url(@/assets/compass.png) no-repeat center / cover;
   z-index: 20;
   transform-origin: center; /* 设置旋转中心 */
@@ -2764,5 +2809,38 @@ img {
   flex-direction: row;
   justify-content: space-between;
 }
+
+/* 自定义缩放控件容器 */
+.zoomContainer {
+  position: absolute;
+  top: 30%; /* 中间对齐 */
+  right: 20px; /* 紧贴地图右侧 */
+  transform: translateY(-50%); /* 纵向居中 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px; /* 控制按钮间距 */
+}
+
+/* 缩放按钮样式 */
+.zoomIn, .zoomOut {
+  width: 20px; /* 按钮尺增寸加，视觉更舒适 */
+  height: 20px;
+  text-align: center;
+  border: 0.5px solid rgba(240, 240, 240, 0.3); /* 非常细，柔和的边框 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* 更平滑的阴影 */
+}
+
+/* 图标样式 */
+.zoomIn i, .zoomOut i {
+  font-size: 20px; /* 字体稍微加大 */
+  font-width: bold;
+  color: #ffffff;  /* 灰色文字 */
+}
+
 
 </style>

@@ -1,7 +1,8 @@
 <template>
   <div>
     <div id="news">
-      <h2 class="sub-title-new">最新新闻:
+      <h2 class="sub-title-new">
+        最新新闻:
         <span class="title-time">{{ recordTime }}</span>
       </h2>
       <div class="sub-main">
