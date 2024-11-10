@@ -394,7 +394,7 @@
 
     <!--   断裂带名称div   -->
     <div id="faultInfo"
-         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1; text-align: center;">
+         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
     </div>
     <thematicMapPreview
         @ifShowThematicMapDialog="ifShowThematicMapDialog"
@@ -497,6 +497,7 @@ export default {
   data: function () {
     return {
 // -----------弹窗们的状态变量-------------
+      selectedEntityPosition: '', //存储断裂带div的位置
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
       routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
@@ -1908,50 +1909,44 @@ export default {
         console.log("点击选择的pickedEntity", pickedEntity)
         window.selectedEntity = pickedEntity?.id;
 
-        // 获取故障信息的 div 元素
+        // 绑定断裂带信息的 div 元素
         const faultInfoDiv = document.getElementById('faultInfo');
 
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
 
-
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
+          const pickedObject = window.viewer.scene.pick(click.position);
 
-          // 如果点击的是断裂带
           if (entity._layer === "断裂带") {
-            // 获取断裂带的 name 属性
-            const faultName = pickedEntity.id.properties.name._value;
+            console.log("断裂带")
 
-            // 获取点击位置的地理坐标 (Cartesian3)
-            const cartesian = viewer.scene.pickPosition(click.position);
-            if (!Cesium.defined(cartesian)) {
-              return;
-            }
+            const faultName = pickedObject.id.properties.name._value;
 
-            // 将地理坐标 (Cartesian3) 转换为屏幕坐标 (二维)
-            const screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-
-            // 显示 div 并将其定位到点击位置
-            faultInfoDiv.innerHTML = `${faultName}`;
-            faultInfoDiv.style.display = 'block';
-            faultInfoDiv.style.left = screenPosition.x + 'px';
-            faultInfoDiv.style.top = screenPosition.y + 'px';
-
-            // 监听地图变化，动态更新 div 的位置
-            window.viewer.scene.postRender.addEventListener(() => {
-              const updatedScreenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-              if (updatedScreenPosition) {
-                faultInfoDiv.style.left = updatedScreenPosition.x + 'px';
-                faultInfoDiv.style.top = updatedScreenPosition.y + 'px';
+            if (faultName) {
+              // 获取点击位置的地理坐标 (Cartesian3)
+              const cartesian = viewer.scene.pickPosition(click.position);
+              if (!Cesium.defined(cartesian)) {
+                return;
               }
-            });
-          } else {
-            faultInfoDiv.style.display = 'none';
-          }
 
+              // 更新 faultInfo 的位置和内容
+              this.updateFaultInfoPosition(faultName);
+
+              // 显示 faultInfo
+              faultInfoDiv.style.display = 'block';
+
+              // 监听地图变化，动态更新 div 的位置
+              window.viewer.scene.postRender.addEventListener(() => {
+                this.updateFaultInfoPosition(faultName);
+              });
+
+              console.log(faultName)
+            }
+          }
 
           // 如果点击的是标绘点
           if (entity._layer === "标绘点") {
@@ -2090,25 +2085,24 @@ export default {
 
 
     /**
-     * 更新故障信息在画布上的位置
-     * 此方法用于根据选定的实体位置，更新显示故障信息的div在画布上的位置
-     * @param {string} faultName - 故障的名称，将被显示在故障信息div中
+     * 更新断裂带信息在画布上的位置
+     * 此方法用于根据选定的实体位置，更新显示断裂带信息的div在画布上的位置
+     * @param {string} faultName - 断裂带的名称，将被显示在故障信息div中
      */
     updateFaultInfoPosition(faultName) {
       this.$nextTick(() => {
         if (this.selectedEntityPosition) {
-          // 将选定实体的经纬度坐标转换为窗口坐标系下的位置
+          // console.log(this.selectedEntityPosition)
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-              window.viewer.scene,
-              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+            window.viewer.scene,
+            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           if (canvasPosition) {
-            // 获取故障信息的div元素
             const faultInfoDiv = document.getElementById('faultInfo');
-            // 更新故障信息div的位置和内容
             faultInfoDiv.style.left = canvasPosition.x + 'px';
-            faultInfoDiv.style.top = canvasPosition.y + 'px';
-            faultInfoDiv.innerHTML = `${faultName}`; // 更新内容
+            faultInfoDiv.style.top = canvasPosition.y + 55 + 'px';
+            faultInfoDiv.innerHTML = `${faultName}`;
+            // console.log(faultInfoDiv)
           }
         }
       });

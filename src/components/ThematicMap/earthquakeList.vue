@@ -421,7 +421,7 @@ export default {
 
 .eqList {
   position: relative;
-  height: 85vh;
+  height: calc(85vh - 88px);
   overflow-y: auto;
 }
 
@@ -500,7 +500,7 @@ export default {
 .pagination {
   position: absolute;
   bottom: 0;
-  width: 327px;
+  width: 333px;
   background-color: #2d3d51;
   border: 2px solid #FFFFFF; /* 白色边框 */
 }
@@ -565,6 +565,18 @@ export default {
 .themes.active {
   background-color: #409eff;
   border: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #2980b9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3498db;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #2d3d51;
 }
 
 </style>

@@ -377,7 +377,6 @@ export default class Point {
                                     cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
                                     cluster.label.showBackground = true; // 显示背景
                                     cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-
                                     cluster.billboard.show = false;
 
                                 }
@@ -498,7 +497,7 @@ export default class Point {
         labeldataSource.entities.add({
             id: data.plotId + '_label',
             plottype: data.plotType,
-            layer: "标绘点",
+            layer: "聚合标绘点",
             position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
             labeltext: labeltext,
             billboard: {
