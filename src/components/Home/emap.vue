@@ -14,12 +14,27 @@
     <div class="map-container">
       <!--    地图-->
       <div @contextmenu.prevent id="emap" class="map_container"></div>
+
       <!-- 自制图例 -->
       <div class="legend">
 
         <div class="row">
-          <!-- 左列（最新，红色）-->
+          <!-- 左列（历史，黄色）-->
           <div class="column_left">
+            <div
+                class="line history"
+                v-for="(item, itemIndex) in eqGroups[0].items"
+                :key="'history-' + itemIndex"
+            >
+              {{ item.label }}<span
+                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
+                @click="toggleSeriesVisibility('history', item.type)"
+            ></span>
+            </div>
+          </div>
+
+          <!-- 右列（最新，红色）-->
+          <div class="column_right">
             <div
                 class="line latest"
                 v-for="(item, itemIndex) in eqGroups[1].items"
@@ -31,20 +46,7 @@
                 @click="toggleSeriesVisibility('latest', item.type)"
             ></span>
             </div>
-          </div>
 
-          <!-- 右列（历史，黄色）-->
-          <div class="column_right">
-            <div
-                class="line history"
-                v-for="(item, itemIndex) in eqGroups[0].items"
-                :key="'history-' + itemIndex"
-            >
-              {{ item.label }}<span
-                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
-                @click="toggleSeriesVisibility('history', item.type)"
-            ></span>
-            </div>
           </div>
         </div>
       </div>
@@ -67,10 +69,11 @@ import red from '@/assets/star.gif';
 import yellow from '@/assets/yellow3.png';
 import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
-// 引入地理json文件
-import * as d3 from 'd3';
+
+
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
 import yaan from '@/assets/geoJson/yaan.json'
+
 
 
 // 图例分类
@@ -136,9 +139,18 @@ export default {
     });
 
     onMounted(() => {
-      // if (!mapConfig.value.map) {
-      initMap();
-      // }
+      if (window.d3) {
+        console.log("D3 is loaded!", window.d3);
+      } else {
+        console.error("D3 is not loaded.");
+      }
+
+      if (window.T && window.T.D3Overlay) {
+        console.log("T.D3Overlay is loaded!", window.T.D3Overlay);
+        initMap();
+      } else {
+        console.error("T.D3Overlay is not defined. Make sure D3SvgOverlay.js is loaded.");
+      }
     });
 
     watch(() => props.eqData, () => {
@@ -265,8 +277,7 @@ export default {
 
     // 初始化函数
     function init(sel, transform) {
-
-      const pathGenerator = d3.geoPath(transform.projection);  // 使用投影函数
+      const pathGenerator = d3.geo.path(transform.projection);  // 使用投影函数
 
       const upd = sel.selectAll('path.geojson').data(sichuan.features); // 使用四川的 GeoJSON 数据
       // console.log("sichuan.features1111111111111111111111111111111111",sichuan.features);
@@ -274,7 +285,8 @@ export default {
 
       upd.enter()
           .append('path')
-          .attr("class", "geojson")
+          .attr("class", "sichuan")
+          .attr('d', pathGenerator) // 设置路径
           .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
           // .attr('stroke', '#05CEE5') // 边界线颜色
           .attr('stroke-width', '1px') // 边界线宽度
@@ -303,15 +315,17 @@ export default {
           .text(d => d.properties.name);  // 显示区域名称
 
 
+
       // 绘制雅安的行政区划
       const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
       yaanUpd.enter()
           .append('path')
           .attr("class", "yaan")  // 设置类名
+          .attr('d', pathGenerator) // 设置路径
           .attr('stroke', '#05CEE5') // 边界线颜色
           .attr('stroke-width', '1px')
           .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
-          .attr('fill-opacity', 0.3);
+          .attr('fill-opacity', 0.3);  //透明度
 
       // 添加雅安区域名称
       const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
@@ -327,41 +341,39 @@ export default {
           .text(d => d.properties.name); // 显示区域名称
 
       // 更新文本位置
+      updateTextPositions(sel, transform);
+
+
+    }
+
+    function updateTextPositions(sel, transform) {
       sel.selectAll('text.region-label')
           .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
 
-
       sel.selectAll('text.yaan-label')
           .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
           .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
-
-
     }
 
     // 重绘函数
     function redraw(sel, transform) {
-
-      // 四川
-      sel.selectAll('path.geojson').each(function () {
-        d3.select(this).attr('d', transform.pathFromGeojson); // 更新路径
+      // 更新四川路径
+      sel.selectAll('path.sichuan').each(function (d) {
+        console.log("Selected path:", this); // 检查当前选择的路径
+        d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
 
       // 更新文本位置
-      sel.selectAll('text.region-label')
-          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
-          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+      updateTextPositions(sel, transform);
 
-      // 雅安
-
-      sel.selectAll('path.yaan').each(function () {
-        d3.select(this).attr('d', transform.pathFromGeojson); // 更新雅安路径
+      // 更新雅安路径
+      sel.selectAll('path.yaan').each(function (d) {
+        console.log("Selected yaan path:", this); // 检查当前选择的雅安路径
+        d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
-
-      sel.selectAll('text.yaan-label')
-          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
-          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
     }
+
 
     //---------------------------------------------------------------------------------------
 
@@ -533,7 +545,7 @@ export default {
         console.log("weight.value*********", weight.value)
 
         infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 200// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 180// 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -786,6 +798,7 @@ export default {
   bottom: 0;
   left: 20%;
   z-index: 20;
+  margin-top: 5px;
   background-color: transparent;
   width: 100%;
   //height: auto; /* 自适应高度 */
@@ -810,7 +823,6 @@ export default {
 
 .column_left {
   display: inline-flex; /* 保持在一行内 */
-  margin-right: 60px;
 }
 
 .column_right {
@@ -822,10 +834,10 @@ export default {
 .line {
   display: flex;
   align-items: center; /* 圆点与文本垂直居中对齐 */
-  width: 130px;
   color: white;
-  margin-top: 8px; /* 添加间距 */
+  margin-top: 5px; /* 添加间距 */
   font-size: 14px;
+  width: 120px;
 }
 
 .line span {
@@ -867,7 +879,7 @@ export default {
   width: 15px; /* 中等点的宽度 */
   height: 15px; /* 中等点的高度 */
   border-radius: 50%; /* 圆形 */
-  margin-left: 13px;
+  margin-left: 5px;
   margin-right: 10px; /* 圆点和文本之间的间距 */
 }
 
@@ -875,7 +887,7 @@ export default {
   width: 20px; /* 大点的宽度 */
   height: 20px; /* 大点的高度 */
   border-radius: 50%; /* 圆形 */
-  margin-left: 15px;
+  margin-left: 5px;
   margin-right: 1px; /* 圆点和文本之间的间距 */
 }
 
@@ -901,7 +913,7 @@ export default {
 
 .map_container {
   width: 100%;
-  height: 620px;
+  height: 600px;
   margin-top: 10px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/

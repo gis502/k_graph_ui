@@ -54,8 +54,13 @@ export function findModel() {
         if (window.modelObject instanceof Cesium.Cesium3DTileset) {
             window.viewer.zoomTo(window.modelObject)
         } else if (window.modelObject instanceof Cesium.Model) {
+            // 创建一个 Cartesian3 点，初始位置在世界坐标系的 (0, 0, 1000) 位置
             let origin = new Cesium.Cartesian3(0, 0, 1000)
+            // multiplyByPoint 方法将 modelObject 的模型矩阵应用到这个原点上，计算出模型在场景中的真实位置。
+            // origin：这是一个表示三维空间中的点的向量，通常是一个 Cartesian3 类型的对象
+            // 这个方法的主要作用是将给定的点（origin）应用变换矩阵（modelMatrix），从而得到这个点在模型坐标系中的新位置。它相当于将 origin 点根据 modelMatrix 矩阵的变换结果进行转换。
             Cesium.Matrix4.multiplyByPoint(window.modelObject.modelMatrix, origin, origin)
+            // 将camera移到origin的位置
             window.viewer.camera.zoomTo({
                 destination: origin,
                 orientation: {
@@ -75,20 +80,29 @@ export function showArrow(showArrowValue) {
     console.log("showArrow showArrowValue",showArrowValue)
     viewer.entities.removeAll()
     if (!showArrowValue) {
+        // 从 window.modelObject 的包围球（bounding sphere）中提取中心点，并将其赋值给变量 origin
+        // 获取模型的边界球的中心点，这个点将作为坐标轴的起始位置
         let origin = window.modelObject.boundingSphere.center
+        // 这个方法支持通过传入一个中心点，然后获取到中心点的正东正北
         const localToWorldMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
+         //x轴指向当前点的东方向。
+        // y轴指向当前点的北方向。
+        // z轴在椭圆体的方向轴指向表面法线穿过的位置。
         let localX = new Cesium.Cartesian3(100, 0, 0)
         let localY = new Cesium.Cartesian3(0, 100, 0)
         let localZ = new Cesium.Cartesian3(0, 0, 100)
+        // 将一个局部坐标系中的点（localX）转换为世界坐标系中的对应点
         let localToWorldX = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localX, new Cesium.Cartesian3)
         let localToWorldY = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localY, new Cesium.Cartesian3)
         let localToWorldZ = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localZ, new Cesium.Cartesian3)
+        // 添加坐标轴箭头和标签: 对每个坐标轴（X、Y、Z），调用 viewer.entities.add() 方法添加实体，包括箭头和标签
         viewer.entities.add({
             name: "localX",
             position: localToWorldX,
             polyline: {
                 positions: [origin, localToWorldX],
                 width: 25,
+                // 它的主要作用是指示在绘制路径或线时不使用弧形  坐标轴是直的
                 arcType: Cesium.ArcType.NONE,
                 material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED),
             },
@@ -97,6 +111,7 @@ export function showArrow(showArrowValue) {
                 font: '14pt monospace',
                 style: Cesium.LabelStyle.FILL_AND_OUTLINE,
                 outlineWidth: 2,
+                // 用于指定图形元素（如标签、标记等）垂直对齐方式的设置
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 pixelOffset: new Cesium.Cartesian2(0, -9)
             }

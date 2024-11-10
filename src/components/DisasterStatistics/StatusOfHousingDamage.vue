@@ -25,14 +25,18 @@ const currentlyRestricted = ref([]) // 目前限用
 const currentlyAvailable = ref([]) // 目前可用
 const affectedAreaName = ref([]) // 地点
 const latestTime = ref('')
-const latestTimes = ref('')
+const latestTimes = ref('抱歉暂无数据')
 const store = useGlobalStore()
 
 setTimeout(()=>{
   getHousingSituationList(store.globalEqId).then(res => {
+
+    console.log('jiwdjwjdjwdjjwdidjiwjdjwidjiwjd',res)
     update(res)
   });
 },500)
+
+
 
 function update(data){
   // 如果返回的数组为空，设置默认值
@@ -42,15 +46,15 @@ function update(data){
     currentlyDisabled.value = [0];
     currentlyRestricted.value = [0];
     currentlyAvailable.value = [0];
-    latestTime.value = '';
+    latestTime.value = ['抱歉暂无数据'];
   } else {
     affectedAreaName.value = data.map(item => item.affectedAreaName || '无数据');
     currentlyDamaged.value = data.map(item => item.currentlyDamaged || 0);
     currentlyDisabled.value = data.map(item => item.currentlyDisabled || 0);
     currentlyRestricted.value = data.map(item => item.currentlyRestricted || 0);
     currentlyAvailable.value = data.map(item => item.currentlyAvailable || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
-    latestTimes.value = data.map(item => item.systemInsertTime || '抱歉暂无数据');
+    latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
+    latestTimes.value = data.map(item => item.submissionDeadline || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({

@@ -21,6 +21,13 @@ const props = defineProps({
   },
 });
 
+const publicityReport = ref([]) // 宣传报道
+const provincialMediaReport = ref([]) // 中省主要媒体报道
+const publicOpinionRiskWarning = ref ([]) // 舆情风险提示
+const pressConference = ref([]) // 发布会
+const negativeOpinionDisposal = ref([]) // 处置负面舆论
+const earthquakeZoneName = ref([]) // 地点
+
 const existingRiskPoints = ref([]) // 现有隐患点
 const newRiskPoints = ref([]) // 新增隐患点
 const constructionPoints = ref([]) // 正在施工点
@@ -49,7 +56,7 @@ function update(data){
     infrastructureCheckpoints.value = [0];
     alarmCount.value = [0];
     evacuationCount.value = [0];
-    latestTime.value = '';
+    latestTime.value = ['抱歉暂无数据'];
   } else {
     quakeAreaName.value = data.map(item => item.quakeAreaName || '无数据');
     existingRiskPoints.value = data.map(item => item.existingRiskPoints || 0);
@@ -58,7 +65,7 @@ function update(data){
     infrastructureCheckpoints.value = data.map(item => item.infrastructureCheckpoints || 0);
     alarmCount.value = data.map(item => item.alarmCount || 0);
     evacuationCount.value = data.map(item => item.evacuationCount || 0);
-    latestTime.value = data.map(item => formatDate(item.systemInsertTime) || '抱歉暂无数据');
+    latestTime.value = data.map(item => formatDate(item.reportDeadline) || '抱歉暂无数据');
   }
 
   echartsInstance.setOption({
@@ -108,7 +115,6 @@ function formatDate(dateString) {
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getRiskConstructionGeohazards(eqid.value).then(res => {
-    console.log('getRiskConstructionGeohazards',res)
     update(res)
   });
 });

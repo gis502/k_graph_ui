@@ -80,3 +80,12 @@ export function getEqById(data) {
     })
 
 }
+
+export function getGeomById(data) {
+    return request({
+        url: '/system/getGeomById',
+        method: 'get',
+        params:{id:data}
+    })
+
+}

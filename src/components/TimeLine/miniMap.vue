@@ -42,11 +42,11 @@ export default {
 <style scoped>
 .small-map {
   width: 27%;
-  height: 34%;
+  height: 31%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 57.5%;
+  top: 64%;
   right: 1%;
   z-index: 20; /* 提高层级 */
   background-color: rgb(22, 53, 77,0.9);
@@ -62,7 +62,7 @@ export default {
 }
 .sub-title {
   color: #FFFFFF;
-  font-size: 19px;
+  font-size: 1.1rem;
   font-weight: 550;
   top:0.5%;
   margin: 0;
@@ -88,7 +88,7 @@ export default {
   width: 90%;
   height: 6px;
   position: absolute;
-  top: 140%;
+  top: 130%;
   left: 2%;
   background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
   background-size: 100% 100%;

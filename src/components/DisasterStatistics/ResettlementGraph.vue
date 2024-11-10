@@ -1,5 +1,5 @@
 <template>
-  <p style="margin: 0; font-size: 16px; color: orangered">最新上传时间：{{ systemInserttime }}</p>
+  <p style="margin: 0; font-size: 16px; color: orangered">最新上传时间：{{ reportingDeadline }}</p>
   <div ref="chart" style="width: 100%; height: 190px;"></div>
 </template>
 
@@ -20,7 +20,7 @@ const emergencyShelters = ref(0);
 const temporaryShelter = ref(0);
 const newlyTransferred = ref(0);
 const cumulativeTransferred = ref(0);
-const systemInserttime = ref('');
+const reportingDeadline = ref('');
 const chart = ref(null);
 let chartInstance = null;
 
@@ -124,33 +124,49 @@ const initChart = () => {
 };
 
 const updateChartData = (data) => {
-  if(data === null){
+  if (data.length === 0) {
     emergencyShelters.value = 0;
     temporaryShelter.value = 0;
-    newlyTransferred.value = 0 ;
+    newlyTransferred.value = 0;
     cumulativeTransferred.value = 0;
-    systemInserttime.value = '';
-  }else{
-    emergencyShelters.value = data.emergencyShelters ;
-    temporaryShelter.value = data.temporaryShelters ;
-    newlyTransferred.value = data.newlyTransferred ;
-    cumulativeTransferred.value = data.cumulativeTransferred ;
-    systemInserttime.value = data.systemInserttime ;
-  }
+    reportingDeadline.value = '';
 
-  const option = generateChartOptions();
-  chartInstance.setOption(option); // 更新图表
+    const option = generateChartOptions();
+    chartInstance.setOption(option); // 更新图表
+
+  } else {
+    emergencyShelters.value = 0;
+    temporaryShelter.value = 0;
+    newlyTransferred.value = 0;
+    cumulativeTransferred.value = 0;
+
+    data.forEach(item => {
+      emergencyShelters.value += item.emergencyShelters ?? 0;
+      temporaryShelter.value += item.temporaryShelters ?? 0;
+      newlyTransferred.value += item.newlyTransferred ?? 0;
+      cumulativeTransferred.value += item.cumulativeTransferred ?? 0;
+
+    });
+
+    reportingDeadline.value = data.reduce((max,item) =>{
+      return new Date(max) >= new Date(item.reportingDeadline) ? max : item.reportingDeadline
+    },data[0].reportingDeadline)
+
+    const option = generateChartOptions();
+    chartInstance.setOption(option); // 更新图表
+  }
 };
 
 watch(() => props.eqid, async (newValue) => {
   const res = await getTotal(newValue);
-  updateChartData(res[0]);
+  console.log("sssssssssssssssssssssssssss",res)
+  updateChartData(res);
 });
 
 const store = useGlobalStore();
 setTimeout(()=>{
   getTotal(store.globalEqId).then(res =>{
-    updateChartData(res[0]);
+    updateChartData(res);
   })
 },500)
 

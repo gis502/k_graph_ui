@@ -76,7 +76,7 @@ export default {
   left: 49%;
   width: 44%;
   transform: translate(-50%, -50%);
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(126, 201, 255, 0.44);
   padding: 20px;
   border-radius: 10px;
   display: flex;

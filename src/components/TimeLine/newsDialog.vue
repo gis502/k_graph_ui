@@ -51,8 +51,11 @@ export default {
   computed: {
     formattedNewsContent() {
       this.newsContent='<br />&emsp;&emsp;'+this.newsContent
+      this.newsContent=this.newsContent.replace(/\r?\n/g, '<br />&emsp;&emsp;');
+      this.newsContent = this.newsContent.replace(/[\u3000\u0020]+/g, ''); //替换空格
+      console.log( " this.newsContent",this.newsContent)
       // 替换换行符，并在每段的开始添加两个空格的HTML实体来实现缩进
-      return this.newsContent.replace(/\r?\n/g, '<br />&emsp;&emsp;');
+      return this.newsContent
     }
   },
   data(){
@@ -98,7 +101,6 @@ export default {
   width: 40%;
   height: 54%;
   position: absolute;
-  //padding: 0 5px 5px;
   padding:15px;
   border-radius: 5px;
   top:20%;
@@ -141,9 +143,9 @@ export default {
 .news-title:after {
   content: "";
   width: 95%;
-  height: 6px;
+  height: 1.5%;
   position: absolute;
-  top: 15%;
+  top: 19%;
   left: 1.5%;
   background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
   background-size: 100% 100%;
@@ -170,6 +172,7 @@ export default {
 }
 .news-head{
   line-height: 1rem;
+  //height: 30%;
 }
 .news-img {
   padding-top: 5px;
@@ -193,6 +196,6 @@ export default {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
-  border: 3px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 </style>
