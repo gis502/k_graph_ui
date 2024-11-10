@@ -93,12 +93,12 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="总人数:" prop="totalMembers">
-              <el-input v-model.number="dialogContent.totalMembers" placeholder="请输入人数" type="number" min="0" required></el-input>
+              <el-input v-model.number="dialogContent.totalMembers" placeholder="请输入人数" type="number" min="0" ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="队伍类型名称:" prop="teamTypeName">
-              <el-input v-model="dialogContent.teamTypeName" placeholder="请输入内容" required></el-input>
+              <el-input v-model="dialogContent.teamTypeName" placeholder="请输入内容" ></el-input>
             </el-form-item>
           </el-col>
 
@@ -108,13 +108,13 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="负责人:" prop="personInCharge">
-              <el-input v-model="dialogContent.personInCharge" placeholder="请输入负责人" required></el-input>
+              <el-input v-model="dialogContent.personInCharge" placeholder="请输入负责人" ></el-input>
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="负责人电话:" prop="chargePhone">
-              <el-input v-model="dialogContent.chargePhone" placeholder="请输入电话" required></el-input>
+              <el-input v-model="dialogContent.chargePhone" placeholder="请输入电话" ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -170,7 +170,7 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="集合出发地点:" prop="assemblyLocation">
-              <el-input v-model="dialogContent.assemblyLocation" placeholder="请输入地点" required></el-input>
+              <el-input v-model="dialogContent.assemblyLocation" placeholder="请输入地点" ></el-input>
             </el-form-item>
           </el-col>
 
@@ -220,7 +220,7 @@
 
           <el-col :span="12">
             <el-form-item label="所属机构:" prop="affiliatedAgency">
-              <el-input v-model="dialogContent.affiliatedAgency" placeholder="请输入内容" required></el-input>
+              <el-input v-model="dialogContent.affiliatedAgency" placeholder="请输入内容" ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -300,7 +300,7 @@ export default {
         levelName: '',  //级别名称
         teamTypeName: '',  //队伍类型名称
         address: '',  //地址
-        totalMembers: null,   //总人数
+        totalMembers: '',   //总人数
         establishmentDate: ' ',  //成立时间
         mainResponsibilities: '',  //主要职责
         expertiseDescription: '',  //专长描述
@@ -511,6 +511,9 @@ export default {
           if (valid) {
             console.log("表单验证通过");
 
+
+
+
             const { longitude, latitude } = this.dialogContent;
             // 检查经纬度是否有效
             if (longitude && latitude && !isNaN(longitude) && !isNaN(latitude)) {
@@ -537,7 +540,7 @@ export default {
             // this.dialogContent.establishmentDate = this.timestampToTime( this.dialogContent.establishmentDate);
 
             if (this.dialogTitle === "新增") {
-              console.log("表单验证通过", this.dialogContent);
+              console.log("正在新增数据：", this.dialogContent); // 打印新增时的数据
               addEmergencyTeam(this.dialogContent).then(() => {
                 this.getDate();
                 this.dialogShow = false;
@@ -549,6 +552,7 @@ export default {
                 this.$message.error("新增失败，请稍后再试");
               });
             } else {
+              console.log("正在修改数据：", this.dialogContent); // 打印修改时的数据
               updateEmergencyTeam(this.dialogContent).then(() => {
                 this.getDate();
                 this.dialogShow = false;

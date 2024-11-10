@@ -661,6 +661,15 @@ export default {
         }
         console.log('表单验证通过，提交表单');
 
+        // 清除验证状态
+        this.$refs.form.clearValidate();
+
+
+        // 如果某些字段为空值，手动处理（例如：删除、设置为 null）
+        if (!this.dialogContent.totalMembers) {
+          this.dialogContent.totalMembers = ''
+        }
+
         // 设置 insertTime 为当前时间戳
         this.dialogContent.insertTime = Date.now();
 
@@ -679,6 +688,9 @@ export default {
         console.log("前端传递的请求数据：", this.dialogContent);
 
 
+
+        // 打印所有字段的详细值
+        console.log("完整的 dialogContent 数据：", this.dialogContent);
 
         // 提交请求，根据操作类型区分新增或更新
         const action = this.dialogTitle === "新增" ? addDisasterReserves : updateDisasterReserves;

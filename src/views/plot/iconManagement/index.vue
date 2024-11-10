@@ -27,9 +27,20 @@
       <el-table-column prop="type" label="类型" width="240" align="center"></el-table-column>
       <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
-          <img width="30px" height="30px" :src="scope.row.img" alt="图片不正确">
+          <div v-if="scope.row.img && scope.row.img !== ''">
+            <img width="30px" height="30px" :src="scope.row.img" alt="暂无符号">
+          </div>
+          <div v-else>
+            <span> </span>
+          </div>
         </template>
       </el-table-column>
+
+      <!--      <el-table-column prop="img" label="符号" width="60" align="center">-->
+<!--        <template #default="scope">-->
+<!--          <img width="30px" height="30px" :src="scope.row.img" alt="图片不正确">-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
 <!--      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>-->
       <el-table-column prop="describe" label="说明" align="center">
@@ -164,7 +175,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         uuid: null,
-        img: null,
+        img: '',
         name: null,
         describe: null,
         type: null,
@@ -294,9 +305,34 @@ export default {
       });
     },
     // 删除dialog中上传里的fileList里的img
+    // 删除上传的图片
     deleteUnloadPic(file) {
-      this.fileList = []
+      this.$confirm('确定删除该符号图片吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 删除 fileList 中的文件
+        const index = this.fileList.indexOf(file);
+
+          console.log("进入删除部分", this.dialogContent.img)
+          this.fileList.splice(index, 1);  // 从文件列表中移除指定文件
+          this.dialogContent.img = ''; // 清空对应的 img 字段
+
+          this.$message({
+            type: 'success',
+            message: '图片已成功删除'
+          });
+
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消删除'
+        });
+      });
     },
+
+
     // 删除单个标绘图片
     handleDelete(row) {
       let that = this
@@ -326,13 +362,17 @@ export default {
       } else {
         this.dialogTitle = title
         this.dialogContent = {...row}
-        this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
+        // this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
+        if (this.dialogContent.img) {
+          this.fileList.push({name: row.name + '.jpeg', url: this.dialogContent.img})
+        }
         console.log(this.dialogShow, this.dialogTitle, this.dialogContent)
       }
       this.dialogShow = !this.dialogShow
     },
     // 确认提交修改或新增的图片
     commit() {
+      console.log("进入判断新增与修改：",this.dialogContent)
       let that = this
       if (this.dialogTitle === "新增") {
         this.dialogContent.id = Date.now()
@@ -341,6 +381,7 @@ export default {
           that.dialogShow = false
         })
       } else {
+        console.log("进入修改：",this.dialogContent)
         updataPlotIcon(this.dialogContent).then(res => {
           that.getPlotPicture()
           that.dialogShow = false
