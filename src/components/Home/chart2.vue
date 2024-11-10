@@ -181,6 +181,7 @@ const handleAftershockData = () => {
       updateAftershockChart(res); // 更新余震图表
       console.log("getAftershockMagnitude", res);
       updateTime.value = res.submission_deadline; // 更新时间
+      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
 
       // 根据余震数据是否存在决定初始展示的图表
       const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
@@ -201,6 +202,7 @@ const handleAftershockData = () => {
     });
   } else {
     updateTime.value = new Date().toLocaleString(); // 设置当前时间
+    updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
     initialIndex.value = 1; // 如果没有lastEq，默认展示静态图
   }
 };
@@ -224,6 +226,7 @@ const handlePopulationData = () => {
       console.log("提取后的数据:", populationData.value);
 
       populationDataChartUpdateTime.value = res.data[0].updateTime; // 更新时间
+      populationDataChartUpdateTime.value = formatDate(  populationDataChartUpdateTime.value);  // 更改时间格式
       initPopulationDataChart(); // 数据加载完成后初始化图表
     } else {
       console.error("返回的数据格式不正确或数据为空", res);
@@ -397,6 +400,18 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeChart); // 移除监听器
   clearInterval(slideInterval); // 组件卸载前清除定时器
 });
+
+
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+  const day = d.getDate().toString().padStart(2, '0');
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const seconds = d.getSeconds().toString().padStart(2, '0');
+  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+}
 </script>
 
 <style scoped>
