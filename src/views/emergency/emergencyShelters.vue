@@ -98,13 +98,13 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="地址:" prop="address">
-              <el-input v-model="dialogContent.address" placeholder="请输入地址" required></el-input>
+              <el-input v-model="dialogContent.address" placeholder="请输入地址" ></el-input>
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="行政区划:" prop="administrativeDivision">
-              <el-input v-model="dialogContent.administrativeDivision" placeholder="请输入名称" required></el-input>
+              <el-input v-model="dialogContent.administrativeDivision" placeholder="请输入名称" ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -112,7 +112,7 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="负责人:" prop="personInCharge">
-              <el-input v-model="dialogContent.personInCharge" placeholder="请输入负责人" required></el-input>
+              <el-input v-model="dialogContent.personInCharge" placeholder="请输入负责人" ></el-input>
             </el-form-item>
           </el-col>
 
@@ -127,7 +127,7 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="所属机构:" prop="affiliatedOrganization">
-              <el-input v-model="dialogContent.affiliatedOrganization" placeholder="请输入负责人" required></el-input>
+              <el-input v-model="dialogContent.affiliatedOrganization" placeholder="请输入负责人" ></el-input>
             </el-form-item>
           </el-col>
 
@@ -275,19 +275,19 @@ export default {
         name: '',  //名称
         address:'',  //地址
         shelterTypeName: '',  //场所类型名称
-        area: null,  //面积
-        capacity: null,  //可容纳人数
+        area: '',  //面积
+        capacity: '',  //可容纳人数
         levelName: '',  //级别名称
         secretLevel: '',    //保密级别
         personInCharge: '',  //负责人
         // emergencyPhone: '',  //应急电话
         emergencyMobile: '',  //应急手机
         startTime:'', //投入使用时间 使用时间戳
-        designServiceLife: null,  //设计使用年限
+        designServiceLife: '',  //设计使用年限
         seismicIntensity:'',  //地震烈度
         remarks: '',  //备注
-        longitude: null,  //经度
-        latitude: null,  //纬度
+        longitude: '',  //经度
+        latitude: '',  //纬度
         description:'',   //基本情况
         dataSourceUnit:'',  //数据来源单位
       },
@@ -581,7 +581,8 @@ export default {
         }
 
 
-        console.log("this.dialogContent：-----------:", this.dialogContent);
+        // 打印调试信息，查看所有字段
+        console.log("提交数据内容：", this.dialogContent);
 
         // 根据操作类型提交请求
         const action = this.dialogTitle === "新增"
