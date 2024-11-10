@@ -880,7 +880,7 @@ export default {
         // 更新绘图
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
-        // console.log("获取 pointsLayer", this.pointsLayer)
+        console.log("获取 pointsLayer", this.pointsLayer)
         this.updatePlotOnce(false)
       })
     },
