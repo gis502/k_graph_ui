@@ -41,7 +41,12 @@
         <div class="right-body">
           <div class="right-top public-bg" ref="rightTop">
             <dv-border-box7 :style="borderBoxStyles4">
-              <div class="public-title">地震列表</div>
+              <div class="public-title">
+                地震列表
+                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams" @keyup.enter="query()"></el-input>
+                <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
+                <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
+              </div>
               <eq-table :eq-data="tableData"/>
             </dv-border-box7>
           </div>
