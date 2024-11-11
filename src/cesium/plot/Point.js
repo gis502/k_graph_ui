@@ -16,7 +16,6 @@ export default class Point {
     return new Promise((resolve, reject) => {
       let viewer = this.viewer
       let that = this
-
       that.handler.setInputAction((event) => {
         let pointInfo = {
           geom: null,
@@ -26,7 +25,6 @@ export default class Point {
           plotId: null,
           earthquakeId: eqid
         }
-
         // 1-1 获取点击的位置的坐标信息（经度、纬度、高度）
         let ray = viewer.camera.getPickRay(event.position)
         let position = viewer.scene.globe.pick(ray, viewer.scene)
@@ -54,9 +52,9 @@ export default class Point {
     console.log("end")
     if (bool) {
       let colorFactor = 1.0;
-      const intervalTime = 500; // 切换颜色的时间间隔
-      const animationDuration = 3000; // 动画总持续时间（10秒）
-      const intervalId = setInterval(() => {
+      let intervalTime = 500; // 切换颜色的时间间隔
+      let animationDuration = 3000; // 动画总持续时间（10秒）
+      let intervalId = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
       }, intervalTime);
       // 使用 setTimeout 在动画持续时间结束后清除 interval
@@ -133,11 +131,21 @@ export default class Point {
   drawPoints(points, bool, stoptime) {
     // 判断 points 是否为数组，不是数组则将它包装为数组
     if (!Array.isArray(points)) {
-      let data = {
-        longitude: Number(points.geom.coordinates[0]),
-        latitude: Number(points.geom.coordinates[1]),
-        ...points
+      let data = {}
+      if (points.longitude) {
+        data = {
+          longitude: Number(points.longitude),
+          latitude: Number(points.latitude),
+          ...points
+        }
+      } else {
+        data = {
+          longitude: Number(points.geom.coordinates[0]),
+          latitude: Number(points.geom.coordinates[1]),
+          ...points
+        }
       }
+
       points = data
       points = [points];
     }
@@ -147,9 +155,10 @@ export default class Point {
       let plotId = data.plotId
       let plotType = data.plotType
       let colorFactor = 1.0;
-      const intervalTime1 = 200;
-      const animationDuration = 3000;
-      const intervalId1 = setInterval(() => {
+      let intervalTime1 = 200;
+      // let animationDuration = stoptime;
+      //200毫秒闪烁一次
+      let intervalId1 = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
       }, intervalTime1);
 
@@ -158,16 +167,17 @@ export default class Point {
         let labeltext = this.labeltext(plotType, res)
         if (bool) {
           if (!viewer.entities.getById(data.plotId)) {
-            this.addMakerPointActive(data)
+            this.addMakerPointActive(data, stoptime)
+
             this.addPointToLabel(data, labeltext)
-            this.flyTo(data)
+            // this.flyTo(data)
 
             // 结束但隔断闪烁动效后：
             // 1.移除挂在在viewer下的单个点，
             // 2、将点放入pointData聚合图层下
             // 3、除人员伤亡和救援出队，移除标签文字
             setTimeout(() => {
-              const entityDonghua = window.viewer.entities.getById(data.plotId);
+              let entityDonghua = window.viewer.entities.getById(data.plotId);
               if (entityDonghua) {
                 window.viewer.entities.remove(entityDonghua); // 移除点
               }
@@ -176,12 +186,12 @@ export default class Point {
               }
               if (plotType === "失踪人员" || plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员" || plotType === "已出发队伍" || plotType === "正在参与队伍" || plotType === "待命队伍") {
               } else {
-                const entitylabel = window.labeldataSource.entities.getById(data.plotId + "_label");
+                let entitylabel = window.labeldataSource.entities.getById(data.plotId + "_label");
                 if (entitylabel) {
                   window.labeldataSource.entities.remove(entitylabel); // 移除点
                 }
               }
-            }, animationDuration);
+            }, stoptime);
           }
         } else {
           this.addPointToPointData(data)
@@ -198,7 +208,26 @@ export default class Point {
     viewer.entities.remove(point)
   }
 
-  //匹配图标
+  deletePointById(plotId) {
+    if (window.pointDataSource) {
+      let entityToRemove = window.pointDataSource.entities.getById(plotId);
+      if (entityToRemove) {
+        window.pointDataSource.entities.remove(entityToRemove); // 移除点
+      }
+    }
+    let entityDonghua = window.viewer.entities.getById(plotId);
+    if (entityDonghua) {
+      window.viewer.entities.remove(entityDonghua); // 移除点
+    }
+    if (window.labeldataSource) {
+      let entitylabel = window.labeldataSource.entities.getById(plotId + '_label');
+      if (entitylabel) {
+        window.labeldataSource.entities.remove(entitylabel); // 移除点
+      }
+    }
+  }
+
+//匹配图标
   matchIcon(type) {
     let list = matchMark() // 封装的marchMark
     return list[type]
@@ -207,7 +236,7 @@ export default class Point {
   guid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       let r = Math.random() * 16 | 0,
-        v = c == 'x' ? r : (r & 0x3 | 0x8);
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   }
@@ -224,8 +253,8 @@ export default class Point {
     };
   }
 
-  //---------工具函数 start-----------------
-  //聚合图层数据源，挂载到windows
+//---------工具函数 start-----------------
+//聚合图层数据源，挂载到windows
   addDataSourceLayer(datasourcename) {
     if (datasourcename === "pointData") {
       let pointDataSource = null
@@ -234,44 +263,44 @@ export default class Point {
 
       } else {
         pointDataSource = new Cesium.CustomDataSource("pointData");
-        const dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
+        let dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
         dataSourcePromise.then(function (pointDataSource) {
-          const pixelRange = 10;
-          const minimumClusterSize = 3;
-          const enabled = true;
+          let pixelRange = 10;
+          let minimumClusterSize = 3;
+          let enabled = true;
           pointDataSource.clustering.enabled = enabled; //是否聚合
           pointDataSource.clustering.pixelRange = pixelRange;
           pointDataSource.clustering.minimumClusterSize = minimumClusterSize;
-          const pinBuilder = new Cesium.PinBuilder();
-          const pin1000 = pinBuilder
-            .fromText("1000+", Cesium.Color.RED, 48)
-            .toDataURL();
-          const pin500 = pinBuilder
-            .fromText("100+", Cesium.Color.RED, 48)
-            .toDataURL();
-          const pin100 = pinBuilder
-            .fromText("100+", Cesium.Color.RED, 48)
-            .toDataURL();
-          const pin50 = pinBuilder
-            .fromText("50+", Cesium.Color.RED, 48)
-            .toDataURL();
-          const pin40 = pinBuilder
-            .fromText("40+", Cesium.Color.ORANGE, 48)
-            .toDataURL();
-          const pin30 = pinBuilder
-            .fromText("30+", Cesium.Color.YELLOW, 48)
-            .toDataURL();
-          const pin20 = pinBuilder
-            .fromText("20+", Cesium.Color.GREEN, 48)
-            .toDataURL();
-          const pin10 = pinBuilder
-            .fromText("10+", Cesium.Color.BLUE, 48)
-            .toDataURL();
-          const singleDigitPins = new Array(8);
+          let pinBuilder = new Cesium.PinBuilder();
+          let pin1000 = pinBuilder
+              .fromText("1000+", Cesium.Color.RED, 48)
+              .toDataURL();
+          let pin500 = pinBuilder
+              .fromText("100+", Cesium.Color.RED, 48)
+              .toDataURL();
+          let pin100 = pinBuilder
+              .fromText("100+", Cesium.Color.RED, 48)
+              .toDataURL();
+          let pin50 = pinBuilder
+              .fromText("50+", Cesium.Color.RED, 48)
+              .toDataURL();
+          let pin40 = pinBuilder
+              .fromText("40+", Cesium.Color.ORANGE, 48)
+              .toDataURL();
+          let pin30 = pinBuilder
+              .fromText("30+", Cesium.Color.YELLOW, 48)
+              .toDataURL();
+          let pin20 = pinBuilder
+              .fromText("20+", Cesium.Color.GREEN, 48)
+              .toDataURL();
+          let pin10 = pinBuilder
+              .fromText("10+", Cesium.Color.BLUE, 48)
+              .toDataURL();
+          let singleDigitPins = new Array(8);
           for (let i = 0; i < singleDigitPins.length; ++i) {
             singleDigitPins[i] = pinBuilder
-              .fromText(`${i + 2}`, Cesium.Color.VIOLET, 48)
-              .toDataURL();
+                .fromText(`${i + 2}`, Cesium.Color.VIOLET, 48)
+                .toDataURL();
           }
           let removeListener
 
@@ -281,44 +310,44 @@ export default class Point {
               let removeListener = undefined;
             } else {
               let removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
-                function (clusteredEntities, cluster) {
-                  cluster.label.show = false;
-                  cluster.billboard.show = true;
-                  cluster.billboard.id = cluster.label.id;
-                  cluster.billboard.verticalOrigin =
-                    Cesium.VerticalOrigin.BOTTOM;
+                  function (clusteredEntities, cluster) {
+                    cluster.label.show = false;
+                    cluster.billboard.show = true;
+                    cluster.billboard.id = cluster.label.id;
+                    cluster.billboard.verticalOrigin =
+                        Cesium.VerticalOrigin.BOTTOM;
 
-                  // 设置 Billboard 高度引用地形
-                  cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+                    // 设置 Billboard 高度引用地形
+                    cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
 
-                  // 禁用深度测试，使 Billboard 不会被地形遮挡
-                  cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                    // 禁用深度测试，使 Billboard 不会被地形遮挡
+                    cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
-                  if (clusteredEntities.length >= 1000) {
-                    cluster.billboard.image = pin1000;
-                  } else if (clusteredEntities.length >= 500) {
-                    cluster.billboard.image = pin500;
-                  } else if (clusteredEntities.length >= 100) {
-                    cluster.billboard.image = pin100;
-                  } else if (clusteredEntities.length >= 50) {
-                    cluster.billboard.image = pin50;
-                  } else if (clusteredEntities.length >= 40) {
-                    cluster.billboard.image = pin40;
-                  } else if (clusteredEntities.length >= 30) {
-                    cluster.billboard.image = pin30;
-                  } else if (clusteredEntities.length >= 20) {
-                    cluster.billboard.image = pin20;
-                  } else if (clusteredEntities.length >= 10) {
-                    cluster.billboard.image = pin10;
-                  } else {
-                    cluster.billboard.image =
-                      singleDigitPins[clusteredEntities.length - 2];
+                    if (clusteredEntities.length >= 1000) {
+                      cluster.billboard.image = pin1000;
+                    } else if (clusteredEntities.length >= 500) {
+                      cluster.billboard.image = pin500;
+                    } else if (clusteredEntities.length >= 100) {
+                      cluster.billboard.image = pin100;
+                    } else if (clusteredEntities.length >= 50) {
+                      cluster.billboard.image = pin50;
+                    } else if (clusteredEntities.length >= 40) {
+                      cluster.billboard.image = pin40;
+                    } else if (clusteredEntities.length >= 30) {
+                      cluster.billboard.image = pin30;
+                    } else if (clusteredEntities.length >= 20) {
+                      cluster.billboard.image = pin20;
+                    } else if (clusteredEntities.length >= 10) {
+                      cluster.billboard.image = pin10;
+                    } else {
+                      cluster.billboard.image =
+                          singleDigitPins[clusteredEntities.length - 2];
+                    }
                   }
-                }
               );
             }
 
-            const pixelRange = pointDataSource.clustering.pixelRange;
+            let pixelRange = pointDataSource.clustering.pixelRange;
             pointDataSource.clustering.pixelRange = 0;
             pointDataSource.clustering.pixelRange = pixelRange;
           }
@@ -334,11 +363,23 @@ export default class Point {
         labeldataSource = window.labeldataSource
       } else {
         labeldataSource = new Cesium.CustomDataSource("label");
-        const dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
+        let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
         dataSourcePromise.then(function (labeldataSource) {
           labeldataSource.clustering.enabled = true; // 开启聚合
-          labeldataSource.clustering.pixelRange = 0; // 聚合像素范围
+          // labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
           labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
+
+          // 监听相机变化事件来动态调整聚合像素范围
+          let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
+            const cameraHeight = viewer.camera.positionCartographic.height;
+            if (cameraHeight < 50000) {
+              labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
+            } else {
+              labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
+            }
+          });
+
+
           let removeListener
 
           function customStyle() {
@@ -347,45 +388,48 @@ export default class Point {
               let removeListener = undefined;
             } else {
               let removeListener = labeldataSource.clustering.clusterEvent.addEventListener(
-                function (clusteredEntities, cluster) {
-                  // cluster.label.show = false;
+                  function (clusteredEntities, cluster) {
+                    // cluster.label.show = false;
 
-                  cluster.label.show = true;
-                  cluster.label.text = ''; // 初始化标签文本
-                  clusteredEntities.forEach((entity, index) => {
-                    console.log(entity, "entity");
-                    // 假设每个实体都有一个名为'labeltext'的属性，包含要显示的信息
-                    cluster.label.text += entity.labeltext.toString();
+                    cluster.label.show = true;
+                    cluster.label.text = ''; // 初始化标签文本
+                    clusteredEntities.forEach((entity, index) => {
+                      console.log(entity, "entity");
+                      // 假设每个实体都有一个名为'labeltext'的属性，包含要显示的信息
+                      cluster.label.text += entity.labeltext.toString();
 
-                    // 如果不是最后一个实体，则添加换行符
-                    if (index < clusteredEntities.length - 1) {
-                      cluster.label.text += '\n';
-                    }
-                  });
+                      // 如果不是最后一个实体，则添加换行符
+                      if (index < clusteredEntities.length - 1) {
+                        cluster.label.text += '\n';
+                      }
+                    });
 
 
-                  // 设置标签的其他样式属性
-                  // 设置标签的其他样式属性
-                  cluster.label.font = '18px Helvetica';
-                  cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
-                  cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
-                  cluster.label.outlineWidth = 2; // 外框宽度
-                  cluster.label.pixelOffset = new Cesium.Cartesian2(20, 20); // 偏移量
-                  cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; // 垂直原点
+                    // 设置标签的其他样式属性
+                    // 设置标签的其他样式属性
+                    cluster.label.font = '18px Helvetica';
+                    cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
+                    cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
+                    cluster.label.outlineWidth = 2; // 外框宽度
+                    cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // 偏移量
+                    cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; // 垂直原点
 
-                  // 设置标签的背景颜色
-                  cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
-                  cluster.label.showBackground = true; // 显示背景
-                  cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                  cluster.billboard.show = false;
+                    // // 设置标签的背景颜色
+                    // cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
+                    // cluster.label.showBackground = true; // 显示背景
+                    // cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
-                }
+                    // 设置标签的背景颜色为透明
+                    cluster.label.backgroundColor = new Cesium.Color(1.0, 1.0, 1.0, 0.5); // 背
+
+                    cluster.label.showBackground = true; // 显示背景
+                    cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+
+                    cluster.billboard.show = false;
+
+                  }
               );
             }
-
-            // const pixelRange = labeldataSource.clustering.pixelRange;
-            // labeldataSource.clustering.pixelRange = 0;
-            // labeldataSource.clustering.pixelRange = pixelRange;
           }
 
           customStyle();
@@ -398,7 +442,7 @@ export default class Point {
   }
 
 
-  //标签文字
+//标签文字
   labeltext(plotType, res) {
     let labeltext = plotType
     if (res.plotTypeInfo && res.plotTypeInfo.location) {
@@ -407,7 +451,7 @@ export default class Point {
     //人员伤亡类文字：新增xxx人员xx人
     // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
     if (plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员") {
-      if (res.plotTypeInfo.newCount) {
+      if (res.plotTypeInfo && res.plotTypeInfo.newCount) {
         labeltext = labeltext + res.plotTypeInfo.newCount + "人"
       }
     }
@@ -433,18 +477,17 @@ export default class Point {
     return labeltext
   }
 
-  //单个点动画
-  addMakerPointActive(data) {
-    const intervalTime1 = 200;
+//单个点动画
+  addMakerPointActive(data, stoptime) {
+    let intervalTime1 = 200;
     let colorFactor = 1.0;
-    const intervalId1 = setInterval(() => {
+    let intervalId1 = setInterval(() => {
       colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
     }, intervalTime1);
     viewer.entities.add({
       id: data.plotId,
       plottype: data.plotType,
       layer: "标绘点",
-      layers: "标绘点addMakerPointActive",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       // labeltext: labeltext,
       billboard: {
@@ -467,16 +510,15 @@ export default class Point {
     setTimeout(() => {
       clearInterval(intervalId1);
       colorFactor = 1.0;
-    }, 3000);
+    }, stoptime);
   }
 
-  //pointData聚合图层
+//pointData聚合图层
   addPointToPointData(data) {
     window.pointDataSource.entities.add({
       id: data.plotId,
       plottype: data.plotType,
       layer: "标绘点",
-      layers: "标绘点addPointToPointData",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       // labeltext: labeltext,
       billboard: {
@@ -496,14 +538,12 @@ export default class Point {
     })
   }
 
-  //标签图层
+//标签图层
   addPointToLabel(data, labeltext) {
-    // labeldataSource.entities.removeAll()
     labeldataSource.entities.add({
       id: data.plotId + '_label',
       plottype: data.plotType,
       layer: "标绘点",
-      layers: "聚合标绘点",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       labeltext: labeltext,
       billboard: {
@@ -526,9 +566,9 @@ export default class Point {
   flyTo(data) {
     viewer.scene.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(
-        Number(data.longitude),
-        Number(data.latitude),
-        20000),
+          Number(data.longitude),
+          Number(data.latitude),
+          20000),
       orientation: {
         // 指向
         heading: 6.283185307179581,
