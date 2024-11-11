@@ -363,9 +363,9 @@
             @hideNewsDialog="hideNewsDialog"
         ></news-dialog>
       </div>
-      <timeLineCasualtyStatistic
-          :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"
-      />
+<!--      <timeLineCasualtyStatistic-->
+<!--          :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
+<!--      />-->
       <!--      缩略图-->
       <div>
         <mini-map></mini-map>

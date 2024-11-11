@@ -42,17 +42,18 @@ export default {
 <style scoped>
 .small-map {
   width: 27%;
-  height: 31%;
+  height: 34%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 64%;
+  top: 57.5%;
   right: 1%;
   z-index: 20; /* 提高层级 */
   background-color: rgb(22, 53, 77,0.9);
   backdrop-filter: none!important;
   border: 1px solid #008aff70;
 }
+
 
 #smallMapContainer {
   width: 95%;
