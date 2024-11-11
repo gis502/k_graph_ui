@@ -111,7 +111,7 @@ export default {
 <style scoped>
 #news {
   width: 27%;
-  height: 45%;
+  height: 43%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
