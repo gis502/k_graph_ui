@@ -31,6 +31,10 @@ export default {
     pointsLayer: {
       type: Array,
       default: () => []
+    },
+    currentTime: {
+      type: String,
+      default: ''
     }
   },
   setup(props) {
@@ -49,12 +53,16 @@ export default {
       townshipEntities: [],
       villageEntities: []
     };
+
+    // const plotInfo=ref([])
+    const resInfo=[]
     // 监视 zoomLevel 和 pointsLayer
     watch(
         () => props.pointsLayer,
         (newVal) => {
           console.log("Updated pointsLayer:", newVal);
           getRescueActionCasualtiesPlotAndInfo(newVal);
+
         },
         {deep: true}
     );
@@ -65,13 +73,24 @@ export default {
           if (isDataReady.value) {
             console.log("zoomLevel:", val);
             showStatisticInfo(val)
-
           }
         },
         {immediate: true}
     );
+    watch(
+        () => props.currentTime,
+        (val) => {
+          console.log("currentTime:", val);
+          if (isDataReady.value) {
+            updateTime(val);
+          }
+        },
+        {
+          immediate: true
+        }
+    );
 
-    // 实现 Cesium 实体的切换显示
+// 实现 Cesium 实体的切换显示
     function toggleEntities(entityName, show) {
       if (entityGroups.value[entityName] !== undefined) {
         entityGroups.value[entityName].forEach(entity => {
@@ -83,58 +102,114 @@ export default {
     }
 
     async function getRescueActionCasualtiesPlotAndInfo(pointsLayer) {
-      console.log("pointsLayer 22", pointsLayer)
-      const filteredPoints = pointsLayer.filter(data =>
-          ["死亡人员", "危重伤人员", "重伤人员", "轻伤人员"].includes(data.plotType)
-      );
-      console.log("filteredPoints", filteredPoints)
+      const filteredPoints = pointsLayer
+          .filter(data => ["死亡人员", "危重伤人员", "重伤人员", "轻伤人员"].includes(data.plotType))
+      ;
       const locationDataArray = await Promise.all(filteredPoints.map(async data => {
-        const {plotId, plotType, longitude, latitude} = data;
+        const {plotId, plotType, longitude, latitude,startTime,endTime} = data;
 
         try {
           const locationInfo = await getReverseGeocode(longitude, latitude);
-          return {longitude, latitude, plotId, plotType, locationInfo};
+          return {longitude, latitude, plotId, plotType, locationInfo,startTime,endTime};
         } catch (error) {
           console.error(`Failed to get location info for plotId ${plotId}:`, error);
           return null;
         }
       }));
-
-      console.log("locationDataArray", locationDataArray)
       const validLocationData = locationDataArray.filter(item => item !== null);
       console.log("validLocationData", validLocationData)
-
-
       await Promise.all(validLocationData.map(async data => {
-        const {locationInfo, plotId, plotType, longitude, latitude} = data;
-        const res = await getPlotInfos({plotId, plotType});
+        const {locationInfo, plotId, plotType, longitude, latitude,startTime,endTime} = data;
+        resInfo.push({...await getPlotInfos({plotId, plotType}),locationInfo:locationInfo});
+      }));
 
-        const levels = [
-          {group: groupedEntities.cityEntities, key: 'city'},
-          {group: groupedEntities.districtOrCountyEntities, key: 'county'},
-          {group: groupedEntities.townshipEntities, key: 'town'},
-          {group: groupedEntities.villageEntities, key: 'address'}
-        ];
+      // console.log("res111",resInfo)
+      isDataReady.value = true;
+      updateTime(props.currentTime)
+    }
 
+    function updateTime(currentTime){
+
+      console.log(resInfo,"resInfo")
+      groupedEntities.cityEntities=[]
+      groupedEntities.districtOrCountyEntities=[]
+      groupedEntities.townshipEntities=[]
+      groupedEntities.villageEntities=[]
+      const levels = [
+        {group: groupedEntities.cityEntities, key: 'city'},
+        {group: groupedEntities.districtOrCountyEntities, key: 'county'},
+        {group: groupedEntities.townshipEntities, key: 'town'},
+        {group: groupedEntities.villageEntities, key: 'address'}
+      ];
+      // let shifdata=resInfo.filter(data=>{new Date( data.plotInfo.startTime) <=new Date(currentTime)  && new Date(data.plotInfo.endTime) >= new Date(currentTime)})
+      //
+      // // processStats();
+      // // processStats();
+      // // processStats();
+      // // processStats();
+      // console.log(shifdata,"shifdata")
+
+      // let shifdata = resInfo.filter(data => {
+      //   let startTime = new Date(data.plotInfo.startTime);
+      //   let endTime = new Date(data.plotInfo.endTime);
+      //   let current = new Date(currentTime);
+      //   console.log(`Checking data: ${startTime} <= ${current} && ${current} <= ${endTime}`);
+      //   return startTime <= current && endTime >= current;
+      // });
+      let shifdata=[]
+      resInfo.forEach(item=>{
+        let startTime = new Date(item.plotInfo.startTime);
+        let endTime = new Date(item.plotInfo.endTime);
+        let current = new Date(currentTime);
+        console.log(`Checking data: ${startTime} <= ${current} && ${current} <= ${endTime}`);
+        if(startTime <= current && endTime >= current){
+          shifdata.push(item)
+        }
+      })
+      console.log(shifdata,"shifdata"); // 查看筛选结果
+
+
+      shifdata.forEach(pointdata=>{
+        let plotId=pointdata.plotInfo.plotId
+
+        let plotType=pointdata.plotInfo.plotType
+        let longitude=pointdata.plotInfo.longitude
+        let latitude=pointdata.plotInfo.latitude
+        let plotTypeInfo=pointdata.plotTypeInfo
         levels.forEach(({group, key}) => {
-          let entityGroup = group.find(g => g[key] === locationInfo[key]);
+          console.log("group,key",group,key)
+          let entityGroup = group.find(g => g[key] === pointdata.locationInfo[key]);
+          console.log("entityGroup11",entityGroup)
+          // console.log("entityGroup11",entityGroup)
           if (!entityGroup) {
-            entityGroup = {[key]: locationInfo[key], data: []};
+
+            entityGroup = {[key]: pointdata.locationInfo[key], data: []};
             group.push(entityGroup);
           }
+          // if(new Date( data.startTime) <=new Date(currentTime)  && new Date(data.endTime) >= new Date(currentTime)){
           entityGroup.data.push({
             plotId,
             plotType,
             longitude,
             latitude,
-            plotTypeInfo: res.plotTypeInfo
+            plotTypeInfo
           });
+          console.log("entityGroup", entityGroup)
+          // }
+
         });
-      }));
+      })
+
 
       console.log("groupedEntities", groupedEntities)
       const processStats = (entities) => {
+        // console.log(entitiestmp,"entitiestmp")
+        // let entities = entitiestmp
+                // .filter(data => ["死亡人员", "危重伤人员", "重伤人员", "轻伤人员"].includes(data.plotType))
+            // .filter(data =>new Date( data.startTime) <=new Date(currrentTime)  && new Date(data.endTime) >= new Date(currrentTime));
+        ;
         entities.forEach(group => {
+          console.log(group,"group")
           const casualtyStats = {};
           let totalNewCount = 0;
 
@@ -157,34 +232,33 @@ export default {
       processStats(groupedEntities.districtOrCountyEntities);
       processStats(groupedEntities.townshipEntities);
       processStats(groupedEntities.villageEntities);
-      showStatisticInfo(props.pointsLayer)
 
-      isDataReady.value = true;
+      showStatisticInfo(props.zoomLevel)
     }
 
-    function showStatisticInfo(val) {
+    function showStatisticInfo(zoomLevel) {
       statisticInfo.value = []
-      switch (val) {
+      switch (zoomLevel) {
         case '市':
-          pushStatisticInfo(groupedEntities.cityEntities,200000)
+          pushStatisticInfo(groupedEntities.cityEntities, 200000)
           break;
         case '区/县':
-          pushStatisticInfo(groupedEntities.districtOrCountyEntities,70000)
+          pushStatisticInfo(groupedEntities.districtOrCountyEntities, 70000)
           break;
         case '乡/镇':
-          pushStatisticInfo(groupedEntities.townshipEntities,4000)
+          pushStatisticInfo(groupedEntities.townshipEntities, 4000)
           break;
         case '村':
-          pushStatisticInfo(groupedEntities.villageEntities,2000)
+          pushStatisticInfo(groupedEntities.villageEntities, 2000)
           break;
         default:
-          pushStatisticInfo(groupedEntities.cityEntities,200000)
+          pushStatisticInfo(groupedEntities.cityEntities, 200000)
           break;
       }
     }
 
 
-    function pushStatisticInfo(entitys,height) {
+    function pushStatisticInfo(entitys, height) {
       statisticInfo.value = []
       entitys.forEach(entity => {
         let casualtyStatsTemplate = {
@@ -194,8 +268,8 @@ export default {
           重伤: 0,
           轻伤: 0,
           address: '',
-          position:'',
-          height:'',
+          position: '',
+          height: '',
         };
         let casualtyStats = entity.casualtyStats;
         let address = entity.city || entity.county || entity.town || entity.address || "地址未知";
@@ -204,8 +278,8 @@ export default {
         let givenCasualtyStats = {
           ...casualtyStats,
           address: address,
-          position:position,
-          height:height,
+          position: position,
+          height: height,
         };
         // 将给定的对象转换为与 casualtyStatsTemplate 相同的属性名称
         let one = Object.keys(casualtyStatsTemplate).reduce((acc, key) => {

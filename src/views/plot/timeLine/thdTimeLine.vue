@@ -151,9 +151,11 @@
       ></news-dialog>
     </div>
 
-<!--    <timeLineCasualtyStatistic-->
-<!--        :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
-<!--    />-->
+    <timeLineCasualtyStatistic
+        :zoomLevel="zoomLevel"
+        :pointsLayer="pointsLayer"
+        :currentTime="currentTime"
+    />
 
     <div>
       <mini-map></mini-map>
