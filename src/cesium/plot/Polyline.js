@@ -390,7 +390,7 @@ export default class Polyline {
           // 线的positions需要数组里的点都是Cartesian3类型
           positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
         })
-        let material = getmaterial(line[0].plotType,line[0].icon)
+        let material = getmaterial(line[0].plotType,'http://localhost:8080/PlotsPic/' +line[0].icon+ '.png')
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,

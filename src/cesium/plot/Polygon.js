@@ -479,7 +479,7 @@ export default class Polygon {
             layer: "标绘点",
             polygon: {
               hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
-              material: polygon[0].icon,
+              material: 'http://localhost:8080/PlotsPic/' +polygon[0].icon + '.png',
               // stRotation: Cesium.Math.toRadians(polygon[0].angle),
               clampToGround: true,
             },
@@ -561,7 +561,7 @@ export default class Polygon {
             semiMajorAxis: diameter / 2, // 对角线的一半作为半径
             semiMinorAxis: diameter / 2, // 保证是一个正圆
             material: new Cesium.ImageMaterialProperty({
-              image: polygon[0].icon,
+              image: 'http://localhost:8080/PlotsPic/' +polygon[0].icon + '.png',
               repeat: new Cesium.Cartesian2(1.02, 1.0684), // 控制图片的缩放
               color: Cesium.Color.WHITE.withAlpha(1.0),
               scale: 0.5 // 调整图片缩放比例
