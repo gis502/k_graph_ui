@@ -8,38 +8,39 @@
     <div id="supplies" :class="{ collapsed: !tableVisible }" style="width: 93.5%;">
       <el-form class="eqTable" @submit.native.prevent>
         <div style="margin-bottom: 10px; padding: 10px; width: 100.6%;">
-            <el-menu
-                    :default-active="activeMenuIndex"
-                    v-model="activeMenuIndex"
-                    class="el-menu-demo"
-                    mode="horizontal"
-                    background-color="#293038"
-                    text-color="#fff"
-                    active-text-color="#409eff"
-            >
-                <el-sub-menu index="1" >
-                    <template #title>路径规划</template>
-                    <el-menu-item index="1-1" @click="route">路径规划</el-menu-item>
-                    <el-menu-item index="1-2" @click="addArea">添加障碍区域</el-menu-item>
-                    <el-menu-item index="1-3" @click="removeAll">清空所有实体</el-menu-item>
-                    <el-menu-item index="1-3" @click="removePoint">删除障碍区域</el-menu-item>
-                    <el-menu-item index="1-3" @click="removePolyline">删除路径规划</el-menu-item>
-                </el-sub-menu>
-                <el-sub-menu index="2" >
-                    <template #title>救援力量匹配</template>
-                    <el-menu-item index="2-1" @click="addDisasterPoint">添加受灾点</el-menu-item>
-                    <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
-                    <el-menu-item index="2-3" @click="searchEmergencyTeamDialog = true">救援力量查询</el-menu-item>
-                    <el-menu-item index="2-4" @click="marchSupply">物资匹配</el-menu-item>
-                    <el-menu-item index="2-5" @click="marchRegionsDialog = true">行政区划匹配</el-menu-item>
-                    <el-menu-item index="2-6" @click="searchSuppliesByRadius">半径查询</el-menu-item>
-                    <el-menu-item index="2-7" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
-                </el-sub-menu>
-                <el-menu-item index="3" style="width: 140px;" @click="changeDataList('supplies')">救援物资</el-menu-item>
-                <el-menu-item index="4" style="width: 140px;" @click="changeDataList('emergencyTeam')">救援力量</el-menu-item>
-                <el-menu-item index="5" style="width: 140px;" @click="changeDataList('reserves')">救灾装备</el-menu-item>
-                <el-menu-item index="6" style="width: 140px;" @click="toggleTable">{{ toolValue }}</el-menu-item>
-            </el-menu>
+          <el-menu
+              :default-active="activeMenuIndex"
+              v-model="activeMenuIndex"
+              class="el-menu-demo"
+              mode="horizontal"
+              background-color="#293038"
+              text-color="#fff"
+              active-text-color="#409eff"
+          >
+            <el-sub-menu index="1">
+              <template #title>路径规划</template>
+              <el-menu-item index="1-1" @click="route">路径规划</el-menu-item>
+              <el-menu-item index="1-2" @click="addArea">添加障碍区域</el-menu-item>
+              <el-menu-item index="1-3" @click="removeAll">清空所有实体</el-menu-item>
+              <el-menu-item index="1-3" @click="removePoint">删除障碍区域</el-menu-item>
+              <el-menu-item index="1-3" @click="removePolyline">删除路径规划</el-menu-item>
+            </el-sub-menu>
+            <el-sub-menu index="2">
+              <template #title>救援力量匹配</template>
+              <el-menu-item index="2-1" @click="addDisasterPoint">添加受灾点</el-menu-item>
+              <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
+              <el-menu-item index="2-3" @click="searchEmergencyTeamDialog = true">救援力量查询</el-menu-item>
+              <el-menu-item index="2-4" @click="marchSupply">物资匹配</el-menu-item>
+              <el-menu-item index="2-5" @click="marchRegionsDialog = true">行政区划匹配</el-menu-item>
+              <el-menu-item index="2-6" @click="searchSuppliesByRadius">半径查询</el-menu-item>
+              <el-menu-item index="2-7" @click="showAllSupplyPoints">{{ showSupply }}</el-menu-item>
+            </el-sub-menu>
+            <el-menu-item index="3" style="width: 140px;" @click="changeDataList('supplies')">救援物资</el-menu-item>
+            <el-menu-item index="4" style="width: 140px;" @click="changeDataList('emergencyTeam')">救援力量
+            </el-menu-item>
+            <el-menu-item index="5" style="width: 140px;" @click="changeDataList('reserves')">救灾装备</el-menu-item>
+            <el-menu-item index="6" style="width: 140px;" @click="toggleTable">{{ toolValue }}</el-menu-item>
+          </el-menu>
         </div>
         <!--     数据列表     -->
         <el-table
@@ -52,36 +53,36 @@
             :row-style="{ height: '40px' }"
             @row-click="showSupplyPoint"
         >
-            <!--      救援物资      -->
-            <el-table-column
-                    v-if="listField === 'supplies'"
-                    v-for="column in listFieldsOfSupplies"
-                    :key="column.prop"
-                    :prop="column.prop"
-                    :label="column.label"
-                    :width="column.width"
-                    show-overflow-tooltip
-            ></el-table-column>
-            <!--      救援力量      -->
-            <el-table-column
-                    v-if="listField === 'emergencyTeam'"
-                    v-for="column in listFieldOfEmergencyTeam"
-                    :key="column.prop"
-                    :prop="column.prop"
-                    :label="column.label"
-                    :width="column.width"
-                    show-overflow-tooltip
-            ></el-table-column>
-            <!--      救灾装备      -->
-            <el-table-column
-                    v-if="listField === 'reserves'"
-                    v-for="column in listFieldOfReserves"
-                    :key="column.prop"
-                    :prop="column.prop"
-                    :label="column.label"
-                    :width="column.width"
-                    show-overflow-tooltip
-            ></el-table-column>
+          <!--      救援物资      -->
+          <el-table-column
+              v-if="listField === 'supplies'"
+              v-for="column in listFieldsOfSupplies"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
+          ></el-table-column>
+          <!--      救援力量      -->
+          <el-table-column
+              v-if="listField === 'emergencyTeam'"
+              v-for="column in listFieldOfEmergencyTeam"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
+          ></el-table-column>
+          <!--      救灾装备      -->
+          <el-table-column
+              v-if="listField === 'reserves'"
+              v-for="column in listFieldOfReserves"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
+          ></el-table-column>
         </el-table>
         <el-pagination
             v-if="tableVisible"
@@ -124,193 +125,193 @@
 
     <!--   物资查询dialog   -->
     <el-dialog v-model="searchSupplyDialog" title="物资查询" width="500" class="marchSupply">
-        <el-form :model="searchSupplyForm" label-width="80px">
-            <el-row>
-                <el-col :span="12">
-                    <el-form-item label="区域">
-                        <el-input v-model="searchSupplyForm.county" autocomplete="off" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item label="地址">
-                        <el-input v-model="searchSupplyForm.address" autocomplete="off" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="12">
-                    <el-form-item label="联系人">
-                        <el-input v-model="searchSupplyForm.contactPerson" autocomplete="off" />
-                    </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                    <el-form-item label="联系电话">
-                        <el-input v-model="searchSupplyForm.contactPhone" autocomplete="off" />
-                    </el-form-item>
-                </el-col>
-            </el-row>
-        </el-form>
-        <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="searchSupplyDialog = false">取消</el-button>
-                <el-button type="primary" @click="searchSupply">
-                    查询
-                </el-button>
-            </div>
-        </template>
+      <el-form :model="searchSupplyForm" label-width="80px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="区域">
+              <el-input v-model="searchSupplyForm.county" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="地址">
+              <el-input v-model="searchSupplyForm.address" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="联系人">
+              <el-input v-model="searchSupplyForm.contactPerson" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="联系电话">
+              <el-input v-model="searchSupplyForm.contactPhone" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="searchSupplyDialog = false">取消</el-button>
+          <el-button type="primary" @click="searchSupply">
+            查询
+          </el-button>
+        </div>
+      </template>
 
     </el-dialog>
 
-      <!--   救援力量查询dialog   -->
-      <el-dialog v-model="searchEmergencyTeamDialog" title="救援力量查询" width="600" class="marchSupply">
-          <el-form :model="searchEmergencyTeamForm" label-width="120px">
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="级别名称">
-                          <el-input v-model="searchEmergencyTeamForm.levelName" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="队伍类型名称">
-                          <el-input v-model="searchEmergencyTeamForm.teamTypeName" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="队伍人数">
-                          <el-input
-                                  v-model="displayTeamTotalMembers"
-                                  @input="handleTeamTotalMembersInput"
-                                  autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="地址">
-                          <el-input v-model="searchEmergencyTeamForm.address" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="负责人">
-                          <el-input v-model="searchEmergencyTeamForm.personInCharge" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="负责人电话">
-                          <el-input v-model="searchEmergencyTeamForm.chargePhone" autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
-          </el-form>
-          <template #footer>
-              <div class="dialog-footer">
-                  <el-button @click="searchEmergencyTeamDialog = false">取消</el-button>
-                  <el-button type="primary" @click="searchEmergencyTeam">
-                      查询
-                  </el-button>
-              </div>
-          </template>
+    <!--   救援力量查询dialog   -->
+    <el-dialog v-model="searchEmergencyTeamDialog" title="救援力量查询" width="600" class="marchSupply">
+      <el-form :model="searchEmergencyTeamForm" label-width="120px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="级别名称">
+              <el-input v-model="searchEmergencyTeamForm.levelName" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="队伍类型名称">
+              <el-input v-model="searchEmergencyTeamForm.teamTypeName" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="队伍人数">
+              <el-input
+                  v-model="displayTeamTotalMembers"
+                  @input="handleTeamTotalMembersInput"
+                  autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="地址">
+              <el-input v-model="searchEmergencyTeamForm.address" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="负责人">
+              <el-input v-model="searchEmergencyTeamForm.personInCharge" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="负责人电话">
+              <el-input v-model="searchEmergencyTeamForm.chargePhone" autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="searchEmergencyTeamDialog = false">取消</el-button>
+          <el-button type="primary" @click="searchEmergencyTeam">
+            查询
+          </el-button>
+        </div>
+      </template>
 
-      </el-dialog>
+    </el-dialog>
 
     <!--   物资匹配dialog   -->
     <el-dialog v-model="marchSupplyDialog" title="物资匹配" width="500" class="marchSupply">
-          <el-form :model="searchSupplyForm" label-width="80px">
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="帐篷">
-                          <el-input
-                                  v-model="displayDisasterTentsCount"
-                                  @input="handleDisasterTentsInput"
-                                  placeholder="/件"
-                                  autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="手电筒">
-                          <el-input
-                                  v-model="displayFlashlightsCount"
-                                  @input="handleFlashlightsInput"
-                                  placeholder="/件"
-                                  autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
-              <el-row>
-                  <el-col :span="12">
-                      <el-form-item label="雨衣">
-                          <el-input
-                                  v-model="displayRaincoatsCount"
-                                  @input="handleRaincoatsInput"
-                                  placeholder="/件"
-                                  autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                      <el-form-item label="雨鞋">
-                          <el-input
-                                  v-model="displayRainBootsCount"
-                                  @input="handleRainBootsInput"
-                                  placeholder="/双"
-                                  autocomplete="off" />
-                      </el-form-item>
-                  </el-col>
-              </el-row>
-          </el-form>
-          <template #footer>
-              <div class="dialog-footer">
-                  <el-button @click="marchSupplyDialog = false">取消</el-button>
-                  <el-button type="primary" @click="marchSupplies">
-                      查询
-                  </el-button>
-              </div>
-          </template>
+      <el-form :model="searchSupplyForm" label-width="80px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="帐篷">
+              <el-input
+                  v-model="displayDisasterTentsCount"
+                  @input="handleDisasterTentsInput"
+                  placeholder="/件"
+                  autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="手电筒">
+              <el-input
+                  v-model="displayFlashlightsCount"
+                  @input="handleFlashlightsInput"
+                  placeholder="/件"
+                  autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="雨衣">
+              <el-input
+                  v-model="displayRaincoatsCount"
+                  @input="handleRaincoatsInput"
+                  placeholder="/件"
+                  autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="雨鞋">
+              <el-input
+                  v-model="displayRainBootsCount"
+                  @input="handleRainBootsInput"
+                  placeholder="/双"
+                  autocomplete="off"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="marchSupplyDialog = false">取消</el-button>
+          <el-button type="primary" @click="marchSupplies">
+            查询
+          </el-button>
+        </div>
+      </template>
 
-      </el-dialog>
+    </el-dialog>
 
-        <!--   半径查询Dialog   -->
-      <el-dialog v-model="searchSupplyByRadiusDialog" title="半径查询" width="400" class="marchSupply">
-          <el-form :model="searchSupplyForm" label-width="80px">
-              <el-form-item label="匹配半径">
-                  <el-input v-model="displayRadius"
-                            @input="handleRadiusInput"
-                            placeholder="请输入匹配的半径/km"
-                            autocomplete="off"
-                            style="width: 180px;" />
-              </el-form-item>
-          </el-form>
-          <template #footer>
-              <div class="dialog-footer">
-                  <el-button @click="searchSupplyByRadiusDialog = false">取消</el-button>
-                  <el-button type="primary" @click="marchSuppliesByRadius">
-                      查询
-                  </el-button>
-              </div>
-          </template>
+    <!--   半径查询Dialog   -->
+    <el-dialog v-model="searchSupplyByRadiusDialog" title="半径查询" width="400" class="marchSupply">
+      <el-form :model="searchSupplyForm" label-width="80px">
+        <el-form-item label="匹配半径">
+          <el-input v-model="displayRadius"
+                    @input="handleRadiusInput"
+                    placeholder="请输入匹配的半径/km"
+                    autocomplete="off"
+                    style="width: 180px;"/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="searchSupplyByRadiusDialog = false">取消</el-button>
+          <el-button type="primary" @click="marchSuppliesByRadius">
+            查询
+          </el-button>
+        </div>
+      </template>
 
-      </el-dialog>
+    </el-dialog>
 
-      <el-dialog v-model="marchRegionsDialog" title="行政区划匹配" width="400" class="marchSupply">
-          <div class="district-buttons">
-              <div v-for="district in districts" :key="district.adcode"
-                   class="district-button" :class="{ 'selected': selectedRegions.includes(district) }">
-                  <el-button @click="selectRegions(district)">
-                      {{ district.name }}
-                  </el-button>
-              </div>
+    <el-dialog v-model="marchRegionsDialog" title="行政区划匹配" width="400" class="marchSupply">
+      <div class="district-buttons">
+        <div v-for="district in districts" :key="district.adcode"
+             class="district-button" :class="{ 'selected': selectedRegions.includes(district) }">
+          <el-button @click="selectRegions(district)">
+            {{ district.name }}
+          </el-button>
+        </div>
 
-          </div>
-          <template #footer>
-              <div class="dialog-footer">
-                  <el-button @click="marchRegionsDialog = false">取消</el-button>
-                  <el-button type="primary" @click="handleDistrictClick">
-                      查询
-                  </el-button>
-              </div>
-          </template>
-      </el-dialog>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="marchRegionsDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleDistrictClick">
+            查询
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
 
 
   </div>
@@ -330,7 +331,7 @@ import rescueTeamsInfoLogo from "@/assets/images/rescueTeamsInfoLogo.png";
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {Entity} from "cesium";
-import {getWay} from "@/api/system/routeplan.js";
+import {getWay, getWayByGaoDe} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
@@ -387,7 +388,7 @@ export default {
         type: "",
         tel: "",
       },
-        // 物资查询/匹配表单
+      // 物资查询/匹配表单
       searchSupplyForm: {
         county: "",
         address: "",
@@ -399,71 +400,71 @@ export default {
         flashlights: 0,
         radius: 0.0,
       },
-        // 救援力量表单
+      // 救援力量表单
       searchEmergencyTeamForm: {
-          levelName: '',
-          teamTypeName: '',
-          totalMembers: 0,
-          address: '',
-          personInCharge: '',
-          chargePhone: ''
+        levelName: '',
+        teamTypeName: '',
+        totalMembers: 0,
+        address: '',
+        personInCharge: '',
+        chargePhone: ''
       },
       inputRadius: "",
       inputData: '',
       canMarkPoint: false,
       DialogFormVisible: false,
       affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
-        // 救援物资字段
+      // 救援物资字段
       listFieldsOfSupplies: [
-          { prop: 'county', label: '区域', width: 200},
-          { prop: 'address', label: '地址', width: 320},
-          { prop: 'contactPerson', label: '联系人', width: 100},
-          { prop: 'contactPhone', label: '联系电话'},
-          { prop: 'tents', label: '帐篷总数量', width: 100 },
-          { prop: 'raincoats', label: '雨衣总数量', width: 100 },
-          { prop: 'rainBoots', label: '雨鞋总数量', width: 100 },
-          { prop: 'flashlights', label: '手电筒总数量', width: 130 }
+        {prop: 'county', label: '区域', width: 200},
+        {prop: 'address', label: '地址', width: 320},
+        {prop: 'contactPerson', label: '联系人', width: 100},
+        {prop: 'contactPhone', label: '联系电话'},
+        {prop: 'tents', label: '帐篷总数量', width: 100},
+        {prop: 'raincoats', label: '雨衣总数量', width: 100},
+        {prop: 'rainBoots', label: '雨鞋总数量', width: 100},
+        {prop: 'flashlights', label: '手电筒总数量', width: 130}
       ],
-        // 救灾设备字段
+      // 救灾设备字段
       listFieldOfReserves: [
-          { prop: 'county', label: '区域', width: 200},
-          { prop: 'address', label: '地址', width: 320},
-          { prop: 'contactPerson', label: '联系人', width: 100 },
-          { prop: 'contactPhone', label: '联系电话' },
-          { prop: 'lifeJacket', label: '救生衣', width: 100 },
-          { prop: 'lifebuoy', label: '救生圈', width: 100 },
-          { prop: 'walkieTalkie', label: '对讲机', width: 100 },
-          { prop: 'portableLight', label: '照明灯', width: 130 }
+        {prop: 'county', label: '区域', width: 200},
+        {prop: 'address', label: '地址', width: 320},
+        {prop: 'contactPerson', label: '联系人', width: 100},
+        {prop: 'contactPhone', label: '联系电话'},
+        {prop: 'lifeJacket', label: '救生衣', width: 100},
+        {prop: 'lifebuoy', label: '救生圈', width: 100},
+        {prop: 'walkieTalkie', label: '对讲机', width: 100},
+        {prop: 'portableLight', label: '照明灯', width: 130}
       ],
-        // 救援力量字段
+      // 救援力量字段
       listFieldOfEmergencyTeam: [
-          // { prop: 'county', label: '所属机构', width: 200, tooltip: true },
-          { prop: 'levelName', label: '级别名称', width: 250},
-          { prop: 'teamTypeName', label: '队伍类型名称', width: 400 },
-          { prop: 'totalMembers', label: '队伍人数', width: 120 },
-          { prop: 'address', label: '地址', width: 320 },
-          { prop: 'personInCharge', label: '负责人'},
-          { prop: 'chargePhone', label: '负责人电话', width: 200 },
+        // { prop: 'county', label: '所属机构', width: 200, tooltip: true },
+        {prop: 'levelName', label: '级别名称', width: 250},
+        {prop: 'teamTypeName', label: '队伍类型名称', width: 400},
+        {prop: 'totalMembers', label: '队伍人数', width: 120},
+        {prop: 'address', label: '地址', width: 320},
+        {prop: 'personInCharge', label: '负责人'},
+        {prop: 'chargePhone', label: '负责人电话', width: 200},
       ],
       listField: '',  // 判断显示哪个列表
       suppliesList: [],
       supplyList: [],
 
-        labels: [],  // 保存标签实体的引用
-        regionLayerJump: null,
-        // 行政区划----------------------------
-        districts: [
-            {adcode: 511802, name: "雨城区"},
-            {adcode: 511803, name: "名山区"},
-            {adcode: 511822, name: "荥经县"},
-            {adcode: 511823, name: "汉源县"},
-            {adcode: 511824, name: "石棉县"},
-            {adcode: 511825, name: "天全县"},
-            {adcode: 511826, name: "芦山县"},
-            {adcode: 511827, name: "宝兴县"},
-        ],
-        selectedRegions: [],
-        selectedDataByRegions: {},
+      labels: [],  // 保存标签实体的引用
+      regionLayerJump: null,
+      // 行政区划----------------------------
+      districts: [
+        {adcode: 511802, name: "雨城区"},
+        {adcode: 511803, name: "名山区"},
+        {adcode: 511822, name: "荥经县"},
+        {adcode: 511823, name: "汉源县"},
+        {adcode: 511824, name: "石棉县"},
+        {adcode: 511825, name: "天全县"},
+        {adcode: 511826, name: "芦山县"},
+        {adcode: 511827, name: "宝兴县"},
+      ],
+      selectedRegions: [],
+      selectedDataByRegions: {},
 
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
@@ -478,70 +479,70 @@ export default {
     this.initPlot(this.id);
   },
   beforeUnmount() {
-    if (window.viewer){
-      let viewer=window.viewer
-      let gl=viewer.scene.context._gl
+    if (window.viewer) {
+      let viewer = window.viewer
+      let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
       console.log("webglcontext 已清除")
-      gl=null
+      gl = null
       window.viewer = null;
     }
   },
   computed: {
-        // 以下方法确保表单字段数据为0时不显示，初始化时数据不为null，不会报错
-        displayDisasterTentsCount: {
-            get() {
-                return this.searchSupplyForm.tents === 0 ? '' : this.searchSupplyForm.tents;
-            },
-            set(value) {
-                this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
-            }
-        },
-        displayFlashlightsCount: {
-            get() {
-                return this.searchSupplyForm.flashlights === 0 ? '' : this.searchSupplyForm.flashlights;
-            },
-            set(value) {
-                this.searchSupplyForm.flashlights = value === '' ? 0 : Number(value);
-            }
-        },
-        displayRaincoatsCount: {
-            get() {
-                return this.searchSupplyForm.raincoats === 0 ? '' : this.searchSupplyForm.raincoats;
-            },
-            set(value) {
-                this.searchSupplyForm.raincoats = value === '' ? 0 : Number(value);
-            }
-        },
-        displayRainBootsCount: {
-            get() {
-                return this.searchSupplyForm.rainBoots === 0 ? '' : this.searchSupplyForm.rainBoots;
-            },
-            set(value) {
-                this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
-            }
-        },
-        displayRadius: {
-            get() {
-                return this.searchSupplyForm.radius === 0 ? '' : this.searchSupplyForm.radius;
-            },
-            set(value) {
-                this.searchSupplyForm.radius = value === '' ? 0 : value;
-            }
-        },
-      displayTeamTotalMembers: {
-          get() {
-              return this.searchEmergencyTeamForm.totalMembers === 0 ? '' : this.searchEmergencyTeamForm.totalMembers;
-          },
-          set(value) {
-              this.searchEmergencyTeamForm.totalMembers = value === '' ? 0 : Number(value);
-          }
+    // 以下方法确保表单字段数据为0时不显示，初始化时数据不为null，不会报错
+    displayDisasterTentsCount: {
+      get() {
+        return this.searchSupplyForm.tents === 0 ? '' : this.searchSupplyForm.tents;
+      },
+      set(value) {
+        this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
       }
     },
+    displayFlashlightsCount: {
+      get() {
+        return this.searchSupplyForm.flashlights === 0 ? '' : this.searchSupplyForm.flashlights;
+      },
+      set(value) {
+        this.searchSupplyForm.flashlights = value === '' ? 0 : Number(value);
+      }
+    },
+    displayRaincoatsCount: {
+      get() {
+        return this.searchSupplyForm.raincoats === 0 ? '' : this.searchSupplyForm.raincoats;
+      },
+      set(value) {
+        this.searchSupplyForm.raincoats = value === '' ? 0 : Number(value);
+      }
+    },
+    displayRainBootsCount: {
+      get() {
+        return this.searchSupplyForm.rainBoots === 0 ? '' : this.searchSupplyForm.rainBoots;
+      },
+      set(value) {
+        this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
+      }
+    },
+    displayRadius: {
+      get() {
+        return this.searchSupplyForm.radius === 0 ? '' : this.searchSupplyForm.radius;
+      },
+      set(value) {
+        this.searchSupplyForm.radius = value === '' ? 0 : value;
+      }
+    },
+    displayTeamTotalMembers: {
+      get() {
+        return this.searchEmergencyTeamForm.totalMembers === 0 ? '' : this.searchEmergencyTeamForm.totalMembers;
+      },
+      set(value) {
+        this.searchEmergencyTeamForm.totalMembers = value === '' ? 0 : Number(value);
+      }
+    }
+  },
   methods: {
     /** 计算两个坐标的距离，单位米 **/
     Distance(lng1, lat1, lng2, lat2) {
@@ -669,11 +670,11 @@ export default {
         this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
 
         // this.fetSupplyPoints();
-          this.listField = 'supplies'
-          this.selectedSuppliesList = this.suppliesList[0]
-          this.showIcon = this.selectedSuppliesList;
-          this.total = this.selectedSuppliesList.length;
-          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+        this.listField = 'supplies'
+        this.selectedSuppliesList = this.suppliesList[0]
+        this.showIcon = this.selectedSuppliesList;
+        this.total = this.selectedSuppliesList.length;
+        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       });
     },
 
@@ -699,20 +700,20 @@ export default {
           console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
           return;
         }
-          let longitude = Number(element.longitude);
-          let latitude = Number(element.latitude);
+        let longitude = Number(element.longitude);
+        let latitude = Number(element.latitude);
 
         element.type = type;
         element.icon = icon
 
-          let bool = type === 'supplies' ? true : false
+        let bool = type === 'supplies' ? true : false
 
         // 添加实体
-        this.addEntity(element, icon, tableName, longitude, latitude,bool);
+        this.addEntity(element, icon, tableName, longitude, latitude, bool);
       });
     },
 
-    addEntity(element, icon, tableName, longitude, latitude,bool) {
+    addEntity(element, icon, tableName, longitude, latitude, bool) {
       window.viewer.entities.add({
         uuid: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
@@ -842,178 +843,177 @@ export default {
     //-----------附近资源快速匹配----------
     //-----------行政区划匹配-------------
 
-      // 行政区划匹配dialog选中函数
-    selectRegions(district){
-        const index = this.selectedRegions.indexOf(district);
-        if (index === -1) {
-            this.selectedRegions = []
-            this.selectedRegions.push(district); // 添加选中
-        } else {
-            this.selectedRegions.splice(index, 1); // 取消选中
-        }
+    // 行政区划匹配dialog选中函数
+    selectRegions(district) {
+      const index = this.selectedRegions.indexOf(district);
+      if (index === -1) {
+        this.selectedRegions = []
+        this.selectedRegions.push(district); // 添加选中
+      } else {
+        this.selectedRegions.splice(index, 1); // 取消选中
+      }
     },
 
     handleDistrictClick() {
-        let district = this.selectedRegions[0]
-        //清除其他实体标签
-        this.removethdRegions()
-        this.removeDataSourcesLayer('YaanRegionLayer');
-        // this.visible = false;
-        // 根据区县代码过滤GeoJSON数据
-        let filteredFeatures = yaan.features.filter(feature => {
-            return feature.properties.adcode === district.adcode;
+      let district = this.selectedRegions[0]
+      //清除其他实体标签
+      this.removethdRegions()
+      this.removeDataSourcesLayer('YaanRegionLayer');
+      // this.visible = false;
+      // 根据区县代码过滤GeoJSON数据
+      let filteredFeatures = yaan.features.filter(feature => {
+        return feature.properties.adcode === district.adcode;
+      });
+      if (filteredFeatures.length > 0) {
+
+        console.log("filteredFeatures---------------------------", filteredFeatures)
+
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
+
+        // 创建一个经过过滤的GeoJSON对象，包含过滤后的特性数据
+        let filteredGeoJson = {
+          type: "FeatureCollection",
+          features: filteredFeatures
+        };
+
+        // 使用Cesium的GeoJsonDataSource.load方法加载经过过滤的GeoJSON数据
+        // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
+        // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
+        let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
+          clampToGround: true, //贴地显示
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          strokeWidth: 10,
         });
-        if (filteredFeatures.length > 0) {
 
-            console.log("filteredFeatures---------------------------",filteredFeatures)
+        // 处理地理空间数据的Promise对象
+        geoPromise.then(async (dataSource) => {
+          // 将数据源添加到观众的数据显示中
+          window.viewer.dataSources.add(dataSource);
+          // 保存区域图层以便后续使用
+          window.regionLayerJump = dataSource
 
-            this.removePoints(this.suppliesList[0]);
-            this.removePoints(this.suppliesList[1]);
-            this.removePoints(this.suppliesList[2]);
+          console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates)
+          // 遍历每个过滤后的地理特征
+          filteredFeatures.forEach((feature) => {
+            // 获取特征的中心点坐标
+            let center = feature.properties.center;
 
-            // 创建一个经过过滤的GeoJSON对象，包含过滤后的特性数据
-            let filteredGeoJson = {
-                type: "FeatureCollection",
-                features: filteredFeatures
-            };
-
-            // 使用Cesium的GeoJsonDataSource.load方法加载经过过滤的GeoJSON数据
-            // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
-            // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
-            let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
-                clampToGround: true, //贴地显示
-                stroke: Cesium.Color.RED,
-                fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-                strokeWidth: 10,
-            });
-
-            // 处理地理空间数据的Promise对象
-            geoPromise.then(async (dataSource) => {
-                // 将数据源添加到观众的数据显示中
-                window.viewer.dataSources.add(dataSource);
-                // 保存区域图层以便后续使用
-                window.regionLayerJump = dataSource
-
-                console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates)
-                // 遍历每个过滤后的地理特征
-                filteredFeatures.forEach((feature) => {
-                    // 获取特征的中心点坐标
-                    let center = feature.properties.center;
-
-                    // 检查中心点是否定义且格式正确
-                    if (center && center.length === 2) {
-                        // 将地理坐标转换为三维空间中的位置
-                        let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-                        // 创建并添加标签实体到观众的实体集合中
-                        let labelEntity = viewer.entities.add(new Cesium.Entity({
-                            position: position,
-                            label: new Cesium.LabelGraphics({
-                                text: district.name,  // 标签文本为区域名称
-                                scale: 1,  // 标签缩放比例
-                                font: "bolder 50px sans-serif",  // 标签字体样式
-                                style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 标签样式为填充和轮廓
-                                fillColor: Cesium.Color.fromCssColorString("#ffffff"),  // 标签填充颜色
-                                pixelOffset: new Cesium.Cartesian2(0, -60)  // 标签像素偏移量，用于调整位置
-                            })
-                        }));
-                        // 保存标签实体的引用，以便后续管理和操作
-                        this.labels.push(labelEntity);
-                    } else {
-                        // 如果中心点未定义或格式不正确，输出警告信息
-                        console.warn('中心点未定义或格式不正确:', feature);
-                    }
-                });
-
-
-
-                // 飞行到数据源中的实体位置，以便用户查看
-                viewer.flyTo(dataSource.entities.values);
-
-                // // 检查标绘点是否在范围内
-                // let boundingBox = this.getBoundingBox(filteredFeatures[0].geometry.coordinates[0]);
-                // console.log("边界框:", boundingBox);
-                //
-
-            }).catch((error) => {
-                // 如果加载GeoJSON数据失败，输出错误信息
-                console.error("加载GeoJSON数据失败:", error);
-            });
-
-            let obj = {
-                regionCode: this.selectedRegions[0].adcode
+            // 检查中心点是否定义且格式正确
+            if (center && center.length === 2) {
+              // 将地理坐标转换为三维空间中的位置
+              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+              // 创建并添加标签实体到观众的实体集合中
+              let labelEntity = viewer.entities.add(new Cesium.Entity({
+                position: position,
+                label: new Cesium.LabelGraphics({
+                  text: district.name,  // 标签文本为区域名称
+                  scale: 1,  // 标签缩放比例
+                  font: "bolder 50px sans-serif",  // 标签字体样式
+                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 标签样式为填充和轮廓
+                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),  // 标签填充颜色
+                  pixelOffset: new Cesium.Cartesian2(0, -60)  // 标签像素偏移量，用于调整位置
+                })
+              }));
+              // 保存标签实体的引用，以便后续管理和操作
+              this.labels.push(labelEntity);
+            } else {
+              // 如果中心点未定义或格式不正确，输出警告信息
+              console.warn('中心点未定义或格式不正确:', feature);
             }
-            marchByRegion(obj).then(res => {
-                console.log("marchByRegion-----------------------",res)
-                let suppliesArr = res.insideDisasterReliefSupplies
-                let emergencyTeamArr = res.insideRescueTeamsInfo
-                let reservesArr = res.insideEmergencyRescueEquipment
-                this.selectedDataByRegions = {suppliesArr,emergencyTeamArr,reservesArr}
-                console.log("selectedDataByRegions--------------------",this.selectedDataByRegions)
-
-                this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-                this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-                this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-                this.listField = 'supplies'
-                this.changeDataList('supplies')
-            })
-        } else {
-            // console.error("未找到对应的区县:", adcode);
-        }
-        this.selectedRegions = []
-        this.marchRegionsDialog = false
-      },
-
-      removethdRegions() {
-          // 检查是否存在名为regionLayerJump的图层
-          if (window.regionLayerJump) {
-              // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-              window.viewer.dataSources.remove(window.regionLayerJump, true);
-              // 清空regionLayerJump的引用，以便垃圾回收
-              window.regionLayerJump = null;
-
-
-              // console.log("图层已移除");
-          }
-          // this.isShowYaanRegionLegend = false;
-          // 获取图例容器，准备清空其内容
-          // const legend = document.getElementById('legend');
-          // 循环移除图例容器中的所有子元素
-          // while (legend.firstChild) {
-          //     legend.removeChild(legend.firstChild);
-          // }
-          // 遍历标签数组，移除每个标签实体
-          this.labels.forEach(label => {
-              window.viewer.entities.remove(label);
           });
-          // 清空标签引用数组，以便垃圾回收
-          this.labels = [];
-      },
-      removeDataSourcesLayer(layerName) {
-          // 通过图层名称获取数据源对象如果存在，则执行移除操作
-          const dataSource = window.viewer.dataSources.getByName(layerName)[0];
-          if (dataSource) {
-              window.viewer.dataSources.remove(dataSource);
-          }
-      },
+
+
+          // 飞行到数据源中的实体位置，以便用户查看
+          viewer.flyTo(dataSource.entities.values);
+
+          // // 检查标绘点是否在范围内
+          // let boundingBox = this.getBoundingBox(filteredFeatures[0].geometry.coordinates[0]);
+          // console.log("边界框:", boundingBox);
+          //
+
+        }).catch((error) => {
+          // 如果加载GeoJSON数据失败，输出错误信息
+          console.error("加载GeoJSON数据失败:", error);
+        });
+
+        let obj = {
+          regionCode: this.selectedRegions[0].adcode
+        }
+        marchByRegion(obj).then(res => {
+          console.log("marchByRegion-----------------------", res)
+          let suppliesArr = res.insideDisasterReliefSupplies
+          let emergencyTeamArr = res.insideRescueTeamsInfo
+          let reservesArr = res.insideEmergencyRescueEquipment
+          this.selectedDataByRegions = {suppliesArr, emergencyTeamArr, reservesArr}
+          console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
+
+          this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+          this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+          this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+          this.listField = 'supplies'
+          this.changeDataList('supplies')
+        })
+      } else {
+        // console.error("未找到对应的区县:", adcode);
+      }
+      this.selectedRegions = []
+      this.marchRegionsDialog = false
+    },
+
+    removethdRegions() {
+      // 检查是否存在名为regionLayerJump的图层
+      if (window.regionLayerJump) {
+        // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+        window.viewer.dataSources.remove(window.regionLayerJump, true);
+        // 清空regionLayerJump的引用，以便垃圾回收
+        window.regionLayerJump = null;
+
+
+        // console.log("图层已移除");
+      }
+      // this.isShowYaanRegionLegend = false;
+      // 获取图例容器，准备清空其内容
+      // const legend = document.getElementById('legend');
+      // 循环移除图例容器中的所有子元素
+      // while (legend.firstChild) {
+      //     legend.removeChild(legend.firstChild);
+      // }
+      // 遍历标签数组，移除每个标签实体
+      this.labels.forEach(label => {
+        window.viewer.entities.remove(label);
+      });
+      // 清空标签引用数组，以便垃圾回收
+      this.labels = [];
+    },
+    removeDataSourcesLayer(layerName) {
+      // 通过图层名称获取数据源对象如果存在，则执行移除操作
+      const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+      if (dataSource) {
+        window.viewer.dataSources.remove(dataSource);
+      }
+    },
 
     // 切换数据列表
-    changeDataList(param){
-        this.selectedSuppliesList = []
-        let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+    changeDataList(param) {
+      this.selectedSuppliesList = []
+      let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
 
-      if(param === 'supplies'){
-          this.listField = 'supplies'
-          this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-      }else if(param === 'emergencyTeam'){
-          this.listField = 'emergencyTeam'
-          this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-      }else{
-          this.listField = 'reserves'
-          this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+      if (param === 'supplies') {
+        this.listField = 'supplies'
+        this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+      } else if (param === 'emergencyTeam') {
+        this.listField = 'emergencyTeam'
+        this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+      } else {
+        this.listField = 'reserves'
+        this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
       }
-        this.showIcon = this.selectedSuppliesList;
-        this.total = this.selectedSuppliesList.length;
-        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      this.showIcon = this.selectedSuppliesList;
+      this.total = this.selectedSuppliesList.length;
+      this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
     },
 
     // 绘制点
@@ -1046,25 +1046,25 @@ export default {
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
       if (this.showIcon[0].type === "supplies") {
-          this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
       } else if (this.showIcon[0].type === "reserves") {
-          this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
       } else {
-          this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+        this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
       }
     },
 
     // 移除地图上的标绘点
     removePoints(entityArr) {
-        entityArr.forEach((entity) => {
-            // console.log("-----", entity);
-            let uuid = entity.uuid;
-            window.viewer.entities.values.forEach((existingEntity) => {
-                if (existingEntity.uuid === uuid) {
-                    window.viewer.entities.remove(existingEntity);
-                }
-            });
+      entityArr.forEach((entity) => {
+        // console.log("-----", entity);
+        let uuid = entity.uuid;
+        window.viewer.entities.values.forEach((existingEntity) => {
+          if (existingEntity.uuid === uuid) {
+            window.viewer.entities.remove(existingEntity);
+          }
         });
+      });
     },
 
     // 显示所有标绘点
@@ -1077,273 +1077,272 @@ export default {
       });
       this.removePoints(that.showIcon);
       this.removePoints(that.selectedSuppliesList);
-        this.removethdRegions()
-        this.removeDataSourcesLayer('YaanRegionLayer');
+      this.removethdRegions()
+      this.removeDataSourcesLayer('YaanRegionLayer');
       this.initPlot()
     },
 
     // 物资查询
-    async searchSupply(){
-        let that = this;
-        this.activeMenuIndex = '2'
-        viewer.entities.values.forEach((entity) => {
-            if (entity.ellipse) {
-                viewer.entities.remove(entity);
-            }
-        });
-        this.removePoints(that.showIcon);
-        this.removePoints(that.selectedSuppliesList);
-        this.removePoints(this.suppliesList[0]);
-        this.removePoints(this.suppliesList[1]);
-        this.removePoints(this.suppliesList[2]);
-        let result = []
-        this.ifDrawEllipse = false
-        this.selectedSuppliesList = []
-        // 字符串部分到后端查询
-        let obj = {
-            county: this.searchSupplyForm.county,
-            address: this.searchSupplyForm.address,
-            contactPerson: this.searchSupplyForm.contactPerson,
-            contactPhone: this.searchSupplyForm.contactPhone,
+    async searchSupply() {
+      let that = this;
+      this.activeMenuIndex = '2'
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
         }
-        await searchMaterialData(obj).then(res => {
-            // console.log("search----------",res)
-            result = res
-            this.selectedSuppliesList = result
-        })
-        this.drawSupplyPoint('searchSupplies')
-        this.listField = 'supplies'
-        this.activeMenuIndex = '3'
-        this.searchSupplyDialog = false
-        this.searchSupplyForm = {
-            county: "",
-            address: "",
-            contactPerson: "",
-            contactPhone: "",
-            tents: 0,
-            raincoats: 0,
-            rainBoots: 0,
-            flashlights: 0,
-            radius: 0.0,
-        }
-        // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
+      });
+      this.removePoints(that.showIcon);
+      this.removePoints(that.selectedSuppliesList);
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      let result = []
+      this.ifDrawEllipse = false
+      this.selectedSuppliesList = []
+      // 字符串部分到后端查询
+      let obj = {
+        county: this.searchSupplyForm.county,
+        address: this.searchSupplyForm.address,
+        contactPerson: this.searchSupplyForm.contactPerson,
+        contactPhone: this.searchSupplyForm.contactPhone,
+      }
+      await searchMaterialData(obj).then(res => {
+        // console.log("search----------",res)
+        result = res
+        this.selectedSuppliesList = result
+      })
+      this.drawSupplyPoint('searchSupplies')
+      this.listField = 'supplies'
+      this.activeMenuIndex = '3'
+      this.searchSupplyDialog = false
+      this.searchSupplyForm = {
+        county: "",
+        address: "",
+        contactPerson: "",
+        contactPhone: "",
+        tents: 0,
+        raincoats: 0,
+        rainBoots: 0,
+        flashlights: 0,
+        radius: 0.0,
+      }
+      // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
     },
 
     // 救援力量查询
-    async searchEmergencyTeam(){
-        let that = this;
-        this.activeMenuIndex = '2'
-        viewer.entities.values.forEach((entity) => {
-            if (entity.ellipse) {
-                viewer.entities.remove(entity);
-            }
-        });
-        this.removePoints(that.showIcon);
-        this.removePoints(that.selectedSuppliesList);
-        this.removePoints(this.suppliesList[0]);
-        this.removePoints(this.suppliesList[1]);
-        this.removePoints(this.suppliesList[2]);
-        this.ifDrawEllipse = false
-        this.selectedSuppliesList = []
-        await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
-            this.selectedSuppliesList = res
-            console.log("-------------------",this.selectedSuppliesList)
-
-        })
-        this.drawSupplyPoint('searchEmergencyTeam')
-        this.listField = 'emergencyTeam'
-        this.activeMenuIndex = '4'
-        this.searchEmergencyTeamDialog = false
-        this.searchEmergencyTeamForm = {
-            levelName: '',
-            teamTypeName: '',
-            totalMembers: 0,
-            address: '',
-            personInCharge: '',
-            chargePhone: ''
+    async searchEmergencyTeam() {
+      let that = this;
+      this.activeMenuIndex = '2'
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
         }
+      });
+      this.removePoints(that.showIcon);
+      this.removePoints(that.selectedSuppliesList);
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      this.ifDrawEllipse = false
+      this.selectedSuppliesList = []
+      await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
+        this.selectedSuppliesList = res
+        console.log("-------------------", this.selectedSuppliesList)
+
+      })
+      this.drawSupplyPoint('searchEmergencyTeam')
+      this.listField = 'emergencyTeam'
+      this.activeMenuIndex = '4'
+      this.searchEmergencyTeamDialog = false
+      this.searchEmergencyTeamForm = {
+        levelName: '',
+        teamTypeName: '',
+        totalMembers: 0,
+        address: '',
+        personInCharge: '',
+        chargePhone: ''
+      }
     },
 
     // 物资匹配dialog能打开
-    async marchSupply(){
-      if(this.addSupplyPointCurrently.lat === 0){
-          await ElMessageBox.alert('请先添加受灾点。', '提示', {
-              confirmButtonText: '确认',
-          });
-      }else{
-          this.marchSupplyDialog = true
+    async marchSupply() {
+      if (this.addSupplyPointCurrently.lat === 0) {
+        await ElMessageBox.alert('请先添加受灾点。', '提示', {
+          confirmButtonText: '确认',
+        });
+      } else {
+        this.marchSupplyDialog = true
       }
     },
     // 物资匹配
-    async marchSupplies(){
-        this.removePoints(this.suppliesList[0]);
-        this.removePoints(this.suppliesList[1]);
-        this.removePoints(this.suppliesList[2]);
-        let result = this.supplyList
-        let radiusResult = []
-        let countResult = []
+    async marchSupplies() {
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      let result = this.supplyList
+      let radiusResult = []
+      let countResult = []
+      this.selectedSuppliesList = []
+      // console.log("result-------------------",result)
+      let i = 1.0
+      let flag = false
+      while (i < 15.0 && !flag) {
+        radiusResult = await this.marchSupplyByRadius(result, i)
+        // console.log("radiusResult-------------------",radiusResult)
+        countResult = this.marchSupplyByCount(radiusResult)
+        // console.log("countResult-------------------", countResult);
+        if (countResult.length > 0) {
+          flag = true
+          this.marchSupplyRadius = i
+        }
+        i++
+      }
+      if (flag) {
+        this.selectedSuppliesList = countResult
+        await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
+          confirmButtonText: '确认',
+        });
+        this.ifDrawEllipse = true
+        this.drawSupplyPoint("searchSupplies", this.marchSupplyRadius)
+      } else {
         this.selectedSuppliesList = []
-        // console.log("result-------------------",result)
-        let i = 1.0
-        let flag = false
-        while (i < 15.0 && !flag){
-            radiusResult = await this.marchSupplyByRadius(result,i)
-            // console.log("radiusResult-------------------",radiusResult)
-            countResult = this.marchSupplyByCount(radiusResult)
-            // console.log("countResult-------------------", countResult);
-            if(countResult.length > 0){
-                flag = true
-                this.marchSupplyRadius = i
-            }
-            i++
-        }
-        if(flag){
-            this.selectedSuppliesList = countResult
-            await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
-                confirmButtonText: '确认',
-            });
-            this.ifDrawEllipse = true
-            this.drawSupplyPoint("searchSupplies",this.marchSupplyRadius)
-        }else{
-            this.selectedSuppliesList = []
-            await ElMessageBox.alert('15公里范围内未匹配到合适的物资。', '提示', {
-                confirmButtonText: '确认',
-            });
-        }
-        this.marchSupplyDialog = false
+        await ElMessageBox.alert('15公里范围内未匹配到合适的物资。', '提示', {
+          confirmButtonText: '确认',
+        });
+      }
+      this.marchSupplyDialog = false
     },
 
     // 半径查询
-    async searchSuppliesByRadius(){
-        if(this.addSupplyPointCurrently.lat === 0){
-            await ElMessageBox.alert('请先添加受灾点。', '提示', {
-                confirmButtonText: '确认',
-            });
-        }else{
-            this.searchSupplyByRadiusDialog = true
-        }
+    async searchSuppliesByRadius() {
+      if (this.addSupplyPointCurrently.lat === 0) {
+        await ElMessageBox.alert('请先添加受灾点。', '提示', {
+          confirmButtonText: '确认',
+        });
+      } else {
+        this.searchSupplyByRadiusDialog = true
+      }
     },
 
     // 通过半径匹配物资
-    async marchSuppliesByRadius(){
-        this.ifDrawEllipse = true
-      this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList,this.searchSupplyForm.radius)
-        this.drawSupplyPoint("searchSupplies",this.searchSupplyForm.radius)
-        this.searchSupplyByRadiusDialog = false
+    async marchSuppliesByRadius() {
+      this.ifDrawEllipse = true
+      this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList, this.searchSupplyForm.radius)
+      this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
+      this.searchSupplyByRadiusDialog = false
     },
     // 半径匹配
-    async marchSupplyByRadius(array,radius){
-        // 移除现有的点
-        this.removePoints(this.suppliesList[0]);
-        this.removePoints(this.suppliesList[1]);
-        this.removePoints(this.suppliesList[2]);
-        let result = []
-        let longitude = parseFloat(this.addSupplyPointCurrently.lng);
-        let latitude = parseFloat(this.addSupplyPointCurrently.lat);
-        const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-        array.forEach((point) => {
-            const pointLongitude = parseFloat(point.longitude);
-            const pointLatitude = parseFloat(point.latitude);
-            const initialPoint = Cesium.Cartesian3.fromDegrees(
-                pointLongitude,
-                pointLatitude
-            );
-            // 距离以公里为单位
-            const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-            if (distance < radius) {
-                result.push(point);
-            }
-        });
-        return result
+    async marchSupplyByRadius(array, radius) {
+      // 移除现有的点
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      let result = []
+      let longitude = parseFloat(this.addSupplyPointCurrently.lng);
+      let latitude = parseFloat(this.addSupplyPointCurrently.lat);
+      const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
+      array.forEach((point) => {
+        const pointLongitude = parseFloat(point.longitude);
+        const pointLatitude = parseFloat(point.latitude);
+        const initialPoint = Cesium.Cartesian3.fromDegrees(
+            pointLongitude,
+            pointLatitude
+        );
+        // 距离以公里为单位
+        const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+        if (distance < radius) {
+          result.push(point);
+        }
+      });
+      return result
     },
     // 通过目标数量匹配物资
-    marchSupplyByCount(array){
-        let tents = 0
-        let raincoats = 0
-        let rainBoots = 0
-        let flashlights = 0
-        let flag = false
-        let bool1 = this.searchSupplyForm.tents > 0 ? false : true
-        let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
-        let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
-        let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
-        let resultArray = []
-        array.forEach((ele) => {
-            if(ele.tents === 0){
-                bool1 = true
-            }
-            if(ele.raincoats === 0){
-                bool2 = true
-            }
-            if(ele.rainBoots === 0){
-                bool3 = true
-            }
-            if(ele.flashlights === 0){
-                bool4 = true
-            }
-            if(!bool1 || !bool2 || !bool3 || !bool4){
-                tents += ele.tents;
-                raincoats += ele.raincoats;
-                rainBoots += ele.rainBoots;
-                flashlights += ele.flashlights;
-                // console.log("rainBoots=====-----",rainBoots)
-                if (tents >= this.searchSupplyForm.tents
-                    && raincoats >= this.searchSupplyForm.raincoats
-                    && rainBoots >= this.searchSupplyForm.rainBoots
-                    && flashlights >= this.searchSupplyForm.flashlights) {
-                    flag = true;
-                }
-                resultArray.push(ele)
-            }
-        });
-        // console.log("flag-----------------",flag)
-        if(flag){
-            return resultArray
-        }else{
-            return []
+    marchSupplyByCount(array) {
+      let tents = 0
+      let raincoats = 0
+      let rainBoots = 0
+      let flashlights = 0
+      let flag = false
+      let bool1 = this.searchSupplyForm.tents > 0 ? false : true
+      let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
+      let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
+      let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
+      let resultArray = []
+      array.forEach((ele) => {
+        if (ele.tents === 0) {
+          bool1 = true
         }
+        if (ele.raincoats === 0) {
+          bool2 = true
+        }
+        if (ele.rainBoots === 0) {
+          bool3 = true
+        }
+        if (ele.flashlights === 0) {
+          bool4 = true
+        }
+        if (!bool1 || !bool2 || !bool3 || !bool4) {
+          tents += ele.tents;
+          raincoats += ele.raincoats;
+          rainBoots += ele.rainBoots;
+          flashlights += ele.flashlights;
+          // console.log("rainBoots=====-----",rainBoots)
+          if (tents >= this.searchSupplyForm.tents
+              && raincoats >= this.searchSupplyForm.raincoats
+              && rainBoots >= this.searchSupplyForm.rainBoots
+              && flashlights >= this.searchSupplyForm.flashlights) {
+            flag = true;
+          }
+          resultArray.push(ele)
+        }
+      });
+      // console.log("flag-----------------",flag)
+      if (flag) {
+        return resultArray
+      } else {
+        return []
+      }
     },
 
-      drawSupplyPoint(param,radius) {
-        this.total = this.selectedSuppliesList.length;
-        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-        this.removePoints(this.showIcon);
-        this.showIcon = [];
-        this.showIcon = this.selectedSuppliesList;
-          // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
-        let reservesArr = []  // 抢险救灾装备
-        let suppliesArr = []  // 救灾物资储备
-        let emergencyTeamArr = []  // 救援力量
-        if(param === 'searchSupplies'){
-            this.showIcon.forEach((item) => {
-                suppliesArr.push(item)
-            })
-        }else if(param === 'searchEmergencyTeam'){
-            this.showIcon.forEach((item) => {
-                emergencyTeamArr.push(item)
-            })
-        }else if(param === 'searchReserves'){
-            this.showIcon.forEach((item) => {
-                reservesArr.push(item)
-            })
-        }
-        else{
-            this.showIcon.forEach((item) => {
-                if (item.type === "reserves") {
-                    reservesArr.push(item);
-                } else if (item.type === "supplies") {
-                    suppliesArr.push(item);
-                } else {
-                    emergencyTeamArr.push(item);
-                }
-            });
-        }
-        this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-        this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-        if(this.ifDrawEllipse){
-            this.selectPoints(radius);
-        }
+    drawSupplyPoint(param, radius) {
+      this.total = this.selectedSuppliesList.length;
+      this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      this.removePoints(this.showIcon);
+      this.showIcon = [];
+      this.showIcon = this.selectedSuppliesList;
+      // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
+      let reservesArr = []  // 抢险救灾装备
+      let suppliesArr = []  // 救灾物资储备
+      let emergencyTeamArr = []  // 救援力量
+      if (param === 'searchSupplies') {
+        this.showIcon.forEach((item) => {
+          suppliesArr.push(item)
+        })
+      } else if (param === 'searchEmergencyTeam') {
+        this.showIcon.forEach((item) => {
+          emergencyTeamArr.push(item)
+        })
+      } else if (param === 'searchReserves') {
+        this.showIcon.forEach((item) => {
+          reservesArr.push(item)
+        })
+      } else {
+        this.showIcon.forEach((item) => {
+          if (item.type === "reserves") {
+            reservesArr.push(item);
+          } else if (item.type === "supplies") {
+            suppliesArr.push(item);
+          } else {
+            emergencyTeamArr.push(item);
+          }
+        });
+      }
+      this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+      this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+      this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+      if (this.ifDrawEllipse) {
+        this.selectPoints(radius);
+      }
       // }
 
     },
@@ -1377,26 +1376,26 @@ export default {
     addDisasterPoint() {
       this.canMarkPoint = true;
     },
-      // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
+    // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
     handleDisasterTentsInput(value) {
-        this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
+      this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
     },
     handleFlashlightsInput(value) {
-        this.searchSupplyForm.flashlights = value === '' ? 0 : Number(value);
+      this.searchSupplyForm.flashlights = value === '' ? 0 : Number(value);
     },
     handleRaincoatsInput(value) {
-        this.searchSupplyForm.raincoats = value === '' ? 0 : Number(value);
+      this.searchSupplyForm.raincoats = value === '' ? 0 : Number(value);
     },
     handleRainBootsInput(value) {
-        this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
+      this.searchSupplyForm.rainBoots = value === '' ? 0 : Number(value);
     },
     handleRadiusInput(value) {
-        this.searchSupplyForm.radius = value;
+      this.searchSupplyForm.radius = value;
     },
-    handleTeamTotalMembersInput(){
-        this.searchEmergencyTeamForm.totalMembers = value
+    handleTeamTotalMembersInput() {
+      this.searchEmergencyTeamForm.totalMembers = value
     },
-      // ---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     getPageArr(arr) {
       let newArr = [];
       let start = (this.currentPage - 1) * this.pageSize;
@@ -1589,6 +1588,13 @@ export default {
                   const driveTime = res[3]; // 假设第四项是驾驶时间
                   const humanTime = res[4]; // 假设第五项是人行时间
 
+          getWayByGaoDe({'origin': from, 'destination': end, 'avoidpolygons': avoidArea}).then(res => {
+            pathM += parseInt(res.route.paths[0].distance)
+            res.route.paths[0].steps.map(step => {
+                  pathName.push(step.instruction)
+                  path += (step.polyline + ";")
+                }
+            )
 
                   // 处理路径段，转换为适合绘制的格式
                   const processedSegments = pathSegments.map(segment => gcj02towgs84(segment[0], segment[1]));
@@ -1915,7 +1921,7 @@ export default {
 </script>
 
 <style scoped>
-:deep(.cesium-baseLayerPicker-dropDown-visible ){
+:deep(.cesium-baseLayerPicker-dropDown-visible ) {
   transform: translate(0, 0);
   /*天地图换地图优先级最高，避免被物资搜索框遮盖*/
   z-index: 100;
@@ -1923,6 +1929,7 @@ export default {
   opacity: 1;
   transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
+
 :deep(.cesium-viewer-toolbar) {
   display: block;
   /*搜索按钮优先级最高，避免被物资搜索框遮盖*/
@@ -1931,17 +1938,19 @@ export default {
   top: 5px;
   right: 5px;
 }
+
 .el-sub-menu {
   list-style: none;
   margin: 0;
   padding-left: 0;
   /* width: 33%; */
 }
+
 .route-tool-container {
- position: absolute;
- padding: 15px;
- border-radius: 5px;
- /*width: 500px;*/
+  position: absolute;
+  padding: 15px;
+  border-radius: 5px;
+  /*width: 500px;*/
   /*height: 200px;*/
   top: 10px;
   left: 10px;
@@ -1981,13 +1990,13 @@ export default {
   transition: width 0.3s; /* 平滑过渡效果 */
 }
 
-.marchSupply{
-    position: absolute;
-    z-index: 10;
-    justify-content: center;
-    align-content: center;
-    margin: 0;
-    padding: 0;
+.marchSupply {
+  position: absolute;
+  z-index: 10;
+  justify-content: center;
+  align-content: center;
+  margin: 0;
+  padding: 0;
 }
 
 #supplies.collapsed {
@@ -2024,40 +2033,45 @@ canvas {
   margin: 10px;
   color: #999;
 }
+
 .el-menu-item,
 .el-submenu__title {
-    padding: 0 20px;
+  padding: 0 20px;
 }
 
 .el-submenu__title:hover {
-    background-color: #444;
+  background-color: #444;
 }
 
 .el-menu-item:hover {
-    background-color: #444;
+  background-color: #444;
 }
+
 .el-form-item__label {
-    text-align: center; /* 标签文字右对齐 */
+  text-align: center; /* 标签文字右对齐 */
 }
+
 /*行政区划按钮样式*/
 .district-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-    justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  justify-content: space-between;
 }
+
 .district-button {
-    flex: 0 0 20%; /* 每行5个按钮 */
-    display: flex;
-    justify-content: center;
-    margin: 4px; /* 调整按钮之间的间距 */
+  flex: 0 0 20%; /* 每行5个按钮 */
+  display: flex;
+  justify-content: center;
+  margin: 4px; /* 调整按钮之间的间距 */
 }
+
 .district-button.selected {
-    background-color: #5b91c9; /* 选中按钮的背景色 */
-    color: white; /* 选中按钮的文字颜色 */
-    border: 1.5px solid #5b91c9; /* 增加边框 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影效果 */
-    transform: scale(1.05); /* 略微放大 */
+  background-color: #5b91c9; /* 选中按钮的背景色 */
+  color: white; /* 选中按钮的文字颜色 */
+  border: 1.5px solid #5b91c9; /* 增加边框 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 增加阴影效果 */
+  transform: scale(1.05); /* 略微放大 */
 }
 
 </style>
