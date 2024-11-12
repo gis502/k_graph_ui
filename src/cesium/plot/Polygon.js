@@ -229,7 +229,7 @@ export default class Polygon {
       }
 
       // this.unRegisterEvents();
-      this.smallPolygonRegisterEvents();
+
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
   }
 

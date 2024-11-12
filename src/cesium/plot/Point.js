@@ -544,6 +544,7 @@ export default class Point {
       id: data.plotId + '_label',
       plottype: data.plotType,
       layer: "标绘点",
+      layers: "聚合标绘点",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       labeltext: labeltext,
       billboard: {
