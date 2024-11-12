@@ -111,7 +111,7 @@ export default {
 <style scoped>
 #news {
   width: 27%;
-  height: 26%;
+  height: 43%;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
@@ -164,7 +164,7 @@ export default {
 
 .sub-main {
   margin-top: -14px;
-  max-height: 79%;
+  max-height: 88%;
   overflow-y: auto;
   padding: 0px;
 }

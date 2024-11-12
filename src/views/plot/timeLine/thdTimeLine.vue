@@ -151,11 +151,10 @@
       ></news-dialog>
     </div>
 
-    <timeLineCasualtyStatistic
-        :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"
-    />
-<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
-    <!--      缩略图-->
+<!--    <timeLineCasualtyStatistic-->
+<!--        :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
+<!--    />-->
+
     <div>
       <mini-map></mini-map>
     </div>

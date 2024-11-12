@@ -28,7 +28,7 @@
 
       <el-carousel-item>
         <div class="chart-container">
-          <div class="public-title">避难点</div>
+          <div class="public-title">隐患点</div>
 
           <!-- 风险点信息 -->
           <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">

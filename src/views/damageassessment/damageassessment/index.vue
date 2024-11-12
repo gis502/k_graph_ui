@@ -438,8 +438,8 @@ export default {
         "地形服务";
 
       this.initMouseEvents();
-      this.renderQueryEqPoints();
       this.toggleYaanLayer('colorful')
+      this.renderQueryEqPoints();
     },
 
     // 注册鼠标事件监听
@@ -519,7 +519,9 @@ export default {
             image: eqMark,
             width: 20,
             height: 20,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            clampToGround: true,
           },
           label: {
             text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
@@ -535,6 +537,7 @@ export default {
           },
           id: eq.eqid
         });
+
         yaan.features.forEach((feature) => {
           let center = feature.properties.center;
 
@@ -551,10 +554,14 @@ export default {
                 verticalOrigin: Cesium.VerticalOrigin.CENTER,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                clampToGround: true,
                 pixelOffset: new Cesium.Cartesian2(0, 0),
-                eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+                eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
               })
             }));
+            console.log("222",feature.properties.name)
             this.RegionLabels.push(regionlabel)
           }
         })
@@ -569,8 +576,9 @@ export default {
         this.removeLayers(['YaanRegionLayer'])
         this.eqThemes.show.isshowRegion = true;
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          clampToGround: true, //贴地显示
           stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
           strokeWidth: 4,
         });
         geoPromise.then((dataSource) => {
@@ -592,6 +600,7 @@ export default {
             const colorIndex = index % colors.length;
             entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color);
           });
+
           yaan.features.forEach((feature) => {
             let center = feature.properties.center;
 
@@ -608,13 +617,19 @@ export default {
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  pixelOffset: new Cesium.Cartesian2(0, 0)
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  clampToGround: true,
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
                 })
               }));
+              console.log("111",feature.properties.name)
               this.RegionLabels.push(regionlabel)
             }
           })
           //雅安行政区加载 end
+          console.log(111)
         })
       }
       else if (require === "none") {
@@ -625,15 +640,16 @@ export default {
         })
         this.RegionLabels = []
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          clampToGround: true, //贴地显示
           stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
           strokeWidth: 4,
         });
         geoPromise.then((dataSource) => {
           window.viewer.dataSources.add(dataSource);
           dataSource.name = 'YaanRegionLayer';
           dataSource.entities.values.forEach((entity, index) => {
-            entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0);
+            entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0.2);
             entity.polygon.outline = true;
             entity.polygon.outlineColor = Cesium.Color.WHITE;
           });
@@ -653,7 +669,11 @@ export default {
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  pixelOffset: new Cesium.Cartesian2(0, 0)
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  clampToGround: true,
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
                 })
               }));
               this.RegionLabels.push(regionlabel)
@@ -1344,7 +1364,10 @@ export default {
         const layerName = `${type}`;
 
         // 加载 sichuanCounty.json 数据
-        Cesium.GeoJsonDataSource.load(sichuanCounty).then((geoJsonDataSource) => {
+        Cesium.GeoJsonDataSource.load(sichuanCounty, {
+          clampToGround: true,
+          }
+        ).then((geoJsonDataSource) => {
           viewer.dataSources.add(geoJsonDataSource);
           geoJsonDataSource.name = layerName;
 
@@ -1440,9 +1463,11 @@ export default {
             verticalOrigin: Cesium.VerticalOrigin.CENTER,
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
             fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            clampToGround: true,
             pixelOffset: new Cesium.Cartesian2(0, 0),
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
-            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
+            // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
           }),
           properties: {type},
         }));
@@ -1569,7 +1594,7 @@ export default {
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 85px) !important;
+  height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
