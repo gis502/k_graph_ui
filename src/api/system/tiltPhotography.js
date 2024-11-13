@@ -1,23 +1,34 @@
 import request from '@/utils/request';
 
 
-export function getModelData() {
+/**
+ * 搜索框查询
+ * @param queryValue
+ * @returns {*}
+ */
+export function queryObliqueImageryData(data) {
     return request({
-        url: '/system/model/getmodel', // 对应的后台接口
-        method: 'get'
+        // 改
+        url: '/system/model/getmodel',
+        method: 'post',
+        data: data
     });
 }
 
 /**
- * 获取总数
+ * 筛选
+ * @param data
  * @returns {*}
+ * @constructor
  */
-export function getModelTotalData() {
+export function ObliqueImageryFilterContent(data) {
     return request({
-        url: '/system/model/getModelTotalCount', // 对应的后台接口
-        method: 'get'
+        url: '/system/model/getmodel',
+        method: 'post',
+        data: data
     });
 }
+
 
 /**
  * 删除数据
@@ -25,9 +36,9 @@ export function getModelTotalData() {
  */
 export function deleteModel(uuid) {
     return request({
-        url: `system/model/deletemodel`, // URL 不需要包含 {modelid}
-        method: 'get', // 使用 DELETE 方法
-        params: { uuid } // 将 modelid 作为查询参数
+        url: `system/model/deletemodel`,
+        method: 'get',
+        params: { uuid }
     });
 }
 
