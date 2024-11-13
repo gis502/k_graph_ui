@@ -422,7 +422,7 @@
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
-    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">
+    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>

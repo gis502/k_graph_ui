@@ -201,7 +201,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-    <div v-if="this.isTimerRunning || this.currentTimePosition !== '100'" class="timelineRunningTimeLabel">
+    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
@@ -446,7 +446,7 @@ export default {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
-    this.addImportantNodes()
+    // this.addImportantNodes()
     // this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
@@ -691,6 +691,8 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
+
+      console.log(this.currentTimePosition,"currentTimePosition updateMapandVariablebeforInit")
       let data = {
         ...this.centerPoint,
         drawtype: "center"
