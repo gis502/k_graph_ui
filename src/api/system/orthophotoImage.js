@@ -1,6 +1,5 @@
 import request from '@/utils/request'
-import log from "@/views/monitor/job/log.vue";
-import {queryObliqueImageryData} from "@/api/system/tiltPhotography.js";
+
 
 //增
 export function insert(data) {
@@ -9,6 +8,17 @@ export function insert(data) {
         method: 'post',
         data: data,
 
+    })
+}
+
+/**
+ * 数据展示
+ * @returns {*}
+ */
+export function list() {
+    return request({
+        url: '/orthophoto/list',
+        method: 'post',
     })
 }
 

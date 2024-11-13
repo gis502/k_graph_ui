@@ -167,7 +167,8 @@ import {
   update,
   removeById,
   queryOrthophotoData,
-  OrthophotoFilterContent
+  OrthophotoFilterContent,
+  list
 } from '@/api/system/orthophotoImage.js';
 import { ElMessage, ElMessageBox } from "element-plus";
 export default {
@@ -198,18 +199,61 @@ export default {
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
         height: [
-          { type: 'number', message: '高度必须是数字', trigger: 'blur' }
+          { message: '高度必须是数字', trigger: 'blur', required: false }
         ],
         angle: [
-          { type: 'number', message: '角度必须是数字', trigger: 'blur' }
+          {  message: '角度必须是数字', trigger: 'blur', required: false }
         ]
       }
 
+
     }
   },
-
+  created() {
+    this.fetchData();
+  },
 
   methods: {
+    fetchData() {
+      list().then(res => {
+        console.log("获取的数据:", res); // 打印获取的数据
+        this.tableData = res.data.map((item) => {
+          let formattedCreateTime = '';
+
+          // 确保 createTime 存在且有效
+          if (item.hasOwnProperty('createTime') && item.createTime) {
+            const createTime = new Date(item.createTime);
+            // 确认解析后的 createTime 是否有效
+            if (!isNaN(createTime)) {
+              // 格式化为 yyyy-MM-dd HH:mm:ss
+              const year = createTime.getFullYear();
+              const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份需要加 1，且补零
+              const day = createTime.getDate().toString().padStart(2, '0');
+              const hours = createTime.getHours().toString().padStart(2, '0');
+              const minutes = createTime.getMinutes().toString().padStart(2, '0');
+              const seconds = createTime.getSeconds().toString().padStart(2, '0');
+
+              formattedCreateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            } else {
+              console.log(`无效的日期: ${item.createTime}`);
+            }
+          } else {
+            console.log("没有 createTime 或其值为空:", item); // 如果没有 createTime 或为空，输出提示
+          }
+
+          // 仅返回修改后的 createTime
+          item.createTime = formattedCreateTime;
+
+          return item;
+        });
+
+        // 打印处理后的 tableData
+        console.log("处理后的 tableData:", this.tableData);
+      }).catch(error => {
+        console.error("获取数据失败:", error);
+      });
+    },
+
     // 筛选
     onSubmit() {
       // 如果 addTime 存在，转换为 ISO 8601 格式的字符串；如果为空，设置为 null
@@ -264,15 +308,24 @@ export default {
             console.log("获取的数据:", res); // 打印获取的数据
 
             // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
-            this.tableData = res.data.map((item, index) => ({
-              serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
-              uuid: item.uuid,
-              name: item.name,
-              height: item.height,
-              path: item.path,
-              angle: item.angle,
-              createTime: item.createTime,  // 格式化日期
-            }));
+            this.tableData = res.data.map((item, index) => {
+              // 格式化 createTime
+              let formattedCreateTime = '';
+              if (item.createTime) {
+                const addTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
+                formattedCreateTime = addTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 YYYY-MM-DD HH:mm:ss
+              }
+
+              return {
+                serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
+                uuid: item.uuid,
+                name: item.name,
+                height: item.height,
+                path: item.path,
+                angle: item.angle,
+                createTime: formattedCreateTime,  // 格式化日期
+              };
+            });
 
             // 更新分页的总数
             this.total = res.data.total;  // 假设后端返回 total
@@ -282,10 +335,12 @@ export default {
             ElMessage.error('查询失败，请稍后重试');
           });
     },
+
     // 重置功能
     resetQuery() {
       this.queryParams = '';  // 清空搜索输入框
-      this.handleQuery();
+      this.fetchData();
+
     },
 
     getEmptyDialogContent() {
@@ -338,7 +393,7 @@ export default {
           .then(() => {
             removeById({ uuid: row.uuid })
                 .then(() => {
-                  this.handleQuery();
+                  this.fetchData();
                   ElMessage.success('删除成功');
                 })
                 .catch(() => {
@@ -365,7 +420,7 @@ export default {
 
           const action = this.dialogTitle === '新增' ? insert : update;
           action(modelData).then(() => {
-            this.handleQuery();
+            this.fetchData();
             this.dialogShow = false;
             this.clearDialogContent();
             ElMessage.success(`${this.dialogTitle}成功`);
@@ -416,12 +471,12 @@ export default {
 
     handleSizeChange(val) {
       this.pageSize = val;
-      this.handleQuery();
+      this.fetchData();
     },
 
     handleCurrentChange(val) {
       this.currentPage = val;
-      this.handleQuery();
+      this.fetchData();
     },
 
     getPageArr() {

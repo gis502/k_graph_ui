@@ -28,6 +28,24 @@ export function ObliqueImageryFilterContent(data) {
     });
 }
 
+export function getModelData() {
+    return request({
+        url: '/system/model/getmodel', // 对应的后台接口
+        method: 'get'
+    });
+}
+
+/**
+ * 获取总数
+ * @returns {*}
+ */
+export function getModelTotalData() {
+    return request({
+        url: '/system/model/getModelTotalCount', // 对应的后台接口
+        method: 'get'
+    });
+}
+
 
 /**
  * 删除数据

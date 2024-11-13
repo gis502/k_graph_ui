@@ -53,13 +53,17 @@
         v-model="dialogShow"
         width="30vw"
         style="top:20vh"
-        ref="ruleFormRef">
+        >
       <el-form :model="dialogContent" :rules="rules" ref="formRef">
         <el-form-item label="模型名称" prop="modelName">
           <el-input v-model="dialogContent.modelName" placeholder="请输入模型名称"></el-input>
         </el-form-item>
         <el-form-item label="模型大小" prop="modelSize">
-          <el-input type="number" v-model="dialogContent.modelSize" placeholder="请输入模型大小(GB)"></el-input>
+          <el-input
+              type="number"
+              v-model="dialogContent.modelSize"
+              placeholder="请输入模型大小(GB)"
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="添加时间" prop="addTime">
@@ -167,7 +171,7 @@ import { ElButton, ElIcon, ElForm, ElMessage, ElMessageBox } from "element-plus"
 import { Delete, Edit } from "@element-plus/icons-vue";
 import {
   addModel,
-  deleteModel, ObliqueImageryFilterContent,
+  deleteModel, getModelData, getModelTotalData, ObliqueImageryFilterContent,
   queryObliqueImageryData,
   updataModel
 } from "@/api/system/tiltPhotography.js";
@@ -204,25 +208,80 @@ export default {
           { required: true, message: '请填写模型名称', trigger: 'blur' }
         ],
         modelSize: [
-          { message: '请填写模型大小', trigger: 'blur' }
+          { message: '请填写模型大小', trigger: 'blur' ,required: false }
         ],
         addModel: [
-            { message: '请填写添加时间', trigger: 'blur' }
+          { message: '请填写添加时间', trigger: 'blur',required: false  }
         ],
         modelPath: [
-          { message: '请填写模型路径', trigger: 'blur' }
+          { message: '请填写模型路径', trigger: 'blur' ,required: false }
         ],
         modelHeight: [
-          { message: '请填写模型高度', trigger: 'blur' }
+          { message: '请填写模型高度', trigger: 'blur' ,required: false }
         ],
         rotationAngle: [
-          {  message: '请填写旋转角度', trigger: 'blur' }
-        ],
+          {  message: '请填写旋转角度', trigger: 'blur' ,required: false }
+        ]
       },
     };
   },
 
+  created() {
+    this.fetchModelData();
+    this.fetchTotalCount(); // 获取总数
+  },
+
   methods: {
+    fetchTotalCount() {
+      getModelTotalData().then(res => {
+        this.total = res;
+      });
+    },
+    fetchModelData() {
+      getModelData().then(res => {
+        console.log("获取的数据:", res); // 打印获取的数据
+        this.tableData = res.map((item, index) => {
+          // 打印当前项，检查 time 是否存在
+          console.log("当前项:", item); // 打印整个 item，查看是否包含 time 字段
+          console.log("当前项的 time:", item.time); // 打印 time 字段
+
+          let formattedAddTime = '';
+
+          // 确保 time 存在且有效
+          if (item.hasOwnProperty('time') && item.time) {
+            const addTime = new Date(item.time);
+            // 确认解析后的 addTime 是否有效
+            if (!isNaN(addTime)) {
+              // 格式化为 yyyy-MM-dd HH:mm:ss
+              formattedAddTime = addTime.toISOString().replace('T', ' ').substring(0, 19);
+            } else {
+              console.log(`无效的日期: ${item.time}`);
+            }
+          } else {
+            console.log("没有 time 或其值为空:", item); // 如果没有 time 或为空，输出提示
+          }
+
+          // 返回处理后的数据对象
+          return {
+            serialNumber: index + 1,
+            modelid: item.uuid,
+            modelName: item.name,
+            modelPath: item.path,
+            addTime: formattedAddTime, // 使用处理后的 addTime
+            modelSize: item.modelSize,
+            modelHeight: item.rze,
+            rotationAngle: item.tze
+          };
+        });
+
+        // 打印处理后的 tableData
+        console.log("处理后的 tableData:", this.tableData);
+      }).catch(error => {
+        console.error("获取数据失败:", error);
+      });
+
+
+    },
     // 筛选
     onSubmit() {
       // 如果 addTime 存在，转换为 ISO 8601 格式的字符串；如果为空，设置为 null
@@ -241,19 +300,29 @@ export default {
 
       // 发送请求
       ObliqueImageryFilterContent(this.filterContent).then(res => {
-        console.log("ObliqueImageryFilterContent",res);
+        console.log("ObliqueImageryFilterContent", res);
 
         // 格式化返回的结果，生成表格数据
-        this.tableData = res.data.map((item, index) => ({
-          serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
-          modelid: item.uuid,  // 保持一致
-          modelName: item.name,
-          modelPath: item.path,
-          addTime: item.addTime,  // 假设 addTime 需要直接显示原格式，如果需要转换为格式化字符串可以在这里处理
-          modelSize: item.modelSize,  // 确保使用正确的字段名
-          modelHeight: item.rze,
-          rotationAngle: item.tze,
-        }));
+        this.tableData = res.data.map((item, index) => {
+          let formattedAddTime = '';
+
+          // 格式化 addTime 为 yyyy-MM-dd HH:mm:ss 格式
+          if (item.time) {
+            const addTime = new Date(item.time); // 将 time 转为 Date 对象
+            formattedAddTime = addTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
+          }
+
+          return {
+            serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
+            modelid: item.uuid,  // 保持一致
+            modelName: item.name,
+            modelPath: item.path,
+            addTime: formattedAddTime,  // 使用格式化后的时间
+            modelSize: item.modelSize,  // 确保使用正确的字段名
+            modelHeight: item.rze,
+            rotationAngle: item.tze,
+          };
+        });
 
         // 更新表格数据和总数
         this.total = res.total;  // 总记录数
@@ -264,6 +333,10 @@ export default {
 
         // 清空表单字段
         this.clearFormValue();
+
+        this.fetchModelData();
+        this.fetchTotalCount(); // 获取总数
+
       }).catch(error => {
         console.error("查询失败:", error);
       });
@@ -299,7 +372,7 @@ export default {
               modelid: item.uuid, // 保持一致
               modelName: item.name,
               modelPath: item.path,
-              addTime: item.addTime,  // 格式化日期
+              addTime: item.time,  // 格式化日期
               modelSize: item.modelSize, // 确保使用正确的字段名
               modelHeight: item.rze,
               rotationAngle: item.tze,
@@ -326,7 +399,8 @@ export default {
             deleteModel(row.modelid)
                 .then(response => {
                   console.log('响应:', response); // 打印响应
-                  this.queryObliqueImageryData();
+                  this.fetchModelData();
+                  this.fetchTotalCount(); // 获取总数
                   ElMessage.success('删除成功');
                 })
                 .catch((error) => {
@@ -378,7 +452,7 @@ export default {
 
     // 新增 or 编辑 提交按钮
     commit() {
-      this.$refs.form.validate(valid => {
+      this.$refs.formRef.validate(valid => {
         if (valid) {
           // 将 dialogContent.addTime 转换为 ISO 8601 格式的字符串
           const addTimeIso = this.dialogContent.addTime ? new Date(this.dialogContent.addTime).toISOString() : null;
@@ -399,7 +473,8 @@ export default {
           if (this.dialogTitle === "新增") {
             addModel(modelData)
                 .then(() => {
-                  this.queryObliqueImageryData();
+                  this.fetchModelData();
+                  this.fetchTotalCount(); // 获取总数
                   this.dialogShow = false;
                   this.clearDialogContent();
                   ElMessage.success('新增已完成');
@@ -410,7 +485,8 @@ export default {
           } else {
             updataModel(modelData)
                 .then(() => {
-                  this.queryObliqueImageryData();
+                  this.fetchModelData();
+                  this.fetchTotalCount(); // 获取总数
                   this.dialogShow = false;
                   this.clearDialogContent();
                   ElMessage.success('编辑已完成');    // 提示编辑完成
