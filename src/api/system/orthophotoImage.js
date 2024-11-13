@@ -19,7 +19,7 @@ export function insert(data) {
  */
 export function queryOrthophotoData(queryValue) {
     return request({
-        url: '/system/model/listModel',  // 后端接口地址
+        url: '/orthophoto/qureyEq',  // 后端接口地址
         method: 'post',  // 使用 POST 方法
         data: queryValue  // 如果没有传值，则为空字符串
 
@@ -34,7 +34,7 @@ export function queryOrthophotoData(queryValue) {
  */
 export function OrthophotoFilterContent(data) {
     return request({
-        url: '/system/model/getOrthophotoFilterContent',
+        url: '/orthophoto/fromeq',
         method: 'post',
         data: data
     });

@@ -8,8 +8,7 @@ import request from '@/utils/request';
  */
 export function queryObliqueImageryData(data) {
     return request({
-        // 改
-        url: '/system/model/getmodel',
+        url: '/system/model/qureyEq',
         method: 'post',
         data: data
     });
@@ -23,7 +22,7 @@ export function queryObliqueImageryData(data) {
  */
 export function ObliqueImageryFilterContent(data) {
     return request({
-        url: '/system/model/getmodel',
+        url: '/system/model/fromeq',
         method: 'post',
         data: data
     });
