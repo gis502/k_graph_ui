@@ -53,7 +53,8 @@ export default class Polygon {
     // this.isEditing = false;
     // this.entityCount = 0;
     this.type = type;
-    this.img = img;
+    this.img = 'http://localhost:8080/PlotsPic/' + img + '.png';
+    this.plotType = img
     this._dataSource = new Cesium.CustomDataSource("_dataSource");
     this.viewer.dataSources.add(this._dataSource);
     this.deactivate()
@@ -111,7 +112,7 @@ export default class Polygon {
       plotId: this.initId,
       time: this.time,
       angle: this.angle,
-      icon: this.img,
+      icon: this.plotType,//先改成plotType,可以看上面的定义的变量
       earthquakeId:this.eqid,
       plotType: this.name
     }
@@ -139,7 +140,7 @@ export default class Polygon {
       window.isDrawingPolygon = true;  // 启用标志位
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
-      console.log("p",p)
+      // console.log("p",p)
       if (!p) return;
       // 检查新点是否与最后一个点重复
       if (this._tempPositions.length > 0) {
@@ -149,7 +150,7 @@ export default class Polygon {
           return;
         }
       }
-      console.log("this._tempPositions",this._tempPositions)
+      // console.log("this._tempPositions",this._tempPositions)
       this._tempPositions.push(p);
       // 获取大多边形的中心点
       this.center = this.getPolygonCenter(this._tempPositions);
@@ -191,7 +192,7 @@ export default class Polygon {
       this.unRegisterEvents();
       this._dataSource.entities.removeAll();
       this.imgMaterial = new Cesium.ImageMaterialProperty({
-        image: this.img,
+        image:this.img ,
         repeat: new Cesium.Cartesian2(1, 1), // 控制图片在多边形内的重复次数
         rotation: Cesium.Math.toRadians(45), // 旋转角度，例如 45 度，根据需要调整方向
         color: Cesium.Color.WHITE.withAlpha(0.7) // 控制透明度
@@ -327,7 +328,7 @@ export default class Polygon {
   _addPolygon() {
     if (this._tempPositions.length == 1) {
       this.imgMaterial = new Cesium.ImageMaterialProperty({
-        image: this.img,
+        image: this.img  ,
         repeat: new Cesium.Cartesian2(1, 1), // 控制图片在多边形内的重复次数
         rotation: Cesium.Math.toRadians(45), // 旋转角度，例如 45 度，根据需要调整方向
         color: Cesium.Color.WHITE.withAlpha(0.7) // 控制透明度
@@ -561,7 +562,7 @@ export default class Polygon {
             semiMajorAxis: diameter / 2, // 对角线的一半作为半径
             semiMinorAxis: diameter / 2, // 保证是一个正圆
             material: new Cesium.ImageMaterialProperty({
-              image: 'http://localhost:8080/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime(),
+              image: 'http://localhost:8080/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime() ,
               repeat: new Cesium.Cartesian2(1.02, 1.0684), // 控制图片的缩放
               color: Cesium.Color.WHITE.withAlpha(1.0),
               scale: 0.5 // 调整图片缩放比例
