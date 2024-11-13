@@ -431,7 +431,7 @@ export default class Polygon {
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
 
     // console.log("onlyPlotid",polygonArr)
-    if(polygonArr[0].plotType === "未搜索区域"|| polygonArr[0].plotType === "已搜索区域"||polygonArr[0].plotType === "已营救区域"||polygonArr[0].plotType === "正在营救区域"){
+    if(polygonArr[0].plotType === "未搜索区域"|| polygonArr[0].plotType === "已搜索区域"||polygonArr[0].plotType === "已营救区域"||polygonArr[0].plotType === "正在营救区域"||polygonArr[0].plotType === "未营救区域"){
       onlyPlotid.forEach(onlyPlotidItem => {
         // 1-3 把数据库同一Plotid的点数据放入此数组
         let polygon = []
@@ -479,7 +479,7 @@ export default class Polygon {
             layer: "标绘点",
             polygon: {
               hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
-              material: 'http://localhost:8080/PlotsPic/' +polygon[0].icon + '.png',
+              material: 'http://localhost:8080/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime(),
               // stRotation: Cesium.Math.toRadians(polygon[0].angle),
               clampToGround: true,
             },
@@ -561,7 +561,7 @@ export default class Polygon {
             semiMajorAxis: diameter / 2, // 对角线的一半作为半径
             semiMinorAxis: diameter / 2, // 保证是一个正圆
             material: new Cesium.ImageMaterialProperty({
-              image: 'http://localhost:8080/PlotsPic/' +polygon[0].icon + '.png',
+              image: 'http://localhost:8080/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime(),
               repeat: new Cesium.Cartesian2(1.02, 1.0684), // 控制图片的缩放
               color: Cesium.Color.WHITE.withAlpha(1.0),
               scale: 0.5 // 调整图片缩放比例
