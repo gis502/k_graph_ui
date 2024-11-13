@@ -50,12 +50,10 @@ export default {
   },
   computed: {
     formattedNewsContent() {
-      this.newsContent='<br />&emsp;&emsp;'+this.newsContent
-      this.newsContent=this.newsContent.replace(/\r?\n/g, '<br />&emsp;&emsp;');
-      this.newsContent = this.newsContent.replace(/[\u3000\u0020]+/g, ''); //替换空格
-      console.log( " this.newsContent",this.newsContent)
+      let text=this.newsContent.replace(/\r?\n/g, '<br />&emsp;&emsp;').replace(/[\u3000\u0020]+/g, ''); //替换空格
+      text='<br />&emsp;&emsp;'+text
       // 替换换行符，并在每段的开始添加两个空格的HTML实体来实现缩进
-      return this.newsContent
+      return text
     }
   },
   data(){
