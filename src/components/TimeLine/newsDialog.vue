@@ -40,7 +40,7 @@ export default {
   },
   watch: {
     showingNewsContent(newValue) {
-      // console.log("showingNewsContent changed:", newValue);
+      console.log("showingNewsContent changed:", newValue);
       this.newsContent=newValue.content
     },
     showDetailedNewsDialog(newValue) {
@@ -96,7 +96,7 @@ export default {
 
 <style scoped>
 .detailedNews{
-  width: 40%;
+  width: 43%;
   height: 54%;
   position: absolute;
   padding:15px;
@@ -152,7 +152,7 @@ export default {
 .news-main{
   padding-left: 5px;
   padding-right: 5px;
-  max-height: 85%;
+  max-height: 80%;
   overflow-y: auto;
   margin-top: 3%;
 }
@@ -169,8 +169,8 @@ export default {
   text-align: center; /* 中间对齐文本 */
 }
 .news-head{
-  line-height: 1rem;
-  //height: 30%;
+  //line-height: 1rem;
+  height: 3.8rem; /* 设置固定高度，两行文字加上一些行间距 */;
 }
 .news-img {
   padding-top: 5px;
