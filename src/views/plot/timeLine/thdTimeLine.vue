@@ -64,8 +64,6 @@
         :popupData="routerPopupData"
     />
 
-    <!--展示弹框伤亡统计-->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
 
     <!-- 进度条-->
     <div class="bottom">
@@ -120,12 +118,30 @@
         :currentTime="currentTime"
         @addJumpNodes="addJumpNodes"
     />
-    <!--   人员伤亡-左中   -->
-    <timeLinePersonnelCasualties
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
+
+    <div v-if="PersoonnelCasuality===1">
+      <div class="personbutton" >
+        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+      </div>
+      <!--   人员伤亡-左中   -->
+      <timeLinePersonnelCasualties
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @addJumpNodes="addJumpNodes"
+      />
+    </div>
+
+    <div v-if="PersoonnelCasuality===2">
+      <div class="personbutton" >
+        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+      </div>
+      <timeLineCasualtyStatistic
+          :zoomLevel="zoomLevel"
+          :pointsLayer="pointsLayer"
+          :currentTime="currentTime"
+      />
+    </div>
+
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
@@ -151,11 +167,6 @@
       ></news-dialog>
     </div>
 
-    <timeLineCasualtyStatistic
-        :zoomLevel="zoomLevel"
-        :pointsLayer="pointsLayer"
-        :currentTime="currentTime"
-    />
 
     <div>
       <mini-map></mini-map>
@@ -261,6 +272,7 @@ export default {
   },
   data: function () {
     return {
+      PersoonnelCasuality: 1,
 // -----------弹窗们的状态变量-------------
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
@@ -3087,6 +3099,13 @@ export default {
   z-index: 20;
   top: 6.3%;
   left: 2%;
+}
+
+.personbutton {
+  position: absolute;
+  z-index: 60;
+  top: 35%;
+  left: 20%;
 }
 
 .thematic-button {

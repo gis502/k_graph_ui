@@ -1,6 +1,8 @@
 <template>
   <div>
+
     <div class="pop">
+
       <p class="pop_title">人员伤亡:
         <span class="time">{{ activity.time }}</span>
       </p>
@@ -140,6 +142,7 @@ export default {
       let ss = DateObj.getSeconds().toString().padStart(2, '0');
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
     }
+
   }
 }
 </script>
@@ -281,4 +284,10 @@ export default {
   background-color: #1f9dca; /* 滑块的背景颜色 */
   border: 3px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
+.button{
+  position:absolute;
+  right:3%;
+  top:10%
+}
+
 </style>

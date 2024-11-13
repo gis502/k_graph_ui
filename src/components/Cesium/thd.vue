@@ -333,12 +333,31 @@
           :currentTime="currentTime"
           @addJumpNodes="addJumpNodes"
       />
-      <!--   人员伤亡-左中   -->
-      <timeLinePersonnelCasualties
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @addJumpNodes="addJumpNodes"
-      />
+      <div>
+        <div class="personbutton" v-if="PersoonnelCasuality===1">
+          <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+        </div>
+        <!--   人员伤亡-左中   -->
+        <timeLinePersonnelCasualties
+            v-if="PersoonnelCasuality===1"
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @addJumpNodes="addJumpNodes"
+        />
+
+
+      </div>
+      <div>
+        <div class="personbutton" v-if="PersoonnelCasuality===2">
+          <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+        </div>
+        <timeLineCasualtyStatistic
+            v-if="PersoonnelCasuality===2"
+            :zoomLevel="zoomLevel"
+            :pointsLayer="pointsLayer"
+            :currentTime="currentTime"
+        />
+      </div>
       <!--   救援出队-左下   -->
       <timeLineRescueTeam
           :eqid="eqid"
@@ -363,9 +382,7 @@
             @hideNewsDialog="hideNewsDialog"
         ></news-dialog>
       </div>
-<!--      <timeLineCasualtyStatistic-->
-<!--          :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
-<!--      />-->
+
       <!--      缩略图-->
       <div>
         <mini-map></mini-map>
@@ -377,7 +394,6 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -692,6 +708,8 @@ export default {
       pointsLayer: [], //传到子组件
 
       stopTimeforAddEntityOneIndex: 5000,
+
+       PersoonnelCasuality: 1,//人员伤亡统计
     };
   },
   created() {
@@ -3871,5 +3889,12 @@ export default {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
   border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+}
+
+.personbutton {
+  position: absolute;
+  z-index: 60;
+  top: 35%;
+  left: 20%;
 }
 </style>

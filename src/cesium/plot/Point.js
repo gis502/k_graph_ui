@@ -394,7 +394,7 @@ export default class Point {
                     cluster.label.show = true;
                     cluster.label.text = ''; // 初始化标签文本
                     clusteredEntities.forEach((entity, index) => {
-                      console.log(entity, "entity");
+                      // console.log(entity, "entity");
                       // 假设每个实体都有一个名为'labeltext'的属性，包含要显示的信息
                       cluster.label.text += entity.labeltext.toString();
 
