@@ -458,8 +458,8 @@ import yaan from '@/assets/geoJson/yaan.json'
 
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
-import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
-import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
+import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
@@ -3845,7 +3845,7 @@ export default {
 }
 
 :deep(.el-radio) {
-  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
+  background-color: rgba(22, 53, 77, 0); /* 背景色设为透明 */
   color: #ffffff; /* 内容文字颜色 */
 }
 
