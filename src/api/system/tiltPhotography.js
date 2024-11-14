@@ -6,11 +6,11 @@ import request from '@/utils/request';
  * @param queryValue
  * @returns {*}
  */
-export function queryObliqueImageryData(data) {
+export function queryObliqueImageryData(queryValue) {
     return request({
-        url: '/system/model/qureyEq',
-        method: 'post',
-        data: data
+        url: '/system/model/queryEq',
+        method: 'get',
+        params: {queryValue:queryValue}
     });
 }
 
@@ -21,6 +21,7 @@ export function queryObliqueImageryData(data) {
  * @constructor
  */
 export function ObliqueImageryFilterContent(data) {
+    console.log("ObliqueImageryFilterContentc",data)
     return request({
         url: '/system/model/fromeq',
         method: 'post',
