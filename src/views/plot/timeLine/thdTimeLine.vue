@@ -64,8 +64,6 @@
         :popupData="routerPopupData"
     />
 
-    <!--展示弹框伤亡统计-->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
 
     <!-- 进度条-->
     <div class="bottom">
@@ -120,12 +118,30 @@
         :currentTime="currentTime"
         @addJumpNodes="addJumpNodes"
     />
-    <!--   人员伤亡-左中   -->
-    <timeLinePersonnelCasualties
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
+
+    <div v-if="PersoonnelCasuality===1">
+      <div class="personbutton" >
+        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+      </div>
+      <!--   人员伤亡-左中   -->
+      <timeLinePersonnelCasualties
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @addJumpNodes="addJumpNodes"
+      />
+    </div>
+
+    <div v-if="PersoonnelCasuality===2">
+      <div class="personbutton" >
+        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+      </div>
+      <timeLineCasualtyStatistic
+          :zoomLevel="zoomLevel"
+          :pointsLayer="pointsLayer"
+          :currentTime="currentTime"
+      />
+    </div>
+
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
@@ -151,9 +167,6 @@
       ></news-dialog>
     </div>
 
-<!--    <timeLineCasualtyStatistic-->
-<!--        :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
-<!--    />-->
 
     <div>
       <mini-map></mini-map>
@@ -188,7 +201,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-    <div v-if="this.isTimerRunning || this.currentTimePosition !== '100'" class="timelineRunningTimeLabel">
+    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
@@ -225,8 +238,8 @@ import yaan from '@/assets/geoJson/yaan.json'
 
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
-import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
-import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
+import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
@@ -259,6 +272,7 @@ export default {
   },
   data: function () {
     return {
+      PersoonnelCasuality: 1,
 // -----------弹窗们的状态变量-------------
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
@@ -432,7 +446,7 @@ export default {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
-    this.addImportantNodes()
+    // this.addImportantNodes()
     // this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
@@ -677,6 +691,8 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
+
+      console.log(this.currentTimePosition,"currentTimePosition updateMapandVariablebeforInit")
       let data = {
         ...this.centerPoint,
         drawtype: "center"
@@ -3085,6 +3101,13 @@ export default {
   z-index: 20;
   top: 6.3%;
   left: 2%;
+}
+
+.personbutton {
+  position: absolute;
+  z-index: 60;
+  top: 35%;
+  left: 20%;
 }
 
 .thematic-button {

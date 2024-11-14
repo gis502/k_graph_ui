@@ -40,7 +40,7 @@ export default {
   },
   watch: {
     showingNewsContent(newValue) {
-      // console.log("showingNewsContent changed:", newValue);
+      console.log("showingNewsContent changed:", newValue);
       this.newsContent=newValue.content
     },
     showDetailedNewsDialog(newValue) {
@@ -50,12 +50,10 @@ export default {
   },
   computed: {
     formattedNewsContent() {
-      this.newsContent='<br />&emsp;&emsp;'+this.newsContent
-      this.newsContent=this.newsContent.replace(/\r?\n/g, '<br />&emsp;&emsp;');
-      this.newsContent = this.newsContent.replace(/[\u3000\u0020]+/g, ''); //替换空格
-      console.log( " this.newsContent",this.newsContent)
+      let text=this.newsContent.replace(/\r?\n/g, '<br />&emsp;&emsp;').replace(/[\u3000\u0020]+/g, ''); //替换空格
+      text='<br />&emsp;&emsp;'+text
       // 替换换行符，并在每段的开始添加两个空格的HTML实体来实现缩进
-      return this.newsContent
+      return text
     }
   },
   data(){
@@ -98,7 +96,7 @@ export default {
 
 <style scoped>
 .detailedNews{
-  width: 40%;
+  width: 43%;
   height: 54%;
   position: absolute;
   padding:15px;
@@ -154,7 +152,7 @@ export default {
 .news-main{
   padding-left: 5px;
   padding-right: 5px;
-  max-height: 85%;
+  max-height: 80%;
   overflow-y: auto;
   margin-top: 3%;
 }
@@ -171,8 +169,8 @@ export default {
   text-align: center; /* 中间对齐文本 */
 }
 .news-head{
-  line-height: 1rem;
-  //height: 30%;
+  //line-height: 1rem;
+  height: 3.8rem; /* 设置固定高度，两行文字加上一些行间距 */;
 }
 .news-img {
   padding-top: 5px;

@@ -28,7 +28,8 @@
       <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
           <div v-if="scope.row.img && scope.row.img !== ''">
-            <img width="30px" height="30px" :src="scope.row.img" alt="暂无符号">
+            <img width="30px" height="30px" :src="'http://localhost:8080/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+
           </div>
           <div v-else>
             <span> </span>

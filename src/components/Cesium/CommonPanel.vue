@@ -6,11 +6,12 @@
           <div slot="header" class="clearfix">
             <span>{{earthquakeInfo.tableName}}</span>
           </div>
+
           <el-descriptions :column="2" size="default" border>
             <!-- 地震名称 -->
-            <el-descriptions-item label="地震名称">
+            <el-descriptions-item label="震中位置">
               <el-text size="large">
-                {{ earthquakeInfo.earthquakeName || "未知地震" }}
+                {{ earthquakeInfo.earthquakeName || "无数据" }}
               </el-text>
             </el-descriptions-item>
 
@@ -456,7 +457,7 @@ export default {
       that.showEqStatus = false; // 切换地震和标绘信息的显示状态
       console.log("eqData",eqData)
       let data ={
-        tableName: `${this.timestampToTime(eqData.occurrenceTime, 'date').replace("T"," ")} ${eqData.earthquakeName} ${eqData.magnitude}级地震`,
+        tableName: `${this.timestampToTimeChinese(eqData.occurrenceTime, 'date')}${eqData.earthquakeName} ${eqData.magnitude}级地震`,
         historyEqTime: eqData.occurrenceTime.replace("T"," "),
         earthquakeName: eqData.earthquakeName,
         lat: eqData.latitude,
@@ -495,6 +496,23 @@ export default {
       ss = ss > 9 ? ss : '0' + ss
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day}T${hh}:${mm}:${ss}`
+    },
+    timestampToTimeChinese(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
     // 生成uuid
     guid() {
@@ -608,6 +626,8 @@ export default {
   font-weight: bold;
 }
 
-
+.clearfix{
+  font-size:16px;
+}
 
 </style>

@@ -66,7 +66,7 @@ export default class Point {
         id: data.plotId,
         position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
         billboard: {
-          image: data.icon,
+          image: 'http://localhost:8080/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
           width: 50,
           height: 50,
           color: new Cesium.CallbackProperty(() => {
@@ -85,7 +85,7 @@ export default class Point {
       let longitude = Number(data.geom.coordinates[0])
       let latitude = Number(data.geom.coordinates[1])
       let height = Number(data.elevation)
-      let img = data.icon
+      let img = 'http://localhost:8080/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime();
       window.viewer.dataSources.getByName('pointData')[0].entities.add({
         id: id,
         layer: "标绘点",
@@ -394,7 +394,7 @@ export default class Point {
                     cluster.label.show = true;
                     cluster.label.text = ''; // 初始化标签文本
                     clusteredEntities.forEach((entity, index) => {
-                      console.log(entity, "entity");
+                      // console.log(entity, "entity");
                       // 假设每个实体都有一个名为'labeltext'的属性，包含要显示的信息
                       cluster.label.text += entity.labeltext.toString();
 
@@ -491,7 +491,7 @@ export default class Point {
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       // labeltext: labeltext,
       billboard: {
-        image: data.icon,
+        image: 'http://localhost:8080/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -522,7 +522,7 @@ export default class Point {
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       // labeltext: labeltext,
       billboard: {
-        image: data.icon,
+        image: 'http://localhost:8080/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -544,10 +544,11 @@ export default class Point {
       id: data.plotId + '_label',
       plottype: data.plotType,
       layer: "标绘点",
+      layers: "聚合标绘点",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       labeltext: labeltext,
       billboard: {
-        image: data.icon,
+        image: 'http://localhost:8080/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
