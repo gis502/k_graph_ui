@@ -185,6 +185,7 @@ export default {
       filterContent: [], //筛选内容
       tableData: [],     //存储 新增 or 编辑 or 筛选后端返回数据
       queryParams: '',  //搜索框关键字
+      formValue: {},
       total: 0,
       pageSize: 10,
       pageSizes: [10, 20, 40],
@@ -288,7 +289,8 @@ export default {
       const addTimeIso = this.dialogContent.addTime ? new Date(this.dialogContent.addTime).toISOString() : null;
 
       this.filterContent = {
-        modelName: this.dialogContent.modelName || null,
+        //  和后端字段对应
+        name: this.dialogContent.modelName || null,
         addTime: addTimeIso,  // 将 addTime 转换为 ISO 8601 格式的字符串或 null
         modelHeight: this.dialogContent.modelHeight || null,
         rotationAngle: this.dialogContent.rotationAngle || null,
@@ -300,7 +302,6 @@ export default {
 
       // 发送请求
       ObliqueImageryFilterContent(this.filterContent).then(res => {
-        console.log("ObliqueImageryFilterContent", res);
 
         // 格式化返回的结果，生成表格数据
         this.tableData = res.data.map((item, index) => {
@@ -328,14 +329,11 @@ export default {
         this.total = res.total;  // 总记录数
         this.tableData = this.getPageArr();  // 获取当前页面数据
 
-        // 隐藏筛选表单
+        // 隐藏筛选表单：设置为 false 以关闭弹框
         this.queryFormVisible = false;
 
         // 清空表单字段
         this.clearFormValue();
-
-        this.fetchModelData();
-        this.fetchTotalCount(); // 获取总数
 
       }).catch(error => {
         console.error("查询失败:", error);
@@ -362,21 +360,31 @@ export default {
       const searchKey = this.queryParams.trim();  // 获取搜索关键字
 
       // 调用同一个方法进行查询
-      queryObliqueImageryData(searchKey || '')
+      queryObliqueImageryData(searchKey)
           .then(res => {
             console.log("获取的数据:", res); // 打印获取的数据
 
             // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
-            this.tableData = res.data.map((item, index) => ({
-              serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
-              modelid: item.uuid, // 保持一致
-              modelName: item.name,
-              modelPath: item.path,
-              addTime: item.time,  // 格式化日期
-              modelSize: item.modelSize, // 确保使用正确的字段名
-              modelHeight: item.rze,
-              rotationAngle: item.tze,
-            }));
+            this.tableData = res.data.map((item, index) => {
+              let formattedAddTime = '';
+
+              // 格式化 item.time 为 yyyy-MM-dd HH:mm:ss 格式
+              if (item.time) {
+                const addTime = new Date(item.time); // 将 item.time 转为 Date 对象
+                formattedAddTime = addTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
+              }
+
+              return {
+                serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
+                modelid: item.uuid, // 保持一致
+                modelName: item.name,
+                modelPath: item.path,
+                addTime: formattedAddTime,  // 使用格式化后的日期
+                modelSize: item.modelSize, // 确保使用正确的字段名
+                modelHeight: item.rze,
+                rotationAngle: item.tze,
+              };
+            });
 
             // 更新分页的总数
             this.total = res.total;  // 假设后端返回 total
@@ -447,7 +455,8 @@ export default {
     // 重置功能
     resetQuery() {
       this.queryParams = '';  // 清空搜索输入框
-      this.queryObliqueImageryData();
+      this.fetchModelData();
+      this.fetchTotalCount(); // 获取总数
     },
 
     // 新增 or 编辑 提交按钮
@@ -528,12 +537,12 @@ export default {
 
     handleSizeChange(newSize) {
       this.pageSize = newSize;
-      this.queryObliqueImageryData();
+      this.tableData = this.getPageArr()
     },
 
     handleCurrentChange(newPage) {
       this.currentPage = newPage;
-      this.queryObliqueImageryData();
+      this.tableData = this.getPageArr()
     },
 
     getPageArr() {

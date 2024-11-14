@@ -251,11 +251,11 @@ const fillZero = (str) => {
 
 const getEq = () => {
   getAllEq().then((res) => {
+    console.log("地震数据",res)
     EqAll.value = res;
     tableData.value = res;
+    // 之后要换回来     lastEqData.value = res[0];
     lastEqData.value = res[0];
-    console.log('res----------', res);
-
     // 打印最新的 eqid
     if (lastEqData.value) {
       console.log('最新地震的 eqid:', lastEqData.value.eqid);

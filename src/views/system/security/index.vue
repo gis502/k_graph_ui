@@ -203,26 +203,28 @@ const rules = reactive({
 // 搜索
 function handleQuery() {
   let searchKey = queryParams.value.trim();
+
   // 如果搜索关键字为空，恢复为原始数据
   if (searchKey === "") {
-    getList();
+    getList();  // 重新加载所有数据
     return;
   }
 
+  // 对搜索内容进行转换
+  searchKey = searchKey.replace(/^TCP$/i, 'tcp');   // 将TCP替换为tcp
+  searchKey = searchKey.replace(/^允许$/i, 'allow'); // 将允许替换为allow
+  searchKey = searchKey.replace(/^拒绝$/i, 'deny');  // 将拒绝替换为deny
+
   // 调用搜索接口
   searchSafetyProtection(searchKey).then(response => {
+    console.log("后端返回的数据：", response)
     // 处理返回数据
-    if (response && response.data) {
-      // 将搜索结果赋值给列表数据
-      this.list = response.data;
-    } else {
-      // 如果没有返回数据，显示空列表
-      this.list = [];
+    if (response) {
+      tableData.value = response;
     }
   }).catch(error => {
     console.error("搜索请求失败: ", error);
-    // 处理错误，例如提示用户搜索失败
-    this.$message.error("搜索失败，请稍后重试");
+    ElMessage.error("搜索失败，请稍后重试");
   });
 }
 
