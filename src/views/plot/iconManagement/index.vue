@@ -28,7 +28,7 @@
       <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
           <div v-if="scope.row.img && scope.row.img !== ''">
-            <img width="30px" height="30px" :src="'http://localhost:8080/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+            <img width="30px" height="30px" :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
 
           </div>
           <div v-else>
@@ -138,6 +138,7 @@
             </el-icon>
             <template #file="{ file }">
               <!--              <div slot="file" slot-scope="{file}">-->
+<!--              <img class="el-upload-list__item-thumbnail" :src="'http://localhost:8080/PlotsPic/' +file.url+ '.png?t=' + new Date().getTime()">-->
               <img class="el-upload-list__item-thumbnail" :src="file.url">
               <span class="el-upload-list__item-actions">
                   <span class="el-upload-list__item-delete" @click="deleteUnloadPic">
