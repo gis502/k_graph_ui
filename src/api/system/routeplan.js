@@ -7,3 +7,11 @@ export function getWay(data) {
         data: data
     })
 }
+
+export function getWayByGaoDe(data) {
+    return request({
+        url: '/system/driving',
+        method: 'post',
+        data: data
+    })
+}

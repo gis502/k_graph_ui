@@ -217,8 +217,10 @@ export default {
 
   data() {
     return {
+      isTerrainLoading: false,
+      yaanLayerRequire: "",
+      viewer: null,
       thisTab: "震害事件",
-      websock: null,
       total: 0,
       pageSize: 10,
       currentPage: 1,
@@ -358,7 +360,8 @@ export default {
   mounted() {
     this.init();
     this.getEq();
-    // this.initWebsocket()
+    this.viewer = new Cesium.Viewer("cesiumContainer");
+    this.addEventListeners();
   },
 
   computed: {
@@ -388,6 +391,32 @@ export default {
 
     // 初始化要做的
     // -----------------------------------------------------------------------------------------------------------------
+    addEventListeners() {
+      // 延迟绑定事件，确保控件已经加载
+      this.$nextTick(() => {
+        const baseLayerContainer = document.querySelector(
+          ".cesium-baseLayerPicker-dropDown"
+        );
+
+        if (baseLayerContainer) {
+          // 事件代理监听点击事件
+          baseLayerContainer.addEventListener("click", (event) => {
+            const clickedIcon = event.target.closest(
+              ".cesium-baseLayerPicker-itemIcon"
+            );
+            const clickedLabel = event.target.closest(
+              ".cesium-baseLayerPicker-itemLabel"
+            );
+
+            if (clickedIcon || clickedLabel) {
+              console.log("是否加载了地形图：",this.isTerrainLoaded())
+              this.isTerrainLoading = this.isTerrainLoaded()
+              this.toggleYaanLayer(this.yaanLayerRequire)
+            }
+          });
+        }
+      });
+    },
 
     // 获取地震列表并渲染
     getEq() {
@@ -438,8 +467,8 @@ export default {
         "地形服务";
 
       this.initMouseEvents();
-      this.renderQueryEqPoints();
       this.toggleYaanLayer('colorful')
+      this.renderQueryEqPoints();
     },
 
     // 注册鼠标事件监听
@@ -519,7 +548,9 @@ export default {
             image: eqMark,
             width: 20,
             height: 20,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+            eyeOffset: new Cesium.Cartesian3(0, 0, -5000),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            clampToGround: true,
           },
           label: {
             text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
@@ -535,6 +566,7 @@ export default {
           },
           id: eq.eqid
         });
+
         yaan.features.forEach((feature) => {
           let center = feature.properties.center;
 
@@ -551,8 +583,11 @@ export default {
                 verticalOrigin: Cesium.VerticalOrigin.CENTER,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                clampToGround: true,
                 pixelOffset: new Cesium.Cartesian2(0, 0),
-                eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
+                eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
               })
             }));
             this.RegionLabels.push(regionlabel)
@@ -566,11 +601,14 @@ export default {
     toggleYaanLayer(require) {
 
       if (require === "colorful") {
+        this.yaanLayerRequire = require
+        console.log("1123",this.yaanLayerRequire)
         this.removeLayers(['YaanRegionLayer'])
         this.eqThemes.show.isshowRegion = true;
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          clampToGround: this.isTerrainLoading, //贴地显示
           stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
           strokeWidth: 4,
         });
         geoPromise.then((dataSource) => {
@@ -592,6 +630,7 @@ export default {
             const colorIndex = index % colors.length;
             entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color);
           });
+
           yaan.features.forEach((feature) => {
             let center = feature.properties.center;
 
@@ -608,7 +647,11 @@ export default {
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  pixelOffset: new Cesium.Cartesian2(0, 0)
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  clampToGround: true,
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
                 })
               }));
               this.RegionLabels.push(regionlabel)
@@ -618,6 +661,8 @@ export default {
         })
       }
       else if (require === "none") {
+        this.yaanLayerRequire = require
+        console.log("1123",this.yaanLayerRequire)
         this.eqThemes.show.isshowRegion = true;
         this.removeLayers(['YaanRegionLayer'])
         this.RegionLabels.forEach(label => {
@@ -625,8 +670,9 @@ export default {
         })
         this.RegionLabels = []
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          clampToGround: this.isTerrainLoading, //贴地显示
           stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.1),
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
           strokeWidth: 4,
         });
         geoPromise.then((dataSource) => {
@@ -653,7 +699,11 @@ export default {
                   verticalOrigin: Cesium.VerticalOrigin.CENTER,
                   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                   fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  pixelOffset: new Cesium.Cartesian2(0, 0)
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  clampToGround: true,
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
                 })
               }));
               this.RegionLabels.push(regionlabel)
@@ -662,6 +712,8 @@ export default {
           //雅安行政区加载 end
         })
       } else if (require === "remove") {
+        this.yaanLayerRequire = require
+        console.log("1123",this.yaanLayerRequire)
         this.eqThemes.show.isshowRegion = false;
         this.removeLayers(['YaanRegionLayer'])
 
@@ -1344,7 +1396,10 @@ export default {
         const layerName = `${type}`;
 
         // 加载 sichuanCounty.json 数据
-        Cesium.GeoJsonDataSource.load(sichuanCounty).then((geoJsonDataSource) => {
+        Cesium.GeoJsonDataSource.load(sichuanCounty, {
+          clampToGround: true,
+          }
+        ).then((geoJsonDataSource) => {
           viewer.dataSources.add(geoJsonDataSource);
           geoJsonDataSource.name = layerName;
 
@@ -1440,9 +1495,11 @@ export default {
             verticalOrigin: Cesium.VerticalOrigin.CENTER,
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
             fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            clampToGround: true,
             pixelOffset: new Cesium.Cartesian2(0, 0),
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
-            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
+            // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
           }),
           properties: {type},
         }));
