@@ -131,6 +131,9 @@ const initChart = async () => {
         },
       },
       tooltip: {
+        textStyle:{
+          color: '#15ecf4'
+        },
         trigger: 'axis',
         axisPointer: {
           lineStyle: {
@@ -169,7 +172,6 @@ const initChart = async () => {
           lineStyle: {
             color: '#15faff',
           },
-
         },
         axisTick: {
           show: false
@@ -177,7 +179,7 @@ const initChart = async () => {
         axisLabel: {
           show: true
         },
-        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()).reverse(),
       },
       yAxis: {
         axisLine: {
@@ -400,7 +402,15 @@ const initChart = async () => {
     },
     // 渐变叠状柱图
     {
-      title: { text: '近三年历史地震震级', textStyle: { color: '#15faff' }, fontSize: 15 },
+      title:{
+        text: '近三年历史地震震级',
+        textStyle: {
+          color: '#15faff',
+          fontSize: 20,
+          fontWeight: 'bold',
+          textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
+        },
+      },
       grid: {
         top: 100,
         left: 20,
@@ -421,6 +431,9 @@ const initChart = async () => {
         },
       },
       tooltip: {
+        textStyle:{
+          color: '#15ecf4'
+        },
         trigger: 'axis',
         axisPointer: {
           lineStyle: {
@@ -432,8 +445,10 @@ const initChart = async () => {
         formatter: function(params) {
           var result = params[0].name + '年<br>';
           params.forEach(function(item) {
-            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
-            // 直接展示数据，并添加单位（次）
+
+            // 使用item.color来显示图例的颜色
+            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color.colorStops[0].color + '"></span>';
+            // 显示图例名称和对应的值
             result += item.seriesName + ": " + item.data + " 次<br>";
           });
           return result;
@@ -441,7 +456,7 @@ const initChart = async () => {
       },
       xAxis: {
         type: "category",
-        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()).reverse(),
         axisLine: {
           lineStyle: {
             color: "rgba(118, 169, 250, .8)",
@@ -452,9 +467,9 @@ const initChart = async () => {
         },
         axisLabel: {
           interval: 0,
-          color: "#C5E5F9",
+          color: "#15faff",
           fontSize: 15,
-          margin: 20
+          margin: 5,
         },
       },
       yAxis: {
@@ -481,28 +496,16 @@ const initChart = async () => {
       series: [
         {
           barWidth: '50%',
-          name: "<3",
-          type: "bar",
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#66D9EF' },
-              { offset: 1, color: 'rgba(102, 217, 239, 0)' },
-            ]),
-          },
-          data: threeYearMagnitudes['<3'],
-        },
-        {
-          barWidth: '50%',
-          name: "3-4.5",
+          name: "≥6",
           type: "bar",
           barGap: '-100%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#A7E8D1' },
-              { offset: 1, color: 'rgba(126, 211, 33, 0)' },
+              { offset: 0, color: '#FFB6C1' },
+              { offset: 1, color: 'rgba(255, 182, 193, 0)' },
             ]),
           },
-          data: threeYearMagnitudes['3-4.5'],
+          data: threeYearMagnitudes['≥6'],
         },
         {
           barWidth: '50%',
@@ -511,34 +514,53 @@ const initChart = async () => {
           barGap: '-100%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#54A0FF' },
-              { offset: 1, color: 'rgba(167, 232, 209, 0)' },
+              { offset: 0, color: '#ffbe84' },
+              { offset: 1, color: 'rgba(255, 218, 185, 0)' },
             ]),
           },
           data: threeYearMagnitudes['4.5-6'],
         },
         {
           barWidth: '50%',
-          name: "≥6",
+          name: "3-4.5",
           type: "bar",
           barGap: '-100%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#87CEEB' },
-              { offset: 1, color: 'rgba(135, 206, 235, 0)' },
+              { offset: 0, color: '#FFFACD' },
+              { offset: 1, color: 'rgba(255, 250, 205, 0)' },
             ]),
           },
-          data: threeYearMagnitudes['≥6'],
+          data: threeYearMagnitudes['3-4.5'],
+        },
+        {
+          barWidth: '50%',
+          name: "<3",
+          type: "bar",
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#7FFFD4' },
+              { offset: 1, color: 'rgba(127, 255, 212, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['<3'],
         },
       ]
     },
     {
       title: {
         text: '近十年历史地震震级',
-        textStyle: { color: '#FFFFFF' },
-        fontSize: 15
+        textStyle: {
+          color: '#15faff',
+          fontSize: 20,
+          fontWeight: 'bold',
+          textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
+        },
       },
       tooltip: {
+        textStyle:{
+          color: '#15ecf4'
+        },
         trigger: 'axis',
         axisPointer: {
           lineStyle: {
@@ -577,7 +599,6 @@ const initChart = async () => {
           lineStyle: {
             color: '#15faff',
           },
-
         },
         axisTick: {
           show: false
@@ -585,7 +606,7 @@ const initChart = async () => {
         axisLabel: {
           show: true
         },
-        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()).reverse(),
       },
       yAxis: {
         axisLine: {
@@ -807,7 +828,15 @@ const initChart = async () => {
       ]
     },
     {
-      title: { text: '近三年历史地震震级', textStyle: { color: '#15faff' }, fontSize: 15 },
+      title:{
+        text: '近三年历史地震震级',
+        textStyle: {
+          color: '#15faff',
+          fontSize: 20,
+          fontWeight: 'bold',
+          textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
+        },
+      },
       grid: {
         top: 100,
         left: 20,
@@ -828,6 +857,9 @@ const initChart = async () => {
         },
       },
       tooltip: {
+        textStyle:{
+          color: '#15ecf4'
+        },
         trigger: 'axis',
         axisPointer: {
           lineStyle: {
@@ -839,8 +871,10 @@ const initChart = async () => {
         formatter: function(params) {
           var result = params[0].name + '年<br>';
           params.forEach(function(item) {
-            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
-            // 直接展示数据，并添加单位（次）
+
+            // 使用item.color来显示图例的颜色
+            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color.colorStops[0].color + '"></span>';
+            // 显示图例名称和对应的值
             result += item.seriesName + ": " + item.data + " 次<br>";
           });
           return result;
@@ -848,7 +882,7 @@ const initChart = async () => {
       },
       xAxis: {
         type: "category",
-        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()).reverse(),
         axisLine: {
           lineStyle: {
             color: "rgba(118, 169, 250, .8)",
@@ -859,9 +893,9 @@ const initChart = async () => {
         },
         axisLabel: {
           interval: 0,
-          color: "#C5E5F9",
+          color: "#15faff",
           fontSize: 15,
-          margin: 20
+          margin: 5,
         },
       },
       yAxis: {
@@ -888,28 +922,16 @@ const initChart = async () => {
       series: [
         {
           barWidth: '50%',
-          name: "<3",
-          type: "bar",
-          itemStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#66D9EF' },
-              { offset: 1, color: 'rgba(102, 217, 239, 0)' },
-            ]),
-          },
-          data: threeYearMagnitudes['<3'],
-        },
-        {
-          barWidth: '50%',
-          name: "3-4.5",
+          name: "≥6",
           type: "bar",
           barGap: '-100%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#A7E8D1' },
-              { offset: 1, color: 'rgba(126, 211, 33, 0)' },
+              { offset: 0, color: '#FFB6C1' },
+              { offset: 1, color: 'rgba(255, 182, 193, 0)' },
             ]),
           },
-          data: threeYearMagnitudes['3-4.5'],
+          data: threeYearMagnitudes['≥6'],
         },
         {
           barWidth: '50%',
@@ -918,24 +940,36 @@ const initChart = async () => {
           barGap: '-100%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#54A0FF' },
-              { offset: 1, color: 'rgba(167, 232, 209, 0)' },
+              { offset: 0, color: '#ffbe84' },
+              { offset: 1, color: 'rgba(255, 218, 185, 0)' },
             ]),
           },
           data: threeYearMagnitudes['4.5-6'],
         },
         {
           barWidth: '50%',
-          name: "≥6",
+          name: "3-4.5",
           type: "bar",
           barGap: '-100%',
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: '#87CEEB' },
-              { offset: 1, color: 'rgba(135, 206, 235, 0)' },
+              { offset: 0, color: '#FFFACD' },
+              { offset: 1, color: 'rgba(255, 250, 205, 0)' },
             ]),
           },
-          data: threeYearMagnitudes['≥6'],
+          data: threeYearMagnitudes['3-4.5'],
+        },
+        {
+          barWidth: '50%',
+          name: "<3",
+          type: "bar",
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#7FFFD4' },
+              { offset: 1, color: 'rgba(127, 255, 212, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['<3'],
         },
       ]
     },
