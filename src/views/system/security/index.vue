@@ -29,7 +29,7 @@
       <el-table-column prop="port" label="端口" align="center" width="180"></el-table-column>
       <el-table-column prop="tactics" label="策略" align="center" width="180">
         <template #default="scope">
-          {{ scope.row.tactics === 'allow' ? '允许' : '拒绝'}}
+          {{ scope.row.tactics === 'allow' ? '允许' : '拒绝' }}
         </template>
       </el-table-column>
       <el-table-column prop="notes" label="备注" align="center" width="180"></el-table-column>
@@ -60,45 +60,45 @@
           label-width="auto"
           status-icon
       >
-            <el-form-item label="应用类型：">
-              <el-select v-model="dialogContent.applicationType" placeholder="请选择应用类型">
-                <el-option label="自定义" value="自定义"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="来源：" prop="source">
-              <el-autocomplete
-                  v-model="dialogContent.source"
-                  :fetch-suggestions="querySearch"
-                  clearable
-                  prepend="快速选择"
-                  placeholder="请输入来源"
-                  @select="handleSelect"
-              >
-              </el-autocomplete>
-            </el-form-item>
-            <el-form-item label="协议：">
-              <el-select v-model="dialogContent.agreement" placeholder="请选择协议">
-                <el-option label="TCP" value="tcp"></el-option>
-                <el-option label="UDP" value="udp"></el-option>
-              </el-select>
-            </el-form-item>
+        <el-form-item label="应用类型：">
+          <el-select v-model="dialogContent.applicationType" placeholder="请选择应用类型">
+            <el-option label="自定义" value="自定义"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="来源：" prop="source">
+          <el-autocomplete
+              v-model="dialogContent.source"
+              :fetch-suggestions="querySearch"
+              clearable
+              prepend="快速选择"
+              placeholder="请输入来源"
+              @select="handleSelect"
+          >
+          </el-autocomplete>
+        </el-form-item>
+        <el-form-item label="协议：">
+          <el-select v-model="dialogContent.agreement" placeholder="请选择协议">
+            <el-option label="TCP" value="tcp"></el-option>
+            <el-option label="UDP" value="udp"></el-option>
+          </el-select>
+        </el-form-item>
 
-            <el-form-item label="端口：" prop="port">
-              <el-input v-model="dialogContent.port" placeholder="请输入端口"></el-input>
-            </el-form-item>
-
-
-            <el-form-item label="策略：">
-              <el-select v-model="dialogContent.tactics" placeholder="请选择策略">
-                <el-option label="允许" value="allow"></el-option>
-                <el-option label="拒绝" value="deny"></el-option>
-              </el-select>
-            </el-form-item>
+        <el-form-item label="端口：" prop="port">
+          <el-input v-model="dialogContent.port" placeholder="请输入端口"></el-input>
+        </el-form-item>
 
 
-            <el-form-item label="备注：">
-              <el-input v-model="dialogContent.notes" placeholder="请输入备注"></el-input>
-            </el-form-item>
+        <el-form-item label="策略：">
+          <el-select v-model="dialogContent.tactics" placeholder="请选择策略">
+            <el-option label="允许" value="allow"></el-option>
+            <el-option label="拒绝" value="deny"></el-option>
+          </el-select>
+        </el-form-item>
+
+
+        <el-form-item label="备注：">
+          <el-input v-model="dialogContent.notes" placeholder="请输入备注"></el-input>
+        </el-form-item>
 
         <span slot="footer" class="dialog-footer">
           <el-button @click="cancel">取 消</el-button>
@@ -111,7 +111,7 @@
 </template>
 
 <script setup>
-import {insert, update, removeById, list} from "@/api/system/security.js";
+import {insert, update, removeById, list, searchSafetyProtection} from "@/api/system/security.js";
 import {ElMessage, ElMessageBox} from 'element-plus'
 
 let getData = ref([]) // 后端获取的所有数据
@@ -166,7 +166,7 @@ const ruleFormRef = ref()
 
 const rules = reactive({
   port: [
-    { required: true, message: '请输入1-65535之间的数字', trigger: 'blur' },
+    {required: true, message: '请输入1-65535之间的数字', trigger: 'blur'},
     {
       validator: (rule, value, callback) => {
         const num = Number(value);
@@ -200,16 +200,32 @@ const rules = reactive({
 });
 
 
-
 // 搜索
 function handleQuery() {
   let searchKey = queryParams.value.trim();
   // 如果搜索关键字为空，恢复为原始数据
   if (searchKey === "") {
-    getList()
+    getList();
     return;
   }
+
+  // 调用搜索接口
+  searchSafetyProtection(searchKey).then(response => {
+    // 处理返回数据
+    if (response && response.data) {
+      // 将搜索结果赋值给列表数据
+      this.list = response.data;
+    } else {
+      // 如果没有返回数据，显示空列表
+      this.list = [];
+    }
+  }).catch(error => {
+    console.error("搜索请求失败: ", error);
+    // 处理错误，例如提示用户搜索失败
+    this.$message.error("搜索失败，请稍后重试");
+  });
 }
+
 
 // 重置搜索信息
 function resetQuery() {
