@@ -52,7 +52,486 @@ const initChart = async () => {
   const threeYearMagnitudes = calculateMagnitudeData(props.eqData, 3);
   const tenYearMagnitudes = calculateMagnitudeData(props.eqData, 10);
 
+  // 以下是流光折线图的一些配置的
+  var data1 = tenYearMagnitudes['<3'];
+  var data2 = tenYearMagnitudes['3-4.5'];
+  var data3 = tenYearMagnitudes['4.5-6'];
+  var data4 = tenYearMagnitudes['≥6'];
+
+  var json = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data1,
+      lowLine: [],
+    }
+  };
+  var json2 = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data2,
+      lowLine: [],
+    }
+  };
+  var json3 = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data3,
+      lowLine: [],
+    }
+  };
+  var json4 = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data4,
+      lowLine: [],
+    }
+  };
+
+  var zrUtil = echarts.util;
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json.chart0.lowLine.push([{
+      coord: [index, json.chart0.low[index]]
+    }, {
+      coord: [index + 1, json.chart0.low[index + 1]]
+    }]);
+  });
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json2.chart0.lowLine.push([{
+      coord: [index, json2.chart0.low[index]]
+    }, {
+      coord: [index + 1, json2.chart0.low[index + 1]]
+    }]);
+  });
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json3.chart0.lowLine.push([{
+      coord: [index, json3.chart0.low[index]]
+    }, {
+      coord: [index + 1, json3.chart0.low[index + 1]]
+    }]);
+  });
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json4.chart0.lowLine.push([{
+      coord: [index, json4.chart0.low[index]]
+    }, {
+      coord: [index + 1, json4.chart0.low[index + 1]]
+    }]);
+  });
+  // ----------------------------------------------------------------------------------------------
+
   chartOptions.value = [
+    // 流光折现图
+    {
+      title: {
+        text: '近十年历史地震震级',
+        textStyle: {
+          color: '#15faff',
+          fontSize: 20,
+          fontWeight: 'bold',
+          textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
+        },
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          lineStyle: {
+            color: '#15ecf4'
+          }
+        },
+        backgroundColor: 'rgba(0,0,0,.8)',
+        extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
+        formatter: function(params) {
+          var result = params[0].name + '年<br>';
+          params.forEach(function(item) {
+            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
+            // 直接展示数据，并添加单位（次）
+            result += item.seriesName + ": " + item.data + " 次<br>";
+          });
+          return result;
+        }
+      },
+      legend: {
+        data: ['<3', '3-4.5', '4.5-6', '≥6'],
+        textStyle: {
+          fontSize: 12,
+          color: 'rgb(0,253,255,0.6)'
+        },
+        top: '5%',
+        right: '5%'
+      },
+      grid: {
+        bottom: 50,
+        left: 70,
+        right: 50,
+      },
+      xAxis: {
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#15faff',
+          },
+
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true
+        },
+        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      },
+      yAxis: {
+        axisLine: {
+          show: false,
+        },
+        axisTick: {
+          show: false
+        },
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+            color: '#4b4d64'
+          }
+        },
+        axisLabel: {
+          formatter: '{value} ',
+          textStyle: { //改变刻度字体样式
+            color: '#ffffff'
+          }
+        },
+      },
+      series: [
+        {
+        name: '<3',
+        type: 'line',
+        // smooth: true,
+        symbol: 'circle',
+        symbolSize: 10,
+        areaStyle: {
+          normal: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+              offset: 0,
+              color: 'rgba(255, 204,1, .9)'
+            }, {
+              offset: 0.8,
+              color: 'rgba(6, 8, 41,.1)'
+            }], false),
+            shadowColor: 'rgba(0, 0, 0, 0.1)',
+            shadowBlur: 10
+          }
+        },
+        itemStyle: {
+          normal: {
+            color: '#ffcb00'
+          }
+        },
+        data: data1
+      },
+        {
+          name: '<3',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#ffcb00',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json.chart0.lowLine
+        },
+        {
+          name: '3-4.5',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgba(21, 250, 255,.9)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#15faff'
+            }
+          },
+          data: data2
+        },
+        {
+          name: '3-4.5',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#15faff',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json2.chart0.lowLine
+        },
+        {
+          name: '4.5-6',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgba(255, 99, 71, 0.7)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#FF6A4D'
+            }
+          },
+          data: data3
+        },
+        {
+          name: '4.5-6',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#FF6A4D',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json3.chart0.lowLine
+        },
+        {
+          name: '≥6',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgb(255, 160, 122)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#FFA07A'
+            }
+          },
+          data: data4
+        },
+        {
+          name: '≥6',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#FFA07A',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json4.chart0.lowLine
+        },
+      ]
+    },
+    // 渐变叠状柱图
+    {
+      title: { text: '近三年历史地震震级', textStyle: { color: '#15faff' }, fontSize: 15 },
+      grid: {
+        top: 100,
+        left: 20,
+        right: 20,
+        bottom: 20,
+        containLabel: true,
+      },
+      legend: {
+        icon: "rect",
+        itemWidth: 15,
+        itemHeight: 10,
+        right: 0,
+        top: 50,
+        itemGap: 20,
+        textStyle: {
+          color: "#BCE6FF",
+          fontSize: 15
+        },
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          lineStyle: {
+            color: '#15ecf4'
+          }
+        },
+        backgroundColor: 'rgba(0,0,0,.8)',
+        extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
+        formatter: function(params) {
+          var result = params[0].name + '年<br>';
+          params.forEach(function(item) {
+            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
+            // 直接展示数据，并添加单位（次）
+            result += item.seriesName + ": " + item.data + " 次<br>";
+          });
+          return result;
+        }
+      },
+      xAxis: {
+        type: "category",
+        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
+        axisLine: {
+          lineStyle: {
+            color: "rgba(118, 169, 250, .8)",
+          },
+        },
+        axisTick: {
+          show: false,
+        },
+        axisLabel: {
+          interval: 0,
+          color: "#C5E5F9",
+          fontSize: 15,
+          margin: 20
+        },
+      },
+      yAxis: {
+        type: "value",
+        axisTick: {
+          show: false,
+        },
+        axisLine: {
+          show: false,
+        },
+        axisLabel: {
+          color: "#C5E5F9",
+          fontSize: 12,
+          margin: 5,
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            type: "dashed",
+            color: "rgba(118, 169, 250, .5)",
+          },
+        },
+      },
+      series: [
+        {
+          barWidth: '50%',
+          name: "<3",
+          type: "bar",
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#66D9EF' },
+              { offset: 1, color: 'rgba(102, 217, 239, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['<3'],
+        },
+        {
+          barWidth: '50%',
+          name: "3-4.5",
+          type: "bar",
+          barGap: '-100%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#A7E8D1' },
+              { offset: 1, color: 'rgba(126, 211, 33, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['3-4.5'],
+        },
+        {
+          barWidth: '50%',
+          name: "4.5-6",
+          type: "bar",
+          barGap: '-100%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#54A0FF' },
+              { offset: 1, color: 'rgba(167, 232, 209, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['4.5-6'],
+        },
+        {
+          barWidth: '50%',
+          name: "≥6",
+          type: "bar",
+          barGap: '-100%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#87CEEB' },
+              { offset: 1, color: 'rgba(135, 206, 235, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['≥6'],
+        },
+      ]
+    },
     {
       title: {
         text: '近十年历史地震震级',
@@ -61,168 +540,406 @@ const initChart = async () => {
       },
       tooltip: {
         trigger: 'axis',
-        formatter: function (params) {
-          let tooltipContent = `${params[0].axisValue}年地震震级次数:<br>`;
-          params.forEach(param => {
-            tooltipContent += `
-              <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; border-radius: 50%; margin-right: 5px;"></span>
-              ${param.seriesName}: <span style="float: right;">${param.data} 次</span><br>
-            `;
-          });
-          return tooltipContent;
+        axisPointer: {
+          lineStyle: {
+            color: '#15ecf4'
+          }
         },
+        backgroundColor: 'rgba(0,0,0,.8)',
+        extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
+        formatter: function(params) {
+          var result = params[0].name + '年<br>';
+          params.forEach(function(item) {
+            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
+            // 直接展示数据，并添加单位（次）
+            result += item.seriesName + ": " + item.data + " 次<br>";
+          });
+          return result;
+        }
       },
       legend: {
         data: ['<3', '3-4.5', '4.5-6', '≥6'],
-        top: '10%',
-        orient: 'horizontal',
-        left: 'center',
-        textStyle: { color: '#FFFFFF' }
+        textStyle: {
+          fontSize: 12,
+          color: 'rgb(0,253,255,0.6)'
+        },
+        top: '5%',
+        right: '5%'
+      },
+      grid: {
+        bottom: 50,
+        left: 70,
+        right: 50,
       },
       xAxis: {
-        type: 'category',
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#15faff',
+          },
+
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: true
+        },
         data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      },
+      yAxis: {
+        axisLine: {
+          show: false,
+        },
+        axisTick: {
+          show: false
+        },
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+            color: '#4b4d64'
+          }
+        },
         axisLabel: {
-          color: '#FFFFFF',
-          show: true,
-          interval: 0,
+          formatter: '{value} ',
+          textStyle: { //改变刻度字体样式
+            color: '#ffffff'
+          }
         },
       },
-      yAxis: { type: 'value' },
       series: [
-        { name: '<3', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['<3'], itemStyle: { color: '#2889ff' } },
-        { name: '3-4.5', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['3-4.5'], itemStyle: { color: '#ffeb2f' } },
-        { name: '4.5-6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['4.5-6'], itemStyle: { color: '#ffa500' } },
-        { name: '≥6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['≥6'], itemStyle: { color: '#ff2f2f' } },
-      ],
-    },
-    // 近三年地震震级分布的配置同上
-    {
-      title: { text: '近三年历史地震震级', textStyle: { color: '#FFFFFF' }, fontSize: 15 },
-      tooltip: {
-        trigger: 'axis',
-        formatter: function (params) {
-          let tooltipContent = `${params[0].axisValue}年地震震级次数:<br>`;
-          params.forEach(param => {
-            tooltipContent += `
-              <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; border-radius: 50%; margin-right: 5px;"></span>
-              ${param.seriesName}: <span style="float: right;">${param.data} 次</span><br>
-            `;
-          });
-          return tooltipContent;
+        {
+          name: '<3',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgba(255, 204,1, .9)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#ffcb00'
+            }
+          },
+          data: data1
         },
+        {
+          name: '<3',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#ffcb00',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json.chart0.lowLine
+        },
+        {
+          name: '3-4.5',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgba(21, 250, 255,.9)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#15faff'
+            }
+          },
+          data: data2
+        },
+        {
+          name: '3-4.5',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#15faff',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json2.chart0.lowLine
+        },
+        {
+          name: '4.5-6',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgba(255, 99, 71, 0.7)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#FF6A4D'
+            }
+          },
+          data: data3
+        },
+        {
+          name: '4.5-6',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#FF6A4D',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json3.chart0.lowLine
+        },
+        {
+          name: '≥6',
+          type: 'line',
+          // smooth: true,
+          symbol: 'circle',
+          symbolSize: 10,
+          areaStyle: {
+            normal: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0,
+                color: 'rgb(255, 160, 122)'
+              }, {
+                offset: 0.8,
+                color: 'rgba(6, 8, 41,.1)'
+              }], false),
+              shadowColor: 'rgba(0, 0, 0, 0.1)',
+              shadowBlur: 10
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#FFA07A'
+            }
+          },
+          data: data4
+        },
+        {
+          name: '≥6',
+          type: 'lines',
+          coordinateSystem: 'cartesian2d',
+          zlevel: 1,
+          smooth: true,
+          symbol: 'circle',
+          effect: {
+            show: true,
+            smooth: true,
+            period: 2,
+            symbolSize: 8
+          },
+          lineStyle: {
+            normal: {
+              color: '#FFA07A',
+              width: 0,
+              opacity: 0,
+              curveness: 0,
+            }
+          },
+          data: json4.chart0.lowLine
+        },
+      ]
+    },
+    {
+      title: { text: '近三年历史地震震级', textStyle: { color: '#15faff' }, fontSize: 15 },
+      grid: {
+        top: 100,
+        left: 20,
+        right: 20,
+        bottom: 20,
+        containLabel: true,
       },
       legend: {
-        data: ['<3', '3-4.5', '4.5-6', '≥6'],
-        top: '10%',
-        orient: 'horizontal',
-        left: 'center',
-        textStyle: { color: '#FFFFFF' }
+        icon: "rect",
+        itemWidth: 15,
+        itemHeight: 10,
+        right: 0,
+        top: 50,
+        itemGap: 20,
+        textStyle: {
+          color: "#BCE6FF",
+          fontSize: 15
+        },
+      },
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          lineStyle: {
+            color: '#15ecf4'
+          }
+        },
+        backgroundColor: 'rgba(0,0,0,.8)',
+        extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
+        formatter: function(params) {
+          var result = params[0].name + '年<br>';
+          params.forEach(function(item) {
+            result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
+            // 直接展示数据，并添加单位（次）
+            result += item.seriesName + ": " + item.data + " 次<br>";
+          });
+          return result;
+        }
       },
       xAxis: {
-        type: 'category',
+        type: "category",
         data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
+        axisLine: {
+          lineStyle: {
+            color: "rgba(118, 169, 250, .8)",
+          },
+        },
+        axisTick: {
+          show: false,
+        },
         axisLabel: {
-          color: '#FFFFFF',
-          show: true,
           interval: 0,
+          color: "#C5E5F9",
+          fontSize: 15,
+          margin: 20
         },
       },
-      yAxis: { type: 'value' },
-      series: [
-        { name: '<3', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['<3'], itemStyle: { color: '#2889ff' } },
-        { name: '3-4.5', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['3-4.5'], itemStyle: { color: '#ffeb2f' } },
-        { name: '4.5-6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['4.5-6'], itemStyle: { color: '#ffa500' } },
-        { name: '≥6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['≥6'], itemStyle: { color: '#ff2f2f' } },
-      ],
-    },
-    {
-      title: {
-        text: '近十年历史地震震级',
-        textStyle: { color: '#FFFFFF' },
-        fontSize: 15
-      },
-      tooltip: {
-        trigger: 'axis',
-        formatter: function (params) {
-          let tooltipContent = `${params[0].axisValue}年地震震级次数:<br>`;
-          params.forEach(param => {
-            tooltipContent += `
-              <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; border-radius: 50%; margin-right: 5px;"></span>
-              ${param.seriesName}: <span style="float: right;">${param.data} 次</span><br>
-            `;
-          });
-          return tooltipContent;
+      yAxis: {
+        type: "value",
+        axisTick: {
+          show: false,
         },
-      },
-      legend: {
-        data: ['<3', '3-4.5', '4.5-6', '≥6'],
-        top: '10%',
-        orient: 'horizontal',
-        left: 'center',
-        textStyle: { color: '#FFFFFF' }
-      },
-      xAxis: {
-        type: 'category',
-        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+        axisLine: {
+          show: false,
+        },
         axisLabel: {
-          color: '#FFFFFF',
+          color: "#C5E5F9",
+          fontSize: 12,
+          margin: 5,
+        },
+        splitLine: {
           show: true,
-          interval: 0,
+          lineStyle: {
+            type: "dashed",
+            color: "rgba(118, 169, 250, .5)",
+          },
         },
       },
-      yAxis: { type: 'value' },
       series: [
-        { name: '<3', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['<3'], itemStyle: { color: '#2889ff' } },
-        { name: '3-4.5', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['3-4.5'], itemStyle: { color: '#ffeb2f' } },
-        { name: '4.5-6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['4.5-6'], itemStyle: { color: '#ffa500' } },
-        { name: '≥6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: tenYearMagnitudes['≥6'], itemStyle: { color: '#ff2f2f' } },
-      ],
-    },
-    // 近三年地震震级分布的配置同上
-    {
-      title: { text: '近三年历史地震震级', textStyle: { color: '#FFFFFF' }, fontSize: 15 },
-      tooltip: {
-        trigger: 'axis',
-        formatter: function (params) {
-          let tooltipContent = `${params[0].axisValue}年地震震级次数:<br>`;
-          params.forEach(param => {
-            tooltipContent += `
-              <span style="display: inline-block; width: 10px; height: 10px; background-color: ${param.color}; border-radius: 50%; margin-right: 5px;"></span>
-              ${param.seriesName}: <span style="float: right;">${param.data} 次</span><br>
-            `;
-          });
-          return tooltipContent;
+        {
+          barWidth: '50%',
+          name: "<3",
+          type: "bar",
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#66D9EF' },
+              { offset: 1, color: 'rgba(102, 217, 239, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['<3'],
         },
-      },
-      legend: {
-        data: ['<3', '3-4.5', '4.5-6', '≥6'],
-        top: '10%',
-        orient: 'horizontal',
-        left: 'center',
-        textStyle: { color: '#FFFFFF' }
-      },
-      xAxis: {
-        type: 'category',
-        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
-        axisLabel: {
-          color: '#FFFFFF',
-          show: true,
-          interval: 0,
+        {
+          barWidth: '50%',
+          name: "3-4.5",
+          type: "bar",
+          barGap: '-100%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#A7E8D1' },
+              { offset: 1, color: 'rgba(126, 211, 33, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['3-4.5'],
         },
-      },
-      yAxis: { type: 'value' },
-      series: [
-        { name: '<3', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['<3'], itemStyle: { color: '#2889ff' } },
-        { name: '3-4.5', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['3-4.5'], itemStyle: { color: '#ffeb2f' } },
-        { name: '4.5-6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['4.5-6'], itemStyle: { color: '#ffa500' } },
-        { name: '≥6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['≥6'], itemStyle: { color: '#ff2f2f' } },
-      ],
+        {
+          barWidth: '50%',
+          name: "4.5-6",
+          type: "bar",
+          barGap: '-100%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#54A0FF' },
+              { offset: 1, color: 'rgba(167, 232, 209, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['4.5-6'],
+        },
+        {
+          barWidth: '50%',
+          name: "≥6",
+          type: "bar",
+          barGap: '-100%',
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#87CEEB' },
+              { offset: 1, color: 'rgba(135, 206, 235, 0)' },
+            ]),
+          },
+          data: threeYearMagnitudes['≥6'],
+        },
+      ]
     },
   ];
-
-
-
 
   await nextTick();
 
