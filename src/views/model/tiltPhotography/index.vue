@@ -291,7 +291,7 @@ export default {
       this.filterContent = {
         //  和后端字段对应
         name: this.dialogContent.modelName || null,
-        addTime: addTimeIso,  // 将 addTime 转换为 ISO 8601 格式的字符串或 null
+        time: addTimeIso,  // 将 addTime 转换为 ISO 8601 格式的字符串或 null
         modelHeight: this.dialogContent.modelHeight || null,
         rotationAngle: this.dialogContent.rotationAngle || null,
         modelPath: this.dialogContent.modelPath || null,
