@@ -38,12 +38,12 @@
       </el-table-column>
 
       <!--      <el-table-column prop="img" label="符号" width="60" align="center">-->
-<!--        <template #default="scope">-->
-<!--          <img width="30px" height="30px" :src="scope.row.img" alt="图片不正确">-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <!--        <template #default="scope">-->
+      <!--          <img width="30px" height="30px" :src="scope.row.img" alt="图片不正确">-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <el-table-column prop="name" label="名称" width="220" align="center"></el-table-column>
-<!--      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>-->
+      <!--      <el-table-column prop="plottype" label="标绘类型" width="120" align="center"></el-table-column>-->
       <el-table-column prop="describe" label="说明" align="center">
         <template #default="scope">
           <el-popover placement="top" :width="300" trigger="hover">
@@ -80,38 +80,38 @@
       <el-row >
         <el-col :span="12">
           <el-form-item label="类型：">
-          <el-select v-model="dialogContent.type" placeholder="请选择">
-            <el-option-group
-                v-for="group in typeArr"
-                :key="group.label"
-                :label="group.label">
-              <el-option
-                  v-for="item in group.options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-              </el-option>
-            </el-option-group>
-          </el-select>
+            <el-select v-model="dialogContent.type" placeholder="请选择">
+              <el-option-group
+                  v-for="group in typeArr"
+                  :key="group.label"
+                  :label="group.label">
+                <el-option
+                    v-for="item in group.options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+              </el-option-group>
+            </el-select>
           </el-form-item>
         </el-col>
 
         <el-col :span="12">
           <el-form-item label=" 标绘类型：">
-          <el-select v-model="dialogContent.plottype" placeholder="请选择">
-            <el-option
-                v-for="item in plotTypeArr"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-            </el-option>
-          </el-select>
+            <el-select v-model="dialogContent.plottype" placeholder="请选择">
+              <el-option
+                  v-for="item in plotTypeArr"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-col>
 
         <el-col :span="12">
           <el-form-item label="名称：">
-          <el-input v-model="dialogContent.name" placeholder="请输入内容"></el-input>
+            <el-input v-model="dialogContent.name" placeholder="请输入内容"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -119,35 +119,35 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="说明：">
-          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="24">
           <el-form-item label="符号：">
-          <el-upload
-              action="#"
-              :on-change='uploadOnChange'
-              list-type="picture-card"
-              :auto-upload="false"
-              :file-list="fileList"
-              :limit="1">
-            <el-icon>
-              <Plus/>
-            </el-icon>
-            <template #file="{ file }">
-              <!--              <div slot="file" slot-scope="{file}">-->
-<!--              <img class="el-upload-list__item-thumbnail" :src="'http://localhost:8080/PlotsPic/' +file.url+ '.png?t=' + new Date().getTime()">-->
-              <img class="el-upload-list__item-thumbnail" :src="file.url">
-              <span class="el-upload-list__item-actions">
+            <el-upload
+                action="#"
+                :on-change='uploadOnChange'
+                list-type="picture-card"
+                :auto-upload="false"
+                :file-list="fileList"
+                :limit="1">
+              <el-icon>
+                <Plus/>
+              </el-icon>
+              <template #file="{ file }">
+                <!--              <div slot="file" slot-scope="{file}">-->
+                <!--              <img class="el-upload-list__item-thumbnail" :src="'http://localhost:8080/PlotsPic/' +file.url+ '.png?t=' + new Date().getTime()">-->
+                <img class="el-upload-list__item-thumbnail" :src="file.url">
+                <span class="el-upload-list__item-actions">
                   <span class="el-upload-list__item-delete" @click="deleteUnloadPic">
                     <el-icon><Delete/></el-icon>
                   </span>
                 </span>
-              <!--              </div>-->
-            </template>
-          </el-upload>
+                <!--              </div>-->
+              </template>
+            </el-upload>
           </el-form-item>
         </el-col>
       </el-row>
@@ -317,14 +317,14 @@ export default {
         // 删除 fileList 中的文件
         const index = this.fileList.indexOf(file);
 
-          console.log("进入删除部分", this.dialogContent.img)
-          this.fileList.splice(index, 1);  // 从文件列表中移除指定文件
-          this.dialogContent.img = ''; // 清空对应的 img 字段
+        console.log("进入删除部分", this.dialogContent.img)
+        this.fileList.splice(index, 1);  // 从文件列表中移除指定文件
+        this.dialogContent.img = ''; // 清空对应的 img 字段
 
-          this.$message({
-            type: 'success',
-            message: '图片已成功删除'
-          });
+        this.$message({
+          type: 'success',
+          message: '图片已成功删除'
+        });
 
       }).catch(() => {
         this.$message({

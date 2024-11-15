@@ -438,6 +438,7 @@ export default {
 
       stopTimeforAddEntityOneIndex: 5000,
       firstMakerNodeIndex:0,
+      timelinePopupShowCenterStrart:true,
     };
   },
   created() {
@@ -725,9 +726,8 @@ export default {
         }, intervalTime);
         setTimeout(() => {
           clearInterval(intervalIdcolor); // 停止颜色切换
-          this.timelinePopupVisible = false;
-          this.updatePlotOnce(false)
-          // this.xuanran(this.eqid)
+          // this.updatePlotOnce(false)
+          this.xuanran(this.eqid)
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
@@ -819,7 +819,7 @@ export default {
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
       // this.getPlotwithStartandEndTime(eqid)
-      // this.updatePlotOnce(false)
+      this.updatePlotOnce(false)
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -983,6 +983,10 @@ export default {
       // stopTimeforAddEntityOneIndex
       // let stoptime = 5000
       if (points.length > 0) {
+        if(this.timelinePopupShowCenterStrart){
+          this.timelinePopupShowCenterStrart=false;
+          this.timelinePopupVisible = false;
+        }
 
         // let param = type === false ? false : true
         if (type == false) {
@@ -1171,10 +1175,11 @@ export default {
       const intervalIdcolor = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
       }, intervalTime);
-
+      
+      this.timelinePopupShowCenterStrart=true
       setTimeout(() => {
         clearInterval(intervalIdcolor); // 停止颜色切换
-        this.timelinePopupVisible = false;
+        // this.timelinePopupVisible = false;
       }, animationDuration);
       // let data=
       let data = {
