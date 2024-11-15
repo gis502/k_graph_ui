@@ -3118,7 +3118,7 @@ export default {
   position: absolute;
   z-index: 60;
   top: 36%;
-  left: 20%;
+  left: 21%;
 }
 
 .thematic-button {

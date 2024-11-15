@@ -1,7 +1,8 @@
 <template>
   <div class="casualtyStatistic">
     <div>
-      <span class="sub-title-new">人员伤亡详情</span>
+      <span class="sub-title-new">人员伤亡详情：</span>
+      <span class="title-time">{{timestampToTime(currentTime)}}</span>
       <div class="sub-main">
         <!--      <div width="">-->
         <el-table :data="statisticInfo"
@@ -401,6 +402,16 @@ export default {
         }
       }
     }
+    function timestampToTime(timestamp) {
+      const DateObj = new Date(timestamp);
+      const year = DateObj.getFullYear();
+      const month = (DateObj.getMonth() + 1).toString().padStart(2, '0');
+      const day = DateObj.getDate().toString().padStart(2, '0');
+      const hh = DateObj.getHours().toString().padStart(2, '0');
+      const mm = DateObj.getMinutes().toString().padStart(2, '0');
+      const ss = DateObj.getSeconds().toString().padStart(2, '0');
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+    }
 
     return {
       entityGroups,
@@ -410,7 +421,8 @@ export default {
       flyTo,
       formatPeople,
       tableHeaderColor,
-      tableColor
+      tableColor,
+      timestampToTime
     };
   }
 }
@@ -531,7 +543,14 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
-
+.title-time{
+  font-size: 0.9rem;
+  font-weight: normal;
+  color: #ffeb00;
+  line-height: 1.8rem;
+  top: -8px;
+  position: relative;
+}
 
 </style>
 
