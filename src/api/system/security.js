@@ -17,13 +17,13 @@ export function list() {
     })
 }
 
-//条件查询
-export function searchSafetyProtection(data) {
+// 条件查询
+export function searchSafetyProtection(searchKey) {
     return request({
         url: '/safety_protection/searchSafetyProtection',
         method: 'post',
-        params: data
-    })
+        params: { data: searchKey } // 直接传递搜索关键字
+    });
 }
 
 

@@ -1,6 +1,34 @@
 import request from '@/utils/request';
 
 
+/**
+ * 搜索框查询
+ * @param queryValue
+ * @returns {*}
+ */
+export function queryObliqueImageryData(queryValue) {
+    return request({
+        url: '/system/model/queryEq',
+        method: 'get',
+        params: {queryValue:queryValue}
+    });
+}
+
+/**
+ * 筛选
+ * @param data
+ * @returns {*}
+ * @constructor
+ */
+export function ObliqueImageryFilterContent(data) {
+    console.log("ObliqueImageryFilterContentc",data)
+    return request({
+        url: '/system/model/fromeq',
+        method: 'post',
+        data: data
+    });
+}
+
 export function getModelData() {
     return request({
         url: '/system/model/getmodel', // 对应的后台接口
@@ -19,15 +47,16 @@ export function getModelTotalData() {
     });
 }
 
+
 /**
  * 删除数据
  * @returns {*}
  */
 export function deleteModel(uuid) {
     return request({
-        url: `system/model/deletemodel`, // URL 不需要包含 {modelid}
-        method: 'get', // 使用 DELETE 方法
-        params: { uuid } // 将 modelid 作为查询参数
+        url: `system/model/deletemodel`,
+        method: 'get',
+        params: { uuid }
     });
 }
 
