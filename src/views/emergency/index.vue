@@ -6,7 +6,7 @@
         :popupData="popupData"
     />
     <div id="supplies" :class="{ collapsed: !tableVisible }" style="width: 93.5%;">
-      <el-form class="eqTable">
+      <el-form class="eqTable" @submit.native.prevent>
         <div style="margin-bottom: 10px; padding: 10px; width: 100.6%;">
           <el-menu
               :default-active="activeMenuIndex"
@@ -17,15 +17,15 @@
               text-color="#fff"
               active-text-color="#409eff"
           >
-            <el-sub-menu index="1" >
+            <el-sub-menu index="1">
               <template #title>路径规划</template>
               <el-menu-item index="1-1" @click="route">路径规划</el-menu-item>
               <el-menu-item index="1-2" @click="addArea">添加障碍区域</el-menu-item>
               <el-menu-item index="1-3" @click="removeAll">清空所有实体</el-menu-item>
-              <el-menu-item index="1-3" @click="removePoint">删除障碍区域</el-menu-item>
-              <el-menu-item index="1-3" @click="removePolyline">删除路径规划</el-menu-item>
+              <el-menu-item index="1-4" @click="removePoint">删除障碍区域</el-menu-item>
+              <el-menu-item index="1-5" @click="removePolyline">删除路径规划</el-menu-item>
             </el-sub-menu>
-            <el-sub-menu index="2" >
+            <el-sub-menu index="2">
               <template #title>救援力量匹配</template>
               <el-menu-item index="2-1" @click="addDisasterPoint">添加受灾点</el-menu-item>
               <el-menu-item index="2-2" @click="searchSupplyDialog = true">物资查询</el-menu-item>
@@ -153,24 +153,24 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="区域">
-              <el-input v-model="searchSupplyForm.county" autocomplete="off" />
+              <el-input v-model="searchSupplyForm.county" autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="地址">
-              <el-input v-model="searchSupplyForm.address" autocomplete="off" />
+              <el-input v-model="searchSupplyForm.address" autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="联系人">
-              <el-input v-model="searchSupplyForm.contactPerson" autocomplete="off" />
+              <el-input v-model="searchSupplyForm.contactPerson" autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="联系电话">
-              <el-input v-model="searchSupplyForm.contactPhone" autocomplete="off" />
+              <el-input v-model="searchSupplyForm.contactPhone" autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -187,17 +187,17 @@
     </el-dialog>
 
     <!--   救援力量查询dialog   -->
-    <el-dialog v-model="searchEmergencyTeamDialog" title="救援力量查询" width="200" class="marchSupply">
+    <el-dialog v-model="searchEmergencyTeamDialog" title="救援力量查询" width="600" class="marchSupply">
       <el-form :model="searchEmergencyTeamForm" label-width="120px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="级别名称">
-              <el-input v-model="searchEmergencyTeamForm.levelName" autocomplete="off" />
+              <el-input v-model="searchEmergencyTeamForm.levelName" autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="队伍类型名称">
-              <el-input v-model="searchEmergencyTeamForm.teamTypeName" autocomplete="off" />
+              <el-input v-model="searchEmergencyTeamForm.teamTypeName" autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -207,24 +207,24 @@
               <el-input
                   v-model="displayTeamTotalMembers"
                   @input="handleTeamTotalMembersInput"
-                  autocomplete="off" />
+                  autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="地址">
-              <el-input v-model="searchEmergencyTeamForm.address" autocomplete="off" />
+              <el-input v-model="searchEmergencyTeamForm.address" autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="负责人">
-              <el-input v-model="searchEmergencyTeamForm.personInCharge" autocomplete="off" />
+              <el-input v-model="searchEmergencyTeamForm.personInCharge" autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="负责人电话">
-              <el-input v-model="searchEmergencyTeamForm.chargePhone" autocomplete="off" />
+              <el-input v-model="searchEmergencyTeamForm.chargePhone" autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -250,7 +250,7 @@
                   v-model="displayDisasterTentsCount"
                   @input="handleDisasterTentsInput"
                   placeholder="/件"
-                  autocomplete="off" />
+                  autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -259,7 +259,7 @@
                   v-model="displayFlashlightsCount"
                   @input="handleFlashlightsInput"
                   placeholder="/件"
-                  autocomplete="off" />
+                  autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -270,7 +270,7 @@
                   v-model="displayRaincoatsCount"
                   @input="handleRaincoatsInput"
                   placeholder="/件"
-                  autocomplete="off" />
+                  autocomplete="off"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -279,7 +279,7 @@
                   v-model="displayRainBootsCount"
                   @input="handleRainBootsInput"
                   placeholder="/双"
-                  autocomplete="off" />
+                  autocomplete="off"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -303,7 +303,7 @@
                     @input="handleRadiusInput"
                     placeholder="请输入匹配的半径/km"
                     autocomplete="off"
-                    style="width: 180px;" />
+                    style="width: 180px;"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -416,6 +416,10 @@ export default {
           items: [],
           showDropdown: false },
       ],
+      handler: null, // 创建共享的 handler
+      isRouting: false, // 路径规划是否在进行中
+      isAddingArea: false, // 是否在添加受灾区域
+      propertiesId: [],  // 存储之前创建的实体（点和折线）的ID
       pos: [],
       areas: [],
       RouteTime: " ", //全程所需时间
@@ -485,35 +489,35 @@ export default {
       affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
       // 救援物资字段
       listFieldsOfSupplies: [
-        { prop: 'county', label: '区域', width: 200},
-        { prop: 'address', label: '地址', width: 320},
-        { prop: 'contactPerson', label: '联系人', width: 100},
-        { prop: 'contactPhone', label: '联系电话'},
-        { prop: 'tents', label: '帐篷总数量', width: 100 },
-        { prop: 'raincoats', label: '雨衣总数量', width: 100 },
-        { prop: 'rainBoots', label: '雨鞋总数量', width: 100 },
-        { prop: 'flashlights', label: '手电筒总数量', width: 130 }
+        {prop: 'county', label: '区域', width: 200},
+        {prop: 'address', label: '地址', width: 320},
+        {prop: 'contactPerson', label: '联系人', width: 100},
+        {prop: 'contactPhone', label: '联系电话'},
+        {prop: 'tents', label: '帐篷总数量', width: 100},
+        {prop: 'raincoats', label: '雨衣总数量', width: 100},
+        {prop: 'rainBoots', label: '雨鞋总数量', width: 100},
+        {prop: 'flashlights', label: '手电筒总数量', width: 130}
       ],
       // 救灾设备字段
       listFieldOfReserves: [
-        { prop: 'county', label: '区域', width: 200},
-        { prop: 'address', label: '地址', width: 320},
-        { prop: 'contactPerson', label: '联系人', width: 100 },
-        { prop: 'contactPhone', label: '联系电话' },
-        { prop: 'lifeJacket', label: '救生衣', width: 100 },
-        { prop: 'lifebuoy', label: '救生圈', width: 100 },
-        { prop: 'walkieTalkie', label: '对讲机', width: 100 },
-        { prop: 'portableLight', label: '照明灯', width: 130 }
+        {prop: 'county', label: '区域', width: 200},
+        {prop: 'address', label: '地址', width: 320},
+        {prop: 'contactPerson', label: '联系人', width: 100},
+        {prop: 'contactPhone', label: '联系电话'},
+        {prop: 'lifeJacket', label: '救生衣', width: 100},
+        {prop: 'lifebuoy', label: '救生圈', width: 100},
+        {prop: 'walkieTalkie', label: '对讲机', width: 100},
+        {prop: 'portableLight', label: '照明灯', width: 130}
       ],
       // 救援力量字段
       listFieldOfEmergencyTeam: [
         // { prop: 'county', label: '所属机构', width: 200, tooltip: true },
-        { prop: 'levelName', label: '级别名称', width: 250},
-        { prop: 'teamTypeName', label: '队伍类型名称', width: 400 },
-        { prop: 'totalMembers', label: '队伍人数', width: 120 },
-        { prop: 'address', label: '地址', width: 320 },
-        { prop: 'personInCharge', label: '负责人'},
-        { prop: 'chargePhone', label: '负责人电话', width: 200 },
+        {prop: 'levelName', label: '级别名称', width: 250},
+        {prop: 'teamTypeName', label: '队伍类型名称', width: 400},
+        {prop: 'totalMembers', label: '队伍人数', width: 120},
+        {prop: 'address', label: '地址', width: 320},
+        {prop: 'personInCharge', label: '负责人'},
+        {prop: 'chargePhone', label: '负责人电话', width: 200},
       ],
       listField: '',  // 判断显示哪个列表
       suppliesList: [],
@@ -546,18 +550,19 @@ export default {
     this.init();
     this.entitiesClickPonpHandler();
     this.initPlot(this.id);
+    this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
   },
   beforeUnmount() {
-    if (window.viewer){
-      let viewer=window.viewer
-      let gl=viewer.scene.context._gl
+    if (window.viewer) {
+      let viewer = window.viewer
+      let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
       console.log("webglcontext 已清除")
-      gl=null
+      gl = null
       window.viewer = null;
     }
   },
@@ -790,11 +795,11 @@ export default {
         let bool = type === 'supplies' ? true : false
 
         // 添加实体
-        this.addEntity(element, icon, tableName, longitude, latitude,bool);
+        this.addEntity(element, icon, tableName, longitude, latitude, bool);
       });
     },
 
-    addEntity(element, icon, tableName, longitude, latitude,bool) {
+    addEntity(element, icon, tableName, longitude, latitude, bool) {
       window.viewer.entities.add({
         uuid: element.uuid,
         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
@@ -925,7 +930,7 @@ export default {
     //-----------行政区划匹配-------------
 
     // 行政区划匹配dialog选中函数
-    selectRegions(district){
+    selectRegions(district) {
       const index = this.selectedRegions.indexOf(district);
       if (index === -1) {
         this.selectedRegions = []
@@ -947,7 +952,7 @@ export default {
       });
       if (filteredFeatures.length > 0) {
 
-        console.log("filteredFeatures---------------------------",filteredFeatures)
+        console.log("filteredFeatures---------------------------", filteredFeatures)
 
         this.removePoints(this.suppliesList[0]);
         this.removePoints(this.suppliesList[1]);
@@ -1007,7 +1012,6 @@ export default {
           });
 
 
-
           // 飞行到数据源中的实体位置，以便用户查看
           viewer.flyTo(dataSource.entities.values);
 
@@ -1025,12 +1029,12 @@ export default {
           regionCode: this.selectedRegions[0].adcode
         }
         marchByRegion(obj).then(res => {
-          console.log("marchByRegion-----------------------",res)
+          console.log("marchByRegion-----------------------", res)
           let suppliesArr = res.insideDisasterReliefSupplies
           let emergencyTeamArr = res.insideRescueTeamsInfo
           let reservesArr = res.insideEmergencyRescueEquipment
-          this.selectedDataByRegions = {suppliesArr,emergencyTeamArr,reservesArr}
-          console.log("selectedDataByRegions--------------------",this.selectedDataByRegions)
+          this.selectedDataByRegions = {suppliesArr, emergencyTeamArr, reservesArr}
+          console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
 
           this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
           this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
@@ -1079,17 +1083,17 @@ export default {
     },
 
     // 切换数据列表
-    changeDataList(param){
+    changeDataList(param) {
       this.selectedSuppliesList = []
       let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
 
-      if(param === 'supplies'){
+      if (param === 'supplies') {
         this.listField = 'supplies'
         this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-      }else if(param === 'emergencyTeam'){
+      } else if (param === 'emergencyTeam') {
         this.listField = 'emergencyTeam'
         this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-      }else{
+      } else {
         this.listField = 'reserves'
         this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
       }
@@ -1165,7 +1169,7 @@ export default {
     },
 
     // 物资查询
-    async searchSupply(){
+    async searchSupply() {
       let that = this;
       this.activeMenuIndex = '2'
       viewer.entities.values.forEach((entity) => {
@@ -1212,7 +1216,7 @@ export default {
     },
 
     // 救援力量查询
-    async searchEmergencyTeam(){
+    async searchEmergencyTeam() {
       let that = this;
       this.activeMenuIndex = '2'
       viewer.entities.values.forEach((entity) => {
@@ -1229,7 +1233,7 @@ export default {
       this.selectedSuppliesList = []
       await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
         this.selectedSuppliesList = res
-        console.log("-------------------",this.selectedSuppliesList)
+        console.log("-------------------", this.selectedSuppliesList)
 
       })
       this.drawSupplyPoint('searchEmergencyTeam')
@@ -1247,17 +1251,17 @@ export default {
     },
 
     // 物资匹配dialog能打开
-    async marchSupply(){
-      if(this.addSupplyPointCurrently.lat === 0){
+    async marchSupply() {
+      if (this.addSupplyPointCurrently.lat === 0) {
         await ElMessageBox.alert('请先添加受灾点。', '提示', {
           confirmButtonText: '确认',
         });
-      }else{
+      } else {
         this.marchSupplyDialog = true
       }
     },
     // 物资匹配
-    async marchSupplies(){
+    async marchSupplies() {
       this.removePoints(this.suppliesList[0]);
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
@@ -1268,25 +1272,25 @@ export default {
       // console.log("result-------------------",result)
       let i = 1.0
       let flag = false
-      while (i < 15.0 && !flag){
-        radiusResult = await this.marchSupplyByRadius(result,i)
+      while (i < 15.0 && !flag) {
+        radiusResult = await this.marchSupplyByRadius(result, i)
         // console.log("radiusResult-------------------",radiusResult)
         countResult = this.marchSupplyByCount(radiusResult)
         // console.log("countResult-------------------", countResult);
-        if(countResult.length > 0){
+        if (countResult.length > 0) {
           flag = true
           this.marchSupplyRadius = i
         }
         i++
       }
-      if(flag){
+      if (flag) {
         this.selectedSuppliesList = countResult
         await ElMessageBox.alert(`物资匹配成功！查询半径为 ${i - 1} 公里。`, '提示', {
           confirmButtonText: '确认',
         });
         this.ifDrawEllipse = true
-        this.drawSupplyPoint("searchSupplies",this.marchSupplyRadius)
-      }else{
+        this.drawSupplyPoint("searchSupplies", this.marchSupplyRadius)
+      } else {
         this.selectedSuppliesList = []
         await ElMessageBox.alert('15公里范围内未匹配到合适的物资。', '提示', {
           confirmButtonText: '确认',
@@ -1296,25 +1300,25 @@ export default {
     },
 
     // 半径查询
-    async searchSuppliesByRadius(){
-      if(this.addSupplyPointCurrently.lat === 0){
+    async searchSuppliesByRadius() {
+      if (this.addSupplyPointCurrently.lat === 0) {
         await ElMessageBox.alert('请先添加受灾点。', '提示', {
           confirmButtonText: '确认',
         });
-      }else{
+      } else {
         this.searchSupplyByRadiusDialog = true
       }
     },
 
     // 通过半径匹配物资
-    async marchSuppliesByRadius(){
+    async marchSuppliesByRadius() {
       this.ifDrawEllipse = true
-      this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList,this.searchSupplyForm.radius)
-      this.drawSupplyPoint("searchSupplies",this.searchSupplyForm.radius)
+      this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList, this.searchSupplyForm.radius)
+      this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
       this.searchSupplyByRadiusDialog = false
     },
     // 半径匹配
-    async marchSupplyByRadius(array,radius){
+    async marchSupplyByRadius(array, radius) {
       // 移除现有的点
       this.removePoints(this.suppliesList[0]);
       this.removePoints(this.suppliesList[1]);
@@ -1339,7 +1343,7 @@ export default {
       return result
     },
     // 通过目标数量匹配物资
-    marchSupplyByCount(array){
+    marchSupplyByCount(array) {
       let tents = 0
       let raincoats = 0
       let rainBoots = 0
@@ -1351,19 +1355,19 @@ export default {
       let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
       let resultArray = []
       array.forEach((ele) => {
-        if(ele.tents === 0){
+        if (ele.tents === 0) {
           bool1 = true
         }
-        if(ele.raincoats === 0){
+        if (ele.raincoats === 0) {
           bool2 = true
         }
-        if(ele.rainBoots === 0){
+        if (ele.rainBoots === 0) {
           bool3 = true
         }
-        if(ele.flashlights === 0){
+        if (ele.flashlights === 0) {
           bool4 = true
         }
-        if(!bool1 || !bool2 || !bool3 || !bool4){
+        if (!bool1 || !bool2 || !bool3 || !bool4) {
           tents += ele.tents;
           raincoats += ele.raincoats;
           rainBoots += ele.rainBoots;
@@ -1379,14 +1383,14 @@ export default {
         }
       });
       // console.log("flag-----------------",flag)
-      if(flag){
+      if (flag) {
         return resultArray
-      }else{
+      } else {
         return []
       }
     },
 
-    drawSupplyPoint(param,radius) {
+    drawSupplyPoint(param, radius) {
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       this.removePoints(this.showIcon);
@@ -1396,20 +1400,19 @@ export default {
       let reservesArr = []  // 抢险救灾装备
       let suppliesArr = []  // 救灾物资储备
       let emergencyTeamArr = []  // 救援力量
-      if(param === 'searchSupplies'){
+      if (param === 'searchSupplies') {
         this.showIcon.forEach((item) => {
           suppliesArr.push(item)
         })
-      }else if(param === 'searchEmergencyTeam'){
+      } else if (param === 'searchEmergencyTeam') {
         this.showIcon.forEach((item) => {
           emergencyTeamArr.push(item)
         })
-      }else if(param === 'searchReserves'){
+      } else if (param === 'searchReserves') {
         this.showIcon.forEach((item) => {
           reservesArr.push(item)
         })
-      }
-      else{
+      } else {
         this.showIcon.forEach((item) => {
           if (item.type === "reserves") {
             reservesArr.push(item);
@@ -1423,7 +1426,7 @@ export default {
       this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
       this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
       this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-      if(this.ifDrawEllipse){
+      if (this.ifDrawEllipse) {
         this.selectPoints(radius);
       }
       // }
@@ -1457,6 +1460,12 @@ export default {
     },
     // 添加物资点
     addDisasterPoint() {
+      if (this.isRouting) {
+        this.isRouting = false;
+      }
+      if (this.isAddingArea) {
+        this.isAddingArea = false;
+      }
       this.canMarkPoint = true;
     },
     // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
@@ -1475,7 +1484,7 @@ export default {
     handleRadiusInput(value) {
       this.searchSupplyForm.radius = value;
     },
-    handleTeamTotalMembersInput(){
+    handleTeamTotalMembersInput() {
       this.searchEmergencyTeamForm.totalMembers = value
     },
     // ---------------------------------------------------------------------
@@ -1564,6 +1573,9 @@ export default {
     walkStyle() {
       this.visibleGuilde = false;
       this.RouteTime = this.formatTime(this.humantime);
+      if (this.RouteTime === "0分钟") {
+        this.RouteTime = "1分钟";
+      }
       this.RouteWay = "步行";
       this.selectedDrive = "backcolor: red";
       this.selectedWalk = "backcolor: white";
@@ -1574,6 +1586,9 @@ export default {
         this.RouteTime = "1分钟";
       } else {
         this.RouteTime = this.formatTime(this.cartime);
+      }
+      if (this.RouteTime === "0分钟") {
+        this.RouteTime = "1分钟";
       }
       this.RouteWay = "驾驶";
     },
@@ -1602,56 +1617,69 @@ export default {
       return []; // 返回新的指南数据
     },
     route() {
-      let handler = new Cesium.ScreenSpaceEventHandler(
-          window.viewer.scene.canvas
-      );
+      if (this.canMarkPoint) {
+        this.canMarkPoint = false;
+      }
+      this.clearHandler(); // 清除之前的监听器
+      this.isRouting = true; // 设置路径规划标志
       let that = this;
-      let propertiesId = [];
-      handler.setInputAction((event) => {
-        // 1-1 获取点击的位置的坐标信息（经度、纬度、高度）
+      that.pos = [];
+      let propertiesId = that.propertiesId
+      // 在开始新的路径规划前，先清除之前的实体（点和折线）
+      propertiesId.forEach(id => {
+        viewer.entities.removeById(id); // 根据之前的propertiesId移除实体
+      });
+      this.propertiesId = []; // 清空propertiesId，为新的路径规划准备
+
+      this.handler.setInputAction((event) => {
+        if (!this.isRouting) return; // 如果路径规划已完成，则不执行后续代码
+
+        // 获取点击位置的坐标信息
         let ray = viewer.camera.getPickRay(event.position);
         let position = viewer.scene.globe.pick(ray, viewer.scene);
-        // // 1-2 坐标系转换
-        let cartographic = Cesium.Cartographic.fromCartesian(position); //把笛卡尔坐标转换成制图实例，单位是弧度
-        let lon = Cesium.Math.toDegrees(cartographic.longitude); //把弧度转换成度
+        let cartographic = Cesium.Cartographic.fromCartesian(position);
+        let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
 
         that.pos.push([lon, lat]);
         let billBoardId = Date.now();
         if (that.pos.length === 1) {
           that.billboardD(position, start, billBoardId);
-          propertiesId.push(billBoardId);
+          this.propertiesId.push(billBoardId);  // 将billboardId加入propertiesId数组
         } else {
           that.billboardD(position, end, billBoardId);
-          propertiesId.push(billBoardId);
+          this.propertiesId.push(billBoardId);  // 将billboardId加入propertiesId数组
         }
-        if (that.pos.length === 2) {
-          let path = ""
-          let pathName = []
-          let pathM = 0
 
-          let from = wgs84togcj02(that.pos[0][0], that.pos[0][1])
-          let end = wgs84togcj02(that.pos[1][0], that.pos[1][1])
-          let avoidArea = ""
+        if (that.pos.length === 2) {
+          // 已获取两个点，开始路径规划
+          let path = "";
+          let pathName = [];
+          let pathM = 0;
+
+          let from = wgs84togcj02(that.pos[0][0], that.pos[0][1]);
+          let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
+          let avoidArea = "";
+
+          // 添加受灾区域逻辑
           if (that.areas.length > 0) {
-            let area = JSON.parse(JSON.stringify(that.areas))
+            let area = JSON.parse(JSON.stringify(that.areas));
             for (let i = 0; i < area.length; i++) {
               for (let j = 0; j < area[i].area.length; j += 2) {
-                avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";"
+                avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";";
               }
-              avoidArea += "|"
+              avoidArea += "|";
             }
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
 
-          axios.get("https://restapi.amap.com/v3/direction/driving?origin=" + from + "&destination=" + end + "&extensions=base&strategy=0&avoidpolygons=" + avoidArea + "&key=7b0b64174ef6951cc6ee669de03e4f59", {}).then(res => {
-
-            pathM += parseInt(res.data.route.paths[0].distance)
-            res.data.route.paths[0].steps.map(step => {
-                  pathName.push(step.instruction)
-                  path += (step.polyline + ";")
-                }
-            )
+          axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+              .then(res => {
+                pathM += parseInt(res.data.route.paths[0].distance);
+                res.data.route.paths[0].steps.forEach(step => {
+                  pathName.push(step.instruction);
+                  path += step.polyline + ";";
+                });
 
             let pathSegments = path.split(";")
                 .map(segment =>
@@ -1668,7 +1696,6 @@ export default {
 
 // 在pathSegments数组结尾添加终点
             pathSegments.push(that.pos[1]);
-            that.pos = [];
             that.polylineD(pathSegments, propertiesId);
             this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
             this.humantime = (pathM * 0.7 / 60).toFixed(2);
@@ -1679,14 +1706,12 @@ export default {
           })
 
           that.showTips = true;
-          //路径规划好后弹出气泡框
-          // this.bubbleTips(position);
-          // this.initTool(this.viewer.cesiumWidget.container);
-          handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+          this.isRouting = false; // 路径规划完成，设置标志
+          this.clearHandler(); // 移除点击事件监听器
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
-    //绘制路径的线
+    // 绘制路径的线
     polylineD(data, propertiesId) {
       let arr = [];
       for (let i = 0; i < data.length; i++) {
@@ -1695,7 +1720,12 @@ export default {
         // let cartesian3 = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic)
         arr.push(c3);
       }
+
+      // 创建一个唯一的 ID，可以使用当前时间戳或其他唯一标识符
+      let uniqueId = Cesium.createGuid(); // 或者使用 Date.now()
+
       viewer.entities.add({
+        id: uniqueId,  // 为每个折线实体指定唯一的 id
         polyline: {
           positions: arr,
           width: 10,
@@ -1706,6 +1736,7 @@ export default {
           propertiesId,
         },
       });
+      this.propertiesId.push(uniqueId);
     },
     //绘制障碍物点的面
     polygonD(positions, id) {
@@ -1758,25 +1789,105 @@ export default {
       });
     },
     addArea() {
-      let handler = new Cesium.ScreenSpaceEventHandler(
-          window.viewer.scene.canvas
-      );
+      if (this.canMarkPoint) {
+        this.canMarkPoint = false;
+      }
+      this.clearHandler(); // 清除之前的监听器
+      this.isAddingArea = true; // 设置添加受灾区域标志
       let that = this;
-      handler.setInputAction((event) => {
-        // 1-1 获取点击的位置的坐标信息（经度、纬度、高度）
+
+      this.handler.setInputAction((event) => {
+        if (!this.isAddingArea) return; // 如果已添加区域，则不执行后续代码
+
+        // 获取点击位置的坐标信息
         let ray = viewer.camera.getPickRay(event.position);
         let position = viewer.scene.globe.pick(ray, viewer.scene);
-        // // 1-2 坐标系转换
-        let cartographic = Cesium.Cartographic.fromCartesian(position); //把笛卡尔坐标转换成制图实例，单位是弧度
-        let lon = Cesium.Math.toDegrees(cartographic.longitude); //把弧度转换成度
+        let cartographic = Cesium.Cartographic.fromCartesian(position);
+        let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
         let ar = that.CreateSimpleCircle(lon, lat, 50, 24);
         that.areas.push({area: ar, name: "area_" + Date.now()});
         let id = "area_" + Date.now();
         that.pointD(position, id);
         that.polygonD(ar, id + "a");
-        handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        // 这里是更新路径规划，调用路径更新函数
+        if (that.pos.length > 0){
+          that.updateRoute(); // 调用方法重新计算路径并避开新障碍区域
+        }
+
+        this.isAddingArea = false; // 添加区域完成，设置标志
+        this.clearHandler(); // 移除点击事件监听器
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    },
+    // 更新路径的函数
+    updateRoute() {
+      let that = this;
+      let avoidArea = "";
+
+      // 重新生成障碍区域
+      if (that.areas.length > 0) {
+        let area = JSON.parse(JSON.stringify(that.areas));
+        for (let i = 0; i < area.length; i++) {
+          for (let j = 0; j < area[i].area.length; j += 2) {
+            avoidArea += wgs84togcj02(area[i].area[j][0], area[i].area[j][1]) + ";";
+          }
+          avoidArea += "|";
+        }
+        avoidArea = avoidArea.substring(0, avoidArea.length - 1);
+      }
+
+      // 判断是否已存在第三个数字（ID）
+      if (that.propertiesId.length >= 3) {
+        // 删除第三个ID
+        let thirdId = that.propertiesId[2];
+        viewer.entities.removeById(thirdId);  // 移除第三个折线
+        that.propertiesId.splice(2, 1);  // 删除 propertiesId 中的第三个 ID
+      }
+
+      console.log("asdasdasd",that.pos)
+      // 获取起点和终点
+      let from = wgs84togcj02(that.pos[0][0], that.pos[0][1]);
+      let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
+
+      // 请求路径规划
+      axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+          .then(res => {
+            // 处理路径返回的数据，更新路径
+            let pathM = parseInt(res.data.route.paths[0].distance);
+            let pathName = [];
+            let path = "";
+            res.data.route.paths[0].steps.forEach(step => {
+              pathName.push(step.instruction);
+              path += step.polyline + ";";
+            });
+
+            // 更新路径
+            let pathSegments = path.split(";")
+                .map(segment => segment.replace(/"/g, "").split(",").map(Number).filter(seg => !isNaN(seg)))
+                .filter(segment => segment.length === 2)
+                .map(segment => gcj02towgs84(segment[0], segment[1]));
+
+            pathSegments.unshift(that.pos[0]);
+            pathSegments.push(that.pos[1]);
+            that.pos = [];  // 清空路径点
+
+            // 将新的路径绘制到地图上
+            that.polylineD(pathSegments, that.propertiesId);  // 传递路径和 id 更新折线
+          })
+          .catch(error => {
+            console.error("路径规划请求失败", error);
+          });
+
+      // 显示提示
+      that.showTips = true;
+      this.isRouting = false;  // 路径规划完成，设置标志
+    },
+    clearHandler() {
+      // 清除所有之前的 LEFT_CLICK 监听器
+      if (this.handler) {
+        console.log("11111111")
+        this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      }
     },
     removeAll() {
       viewer.entities.removeAll();
@@ -1943,6 +2054,7 @@ export default {
   opacity: 1;
   transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
+
 :deep(.cesium-viewer-toolbar) {
   display: block;
   /*搜索按钮优先级最高，避免被物资搜索框遮盖*/
@@ -1951,12 +2063,14 @@ export default {
   top: 5px;
   right: 5px;
 }
+
 .el-sub-menu {
   list-style: none;
   margin: 0;
   padding-left: 0;
   /* width: 33%; */
 }
+
 .route-tool-container {
   position: absolute;
   padding: 15px;
@@ -1999,7 +2113,7 @@ export default {
   transition: width 0.3s; /* 平滑过渡效果 */
 }
 
-.marchSupply{
+.marchSupply {
   position: absolute;
   z-index: 10;
   justify-content: center;
@@ -2042,6 +2156,7 @@ canvas {
   margin: 10px;
   color: #999;
 }
+
 .el-menu-item,
 .el-submenu__title {
   padding: 0 20px;
@@ -2054,9 +2169,11 @@ canvas {
 .el-menu-item:hover {
   background-color: #444;
 }
+
 .el-form-item__label {
   text-align: center; /* 标签文字右对齐 */
 }
+
 /*行政区划按钮样式*/
 .district-buttons {
   display: flex;
@@ -2064,12 +2181,14 @@ canvas {
   margin-bottom: 10px;
   justify-content: space-between;
 }
+
 .district-button {
   flex: 0 0 20%; /* 每行5个按钮 */
   display: flex;
   justify-content: center;
   margin: 4px; /* 调整按钮之间的间距 */
 }
+
 .district-button.selected {
   background-color: #5b91c9; /* 选中按钮的背景色 */
   color: white; /* 选中按钮的文字颜色 */

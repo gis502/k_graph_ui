@@ -307,7 +307,7 @@ export default {
       echartsInstances: [],
       locations: [
         {name: '雨城区', longitude: 103.0, latitude: 29.87},
-        {name: '名山区', longitude: 103.22, latitude: 30.15},
+        {name: '名山区', longitude: 103.20, latitude: 30.15},
         {name: '荥经县', longitude: 102.77, latitude: 29.71},
         {name: '汉源县', longitude: 102.71, latitude: 29.38},
         {name: '石棉县', longitude: 102.33, latitude: 29.14},
@@ -554,9 +554,9 @@ export default {
         },
       ],
       resourceStrengthLegendData: [
-        {name: '直升机', img: fimg},
-        {name: '翼龙无人机', img: gimg},
-        {name: '救援力量人数', img: himg}
+        {name: '直升机', img: cumulativeTransferredImg},
+        {name: '翼龙无人机', img: damagedWaterSupply},
+        {name: '救援力量人数', img: guaranteeWaterSupply}
       ],
       materialDonationLegendData: [
         {name: '捐赠物资(万件)', img: damagedWaterSupply},
@@ -1386,7 +1386,9 @@ export default {
           label: {
             text: `${count}`,
             font: '14px sans-serif',
-            fillColor: Cesium.Color.BLACK,
+            fillColor: Cesium.Color.WHITE,  // 字体颜色
+            outlineWidth: 4,  // 较宽的外边框宽度
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 填充文字并加上轮廓
             showBackground: false,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
@@ -1423,7 +1425,7 @@ export default {
           const adjustedCount = count < 10 ? 10 : count;
           const scale = Math.log(adjustedCount) / 5;  // 动态计算缩放比例
           const baseFontSize = 12;  // 定义基础字体大小
-          const fontSize = Math.max(Math.round(scale * baseFontSize), 10);  // 动态计算字体大小，最小为10
+          const fontSize = Math.max(Math.round(scale * baseFontSize), 13);  // 动态计算字体大小，最小为10
           const imageHeight = 30;  // 假设图标的高度
           const dynamicOffsetY = -(imageHeight * scale / 2) - (fontSize / 2);  // 动态计算Y轴偏移量
 
@@ -1440,7 +1442,9 @@ export default {
             label: {
               text: `${count}`,  // 显示实际人数
               font: `bold ${fontSize}px sans-serif`,  // 动态调整字体大小
-              fillColor: Cesium.Color.BLACK,  // 字体颜色
+              fillColor: Cesium.Color.WHITE,  // 字体颜色
+              outlineWidth: 4,  // 较宽的外边框宽度
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 填充文字并加上轮廓
               showBackground: false,  // 不显示背景
               verticalOrigin: Cesium.VerticalOrigin.BOTTOM,  // 将文本基线对齐到图标底部
               horizontalOrigin: Cesium.HorizontalOrigin.CENTER,  // 水平居中
@@ -1489,7 +1493,7 @@ export default {
           {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
           {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
           {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
-          {name: '石棉县', longitude: 102.35, latitude: 29.0},  // 向东北偏移
+          {name: '石棉县', longitude: 102.30, latitude: 29.31},  // 向东北偏移
           {name: '天全县', longitude: 102.75, latitude: 30.03},  // 向西偏移
           {name: '芦山县', longitude: 103.10, latitude: 30.52},  // 向西偏移
           {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
@@ -1567,17 +1571,17 @@ export default {
       if (this.selectedComponentKey === 'ResourceStrength') {
         const locations1 = [
           {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
-          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
+          {name: '名山区', longitude: 103.28, latitude: 30.26},  // 向西南偏移
           {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
           {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
           {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
           {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
-          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
+          {name: '芦山县', longitude: 103.05, latitude: 30.65},  // 向西偏移
           {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
         ]
         const locations2 = [
           {name: '雨城区', longitude: 103.0, latitude: 30.02},  // 稍微向东北偏移
-          {name: '名山区', longitude: 103.34, latitude: 30.12},  // 向西南偏移
+          {name: '名山区', longitude: 103.34, latitude: 30.08},  // 向西南偏移
           {name: '荥经县', longitude: 102.53, latitude: 29.79},  // 向东北偏移
           {name: '汉源县', longitude: 102.47, latitude: 29.57},  // 向东偏移
           {name: '石棉县', longitude: 102.25, latitude: 29.3},  // 向东北偏移
@@ -1586,14 +1590,14 @@ export default {
           {name: '宝兴县', longitude: 102.70, latitude: 30.75}   // 向南偏移
         ]
         const locations3 = [
-          {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
-          {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
-          {name: '荥经县', longitude: 102.66, latitude: 29.82},  // 向东北偏移
-          {name: '汉源县', longitude: 102.59, latitude: 29.51},  // 向东偏移
-          {name: '石棉县', longitude: 102.41, latitude: 29.3},  // 向东北偏移
-          {name: '天全县', longitude: 102.67, latitude: 30.14},  // 向西偏移
-          {name: '芦山县', longitude: 103.07, latitude: 30.62},  // 向西偏移
-          {name: '宝兴县', longitude: 102.61, latitude: 30.61}   // 向南偏移
+          {name: '雨城区', longitude: 103.03, latitude: 30.16},  // 稍微向东北偏移
+          {name: '名山区', longitude: 103.36, latitude: 30.19},  // 向西南偏移
+          {name: '荥经县', longitude: 102.40, latitude: 29.77},  // 向东北偏移
+          {name: '汉源县', longitude: 102.92, latitude: 29.34},  // 向东偏移
+          {name: '石棉县', longitude: 102.14, latitude: 29.39},  // 向东北偏移
+          {name: '天全县', longitude: 102.57, latitude: 30.23},  // 向西偏移
+          {name: '芦山县', longitude: 102.95, latitude: 30.72},  // 向西偏移
+          {name: '宝兴县', longitude: 102.56, latitude: 30.44}   // 向南偏移
         ]
         data.forEach(item => {
           if (item.helicopterCount) {
