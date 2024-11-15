@@ -427,7 +427,7 @@ const clearSelection = () => {
 </script>
 
 <style lang="scss" scoped>
-::v-deep .el-transfer-panel {
+::v-deep .el-transfer-panel  {
   width: 38%; /* 调整宽度 */
 }
 
