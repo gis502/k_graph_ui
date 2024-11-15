@@ -131,7 +131,7 @@
       />
     </div>
 
-    <div v-if="PersoonnelCasuality===2">
+    <div v-if="PersoonnelCasuality===2" >
       <div class="personbutton" >
         <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
       </div>
@@ -437,8 +437,9 @@ export default {
       pointsLayer: [], //传到子组件
 
       stopTimeforAddEntityOneIndex: 5000,
-      firstMakerNodeIndex:0,
+
       timelinePopupShowCenterStrart:true,
+      intervalIdcolor:null,
     };
   },
   created() {
@@ -448,7 +449,6 @@ export default {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
-    // this.addImportantNodes()
     this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
@@ -721,11 +721,12 @@ export default {
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
         const animationDuration = 3000; // 动画总持续时间（30秒）
-        const intervalIdcolor = setInterval(() => {
+        if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+        this.intervalIdcolor = setInterval(() => {
           colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
         }, intervalTime);
         setTimeout(() => {
-          clearInterval(intervalIdcolor); // 停止颜色切换
+          // clearInterval(intervalIdcolor); // 停止颜色切换
           // this.updatePlotOnce(false)
           this.xuanran(this.eqid)
         }, animationDuration);
@@ -891,7 +892,7 @@ export default {
 
           var jumpnode1 = Math.ceil((new Date(item.startTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
           this.jumpNodes[jumpnode1] = 1
-          this.firstMakerNodeIndex=jumpnode1<this.firstMakerNodeIndex?jumpnode1:this.firstMakerNodeIndex
+          // this.firstMakerNodeIndex=jumpnode1<this.firstMakerNodeIndex?jumpnode1:this.firstMakerNodeIndex
           var jumpnode2 = Math.ceil((new Date(item.endTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
           this.jumpNodes[jumpnode2] = 1
         })
@@ -907,8 +908,8 @@ export default {
       let timeEachPoint = 0
 
       points.forEach((point) => {
-        timeEachPoint = timeEachPoint + 5000 / this.currentSpeed
-        let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
+        timeEachPoint = timeEachPoint + 3000 / this.currentSpeed  //在选定倍速下每个点闪烁的秒数
+        let flytime = (timeEachPoint / 1000 - 1) < 2 ? timeEachPoint : 2
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
               parseFloat(point.longitude),
@@ -984,6 +985,7 @@ export default {
       // let stoptime = 5000
       if (points.length > 0) {
         if(this.timelinePopupShowCenterStrart){
+          clearInterval(this.intervalIdcolor)
           this.timelinePopupShowCenterStrart=false;
           this.timelinePopupVisible = false;
         }
@@ -991,15 +993,15 @@ export default {
         // let param = type === false ? false : true
         if (type == false) {
           // console.log("false update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, false, 5000);
+          this.stopTimeforAddEntityOneIndex = 3000
+          cesiumPlot.drawPoints(points, false, 3000);
         } else if (type == "3") {
           // console.log("333 update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, true, 5000);
+          this.stopTimeforAddEntityOneIndex = 3000
+          cesiumPlot.drawPoints(points, true, 3000);
         } else {
           // console.log("more update")
-          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
+          this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
 
           // this.timeEach
           // console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
@@ -1172,15 +1174,16 @@ export default {
       let colorFactor = 1.0;
       const intervalTime = 500; // 切换颜色的时间间隔
       const animationDuration = 3000; // 动画总持续时间（3秒）
-      const intervalIdcolor = setInterval(() => {
+      if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+      this.intervalIdcolor = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
       }, intervalTime);
       
       this.timelinePopupShowCenterStrart=true
-      setTimeout(() => {
-        clearInterval(intervalIdcolor); // 停止颜色切换
-        // this.timelinePopupVisible = false;
-      }, animationDuration);
+      // setTimeout(() => {
+      //   // clearInterval(intervalIdcolor); // 停止颜色切换
+      //   // this.timelinePopupVisible = false;
+      // }, animationDuration);
       // let data=
       let data = {
         ...this.centerPoint,
@@ -3107,14 +3110,14 @@ export default {
 .button-container {
   position: absolute;
   z-index: 20;
-  top: 6.3%;
+  top: 8.3%;
   left: 2%;
 }
 
 .personbutton {
   position: absolute;
   z-index: 60;
-  top: 35%;
+  top: 36%;
   left: 20%;
 }
 
@@ -3407,5 +3410,19 @@ export default {
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
+:deep(.el-button--primary){
+  background-color: transparent; /* 无背景颜色填充 */
+  border-color: #ffffff; /* 白色边框 */
+  background-color: #1a3749;
+  color: #ffffff; /* 白色字体 */
+  font-size:16px;
+}
 
+:deep(.el-button--primary):hover {
+  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
+}
+
+:deep(.el-button--primary):active {
+  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
+}
 </style>

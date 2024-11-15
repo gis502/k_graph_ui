@@ -3,21 +3,20 @@
     <div>
       <span class="sub-title-new">人员伤亡详情</span>
       <div class="sub-main">
-        <!--      <div width="">-->
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-          <el-table-column prop="address" label="位置" width="67" align="center"></el-table-column>
-          <el-table-column prop="死亡" label="死亡" width="56" align="center"
-                           :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="失踪" label="失踪" width="56" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="危重伤" label="危重伤" width="65" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="address" label="位置" width="88" align="center"></el-table-column>
+            <el-table-column prop="死亡" label="死亡" width="60" align="center"
+                             :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
         </el-table>
+</div>
       </div>
     </div>
-  </div>
 
 </template>
 
@@ -371,12 +370,12 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-        'font-size': '12px'
+        'font-size': '14px'
       }
     }
 
     // 修改table 中每行的样式
-    function tableColor({row, column, rowIndex, columnIndex}) {
+    function tableColor({rowIndex}) {
       if (rowIndex % 2 == 1) {
         return {
           'border-width': '1px',
@@ -384,9 +383,9 @@ export default {
           'border-color': '#555555',
           'background-color': '#313a44',
           'color': '#fff',
-          'padding': '0',
+          'padding': '1',
           'text-align': 'center',
-          'font-size': '12px'
+          'font-size': '14px'
         }
       } else {
         return {
@@ -395,9 +394,9 @@ export default {
           'border-color': '#555555',
           'background-color': '#304156',
           'color': '#fff',
-          'padding': '0',
+          'padding': '1',
           'text-align': 'center',
-          'font-size': '12px'
+          'font-size': '14px'
         }
       }
     }
@@ -451,7 +450,7 @@ export default {
   background-size: 100% 100%;
 }
 
-:deep(.el-table__header-wrapper) {
+:deep(.el-table__header-wrapper){
   background-color: rgb(25, 56, 77);
 }
 
@@ -515,10 +514,9 @@ export default {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top: -8px;
+  top:-9px;
   position: relative;
 }
-
 .sub-title-new:before {
   content: "";
   width: 11px;
