@@ -3,7 +3,7 @@
     <div class="header">
       <div class="header-center">
         <span>雅安市地震应急信息服务技术支撑平台</span>
-        <dv-decoration5 :dur="2" style="width: auto; height: 20px;"/>
+        <dv-decoration5 :dur="2" style="width: auto; height: 20px; color: #00eaff;"/>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>
@@ -185,17 +185,35 @@ const formValue = reactive({
   endMagnitude: '',
   startDepth: '',
   endDepth: '',
+  startDate:'',
+  endDate:'',
 });
 
 const onSubmit = () => {
   if (formValue.occurrenceTime !== '') {
     const [startTime, endTime] = formValue.occurrenceTime;
-    const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
-    const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
+    const startDate = new Date(startTime).toISOString();
+    const endDate = new Date(endTime).toISOString();
 
-    formValue.occurrenceTime = `${startDate} 至 ${endDate}`;
+    formValue.startDate = startDate;
+    formValue.endDate = endDate;
   }
-  fromEq(formValue).then((res) => {
+
+  // 构建查询对象
+  const queryParams = {
+    earthquakeName: formValue.earthquakeName || undefined,
+    startTime: formValue.startDate || undefined,
+    endTime: formValue.endDate || undefined,
+    startMagnitude: formValue.startMagnitude || undefined,
+    endMagnitude: formValue.endMagnitude || undefined,
+    startDepth: formValue.startDepth || undefined,
+    endDepth: formValue.endDepth || undefined,
+  };
+
+
+  console.log("5555555555555555555555555555",queryParams)
+
+  fromEq(queryParams).then((res) => {
     tableData.value = res;
   });
   queryFormVisible.value = false;
@@ -289,7 +307,7 @@ onMounted(() => {
 
 <style scoped>
 .public-bg {
-  background: rgba(12, 26, 63, 0.3);
+  /*background: rgba(12, 26, 63, 0.3);*/
 }
 
 .public-title {
@@ -318,19 +336,19 @@ onMounted(() => {
 .content-body {
   width: 100%;
   height: 100%;
-  background-image: url("@/assets/背景图片.jpg");
+  background-image: url("@/assets/bg.jpg");
   background-size: 100% 100%;
   position: absolute;
 }
 
 .header {
-  margin-top: 1vh;
+  margin-top: 2vh;
   position: absolute;
   display: flex;
   justify-content: center; /* 标题居中对齐 */
   align-items: center;
-  height: 34px;
-  width: 100%;
+  height: 22px;
+  width: 106%;
   z-index: 10;
 }
 
@@ -343,22 +361,25 @@ onMounted(() => {
 }
 
 .header-time {
-  top: 0;
+  top: 4px;
   position: absolute;
   color: #FFFFFF;
-  right: 2vw;
-  font-size: 18px;
+  right: 8.5vw;
+  font-size: 17px;
 }
 
 .content {
+  left: 7px;
+  padding: 3px 38px;
   position: absolute;
-  margin-top: 5vh;
+  margin-top: 7vh;
   width: 100%;
   height: calc(100% - 75px);
 }
 
 .content .content-con {
   height: 100%;
+  padding-bottom: 26px;
 }
 
 .left-body {
@@ -534,4 +555,128 @@ onMounted(() => {
   height: 45%;
   margin-top: 1%;
 }
+
+
+
+
+
+/* 新增样式 */
+.content-body {
+  /*background: linear-gradient(135deg, #1e1e2f, #2b2d42);*/
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.public-bg {
+  /*background: rgba(30, 30, 47, 0.9);*/
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.public-title {
+  color: #00eaff;
+  font-weight: bold;
+  text-shadow: 0 0 5px #00eaff;
+}
+
+.el-input,
+.el-button {
+  border-radius: 5px;
+}
+
+.el-button {
+  background-color: #00eaff;
+  color: #000;
+  transition: background-color 0.3s;
+}
+
+.el-button:hover {
+  background-color: #006f8c;
+}
+
+.dv-border-box7 {
+  border: 1px solid #00eaff;
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px #00eaff;
+  }
+  to {
+    box-shadow: 0 0 20px #00eaff;
+  }
+}
+
+#time {
+  color: #00eaff;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* 新增高科技感样式 */
+.content-body {
+  /*background: linear-gradient(135deg, #0f0c29, #483fa1, #24243e);*/
+  color: #ffffff;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/*边框蓝线*/
+.public-bg {
+  background: rgba(20, 20, 50, 0.85);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+  border: 1px solid #0ff;
+}
+
+
+/*字体蓝光*/
+/*.public-title {*/
+/*  color: #0ff;*/
+/*  font-weight: 700;*/
+/*  text-shadow: 0 0 10px #0ff, 0 0 20px #00f, 0 0 30px #0ff;*/
+/*}*/
+
+.el-input,
+.el-button {
+  border-radius: 8px;
+  border: none;
+}
+
+.el-button {
+  background: linear-gradient(45deg, #2c3364, #0ff);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 255, 255, 0.5);
+}
+
+.dv-border-box7 {
+  border: 1px solid #0ff;
+  animation: neonGlow 2s infinite alternate;
+  box-shadow: 0 0 15px #00eaff, 0 0 30px #0ff inset;
+}
+
+@keyframes neonGlow {
+  from {
+    box-shadow: 0 0 10px #00eaff;
+  }
+  to {
+    box-shadow: 0 0 25px #00eaff;
+  }
+}
+
+#time {
+  color: #0ff;
+  font-size: 1.5em;
+  font-weight: 700;
+  text-shadow: 0 0 5px #00eaff;
+}
+
+
 </style>
