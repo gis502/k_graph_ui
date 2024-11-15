@@ -1,7 +1,7 @@
 <template>
   <div class="casualtyStatistic">
     <div>
-      <span class="sub-title-new">人员伤亡详情：</span>
+      <span class="sub-title-new">伤亡详情：</span>
       <span class="title-time">{{timestampToTime(currentTime)}}</span>
       <div class="sub-main">
         <!--      <div width="">-->
