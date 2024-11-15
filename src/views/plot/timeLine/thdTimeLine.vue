@@ -437,6 +437,7 @@ export default {
       pointsLayer: [], //传到子组件
 
       stopTimeforAddEntityOneIndex: 5000,
+      firstMakerNodeIndex:0,
     };
   },
   created() {
@@ -447,7 +448,7 @@ export default {
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
     // this.addImportantNodes()
-    // this.getPlotwithStartandEndTime(this.eqid)
+    this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -691,7 +692,7 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
-
+      this.xuanran(this.eqid)
       console.log(this.currentTimePosition,"currentTimePosition updateMapandVariablebeforInit")
       let data = {
         ...this.centerPoint,
@@ -725,7 +726,8 @@ export default {
         setTimeout(() => {
           clearInterval(intervalIdcolor); // 停止颜色切换
           this.timelinePopupVisible = false;
-          this.xuanran(this.eqid)
+          this.updatePlotOnce(false)
+          // this.xuanran(this.eqid)
         }, animationDuration);
         //加载中心点
         viewer.entities.add({
@@ -816,8 +818,8 @@ export default {
      */
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
-      this.getPlotwithStartandEndTime(eqid)
-
+      // this.getPlotwithStartandEndTime(eqid)
+      // this.updatePlotOnce(false)
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -889,6 +891,7 @@ export default {
 
           var jumpnode1 = Math.ceil((new Date(item.startTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
           this.jumpNodes[jumpnode1] = 1
+          this.firstMakerNodeIndex=jumpnode1<this.firstMakerNodeIndex?jumpnode1:this.firstMakerNodeIndex
           var jumpnode2 = Math.ceil((new Date(item.endTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
           this.jumpNodes[jumpnode2] = 1
         })
@@ -896,7 +899,7 @@ export default {
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
         console.log("获取 pointsLayer", this.pointsLayer)
-        this.updatePlotOnce(false)
+        // this.updatePlotOnce(false)
       })
     },
     //控制视角跳转的递归函数
