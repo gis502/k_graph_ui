@@ -4,7 +4,7 @@
       <!-- 余震数量图表 -->
       <el-carousel-item style="height: 100%;">
         <div class="chart-container" style="height: 100%;">
-          <div class="public-title">最新地震余震情况统计(次)</div>
+          <img src="@/assets/最新地震余震情况.png" alt="最新地震余震情况" style="width: 127%; height: auto;">
           <span
               style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ updateTime }}
@@ -17,7 +17,7 @@
       <!-- 各区县人口总数表 -->
       <el-carousel-item>
         <div class="chart-container population-chart-container" >
-          <div class="public-title">各区县人口总数（万人）</div>
+          <img src="@/assets/各区县人口.png" alt="各区县人口" style="width: 127%; height: auto;">
           <span
               style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ populationDataChartUpdateTime }}
@@ -28,7 +28,7 @@
 
       <el-carousel-item>
         <div class="chart-container">
-          <div class="public-title">隐患点</div>
+          <img src="@/assets/隐患点.png" alt="隐患点" style="width: 127%; height: auto;">
 
           <!-- 风险点信息 -->
           <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
@@ -181,6 +181,7 @@ const handleAftershockData = () => {
       updateAftershockChart(res); // 更新余震图表
       console.log("getAftershockMagnitude", res);
       updateTime.value = res.submission_deadline; // 更新时间
+      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
 
       // 根据余震数据是否存在决定初始展示的图表
       const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
@@ -201,6 +202,7 @@ const handleAftershockData = () => {
     });
   } else {
     updateTime.value = new Date().toLocaleString(); // 设置当前时间
+    updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
     initialIndex.value = 1; // 如果没有lastEq，默认展示静态图
   }
 };
@@ -224,6 +226,7 @@ const handlePopulationData = () => {
       console.log("提取后的数据:", populationData.value);
 
       populationDataChartUpdateTime.value = res.data[0].updateTime; // 更新时间
+      populationDataChartUpdateTime.value = formatDate(  populationDataChartUpdateTime.value);  // 更改时间格式
       initPopulationDataChart(); // 数据加载完成后初始化图表
     } else {
       console.error("返回的数据格式不正确或数据为空", res);
@@ -397,6 +400,18 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeChart); // 移除监听器
   clearInterval(slideInterval); // 组件卸载前清除定时器
 });
+
+
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+  const day = d.getDate().toString().padStart(2, '0');
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const seconds = d.getSeconds().toString().padStart(2, '0');
+  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+}
 </script>
 
 <style scoped>
@@ -416,7 +431,7 @@ onBeforeUnmount(() => {
 .population-chart-container {
   width: 100%;
   height: 100%; /* 确保人口图表占满容器 */
-  margin-top: -7px;
+  margin-top: 0px;
 }
 
 /* 标题样式 */

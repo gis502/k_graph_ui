@@ -69,14 +69,28 @@ watch(() => props.lastEq, () => {
         if (firstItem && firstItem.submissionDeadline) {
           const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
           updateTime.value = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
+          updateTime.value = formatDate(updateTime.value);
           console.log(updateTime)
         } else {
           updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');
+          updateTime.value = formatDate( updateTime.value);  // 使用传入的时间字段
+
+
         }
 
       }
 
-
+// 格式化日期为 "2024年09月14日 09:16:36"
+      function formatDate(date) {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+        const day = d.getDate().toString().padStart(2, '0');
+        const hours = d.getHours().toString().padStart(2, '0');
+        const minutes = d.getMinutes().toString().padStart(2, '0');
+        const seconds = d.getSeconds().toString().padStart(2, '0');
+        return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+      }
 
 
   //     if (res) {

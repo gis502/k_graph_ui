@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="map">
     <!--    工具-->
     <!--    <div class="tool_container">-->
     <!--      &lt;!&ndash;      <button @click="openTool('paintBrushTool')">画笔</button>&ndash;&gt;-->
@@ -11,9 +11,23 @@
     <!--    </div>-->
     <!--指南针-->
     <div class="compassContainer"></div>
+
+    <!-- 指南针容器 -->
+    <div class="compassContainer_1">
+      <div class="compass-outer-ring" style="width: 85px; height:85px;">
+        <svg class="cesium-svgPath-svg" width="80" height="80" viewBox="0 0 145 145">
+          <path
+              d="m 66.5625,0 0,15.15625 3.71875,0 0,-10.40625 5.5,10.40625 4.375,0 0,-15.15625 -3.71875,0 0,10.40625 L 70.9375,0 66.5625,0 z M 72.5,20.21875 c -28.867432,0 -52.28125,23.407738 -52.28125,52.28125 0,28.87351 23.413818,52.3125 52.28125,52.3125 28.86743,0 52.28125,-23.43899 52.28125,-52.3125 0,-28.873512 -23.41382,-52.28125 -52.28125,-52.28125 z m 0,1.75 c 13.842515,0 26.368948,5.558092 35.5,14.5625 l -11.03125,11 0.625,0.625 11.03125,-11 c 8.9199,9.108762 14.4375,21.579143 14.4375,35.34375 0,13.764606 -5.5176,26.22729 -14.4375,35.34375 l -11.03125,-11 -0.625,0.625 11.03125,11 c -9.130866,9.01087 -21.658601,14.59375 -35.5,14.59375 -13.801622,0 -26.321058,-5.53481 -35.4375,-14.5 l 11.125,-11.09375 c 6.277989,6.12179 14.857796,9.90625 24.3125,9.90625 19.241896,0 34.875,-15.629154 34.875,-34.875 0,-19.245847 -15.633104,-34.84375 -34.875,-34.84375 -9.454704,0 -18.034511,3.760884 -24.3125,9.875 L 37.0625,36.4375 C 46.179178,27.478444 58.696991,21.96875 72.5,21.96875 z m -0.875,0.84375 0,13.9375 1.75,0 0,-13.9375 -1.75,0 z M 36.46875,37.0625 47.5625,48.15625 C 41.429794,54.436565 37.65625,63.027539 37.65625,72.5 c 0,9.472461 3.773544,18.055746 9.90625,24.34375 L 36.46875,107.9375 c -8.96721,-9.1247 -14.5,-21.624886 -14.5,-35.4375 0,-13.812615 5.53279,-26.320526 14.5,-35.4375 z M 72.5,39.40625 c 18.297686,0 33.125,14.791695 33.125,33.09375 0,18.302054 -14.827314,33.125 -33.125,33.125 -18.297687,0 -33.09375,-14.822946 -33.09375,-33.125 0,-18.302056 14.796063,-33.09375 33.09375,-33.09375 z M 22.84375,71.625 l 0,1.75 13.96875,0 0,-1.75 -13.96875,0 z m 85.5625,0 0,1.75 14,0 0,-1.75 -14,0 z M 71.75,108.25 l 0,13.9375 1.71875,0 0,-13.9375 -1.71875,0 z"></path>
+        </svg>
+      </div>
+    </div>
+
     <div class="map-container">
       <!--    地图-->
-      <div @contextmenu.prevent id="emap" class="map_container"></div>
+      <div @contextmenu.prevent id="emap" class="map_container">
+
+
+      </div>
 
       <!-- 自制图例 -->
       <div class="legend">
@@ -51,6 +65,10 @@
         </div>
       </div>
 
+
+      <!-- Cesium 指南针容器 -->
+      <div id="cesiumCompassContainer" class="cesium-compass-container"></div>
+
     </div>
     <!-- 信息窗组件 -->
     <InfoWindow
@@ -65,7 +83,7 @@
 </template>
 
 <script>
-import red from '@/assets/star.gif';
+import red from '@/assets/star2.gif';
 import yellow from '@/assets/yellow3.png';
 import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
@@ -74,6 +92,10 @@ import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
 import yaan from '@/assets/geoJson/yaan.json'
 
+import * as Cesium from 'cesium'
+import CesiumNavigation from "cesium-navigation-es6";
+import {initCesium} from '@/cesium/tool/initCesium.js'
+import {Edit, Delete} from '@element-plus/icons-vue'
 
 
 // 图例分类
@@ -114,7 +136,7 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({x: 0, y: -620}); //信息窗的初始位置
+    const infoWindowPosition = ref({x: 0, y: -920}); //信息窗的初始位置
     const weight = ref(210); // 默认weight值
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
@@ -151,6 +173,7 @@ export default {
       } else {
         console.error("T.D3Overlay is not defined. Make sure D3SvgOverlay.js is loaded.");
       }
+
     });
 
     watch(() => props.eqData, () => {
@@ -255,6 +278,30 @@ export default {
 
       // addMarkers();//标点
 
+//        // 初始化指南针
+//       const cesiumViewer = new Cesium.Viewer('cesiumCompassContainer', {
+//         animation: false,
+//         timeline: false,
+//         homeButton: false,
+//         sceneModePicker: false,
+//         navigationHelpButton: false,
+//       });
+//
+// // 使用导航插件
+//       CesiumNavigation(cesiumViewer, {
+//         enableCompass: true,
+//         enableZoomControls: true,
+//         enableDistanceLegend: true,
+//         enableCompassOuterRing: true,
+//       });
+//
+//       // 设置透明背景以仅显示指南针
+//       cesiumViewer.container.backgroundColor = 'transparent';
+//       // cesiumViewer.scene.screenSpaceCameraController.enableInputs = false; // 禁用地图控制
+//
+//       compass.viewModel.headingChanged.addEventListener(function(heading) {
+//         // 更新UI显示当前方向
+//       });
 
       initMapAfter();//加载地图后方法
       // 添加鼠标悬停事件监听
@@ -287,11 +334,11 @@ export default {
           .append('path')
           .attr("class", "sichuan")
           .attr('d', pathGenerator) // 设置路径
-          .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
-          // .attr('stroke', '#05CEE5') // 边界线颜色
+          // .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
+          .attr('stroke', '#05CEE5') // 边界线颜色
           .attr('stroke-width', '1px') // 边界线宽度
-          .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
-          // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          // .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+          .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
           // .attr('fill', (d, i) => d3.hsl(Math.random() * 360, 0.9, 0.5)) // 区域填充颜色,d3.hsl(Math.random() * 360, 0.9, 0.5)。这将会给每个区域随机生成一个颜色，
           .attr('fill-opacity', 0.3); // 区域填充透明度
 
@@ -315,16 +362,17 @@ export default {
           .text(d => d.properties.name);  // 显示区域名称
 
 
-
       // 绘制雅安的行政区划
       const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
       yaanUpd.enter()
           .append('path')
           .attr("class", "yaan")  // 设置类名
           .attr('d', pathGenerator) // 设置路径
-          .attr('stroke', '#05CEE5') // 边界线颜色
-          .attr('stroke-width', '1px')
-          .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          // .attr('stroke', '#05CEE5') // 边界线颜色
+          .attr('stroke', 'rgba(255,173,84,0.99)') // 边界线颜色
+          .attr('stroke-width', '2px')
+          // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
           .attr('fill-opacity', 0.3);  //透明度
 
       // 添加雅安区域名称
@@ -378,42 +426,42 @@ export default {
     //---------------------------------------------------------------------------------------
 
 
-    // 启动画笔工具
-    const openTool = (toolName) => {
-      if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
-        mapConfig.value.isDrawing = true;
-        mapConfig.value.paintBrushTool.open();
-
-        // 监听鼠标事件
-        mapConfig.value.map.addEventListener('mousedown', stopEvent);
-        mapConfig.value.map.addEventListener('mouseup', handleMouseUp);
-      }
-    };
-
-    // 停止事件传播
-    const stopEvent = (event) => {
-      event.stopPropagation();
-    };
-
-
-    // 鼠标松开时的处理
-    const handleMouseUp = () => {
-      mapConfig.value.isDrawing = false; // 关闭绘制状态
-      mapConfig.value.map.removeEventListener('mousedown', stopEvent);
-      mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    // 清除画笔工具绘制的内容
-    const clearTool = (toolName) => {
-      if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
-        mapConfig.value.paintBrushTool.clear(); // 清除已绘制的线条
-        mapConfig.value.isDrawing = false;
-
-        // 移除鼠标事件监听
-        mapConfig.value.map.removeEventListener('mousedown', stopEvent);
-        mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
-      }
-    };
+    // // 启动画笔工具
+    // const openTool = (toolName) => {
+    //   if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
+    //     mapConfig.value.isDrawing = true;
+    //     mapConfig.value.paintBrushTool.open();
+    //
+    //     // 监听鼠标事件
+    //     mapConfig.value.map.addEventListener('mousedown', stopEvent);
+    //     mapConfig.value.map.addEventListener('mouseup', handleMouseUp);
+    //   }
+    // };
+    //
+    // // 停止事件传播
+    // const stopEvent = (event) => {
+    //   event.stopPropagation();
+    // };
+    //
+    //
+    // // 鼠标松开时的处理
+    // const handleMouseUp = () => {
+    //   mapConfig.value.isDrawing = false; // 关闭绘制状态
+    //   mapConfig.value.map.removeEventListener('mousedown', stopEvent);
+    //   mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
+    // };
+    //
+    // // 清除画笔工具绘制的内容
+    // const clearTool = (toolName) => {
+    //   if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
+    //     mapConfig.value.paintBrushTool.clear(); // 清除已绘制的线条
+    //     mapConfig.value.isDrawing = false;
+    //
+    //     // 移除鼠标事件监听
+    //     mapConfig.value.map.removeEventListener('mousedown', stopEvent);
+    //     mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
+    //   }
+    // };
 
     // 标准图层--black/indigo
     const setMapStyle = (style) => {
@@ -490,16 +538,16 @@ export default {
         iconUrl = red;
         switch (size) {
           case 'small':
-            iconSize = new T.Point(15, 15);
+            iconSize = new T.Point(20, 20);
             break;
           case 'medium':
-            iconSize = new T.Point(20, 20);
+            iconSize = new T.Point(30, 30);
             break;
           case 'large':
-            iconSize = new T.Point(26, 26);
+            iconSize = new T.Point(40, 40);
             break;
           default:
-            iconSize = new T.Point(20, 20);
+            iconSize = new T.Point(28, 28);
         }
       } else {
         iconUrl = yellow;
@@ -545,7 +593,7 @@ export default {
         console.log("weight.value*********", weight.value)
 
         infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 180// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 380// 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -564,7 +612,7 @@ export default {
         mapConfig.value.map.closeInfoWindow();
         showInfoWindow.value = false;
         infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
-        infoWindowPosition.value.y = -620//- 330; // 获取鼠标位置
+        infoWindowPosition.value.y = -550//- 330; // 获取鼠标位置
       });
 
       mapConfig.value.map.addOverLay(marker);
@@ -679,8 +727,8 @@ export default {
 
       mapConfig,
       showInfoWindow,  //信息窗
-      openTool,  //画笔
-      clearTool,  //清除画笔
+      // openTool,  //画笔
+      // clearTool,  //清除画笔
       setMapStyle,
       reset,
       returnLnglat,
@@ -697,6 +745,22 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+//cesium指南针
+.map-container {
+  width: 100%;
+  height: 500px;
+}
+
+.cesium-compass-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 150px;
+  height: 150px;
+  pointer-events: none; /* 防止遮挡天地图的交互 */
+}
+
+
 /* 自定义 比例尺 */
 
 :deep(.tdt-bottom .tdt-control-scale ) {
@@ -724,15 +788,34 @@ export default {
 }
 
 
+////指南针外框
+.compassContainer_1 {
+  position: absolute;
+  margin-right: 31%;
+  top: 18px;
+  right: -10px;
+  z-index: 10;
+  width: 130px !important;
+  height: 130px !important;
+  cursor: pointer;
+}
+
+.cesium-svgPath-svg {
+  fill: #ece6e6; /* 你可以根据需求更改颜色 */
+}
+
+
 //指南针
 .compassContainer {
   position: absolute;
-  top: 1.5%;
-  right: 32.5%;
-  height: 105px;
-  width: 140px;
-  background: url(../../assets/compass.png) no-repeat 0 0 / cover;
+  margin-right: 31%;
+  top: 40.4px;
+  right: 57.8px;
+  height: 40px;
+  width: 40px;
+  background: url(../../assets/指北针_5.png) no-repeat 0 0 / cover;
   z-index: 20;
+  //transform: rotate(45deg); /* 使图片旋转 45 度 */
 }
 
 //按钮
@@ -783,8 +866,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center; /* 可选，用于居中地图和图例 */
+  border-radius: 31px !important; /* 添加圆角 */
 }
-
 
 
 .breathing-marker {
@@ -793,15 +876,14 @@ export default {
 
 
 .legend {
-  display: flex;
-  //position: absolute;
   bottom: 0;
-  left: 20%;
-  z-index: 20;
-  margin-top: 5px;
+  left: 33%;
+  z-index: 35;
+  /* margin-top: 5px; */
   background-color: transparent;
-  width: 100%;
-  //height: auto; /* 自适应高度 */
+  /* width: 100%; */
+  position: fixed;
+  top: 93%;
 }
 
 
@@ -911,10 +993,15 @@ export default {
   }
 }
 
+:deep(.map-container[data-v-bdc64a41] ){
+  width: 100%;
+  height: 100% !important;
+}
+
 .map_container {
   width: 100%;
-  height: 600px;
-  margin-top: 10px;
+  height: 100%;
+  margin-top: 2px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
   ::v-deep .tdt-control-copyright {
@@ -929,7 +1016,7 @@ export default {
   // 自定义右键菜单
   ::v-deep #contextMenu {
     position: absolute;
-    z-index: 400;
+    z-index: 4;
     background: #fff;
     border-radius: 2px;
 

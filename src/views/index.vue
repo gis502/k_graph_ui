@@ -3,7 +3,6 @@
     <div class="header">
       <div class="header-center">
         <span>雅安市地震应急信息服务技术支撑平台</span>
-        <dv-decoration5 :dur="2" style="width: auto; height: 20px;"/>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>
@@ -12,50 +11,69 @@
 
     <div class="content">
       <div class="content-con">
-        <div class="left-body">
-          <div class="left-top public-bg" ref="leftTop">
-            <dv-border-box7 :style="borderBoxStyles1">
-              <div class="public-title">最新地震</div>
-              <new-info :last-eq="lastEqData"/>
-            </dv-border-box7>
-          </div>
 
-          <div class="left-con public-bg" ref="leftCon">
-            <dv-border-box7 :style="borderBoxStyles2">
-              <div class="public-title">最新地震受灾人员统计</div>
-              <chart3 :last-eq="lastEqData"/>
-            </dv-border-box7>
-          </div>
-
-          <div class="left-bottom public-bg" ref="leftBottom">
-            <dv-border-box7 :style="borderBoxStyles3">
-              <chart2 :last-eq="lastEqData"/>
-            </dv-border-box7>
-          </div>
-        </div>
 
         <div class="center-body">
           <e-map :eq-data="EqAll"/>
         </div>
 
+        <div class="left-body">
+          <div class="left-top public-bg" ref="leftTop">
+            <!--              <div class="public-title">最新地震</div>-->
+            <img src="@/assets/latestEarthquake.png" alt="最新地震" style="width: 127%; height: auto;">
+            <new-info :last-eq="lastEqData"/>
+          </div>
+
+          <div class="left-con public-bg" ref="leftCon">
+            <!--              <div class="public-title">最新地震受灾人员统计</div>-->
+            <img src="@/assets/disasterStats.png" alt="最新地震受灾人员统计" style="width: 125%; height: auto;">
+            <chart3 :last-eq="lastEqData"/>
+          </div>
+
+          <div class="left-bottom public-bg" ref="leftBottom">
+            <chart2 :last-eq="lastEqData"/>
+          </div>
+        </div>
+
         <div class="right-body">
           <div class="right-top public-bg" ref="rightTop">
-            <dv-border-box7 :style="borderBoxStyles4">
-              <div class="public-title">
-                地震列表
-                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams" @keyup.enter="query()"></el-input>
-                <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
-                <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
+            <div style="position: relative; width: 100%; height: auto;">
+              <!-- 图片 -->
+              <img
+                  src="@/assets/earthquakeList.png"
+                  alt="地震列表"
+                  style="width: 90%; height: auto; display: block;"
+              >
+
+              <!-- 输入框和按钮 -->
+              <div
+                  style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1;"
+              >
+                <el-input
+                    size="small"
+                    style="width: 7vw; font-size: 16px;"
+                    v-model="requestParams"
+                    @keyup.enter="query()"
+                ></el-input>
+                <el-button
+                    size="small"
+                    style="font-size: 16px;"
+                    @click="query()"
+                >查询</el-button>
+                <el-button
+                    size="small"
+                    style="font-size: 16px;"
+                    @click="openQueryFrom()"
+                >筛选</el-button>
               </div>
-              <eq-table :eq-data="tableData"/>
-            </dv-border-box7>
+            </div>
+            <eq-table :eq-data="tableData"/>
           </div>
 
           <div class="right-bottom public-bg" ref="rightBottom">
-            <dv-border-box7 :style="borderBoxStyles5">
-              <div class="public-title">历史地震统计(次)</div>
-              <chart1 :eq-data="EqAll"/>
-            </dv-border-box7>
+            <img src="@/assets/historyEarthquake.png" alt="历史地震" style="width: 80%; height: auto;">
+            <!--              <div class="public-title">历史地震统计(次)</div>-->
+            <chart1 :eq-data="EqAll"/>
           </div>
         </div>
       </div>
@@ -185,17 +203,35 @@ const formValue = reactive({
   endMagnitude: '',
   startDepth: '',
   endDepth: '',
+  startDate:'',
+  endDate:'',
 });
 
 const onSubmit = () => {
   if (formValue.occurrenceTime !== '') {
     const [startTime, endTime] = formValue.occurrenceTime;
-    const startDate = new Date(startTime).toISOString().slice(0, 19).replace('T', ' ');
-    const endDate = new Date(endTime).toISOString().slice(0, 19).replace('T', ' ');
+    const startDate = new Date(startTime).toISOString();
+    const endDate = new Date(endTime).toISOString();
 
-    formValue.occurrenceTime = `${startDate} 至 ${endDate}`;
+    formValue.startDate = startDate;
+    formValue.endDate = endDate;
   }
-  fromEq(formValue).then((res) => {
+
+  // 构建查询对象
+  const queryParams = {
+    earthquakeName: formValue.earthquakeName || undefined,
+    startTime: formValue.startDate || undefined,
+    endTime: formValue.endDate || undefined,
+    startMagnitude: formValue.startMagnitude || undefined,
+    endMagnitude: formValue.endMagnitude || undefined,
+    startDepth: formValue.startDepth || undefined,
+    endDepth: formValue.endDepth || undefined,
+  };
+
+
+  console.log("5555555555555555555555555555",queryParams)
+
+  fromEq(queryParams).then((res) => {
     tableData.value = res;
   });
   queryFormVisible.value = false;
@@ -289,7 +325,7 @@ onMounted(() => {
 
 <style scoped>
 .public-bg {
-  background: rgba(12, 26, 63, 0.3);
+  /*background: rgba(12, 26, 63, 0.3);*/
 }
 
 .public-title {
@@ -305,63 +341,73 @@ onMounted(() => {
 }
 
 .public-title:before {
-  width: 4px;
+  width: 0px;
   height: 20px;
   top: 5px;
   position: absolute;
   content: "";
   background: #2997e4;
   border-radius: 2px;
-  left: 5px;
+  left:4px;
 }
 
 .content-body {
   width: 100%;
   height: 100%;
-  background-image: url("@/assets/背景图片.jpg");
+  background-image: url("@/assets/bg3.png");
   background-size: 100% 100%;
   position: absolute;
 }
 
 .header {
-  margin-top: 1vh;
+  margin-top: 2vh;
   position: absolute;
   display: flex;
   justify-content: center; /* 标题居中对齐 */
   align-items: center;
-  height: 34px;
-  width: 100%;
+  height: 22px;
+  margin-bottom: 2vh;
+  width: 100%; /* 使用 100% 来适应父容器宽度 */
   z-index: 10;
 }
 
 .header-center {
-  margin-left: -5vw;
-  color: #ffffff;
+  color: #69d1e1; /* 设置字体颜色为 #69d1e1 */
   font-weight: bold;
   font-size: 24px;
   letter-spacing: 2px;
+  text-align: center; /* 确保文本在容器内居中 */
+  width: 100%; /* 确保 header-center 占满父容器 */
 }
 
 .header-time {
-  top: 0;
+  top: 13px;
   position: absolute;
-  color: #FFFFFF;
-  right: 2vw;
-  font-size: 18px;
+  color: #73FFFA; /* 使用给定的颜色 */
+  right: 7.5vw;
+  font-size: 12px; /* 字体稍微变小，提升精致感 */
+  font-weight: 300; /* 使用较细的字体粗细 */
+  font-family: 'Source Han Sans', '思源黑体', sans-serif; /* 使用思源黑体字体 */
+  letter-spacing: 0.5px; /* 增加字母间距，让字体更加通透 */
+  line-height: 1.4; /* 调整行高，确保文字看起来不拥挤 */
 }
 
 .content {
-  position: absolute;
-  margin-top: 5vh;
+  left: 7px;
+  padding: 3px 16px;
+   position: absolute;
+  margin-top: 7vh;
   width: 100%;
-  height: calc(100% - 75px);
+  height: calc(100% - 62px);
 }
 
 .content .content-con {
   height: 100%;
+  padding-bottom: 26px;
 }
 
 .left-body {
+  position: absolute;
   width: 19%;
   height: 100%;
   float: left;
@@ -429,19 +475,22 @@ onMounted(() => {
 }
 
 .center-body {
-  width: 48%;
+  position: absolute;
+  width: 100%;
   height: 100%;
-  margin: 0 0.3%;
+  /*margin: 0 0.3%;*/
   float: left;
 }
 
 .center-body .map {
-  width: 100%;
-  height: 100%;
+  width: 97%;
+  height: 96%;
 }
 
 .right-body {
+  position: absolute;
   width: 31%;
+  left: 66%;
   height: 100%;
   float: right;
   margin: 0 0.3%;
@@ -449,7 +498,7 @@ onMounted(() => {
 
 .right-body .right-top {
   width: 100%;
-  height: 56%;
+  height: 54%;
 }
 
 .title-nav .top5-ul {
@@ -534,5 +583,129 @@ onMounted(() => {
   height: 45%;
   margin-top: 1%;
 }
+
+
+
+
+
+/* 新增样式 */
+.content-body {
+
+  /*background: linear-gradient(135deg, #1e1e2f, #2b2d42);*/
+  color: #e0e0e0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.public-bg {
+  /*background: rgba(30, 30, 47, 0.9);*/
+  //border-radius: 10px;
+  //box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.public-title {
+  color: #00eaff;
+  font-weight: bold;
+  text-shadow: 0 0 5px #00eaff;
+}
+
+.el-input,
+.el-button {
+  border-radius: 5px;
+}
+
+.el-button {
+  background-color: #00eaff;
+  color: #000;
+  transition: background-color 0.3s;
+}
+
+.el-button:hover {
+  background-color: #006f8c;
+}
+
+.dv-border-box7 {
+  border: 1px solid #00eaff;
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px #00eaff;
+  }
+  to {
+    box-shadow: 0 0 20px #00eaff;
+  }
+}
+
+#time {
+  color: #00eaff;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* 新增高科技感样式 */
+.content-body {
+  /*background: linear-gradient(135deg, #0f0c29, #483fa1, #24243e);*/
+  color: #ffffff;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/*!*边框蓝线*!
+.public-bg {
+  background: rgba(20, 20, 50, 0.85);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+  border: 1px solid #0ff;
+}*/
+
+
+/*字体蓝光*/
+/*.public-title {*/
+/*  color: #0ff;*/
+/*  font-weight: 700;*/
+/*  text-shadow: 0 0 10px #0ff, 0 0 20px #00f, 0 0 30px #0ff;*/
+/*}*/
+
+.el-input,
+.el-button {
+  border-radius: 8px;
+  border: none;
+}
+
+.el-button {
+  background: linear-gradient(45deg, #2c3364, #0ff);
+  color: #000;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 255, 255, 0.5);
+}
+
+.dv-border-box7 {
+  border: 1px solid #0ff;
+  animation: neonGlow 2s infinite alternate;
+  box-shadow: 0 0 15px #00eaff, 0 0 30px #0ff inset;
+}
+
+@keyframes neonGlow {
+  from {
+    box-shadow: 0 0 10px #00eaff;
+  }
+  to {
+    box-shadow: 0 0 25px #00eaff;
+  }
+}
+
+#time {
+  color: #0ff;
+  font-size: 1.5em;
+  font-weight: 700;
+  text-shadow: 0 0 5px #00eaff;
+}
+
 
 </style>
