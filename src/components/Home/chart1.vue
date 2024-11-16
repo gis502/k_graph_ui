@@ -18,18 +18,20 @@ const chartOptions = ref([]);
 const chartInstances = ref([]);
 
 const calculateMagnitudeData = (data, years) => {
-  const currentYear = new Date().getFullYear();
-  const startYear = currentYear - years;
-  const magnitudeCounts = {
-    '<3': Array(years + 1).fill(0),
-    '3-4.5': Array(years + 1).fill(0),
-    '4.5-6': Array(years + 1).fill(0),
-    '≥6': Array(years + 1).fill(0),
-  };
-
-  data.forEach(item => {
-    const year = new Date(item.occurrenceTime).getFullYear();
-    const yearIndex = currentYear - year;
+    const currentYear = new Date().getFullYear();
+  console.log("currentYear",currentYear)
+    const startYear = currentYear - years;
+  console.log("startYear",startYear)
+    const magnitudeCounts = {
+      '<3': Array(years + 1).fill(0),
+      '3-4.5': Array(years + 1).fill(0),
+      '4.5-6': Array(years + 1).fill(0),
+      '≥6': Array(years + 1).fill(0),
+    };
+  console.log("magnitudeCounts===========",magnitudeCounts)
+    data.forEach(item => {
+      const year = new Date(item.occurrenceTime).getFullYear();
+      const yearIndex = currentYear - year;
 
     if (year >= startYear && yearIndex >= 0 && yearIndex <= years) {
       if (item.magnitude < 3) {
@@ -44,12 +46,15 @@ const calculateMagnitudeData = (data, years) => {
     }
   });
 
-  return magnitudeCounts;
+    console.log("magnitudeCounts111111111",magnitudeCounts)
+    return magnitudeCounts;
+
 };
 
 const initChart = async () => {
   const currentYear = new Date().getFullYear();
   const threeYearMagnitudes = calculateMagnitudeData(props.eqData, 3);
+  console.log("threeYearMagnitudes",threeYearMagnitudes)
   const tenYearMagnitudes = calculateMagnitudeData(props.eqData, 10);
 
   // 以下是流光折线图的一些配置的

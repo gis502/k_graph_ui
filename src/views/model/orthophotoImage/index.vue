@@ -256,37 +256,46 @@ export default {
 
     // 筛选
     onSubmit() {
-      // 如果 addTime 存在，转换为 ISO 8601 格式的字符串；如果为空，设置为 null
+      // 如果 createTime 存在，转换为 ISO 8601 格式的字符串；如果为空，设置为 null
       const createTimeIso = this.dialogContent.createTime ? new Date(this.dialogContent.createTime).toISOString() : null;
 
       this.filterContent = {
-        modelName: this.dialogContent.modelName || null,
-        addTime: createTimeIso,  // 将 addTime 转换为 ISO 8601 格式的字符串或 null
-        modelHeight: this.dialogContent.modelHeight || null,
-        rotationAngle: this.dialogContent.rotationAngle || null,
-        modelPath: this.dialogContent.modelPath || null,
-        modelSize: this.dialogContent.modelSize || null
+        name: this.dialogContent.modelName || null,
+        createTime: createTimeIso,  // 将 createTime 转换为 ISO 8601 格式的字符串或 null
+        height: this.dialogContent.modelHeight || null,
+        angle: this.dialogContent.rotationAngle || null,
+        path: this.dialogContent.modelPath || null,
+        uuid: this.dialogContent.uuid || null,
       };
 
       console.log("filterContent", this.filterContent); // 打印 filterContent
 
       // 发送请求
       OrthophotoFilterContent(this.filterContent).then(res => {
-        // 处理返回的数据
-        console.log("OrthophotoFilterContent",res);
+        console.log("OrthophotoFilterContent", res); // 打印返回的响应
 
-        this.tableData = res.data.map((item, index) => ({
-          serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
-          uuid: item.uuid,
-          name: item.name,
-          height: item.height,
-          path: item.path,
-          angle: item.angle,
-          createTime: item.createTime,  // 格式化日期
-        }));
+        this.tableData = res.data.map((item, index) => {
+          let formattedCreateTime = '';
+
+          // 格式化 createTime 为 yyyy-MM-dd HH:mm:ss 格式
+          if (item.createTime) {
+            const createTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
+            formattedCreateTime = createTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
+          }
+
+          return {
+            serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
+            uuid: item.uuid,
+            name: item.name,
+            height: item.height,
+            path: item.path,
+            angle: item.angle,
+            createTime: formattedCreateTime,  // 使用格式化后的 createTime
+          };
+        });
 
         // 更新表格数据和总数
-        this.total = res.total  // 总记录数
+        this.total = res.total;  // 总记录数
         this.tableData = this.getPageArr();  // 获取当前页面数据
 
         // 隐藏筛选表单

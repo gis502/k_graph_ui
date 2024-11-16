@@ -29,9 +29,9 @@ export function list() {
  */
 export function queryOrthophotoData(queryValue) {
     return request({
-        url: '/orthophoto/qureyEq',  // 后端接口地址
-        method: 'post',  // 使用 POST 方法
-        data: queryValue  // 如果没有传值，则为空字符串
+        url: '/orthophoto/queryEq',  // 后端接口地址
+        method: 'get',  // 使用 POST 方法
+        params: {queryValue}  // 如果没有传值，则为空字符串
 
     });
 }
