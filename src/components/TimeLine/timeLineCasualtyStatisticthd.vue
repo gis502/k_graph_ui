@@ -7,13 +7,13 @@
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-            <el-table-column prop="address" label="位置" width="88" align="center"></el-table-column>
-            <el-table-column prop="死亡" label="死亡" width="60" align="center"
+            <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
+            <el-table-column prop="死亡" label="死亡" width="55" align="center"
                              :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="失踪" label="失踪" width="55" :formatter="formatPeople"></el-table-column>
             <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="重伤" label="重伤" width="55" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="轻伤" label="轻伤" width="55" :formatter="formatPeople"></el-table-column>
         </el-table>
 </div>
       </div>
@@ -371,7 +371,7 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-        'font-size': '14px'
+        'font-size': '12px'
       }
     }
 
@@ -386,7 +386,7 @@ export default {
           'color': '#fff',
           'padding': '1',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '12px'
         }
       } else {
         return {
@@ -397,7 +397,7 @@ export default {
           'color': '#fff',
           'padding': '1',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '12px'
         }
       }
     }
@@ -433,7 +433,7 @@ export default {
   overflow-x: hidden;
   position: absolute;
   top: 34.5%;
-  width: 25%;
+  width: 22%;
   height: 21%;
   padding: 10px;
   border-radius: 5px;

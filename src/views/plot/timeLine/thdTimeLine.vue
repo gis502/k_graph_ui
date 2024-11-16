@@ -680,7 +680,6 @@ export default {
         }
 
         // 获取地震数据并更新地图和变量
-        // this.getEq()
         this.checkIfOvalCircleLayer();
         this.updateMapandVariablebeforInit()
 
@@ -1105,8 +1104,6 @@ export default {
 
     },
     bofang() { //正向播放
-      // let count = this.jumpNodes.filter(item => item === 1).length;
-      // let junmpCount
       this.isfirst=false
       if (!this.isTimerRunning) { //根据次数跳出
         // this.currentTimePosition = 100;
@@ -1408,6 +1405,25 @@ export default {
       this.currentSpeed = parseFloat(speed.split('-')[0])
     },
 
+    addJumpNodes(val) {
+      val.forEach(item => {
+        this.jumpTimes.push(item)
+      })
+    },
+    updateZoomLevel(cameraHeight) {
+      console.log("层级", cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      } else if (cameraHeight > 8000) {
+        this.zoomLevel = '乡/镇'
+      } else {
+        this.zoomLevel = '村'
+      }
+    },
+
     //---------------------------------------------------------------------------------------------
 
 
@@ -1570,26 +1586,8 @@ export default {
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
 
-    /*
-    * 添加地震点
-    * 在地图上标绘出历史发生过的地震
-    * */
-    addHistoryEqPoints() {
-      // 先清除historyEq实体
-      this.removeEntitiesByType("historyEq")
-      addHistoryEqPoints(this.centerPoint, this.tableData)
-    },
 
-    /**
-     * 断裂带加载  200千米以内
-     * 在当前中心点位置添加故障区域对象，同时移除现有的故障区域对象
-     */
-    addFaultZone() {
-      // 移除当前所有故障区域实体
-      this.removeEntitiesByType("faultZone")
-      // 在中心点位置添加新的故障区域
-      addFaultZones(this.centerPoint)
-    },
+
 
 
     /**
@@ -1608,23 +1606,6 @@ export default {
       }
     },
 
-    /**
-     * 添加椭圆圈
-     *
-     * 此方法首先通过类型移除所有现有的椭圆圈实体，然后在指定的中心点位置添加新的椭圆圈
-     * 这确保了界面上只会显示最新的一组椭圆圈，避免了图形的叠加和混乱
-     *
-     * @param {String} type - 实体的类型，用于标识需要移除的实体
-     * @param {Object} centerPoint - 椭圆圈的中心点对象，决定了新添加的椭圆圈的位置
-     */
-    addOvalCircle() {
-
-      // 移除所有已存在的椭圆圈实体，以避免重复添加
-      this.removeEntitiesByType("ovalCircle")
-
-      // 在指定的中心点位置添加新的椭圆圈
-      addOvalCircles(this.centerPoint)
-    },
 
     /**
      * 计算点击位置的经纬度和高度
@@ -1911,247 +1892,6 @@ export default {
           // that.tz = tzs[1]
           // that.find()
         }
-      });
-    },
-
-
-    /**
-     * 此方法通过调用getAllEq函数从服务器获取所有设备的数据，然后将这些数据赋值给tableData属性
-     * 同时，成功获取数据后，初始化Cesium相关的viewer、websocket连接和pinia状态管理，以便进行设备位置的标绘
-     */
-    getEq() {
-      let that = this
-
-      getAllEq().then(res => {
-        that.tableData = res
-        // 初始化标绘所需的viewer、ws、pinia
-        // console.log("that.tableData", that.tableData)
-      })
-    },
-
-
-    /**
-     * 根据给定的行数据更新视图和WebSocket连接
-     * 此函数主要用于在用户选择不同的行时，更新界面上的设备ID（eqid），
-     * 并通过WebSocket连接发送新的设备ID以获取相关数据
-     *
-     * @param {Object} row - 要处理的行数据对象，包含设备ID（eqid）
-     */
-    plotAdj(row) {
-      window.viewer.entities.removeAll(); // 清空当前视图中的所有实体，准备显示新的设备数据
-      this.eqid = row.eqid // 更新Vue实例中的设备ID
-      this.websock.eqid = this.eqid // 更新WebSocket连接中的设备ID，以便正确地发送和接收数据
-    },
-
-    /**
-     *  ------------------行政区划--------------------
-     * 添加雅安行政区划影像图层
-     *
-     * 此方法旨在向地图中添加雅安市的行政区划影像图层如果图层已存在，则不会重复添加
-     * 使用Cesium库加载GeoJSON数据，并根据图层是否已存在来设置不同的显示样式
-     */
-    addYaanImageryDistrict() {
-      // 移除其他区域图层
-      this.removethdRegions()
-      // 检查是否已添加“行政区划要素图层”
-      if (!this.selectedlayersLocal.includes("行政区划要素图层")) {
-        // 加载雅安行政区划的GeoJSON数据，并设置显示样式
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-          strokeWidth: 4,
-        });
-        // 处理加载成功的GeoJSON数据
-        geoPromise.then((dataSource) => {
-          // 添加 geojson
-          window.regionLayer111 = dataSource;
-          window.viewer.dataSources.add(dataSource);
-          // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-          dataSource.name = "thd_yaanregion";
-          // 视角跳转到 geojson
-          viewer.flyTo(dataSource.entities.values);
-
-        }).catch((error) => {
-          // 处理加载失败的情况
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      } else {
-        // 如果图层已存在，加载一个透明的GeoJSON数据，以保持图层的存在而不显示内容
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          stroke: Cesium.Color.TRANSPARENT,
-          fill: Cesium.Color.TRANSPARENT,
-          markerColor: Cesium.Color.TRANSPARENT,
-          markerSize: 0,
-          strokeWidth: 0,
-          clampToGround: true,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          depthTest: true,
-        });
-        // 处理加载成功的透明GeoJSON数据
-        geoPromise.then((dataSource) => {
-          window.viewer.dataSources.add(dataSource);
-          viewer.flyTo(dataSource.entities.values);
-        }).catch((error) => {
-          // 处理加载失败的情况
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      }
-      // 添加雅安市的标签
-      let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
-      let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
-      let labelEntity = viewer.entities.add(new Cesium.Entity({
-        position: position,
-        label: new Cesium.LabelGraphics({
-          text: labelData.name,
-          scale: 1,
-          font: "bolder 50px sans-serif",
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-          pixelOffset: new Cesium.Cartesian2(0, -60)
-        })
-      }));
-      // 保存标签实体的引用
-      this.labels.push(labelEntity);
-    },
-
-    /**
-     * 处理区县点击事件
-     * @param {Object} district - 区县对象，包含区县名称和代码等信息
-     */
-    handleDistrictClick(district) {
-      //清除其他实体标签
-      this.removethdRegions()
-      // this.visible = false;
-      // 根据区县代码过滤GeoJSON数据
-      let filteredFeatures = yaan.features.filter(feature => {
-        return feature.properties.adcode === district.adcode;
-      });
-      if (filteredFeatures.length > 0) {
-
-        // 创建一个经过过滤的GeoJSON对象，包含过滤后的特性数据
-        let filteredGeoJson = {
-          type: "FeatureCollection",
-          features: filteredFeatures
-        };
-
-        // 使用Cesium的GeoJsonDataSource.load方法加载经过过滤的GeoJSON数据
-        // 该方法用于将GeoJSON数据转换为Cesium的数据源，以便在3D地图中显示
-        // 在加载时，设置了数据源的样式属性，包括边颜色、填充颜色和边宽度
-        let geoPromise = Cesium.GeoJsonDataSource.load(filteredGeoJson, {
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-          strokeWidth: 4,
-        });
-
-        // 处理地理空间数据的Promise对象
-        geoPromise.then((dataSource) => {
-          // 将数据源添加到观众的数据显示中
-          window.viewer.dataSources.add(dataSource);
-          // 保存区域图层以便后续使用
-          window.regionLayer111 = dataSource
-
-          // 遍历每个过滤后的地理特征
-          filteredFeatures.forEach((feature) => {
-            // 获取特征的中心点坐标
-            let center = feature.properties.center;
-
-            // 检查中心点是否定义且格式正确
-            if (center && center.length === 2) {
-              // 将地理坐标转换为三维空间中的位置
-              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-              // 创建并添加标签实体到观众的实体集合中
-              let labelEntity = viewer.entities.add(new Cesium.Entity({
-                position: position,
-                label: new Cesium.LabelGraphics({
-                  text: district.name,  // 标签文本为区域名称
-                  scale: 1,  // 标签缩放比例
-                  font: "bolder 50px sans-serif",  // 标签字体样式
-                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,  // 标签样式为填充和轮廓
-                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),  // 标签填充颜色
-                  pixelOffset: new Cesium.Cartesian2(0, -60)  // 标签像素偏移量，用于调整位置
-                })
-              }));
-              // 保存标签实体的引用，以便后续管理和操作
-              this.labels.push(labelEntity);
-            } else {
-              // 如果中心点未定义或格式不正确，输出警告信息
-              console.warn('中心点未定义或格式不正确:', feature);
-            }
-          });
-          // 飞行到数据源中的实体位置，以便用户查看
-          viewer.flyTo(dataSource.entities.values);
-        }).catch((error) => {
-          // 如果加载GeoJSON数据失败，输出错误信息
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      } else {
-        console.error("未找到对应的区县:", adcode);
-      }
-    },
-
-    /**
-     * 移除区域图层和相关标签
-     * 此函数负责从地图中移除特定的区域图层和与之关联的图例标签
-     */
-    removethdRegions() {
-      // 检查是否存在名为regionLayer111的图层
-      if (window.regionLayer111) {
-        // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-        window.viewer.dataSources.remove(window.regionLayer111, true);
-        // 清空regionLayer111的引用，以便垃圾回收
-        window.regionLayer111 = null;
-        // console.log("图层已移除");
-      }
-      // 获取图例容器，准备清空其内容
-      const legend = document.getElementById('legend');
-      // 循环移除图例容器中的所有子元素
-      while (legend.firstChild) {
-        legend.removeChild(legend.firstChild);
-      }
-      // 遍历标签数组，移除每个标签实体
-      this.labels.forEach(label => {
-        window.viewer.entities.remove(label);
-      });
-      // 清空标签引用数组，以便垃圾回收
-      this.labels = [];
-    },
-
-    /**
-     * 飞回到地图中心点（发生地震中心）
-     * 该方法首先移除之前绘制的区域，然后计算并飞回到地图中心点的位置
-     */
-    backcenter() {
-      // 移除之前绘制的区域
-      this.removethdRegions()
-
-      // 根据经度和纬度创建一个三维坐标点，Z轴设置为120000，以确保视角高度
-      const position = Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          120000,
-      );
-
-      // 飞行到计算出的中心点位置
-      viewer.camera.flyTo({destination: position,})
-    },
-
-
-    /**
-     * 初始化绘制功能 图层要素
-     * 该方法通过获取特征图层（features layer）来设置灾害储备、应急队伍和应急避难所的数据
-     * 它将这些数据存储在组件的相应属性中
-     */
-    initPlot() {
-      getFeaturesLayer().then(res => {
-        // 解构赋值，从响应数据中提取灾害储备、应急队伍和应急避难所的信息
-        let {disasterReserves, emergencyTeam, emergencyShelters} = res;
-        // 更新组件的灾害储备数据
-        this.disasterReserves = disasterReserves;
-        // 更新组件的应急队伍数据
-        this.emergencyTeam = emergencyTeam;
-        // 更新组件的应急避难所数据
-        this.emergencyShelters = emergencyShelters;
-        // 原注释保留，但实际代码中未调用此方法
       });
     },
 
@@ -2564,24 +2304,6 @@ export default {
       }
     },
 
-    addJumpNodes(val) {
-      val.forEach(item => {
-        this.jumpTimes.push(item)
-      })
-    },
-    updateZoomLevel(cameraHeight) {
-      console.log("层级", cameraHeight)
-      // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
-        this.zoomLevel = '区/县'
-      } else if (cameraHeight > 8000) {
-        this.zoomLevel = '乡/镇'
-      } else {
-        this.zoomLevel = '村'
-      }
-    },
 
     // 关闭弹窗
     closePlotPop() {
@@ -2645,11 +2367,6 @@ export default {
 
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
-
-      // 如果激活的组件是地震列表，则获取地震数据
-      // if (this.activeComponent === 'eqList') {
-      //   this.getEq();
-      // }
     },
 
     //飞到震中
