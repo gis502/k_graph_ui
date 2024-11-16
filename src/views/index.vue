@@ -534,4 +534,5 @@ onMounted(() => {
   height: 45%;
   margin-top: 1%;
 }
+
 </style>

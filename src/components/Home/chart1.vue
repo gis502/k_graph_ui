@@ -419,7 +419,7 @@ const initChart = async () => {
     // 流光折现图
     {
       title: {
-        text: '近十年历史地震震级',
+        text: '四川省近十年历史地震震级',
         textStyle: {
           color: '#15faff',
           fontSize: 20,
@@ -700,7 +700,7 @@ const initChart = async () => {
     // 3d柱图
     {
       title:{
-        text: '近三年历史地震震级',
+        text: '四川省近三年历史地震震级',
         textStyle: {
           color: '#15faff',
           fontSize: 20,
@@ -799,10 +799,10 @@ const initChart = async () => {
       ],
       series: series,
     },
-
+    // 流光折现图
     {
       title: {
-        text: '近十年历史地震震级',
+        text: '四川省近十年历史地震震级',
         textStyle: {
           color: '#15faff',
           fontSize: 20,
@@ -990,7 +990,7 @@ const initChart = async () => {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                 offset: 0,
-                color: 'rgba(255, 99, 71, 0.7)'
+                color: 'rgb(255, 160, 122)'
               }, {
                 offset: 0.8,
                 color: 'rgba(6, 8, 41,.1)'
@@ -1001,7 +1001,7 @@ const initChart = async () => {
           },
           itemStyle: {
             normal: {
-              color: '#FF6A4D'
+              color: '#FFA07A'
             }
           },
           data: data3
@@ -1021,7 +1021,7 @@ const initChart = async () => {
           },
           lineStyle: {
             normal: {
-              color: '#FF6A4D',
+              color: '#FFA07A',
               width: 0,
               opacity: 0,
               curveness: 0,
@@ -1039,7 +1039,7 @@ const initChart = async () => {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                 offset: 0,
-                color: 'rgb(255, 160, 122)'
+                color: 'rgba(255, 99, 71)'
               }, {
                 offset: 0.8,
                 color: 'rgba(6, 8, 41,.1)'
@@ -1050,7 +1050,7 @@ const initChart = async () => {
           },
           itemStyle: {
             normal: {
-              color: '#FFA07A'
+              color: '#FF6A4D'
             }
           },
           data: data4
@@ -1070,7 +1070,7 @@ const initChart = async () => {
           },
           lineStyle: {
             normal: {
-              color: '#FFA07A',
+              color: '#FF6A4D',
               width: 0,
               opacity: 0,
               curveness: 0,
@@ -1080,9 +1080,10 @@ const initChart = async () => {
         },
       ]
     },
+    // 3d柱图
     {
       title:{
-        text: '近三年历史地震震级',
+        text: '四川省近三年历史地震震级',
         textStyle: {
           color: '#15faff',
           fontSize: 20,
