@@ -1,7 +1,7 @@
 <template>
-  <div class="casualtyStatistic">
-    <div>
-      <span class="sub-title-new">伤亡详情：</span>
+  <div class="pop">
+    <div class="pop_header">
+      <span class="pop_title">伤亡详情</span>
       <span class="title-time">{{timestampToTime(currentTime)}}</span>
       <div class="sub-main">
         <el-table :data="statisticInfo"
@@ -15,12 +15,11 @@
             <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
             <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
         </el-table>
-</div>
+        </div>
       </div>
     </div>
 
 </template>
-
 <script>
 import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
@@ -428,23 +427,37 @@ export default {
 </script>
 
 <style scoped>
-.casualtyStatistic {
-  overflow-y: auto;
-  overflow-x: hidden;
+.pop {
   position: absolute;
-  top: 34.5%;
-  width: 25%;
-  height: 21%;
-  padding: 10px;
-  border-radius: 5px;
-  left: 1%;
-  z-index: 40;
-  background-color: rgb(22, 53, 77, 0.9);
-  backdrop-filter: none !important;
-  border: 1px solid #008aff70;
-  color: #FFFFFF;
+  top: 19.5%;
+  width: 100%;
+  z-index: 20;
 }
-
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.pop_title {
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 550;
+  top: 15%;
+  position: relative;
+  left: 7%;
+}
+.title-time{
+  right: 1%;
+  position: absolute;
+  top: 16%;
+  font-size: 0.9rem;
+  font-weight: normal;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffffff;
+}
 .list-dialog .list-dialog__header {
   height: 41px;
   width: 100%;
@@ -460,7 +473,10 @@ export default {
   background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
   background-size: 100% 100%;
 }
-
+.sub-main {
+  margin-top: 10px;
+  margin-left: 5px;
+}
 :deep(.el-table__header-wrapper){
   background-color: rgb(25, 56, 77);
 }
@@ -521,33 +537,7 @@ export default {
   height: 310px !important;
 }
 
-.sub-title-new {
-  color: #FFFFFF;
-  font-size: 1.1rem;
-  font-weight: 550;
-  top:-9px;
-  position: relative;
-}
-.sub-title-new:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.title-time{
-  font-size: 0.9rem;
-  font-weight: normal;
-  color: #ffeb00;
-  line-height: 1.8rem;
-  top: -8px;
-  position: relative;
-}
+
 
 
 </style>
