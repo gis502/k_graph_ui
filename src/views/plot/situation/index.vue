@@ -860,7 +860,7 @@ export default {
         const plotTypes = this.plotList.map(plot => plot.plotType);
 
         getExcelPlotInfo(plotIds, plotTypes).then(res => {
-          // console.log(res)
+          console.log(res)
 
           // 提取 excelContent
           const excelContent = res.filter(item => item.plotInfo).map(item => {
@@ -891,8 +891,8 @@ export default {
               "纬度": plotInfo.latitude,
               "高程": plotInfo.elevation,
               "角度": plotInfo.angle,
-              "开始时间": plotInfo.startTime,
-              "结束时间": plotInfo.endTime,
+              "开始时间": plotInfo.startTime ? plotInfo.startTime.replace("T", " ") : "", // 检查是否为 null 或 undefined
+              "结束时间": plotInfo.endTime ? plotInfo.endTime.replace("T", " ") : "", // 同样检查
               ...filteredPlotTypeInfo, // 保留 plotTypeInfo 中的字段
             };
           });
