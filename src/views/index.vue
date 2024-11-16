@@ -12,6 +12,12 @@
 
     <div class="content">
       <div class="content-con">
+
+
+        <div class="center-body">
+          <e-map :eq-data="EqAll"/>
+        </div>
+
         <div class="left-body">
           <div class="left-top public-bg" ref="leftTop">
             <dv-border-box7 :style="borderBoxStyles1">
@@ -32,10 +38,6 @@
               <chart2 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
-        </div>
-
-        <div class="center-body">
-          <e-map :eq-data="EqAll"/>
         </div>
 
         <div class="right-body">
@@ -348,6 +350,7 @@ onMounted(() => {
   justify-content: center; /* 标题居中对齐 */
   align-items: center;
   height: 22px;
+  margin-bottom: 2vh;
   width: 106%;
   z-index: 10;
 }
@@ -370,11 +373,11 @@ onMounted(() => {
 
 .content {
   left: 7px;
-  padding: 3px 38px;
-  position: absolute;
+  /* padding: 3px 38px; */
+  /* position: absolute; */
   margin-top: 7vh;
   width: 100%;
-  height: calc(100% - 75px);
+  height: calc(100% - 62px);
 }
 
 .content .content-con {
@@ -450,9 +453,10 @@ onMounted(() => {
 }
 
 .center-body {
-  width: 48%;
+  position: absolute;
+  width: 100%;
   height: 100%;
-  margin: 0 0.3%;
+  /*margin: 0 0.3%;*/
   float: left;
 }
 

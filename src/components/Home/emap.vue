@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="map">
     <!--    工具-->
     <!--    <div class="tool_container">-->
     <!--      &lt;!&ndash;      <button @click="openTool('paintBrushTool')">画笔</button>&ndash;&gt;-->
@@ -136,7 +136,7 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({x: 0, y: -620}); //信息窗的初始位置
+    const infoWindowPosition = ref({x: 0, y: -920}); //信息窗的初始位置
     const weight = ref(210); // 默认weight值
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
@@ -426,42 +426,42 @@ export default {
     //---------------------------------------------------------------------------------------
 
 
-    // 启动画笔工具
-    const openTool = (toolName) => {
-      if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
-        mapConfig.value.isDrawing = true;
-        mapConfig.value.paintBrushTool.open();
-
-        // 监听鼠标事件
-        mapConfig.value.map.addEventListener('mousedown', stopEvent);
-        mapConfig.value.map.addEventListener('mouseup', handleMouseUp);
-      }
-    };
-
-    // 停止事件传播
-    const stopEvent = (event) => {
-      event.stopPropagation();
-    };
-
-
-    // 鼠标松开时的处理
-    const handleMouseUp = () => {
-      mapConfig.value.isDrawing = false; // 关闭绘制状态
-      mapConfig.value.map.removeEventListener('mousedown', stopEvent);
-      mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    // 清除画笔工具绘制的内容
-    const clearTool = (toolName) => {
-      if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
-        mapConfig.value.paintBrushTool.clear(); // 清除已绘制的线条
-        mapConfig.value.isDrawing = false;
-
-        // 移除鼠标事件监听
-        mapConfig.value.map.removeEventListener('mousedown', stopEvent);
-        mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
-      }
-    };
+    // // 启动画笔工具
+    // const openTool = (toolName) => {
+    //   if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
+    //     mapConfig.value.isDrawing = true;
+    //     mapConfig.value.paintBrushTool.open();
+    //
+    //     // 监听鼠标事件
+    //     mapConfig.value.map.addEventListener('mousedown', stopEvent);
+    //     mapConfig.value.map.addEventListener('mouseup', handleMouseUp);
+    //   }
+    // };
+    //
+    // // 停止事件传播
+    // const stopEvent = (event) => {
+    //   event.stopPropagation();
+    // };
+    //
+    //
+    // // 鼠标松开时的处理
+    // const handleMouseUp = () => {
+    //   mapConfig.value.isDrawing = false; // 关闭绘制状态
+    //   mapConfig.value.map.removeEventListener('mousedown', stopEvent);
+    //   mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
+    // };
+    //
+    // // 清除画笔工具绘制的内容
+    // const clearTool = (toolName) => {
+    //   if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
+    //     mapConfig.value.paintBrushTool.clear(); // 清除已绘制的线条
+    //     mapConfig.value.isDrawing = false;
+    //
+    //     // 移除鼠标事件监听
+    //     mapConfig.value.map.removeEventListener('mousedown', stopEvent);
+    //     mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
+    //   }
+    // };
 
     // 标准图层--black/indigo
     const setMapStyle = (style) => {
@@ -593,7 +593,7 @@ export default {
         console.log("weight.value*********", weight.value)
 
         infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 180// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 380// 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -612,7 +612,7 @@ export default {
         mapConfig.value.map.closeInfoWindow();
         showInfoWindow.value = false;
         infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
-        infoWindowPosition.value.y = -500//- 330; // 获取鼠标位置
+        infoWindowPosition.value.y = -650//- 330; // 获取鼠标位置
       });
 
       mapConfig.value.map.addOverLay(marker);
@@ -727,8 +727,8 @@ export default {
 
       mapConfig,
       showInfoWindow,  //信息窗
-      openTool,  //画笔
-      clearTool,  //清除画笔
+      // openTool,  //画笔
+      // clearTool,  //清除画笔
       setMapStyle,
       reset,
       returnLnglat,
@@ -875,15 +875,14 @@ export default {
 
 
 .legend {
-  display: flex;
-  //position: absolute;
   bottom: 0;
-  left: 20%;
-  z-index: 20;
-  margin-top: 5px;
+  left: 33%;
+  z-index: 35;
+  /* margin-top: 5px; */
   background-color: transparent;
-  width: 100%;
-  //height: auto; /* 自适应高度 */
+  /* width: 100%; */
+  position: fixed;
+  top: 93%;
 }
 
 
@@ -993,15 +992,15 @@ export default {
   }
 }
 
-.map-container[data-v-bdc64a41] {
+:deep(.map-container[data-v-bdc64a41] ){
   width: 100%;
-  height: 687px;
+  height: 100% !important;
 }
 
 .map_container {
   width: 100%;
-  height: 600px;
-  margin-top: 10px;
+  height: 100%;
+  margin-top: 2px;
   z-index: 0;
   // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
   ::v-deep .tdt-control-copyright {
