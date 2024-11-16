@@ -333,12 +333,31 @@
           :currentTime="currentTime"
           @addJumpNodes="addJumpNodes"
       />
-      <!--   人员伤亡-左中   -->
-      <timeLinePersonnelCasualties
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @addJumpNodes="addJumpNodes"
-      />
+      <div>
+        <div class="personbutton" v-if="PersoonnelCasuality===1">
+          <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+        </div>
+        <!--   人员伤亡-左中   -->
+        <timeLinePersonnelCasualties
+            v-if="PersoonnelCasuality===1"
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @addJumpNodes="addJumpNodes"
+        />
+
+
+      </div>
+      <div>
+        <div class="personbutton" v-if="PersoonnelCasuality===2">
+          <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+        </div>
+        <timeLineCasualtyStatisticthd
+            v-if="PersoonnelCasuality===2"
+            :zoomLevel="zoomLevel"
+            :pointsLayer="pointsLayer"
+            :currentTime="currentTime"
+        />
+      </div>
       <!--   救援出队-左下   -->
       <timeLineRescueTeam
           :eqid="eqid"
@@ -363,9 +382,7 @@
             @hideNewsDialog="hideNewsDialog"
         ></news-dialog>
       </div>
-<!--      <timeLineCasualtyStatistic-->
-<!--          :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
-<!--      />-->
+
       <!--      缩略图-->
       <div>
         <mini-map></mini-map>
@@ -377,7 +394,6 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -406,7 +422,7 @@
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
-    <div v-if="this.isTimerRunning" class="timelineRunningTimeLabel">
+    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
@@ -442,8 +458,8 @@ import yaan from '@/assets/geoJson/yaan.json'
 
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
-import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
-import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
+import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
@@ -471,7 +487,7 @@ import {
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
-import timeLineCasualtyStatistic from "@/components/TimeLine/timeLineCasualtyStatistic.vue";
+import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 
 
 export default {
@@ -481,7 +497,7 @@ export default {
     },
   },
   components: {
-    timeLineCasualtyStatistic,
+    timeLineCasualtyStatisticthd,
     thematicMapPreview,
     RouterPanel,
     TimeLinePanel,
@@ -692,6 +708,10 @@ export default {
       pointsLayer: [], //传到子组件
 
       stopTimeforAddEntityOneIndex: 5000,
+
+       PersoonnelCasuality: 1,//人员伤亡统计
+      timelinePopupShowCenterStrart:true,
+      intervalIdcolor:null,
     };
   },
   created() {
@@ -705,6 +725,7 @@ export default {
     this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
+    this.getPlotwithStartandEndTime(this.eqid)
     this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -954,14 +975,15 @@ export default {
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
         const animationDuration = 3000; // 动画总持续时间（30秒）
-        const intervalIdcolor = setInterval(() => {
+        if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+        this.intervalIdcolor = setInterval(() => {
           colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
         }, intervalTime);
-        setTimeout(() => {
-          clearInterval(intervalIdcolor); // 停止颜色切换
-          this.timelinePopupVisible = false;
-          this.xuanran(this.eqid)
-        }, animationDuration);
+        // setTimeout(() => {
+        //   clearInterval(intervalIdcolor); // 停止颜色切换
+        //   // this.timelinePopupVisible = false;
+        //   this.xuanran(this.eqid)
+        // }, animationDuration);
         //加载中心点
         viewer.entities.add({
           properties: {
@@ -1051,8 +1073,8 @@ export default {
      */
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
-      this.getPlotwithStartandEndTime(eqid)
-
+      // this.getPlotwithStartandEndTime(eqid)
+      this.updatePlotOnce(false)
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -1139,8 +1161,8 @@ export default {
       let timeEachPoint = 0
 
       points.forEach((point) => {
-        timeEachPoint = timeEachPoint + 5000 / this.currentSpeed
-        let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
+        timeEachPoint = timeEachPoint + 3000 / this.currentSpeed
+        let flytime = (timeEachPoint / 1000 - 1) < 2 ? timeEachPoint : 2
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
               parseFloat(point.longitude),
@@ -1217,19 +1239,23 @@ export default {
       // stopTimeforAddEntityOneIndex
       // let stoptime = 5000
       if (points.length > 0) {
-
+        if(this.timelinePopupShowCenterStrart){
+          clearInterval(this.intervalIdcolor); // 停止颜色切换
+          this.timelinePopupShowCenterStrart=false;
+          this.timelinePopupVisible = false;
+        }
         // let param = type === false ? false : true
         if (type == false) {
           console.log("false update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, false, 5000);
+          this.stopTimeforAddEntityOneIndex = 3000
+          cesiumPlot.drawPoints(points, false, 3000);
         } else if (type == "3") {
           console.log("333 update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, true, 5000);
+          this.stopTimeforAddEntityOneIndex = 3000
+          cesiumPlot.drawPoints(points, true, 3000);
         } else {
           console.log("more update")
-          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
+          this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
 
           // this.timeEach
           console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
@@ -1399,17 +1425,19 @@ export default {
 
       viewer.entities.removeById(this.centerPoint.plotid);
 
-      let colorFactor = 1.0;
-      const intervalTime = 500; // 切换颜色的时间间隔
-      const animationDuration = 3000; // 动画总持续时间（3秒）
-      const intervalIdcolor = setInterval(() => {
-        colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
-      }, intervalTime);
 
-      setTimeout(() => {
-        clearInterval(intervalIdcolor); // 停止颜色切换
-        this.timelinePopupVisible = false;
-      }, animationDuration);
+      // const intervalTime = 500; // 切换颜色的时间间隔
+      // const animationDuration = 3000; // 动画总持续时间（3秒）
+      let colorFactor = 1.0;
+      if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+      this.intervalIdcolor = setInterval(() => {
+        colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
+      }, 500);
+
+      // setTimeout(() => {
+      //   clearInterval(intervalIdcolor); // 停止颜色切换
+      //   // this.timelinePopupVisible = false;
+      // }, animationDuration);
       // let data=
       let data = {
         ...this.centerPoint,
@@ -3827,7 +3855,7 @@ export default {
 }
 
 :deep(.el-radio) {
-  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
+  background-color: rgba(22, 53, 77, 0); /* 背景色设为透明 */
   color: #ffffff; /* 内容文字颜色 */
 }
 
@@ -3871,5 +3899,27 @@ export default {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
   border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+}
+
+.personbutton {
+  position: absolute;
+  z-index: 60;
+  top: 36%;
+  left: 21.5%;
+}
+:deep(.el-button--primary){
+  background-color: transparent; /* 无背景颜色填充 */
+  border-color: #ffffff; /* 白色边框 */
+  background-color: #1a3749;
+  color: #ffffff; /* 白色字体 */
+  font-size:16px;
+}
+
+:deep(.el-button--primary):hover {
+  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
+}
+
+:deep(.el-button--primary):active {
+  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
 }
 </style>

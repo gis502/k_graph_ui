@@ -61,7 +61,7 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="item.img" width="17%" height="43.3px">
+              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()" width="17%" height="43.3px">
             </el-tooltip>
           </span>
             <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
@@ -265,7 +265,7 @@
       <div class="compassContainer" ref="compassContainer"></div>
     </div>
 
-    <div v-if="isShowMessageIcon" style="position: fixed; top: 120px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
+    <div v-if="isShowMessageIcon" style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
       <p style="color: #fff; margin: 0;">您正在进行标绘：</p>
       <img :src="this.messageIcon" style="width: 30px; height: 30px;">
     </div>
@@ -525,7 +525,7 @@ export default {
         const link = document.createElement('a');
         link.href = url;
 
-        console.log(this.excelContent)
+        // console.log(this.excelContent)
 
         const formattedTitle = this.title
           // 删除时间部分，例如 T17:07:10 或 11:07:10
@@ -537,7 +537,7 @@ export default {
 
         const excelTitle = this.excelContent.length > 0 ? `${formattedTitle}级地震-标绘数据` : "标绘数据模板";
 
-        console.log("标题：",excelTitle)
+        // console.log("标题：",excelTitle)
 
         link.setAttribute('download', `${excelTitle}.xlsx`);
         document.body.appendChild(link);
@@ -609,7 +609,7 @@ export default {
         let data = res
 
         that.plotList = data
-        console.log("数据：", data)
+        // console.log("数据：", data)
 
         let pointArr = data.filter(e => e.drawtype === 'point')
         let points = []
@@ -851,7 +851,7 @@ export default {
 
     // 新方法展示与点击节点相关的name字段
     initializeTreeChildren(flag) {
-      console.log(flag)
+      // console.log(flag)
       if (flag === 'export') {
 
         this.excelPanel = "标绘点数据导出"
@@ -891,12 +891,12 @@ export default {
               "纬度": plotInfo.latitude,
               "高程": plotInfo.elevation,
               "角度": plotInfo.angle,
-              "开始时间": plotInfo.startTime,
-              "结束时间": plotInfo.endTime,
+              "开始时间": plotInfo.startTime ? plotInfo.startTime.replace("T", " ") : "", // 检查是否为 null 或 undefined
+              "结束时间": plotInfo.endTime ? plotInfo.endTime.replace("T", " ") : "", // 同样检查
               ...filteredPlotTypeInfo, // 保留 plotTypeInfo 中的字段
             };
           });
-          console.log(excelContent)
+          // console.log(excelContent)
 
           // 将数据调整为目标格式
           this.excelContent = excelContent.reduce((acc, item) => {
@@ -931,11 +931,13 @@ export default {
             return acc;
           }, []);
 
-          console.log("调整后的数据格式:", this.excelContent);
-
+          // console.log("调整后的数据格式:", this.excelContent);
+          // console.log(888)
+          this.isLoaded = true;
         });
       } else {
         this.excelPanel = "下载导入标绘模板"
+        this.isLoaded = true;
       }
 
       const excludedNames = [
@@ -977,7 +979,6 @@ export default {
         }
       });
       this.loading = false;
-      this.isLoaded = true;
     },
 
     beforeUpload(file) {
@@ -985,11 +986,11 @@ export default {
       // 获取不带扩展名的文件名
       const filename = file.name.slice(0, file.name.lastIndexOf('.'));
 
-      console.log(filename)
+      // console.log(filename)
 
       const isExcel = (type === "xlsx") || (type === 'xls');
 
-      console.log(type)
+      // console.log(type)
       if (!isExcel) {
         this.$message({
           type: 'error',
@@ -1513,7 +1514,7 @@ export default {
         bottomEnd: Cesium.Math.toDegrees(bottomRightCartographic.longitude)
       };
 
-      console.log(this.corners);
+      // console.log(this.corners);
     },
     // 生成点和百分比，传入不同的标识符，避免共享同一数据集
     generatePointsWithPercentage(start, end, dataContext) {
@@ -2261,7 +2262,7 @@ export default {
       // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
       window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
       this.isShowMessageIcon = true
-      this.messageIcon = item.img
+      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()
 
       if (item.plottype === '点图层') {
         console.log("点图层")

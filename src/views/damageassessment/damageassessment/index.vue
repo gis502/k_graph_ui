@@ -217,8 +217,10 @@ export default {
 
   data() {
     return {
+      isTerrainLoading: false,
+      yaanLayerRequire: "",
+      viewer: null,
       thisTab: "震害事件",
-      websock: null,
       total: 0,
       pageSize: 10,
       currentPage: 1,
@@ -358,7 +360,8 @@ export default {
   mounted() {
     this.init();
     this.getEq();
-    // this.initWebsocket()
+    this.viewer = new Cesium.Viewer("cesiumContainer");
+    this.addEventListeners();
   },
 
   computed: {
@@ -388,6 +391,32 @@ export default {
 
     // 初始化要做的
     // -----------------------------------------------------------------------------------------------------------------
+    addEventListeners() {
+      // 延迟绑定事件，确保控件已经加载
+      this.$nextTick(() => {
+        const baseLayerContainer = document.querySelector(
+          ".cesium-baseLayerPicker-dropDown"
+        );
+
+        if (baseLayerContainer) {
+          // 事件代理监听点击事件
+          baseLayerContainer.addEventListener("click", (event) => {
+            const clickedIcon = event.target.closest(
+              ".cesium-baseLayerPicker-itemIcon"
+            );
+            const clickedLabel = event.target.closest(
+              ".cesium-baseLayerPicker-itemLabel"
+            );
+
+            if (clickedIcon || clickedLabel) {
+              console.log("是否加载了地形图：",this.isTerrainLoaded())
+              this.isTerrainLoading = this.isTerrainLoaded()
+              this.toggleYaanLayer(this.yaanLayerRequire)
+            }
+          });
+        }
+      });
+    },
 
     // 获取地震列表并渲染
     getEq() {
@@ -561,7 +590,6 @@ export default {
                 // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
               })
             }));
-            console.log("222",feature.properties.name)
             this.RegionLabels.push(regionlabel)
           }
         })
@@ -573,10 +601,12 @@ export default {
     toggleYaanLayer(require) {
 
       if (require === "colorful") {
+        this.yaanLayerRequire = require
+        console.log("1123",this.yaanLayerRequire)
         this.removeLayers(['YaanRegionLayer'])
         this.eqThemes.show.isshowRegion = true;
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          clampToGround: true, //贴地显示
+          clampToGround: this.isTerrainLoading, //贴地显示
           stroke: Cesium.Color.RED,
           fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
           strokeWidth: 4,
@@ -624,15 +654,15 @@ export default {
                   // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
                 })
               }));
-              console.log("111",feature.properties.name)
               this.RegionLabels.push(regionlabel)
             }
           })
           //雅安行政区加载 end
-          console.log(111)
         })
       }
       else if (require === "none") {
+        this.yaanLayerRequire = require
+        console.log("1123",this.yaanLayerRequire)
         this.eqThemes.show.isshowRegion = true;
         this.removeLayers(['YaanRegionLayer'])
         this.RegionLabels.forEach(label => {
@@ -640,7 +670,7 @@ export default {
         })
         this.RegionLabels = []
         let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          clampToGround: true, //贴地显示
+          clampToGround: this.isTerrainLoading, //贴地显示
           stroke: Cesium.Color.RED,
           fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
           strokeWidth: 4,
@@ -649,7 +679,7 @@ export default {
           window.viewer.dataSources.add(dataSource);
           dataSource.name = 'YaanRegionLayer';
           dataSource.entities.values.forEach((entity, index) => {
-            entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0.2);
+            entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0);
             entity.polygon.outline = true;
             entity.polygon.outlineColor = Cesium.Color.WHITE;
           });
@@ -682,6 +712,8 @@ export default {
           //雅安行政区加载 end
         })
       } else if (require === "remove") {
+        this.yaanLayerRequire = require
+        console.log("1123",this.yaanLayerRequire)
         this.eqThemes.show.isshowRegion = false;
         this.removeLayers(['YaanRegionLayer'])
 

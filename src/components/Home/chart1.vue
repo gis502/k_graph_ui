@@ -18,44 +18,50 @@ const chartOptions = ref([]);
 const chartInstances = ref([]);
 
 const calculateMagnitudeData = (data, years) => {
-  const currentYear = new Date().getFullYear();
-  const startYear = currentYear - years;
-  const magnitudeCounts = {
-    '<3': Array(years + 1).fill(0),
-    '3-4.5': Array(years + 1).fill(0),
-    '4.5-6': Array(years + 1).fill(0),
-    '≥6': Array(years + 1).fill(0),
-  };
+    const currentYear = new Date().getFullYear();
+  console.log("currentYear",currentYear)
+    const startYear = currentYear - years;
+  console.log("startYear",startYear)
+    const magnitudeCounts = {
+      '<3': Array(years + 1).fill(0),
+      '3-4.5': Array(years + 1).fill(0),
+      '4.5-6': Array(years + 1).fill(0),
+      '≥6': Array(years + 1).fill(0),
+    };
+  console.log("magnitudeCounts===========",magnitudeCounts)
+    data.forEach(item => {
+      const year = new Date(item.occurrenceTime).getFullYear();
+      const yearIndex = currentYear - year;
 
-  data.forEach(item => {
-    const year = new Date(item.occurrenceTime).getFullYear();
-    const yearIndex = currentYear - year;
-
-    if (year >= startYear && yearIndex >= 0 && yearIndex <= years) {
-      if (item.magnitude < 3) {
-        magnitudeCounts['<3'][yearIndex]++;
-      } else if (item.magnitude < 4.5) {
-        magnitudeCounts['3-4.5'][yearIndex]++;
-      } else if (item.magnitude < 6) {
-        magnitudeCounts['4.5-6'][yearIndex]++;
-      } else {
-        magnitudeCounts['≥6'][yearIndex]++;
+      if (year >= startYear && yearIndex >= 0 && yearIndex <= years) {
+        if (item.magnitude < 3) {
+          magnitudeCounts['<3'][yearIndex]++;
+        } else if (item.magnitude < 4.5) {
+          magnitudeCounts['3-4.5'][yearIndex]++;
+        } else if (item.magnitude < 6) {
+          magnitudeCounts['4.5-6'][yearIndex]++;
+        } else {
+          magnitudeCounts['≥6'][yearIndex]++;
+        }
       }
-    }
-  });
+    });
 
-  return magnitudeCounts;
+    console.log("magnitudeCounts111111111",magnitudeCounts)
+    return magnitudeCounts;
+
 };
 
 const initChart = async () => {
   const currentYear = new Date().getFullYear();
   const threeYearMagnitudes = calculateMagnitudeData(props.eqData, 3);
+  console.log("threeYearMagnitudes",threeYearMagnitudes)
   const tenYearMagnitudes = calculateMagnitudeData(props.eqData, 10);
 
   chartOptions.value = [
+    //   近十年地震震级分布
     {
       title: {
-        text: '近十年历史地震震级',
+        text: '四川省近十年历史地震震级',
         textStyle: { color: '#FFFFFF' },
         fontSize: 15
       },
@@ -81,7 +87,7 @@ const initChart = async () => {
       },
       xAxis: {
         type: 'category',
-        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 10 }, (_, i) => (currentYear - (9 - i)).toString()),
         axisLabel: {
           color: '#FFFFFF',
           show: true,
@@ -98,7 +104,7 @@ const initChart = async () => {
     },
     // 近三年地震震级分布的配置同上
     {
-      title: { text: '近三年历史地震震级', textStyle: { color: '#FFFFFF' }, fontSize: 15 },
+      title: { text: '四川省近三年历史地震震级', textStyle: { color: '#FFFFFF' }, fontSize: 15 },
       tooltip: {
         trigger: 'axis',
         formatter: function (params) {
@@ -121,7 +127,7 @@ const initChart = async () => {
       },
       xAxis: {
         type: 'category',
-        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 3 }, (_, i) => (currentYear - (2 - i)).toString()),
         axisLabel: {
           color: '#FFFFFF',
           show: true,
@@ -136,9 +142,10 @@ const initChart = async () => {
         { name: '≥6', type: 'bar', stack: '震级', emphasis: { focus: 'series' }, data: threeYearMagnitudes['≥6'], itemStyle: { color: '#ff2f2f' } },
       ],
     },
+    //   近十年地震震级分布
     {
       title: {
-        text: '近十年历史地震震级',
+        text: '四川省近十年历史地震震级',
         textStyle: { color: '#FFFFFF' },
         fontSize: 15
       },
@@ -164,7 +171,7 @@ const initChart = async () => {
       },
       xAxis: {
         type: 'category',
-        data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 10 }, (_, i) => (currentYear - (9 - i)).toString()),
         axisLabel: {
           color: '#FFFFFF',
           show: true,
@@ -181,7 +188,7 @@ const initChart = async () => {
     },
     // 近三年地震震级分布的配置同上
     {
-      title: { text: '近三年历史地震震级', textStyle: { color: '#FFFFFF' }, fontSize: 15 },
+      title: { text: '四川省近三年历史地震震级', textStyle: { color: '#FFFFFF' }, fontSize: 15 },
       tooltip: {
         trigger: 'axis',
         formatter: function (params) {
@@ -204,7 +211,7 @@ const initChart = async () => {
       },
       xAxis: {
         type: 'category',
-        data: Array.from({ length: 3 }, (_, i) => (currentYear - i).toString()),
+        data: Array.from({ length: 3 }, (_, i) => (currentYear - (2 - i)).toString()),
         axisLabel: {
           color: '#FFFFFF',
           show: true,
@@ -220,9 +227,6 @@ const initChart = async () => {
       ],
     },
   ];
-
-
-
 
   await nextTick();
 

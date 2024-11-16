@@ -64,8 +64,6 @@
         :popupData="routerPopupData"
     />
 
-    <!--展示弹框伤亡统计-->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
 
     <!-- 进度条-->
     <div class="bottom">
@@ -120,12 +118,30 @@
         :currentTime="currentTime"
         @addJumpNodes="addJumpNodes"
     />
-    <!--   人员伤亡-左中   -->
-    <timeLinePersonnelCasualties
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
+
+    <div v-if="PersoonnelCasuality===1">
+      <div class="personbutton" >
+        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+      </div>
+      <!--   人员伤亡-左中   -->
+      <timeLinePersonnelCasualties
+          :eqid="eqid"
+          :currentTime="currentTime"
+          @addJumpNodes="addJumpNodes"
+      />
+    </div>
+
+    <div v-if="PersoonnelCasuality===2" >
+      <div class="personbutton" >
+        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+      </div>
+      <timeLineCasualtyStatistic
+          :zoomLevel="zoomLevel"
+          :pointsLayer="pointsLayer"
+          :currentTime="currentTime"
+      />
+    </div>
+
     <!--   救援出队-左下   -->
     <timeLineRescueTeam
         :eqid="eqid"
@@ -151,9 +167,6 @@
       ></news-dialog>
     </div>
 
-<!--    <timeLineCasualtyStatistic-->
-<!--        :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"-->
-<!--    />-->
 
     <div>
       <mini-map></mini-map>
@@ -188,7 +201,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-    <div v-if="this.isTimerRunning || this.currentTimePosition !== '100'" class="timelineRunningTimeLabel">
+    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
@@ -225,8 +238,8 @@ import yaan from '@/assets/geoJson/yaan.json'
 
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
-import emergencyRescueEquipmentLogo from '@/assets/images/disasterReliefSuppliesLogo.jpg';
-import rescueTeamsInfoLogo from '@/assets/images/rescueTeamsInfoLogo.png';
+import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
+import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
@@ -259,6 +272,7 @@ export default {
   },
   data: function () {
     return {
+      PersoonnelCasuality: 1,
 // -----------弹窗们的状态变量-------------
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
@@ -423,6 +437,9 @@ export default {
       pointsLayer: [], //传到子组件
 
       stopTimeforAddEntityOneIndex: 5000,
+
+      timelinePopupShowCenterStrart:true,
+      intervalIdcolor:null,
     };
   },
   created() {
@@ -432,8 +449,7 @@ export default {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.getEqInfo(this.eqid)
-    this.addImportantNodes()
-    // this.getPlotwithStartandEndTime(this.eqid)
+    this.getPlotwithStartandEndTime(this.eqid)
 
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
@@ -677,6 +693,8 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
+      this.xuanran(this.eqid)
+      console.log(this.currentTimePosition,"currentTimePosition updateMapandVariablebeforInit")
       let data = {
         ...this.centerPoint,
         drawtype: "center"
@@ -703,12 +721,13 @@ export default {
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
         const animationDuration = 3000; // 动画总持续时间（30秒）
-        const intervalIdcolor = setInterval(() => {
+        if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+        this.intervalIdcolor = setInterval(() => {
           colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
         }, intervalTime);
         setTimeout(() => {
-          clearInterval(intervalIdcolor); // 停止颜色切换
-          this.timelinePopupVisible = false;
+          // clearInterval(intervalIdcolor); // 停止颜色切换
+          // this.updatePlotOnce(false)
           this.xuanran(this.eqid)
         }, animationDuration);
         //加载中心点
@@ -800,8 +819,8 @@ export default {
      */
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
-      this.getPlotwithStartandEndTime(eqid)
-
+      // this.getPlotwithStartandEndTime(eqid)
+      this.updatePlotOnce(false)
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -873,6 +892,7 @@ export default {
 
           var jumpnode1 = Math.ceil((new Date(item.startTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
           this.jumpNodes[jumpnode1] = 1
+          // this.firstMakerNodeIndex=jumpnode1<this.firstMakerNodeIndex?jumpnode1:this.firstMakerNodeIndex
           var jumpnode2 = Math.ceil((new Date(item.endTime) - new Date(this.eqstartTime)) / (5 * 60 * 1000))//5分钟一个节点
           this.jumpNodes[jumpnode2] = 1
         })
@@ -880,7 +900,7 @@ export default {
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
         console.log("获取 pointsLayer", this.pointsLayer)
-        this.updatePlotOnce(false)
+        // this.updatePlotOnce(false)
       })
     },
     //控制视角跳转的递归函数
@@ -888,8 +908,8 @@ export default {
       let timeEachPoint = 0
 
       points.forEach((point) => {
-        timeEachPoint = timeEachPoint + 5000 / this.currentSpeed
-        let flytime = (timeEachPoint / 1000 - 1) < 3 ? timeEachPoint : 3
+        timeEachPoint = timeEachPoint + 3000 / this.currentSpeed  //在选定倍速下每个点闪烁的秒数
+        let flytime = (timeEachPoint / 1000 - 1) < 2 ? timeEachPoint : 2
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
               parseFloat(point.longitude),
@@ -964,19 +984,24 @@ export default {
       // stopTimeforAddEntityOneIndex
       // let stoptime = 5000
       if (points.length > 0) {
+        if(this.timelinePopupShowCenterStrart){
+          clearInterval(this.intervalIdcolor)
+          this.timelinePopupShowCenterStrart=false;
+          this.timelinePopupVisible = false;
+        }
 
         // let param = type === false ? false : true
         if (type == false) {
           // console.log("false update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, false, 5000);
+          this.stopTimeforAddEntityOneIndex = 3000
+          cesiumPlot.drawPoints(points, false, 3000);
         } else if (type == "3") {
           // console.log("333 update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, true, 5000);
+          this.stopTimeforAddEntityOneIndex = 3000
+          cesiumPlot.drawPoints(points, true, 3000);
         } else {
           // console.log("more update")
-          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
+          this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
 
           // this.timeEach
           // console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
@@ -1149,14 +1174,16 @@ export default {
       let colorFactor = 1.0;
       const intervalTime = 500; // 切换颜色的时间间隔
       const animationDuration = 3000; // 动画总持续时间（3秒）
-      const intervalIdcolor = setInterval(() => {
+      if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+      this.intervalIdcolor = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
       }, intervalTime);
-
-      setTimeout(() => {
-        clearInterval(intervalIdcolor); // 停止颜色切换
-        this.timelinePopupVisible = false;
-      }, animationDuration);
+      
+      this.timelinePopupShowCenterStrart=true
+      // setTimeout(() => {
+      //   // clearInterval(intervalIdcolor); // 停止颜色切换
+      //   // this.timelinePopupVisible = false;
+      // }, animationDuration);
       // let data=
       let data = {
         ...this.centerPoint,
@@ -3083,8 +3110,15 @@ export default {
 .button-container {
   position: absolute;
   z-index: 20;
-  top: 6.3%;
+  top: 8.3%;
   left: 2%;
+}
+
+.personbutton {
+  position: absolute;
+  z-index: 60;
+  top: 36%;
+  left: 21%;
 }
 
 .thematic-button {
@@ -3376,5 +3410,19 @@ export default {
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
+:deep(.el-button--primary){
+  background-color: transparent; /* 无背景颜色填充 */
+  border-color: #ffffff; /* 白色边框 */
+  background-color: #1a3749;
+  color: #ffffff; /* 白色字体 */
+  font-size:16px;
+}
 
+:deep(.el-button--primary):hover {
+  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
+}
+
+:deep(.el-button--primary):active {
+  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
+}
 </style>
