@@ -21,14 +21,16 @@
         <div class="left-body">
           <div class="left-top public-bg" ref="leftTop">
             <dv-border-box7 :style="borderBoxStyles1">
-              <div class="public-title">最新地震</div>
+<!--              <div class="public-title">最新地震</div>-->
+              <img src="@/assets/latestEarthquake.png" alt="最新地震" style="width: 100%; height: auto;">
               <new-info :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
 
           <div class="left-con public-bg" ref="leftCon">
             <dv-border-box7 :style="borderBoxStyles2">
-              <div class="public-title">最新地震受灾人员统计</div>
+<!--              <div class="public-title">最新地震受灾人员统计</div>-->
+              <img src="@/assets/disasterStats.png" alt="最新地震受灾人员统计" style="width: 100%; height: auto;">
               <chart3 :last-eq="lastEqData"/>
             </dv-border-box7>
           </div>
@@ -43,11 +45,35 @@
         <div class="right-body">
           <div class="right-top public-bg" ref="rightTop">
             <dv-border-box7 :style="borderBoxStyles4">
-              <div class="public-title">
-                地震列表
-                <el-input size="small" style="width: 7vw; font-size: 16px" v-model="requestParams" @keyup.enter="query()"></el-input>
-                <el-button size="small" style="font-size: 16px" @click="query()">查询</el-button>
-                <el-button size="small" style="font-size: 16px" @click="openQueryFrom()">筛选</el-button>
+              <div style="position: relative; width: 100%; height: auto;">
+                <!-- 图片 -->
+                <img
+                    src="@/assets/earthquakeList.png"
+                    alt="地震列表"
+                    style="width: 80%; height: auto; display: block;"
+                >
+
+                <!-- 输入框和按钮 -->
+                <div
+                    style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1;"
+                >
+                  <el-input
+                      size="small"
+                      style="width: 7vw; font-size: 16px;"
+                      v-model="requestParams"
+                      @keyup.enter="query()"
+                  ></el-input>
+                  <el-button
+                      size="small"
+                      style="font-size: 16px;"
+                      @click="query()"
+                  >查询</el-button>
+                  <el-button
+                      size="small"
+                      style="font-size: 16px;"
+                      @click="openQueryFrom()"
+                  >筛选</el-button>
+                </div>
               </div>
               <eq-table :eq-data="tableData"/>
             </dv-border-box7>
@@ -55,7 +81,8 @@
 
           <div class="right-bottom public-bg" ref="rightBottom">
             <dv-border-box7 :style="borderBoxStyles5">
-              <div class="public-title">历史地震统计(次)</div>
+              <img src="@/assets/historyEarthquake.png" alt="历史地震" style="width: 70%; height: auto;">
+<!--              <div class="public-title">历史地震统计(次)</div>-->
               <chart1 :eq-data="EqAll"/>
             </dv-border-box7>
           </div>
@@ -325,20 +352,20 @@ onMounted(() => {
 }
 
 .public-title:before {
-  width: 4px;
+  width: 0px;
   height: 20px;
   top: 5px;
   position: absolute;
   content: "";
   background: #2997e4;
   border-radius: 2px;
-  left: 5px;
+  left:4px;
 }
 
 .content-body {
   width: 100%;
   height: 100%;
-  background-image: url("@/assets/bg.jpg");
+  background-image: url("@/assets/bg3.png");
   background-size: 100% 100%;
   position: absolute;
 }
@@ -368,7 +395,7 @@ onMounted(() => {
   position: absolute;
   color: #FFFFFF;
   right: 8.5vw;
-  font-size: 17px;
+  font-size: 14px;
 }
 
 .content {
