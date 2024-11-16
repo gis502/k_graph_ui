@@ -160,101 +160,101 @@
       </div>
     </div>
 
-    <div class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
-      <div class="pop-dialog__content" style="height: 100%;">
-        <div class="logo-title">
-          <div class="logo-title-content" style="padding: 0 0 15px 0;">
-            <p>雅安市地震应急<br>信息服务技术支持平台</p></div>
-        </div>
-        <div class="logo-menu menue-left">
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('dataStats') }"
-              title="数据统计"
-              @click="toggleComponent('dataStats')"
-          >
-            <p>数据统计</p>
-          </div>
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('eqList') }"
-              title="地震列表"
-              @click="toggleComponent('eqList')"
-          >
-            <p>地震列表</p>
-          </div>
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('model') }"
-              title="三维模型"
-              @click="toggleComponent('model')"
-          >
-            <p>三维模型</p>
-          </div>
-        </div>
-        <div class="logo-menu menue-right">
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('layerChoose') }"
-              title="图层要素"
-              @click="toggleComponent('layerChoose')"
-          >
-            <p>图层要素</p>
-          </div>
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
-              title="专题图产出"
-              @click="toggleComponent('thematicMapDownload')"
-          >
-            <p>专题图产出</p>
-          </div>
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('reportDownload') }"
-              title="报告导出"
-              @click="toggleComponent('reportDownload')"
-          >
-            <p>报告导出</p>
-          </div>
-          <div
-              class="logo-menu-tittle"
-              :class="{ 'logo-menu-active': isActive('frontPage') }"
-              title="返回首页"
-              @click="navigateToFrontPage"
-          >
-            <p>返回首页</p>
-          </div>
-        </div>
+<!--    <div class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">-->
+<!--      <div class="pop-dialog__content" style="height: 100%;">-->
+<!--        <div class="logo-title">-->
+<!--          <div class="logo-title-content" style="padding: 0 0 15px 0;">-->
+<!--            <p>雅安市地震应急<br>信息服务技术支持平台</p></div>-->
+<!--        </div>-->
+<!--        <div class="logo-menu menue-left">-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('dataStats') }"-->
+<!--              title="数据统计"-->
+<!--              @click="toggleComponent('dataStats')"-->
+<!--          >-->
+<!--            <p>数据统计</p>-->
+<!--          </div>-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('eqList') }"-->
+<!--              title="地震列表"-->
+<!--              @click="toggleComponent('eqList')"-->
+<!--          >-->
+<!--            <p>地震列表</p>-->
+<!--          </div>-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('model') }"-->
+<!--              title="三维模型"-->
+<!--              @click="toggleComponent('model')"-->
+<!--          >-->
+<!--            <p>三维模型</p>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="logo-menu menue-right">-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('layerChoose') }"-->
+<!--              title="图层要素"-->
+<!--              @click="toggleComponent('layerChoose')"-->
+<!--          >-->
+<!--            <p>图层要素</p>-->
+<!--          </div>-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"-->
+<!--              title="专题图产出"-->
+<!--              @click="toggleComponent('thematicMapDownload')"-->
+<!--          >-->
+<!--            <p>专题图产出</p>-->
+<!--          </div>-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('reportDownload') }"-->
+<!--              title="报告导出"-->
+<!--              @click="toggleComponent('reportDownload')"-->
+<!--          >-->
+<!--            <p>报告导出</p>-->
+<!--          </div>-->
+<!--          <div-->
+<!--              class="logo-menu-tittle"-->
+<!--              :class="{ 'logo-menu-active': isActive('frontPage') }"-->
+<!--              title="返回首页"-->
+<!--              @click="navigateToFrontPage"-->
+<!--          >-->
+<!--            <p>返回首页</p>-->
+<!--          </div>-->
+<!--        </div>-->
 
-        <div class="logo-left-weather">
-          <div class="logo-left-eqtitle" style="font-size:17px;font-weight: 600;">
-            {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日{{
-              this.centerPoint.earthquakeName
-            }}{{ this.centerPoint.magnitude }}级地震
-          </div>
-          <!-- 以下是实时获取时间的代码 -->
-          <div class="logo-left-time">
-            <div class="logo-time-hour">
-            <span class="pop-icon">
-              <svg width="20" height="20" viewBox="0 0 48 48">
-                <path
-                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
-                    fill="none" stroke="#BEE1FF" stroke-width="4"></path>
-                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
-                      stroke-linecap="round"></path>
-              </svg>
-            </span>
-              <span id="current-time">--:--:--</span>
-            </div>
-            <div class="logo-time-year" id="current-date">----</div>
-          </div>
+<!--        <div class="logo-left-weather">-->
+<!--          <div class="logo-left-eqtitle" style="font-size:17px;font-weight: 600;">-->
+<!--            {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日{{-->
+<!--              this.centerPoint.earthquakeName-->
+<!--            }}{{ this.centerPoint.magnitude }}级地震-->
+<!--          </div>-->
+<!--          &lt;!&ndash; 以下是实时获取时间的代码 &ndash;&gt;-->
+<!--          <div class="logo-left-time">-->
+<!--            <div class="logo-time-hour">-->
+<!--            <span class="pop-icon">-->
+<!--              <svg width="20" height="20" viewBox="0 0 48 48">-->
+<!--                <path-->
+<!--                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"-->
+<!--                    fill="none" stroke="#BEE1FF" stroke-width="4"></path>-->
+<!--                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"-->
+<!--                      stroke-linecap="round"></path>-->
+<!--              </svg>-->
+<!--            </span>-->
+<!--              <span id="current-time">&#45;&#45;:&#45;&#45;:&#45;&#45;</span>-->
+<!--            </div>-->
+<!--            <div class="logo-time-year" id="current-date">&#45;&#45;&#45;&#45;</div>-->
+<!--          </div>-->
 
-        </div>
-        <div class="logo-right-time">
-        </div>
-      </div>
-    </div>
+<!--        </div>-->
+<!--        <div class="logo-right-time">-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
 
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
@@ -281,6 +281,106 @@
         :position="routerPopupPosition"
         :popupData="routerPopupData"
     />
+
+<!--    <div class="top-header">-->
+<!--      <div class="company-name">雅安市地震应急信息服务技术支持平台</div>-->
+<!--      <div class="system-title">矿山企业实时感知预警系统</div>-->
+<!--      <div class="right-info flex">-->
+<!--        <div class="time">-->
+<!--          <span>{{ currentTime }}</span>-->
+<!--          <span> 22222</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+    <div class="top-header">
+      <div class="system-title" >
+        {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
+          this.centerPoint.earthquakeName
+        }}{{ this.centerPoint.magnitude }}级地震</div>
+    </div>
+    <div class="logo-menu menue-left">
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('dataStats') }"
+          title="数据统计"
+          @click="toggleComponent('dataStats')"
+      >
+        <p>数据统计</p>
+      </div>
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('eqList') }"
+          title="地震列表"
+          @click="toggleComponent('eqList')"
+      >
+        <p>地震列表</p>
+      </div>
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('model') }"
+          title="三维模型"
+          @click="toggleComponent('model')"
+      >
+        <p>三维模型</p>
+      </div>
+    </div>
+    <div class="logo-menu menue-right">
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('layerChoose') }"
+          title="图层要素"
+          @click="toggleComponent('layerChoose')"
+      >
+        <p>图层要素</p>
+      </div>
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
+          title="专题图产出"
+          @click="toggleComponent('thematicMapDownload')"
+      >
+        <p>专题图产出</p>
+      </div>
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('reportDownload') }"
+          title="报告导出"
+          @click="toggleComponent('reportDownload')"
+      >
+        <p>报告导出</p>
+      </div>
+      <div
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('frontPage') }"
+          title="返回首页"
+          @click="navigateToFrontPage"
+      >
+        <p>返回首页</p>
+      </div>
+    </div>
+
+    <div class="logo-left-weather">
+      <div class="company-name">雅安市地震应急信息服务技术支持平台</div>
+      <!-- 以下是实时获取时间的代码 -->
+      <div class="logo-left-time">
+        <div class="logo-time-hour">
+                <span class="pop-icon">
+                  <svg width="20" height="20" viewBox="0 0 48 48">
+                    <path
+                        d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
+                        fill="none" stroke="#BEE1FF" stroke-width="4"></path>
+                    <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
+                          stroke-linecap="round"></path>
+                  </svg>
+                </span>
+          <span id="current-time">--:--:--</span>
+        </div>
+        <div class="logo-time-year" id="current-date">----</div>
+      </div>
+
+    </div>
+    <div class="logo-right-time">
+    </div>
 
     <!-- 进度条-->
     <div class="bottom">
@@ -323,6 +423,9 @@
         </div>
       </div>
     </div>
+
+    <div class="bottom-footer"></div>
+
     <!-- 进度条 end-->
 
     <!--    两侧组件-->
@@ -394,6 +497,7 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
+    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -3280,7 +3384,7 @@ export default {
 
 .logo-title {
   height: 100%;
-  background-image: url(@/assets/images/CommandScreen/菜单底图.png);
+  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -3296,7 +3400,7 @@ export default {
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
   text-align: center; /* 多行文本居中 */
-  background-image: url(@/assets/images/CommandScreen/菜单标题.png);
+  //background-image: url(@/assets/images/CommandScreen/菜单标题.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   overflow: hidden; /* 隐藏滚动条 */
@@ -3318,22 +3422,22 @@ export default {
 }
 
 .menue-left {
-  left: 176px;
+  left: 146px;
 }
 
 .logo-menu .logo-menu-active {
-  background-image: url(@/assets/images/CommandScreen/橙色按钮.png);
+  box-shadow: 0 0 15px #007fde,inset 0 0 25px #06b7ff;
 }
 
 .logo-menu-tittle {
   color: #fff;
-  width: 141px;
-  height: 35px;
+  height: 3.5vh;
+  margin-right: 7px;
   margin-top: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url(@/assets/images/CommandScreen/蓝色按钮.png);
+  background-image: url(/src/assets/images/CommandScreen/发光框.png);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -3346,19 +3450,19 @@ export default {
 
 @media screen and (max-width: 1835px) {
   .logo-menu-tittle {
-    width: 103px !important;
+    width: 86px !important;
     font-size: 16px !important;
   }
 }
 
 .logo-menu {
   position: absolute;
-  top: 3px;
+  top: 2px;
   display: flex;
 }
 
 .menue-right {
-  right: 50px;
+  right: 2%;
 }
 
 .logo-left-weather {
@@ -3370,7 +3474,8 @@ export default {
 
 .logo-left-time {
   position: absolute;
-  top: 20px;
+  top: 2.3vh;
+  width: 9vw;
 }
 
 .logo-right-time {
@@ -3412,13 +3517,64 @@ export default {
 }
 
 
+.top-header {
+  height: 24vh;
+  width: 100%;
+  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
+  background-size: 100% 100%;
+  top: 0%;
+  position: absolute;
+}
+
+.company-name {
+  position: absolute;
+  width: 17vw;
+  top: 24%;
+  font-weight: 700;
+  font-size: .8rem;
+  color: #51d1ff;
+  line-height: 22px;
+  letter-spacing: 2px;
+  text-shadow: 0px 0px 20px #51f9ff;
+}
+
+.system-title {
+  font-size: 1.9rem;
+  font-family: math;
+  color: #fff;
+  letter-spacing: 5px;
+  text-align: center;
+  position: relative;
+  margin-top: 5px;
+  font-weight: 900;
+}
+.right-info {
+  position: absolute;
+  top: 43px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+}
+.bottom-footer {
+  width: 100%;
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  left: 0;
+  height: 12vh;
+  background: url(/src/assets/images/CommandScreen/导航栏底部.png) 47% 116% no-repeat;
+}
+
+
+
+
 .el-tree {
   background-color: rgba(255, 255, 255, 0);
   color: #FFFFFF;
 }
 
 #box {
-  height: calc(100vh - 88px);
+  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -3426,7 +3582,7 @@ export default {
 }
 
 #cesiumContainer {
-  height: calc(100vh - 33px);
+  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;
