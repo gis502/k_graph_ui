@@ -613,11 +613,6 @@ onMounted(() => {
   border-radius: 5px;
 }
 
-.el-button {
-  background-color: #00eaff;
-  color: #000;
-  transition: background-color 0.3s;
-}
 
 .el-button:hover {
   background-color: #006f8c;
@@ -673,8 +668,9 @@ onMounted(() => {
 }
 
 .el-button {
+
   background: linear-gradient(45deg, #2c3364, #0ff);
-  color: #000;
+  color: #dce9fa;
   font-weight: bold;
   box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
   transition: transform 0.3s, box-shadow 0.3s;
