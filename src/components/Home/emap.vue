@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import red from '@/assets/star.gif';
+import red from '@/assets/star2.gif';
 import yellow from '@/assets/yellow3.png';
 import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
 import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
@@ -538,16 +538,16 @@ export default {
         iconUrl = red;
         switch (size) {
           case 'small':
-            iconSize = new T.Point(15, 15);
+            iconSize = new T.Point(20, 20);
             break;
           case 'medium':
-            iconSize = new T.Point(20, 20);
+            iconSize = new T.Point(30, 30);
             break;
           case 'large':
-            iconSize = new T.Point(26, 26);
+            iconSize = new T.Point(40, 40);
             break;
           default:
-            iconSize = new T.Point(20, 20);
+            iconSize = new T.Point(28, 28);
         }
       } else {
         iconUrl = yellow;
@@ -612,7 +612,7 @@ export default {
         mapConfig.value.map.closeInfoWindow();
         showInfoWindow.value = false;
         infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
-        infoWindowPosition.value.y = -650//- 330; // 获取鼠标位置
+        infoWindowPosition.value.y = -550//- 330; // 获取鼠标位置
       });
 
       mapConfig.value.map.addOverLay(marker);
@@ -866,6 +866,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center; /* 可选，用于居中地图和图例 */
+  border-radius: 31px !important; /* 添加圆角 */
 }
 
 
@@ -1015,7 +1016,7 @@ export default {
   // 自定义右键菜单
   ::v-deep #contextMenu {
     position: absolute;
-    z-index: 400;
+    z-index: 4;
     background: #fff;
     border-radius: 2px;
 

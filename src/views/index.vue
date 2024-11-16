@@ -395,7 +395,7 @@ onMounted(() => {
 .content {
   left: 7px;
   padding: 3px 16px;
-  /* position: absolute; */
+   position: absolute;
   margin-top: 7vh;
   width: 100%;
   height: calc(100% - 62px);
@@ -407,6 +407,7 @@ onMounted(() => {
 }
 
 .left-body {
+  position: absolute;
   width: 19%;
   height: 100%;
   float: left;
@@ -482,12 +483,14 @@ onMounted(() => {
 }
 
 .center-body .map {
-  width: 0%;
-  height: 10%;
+  width: 97%;
+  height: 96%;
 }
 
 .right-body {
+  position: absolute;
   width: 31%;
+  left: 66%;
   height: 100%;
   float: right;
   margin: 0 0.3%;
@@ -587,6 +590,7 @@ onMounted(() => {
 
 /* 新增样式 */
 .content-body {
+
   /*background: linear-gradient(135deg, #1e1e2f, #2b2d42);*/
   color: #e0e0e0;
   font-family: 'Roboto', sans-serif;
