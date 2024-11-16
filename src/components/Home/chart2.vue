@@ -1,12 +1,12 @@
 <template>
   <div>
-    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;" indicator-position="none" :key="carouselKey">
+    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;   left: 4px;" indicator-position="none" :key="carouselKey">
       <!-- 余震数量图表 -->
       <el-carousel-item style="height: 100%;">
-        <div class="chart-container" style="height: 100%;">
+        <div class="chart-container" style="height: 90%;">
           <img src="@/assets/最新地震余震情况.png" alt="最新地震余震情况" style="width: 127%; height: auto;">
           <span
-              style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
+              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ updateTime }}
           </span>
 
@@ -19,7 +19,7 @@
         <div class="chart-container population-chart-container" >
           <img src="@/assets/各区县人口.png" alt="各区县人口" style="width: 127%; height: auto;">
           <span
-              style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
+              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ populationDataChartUpdateTime }}
           </span>
           <div ref="populationDataChart" class="chart"></div> <!-- 人口数据图表容器 -->
@@ -391,7 +391,7 @@ const initPopulationDataChart = () => {
       }
     },
     grid: {
-      left: -1,
+      left: 13,
       right: 30,
       top: 30,
       bottom: 50,
@@ -414,7 +414,7 @@ const initPopulationDataChart = () => {
       },
       axisLine: {
         lineStyle: {
-          fontSize: 11,
+          fontSize: 6,
           color: '#8AC4FF',
         },
       },
@@ -623,7 +623,9 @@ onBeforeUnmount(() => {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 400px; /* 明确设置图表高度 */
+  height: 252px;
+  left: 1%;
+  /*height: 400px; !* 明确设置图表高度 *!*/
 }
 
 .chart {
@@ -693,7 +695,7 @@ onBeforeUnmount(() => {
 }
 /* 3. 没有数据时的显示样式 */
 .no-data {
-  margin-top: -80px;
+  margin-top: -7px;
   display: flex;
   flex-direction: column;
   justify-content: center;

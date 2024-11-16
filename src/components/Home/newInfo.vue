@@ -83,9 +83,9 @@ const initNewEq = () => {
   color: #fff;
   width: 100%;
   height: 100%;
-  line-height: 1.6; /* 缩小行高 */
-  font-size: 14px; /* 调整整体字体大小 */
-  padding: 0 5px; /* 左右保留5px边距，上下无边距 */
+  line-height: 1.7; /* 缩小行高 */
+  font-size: 9px; /* 调整整体字体大小 */
+  padding: 0 12px; /* 左右保留5px边距，上下无边距 */
 }
 
 .eqName {
