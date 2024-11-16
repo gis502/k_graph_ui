@@ -417,7 +417,7 @@ const initChart = async () => {
         text: '近十年历史地震震级',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
@@ -698,7 +698,7 @@ const initChart = async () => {
         text: '近三年历史地震震级',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
@@ -800,7 +800,7 @@ const initChart = async () => {
         text: '近十年历史地震震级',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
@@ -1080,7 +1080,7 @@ const initChart = async () => {
         text: '近三年历史地震震级',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },

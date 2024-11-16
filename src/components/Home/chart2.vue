@@ -4,7 +4,7 @@
       <!-- 余震数量图表 -->
       <el-carousel-item style="height: 100%;">
         <div class="chart-container" style="height: 100%;">
-          <div class="public-title">最新地震余震情况统计(次)</div>
+          <img src="@/assets/最新地震余震情况.png" alt="最新地震余震情况" style="width: 127%; height: auto;">
           <span
               style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ updateTime }}
@@ -17,7 +17,7 @@
       <!-- 各区县人口总数表 -->
       <el-carousel-item>
         <div class="chart-container population-chart-container" >
-          <div class="public-title">各区县人口总数（万人）</div>
+          <img src="@/assets/各区县人口.png" alt="各区县人口" style="width: 127%; height: auto;">
           <span
               style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ populationDataChartUpdateTime }}
@@ -28,7 +28,7 @@
 
       <el-carousel-item>
         <div class="chart-container">
-          <div class="public-title">隐患点</div>
+          <img src="@/assets/隐患点.png" alt="隐患点" style="width: 127%; height: auto;">
 
           <!-- 风险点信息 -->
           <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
@@ -431,7 +431,7 @@ function formatDate(date) {
 .population-chart-container {
   width: 100%;
   height: 100%; /* 确保人口图表占满容器 */
-  margin-top: -7px;
+  margin-top: 0px;
 }
 
 /* 标题样式 */
