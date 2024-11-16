@@ -116,6 +116,8 @@
     <timeLineEmergencyResponse
         :eqid="eqid"
         :currentTime="currentTime"
+        :eqstartTime="eqstartTime"
+        :isfirst="isfirst"
         @addJumpNodes="addJumpNodes"
     />
 
@@ -436,6 +438,7 @@ export default {
 
       timelinePopupShowCenterStrart: true,
       intervalIdcolor: null,
+      isfirst:false,
     };
   },
   created() {
@@ -487,6 +490,7 @@ export default {
 
     // 初始化控件等
     init() {
+      this.isfirst=true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
       viewer.camera.changed.addEventListener(() => {
@@ -691,58 +695,20 @@ export default {
       //   ...this.centerPoint,
       //   drawtype: "center"
       // }
-     this.flyToCenter()
+      this.flyToCenter()
       this.timelinePopupShowCenterStrart = true
       setTimeout(() => {
         setTimeout(() => {
-          this.xuanran(this.eqid)
+
+          // if (!this.isTimerRunning && this.currentTimePosition === 100){
+            this.xuanran(this.eqid)
+          // }
+
         }, 3000);
 
         this.flashingCenter()
 
-        let data = {
-          ...this.centerPoint,
-          drawtype: "center"
-        }
-        smallViewer.entities.removeAll();
-        smallViewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
-              parseFloat(this.centerPoint.height || 0)
-          ),
-          billboard: {
-            image: centerstar,
-            width: 40,
-            height: 40,
-            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-            scale: 0.8,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            depthTest: false,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY
-          },
-          label: {
-            text: this.centerPoint.earthquakeName,
-            show: true,
-            font: '10px sans-serif',
-            fillColor: Cesium.Color.RED,        //字体颜色
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            outlineWidth: 2,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -16),
-          },
-          id: this.centerPoint.plotid,
-          plottype: "震中",
-        });
 
-        this.timelinePopupPosition = {
-          x: cesiumContainer.offsetWidth / 2 - 400,
-          y: cesiumContainer.offsetHeight / 2 - 250
-        };
-        this.timelinePopupVisible = true;
-        this.timelinePopupData = data
       }, 3000);
     },
     /**
@@ -753,7 +719,9 @@ export default {
     xuanran(eqid) {
       // 获取特定eqid的带有开始和结束时间的绘图数据
       // this.getPlotwithStartandEndTime(eqid)
-      this.updatePlotOnce(false)
+      if (!this.isTimerRunning && this.currentTimePosition === 100) {
+        this.updatePlotOnce(false)
+      }
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -914,9 +882,9 @@ export default {
       // let stoptime = 5000
       if (points.length > 0) {
         if (this.timelinePopupShowCenterStrart) {
-          let centerMark=viewer.entities.getById(this.centerPoint.plotid);
+          let centerMark = viewer.entities.getById(this.centerPoint.plotid);
 
-          centerMark.billboard.color=Cesium.Color.WHITE.withAlpha(1)
+          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)
           clearInterval(this.intervalIdcolor)
           this.timelinePopupShowCenterStrart = false;
           this.timelinePopupVisible = false;
@@ -1076,20 +1044,21 @@ export default {
           clearInterval(this.intervalIdcolor)
           let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
 
-          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1),//颜色
-              // colorFactor = 1.0;
-              this.timelinePopupShowCenterStrart = false;
-          this.timelinePopupVisible = false;
-          // }
-
+          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
+          // colorFactor = 1.0;
+          // this.timelinePopupShowCenterStrart = false;
+          // this.timelinePopupVisible = false;
         }
+
       }
+
     },
     /**
      * 初始化计时线
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
+      this.isfirst=false
       // console.log("initTimerLine")
       this.jumpTimes.forEach(item => {
         var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
@@ -1127,18 +1096,18 @@ export default {
       }
 
 
-
-      this.timelinePopupPosition = {
-        x: cesiumContainer.offsetWidth / 2 - 400,
-        y: cesiumContainer.offsetHeight / 2 - 250
-      };
-      this.timelinePopupVisible = true;
-      this.timelinePopupData = data
+      // this.timelinePopupPosition = {
+      //   x: cesiumContainer.offsetWidth / 2 - 400,
+      //   y: cesiumContainer.offsetHeight / 2 - 250
+      // };
+      // this.timelinePopupVisible = true;
+      // this.timelinePopupData = data
 
     },
     bofang() { //正向播放
       // let count = this.jumpNodes.filter(item => item === 1).length;
       // let junmpCount
+      this.isfirst=false
       if (!this.isTimerRunning) { //根据次数跳出
         // this.currentTimePosition = 100;
         // this.currentNodeIndex = this.timelineAdvancesNumber
@@ -1209,6 +1178,7 @@ export default {
      * 定时器停止后，不会再执行任何操作，确保资源得到正确释放
      */
     stopTimer() {
+      this.isfirst=true
       this.isTimerRunning = false;
     },
 
@@ -1229,6 +1199,7 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
+      this.isfirst=false
       let flag = this.updateCurrentTimeOnce();
       if (flag) {
         // if (this.isTimerRunning) {
@@ -1249,6 +1220,7 @@ export default {
      * 并更新图表显示
      */
     backward() {
+      this.isfirst=false
       let flag = 1
       // let nextNodeIndex = null;
       for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
@@ -1304,6 +1276,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
+      this.isfirst=false
       let currentTimeTmp = this.currentTime
       // 获取时间轴的矩形区域，用于计算点击位置对应的进度
       const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
@@ -1349,7 +1322,7 @@ export default {
      * @param {MouseEvent} event - 鼠标事件对象，包含拖拽开始时的坐标信息
      */
     startDrag(event) {
-
+      this.isfirst=false
       this.isDragging = true; // 标记当前开始进入拖拽状态
       this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
       document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
@@ -1481,14 +1454,16 @@ export default {
      * 处理实体点击事件的弹窗显示逻辑
      */
     entitiesClickPonpHandler() {
+
       let that = this;
       // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+        console.log(click, "click")
         if (window.isDrawingPolygon) return;
         // 检查点击位置是否拾取到实体
         let pickedEntity = window.viewer.scene.pick(click.position);
         window.selectedEntity = pickedEntity?.id;
-
+        console.log("window.selectedEntity", window.selectedEntity)
         // 获取故障信息的 div 元素
         const faultInfoDiv = document.getElementById('faultInfo');
 
@@ -1715,13 +1690,12 @@ export default {
       this.$nextTick(() => {
         // 检查是否有选中的实体位置
         if (this.selectedEntityPosition) {
+          console.log(this.selectedEntityPosition, "this.selectedEntityPosition")
           // 将地理坐标转换为窗口坐标
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
               window.viewer.scene,
               Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
-          // console.log("canvasPosition",canvasPosition)
-          // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
             this.routerPopupPosition = {
               x: canvasPosition.x + 10,
@@ -2180,9 +2154,6 @@ export default {
         // 原注释保留，但实际代码中未调用此方法
       });
     },
-
-
-
 
 
     /**
@@ -2699,17 +2670,21 @@ export default {
         duration: 3 // 飞行动画持续时间（秒）
       });
     },
-    flashingCenter(){
+    //中心点闪烁
+    flashingCenter() {
+      //震中点闪烁
+      let data = {
+        ...this.centerPoint,
+        drawtype: "center"
+      }
+      this.timelinePopupVisible = false;
       if (this.intervalIdcolor) {
         clearInterval(this.intervalIdcolor);
       }
-      let centerMark=viewer.entities.getById(this.centerPoint.plotid);
-      if(!centerMark){
-        let data = {
-          ...this.centerPoint,
-          drawtype: "center"
-        }
-        centerMark=viewer.entities.add({
+      let centerMark = viewer.entities.getById(this.centerPoint.plotid);
+      if (!centerMark) {
+
+        centerMark = viewer.entities.add({
           properties: {
             data
           },
@@ -2746,15 +2721,78 @@ export default {
           layer: "标绘点"
         });
       }
-
       let colorFactor = 1.0;
       this.intervalIdcolor = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
       }, 500);
-      centerMark.billboard.color=new Cesium.CallbackProperty(() => {
+      centerMark.billboard.color = new Cesium.CallbackProperty(() => {
         return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
       }, false)
+
+      //缩略图中心点闪烁
+      let smallcenterMark = smallViewer.entities.getById(this.centerPoint.plotid);
+      if (!smallcenterMark) {
+        smallcenterMark=smallViewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(
+              parseFloat(this.centerPoint.geom.coordinates[0]),
+              parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.height || 0)
+          ),
+          billboard: {
+            image: centerstar,
+            width: 40,
+            height: 40,
+            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+            scale: 0.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            depthTest: false,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            color: Cesium.Color.WHITE.withAlpha(1),
+          },
+          label: {
+            text: this.centerPoint.earthquakeName,
+            show: true,
+            font: '10px sans-serif',
+            fillColor: Cesium.Color.RED,        //字体颜色
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            outlineWidth: 2,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -16),
+          },
+          id: this.centerPoint.plotid,
+          plottype: "震中",
+        });
+      }
+      smallcenterMark.billboard.color = new Cesium.CallbackProperty(() => {
+        return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+      }, false)
+
+      //震中面板展开+跟随地图移动
+      let position = centerMark.position.getValue(Cesium.JulianDate.now());
+      let screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, position);
+      this.timelinePopupPosition = {
+        x: screenPosition.x + 10,
+        y: screenPosition.y + 10
+      };
+      this.timelinePopupVisible = true;
+      this.timelinePopupData = data
+      this.selectedEntity = centerMark
+      this.selectedEntityPosition = {
+        x: this.centerPoint.geom.coordinates[0], // 经度
+        y: this.centerPoint.geom.coordinates[1],  // 纬度
+        z: 0     // 高度
+      };
+      window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+        // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
+        // if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+        this.updatePopupPosition();
+        // }
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
+
+
   }
 }
 </script>
@@ -3243,7 +3281,7 @@ export default {
   border-radius: 20px;
   height: 6%;
   width: 30%;
-  top: 12%;
+  top: 8%;
   position: absolute;
   z-index: 50;
   color: #FFFFFF;
