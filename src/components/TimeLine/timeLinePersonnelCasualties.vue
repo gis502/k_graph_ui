@@ -151,7 +151,7 @@ export default {
 .pop {
   position: absolute;
   top: 34.5%;
-  width: 25%;
+  width: 22%;
   height: 21%;
   padding: 10px;
   border-radius: 5px;
@@ -166,7 +166,7 @@ export default {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top:-16px;
+  top:-17px;
   position: relative;
 }
 

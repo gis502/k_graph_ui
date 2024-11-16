@@ -41,7 +41,7 @@ export default {
 
 <style scoped>
 .small-map {
-  width: 27%;
+  width: 22%;
   height: 34%;
   position: absolute;
   padding: 10px;

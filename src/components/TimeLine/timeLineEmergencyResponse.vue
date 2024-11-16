@@ -220,7 +220,7 @@ export default {
 <style scoped>
 .pop {
   position: absolute;
-  width: 25%; /* 调整宽度 */
+  width: 22%; /* 调整宽度 */
   height: 21%;
   padding: 10px;
   border-radius: 5px;

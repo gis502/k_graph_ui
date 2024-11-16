@@ -2869,7 +2869,7 @@ export default {
 .play {
   width: 4%;
   height: 100%;
-  margin-left: 1%;
+  margin-left: -2%;
   display: flex;
   align-items: center;
 }
@@ -2904,7 +2904,7 @@ export default {
 
 .speedButton {
   position: relative;
-  left: 102%;
+  left: 105%;
   color: white;
   top: -50%;
 }
@@ -3000,7 +3000,7 @@ export default {
   position: absolute;
   z-index: 60;
   top: 36%;
-  left: 21%;
+  left: 19%;
 }
 
 .thematic-button {
@@ -3142,7 +3142,7 @@ export default {
 }
 
 :deep(.close-item) {
-  margin-right: 7% !important;
+  margin-right: 0 !important;
 }
 
 .logo-title {

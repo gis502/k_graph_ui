@@ -110,7 +110,7 @@ export default {
 
 <style scoped>
 #news {
-  width: 27%;
+  width: 22%;
   height: 43%;
   position: absolute;
   padding: 10px;
@@ -203,8 +203,8 @@ export default {
 .news-img img {
   /* 设置图片最大宽度 max-width: 30px;*/
   /* 设置图片最大高度 max-height: 30px;*/
-  width: 120px; /* 自动调整宽度以保持比例 */
-  height: 65px; /* 自动调整高度以保持比例 */
+  width: 80px; /* 自动调整宽度以保持比例 */
+  height: 55px; /* 自动调整高度以保持比例 */
 }
 
 .sub-time {
