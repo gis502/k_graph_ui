@@ -514,6 +514,8 @@ export default {
       this.queryParams.menuName = ''
       this.getList();
       // this.getPlotPicture();
+      // this.queryParams.menuName = ''
+      // this.getPlotPicture();
       // this.handleQuery();
     },
 
