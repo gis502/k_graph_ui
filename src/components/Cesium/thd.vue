@@ -969,10 +969,7 @@ export default {
           // }
 
         }, 3000);
-
         this.flashingCenter()
-
-
       }, 3000);
     },
     /**
@@ -1350,7 +1347,9 @@ export default {
       })
       this.timelinePopupShowCenterStrart = true
       this.flyToCenter()
-      this.flashingCenter()
+      setTimeout(() => {
+        this.flashingCenter()
+      }, 3000);
 
       this.timelinePopupShowCenterStrart = true
 
@@ -1673,6 +1672,11 @@ export default {
 
     //飞到震中
     flyToCenter() {
+      if(this.selectedEntity&&(this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible)) {
+        window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+          this.updatePopupPosition();
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+      }
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
@@ -1805,9 +1809,7 @@ export default {
       };
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        // if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
         this.updatePopupPosition();
-        // }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     addJumpNodes(val) {

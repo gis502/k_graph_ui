@@ -410,7 +410,7 @@ export default class Point {
                     cluster.label.font = '18px Helvetica';
                     cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
                     cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
-                    cluster.label.outlineWidth = 2; // 外框宽度
+                    cluster.label.outlineWidth = 20; // 外框宽度
                     cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // 偏移量
                     cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; // 垂直原点
 
