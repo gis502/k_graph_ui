@@ -1,29 +1,29 @@
 <template>
-    <div class="pop">
-      <div class="pop_header">
-        <h2 class="pop_title">救援出队
-          <span class="time">{{ this.recordtime }}</span>
-        </h2>
-        <div class="sub-main">
-          <ul class="sub-ul">
-            <li
-                :class="[i === 0 || i === 1 ? 'high' : '']"
-                v-for="item in showRescueTeam"
-                :key="item.recordtime"
-            >
-              <div class="sub-content">
-                <p class="pop_p">{{ showContent(item) }}</p>
-              </div>
-            </li>
-          </ul>
-        </div>
+  <div class="pop">
+    <div class="pop_header">
+      <h2 class="pop_title">救援出队
+        <span class="time">{{ this.recordtime }}</span>
+      </h2>
+      <div class="sub-main">
+        <ul class="sub-ul">
+          <li
+              :class="[i === 0 || i === 1 ? 'high' : '']"
+              v-for="item in showRescueTeam"
+              :key="item.recordtime"
+          >
+            <div class="sub-content">
+              <p class="pop_p">{{ showContent(item) }}</p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
 import timeLineRescueTeam from "@/assets/json/TimeLine/timeLineRescueTeam";
-import { getRescueTeam } from "../../api/system/timeLine.js";
+import {getRescueTeam} from "../../api/system/timeLine.js";
 
 export default {
   data() {
@@ -48,7 +48,7 @@ export default {
   },
   methods: {
     init() {
-      getRescueTeam({ eqid: this.eqid }).then(res => {
+      getRescueTeam({eqid: this.eqid}).then(res => {
         console.log("res:救援队伍", res);
         this.RescueTeamInfo = res;
         this.rescue_team_update(this.currentTime);
@@ -142,6 +142,7 @@ export default {
   width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
 }
+
 .pop_header {
   top: -10%;
   height: 3.8vh;
@@ -150,17 +151,18 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
 .pop_title {
   font-family: 'myFirstFont', sans-serif;
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top: 15%;
+  top: 26%;
   position: relative;
   left: 7%;
 }
+
 .pop_p {
-  margin-top: 1em;
   margin: 1px;
   font-size: 0.9rem;
   line-height: 1.2rem;
@@ -168,6 +170,7 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
+
 .time {
   right: 9%;
   position: absolute;
@@ -176,20 +179,24 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
+
 :deep(.sub-main) {
   margin-top: -16px;
   top: 74%;
   max-height: 21vh;
   overflow-y: auto;
   padding: 0px;
-  left: 3%;
+  left: 2%;
   position: relative;
+  width: 97%;
 }
+
 /* 整个滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;               /* 滚动条的宽度 */
-  height: 12px;              /* 滚动条的高度，对水平滚动条有效 */
+  width: 6px; /* 滚动条的宽度 */
+  height: 12px; /* 滚动条的高度，对水平滚动条有效 */
 }
+
 /* 滚动条轨道 */
 ::-webkit-scrollbar-track {
   border-radius: 10px;
@@ -202,6 +209,7 @@ export default {
   background-color: #1f9dca; /* 滑块的背景颜色 */
   border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
+
 .sub-ul {
   padding: 0;
   margin: 0;
@@ -210,6 +218,7 @@ export default {
   overflow-y: auto; /* 当内容超出时显示垂直滚动条 */
   list-style-type: none; /* 去除列表项默认的项目符号 */
 }
+
 .sub-ul li {
   display: flex;
   align-items: center; /* Center items vertically */
@@ -217,6 +226,7 @@ export default {
   /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
   padding: 0; /* Optional: Add padding for better spacing */
 }
+
 .sub-content {
   padding: 0;
   margin: 0;

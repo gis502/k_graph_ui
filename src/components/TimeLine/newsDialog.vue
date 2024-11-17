@@ -103,7 +103,7 @@ export default {
   border-radius: 5px;
   top:20%;
   right: 30%;
-  z-index: 30; /* 更高的层级 */
+  z-index: 70; /* 更高的层级 */
   background-color: rgb(22, 53, 77,0.9);
   color: #ffffff;
 }

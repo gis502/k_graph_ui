@@ -1,10 +1,12 @@
 <template>
   <div>
     <div class="small-map">
-      <h2 class="sub-title">
-        缩略地图:
-      </h2>
-      <div id="smallMapContainer"></div>
+      <div class="pop_header">
+        <h2 class="sub-title">
+          缩略地图
+        </h2>
+        <div id="smallMapContainer"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -33,67 +35,43 @@ export default {
       window.viewer = null;
     }
   },
-  methods: {
-  },
+  methods: {},
 };
 </script>
 
 
 <style scoped>
 .small-map {
-  width: 27%;
-  height: 34%;
-  position: absolute;
-  padding: 10px;
-  border-radius: 5px;
-  top: 57.5%;
-  right: 1%;
+  width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
-  background-color: rgb(22, 53, 77,0.9);
-  backdrop-filter: none!important;
-  border: 1px solid #008aff70;
+  position: absolute;
+  top: 65%;
 }
 
-
-#smallMapContainer {
-  width: 95%;
-  height: 80%;
-  margin-top: 6%;
-  margin-left: 2.5%;
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
+
 .sub-title {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top:0.5%;
-  margin: 0;
-  padding: 0;
+  top: 26%;
   position: relative;
+  left: 7%;
+  width: 93%;
 }
 
-.sub-title:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-.sub-title:after {
-  content: "";
-  width: 90%;
-  height: 6px;
-  position: absolute;
-  top: 130%;
-  left: 2%;
-  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+#smallMapContainer {
+  width: 95%;
+  height: 20vh;
+  margin-top: 6%;
+  margin-left: 2.5%;
 }
 
 .showMiniMapButton img {
