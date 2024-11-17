@@ -111,7 +111,7 @@ export default {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top: 15%;
+  top: 26%;
   position: relative;
   left: 7%;
 }

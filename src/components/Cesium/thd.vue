@@ -187,10 +187,11 @@
     />
 
     <div class="top-header">
-      <div class="system-title" >
+      <div class="system-title">
         {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
           this.centerPoint.earthquakeName
-        }}{{ this.centerPoint.magnitude }}级地震</div>
+        }}{{ this.centerPoint.magnitude }}级地震
+      </div>
     </div>
     <div class="logo-menu menue-left">
       <div
@@ -207,7 +208,7 @@
           title="地震列表"
           @click="toggleComponent('eqList')"
       >
-        <p>地震列表</p>
+        <p>灾损评估</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -215,7 +216,7 @@
           title="三维模型"
           @click="toggleComponent('model')"
       >
-        <p>三维模型</p>
+        <p>态势标绘</p>
       </div>
     </div>
     <div class="logo-menu menue-right">
@@ -225,7 +226,7 @@
           title="图层要素"
           @click="toggleComponent('layerChoose')"
       >
-        <p>图层要素</p>
+        <p>资源调度</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -233,7 +234,7 @@
           title="专题图产出"
           @click="toggleComponent('thematicMapDownload')"
       >
-        <p>专题图产出</p>
+        <p>灾情统计</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -241,7 +242,7 @@
           title="报告导出"
           @click="toggleComponent('reportDownload')"
       >
-        <p>报告导出</p>
+        <p>图件产出</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -325,65 +326,70 @@
 
     <!--    两侧组件-->
     <div v-show="showSidebarComponents">
-      <div class="pop_header">
-      <!--   应急响应-左上   -->
-      <timeLineEmergencyResponse
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @addJumpNodes="addJumpNodes"
-      />
-      <div>
-        <div class="personbutton" v-if="PersoonnelCasuality===1">
-          <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+      <div class="pop_left_background">
+        <!--   应急响应-左上   -->
+        <timeLineEmergencyResponse
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @addJumpNodes="addJumpNodes"
+        />
+        <div>
+          <div class="personbutton" v-if="PersoonnelCasuality===1">
+            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+          </div>
+          <!--   人员伤亡-左中   -->
+          <timeLinePersonnelCasualties
+              v-if="PersoonnelCasuality===1"
+              :eqid="eqid"
+              :currentTime="currentTime"
+              @addJumpNodes="addJumpNodes"
+          />
         </div>
-        <!--   人员伤亡-左中   -->
-        <timeLinePersonnelCasualties
-            v-if="PersoonnelCasuality===1"
+        <div>
+          <div class="personbutton" v-if="PersoonnelCasuality===2">
+            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+          </div>
+          <timeLineCasualtyStatisticthd
+              v-if="PersoonnelCasuality===2"
+              :zoomLevel="zoomLevel"
+              :pointsLayer="pointsLayer"
+              :currentTime="currentTime"
+          />
+        </div>
+        <!--   救援出队-左下   -->
+        <timeLineRescueTeam
             :eqid="eqid"
             :currentTime="currentTime"
             @addJumpNodes="addJumpNodes"
         />
       </div>
-      <div>
-        <div class="personbutton" v-if="PersoonnelCasuality===2">
-          <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+      <div class="pop_right_background">
+        <!--  新闻-右上  -->
+        <div>
+          <news
+              :eqid="eqid"
+              :currentTime="currentTime"
+              @ifShowDialog="ifShowDialog"
+              @detailedNews="detailedNews"
+              @addJumpNodes="addJumpNodes"
+          ></news>
         </div>
-        <timeLineCasualtyStatisticthd
-            v-if="PersoonnelCasuality===2"
-            :zoomLevel="zoomLevel"
-            :pointsLayer="pointsLayer"
-            :currentTime="currentTime"
-        />
-      </div>
-      <!--   救援出队-左下   -->
-      <timeLineRescueTeam
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @addJumpNodes="addJumpNodes"
-      /></div>
-
-      <!--  新闻-右上  -->
-      <div>
-        <news
-            :eqid="eqid"
-            :currentTime="currentTime"
-            @ifShowDialog="ifShowDialog"
-            @detailedNews="detailedNews"
-            @addJumpNodes="addJumpNodes"
-        ></news>
-      </div>
-      <!--      新闻弹框-->
-      <div>
-        <news-dialog
-            :showDetailedNewsDialog="showDetailedNewsDialog"
-            :showingNewsContent="showingNewsContent"
-            @hideNewsDialog="hideNewsDialog"
-        ></news-dialog>
-      </div>
-
-      <!--      缩略图-->
-      <div>
-        <mini-map></mini-map>
+        <!--      新闻弹框-->
+        <div>
+          <news-dialog
+              :showDetailedNewsDialog="showDetailedNewsDialog"
+              :showingNewsContent="showingNewsContent"
+              @hideNewsDialog="hideNewsDialog"
+          ></news-dialog>
+        </div>
+        <!--      标绘统计-->
+        <div>
+          <plotStatistics></plotStatistics>
+        </div>
+        <!--      缩略图-->
+        <div>
+          <mini-map></mini-map>
+        </div>
       </div>
       <!--      图例-->
       <timeLineLegend
@@ -445,6 +451,7 @@ import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
+import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
 
 //报告产出
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
@@ -503,6 +510,7 @@ export default {
     TimeLinePanel,
     News,
     MiniMap,
+    plotStatistics,
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
@@ -709,9 +717,9 @@ export default {
 
       stopTimeforAddEntityOneIndex: 5000,
 
-       PersoonnelCasuality: 1,//人员伤亡统计
-      timelinePopupShowCenterStrart:true,
-      intervalIdcolor:null,
+      PersoonnelCasuality: 1,//人员伤亡统计
+      timelinePopupShowCenterStrart: true,
+      intervalIdcolor: null,
     };
   },
   created() {
@@ -755,13 +763,13 @@ export default {
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
       // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
       // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
-      options.enableCompass = false
+      options.enableCompass = true
       // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
       options.enableZoomControls = false
       // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
       options.enableDistanceLegend = true
       // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
-      options.enableCompassOuterRing = false
+      options.enableCompassOuterRing = true
       options.resetTooltip = "重置视图";
       options.zoomInTooltip = "放大";
       options.zoomOutTooltip = "缩小";
@@ -975,7 +983,9 @@ export default {
         let colorFactor = 1.0;
         const intervalTime = 500; // 切换颜色的时间间隔
         const animationDuration = 3000; // 动画总持续时间（30秒）
-        if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+        if (this.intervalIdcolor) {
+          clearInterval(this.intervalIdcolor);
+        }
         this.intervalIdcolor = setInterval(() => {
           colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
         }, intervalTime);
@@ -1239,9 +1249,9 @@ export default {
       // stopTimeforAddEntityOneIndex
       // let stoptime = 5000
       if (points.length > 0) {
-        if(this.timelinePopupShowCenterStrart){
+        if (this.timelinePopupShowCenterStrart) {
           clearInterval(this.intervalIdcolor); // 停止颜色切换
-          this.timelinePopupShowCenterStrart=false;
+          this.timelinePopupShowCenterStrart = false;
           this.timelinePopupVisible = false;
         }
         // let param = type === false ? false : true
@@ -1429,7 +1439,9 @@ export default {
       // const intervalTime = 500; // 切换颜色的时间间隔
       // const animationDuration = 3000; // 动画总持续时间（3秒）
       let colorFactor = 1.0;
-      if(this.intervalIdcolor){clearInterval(this.intervalIdcolor);}
+      if (this.intervalIdcolor) {
+        clearInterval(this.intervalIdcolor);
+      }
       this.intervalIdcolor = setInterval(() => {
         colorFactor = colorFactor === 1.0 ? 0.5 : 1.0; // 在颜色之间切换
       }, 500);
@@ -1904,7 +1916,6 @@ export default {
     },
 
 
-
     /*
     * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
     * */
@@ -1942,10 +1953,6 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
-
-
-
-
 
 
     /**
@@ -2145,8 +2152,8 @@ export default {
         if (this.selectedEntityPosition) {
           // console.log(this.selectedEntityPosition)
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           if (canvasPosition) {
             const faultInfoDiv = document.getElementById('faultInfo');
@@ -3277,52 +3284,12 @@ export default {
 </script>
 
 <style scoped>
-
-.logo-title {
-  height: 100%;
-  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-.logo-title-content {
-  color: #fff;
-  width: 680px;
-  height: 100%;
-  margin: auto;
-  font-size: 27px;
-  font-weight: 700;
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  text-align: center; /* 多行文本居中 */
-  //background-image: url(@/assets/images/CommandScreen/菜单标题.png);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  overflow: hidden; /* 隐藏滚动条 */
-}
-
-@media screen and (max-width: 1645px) {
-  .logo-title-content {
-    width: 434px !important;
-    padding-top: 3px !important;
-    padding-right: 0px !important;
-    font-size: 23px !important;
-  }
-}
-
-@media screen and (max-width: 1835px) {
-  .logo-title-content {
-    width: 526px !important;
-  }
-}
-
 .menue-left {
   left: 146px;
 }
 
 .logo-menu .logo-menu-active {
-  box-shadow: 0 0 15px #007fde,inset 0 0 25px #06b7ff;
+  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
 }
 
 .logo-menu-tittle {
@@ -3421,17 +3388,7 @@ export default {
   top: 0%;
   position: absolute;
 }
-/*.left_component {
-  width: 25vw;
-  height: 81vh;
-  //background-color: #205f73a1;
-  z-index: 0;
-  top: 13%;
-  left: 1%;
-  position: absolute;
-  background: rgb(3,16,30);
-  background: linear-gradient(90deg, rgba(3,16,30,1) 0%, rgba(26,54,77,1) 62%, rgba(44,69,94,0) 100%);
-}*/
+
 .company-name {
   position: absolute;
   width: 17vw;
@@ -3454,6 +3411,7 @@ export default {
   margin-top: 5px;
   font-weight: 900;
 }
+
 .right-info {
   position: absolute;
   top: 43px;
@@ -3461,6 +3419,7 @@ export default {
   display: flex;
   align-items: center;
 }
+
 .bottom-footer {
   width: 100%;
   position: absolute;
@@ -3470,27 +3429,34 @@ export default {
   height: 12vh;
   background: url(/src/assets/images/CommandScreen/导航栏底部.png) 47% 116% no-repeat;
 }
-.pop_header {
+
+.pop_left_background {
   top: 13%;
   left: 1%;
   height: 80.8vh;
   width: 26%;
   position: absolute;
-  background: rgb(4,20,34);
-  background: linear-gradient(90deg, rgba(4,20,34,1) 0%, rgba(14,37,61,0.9) 41%, rgba(26,54,77,0.75) 66%, rgba(42,89,135,0.45) 84%, rgba(44,69,94,0) 100%);
+  background: rgb(4, 20, 34);
+  background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
-.el-tree {
-  background-color: rgba(255, 255, 255, 0);
-  color: #FFFFFF;
+.pop_right_background {
+  top: 13%;
+  right: 1%;
+  height: 80.8vh;
+  width: 26%;
+  position: absolute;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
 #box {
-  height: 100vh;
+  height: 99vh;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  overflow-y: hidden;
 }
 
 #cesiumContainer {
@@ -3742,7 +3708,6 @@ export default {
 }
 
 
-
 /*弹窗样式*/
 .grid-container {
   display: grid;
@@ -3785,10 +3750,6 @@ export default {
   height: 310px !important;
 }
 
-:deep(.distance-legend) {
-  bottom: 1% !important;
-}
-
 
 .modelAdj {
   color: #FFFFFF;
@@ -3816,8 +3777,44 @@ export default {
 :deep(.cesium-viewer-toolbar) {
   display: block;
   position: absolute;
-  top: 87%;
+  top: 94.5%;
   left: 1%;
+  z-index: 500;
+}
+
+:deep(.cesium-viewer-geocoderContainer .search-results) {
+  position: absolute; /* 确保下拉框位置相对于父容器 */
+  bottom: 100%; /* 将下拉框移到搜索框的上方 */
+  transform: translateY(-5px); /* 可选：向上移动一些距离 */
+  z-index: 999; /* 确保下拉框在其他元素之上 */
+}
+
+/* 更改比例尺位置 */
+:deep(.distance-legend) {
+  bottom: 1% !important;
+  pointer-events: auto;
+  position: absolute;
+  border-radius: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+  height: 30px;
+  right: 1%;
+  top: 94%;
+  width: 125px;
+  box-sizing: content-box;
+}
+
+/* 更改指南针位置 */
+:deep(.compass) {
+  pointer-events: auto;
+  position: absolute;
+  width: 94px;
+  height: 94px;
+  transform: scale(0.6);
+  z-index: 500;
+  overflow: hidden;
+  left: 4.5%;
+  top: 91.5%;
 }
 
 .list-dialog .list-dialog__header {
@@ -3942,16 +3939,17 @@ export default {
   color: #FFFFFF;
   font-size: 23px;
   left: 32%;
-  //text-align: center;
   display: flex; /* 使用Flexbox布局 */
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
+
 /* 整个滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;               /* 滚动条的宽度 */
-  height: 12px;              /* 滚动条的高度，对水平滚动条有效 */
+  width: 6px; /* 滚动条的宽度 */
+  height: 12px; /* 滚动条的高度，对水平滚动条有效 */
 }
+
 /* 滚动条轨道 */
 ::-webkit-scrollbar-track {
   border-radius: 10px;
@@ -3971,16 +3969,17 @@ export default {
   top: 19.5%;
   left: 25%;
 }
+
 .el-button {
-  font-size: 6px !important; /* 调整按钮字体大小 */
+  font-size: 12px !important; /* 调整按钮字体大小 */
   width: 60%; /* 使按钮宽度自适应 */
   height: 2vh;
 }
-:deep(.el-button--primary){
+
+:deep(.el-button--primary) {
   border-color: #fff42e; /* 白色边框 */
   background-color: #1a3749;
   color: #ffeb02; /* 白色字体 */
-  font-size:13px;
 }
 
 :deep(.el-button--primary):hover {
