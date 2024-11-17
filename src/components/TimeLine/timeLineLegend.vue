@@ -37,13 +37,14 @@
           <span class="legend-label">震中</span>
         </div>
         <div class="close-item">
+          <img class="legend-img" src="@/assets/icons/TimeLine/重伤人员.png" />
+          <span class="legend-label">重伤人员</span>
+        </div>
+        <div class="close-item">
           <img class="legend-img" src="@/assets/icons/TimeLine/泥石流.png" />
           <span class="legend-label">泥石流</span>
         </div>
-        <div class="close-item">
-          <img class="legend-img" src="@/assets/icons/TimeLine/集结缓冲区.png" />
-          <span class="legend-label">集结缓冲区</span>
-        </div>
+
       </div>
     </div>
   </div>

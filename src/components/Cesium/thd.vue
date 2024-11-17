@@ -3496,7 +3496,7 @@ export default {
   top: 13%;
   left: 1%;
   height: 80.8vh;
-  width: 26%;
+  width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
   background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
@@ -3506,7 +3506,7 @@ export default {
   top: 13%;
   right: 1%;
   height: 80.8vh;
-  width: 26%;
+  width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
@@ -4028,14 +4028,14 @@ export default {
 .personbutton {
   position: absolute;
   z-index: 60;
-  top: 19.5%;
-  left: 25%;
+  top: 20.5%;
+  left: 31%;
 }
 
 .el-button {
   font-size: 12px !important; /* 调整按钮字体大小 */
   width: 60%; /* 使按钮宽度自适应 */
-  height: 2vh;
+  height: 3vh;
 }
 
 :deep(.el-button--primary) {
@@ -4050,5 +4050,26 @@ export default {
 
 :deep(.el-button--primary):active {
   background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
+}
+:deep(.timelineLegend){
+  width:22vw;
+}
+:deep(.new-panel){
+  top: 6%;
+  left: 112%;
+  width: 218%;
+}
+:deep(.detailedNews){
+  width: 221%;
+  height: 69%;
+  top: 6%;
+  right: 112%;
+  z-index:80;
+}
+:deep(.news-title:after){
+  top:21%;
+}
+:deep(.timelineLegend.open){
+  width:33%;
 }
 </style>

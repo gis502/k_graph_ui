@@ -15,6 +15,9 @@
       </div>
     </div>
     <div v-if="showNewPanel && this.responseNewPanelShow.length!=0 " class="new-panel" :style="{ height: panelHeight }">
+      <div class="close-button" @click="hideDetailedNews">
+        &times; <!-- 叉号字符 -->
+      </div>
       <table class="data-table">
         <thead>
         <tr>
@@ -198,6 +201,9 @@ export default {
       ss = ss > 9 ? ss : '0' + ss;
       return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
     },
+    hideDetailedNews(){
+      this.showNewPanel = false
+    }
   }
 };
 </script>
@@ -287,6 +293,15 @@ export default {
   padding: 0;
   text-align: center;
   font-size: 18px;
+}
+
+.close-button {
+  position: absolute; /* Position the button absolutely */
+  top: 0px; /* Distance from the top */
+  right: 10px; /* Distance from the right */
+  cursor: pointer; /* Change cursor to pointer */
+  font-size: 24px; /* Adjust font size */
+  color: #ffffff; /* Optional: Set color */
 }
 
 </style>

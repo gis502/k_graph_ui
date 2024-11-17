@@ -135,7 +135,7 @@
           <div class="personbutton" v-if="PersoonnelCasuality===2">
             <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
           </div>
-          <timeLineCasualtyStatisticthd
+          <timeLineCasualtyStatistic
               v-if="PersoonnelCasuality===2"
               :zoomLevel="zoomLevel"
               :pointsLayer="pointsLayer"
@@ -252,11 +252,10 @@ import layeredShowPlot from "@/components/Cesium/layeredShowPlot.vue";
 import * as echarts from "echarts";
 import html2canvas from "html2canvas";
 import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
-import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 
 export default {
   components: {
-    timeLineCasualtyStatisticthd, plotStatistics,
+    plotStatistics,
     layeredShowPlot,
     thematicMapPreview,
     RouterPanel,
@@ -2785,13 +2784,26 @@ export default {
   left: 2%;
 }
 
+
 .personbutton {
   position: absolute;
   z-index: 60;
-  top: 36%;
-  left: 19%;
+  top: 20.5%;
+  left: 31%;
+}
+:deep(.el-button--primary) {
+  border-color: #ffffff; /* 白色边框 */
+  background-color: #1a3749;
+  color: #ffffff; /* 白色字体 */
 }
 
+:deep(.el-button--primary):hover {
+  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
+}
+
+:deep(.el-button--primary):active {
+  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
+}
 .thematic-button {
   position: absolute;
   z-index: 20;
@@ -2931,7 +2943,7 @@ export default {
 }
 
 :deep(.close-item) {
-  margin-right: 0 !important;
+  margin-right: -5!important;
 }
 
 .logo-title {
@@ -3082,27 +3094,13 @@ export default {
   align-items: center; /* 垂直居中 */
 }
 
-:deep(.el-button--primary) {
-  background-color: transparent; /* 无背景颜色填充 */
-  border-color: #ffffff; /* 白色边框 */
-  background-color: #1a3749;
-  color: #ffffff; /* 白色字体 */
-  font-size: 16px;
-}
 
-:deep(.el-button--primary):hover {
-  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
-}
-
-:deep(.el-button--primary):active {
-  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
-}
 
 .pop_left_background {
   top: 13%;
   left: 1%;
   height: 80.8vh;
-  width: 26%;
+  width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
   background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
@@ -3112,15 +3110,35 @@ export default {
   top: 13%;
   right: 1%;
   height: 80.8vh;
-  width: 26%;
+  width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
 :deep(.timelineLegend){
-  width: 23vw;
+  width: 19vw;
   bottom: 6.8%;
+}
+:deep(.new-panel){
+  top: 3%;
+  left: 104%;
+  width: 239%;
+}
+:deep(.detailedNews){
+  width: 238%;
+  height: 69%;
+  top: 3%;
+  right: 102%;
+}
+:deep(.news-title:after){
+  top:21%;
+}
+:deep(.timelineLegend.open){
+  width:38%;
+}
+:deep(.close-items-row){
+  left:0%;
 }
 
 </style>

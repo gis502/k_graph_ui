@@ -3,7 +3,9 @@
     <div class="pop_header">
       <span class="pop_title">伤亡详情</span>
       <span class="title-time">{{timestampToTime(currentTime)}}</span>
+
       <div class="sub-main">
+
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
@@ -536,8 +538,6 @@ export default {
   width: 398px !important;
   height: 310px !important;
 }
-
-
 
 
 </style>
