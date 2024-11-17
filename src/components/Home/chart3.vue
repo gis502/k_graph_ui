@@ -114,7 +114,7 @@ watch(() => props.lastEq, () => {
   flex-direction: column;
   margin: 0;
   font-size: 13px;
-  padding: 6px 10px;
+  padding: 2px 10px;
 }
 
 .row {
