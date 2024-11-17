@@ -12,7 +12,10 @@
       </div>
 
       <div v-for="item in getPicData" :key="item.label" class="legend-item">
-        <img class="legend-img" :src="item.img" />
+        <div v-if="item.img && item.img !== ''">
+          <img  class="legend-img" :src="'http://localhost:8080/uploads/PlotsPic/' + item.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+
+        </div>
         <span class="legend-label">{{ item.name }}</span>
       </div>
 
@@ -70,11 +73,11 @@ export default {
       }
     },
     getPlotPicture() {
-      let that=this
+      let that = this
       getPlotIcon().then(res => {
-        that.getPicData = res.data;
-      });
-    }
+        that.getPicData = res.data
+      })
+    },
   }
 };
 </script>

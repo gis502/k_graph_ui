@@ -1000,16 +1000,79 @@ export default {
         cesiumPlot.getDrawPolygon(polygonData)
       });
 
-
+      //--------------------------箭头绘制------------------------------
+      let straightArrShow=[]
       let straightArr = this.plots.filter(e => e.drawtype === 'straight');
-      console.log("straightArr----------------", straightArr)
-      Arrow.showStraightArrow(straightArr)
+      straightArr.forEach(item=>{
+        // 获取当前时间、多边形的开始时间和结束时间
+        const currentDate = new Date(this.currentTime);
+        const startDate = new Date(item.startTime);
+        const endDate = new Date(item.endTime);
+        // 如果当前时间在多边形的开始和结束时间内，且多边形未显示，则添加到显示列表
+        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+          this.plotisshow[item.plotId] = 1
+          // Arrow.showStraightArrow(item)
+          straightArrShow.push(item);// 收集符合条件的面
+        }
+        // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          Arrow.clearById(item.plotId)
+        }
+      })
+      if(straightArrShow.length>0){
+        Arrow.showStraightArrow(straightArrShow)
+      }
 
+      let attackArrShow=[]
       let attackArr = this.plots.filter(e => e.drawtype === 'attack');
-      Arrow.showAttackArrow(attackArr)
+      attackArr.forEach(item=>{
+        // 获取当前时间、多边形的开始时间和结束时间
+        const currentDate = new Date(this.currentTime);
+        const startDate = new Date(item.startTime);
+        const endDate = new Date(item.endTime);
+        // 如果当前时间在多边形的开始和结束时间内，且多边形未显示，则添加到显示列表
+        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+          this.plotisshow[item.plotId] = 1
+          // Arrow.showStraightArrow(item)
+          attackArrShow.push(item);// 收集符合条件的面
+        }
+        // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          Arrow.clearById(item.plotId)
+        }
+      })
+      if(attackArrShow.length>0){
+        Arrow.showStraightArrow(attackArrShow)
+      }
 
+      // let attackArr = this.plots.filter(e => e.drawtype === 'attack');
+      // Arrow.showAttackArrow(attackArr)
+      let pincerArrShow=[]
       let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
-      Arrow.showPincerArrow(pincerArr)
+      pincerArr.forEach(item=>{
+        // 获取当前时间、多边形的开始时间和结束时间
+        const currentDate = new Date(this.currentTime);
+        const startDate = new Date(item.startTime);
+        const endDate = new Date(item.endTime);
+        // 如果当前时间在多边形的开始和结束时间内，且多边形未显示，则添加到显示列表
+        if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+          this.plotisshow[item.plotId] = 1
+          // Arrow.showStraightArrow(item)
+          pincerArrShow.push(item);// 收集符合条件的面
+        }
+        // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
+        if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          Arrow.clearById(item.plotId)
+        }
+      })
+      if(pincerArrShow.length>0){
+        Arrow.showStraightArrow(pincerArrShow)
+      }
+      // let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
+      // Arrow.showPincerArrow(pincerArr)
 
     },
 
@@ -1466,88 +1529,67 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
+
     /**
      * 处理实体点击事件的弹窗显示逻辑
      */
     entitiesClickPonpHandler() {
-
       let that = this;
       // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-        console.log(click, "click")
-        if (window.isDrawingPolygon) return;
         // 检查点击位置是否拾取到实体
         let pickedEntity = window.viewer.scene.pick(click.position);
+        console.log("点击选择的pickedEntity", pickedEntity)
         window.selectedEntity = pickedEntity?.id;
-        console.log("window.selectedEntity", window.selectedEntity)
-        // 获取故障信息的 div 元素
-        const faultInfoDiv = document.getElementById('faultInfo');
 
-        if (window.selectedEntity === undefined) {
-          this.popupVisible = false
-          this.dataSourcePopupVisible = false
-          this.popupData = {}
-        }
+        // 绑定断裂带信息的 div 元素
+        const faultInfoDiv = document.getElementById('faultInfo');
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-          console.log("entity picked", entity)
+          console.log(entity,"entity")
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
+          const pickedObject = window.viewer.scene.pick(click.position);
 
-          // 如果点击的是断裂带
           if (entity._layer === "断裂带") {
-            // 获取断裂带的 name 属性
-            const faultName = pickedEntity.id.properties.name._value;
+            console.log("断裂带")
 
-            // 获取点击位置的地理坐标 (Cartesian3)
-            const cartesian = viewer.scene.pickPosition(click.position);
-            if (!Cesium.defined(cartesian)) {
-              return;
-            }
+            const faultName = pickedObject.id.properties.name._value;
 
-            // 将地理坐标 (Cartesian3) 转换为屏幕坐标 (二维)
-            const screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-
-            // 显示 div 并将其定位到点击位置
-            faultInfoDiv.innerHTML = `${faultName}`;
-            faultInfoDiv.style.display = 'block';
-            faultInfoDiv.style.left = screenPosition.x + 'px';
-            faultInfoDiv.style.top = screenPosition.y + 'px';
-
-            // 监听地图变化，动态更新 div 的位置
-            window.viewer.scene.postRender.addEventListener(() => {
-              const updatedScreenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(window.viewer.scene, cartesian);
-              if (updatedScreenPosition) {
-                faultInfoDiv.style.left = updatedScreenPosition.x + 'px';
-                faultInfoDiv.style.top = updatedScreenPosition.y + 'px';
+            if (faultName) {
+              // 获取点击位置的地理坐标 (Cartesian3)
+              const cartesian = viewer.scene.pickPosition(click.position);
+              if (!Cesium.defined(cartesian)) {
+                return;
               }
-            });
-          } else {
-            faultInfoDiv.style.display = 'none';
-          }
 
-//
+              // 更新 faultInfo 的位置和内容
+              this.updateFaultInfoPosition(faultName);
+
+              // 显示 faultInfo
+              faultInfoDiv.style.display = 'block';
+
+              // 监听地图变化，动态更新 div 的位置
+              window.viewer.scene.postRender.addEventListener(() => {
+                this.updateFaultInfoPosition(faultName);
+              });
+
+              console.log(faultName)
+            }
+          }
           // 如果点击的是标绘点
-          if (entity._layer === "标绘点") {
+          else if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
+            this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+            this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
-            this.dataSourcePopupVisible = false
-          } else if (entity._billboard) {
-            // 如果点击的是路标
-            this.routerPopupVisible = true;
-            // this.routerPopupPosition = this.selectedEntityPopupPosition; // 更新位置
-            this.routerPopupData = this.extractDataForRouter(entity);
-
-            this.timelinePopupVisible = false;
-            this.dataSourcePopupVisible = false
           }
-          //聚合弹框
+          //聚合图标
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
-            //点击标签无弹框
             if (entity[0].entityCollection.owner.name === "label") {
               this.dataSourcePopupVisible = false
               this.timelinePopupVisible = false
@@ -1559,16 +1601,33 @@ export default {
               this.routerPopupVisible = false;
 
             }
-
-            // console.log("entity dataSourcePopupVisibletrue",entity)
-
-          } else {
+          }
+          //救援队伍、避难场所、应急物资
+          else if (entity._billboard) {
+            this.routerPopupVisible = true;
+            this.timelinePopupPosition = this.selectedEntityPosition;
+            this.routerPopupData = this.extractDataForRouter(entity);
+            this.dataSourcePopupVisible = false
+            this.timelinePopupVisible = false;
+          }
+          //箭头标绘
+          else if (entity._polygon) {
+            this.timelinePopupVisible = true;
+            this.timelinePopupPosition = this.selectedEntityPosition;
+            this.timelinePopupData = {}
+            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+            this.dataSourcePopupVisible = false
+            this.routerPopupVisible = false;
+          }
+          else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
             this.dataSourcePopupVisible = false
           }
-        } else {
+        }
+        //没有拾取到实体
+        else {
           // 没有选中实体时隐藏 faultInfo
           faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
