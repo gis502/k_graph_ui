@@ -13,7 +13,6 @@
 
 
     <el-row :gutter="10" class="mb8">
-
       <el-form-item label="灾情数据统计">
         <el-input
             v-model="queryParams"
@@ -24,9 +23,11 @@
         />
         <el-button type="primary" icon="Search" @click="handleQuery()">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery()">重置</el-button>
-        <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       </el-form-item>
-
+      <el-col :span="1.5">
+        <el-button type="success" plain icon="el-icon-scissors" class="button" @click="openFilter()">筛选
+        </el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button type="primary" plain icon="Download" class="button" @click="dialogVisible = true">导出数据
         </el-button>
@@ -44,8 +45,7 @@
             v-model="flag"
             placeholder="Select"
             size="large"
-            style="width: 240px"
-        >
+            style="width: 240px">
           <el-option
               v-for="item in options"
               :key="item.value"
@@ -73,61 +73,41 @@
       </el-col>
     </el-row>
 
-    <el-table
-        table-layout="fixed"
-        height="510px"
-        fit
-        ref="multipleTableRef"
-        :data="tableData"
-        class="table tableMove"
-        :row-key="getRowKey"
-        :row-style="{ height: '6.3vh' }"
+    <el-table table-layout="fixed" height="510px" fit ref="multipleTableRef" :data="tableData"
+        class="table tableMove" :row-key="getRowKey" :row-style="{ height: '6.3vh' }"
         @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
+      <el-table-column label="序号" width="50" align="center" :formatter="typeIndex"/>
       <el-table-column
-          label="序号"
-          width="50"
-          align="center"
-          :formatter="typeIndex"
-      />
-      <el-table-column
-          v-for="col in columns"
-          :key="col.prop"
-          :prop="col.prop"
-          :label="col.label"
-          :align="col.align"
-          :width="col.width"
-          :formatter="col.label === '震级' ? formatMagnitude : undefined"
-      />
+          v-for="col in columns" :key="col.prop" :prop="col.prop" :label="col.label"
+          :align="col.align" :width="col.width" :formatter="col.label === '震级' ? formatMagnitude : undefined"/>
       />
     </el-table>
-    <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 30, 40]"
-        :background="true"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        class="pagination"
-    />
+    <!--筛选弹窗-->
+    <el-dialog v-model="queryFormVisible" title="筛选" width="28vw" style="top:20vh">
+      <el-form :inline="true" :model="formValue">
+        <el-form-item label="地震位置">
+          <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
+        </el-form-item>
+
+      </el-form>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="filterData()">查询</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 30, 40]" :background="true"
+        layout="total, sizes, prev, pager, next, jumper" :total="total"
+        @size-change="handleSizeChange" @current-change="handleCurrentChange" class="pagination"/>
     <el-dialog v-model="dialogVisible" title="选择需要导出的字段" width="50%">
-      <el-transfer
-          v-model="value"
-          :props="{
-      key: 'value',
-      label: 'desc',
-    }"
-          :data="data"
-          :titles="['可选字段', '已选字段']"
-          filterable
-          filter-placeholder="输入查询字段"
-          :format="{
-        noChecked: '${total}',
-        hasChecked: '${checked}/${total}',
-      }"
-      >
+      <el-transfer v-model="value" :props="{ key: 'value', label: 'desc' }"
+          :data="data" :titles="['可选字段', '已选字段']"
+          filterable filter-placeholder="输入查询字段"
+          :format="{ noChecked: '${total}', hasChecked: '${checked}/${total}' }" >
         <template #right-footer>
           <el-button class="transfer-footer" type="primary" plain @click="dialogVisible = false">取消
           </el-button>
@@ -153,6 +133,11 @@ const requestParams = ref("")
 const eqlistName = ref('')
 const tableNameOptions = ref([])
 const eqlists = ref([])
+
+const queryFormVisible = ref(false)
+const formValue = ref({
+  earthquakeName: '',
+})
 
 onMounted(() => {
   getTableField()
@@ -197,7 +182,9 @@ const widthList = {
   'RedCrossDonations': [200, 200, 200, 200, 200, 200],
 
   'SocialOrder': [200, 200, 200, 200, 200, 200, 200, 200],
-  'PublicOpinion': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200]
+  'PublicOpinion': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200, 200, 200],
+
+  'WorkGroupLog': [200, 200, 200, 200, 200, 150, 200, 200, 200, 200]
 
 }
 const queryParams = ref("")
@@ -240,7 +227,6 @@ const getList = async () => {
     tableData.value = res.data.records
     total.value = res.data.total
   })
-
 }
 
 /**自增序号**/
@@ -476,6 +462,8 @@ const exportStatistics = () => {
         fileName = '宣传舆情治安-宣传舆论统计表.xlsx';
       } else if (flag.value === 'SocialOrder') {
         fileName = '宣传舆情治安-社会秩序统计表.xlsx';
+      } else if (flag.value === 'WorkGroupLog') {
+        fileName = '工作组动态-工作组每日工作动态统计表.xlsx';
       }
 
 
@@ -491,6 +479,14 @@ const exportStatistics = () => {
       dialogVisible.value = false
     })
   }
+}
+
+//筛选过滤
+const openFilter = () => {
+  queryFormVisible.value = !queryFormVisible.value
+}
+const filterData = () => {
+
 }
 
 const multipleTableRef = ref()
@@ -521,7 +517,7 @@ const handleQuery = () => {
     queryEqId: queryEqId.value
   },).then(res => {
     console.log("search----------", res);
-    console.log("queryEqId----------", queryEqId.value,'---------------')
+    console.log("queryEqId----------", queryEqId.value, '---------------')
     // 更新 tableData 以显示搜索结果
     total.value = res.data.total;  // 更新总数
     tableData.value = res.data.records; // 使用更新后的数据进行分页
