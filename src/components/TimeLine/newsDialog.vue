@@ -96,13 +96,13 @@ export default {
 
 <style scoped>
 .detailedNews{
-  width: 43%;
+  width: 178%;
   height: 54%;
   position: absolute;
   padding:15px;
   border-radius: 5px;
-  top:20%;
-  right: 30%;
+  top:17%;
+  right: 100%;
   z-index: 70; /* 更高的层级 */
   background-color: rgb(22, 53, 77,0.9);
   color: #ffffff;
@@ -143,7 +143,7 @@ export default {
   width: 95%;
   height: 1.5%;
   position: absolute;
-  top: 19%;
+  top: 23%;
   left: 1.5%;
   background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
   background-size: 100% 100%;

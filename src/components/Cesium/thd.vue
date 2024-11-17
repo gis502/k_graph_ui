@@ -958,11 +958,6 @@ export default {
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
-      // console.log(this.currentTimePosition,"currentTimePosition updateMapandVariablebeforInit")
-      // let data = {
-      //   ...this.centerPoint,
-      //   drawtype: "center"
-      // }
       this.flyToCenter()
       this.timelinePopupShowCenterStrart = true
       setTimeout(() => {
@@ -1068,7 +1063,7 @@ export default {
       let timeEachPoint = 0
 
       points.forEach((point) => {
-        timeEachPoint = timeEachPoint + 3000 / this.currentSpeed  //在选定倍速下每个点闪烁的秒数
+        timeEachPoint = timeEachPoint + 3000 / this.currentSpeed
         let flytime = (timeEachPoint / 1000 - 1) < 2 ? timeEachPoint : 2
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
@@ -1093,6 +1088,8 @@ export default {
       });
     },
     updatePlotOnce(type) {
+      // this.stopRealFlag=false
+      // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
       // --------------------------点绘制------------------------------
@@ -1145,28 +1142,25 @@ export default {
       // let stoptime = 5000
       if (points.length > 0) {
         if (this.timelinePopupShowCenterStrart) {
-          let centerMark = viewer.entities.getById(this.centerPoint.plotid);
-
-          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)
-          clearInterval(this.intervalIdcolor)
+          clearInterval(this.intervalIdcolor); // 停止颜色切换
           this.timelinePopupShowCenterStrart = false;
           this.timelinePopupVisible = false;
         }
         // let param = type === false ? false : true
         if (type == false) {
-          // console.log("false update")
+          console.log("false update")
           this.stopTimeforAddEntityOneIndex = 3000
           cesiumPlot.drawPoints(points, false, 3000);
         } else if (type == "3") {
-          // console.log("333 update")
+          console.log("333 update")
           this.stopTimeforAddEntityOneIndex = 3000
           cesiumPlot.drawPoints(points, true, 3000);
         } else {
-          // console.log("more update")
+          console.log("more update")
           this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
 
           // this.timeEach
-          // console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
+          console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
           cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
 
           this.flyPointsForOneIndex(points, 0)
@@ -3352,46 +3346,6 @@ export default {
 </script>
 
 <style scoped>
-
-.logo-title {
-  height: 100%;
-  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-.logo-title-content {
-  color: #fff;
-  width: 680px;
-  height: 100%;
-  margin: auto;
-  font-size: 27px;
-  font-weight: 700;
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  text-align: center; /* 多行文本居中 */
-  //background-image: url(@/assets/images/CommandScreen/菜单标题.png);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  overflow: hidden; /* 隐藏滚动条 */
-}
-
-@media screen and (max-width: 1645px) {
-  .logo-title-content {
-    width: 434px !important;
-    padding-top: 3px !important;
-    padding-right: 0px !important;
-    font-size: 23px !important;
-  }
-}
-
-@media screen and (max-width: 1835px) {
-  .logo-title-content {
-    width: 526px !important;
-  }
-}
-
 .menue-left {
   left: 146px;
 }
@@ -3815,11 +3769,6 @@ export default {
   margin: 4px; /* 调整按钮之间的间距 */
 }
 
-.el-button {
-  font-size: 12px; /* 调整按钮字体大小 */
-  padding: 6px 12px; /* 调整按钮内边距 */
-  width: 100%; /* 使按钮宽度自适应 */
-}
 
 /*弹窗样式*/
 .grid-container {
