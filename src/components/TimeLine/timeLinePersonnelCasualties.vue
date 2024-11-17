@@ -134,7 +134,7 @@ export default {
         xAxis: {
           type: "category",
           data: [], // X轴数据
-          boundaryGap: true, // 起点和终点不留白
+          boundaryGap: false, // 起点和终点不留白
           axisLabel: {
             color: "#ffffff", // 白色字体
             fontSize: 10, // 缩小字体大小
