@@ -5,11 +5,10 @@
       <span class="title-time">{{timestampToTime(currentTime)}}</span>
 
       <div class="sub-main">
-
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-            <el-table-column prop="address" label="位置" width="88" align="center"></el-table-column>
+            <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
             <el-table-column prop="死亡" label="死亡" width="60" align="center"
                              :formatter="formatPeople"></el-table-column>
             <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
@@ -372,7 +371,7 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-        'font-size': '14px'
+        'font-size': '12px'
       }
     }
 
@@ -387,7 +386,7 @@ export default {
           'color': '#fff',
           'padding': '1',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '12px'
         }
       } else {
         return {
@@ -398,7 +397,7 @@ export default {
           'color': '#fff',
           'padding': '1',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '12px'
         }
       }
     }
@@ -433,6 +432,7 @@ export default {
   position: absolute;
   top: 19.5%;
   width: 100%;
+
   z-index: 20;
 }
 .pop_header {
@@ -476,6 +476,8 @@ export default {
   background-size: 100% 100%;
 }
 .sub-main {
+  overflow-y: auto !important;
+  overflow-x: hidden;
   margin-top: 10px;
   margin-left: 5px;
 }
@@ -492,6 +494,8 @@ export default {
 
 /* 设置“图层要素”样式 */
 :deep(.collapse ) {
+  overflow-y: auto;
+  overflow-x: hidden;
   font-size: 16px; /* 标题字号 */
   font-weight: bold; /* 标题加粗 */
   color: white; /* 标题文字颜色 */

@@ -110,8 +110,6 @@ export default {
           this.responseNewPanelShow = []
           this.responseHistory = []
           activities.forEach(item => {
-            // if (!this.existsInresponseHistory(item)) {
-            // console.log(item, "notexit")
             let tmpact = {
               ResponseName: item.level,
               state: item.status,
@@ -123,7 +121,6 @@ export default {
         } else {
           this.showNewPanel = true
           this.responseNewPanelShow = []
-          console.log("11111")
           // 到目前为止所有
           activities.forEach(item => {
             if (!this.existsInresponseHistory(item)) {
@@ -138,6 +135,11 @@ export default {
               this.responseNewPanelShow.push(tmpact)
             }
           })
+          this.responseNewPanelShow.sort((a, b) => {
+            return a.time - b.time;
+            // return new Date(a.time) - new Date(b.time);
+          });
+          console.log(this.responseNewPanelShow,"this.responseNewPanelShow")
         }
 
       }

@@ -401,7 +401,6 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer" />-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
            z-index:20; bottom: 100px;
@@ -759,6 +758,10 @@ export default {
       // console.log(this.eqid)
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+      viewer.camera.changed.addEventListener(() => {
+        const cameraHeight = viewer.camera.positionCartographic.height
+        this.updateZoomLevel(cameraHeight)
+      })
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
@@ -2630,7 +2633,6 @@ export default {
       }
     },
     updateMapLayers() {
-      this.zoomLevel = "1"
       // 检查选中的图层中是否包含标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       // 如果包含标绘点图层
