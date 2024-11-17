@@ -81,8 +81,8 @@ export default {
 
 <style scoped>
 .timelineLegend {
-  width: 25%;
-  height: 5%;
+  width: 26vw;
+  height: 4%;
   left: 1%;
   bottom: 9.8%;
   padding: 0px;
@@ -94,7 +94,7 @@ export default {
   transition: width 0.3s ease-in-out, height 0.3s ease-in-out, bottom 0.3s ease-in-out;
   background-color: rgb(22, 53, 77,0.9);
   backdrop-filter: none!important;
-  border: 1px solid #008aff70;
+  background: linear-gradient(90deg, rgba(4,20,34,1) 0%, rgba(14,37,61,0.9) 41%, rgba(26,54,77,0.95) 66%, rgba(42,89,135,0.85) 84%, rgba(44,69,94,0.8) 100%);
 }
 
 .timelineLegend.open {
@@ -114,11 +114,19 @@ export default {
   align-items: center;
   cursor: pointer;
   width: 100%;
+  position: relative;
+  height: 3.8vh;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 .close-items-row {
   display: flex; /* 使用 flex 布局 */
   justify-content: space-between; /* 在两项之间留出空间 */
   width: 100%; /* 确保占满整个容器 */
+  position: relative;
+  left: 4%;
+  margin-top: 2%;
 }
 
 .legend-items-close {
@@ -130,9 +138,6 @@ export default {
   position: relative;
   top:-10%;
   width: 100%;
-  background-color: rgb(22, 53, 77,0.9);
-  backdrop-filter: none!important;
-  border: 1px solid #008aff70;
 }
 
 .close-item {
@@ -143,9 +148,9 @@ export default {
 }
 
 .legend-title {
-  margin-top: 0;
-  margin-bottom: 10px;
-  text-align: left;
+  text-align: center;
+  left: 7%;
+  position: relative;
 }
 
 .legend-title.centered {

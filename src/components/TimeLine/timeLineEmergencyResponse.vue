@@ -1,20 +1,17 @@
 <template>
   <div>
     <div class="pop">
+    <div class="pop_header">
       <h2 class="pop_title">
-        应急响应:
+        应急响应
         <span class="time">{{ recordTime }}</span>
-      </h2>
+      </h2></div>
       <div class="pop_content">
       <p class="pop_txt"><span>{{ this.activity.department }}</span></p>
       <p class="pop_responseName">
         <span>{{ this.activity.ResponseName }}</span>
         <span class="pop_txt">{{ this.activity.state }}</span>
       </p>
-      </div>
-
-      <div class="pop_time_div">
-        <div class="pop_title-underline"></div>
       </div>
     </div>
   </div>
@@ -97,59 +94,31 @@ export default {
 <style scoped>
 .pop {
   position: absolute;
-  width: 25%; /* 调整宽度 */
-  height: 21%;
-  padding: 10px;
-  border-radius: 5px;
-  top:13%;
-  left: 1%;
+  width: 100%; /* 调整宽度 */
+  height: 19%;
   z-index: 20; /* 提高层级 */
-  background-color: rgb(22, 53, 77,0.9);
-  backdrop-filter: none!important;
-  border: 1px solid #008aff70;
 }
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
 .pop_title {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top:-16px;
+  top: 15%;
   position: relative;
+  left: 7%;
 }
-
-.pop_title:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-.pop_title:after {
-  content: "";
-  width: 90%;
-  height: 6px;
-  position: absolute;
-  bottom: -15px;
-  left: 9px;
-  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
 .pop_content {
-  left: 3%;
+  left: 7%;
+  top: -2%;
   position: relative;
-}
-.pop_title-underline {
-  width: 100%;
-  height: 0.5px;
-  background-color: #1f9dca;
-  margin-top: 1px;
 }
 .pop_responseName{
   font-size: 1.1rem;
@@ -165,18 +134,12 @@ export default {
   color: #ffffff;
 }
 
-.pop_time_div{
-  position: absolute;
-  width: 94%;
-  height: 5%;
-  bottom:16%;
-}
-
 .time{
-  margin: 0px;
+  right: 9%;
+  position: absolute;
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
-  color: #ffeb00;
+  color: #ffffff;
 }
 </style>

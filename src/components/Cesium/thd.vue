@@ -160,102 +160,6 @@
       </div>
     </div>
 
-<!--    <div class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">-->
-<!--      <div class="pop-dialog__content" style="height: 100%;">-->
-<!--        <div class="logo-title">-->
-<!--          <div class="logo-title-content" style="padding: 0 0 15px 0;">-->
-<!--            <p>雅安市地震应急<br>信息服务技术支持平台</p></div>-->
-<!--        </div>-->
-<!--        <div class="logo-menu menue-left">-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('dataStats') }"-->
-<!--              title="数据统计"-->
-<!--              @click="toggleComponent('dataStats')"-->
-<!--          >-->
-<!--            <p>数据统计</p>-->
-<!--          </div>-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('eqList') }"-->
-<!--              title="地震列表"-->
-<!--              @click="toggleComponent('eqList')"-->
-<!--          >-->
-<!--            <p>地震列表</p>-->
-<!--          </div>-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('model') }"-->
-<!--              title="三维模型"-->
-<!--              @click="toggleComponent('model')"-->
-<!--          >-->
-<!--            <p>三维模型</p>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <div class="logo-menu menue-right">-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('layerChoose') }"-->
-<!--              title="图层要素"-->
-<!--              @click="toggleComponent('layerChoose')"-->
-<!--          >-->
-<!--            <p>图层要素</p>-->
-<!--          </div>-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"-->
-<!--              title="专题图产出"-->
-<!--              @click="toggleComponent('thematicMapDownload')"-->
-<!--          >-->
-<!--            <p>专题图产出</p>-->
-<!--          </div>-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('reportDownload') }"-->
-<!--              title="报告导出"-->
-<!--              @click="toggleComponent('reportDownload')"-->
-<!--          >-->
-<!--            <p>报告导出</p>-->
-<!--          </div>-->
-<!--          <div-->
-<!--              class="logo-menu-tittle"-->
-<!--              :class="{ 'logo-menu-active': isActive('frontPage') }"-->
-<!--              title="返回首页"-->
-<!--              @click="navigateToFrontPage"-->
-<!--          >-->
-<!--            <p>返回首页</p>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--        <div class="logo-left-weather">-->
-<!--          <div class="logo-left-eqtitle" style="font-size:17px;font-weight: 600;">-->
-<!--            {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日{{-->
-<!--              this.centerPoint.earthquakeName-->
-<!--            }}{{ this.centerPoint.magnitude }}级地震-->
-<!--          </div>-->
-<!--          &lt;!&ndash; 以下是实时获取时间的代码 &ndash;&gt;-->
-<!--          <div class="logo-left-time">-->
-<!--            <div class="logo-time-hour">-->
-<!--            <span class="pop-icon">-->
-<!--              <svg width="20" height="20" viewBox="0 0 48 48">-->
-<!--                <path-->
-<!--                    d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"-->
-<!--                    fill="none" stroke="#BEE1FF" stroke-width="4"></path>-->
-<!--                <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"-->
-<!--                      stroke-linecap="round"></path>-->
-<!--              </svg>-->
-<!--            </span>-->
-<!--              <span id="current-time">&#45;&#45;:&#45;&#45;:&#45;&#45;</span>-->
-<!--            </div>-->
-<!--            <div class="logo-time-year" id="current-date">&#45;&#45;&#45;&#45;</div>-->
-<!--          </div>-->
-
-<!--        </div>-->
-<!--        <div class="logo-right-time">-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
@@ -282,16 +186,6 @@
         :popupData="routerPopupData"
     />
 
-<!--    <div class="top-header">-->
-<!--      <div class="company-name">雅安市地震应急信息服务技术支持平台</div>-->
-<!--      <div class="system-title">矿山企业实时感知预警系统</div>-->
-<!--      <div class="right-info flex">-->
-<!--        <div class="time">-->
-<!--          <span>{{ currentTime }}</span>-->
-<!--          <span> 22222</span>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
     <div class="top-header">
       <div class="system-title" >
         {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
@@ -305,7 +199,7 @@
           title="数据统计"
           @click="toggleComponent('dataStats')"
       >
-        <p>数据统计</p>
+        <p>灾情总览</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -381,6 +275,7 @@
     </div>
     <div class="logo-right-time">
     </div>
+    <div class="left_component"></div>
 
     <!-- 进度条-->
     <div class="bottom">
@@ -430,6 +325,7 @@
 
     <!--    两侧组件-->
     <div v-show="showSidebarComponents">
+      <div class="pop_header">
       <!--   应急响应-左上   -->
       <timeLineEmergencyResponse
           :eqid="eqid"
@@ -447,8 +343,6 @@
             :currentTime="currentTime"
             @addJumpNodes="addJumpNodes"
         />
-
-
       </div>
       <div>
         <div class="personbutton" v-if="PersoonnelCasuality===2">
@@ -466,7 +360,8 @@
           :eqid="eqid"
           :currentTime="currentTime"
           @addJumpNodes="addJumpNodes"
-      />
+      /></div>
+
       <!--  新闻-右上  -->
       <div>
         <news
@@ -490,6 +385,7 @@
       <div>
         <mini-map></mini-map>
       </div>
+      <!--      图例-->
       <timeLineLegend
           :activeComponent="activeComponent"
           @toggleComponent="toggleComponent"
@@ -3525,7 +3421,17 @@ export default {
   top: 0%;
   position: absolute;
 }
-
+/*.left_component {
+  width: 25vw;
+  height: 81vh;
+  //background-color: #205f73a1;
+  z-index: 0;
+  top: 13%;
+  left: 1%;
+  position: absolute;
+  background: rgb(3,16,30);
+  background: linear-gradient(90deg, rgba(3,16,30,1) 0%, rgba(26,54,77,1) 62%, rgba(44,69,94,0) 100%);
+}*/
 .company-name {
   position: absolute;
   width: 17vw;
@@ -3564,9 +3470,15 @@ export default {
   height: 12vh;
   background: url(/src/assets/images/CommandScreen/导航栏底部.png) 47% 116% no-repeat;
 }
-
-
-
+.pop_header {
+  top: 13%;
+  left: 1%;
+  height: 80.8vh;
+  width: 26%;
+  position: absolute;
+  background: rgb(4,20,34);
+  background: linear-gradient(90deg, rgba(4,20,34,1) 0%, rgba(14,37,61,0.9) 41%, rgba(26,54,77,0.75) 66%, rgba(42,89,135,0.45) 84%, rgba(44,69,94,0) 100%);
+}
 
 .el-tree {
   background-color: rgba(255, 255, 255, 0);
@@ -3829,11 +3741,7 @@ export default {
   margin: 4px; /* 调整按钮之间的间距 */
 }
 
-.el-button {
-  font-size: 12px; /* 调整按钮字体大小 */
-  padding: 6px 12px; /* 调整按钮内边距 */
-  width: 100%; /* 使按钮宽度自适应 */
-}
+
 
 /*弹窗样式*/
 .grid-container {
@@ -4060,15 +3968,19 @@ export default {
 .personbutton {
   position: absolute;
   z-index: 60;
-  top: 36%;
-  left: 21.5%;
+  top: 19.5%;
+  left: 25%;
+}
+.el-button {
+  font-size: 6px !important; /* 调整按钮字体大小 */
+  width: 60%; /* 使按钮宽度自适应 */
+  height: 2vh;
 }
 :deep(.el-button--primary){
-  background-color: transparent; /* 无背景颜色填充 */
-  border-color: #ffffff; /* 白色边框 */
+  border-color: #fff42e; /* 白色边框 */
   background-color: #1a3749;
-  color: #ffffff; /* 白色字体 */
-  font-size:16px;
+  color: #ffeb02; /* 白色字体 */
+  font-size:13px;
 }
 
 :deep(.el-button--primary):hover {

@@ -1,24 +1,22 @@
 <template>
-    <div class="rescue_team">
-      <h2 class="title">救援出队:
-        <span class="time">{{ this.recordtime }}</span>
-      </h2>
-      <div class="sub-main">
-        <ul class="sub-ul">
-          <li
-              :class="[i === 0 || i === 1 ? 'high' : '']"
-              v-for="item in showRescueTeam"
-              :key="item.recordtime"
-          >
-            <div class="sub-content">
-              <p class="rescue_team_p">{{ showContent(item) }}</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <div class="rescue_team_time_div">
-        <div class="title-underline"></div>
+    <div class="pop">
+      <div class="pop_header">
+        <h2 class="pop_title">救援出队
+          <span class="time">{{ this.recordtime }}</span>
+        </h2>
+        <div class="sub-main">
+          <ul class="sub-ul">
+            <li
+                :class="[i === 0 || i === 1 ? 'high' : '']"
+                v-for="item in showRescueTeam"
+                :key="item.recordtime"
+            >
+              <div class="sub-content">
+                <p class="pop_p">{{ showContent(item) }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 </template>
@@ -137,66 +135,31 @@ export default {
 
 
 <style scoped>
-.rescue_team {
+.pop {
   position: absolute;
   top: 56.4%;
-  width: 25%; /* 调整宽度 */
   height: 28%;
-  padding: 10px;
-  border-radius: 5px;
-  left: 1%;
+  width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
-  background-color: rgb(22, 53, 77,0.9);
-  backdrop-filter: none!important;
-  border: 1px solid #008aff70;
 }
-
-.title {
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.pop_title {
   font-family: 'myFirstFont', sans-serif;
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top:-6%;
+  top: 15%;
   position: relative;
+  left: 7%;
 }
-.title:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-.title:after {
-  content: "";
-  width: 90%;
-  height: 6px;
-  position: absolute;
-  bottom: -15px;
-  left: 9px;
-  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.title-underline {
-  width: 100%;
-  height: 0.5px;
-  background-color: #1f9dca;
-  margin-top: 1px;
-}
-
-.rescue_team_time_div {
-  position: absolute;
-  width: 94%;
-  height: 19%;
-  bottom: -3%;
-}
-.rescue_team_p {
+.pop_p {
   margin-top: 1em;
   margin: 1px;
   font-size: 0.9rem;
@@ -205,18 +168,18 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
-
 .time {
-  margin: 0px;
+  right: 9%;
+  position: absolute;
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
-  color: #ffeb00;
+  color: #ffffff;
 }
 :deep(.sub-main) {
   margin-top: -16px;
-  top: 3px;
-  max-height: 65%;
+  top: 74%;
+  max-height: 21vh;
   overflow-y: auto;
   padding: 0px;
   left: 3%;
