@@ -86,7 +86,15 @@
     <el-dialog v-model="queryFormVisible" title="筛选" width="28vw" style="top:20vh">
       <el-form :inline="true" :model="formValue">
         <el-form-item label="震区（县/区）">
-          <el-input v-model="formValue.earthquakeAreaName" style="width: 23vw;" placeholder="行政区划" clearable/>
+          <el-select v-model="formValue.earthquakeAreaName" clearable placeholder="请选择" style="width: 22vw;">
+            <el-option
+                v-for="item in areaName"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
+          </el-select>
+
         </el-form-item>
         <el-form-item label="统计截止时间">
           <el-date-picker
@@ -148,6 +156,17 @@ const formValue = ref({
   earthquakeAreaName: '',
   occurrenceTime: '',
 });
+const areaName = [
+  { label: '雨城区' , value: '雨城区' },
+  { label: '名山区' , value: '名山区'},
+  { label: '荥经县' , value: '荥经县'},
+  { label: '汉源县' , value: '汉源县'},
+  { label: '石棉县' , value: '石棉县'},
+  { label: '天全县' , value: '天全县'},
+  { label: '芦山县' , value: '芦山县'},
+  { label: '宝兴县' , value: '宝兴县'}
+];
+
 const shortcuts = [
   {
     text: '近一周',
@@ -554,7 +573,7 @@ const filterData = () => {
 
     formValue.value.occurrenceTime = `${startDate}至${endDate}`;
     // formValue.occurrenceTime = [startDate, endDate];
-    console.log(formValue.value,'--------------')
+    console.log(formValue.value, '--------------')
   }
 
   // 发送搜索请求
