@@ -80,7 +80,7 @@
         </el-form-item>
 
         <!-- 拍摄时间 -->
-        <el-form-item label="拍摄时间" prop="shootingTime"
+        <el-form-item label="拍摄时间" prop="shootingTime">
           <el-date-picker
               v-model="dialogContent.shootingTime"
               type="datetime"
@@ -144,7 +144,7 @@
         </el-form-item>
 
         <!-- 拍摄时间 -->
-        <el-form-item label="添加时间" prop="shootingTime">
+        <el-form-item label="拍摄时间" prop="shootingTime">
           <el-date-picker
               v-model="dialogContent.shootingTime"
               type="datetime"
@@ -327,16 +327,18 @@ export default {
 
         this.tableData = res.data.map((item, index) => {
           let formattedCreateTime = '';
-          let formattedShootTime = '';
+
 
           // 格式化 createTime 为 yyyy-MM-dd HH:mm:ss 格式
           if (item.createTime) {
             const createTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
             formattedCreateTime = createTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
           }
-          if (item.shTime) {
-            const createTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
-            formattedCreateTime = createTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
+
+          let formattedShootingTime = '';
+          if (item.shootingTime) {
+            const shootingTime = new Date(item.shootingTime); // 将 createTime 转为 Date 对象
+            formattedShootingTime = shootingTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
           }
 
           return {
@@ -347,7 +349,7 @@ export default {
             path: item.path,
             angle: item.angle,
             createTime: formattedCreateTime,  // 使用格式化后的 createTime
-
+            shootingTime: formattedShootingTime,
           };
         });
 
@@ -381,6 +383,11 @@ export default {
                 const addTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
                 formattedCreateTime = addTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 YYYY-MM-DD HH:mm:ss
               }
+              let formattedShootingTime = '';
+              if (item.shootingTime) {
+                const shootingTime = new Date(item.shootingTime); // 将 createTime 转为 Date 对象
+                formattedShootingTime = shootingTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 YYYY-MM-DD HH:mm:ss
+              }
 
               return {
                 serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
@@ -390,6 +397,7 @@ export default {
                 path: item.path,
                 angle: item.angle,
                 createTime: formattedCreateTime,  // 格式化日期
+                shootingTime: formattedShootingTime,
               };
             });
 
@@ -413,6 +421,7 @@ export default {
       return {
         name: '',
         createTime: '',
+        shootingTime:'',
         path: '',
         height: '',
         angle: '',
@@ -427,6 +436,7 @@ export default {
         this.dialogContent = {
           name: '',
           createTime: new Date().toISOString(),
+          shootingTime: new Date().toISOString(),
           path: '',
           height: '',
           angle: '',
@@ -437,6 +447,7 @@ export default {
           name: row.name,
           path: row.path,
           createTime: new Date(row.createTime).toISOString(),
+          shootingTime: new Date(row.shootingTime).toISOString(),
           height: row.height,
           angle: row.angle,
           uuid: row.uuid
@@ -481,6 +492,7 @@ export default {
             path: this.dialogContent.path,
             // 如果 createTime 是一个 Date 对象，转换为 ISO 字符串格式
             createTime: this.dialogContent.createTime ? new Date(this.dialogContent.createTime).toISOString() : null,
+            shootingTime: this.dialogContent.shootingTime ? new Date(this.dialogContent.shootingTime).toISOString() : null,
             uuid: this.dialogContent.uuid,
           };
 
