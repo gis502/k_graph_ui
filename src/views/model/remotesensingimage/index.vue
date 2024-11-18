@@ -122,12 +122,12 @@
           <el-input v-model="dialogContent.modelName" style="width: 23vw;" placeholder="正射影像名称" clearable />
         </el-form-item>
 
-        <el-form-item label="遥感影像高度" prop="modelSize">
+        <el-form-item label="遥感影像高度" prop="modelHeight">
           <el-input
               type="number"
-              v-model="dialogContent.modelSize"
+              v-model="dialogContent.modelHeight"
               style="width: 23vw;"
-              placeholder="请输入模型大小"
+              placeholder="请输入高度"
               clearable
           />
         </el-form-item>
@@ -212,11 +212,11 @@ export default {
       dialogContent: {
         name: '',
         createTime: '',
+        shootingTime:'',
         path: '',
         height: '',
         angle: '',
-        uuid: '',
-        shootingTime:''
+        uuid: ''
       },
       rules: {
         name: [
@@ -373,7 +373,7 @@ export default {
       // 调用同一个方法进行查询
       queryRemoteSensingData(searchKey || '')
           .then(res => {
-            console.log("获取的数据:", res); // 打印获取的数据
+            console.log("获取的数据111111111111111111111111111111111111111111111111111:", res); // 打印获取的数据
 
             // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
             this.tableData = res.data.map((item, index) => {
