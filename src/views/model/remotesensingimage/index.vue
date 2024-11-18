@@ -73,6 +73,7 @@
           <el-date-picker
               v-model="dialogContent.createTime"
               type="datetime"
+              value-format="YYYY-MM-DDTHH:mm:ss"
               placeholder="选择日期时间"
               size="large"
               style="width: 100%;"
@@ -85,6 +86,7 @@
               v-model="dialogContent.shootingTime"
               type="datetime"
               placeholder="选择日期时间"
+              value-format="YYYY-MM-DDTHH:mm:ss"
               size="large"
               style="width: 100%;"
           ></el-date-picker>

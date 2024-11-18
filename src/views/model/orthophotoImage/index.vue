@@ -337,7 +337,8 @@ export default {
         // 隐藏筛选表单
         this.queryFormVisible = false;
         // 清空表单字段
-        this.clearFormValue();
+        // this.clearFormValue();
+        this.clearFormValue(this.formData || {});
       }).catch(error => {
         console.error("查询失败:", error);
       });
@@ -518,10 +519,19 @@ export default {
     },
 
     // 清除formValue中的数据
-    clearFormValue() {
-      Object.keys(this.formValue).forEach(key => {
-        this.formValue[key] = ''
-      });
+    // clearFormValue() {
+    //   Object.keys(this.formValue).forEach(key => {
+    //     this.formValue[key] = ''
+    //   });
+    clearFormValue(formData) {
+      // 判断 formData 是否是一个对象，避免 null 或 undefined
+      if (formData && typeof formData === 'object') {
+        Object.keys(formData).forEach(key => {
+          formData[key] = '';  // 清空字段的值
+        });
+      } else {
+        console.error('传入的 formData 无效:', formData);
+      }
     },
     // 关闭dialog对话框 筛选
     Cancel() {
