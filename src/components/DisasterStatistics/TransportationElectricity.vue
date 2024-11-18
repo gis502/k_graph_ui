@@ -2,16 +2,16 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">当前累计中断情况<br>
-        <CumulativeInterruption :eqid="eqid"/>
+        <CumulativeInterruption :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">电力设施损毁及抢修情况<br>
-        <PowerSupply :eqid="eqid"/>
+        <PowerSupply :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">道路交通损毁及抢修情况与交通管控情况<br/>
-        <RoadDamage :eqid="eqid"/>
+        <RoadDamage :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">通信设施损毁及抢修情况<br/>
-        <TrafficSituation :eqid="eqid"/>
+        <TrafficSituation :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
     </div>
   </div>
@@ -22,18 +22,29 @@ import PowerSupply from "@/components/DisasterStatistics/PowerSupply.vue";
 import CumulativeInterruption from "@/components/DisasterStatistics/CumulativeInterruption.vue"
 import RoadDamage from "@/components/DisasterStatistics/RoadDamage.vue";
 import TrafficSituation from "@/components/DisasterStatistics/TrafficSituation.vue";
-import { ref, watch } from "vue";
+import {defineProps, ref, watch} from "vue";
 
+// 响应式变量
+const eqid = ref('');
+const userInputTime = ref('')
 // 获取父组件的 eqid
 const props = defineProps({
-  newEqId: {
+  newEqId:{
     type: String,
+    required: true
+  },
+  userInput:{
+    type:String,
     required: true
   }
 });
 
-// 响应式变量
-const eqid = ref('');
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+})
+
+
 // 监听 props 的变化
 watch(() => props.newEqId, (newValue) => {
   eqid.value = newValue;

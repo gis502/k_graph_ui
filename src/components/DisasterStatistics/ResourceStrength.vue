@@ -2,32 +2,40 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">救援物资情况<br>
-        <ReliefSupplies :eqid="eqid"/>
+        <ReliefSupplies :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">大型、特种救援装备情况<br>
-        <RescueEquipment :eqid="eqid"/>
+        <RescueEquipment :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">救援力量情况<br/>
-        <RescueTeams :eqid="eqid"/>
+        <RescueTeams :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import {defineProps, ref, watch} from "vue";
 import ReliefSupplies from "./ReliefSupplies";
 import RescueEquipment from "./RescueEquipment";
 import RescueTeams from "./RescueTeams";
 
+const userInputTime = ref('')
 // 获取父组件的 eqid
 const props = defineProps({
-  newEqId: {
+  newEqId:{
     type: String,
+    required: true
+  },
+  userInput:{
+    type:String,
     required: true
   }
 });
 
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+})
 // 响应式变量
 const eqid = ref('');
 // 监听 props 的变化

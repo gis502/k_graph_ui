@@ -14,7 +14,31 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  userInput:{
+    type:String,
+    required: true
+  }
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+  const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+};
+
+watch(()=>props.userInput,(newValue) => {
+  console.log("ResettlementGraph接收到了",store.globalEqId,"最新的时间",newValue)
+  // 后端操作：
+
+})
+
+// -------------------------------------------------------------------------------------------------
 
 const emergencyShelters = ref(0);
 const temporaryShelter = ref(0);
@@ -152,6 +176,8 @@ const updateChartData = (data) => {
       return new Date(max) >= new Date(item.reportingDeadline) ? max : item.reportingDeadline
     },data[0].reportingDeadline)
 
+    reportingDeadline.value = formatDateChina(reportingDeadline.value)
+
     const option = generateChartOptions();
     chartInstance.setOption(option); // 更新图表
   }
@@ -159,11 +185,11 @@ const updateChartData = (data) => {
 
 watch(() => props.eqid, async (newValue) => {
   const res = await getTotal(newValue);
-  console.log("sssssssssssssssssssssssssss",res)
   updateChartData(res);
 });
 
 const store = useGlobalStore();
+
 setTimeout(()=>{
   getTotal(store.globalEqId).then(res =>{
     updateChartData(res);
@@ -180,9 +206,11 @@ onBeforeUnmount(() => {
     chartInstance.dispose();
   }
 });
+
 </script>
 
 <style scoped>
+
 #chart {
   display: block;
   margin: 0 auto;

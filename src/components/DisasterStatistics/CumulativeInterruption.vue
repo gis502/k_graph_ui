@@ -8,17 +8,46 @@ import {onBeforeUnmount, onMounted, ref, watch,defineProps} from 'vue';
 import * as echarts from 'echarts';
 import {getVillages} from "../../api/system/ZhongDuanVillage";
 import {useGlobalStore} from "../../store";
-const props = defineProps({
-  eqid: {
-    type: String,
-    required: true,
-  },
-});
 const eqid = ref('');
 const latestTime = ref(''); // 最新时间
 const currentlyBlackedOutVillages = ref('') // 供电
 const currentInterruptedVillages  = ref('') // 通信
 const roadBlockVillage = ref('') // 道路
+const props = defineProps({
+  eqid:{
+    type: String,
+    required: true
+  },
+  userInput:{
+    type:String,
+    required: true
+  }
+});
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+  console.log("CumulativeInterruption",userInputTime.value,store.globalEqId)
+  // 后端逻辑处理：
+
+})
+// --------------------------------------------------------------------------------------------------------
+
 const chart = ref(null);
 const echartData = ref([
   {
@@ -159,6 +188,7 @@ function update(data){
     return dateString.split('T')[0] + ' ' + dateString.split('T')[1].split('.')[0];
   };
   latestTime.value = formatDateTime(data[0].insertTime);
+  latestTime.value = formatDateChina(latestTime.value)
   currentInterruptedVillages.value = data[0].currentInterruptedVillages;
   currentlyBlackedOutVillages.value = data[0].currentlyBlackedOutVillages;
   roadBlockVillage.value = data[0].roadBlockVillage;

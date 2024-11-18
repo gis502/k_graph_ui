@@ -32,10 +32,16 @@
           />
         </el-select>
       </el-col>
+      <el-col :span="1.5">
+        <el-input  style="width: 240px; height: 40px" placeholder="请输入查询时间" v-model="inputValue"/>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="primary" @click="handleClick">查询</el-button>
+      </el-col>
       <!-- 动态组件显示 -->
     </el-row>
     <div class="container-center">
-      <component :is="selectedComponent" :newEqId="newEqId" />
+      <component :is="selectedComponent" :newEqId="newEqId" :userInput="userInput"/>
     </div>
   </div>
 </template>
@@ -53,6 +59,20 @@ import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster
 import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
 import MaterialDonation from "@/components/DisasterStatistics/MaterialDonation.vue"
 import PublicSentiment from "@/components/DisasterStatistics/PublicSentiment.vue"
+
+
+// 查询时间功能
+const inputValue = ref('')
+const userInput = ref('')
+
+const handleClick = () => {
+  userInput.value = inputValue.value;
+  inputValue.value = '';
+}
+
+
+// -------------------------------------------------------------------------------------------------------
+
 
 // 选项数据
 const options = [
@@ -127,7 +147,6 @@ import {useGlobalStore} from "../../../store";
 const newEqId = computed(() => eqlistName.value);
 const store = useGlobalStore();
 watch([() => eqlistName.value,() => selectedComponentKey.value], (newValue) => {
-  console.log(newValue,123)
   store.setGlobalVariable(newValue[0]); // 更新全局的eqid
   store.setGlobalChange(newValue[1]); // 更新全局的模块变化标识
 });
@@ -259,5 +278,12 @@ const clearSelection = () => {
   overflow-y: auto;
 }
 
+.el-button{
+  text-align: center;
+  line-height: 40px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 1000;
+}
 </style>
 

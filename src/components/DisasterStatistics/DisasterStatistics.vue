@@ -15,12 +15,40 @@ const store = useGlobalStore();
 const props = defineProps({
   eqid: {
     type: String,
-    required: false,
+    required: true,
   },
+  userInput:{
+    type:String,
+    required: true
+  }
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if (dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+
+watch(()=>props.userInput,(newValue) => {
+  console.log("DisasterStatistics接收到了",store.globalEqId,"最新的时间",newValue)
+  // 后端操作：
+
+})
+
+// -------------------------------------------------------------------------------------------------
 
 // 这行代码里面的赋值已经不再是neweqid的默认值，这里的作用是为了一开始watch没有监听到eqid值变化的时候给的值
 // 防止因为没有eqid的传值而报错，删除或者更换为空值或者其他非正常eqid值都会报错
+
 const neweqid = ref('');
 neweqid.value = store.globalEqId
 
@@ -50,6 +78,8 @@ const updateData = (data) =>{
       }
     }
   });
+
+  latest_time.value = formatDateChina(latest_time.value)
 
   echartData.value = [
     { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},
