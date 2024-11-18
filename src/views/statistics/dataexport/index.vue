@@ -19,13 +19,12 @@
             placeholder="请输入信息"
             clearable
             style="width: 200px"
-            @keyup.enter="handleQuery"
-        />
+            @keyup.enter="handleQuery"/>
         <el-button type="primary" icon="Search" @click="handleQuery()">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery()">重置</el-button>
       </el-form-item>
       <el-col :span="1.5">
-        <el-button type="success" plain icon="el-icon-scissors" class="button" @click="openFilter()">筛选
+        <el-button type="success" plain icon="Search" class="button" @click="openFilter()">筛选数据
         </el-button>
       </el-col>
       <el-col :span="1.5">
@@ -74,8 +73,8 @@
     </el-row>
 
     <el-table table-layout="fixed" height="510px" fit ref="multipleTableRef" :data="tableData"
-        class="table tableMove" :row-key="getRowKey" :row-style="{ height: '6.3vh' }"
-        @selection-change="handleSelectionChange">
+              class="table tableMove" :row-key="getRowKey" :row-style="{ height: '6.3vh' }"
+              @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" align="center" :reserve-selection="true"/>
       <el-table-column label="序号" width="50" align="center" :formatter="typeIndex"/>
       <el-table-column
@@ -86,12 +85,22 @@
     <!--筛选弹窗-->
     <el-dialog v-model="queryFormVisible" title="筛选" width="28vw" style="top:20vh">
       <el-form :inline="true" :model="formValue">
-        <el-form-item label="地震位置">
-          <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
+        <el-form-item label="震区（县/区）">
+          <el-input v-model="formValue.earthquakeAreaName" style="width: 23vw;" placeholder="行政区划" clearable/>
         </el-form-item>
-
+        <el-form-item label="统计截止时间">
+          <el-date-picker
+              v-model="formValue.occurrenceTime"
+              type="datetimerange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              :shortcuts="shortcuts"
+              style="width: 23vw;"
+              value-format="x"/>
+        </el-form-item>
       </el-form>
-
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="filterData()">查询</el-button>
@@ -100,14 +109,14 @@
     </el-dialog>
 
     <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 30, 40]" :background="true"
-        layout="total, sizes, prev, pager, next, jumper" :total="total"
-        @size-change="handleSizeChange" @current-change="handleCurrentChange" class="pagination"/>
+                   :page-sizes="[10, 20, 30, 40]" :background="true"
+                   layout="total, sizes, prev, pager, next, jumper" :total="total"
+                   @size-change="handleSizeChange" @current-change="handleCurrentChange" class="pagination"/>
     <el-dialog v-model="dialogVisible" title="选择需要导出的字段" width="50%">
       <el-transfer v-model="value" :props="{ key: 'value', label: 'desc' }"
-          :data="data" :titles="['可选字段', '已选字段']"
-          filterable filter-placeholder="输入查询字段"
-          :format="{ noChecked: '${total}', hasChecked: '${checked}/${total}' }" >
+                   :data="data" :titles="['可选字段', '已选字段']"
+                   filterable filter-placeholder="输入查询字段"
+                   :format="{ noChecked: '${total}', hasChecked: '${checked}/${total}' }">
         <template #right-footer>
           <el-button class="transfer-footer" type="primary" plain @click="dialogVisible = false">取消
           </el-button>
@@ -136,8 +145,47 @@ const eqlists = ref([])
 
 const queryFormVisible = ref(false)
 const formValue = ref({
-  earthquakeName: '',
-})
+  earthquakeAreaName: '',
+  occurrenceTime: '',
+});
+const shortcuts = [
+  {
+    text: '近一周',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+      return [start, end];
+    },
+  },
+  {
+    text: '近一个月',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+      return [start, end];
+    },
+  },
+  {
+    text: '近三个月',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+      return [start, end];
+    },
+  },
+  {
+    text: '近一年',
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 360);
+      return [start, end];
+    },
+  },
+];
 
 onMounted(() => {
   getTableField()
@@ -481,14 +529,6 @@ const exportStatistics = () => {
   }
 }
 
-//筛选过滤
-const openFilter = () => {
-  queryFormVisible.value = !queryFormVisible.value
-}
-const filterData = () => {
-
-}
-
 const multipleTableRef = ref()
 const multipleSelection = ref([])
 
@@ -497,6 +537,46 @@ const handleSelectionChange = (val) => {
 }
 const clearSelection = () => {
   multipleTableRef.value?.clearSelection()
+}
+
+//筛选过滤
+const openFilter = () => {
+  formValue.value.occurrenceTime = ''
+  formValue.value.earthquakeAreaName = ''
+  queryFormVisible.value = !queryFormVisible.value
+}
+const filterData = () => {
+
+  if (formValue.value.occurrenceTime !== '') {
+    const [startTime, endTime] = formValue.value.occurrenceTime;
+    const startDate = new Date(startTime).toISOString().slice(0, 19);
+    const endDate = new Date(endTime).toISOString().slice(0, 19);
+
+    formValue.value.occurrenceTime = `${startDate}至${endDate}`;
+    // formValue.occurrenceTime = [startDate, endDate];
+    console.log(formValue.value,'--------------')
+  }
+
+  // 发送搜索请求
+  searchData({
+    currentPage: currentPage.value,
+    pageSize: pageSize.value,
+    formVO: formValue.value,
+    flag: flag.value,
+    queryEqId: queryEqId.value,
+    condition: 2  // 筛选条件
+  },).then(res => {
+    console.log("filter----------", res);
+    console.log("queryEqId----------", queryEqId.value, '---------------')
+    // 更新 tableData 以显示搜索结果
+    total.value = res.data.total;  // 更新总数
+    tableData.value = res.data.records; // 使用更新后的数据进行分页
+  })
+      .catch(error => {
+        console.error("搜索时出现错误:", error);
+      });
+  queryFormVisible.value = !queryFormVisible.value
+
 }
 
 // 搜索功能
@@ -514,7 +594,8 @@ const handleQuery = () => {
     pageSize: pageSize.value,
     requestParams: searchKeys,
     flag: flag.value,
-    queryEqId: queryEqId.value
+    queryEqId: queryEqId.value,
+    condition: 1  // 搜索条件
   },).then(res => {
     console.log("search----------", res);
     console.log("queryEqId----------", queryEqId.value, '---------------')
@@ -525,7 +606,6 @@ const handleQuery = () => {
       .catch(error => {
         console.error("搜索时出现错误:", error);
       });
-
 }
 const resetQuery = () => {
   queryParams.value = ""
