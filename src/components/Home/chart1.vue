@@ -420,9 +420,10 @@ const initChart = async () => {
     {
       title: {
         text: '四川省近十年历史地震震级',
+        left: '5%',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
@@ -452,16 +453,16 @@ const initChart = async () => {
       legend: {
         data: ['<3', '3-4.5', '4.5-6', '≥6'],
         textStyle: {
-          fontSize: 12,
+          fontSize: 10,
           color: 'rgb(0,253,255,0.6)'
         },
-        top: '5%',
-        right: '5%'
+        top: '7%',
+        right: '0%'
       },
       grid: {
-        bottom: 50,
-        left: 70,
-        right: 50,
+        bottom: 65,
+        left: 60,
+        right: 25,
       },
       xAxis: {
         axisLine: {
@@ -701,31 +702,32 @@ const initChart = async () => {
     {
       title:{
         text: '四川省近三年历史地震震级',
+        left: '5%',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
       },
       grid: {
-        top: 100,
-        left: 20,
-        right: 20,
-        bottom: 20,
+        // top: 100,
+        left: 30,
+        right: 25,
+        bottom: 40,
         containLabel: true,
       },
       legend: {
         selectedMode: false,
         icon: "rect",
         itemWidth: 15,
-        itemHeight: 10,
-        right: 0,
-        top: 50,
+        itemHeight: 13,
+        right: '0%',
+        top: '7%',
         itemGap: 20,
         textStyle: {
           color: "#BCE6FF",
-          fontSize: 15
+          fontSize: 10
         },
       },
       tooltip: {
@@ -803,9 +805,10 @@ const initChart = async () => {
     {
       title: {
         text: '四川省近十年历史地震震级',
+        left: '5%',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
@@ -835,16 +838,16 @@ const initChart = async () => {
       legend: {
         data: ['<3', '3-4.5', '4.5-6', '≥6'],
         textStyle: {
-          fontSize: 12,
+          fontSize: 10,
           color: 'rgb(0,253,255,0.6)'
         },
-        top: '5%',
-        right: '5%'
+        top: '7%',
+        right: '0%'
       },
       grid: {
-        bottom: 50,
-        left: 70,
-        right: 50,
+        bottom: 65,
+        left: 60,
+        right: 25,
       },
       xAxis: {
         axisLine: {
@@ -1084,31 +1087,32 @@ const initChart = async () => {
     {
       title:{
         text: '四川省近三年历史地震震级',
+        left: '5%',
         textStyle: {
           color: '#15faff',
-          fontSize: 20,
+          fontSize: 16,
           fontWeight: 'bold',
           textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
         },
       },
       grid: {
-        top: 100,
-        left: 20,
-        right: 20,
-        bottom: 20,
+        // top: 100,
+        left: 30,
+        right: 25,
+        bottom: 40,
         containLabel: true,
       },
       legend: {
         selectedMode: false,
         icon: "rect",
         itemWidth: 15,
-        itemHeight: 10,
-        right: 0,
-        top: 50,
+        itemHeight: 13,
+        right: '0%',
+        top: '7%',
         itemGap: 20,
         textStyle: {
           color: "#BCE6FF",
-          fontSize: 15
+          fontSize: 10
         },
       },
       tooltip: {

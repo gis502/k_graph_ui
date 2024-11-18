@@ -1,6 +1,7 @@
 <template>
-    <div class="rescue_team">
-      <h2 class="title">救援出队:
+  <div class="pop">
+    <div class="pop_header">
+      <h2 class="pop_title">救援出队
         <span class="time">{{ this.recordtime }}</span>
       </h2>
       <div class="sub-main">
@@ -11,21 +12,18 @@
               :key="item.recordtime"
           >
             <div class="sub-content">
-              <p class="rescue_team_p">{{ showContent(item) }}</p>
+              <p class="pop_p">{{ showContent(item) }}</p>
             </div>
           </li>
         </ul>
       </div>
-
-      <div class="rescue_team_time_div">
-        <div class="title-underline"></div>
-      </div>
     </div>
+  </div>
 </template>
 
 <script>
 import timeLineRescueTeam from "@/assets/json/TimeLine/timeLineRescueTeam";
-import { getRescueTeam } from "../../api/system/timeLine.js";
+import {getRescueTeam} from "../../api/system/timeLine.js";
 
 export default {
   data() {
@@ -50,7 +48,7 @@ export default {
   },
   methods: {
     init() {
-      getRescueTeam({ eqid: this.eqid }).then(res => {
+      getRescueTeam({eqid: this.eqid}).then(res => {
         console.log("res:救援队伍", res);
         this.RescueTeamInfo = res;
         this.rescue_team_update(this.currentTime);
@@ -137,67 +135,34 @@ export default {
 
 
 <style scoped>
-.rescue_team {
+.pop {
   position: absolute;
   top: 56.4%;
-  width: 25%; /* 调整宽度 */
   height: 28%;
-  padding: 10px;
-  border-radius: 5px;
-  left: 1%;
+  width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
-  background-color: rgb(22, 53, 77,0.9);
-  backdrop-filter: none!important;
-  border: 1px solid #008aff70;
 }
 
-.title {
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.pop_title {
   font-family: 'myFirstFont', sans-serif;
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top:-6%;
+  top: 26%;
   position: relative;
-}
-.title:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  left: 7%;
 }
 
-.title:after {
-  content: "";
-  width: 90%;
-  height: 6px;
-  position: absolute;
-  bottom: -15px;
-  left: 9px;
-  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.title-underline {
-  width: 100%;
-  height: 0.5px;
-  background-color: #1f9dca;
-  margin-top: 1px;
-}
-
-.rescue_team_time_div {
-  position: absolute;
-  width: 94%;
-  height: 19%;
-  bottom: -3%;
-}
-.rescue_team_p {
-  margin-top: 1em;
+.pop_p {
   margin: 1px;
   font-size: 0.9rem;
   line-height: 1.2rem;
@@ -207,26 +172,31 @@ export default {
 }
 
 .time {
-  margin: 0px;
+  right: 9%;
+  position: absolute;
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
-  color: #ffeb00;
+  color: #ffffff;
 }
+
 :deep(.sub-main) {
   margin-top: -16px;
-  top: 3px;
-  max-height: 65%;
+  top: 74%;
+  max-height: 21vh;
   overflow-y: auto;
   padding: 0px;
-  left: 3%;
+  left: 2%;
   position: relative;
+  width: 97%;
 }
+
 /* 整个滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;               /* 滚动条的宽度 */
-  height: 12px;              /* 滚动条的高度，对水平滚动条有效 */
+  width: 6px; /* 滚动条的宽度 */
+  height: 12px; /* 滚动条的高度，对水平滚动条有效 */
 }
+
 /* 滚动条轨道 */
 ::-webkit-scrollbar-track {
   border-radius: 10px;
@@ -239,6 +209,7 @@ export default {
   background-color: #1f9dca; /* 滑块的背景颜色 */
   border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
+
 .sub-ul {
   padding: 0;
   margin: 0;
@@ -247,6 +218,7 @@ export default {
   overflow-y: auto; /* 当内容超出时显示垂直滚动条 */
   list-style-type: none; /* 去除列表项默认的项目符号 */
 }
+
 .sub-ul li {
   display: flex;
   align-items: center; /* Center items vertically */
@@ -254,6 +226,7 @@ export default {
   /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
   padding: 0; /* Optional: Add padding for better spacing */
 }
+
 .sub-content {
   padding: 0;
   margin: 0;

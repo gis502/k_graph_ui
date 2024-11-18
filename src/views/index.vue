@@ -17,65 +17,71 @@
           <e-map :eq-data="EqAll"/>
         </div>
 
-        <div class="left-body">
-          <div class="left-top public-bg" ref="leftTop">
-            <!--              <div class="public-title">最新地震</div>-->
-            <img src="@/assets/latestEarthquake.png" alt="最新地震" style="width: 127%; height: auto;">
-            <new-info :last-eq="lastEqData"/>
-          </div>
-
-          <div class="left-con public-bg" ref="leftCon">
-            <!--              <div class="public-title">最新地震受灾人员统计</div>-->
-            <img src="@/assets/disasterStats.png" alt="最新地震受灾人员统计" style="width: 125%; height: auto;">
-            <chart3 :last-eq="lastEqData"/>
-          </div>
-
-          <div class="left-bottom public-bg" ref="leftBottom">
-            <chart2 :last-eq="lastEqData"/>
-          </div>
-        </div>
-
-        <div class="right-body">
-          <div class="right-top public-bg" ref="rightTop">
-            <div style="position: relative; width: 100%; height: auto;">
-              <!-- 图片 -->
-              <img
-                  src="@/assets/earthquakeList.png"
-                  alt="地震列表"
-                  style="width: 90%; height: auto; display: block;"
-              >
-
-              <!-- 输入框和按钮 -->
-              <div
-                  style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1;"
-              >
-                <el-input
-                    size="small"
-                    style="width: 7vw; font-size: 16px;"
-                    v-model="requestParams"
-                    @keyup.enter="query()"
-                ></el-input>
-                <el-button
-                    size="small"
-                    style="font-size: 16px;"
-                    @click="query()"
-                >查询</el-button>
-                <el-button
-                    size="small"
-                    style="font-size: 16px;"
-                    @click="openQueryFrom()"
-                >筛选</el-button>
-              </div>
+        <div class="left">
+          <div class="left-body">
+            <div class="left-top public-bg" ref="leftTop">
+              <!--              <div class="public-title">最新地震</div>-->
+              <img src="@/assets/latestEarthquake.png" alt="最新地震" style="width: 127%; height: auto;">
+              <new-info :last-eq="lastEqData"/>
             </div>
-            <eq-table :eq-data="tableData"/>
-          </div>
 
-          <div class="right-bottom public-bg" ref="rightBottom">
-            <img src="@/assets/historyEarthquake.png" alt="历史地震" style="width: 80%; height: auto;">
-            <!--              <div class="public-title">历史地震统计(次)</div>-->
-            <chart1 :eq-data="EqAll"/>
+            <div class="left-con public-bg" ref="leftCon">
+              <!--              <div class="public-title">最新地震受灾人员统计</div>-->
+              <img src="@/assets/disasterStats.png" alt="最新地震受灾人员统计" style="width: 125%; height: auto;">
+              <chart3 :last-eq="lastEqData"/>
+            </div>
+
+            <div class="left-bottom public-bg" ref="leftBottom">
+              <chart2 :last-eq="lastEqData"/>
+            </div>
           </div>
         </div>
+
+
+        <div class="right">
+          <div class="right-body">
+            <div class="right-top public-bg" ref="rightTop">
+              <div style="position: relative; width: 100%; height: auto;">
+                <!-- 图片 -->
+                <img
+                    src="@/assets/earthquakeList.png"
+                    alt="地震列表"
+                    style="width: 90%; height: auto; display: block;"
+                >
+
+                <!-- 输入框和按钮 -->
+                <div
+                    style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1;"
+                >
+                  <el-input
+                      size="small"
+                      style="width: 7vw; font-size: 16px;"
+                      v-model="requestParams"
+                      @keyup.enter="query()"
+                  ></el-input>
+                  <el-button
+                      size="small"
+                      style="font-size: 16px;"
+                      @click="query()"
+                  >查询</el-button>
+                  <el-button
+                      size="small"
+                      style="font-size: 16px;"
+                      @click="openQueryFrom()"
+                  >筛选</el-button>
+                </div>
+              </div>
+              <eq-table :eq-data="tableData"/>
+            </div>
+
+            <div class="right-bottom public-bg" ref="rightBottom">
+              <img src="@/assets/historyEarthquake.png" alt="历史地震" style="width: 80%; height: auto;">
+              <!--              <div class="public-title">历史地震统计(次)</div>-->
+              <chart1 :eq-data="EqAll"/>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -406,12 +412,22 @@ onMounted(() => {
   padding-bottom: 26px;
 }
 
-.left-body {
+.left {
   position: absolute;
-  width: 19%;
-  height: 100%;
+  width: 22%;
+  height: 97.8%;
+  left: 0.5%;
   float: left;
+  /*background-image: url("@/assets/home/黑色遮罩左.png");*/
+  background: rgb(2,0,36);
+  background: linear-gradient(90deg, rgb(4 33 65 / 56%) 32%, rgb(64 106 171 / 6%) 89%);
+}
+
+.left-body {
+  width: 98%;
+  height: 100%;
   margin: 0 0.3%;
+
 }
 
 .left-body .left-top {
@@ -487,12 +503,22 @@ onMounted(() => {
   height: 96%;
 }
 
-.right-body {
+.right{
   position: absolute;
-  width: 31%;
+  width: 32.3%;
   left: 66%;
-  height: 100%;
+  height: 97.8%;
   float: right;
+  margin: 0 0.3%;
+  /*background-image: url("@/assets/home/黑色遮罩右.png");*/
+  background: rgb(0,195,255);
+  background: linear-gradient(90deg, rgb(22 105 179 / 9%) 25%, rgb(10 33 75 / 76%) 88%);
+}
+
+
+.right-body {
+  width: 98%;
+  height: 100%;
   margin: 0 0.3%;
 }
 

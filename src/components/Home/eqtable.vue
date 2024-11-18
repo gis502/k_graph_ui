@@ -2,28 +2,28 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 100%; margin-bottom: 2px;height: 18vw"
+        style="width: 98%; margin-bottom: 2px;height: 18vw"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         :row-style="{ height: '37.5px', fontSize: '13px'}"
         @row-click="go">
-      <el-table-column label=" " min-width="25px" show-overflow-tooltip>
+      <el-table-column label=" " min-width="20px" show-overflow-tooltip>
         <template #default="scope">
           <div style="display: flex; align-items: center; justify-content: center; height: 100%;"  class="arrow-container">
-            <img :src="arrowImage" alt="统一图片" style="width: 20px; height: 20px;" class="arrow-icon">
+            <img :src="arrowImage" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
           </div>
         </template>
       </el-table-column>
       <el-table-column
           prop="earthquakeName"
           label="位置"
-          min-width="90px"
+          min-width="88px"
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
           label="发震时间"
           align="center"
-          min-width="135px"
+          min-width="130px"
           show-overflow-tooltip>
         <template v-slot="scope">
           <span>{{ formatTime(scope.row.occurrenceTime) }}</span>
@@ -184,6 +184,7 @@ const formatTime = (time) => {
   height: 98%;
   margin-bottom: 8px;
   text-align: center;
+  margin-left: 4%;
 }
 
 

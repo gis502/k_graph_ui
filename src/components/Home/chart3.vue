@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <span
-        style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); ">
+        style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
       更新时间：{{ updateTime }}
     </span>
     <div class="row injury">
@@ -114,11 +114,11 @@ watch(() => props.lastEq, () => {
   flex-direction: column;
   margin: 0;
   font-size: 13px;
-  padding: 0 1vh;
+  padding: 2px 10px;
 }
 
 .row {
-  margin: 0.5vh 0;
+  margin: 0.65vh 0;
   height: 4.8vh;
   display: flex;
   align-items: center;

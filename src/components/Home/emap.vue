@@ -238,7 +238,7 @@ export default {
 
       mapConfig.value.map = new T.Map('emap');
       // 设置地图的中心点和缩放级别。
-      mapConfig.value.map.centerAndZoom(new T.LngLat(103.00, 30.00), 6);
+      mapConfig.value.map.centerAndZoom(new T.LngLat(105.00, 30.00), 6);
 
 
       // 创建 D3Overlay 实例
@@ -538,16 +538,16 @@ export default {
         iconUrl = red;
         switch (size) {
           case 'small':
-            iconSize = new T.Point(20, 20);
+            iconSize = new T.Point(26, 26);
             break;
           case 'medium':
-            iconSize = new T.Point(30, 30);
+            iconSize = new T.Point(36, 36);
             break;
           case 'large':
-            iconSize = new T.Point(40, 40);
+            iconSize = new T.Point(46, 46);
             break;
           default:
-            iconSize = new T.Point(28, 28);
+            iconSize = new T.Point(36, 36);
         }
       } else {
         iconUrl = yellow;
@@ -764,8 +764,13 @@ export default {
 /* 自定义 比例尺 */
 
 :deep(.tdt-bottom .tdt-control-scale ) {
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
+
+:deep(.tdt-left .tdt-control-scale ){
+  margin-left: 300px;
+}
+
 
 //公里及其对应的白线
 :deep(.tdt-control-scale-line ) {
@@ -793,7 +798,7 @@ export default {
   position: absolute;
   margin-right: 31%;
   top: 18px;
-  right: -10px;
+  right: 24px;
   z-index: 10;
   width: 130px !important;
   height: 130px !important;
@@ -810,7 +815,7 @@ export default {
   position: absolute;
   margin-right: 31%;
   top: 40.4px;
-  right: 57.8px;
+  right: 91.2px;
   height: 40px;
   width: 40px;
   background: url(../../assets/指北针_5.png) no-repeat 0 0 / cover;
@@ -877,7 +882,7 @@ export default {
 
 .legend {
   bottom: 0;
-  left: 33%;
+  left: 36.4%;
   z-index: 35;
   /* margin-top: 5px; */
   background-color: transparent;
