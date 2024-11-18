@@ -27,11 +27,11 @@ export function list() {
  * @param queryValue
  * @returns {*}
  */
-export function queryRemoteSensingData(queryValue) {
+export function queryRemoteSensingData(inputData) {
     return request({
         url: '/remotesensing/queryRI',  // 后端接口地址
         method: 'get',  // 使用 POST 方法
-        params: {queryValue}  // 如果没有传值，则为空字符串
+        params: {inputData}  // 如果没有传值，则为空字符串
 
     });
 }

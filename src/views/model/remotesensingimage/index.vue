@@ -22,10 +22,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="遥感影像名称" width="150" align="center"></el-table-column>
-      <el-table-column prop="height" label="遥感影像高度" width="200" align="center"></el-table-column>
+      <el-table-column prop="height" label="遥感影像高度（米）" width="200" align="center"></el-table-column>
       <el-table-column prop="createTime" label="添加时间" align="center" width="180"></el-table-column>
       <el-table-column prop="path" label="遥感影像路径" width="200" align="center"></el-table-column>
-      <el-table-column prop="angle" label="旋转角度" width="180" align="center"></el-table-column>
+      <el-table-column prop="angle" label="旋转角度（度）" width="180" align="center"></el-table-column>
       <el-table-column prop="shootingTime" label="拍摄时间" align="center" width="180"></el-table-column>
       <el-table-column label="操作" align="center">
         <template v-slot="scope">
@@ -369,10 +369,12 @@ export default {
     // 搜索框
     handleQuery() {
       const searchKey = this.queryParams.trim();  // 获取搜索关键字
+      console.log("sssssssssssssssssssssssssssss",searchKey)
 
       // 调用同一个方法进行查询
       queryRemoteSensingData(searchKey || '')
           .then(res => {
+            console.log("sssssssssssssssssssssssssssssssssssssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:",searchKey)
             console.log("获取的数据111111111111111111111111111111111111111111111111111:", res); // 打印获取的数据
 
             // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
