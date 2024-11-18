@@ -24,7 +24,7 @@ export function list() {
 
 /**
  * 搜索框查询
- * @param queryValue
+ * @param inputData
  * @returns {*}
  */
 export function queryRemoteSensingData(inputData) {

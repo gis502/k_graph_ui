@@ -10,7 +10,7 @@
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
+      <el-button type="primary" plain icon="Plus" @click="handleEdit('新增')">新增</el-button>
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
     </el-form-item>
 
@@ -431,6 +431,11 @@ export default {
       };
     },
 
+    handleOpen(row) {
+      console.log(row);
+      window.open('/orthophotographViewer', "_blank");
+    },
+
     handleEdit(title, row = {}) {
       this.dialogTitle = title;
 
@@ -459,9 +464,7 @@ export default {
       this.dialogShow = true;
     },
 
-    handleOpen(title, row) {
-      this.handleEdit(title, row);
-    },
+
 
     handleDelete(row) {
       ElMessageBox.confirm('确定要删除该条记录吗?', '警告', {
