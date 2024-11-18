@@ -394,6 +394,7 @@ import yaan from "@/assets/geoJson/yaan.json";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import {getEqById, getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import centerstar from "@/assets/icons/TimeLine/震中.png";
 
 export default {
   components: {
@@ -741,6 +742,32 @@ export default {
               semiMinorAxis: parseFloat("5") * 1000,
               material: Cesium.Color.GREEN.withAlpha(0.7),
             },
+          });
+          viewer.entities.add({
+            position: position,
+            billboard: {
+              image: centerstar,
+              width: 60,
+              height: 60,
+              scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+              disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
+            },
+            label: {
+              text: res.earthquakeName + parseFloat(res.magnitude).toFixed(1) + "级",
+              show: true,
+              font: '20px sans-serif',
+              fillColor: Cesium.Color.RED,        //字体颜色
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+              outlineWidth: 2,
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+              pixelOffset: new Cesium.Cartesian2(0, -30),
+              scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+
+              disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
+            },
+            id: res.plotid,
+            plottype: "震中",
+            layer: "标绘点"
           });
         })
       }
@@ -1603,6 +1630,16 @@ export default {
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       this.removePoints(this.showIcon);
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.addSupplyPointCurrently.lng),
+            parseFloat(this.addSupplyPointCurrently.lat)
+        ),
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.RED,
+        },
+      });
       this.showIcon = [];
       this.showIcon = this.selectedSuppliesList;
       // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
