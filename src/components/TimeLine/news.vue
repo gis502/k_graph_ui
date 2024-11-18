@@ -159,7 +159,7 @@ export default {
 .sub-ul {
   padding: 0;
   margin: 0;
-  font-size: .6rem;
+  font-size: 0.9rem;
   line-height: 1rem;
   overflow-y: hidden; /* 当内容超出时隐藏垂直滚动条 */
   list-style-type: none; /* 去除列表项默认的项目符号 */
@@ -176,7 +176,7 @@ export default {
 .sub-content {
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: 0.9rem;
   flex: 1;
 }
 
@@ -200,12 +200,13 @@ export default {
 }
 
 .sub-source {
-  font-size: 12px; /* 设置字体大小为16像素 */
+  font-size: 0.9rem;
   padding: 0;
   line-height: .2rem;
 }
 
 .sub-text {
+  font-size: 0.9rem;
   padding: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2; /* 显示前两行 */

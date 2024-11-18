@@ -430,7 +430,7 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
     <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
-      回溯时间：{{ this.timestampToTimeChinese(this.currentTime) }}
+      {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
 </template>
@@ -589,12 +589,12 @@ export default {
       tmpeqendTime: '',//默认的地震结束时间
       realTime: new Date(),
       //时间轴当前进度条节点位置
-      // currentTimePosition: 0,
-      currentTimePosition: 100,
+      currentTimePosition: 0,
+      // currentTimePosition: 100,
       //时间轴当前前进步
-      currentNodeIndex: 2076,
+      // currentNodeIndex: 2076,
+      currentNodeIndex: 0,
       realtimeinterval: null,
-      intervalId: null,
       eqendtimeinterval: null,
       // 倍速
       currentSpeed: 1,
@@ -713,6 +713,7 @@ export default {
         modelid: null
       },
       //----------------------------------
+      nextNodeIndex: 1,
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
 
@@ -815,9 +816,6 @@ export default {
           let logString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
           // 获取相机的海拔高度作为视角高度/km
           let altiString = (viewer.camera.positionCartographic.height / 1000).toFixed(2);
-          // console.log(latString);
-          // console.log(logString);
-          // console.log(altiString);
           that.getPopDesity(Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude))
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -914,11 +912,7 @@ export default {
      * @param {string} eqid - 地震ID
      */
     getEqInfo(eqid) {
-
-      // 调用接口根据ID获取地震信息
-      console.log("eqid", eqid)
       getEqById({id: eqid}).then(res => {
-        console.log("thd eqid---------------", eqid)
         //震中标绘点
         this.centerPoint = res
         // 设置中心点的标识和时间信息
@@ -939,39 +933,33 @@ export default {
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
           this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-          this.currentNodeIndex = this.timelineAdvancesNumber
+          // this.currentNodeIndex = this.timelineAdvancesNumber
         } else {
           this.eqendTime = this.tmpeqendTime
         }
-        this.currentTime = this.eqendTime
+        // this.currentTime = this.eqendTime
+        this.currentTime = this.eqstartTime
         //timelineAdvancesNumber  jumpNodes赋值为0
         for (let i = 0; i < this.timelineAdvancesNumber; i++) {
           this.jumpNodes[i] = 0;
         }
 
         // 获取地震数据并更新地图和变量
-        // this.getEq()
         this.checkIfOvalCircleLayer();
         this.updateMapandVariablebeforInit()
 
       })
-
     },
     /*
     * 更新地图中心视角，更新变量：地震起止时间，渲染点
     * */
     updateMapandVariablebeforInit() {
       this.flyToCenter()
-      this.timelinePopupShowCenterStrart = true
       setTimeout(() => {
-        setTimeout(() => {
-
-          // if (!this.isTimerRunning && this.currentTimePosition === 100){
-          this.xuanran(this.eqid)
-          // }
-
-        }, 3000);
         this.flashingCenter()
+        setTimeout(() => {
+          this.toggleTimer() //模拟播放时间轴
+        }, 3000);
       }, 3000);
     },
     /**
@@ -979,12 +967,7 @@ export default {
      * 此方法主要负责针对特定的eqid获取并渲染数据，包括初始化渲染和动态更新数据
      * @param {string} eqid - 需要渲染的数据的唯一标识符
      */
-    xuanran(eqid) {
-      // 获取特定eqid的带有开始和结束时间的绘图数据
-      // this.getPlotwithStartandEndTime(eqid)
-      if (!this.isTimerRunning && this.currentTimePosition === 100) {
-        this.updatePlotOnce(false)
-      }
+    ifUpdateEndTime(eqid) {
       if (this.realTime < this.tmpeqendTime) {
         console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
@@ -1001,7 +984,6 @@ export default {
               }
               // 更新结束时间和当前时间
               this.eqendTime = new Date()
-              this.currentTime = this.eqendTime
             }, 1000);
           }
         }
@@ -1063,8 +1045,10 @@ export default {
     },
     //控制视角跳转的递归函数
     flyPointsForOneIndex(points) {
+      if(this.timelinePopupVisible){
+        this.timelinePopupVisible=false
+      }
       let timeEachPoint = 0
-
       points.forEach((point) => {
         timeEachPoint = timeEachPoint + 3000 / this.currentSpeed
         let flytime = (timeEachPoint / 1000 - 1) < 2 ? timeEachPoint : 2
@@ -1091,8 +1075,6 @@ export default {
       });
     },
     updatePlotOnce(type) {
-      // this.stopRealFlag=false
-      // 原始代码：console.log(this.plots)
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
       // --------------------------点绘制------------------------------
@@ -1109,11 +1091,11 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        console.log("time", startDate, currentDate, endDate)
+        // console.log("time", startDate, currentDate, endDate)
         // 如果点应该显示
         // 如果点应该显示
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          console.log("item.plotId add", item.plotId)
+          // console.log("item.plotId add", item.plotId)
           this.plotisshow[item.plotId] = 1;
 
           // 创建点数据
@@ -1134,50 +1116,34 @@ export default {
         }
         // 如果点应该消失
         if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
-          console.log("item.plotId del", item.plotId)
+          // console.log("item.plotId del", item.plotId)
           this.plotisshow[item.plotId] = 0;
           cesiumPlot.deletePointById(item.plotId);
         }
       });
       // 批量渲染点 + 非初始化状态渲染标会点动画
-      // console.log(points,"points")
-      // stopTimeforAddEntityOneIndex
-      // let stoptime = 5000
       if (points.length > 0) {
         if (this.timelinePopupShowCenterStrart) {
+          let centerMark = viewer.entities.getById(this.centerPoint.plotid);
+          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)
           clearInterval(this.intervalIdcolor); // 停止颜色切换
           this.timelinePopupShowCenterStrart = false;
           this.timelinePopupVisible = false;
         }
-        // let param = type === false ? false : true
+
         if (type == false) {
-          console.log("false update")
+          // console.log("false update")
           this.stopTimeforAddEntityOneIndex = 3000
           cesiumPlot.drawPoints(points, false, 3000);
         } else if (type == "3") {
-          console.log("333 update")
+          // console.log("333 update")
           this.stopTimeforAddEntityOneIndex = 3000
           cesiumPlot.drawPoints(points, true, 3000);
         } else {
-          console.log("more update")
           this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
-
-          // this.timeEach
-          console.log("this.stopTimeforAddEntityOneIndex", points, this.stopTimeforAddEntityOneIndex)
           cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
-
           this.flyPointsForOneIndex(points, 0)
-
-
-          // points.forEach(item=>{
-          //
-          // })
-
-          // cesiumPlot.drawPoints(points, true, 5000);
-
-
         }
-
       }
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
@@ -1346,28 +1312,21 @@ export default {
       if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
         this.isTimerRunning = true
         this.initTimerLine();
-
         setTimeout(() => {
-          this.bofang(1);
-
+          this.bofang();
         }, 3000);
       } else {
         if (!this.isTimerRunning) {
           this.flyToCenter()
           this.isTimerRunning = true
-          this.bofang(1);
+          this.bofang();
         }
         // 如果计时器正在运行，则停止计时器
         else {
           this.stopTimer();
-          // if(this.timelinePopupShowCenterStrart){
           clearInterval(this.intervalIdcolor)
           let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
-
           centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
-          // colorFactor = 1.0;
-          // this.timelinePopupShowCenterStrart = false;
-          // this.timelinePopupVisible = false;
         }
       }
     },
@@ -1377,20 +1336,15 @@ export default {
      */
     initTimerLine() {
       this.isfirst = false
-      // console.log("initTimerLine")
       this.jumpTimes.forEach(item => {
         var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
         // console.log("jumpnode",jumpnode)
         this.jumpNodes[jumpnode] = 1
       })
-
-
-      // console.log("this.jumpNodes", this.jumpNodes)
       // 标记计时器为运行状态
       this.isTimerRunning = true;
 
       // 播放一遍完成（停止，如果计算结果超过，设为最大值）
-      // if (this.currentTimePosition >= 100) {
       this.currentTimePosition = 0;
       this.currentTime = this.eqstartTime;
       this.currentNodeIndex = 0;
@@ -1401,48 +1355,32 @@ export default {
           cesiumPlot.deletePointById(item.plotId);
         }
       })
-      this.timelinePopupShowCenterStrart = true
       this.flyToCenter()
       setTimeout(() => {
         this.flashingCenter()
       }, 3000);
 
-      this.timelinePopupShowCenterStrart = true
-
       let data = {
         ...this.centerPoint,
         drawtype: this.centerPoint.plotid
       }
-
-
-      // this.timelinePopupPosition = {
-      //   x: cesiumContainer.offsetWidth / 2 - 400,
-      //   y: cesiumContainer.offsetHeight / 2 - 250
-      // };
-      // this.timelinePopupVisible = true;
-      // this.timelinePopupData = data
-
     },
     bofang() { //正向播放
       this.isfirst = false
       if (!this.isTimerRunning) { //根据次数跳出
-        // this.currentTimePosition = 100;
-        // this.currentNodeIndex = this.timelineAdvancesNumber
-        // this.currentTime = this.eqendTime
         this.stopTimer();
         return;
-      } else {
-        if (this.isTimerRunning) {
-          let flag = this.updateCurrentTimeOnce();
-          if (flag) {
-            if (this.isMarkingLayer) {
-              this.updatePlotOnce(true)
-              setTimeout(() => {
-                this.bofang();
-              }, this.stopTimeforAddEntityOneIndex);
-            } else {
-              this.MarkingLayerRemove()
-            }
+      }
+      else {
+        let flag = this.updateCurrentTimeOnce();
+        if (flag) {
+          if (this.isMarkingLayer) {
+            this.updatePlotOnce(true)
+            setTimeout(() => {
+              this.bofang();
+            }, this.stopTimeforAddEntityOneIndex);
+          } else {
+            this.MarkingLayerRemove()
           }
         }
       }
@@ -1497,6 +1435,7 @@ export default {
     stopTimer() {
       this.isfirst = true
       this.isTimerRunning = false;
+      this.ifUpdateEndTime()
     },
 
     /**
@@ -1619,9 +1558,23 @@ export default {
         // 更新计时器运行状态标志为false
         this.isTimerRunning = false
         // 调用 intimexuanran 方法，传入地震ID
-        this.intimexuanran(this.eqid)
+        this.updatePlotOnce("3")
+        this.flyToCenter()
         // this.xuanran(this.eqid)
-      } else {
+      }
+      else if (this.currentTimePosition <= 0) {
+        // 当时间进度达到或超过100%时，重置为100%
+        this.currentTimePosition = 0;
+        // 设置当前时间为结束时间
+        this.currentTime = this.eqstartTime
+        // 停止计时器
+        this.stopTimer();
+        // 更新计时器运行状态标志为false
+        this.isTimerRunning = false
+        this.updatePlotOnce("3")
+        this.flyToCenter()
+      }
+      else {
         if (currentTimeTmp > this.currentTime) {
           this.updatePlotOnce("3")
         } else {
@@ -1697,8 +1650,10 @@ export default {
         this.currentTimePosition = 100;
         this.currentTime = this.eqendTime;
         this.stopTimer();
-        this.intimexuanran(this.eqid)
-      } else {
+        this.updatePlotOnce("3")
+        this.flyToCenter()
+      }
+      else {
         if (time > this.currentTime) {
           this.updatePlotOnce("3")
         } else {
@@ -1750,7 +1705,9 @@ export default {
       });
     },
     //中心点闪烁
+    //中心点闪烁
     flashingCenter() {
+
       //震中点闪烁
       let data = {
         ...this.centerPoint,
@@ -1849,6 +1806,7 @@ export default {
       }, false)
 
       //震中面板展开+跟随地图移动
+      this.timelinePopupShowCenterStrart = true
       let position = centerMark.position.getValue(Cesium.JulianDate.now());
       let screenPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, position);
       this.timelinePopupPosition = {
@@ -1865,7 +1823,9 @@ export default {
       };
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        this.updatePopupPosition();
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+          this.updatePopupPosition();
+        }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     addJumpNodes(val) {
@@ -2023,7 +1983,6 @@ export default {
       return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
 
-
     /**
      * 处理实体点击事件的弹窗显示逻辑
      */
@@ -2038,7 +1997,6 @@ export default {
 
         // 绑定断裂带信息的 div 元素
         const faultInfoDiv = document.getElementById('faultInfo');
-
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
@@ -3535,7 +3493,7 @@ export default {
   position: absolute;
   bottom: 3%;
   width: 30%;
-  left: 8%;
+  left: 12%;
 }
 
 .end-time-info {
@@ -3569,7 +3527,7 @@ export default {
 .play {
   width: 4%;
   height: 100%;
-  margin-left: 1%;
+  margin-left: -1%;
   display: flex;
   align-items: center;
 }
@@ -3604,7 +3562,7 @@ export default {
 
 .speedButton {
   position: relative;
-  left: 102%;
+  left: 104%;
   color: white;
   top: -50%;
 }
@@ -3996,16 +3954,16 @@ export default {
   background-color: #163253;
   border-radius: 20px;
   height: 6%;
-  width: 30%;
+  width: 20%;
   top: 12%;
   position: absolute;
   z-index: 50;
   color: #FFFFFF;
   font-size: 23px;
-  left: 32%;
-  display: flex; /* 使用Flexbox布局 */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
+  left: 41%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 整个滚动条 */
