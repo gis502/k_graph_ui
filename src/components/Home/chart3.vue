@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <span
-        style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 0%, rgba(254, 254, 254, 0) 90%); ">
+        style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
       更新时间：{{ updateTime }}
     </span>
     <div class="row injury">
@@ -69,14 +69,28 @@ watch(() => props.lastEq, () => {
         if (firstItem && firstItem.submissionDeadline) {
           const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
           updateTime.value = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
+          updateTime.value = formatDate(updateTime.value);
           console.log(updateTime)
         } else {
           updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');
+          updateTime.value = formatDate( updateTime.value);  // 使用传入的时间字段
+
+
         }
 
       }
 
-
+// 格式化日期为 "2024年09月14日 09:16:36"
+      function formatDate(date) {
+        const d = new Date(date);
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+        const day = d.getDate().toString().padStart(2, '0');
+        const hours = d.getHours().toString().padStart(2, '0');
+        const minutes = d.getMinutes().toString().padStart(2, '0');
+        const seconds = d.getSeconds().toString().padStart(2, '0');
+        return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+      }
 
 
   //     if (res) {
@@ -100,11 +114,11 @@ watch(() => props.lastEq, () => {
   flex-direction: column;
   margin: 0;
   font-size: 13px;
-  padding: 0 1vh;
+  padding: 2px 10px;
 }
 
 .row {
-  margin: 0.5vh 0;
+  margin: 0.65vh 0;
   height: 4.8vh;
   display: flex;
   align-items: center;

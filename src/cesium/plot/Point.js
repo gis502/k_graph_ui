@@ -389,44 +389,115 @@ export default class Point {
             } else {
               let removeListener = labeldataSource.clustering.clusterEvent.addEventListener(
                   function (clusteredEntities, cluster) {
-                    // cluster.label.show = false;
+                    // 创建 Canvas 标签
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
 
-                    cluster.label.show = true;
-                    cluster.label.text = ''; // 初始化标签文本
-                    clusteredEntities.forEach((entity, index) => {
-                      // console.log(entity, "entity");
-                      // 假设每个实体都有一个名为'labeltext'的属性，包含要显示的信息
-                      cluster.label.text += entity.labeltext.toString();
+                    // 设置字体属性（先设置字体，以便测量）
+                    context.font = 'bold 18px Arial';
+                    const rowHeight = 30; // 每行高度
+                    const padding = 20; // 内边距
+                    const margin = 10; // 外边距
+                    const canvasHeight = Math.max(50, rowHeight * (clusteredEntities.length + 1)) + padding * 6; // 表格信息下移
 
-                      // 如果不是最后一个实体，则添加换行符
-                      if (index < clusteredEntities.length - 1) {
-                        cluster.label.text += '\n';
-                      }
+                    // 测量每行文本的宽度
+                    let maxTextWidth = 0;
+                    clusteredEntities.forEach(entity => {
+                      // 获取每行的文本
+                      const text = entity.labeltext || '无信息';
+                      const words = text.split(' ');
+                      let currentLine = '';
+                      words.forEach(word => {
+                        let testLine = currentLine + (currentLine ? ' ' : '') + word;
+                        let testWidth = context.measureText(testLine).width;
+
+                        // 如果文本行宽度大于最大宽度，则换行
+                        if (testWidth > maxTextWidth) {
+                          maxTextWidth = testWidth;
+                        }
+                        currentLine = testLine;
+                      });
                     });
 
+                    // 调整 Canvas 宽度以适应最宽的文本
+                    const canvasWidth = maxTextWidth + padding * 6; // 留出内边距空间
+                    canvas.width = canvasWidth + margin * 2; // 计算总宽度
+                    canvas.height = canvasHeight + margin * 2;
 
-                    // 设置标签的其他样式属性
-                    // 设置标签的其他样式属性
-                    cluster.label.font = '18px Helvetica';
-                    cluster.label.fillColor = Cesium.Color.BLACK; // 字体颜色设置为黑色
-                    cluster.label.outlineColor = Cesium.Color.BLACK; // 外框颜色设置为白色
-                    cluster.label.outlineWidth = 2; // 外框宽度
-                    cluster.label.pixelOffset = new Cesium.Cartesian2(0, 0); // 偏移量
-                    cluster.label.verticalOrigin = Cesium.VerticalOrigin.BOTTOM; // 垂直原点
+                    // 绘制黑色透明背景并加圆角
+                    context.fillStyle = 'rgba(0, 0, 0, 0.7)'; // 黑色透明背景
+                    const borderRadius = 20; // 圆角半径
+                    context.beginPath();
+                    context.moveTo(margin + borderRadius, margin);
+                    context.lineTo(margin + canvasWidth + margin - borderRadius, margin);
+                    context.arcTo(margin + canvasWidth + margin, margin, margin + canvasWidth + margin, margin + canvasHeight, borderRadius);
+                    context.lineTo(margin + canvasWidth + margin, margin + canvasHeight - borderRadius);
+                    context.arcTo(margin + canvasWidth + margin, margin + canvasHeight, margin + canvasWidth + margin - borderRadius, margin + canvasHeight, borderRadius);
+                    context.lineTo(margin + borderRadius, margin + canvasHeight);
+                    context.arcTo(margin, margin + canvasHeight, margin, margin + canvasHeight - borderRadius, borderRadius);
+                    context.lineTo(margin, margin + borderRadius);
+                    context.arcTo(margin, margin, margin + borderRadius, margin, borderRadius);
+                    context.closePath();
+                    context.fill();
 
-                    // // 设置标签的背景颜色
-                    // cluster.label.backgroundColor = Cesium.Color.WHITE; // 背景颜色设置为白色
-                    // cluster.label.showBackground = true; // 显示背景
-                    // cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                    // 加载本地边框图片
+                    const borderImage = new Image();
+                    borderImage.src = '/images/背景边框.png'; // 本地图片路径
+                    borderImage.onload = function () {
+                      // 绘制边框图片
+                      context.drawImage(borderImage, margin, margin, canvasWidth, canvasHeight);
 
-                    // 设置标签的背景颜色为透明
-                    cluster.label.backgroundColor = new Cesium.Color(1.0, 1.0, 1.0, 0.5); // 背
+                      // 绘制表格头部
+                      context.fillStyle = '#333333'; // 深灰背景
+                      context.fillRect(margin + padding, margin + padding + 20, canvasWidth - padding * 2, rowHeight); // 表格距离上边框远一些
 
-                    cluster.label.showBackground = true; // 显示背景
-                    cluster.label.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                      // 绘制头部文字
+                      context.fillStyle = '#ffffff'; // 白色字体
+                      context.font = 'bold 18px Arial';
+                      context.textAlign = 'left';
+                      context.textBaseline = 'middle';
+                      context.fillText('序号', margin + padding + 10, margin + padding + 20 + rowHeight / 2);
+                      context.fillText('信息', margin + padding + 60, margin + padding + 20 + rowHeight / 2); // 文字位置右移
 
-                    cluster.billboard.show = false;
+                      // 绘制表格内容
+                      clusteredEntities.forEach((entity, index) => {
+                        const yPosition = margin + padding + (index + 2) * rowHeight; // 每行的 Y 位置，下移表格信息
 
+                        // 绘制网格线
+                        context.strokeStyle = '#ffffff'; // 网格线为白色
+                        context.lineWidth = 1;
+                        context.beginPath();
+                        context.moveTo(margin + padding, yPosition);
+                        context.lineTo(margin + padding + canvasWidth - padding * 2, yPosition);
+                        context.stroke();
+
+                        // 绘制行数据
+                        context.fillStyle = '#ffffff'; // 白色字体
+                        context.fillText(`${index + 1}`, margin + padding + 10, yPosition + rowHeight / 2);
+                        context.fillText(`${entity.labeltext || '无信息'}`, margin + padding + 60, yPosition + rowHeight / 2); // 文字右移
+                      });
+
+                      // 将 Canvas 转换为 Billboard 图像
+                      const canvasImage = canvas.toDataURL('image/png');
+
+                      // 设置 Billboard
+                      cluster.billboard.show = true;
+                      cluster.billboard.image = canvasImage; // 设置背景图像
+                      cluster.billboard.width = (canvasWidth + margin * 2) / 2; // 根据需要调整比例
+                      cluster.billboard.height = (canvasHeight + margin * 2) / 2;
+
+                      // 设置标签位置在图标上方
+                      cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+                      cluster.billboard.pixelOffset = new Cesium.Cartesian2(0, -(canvasHeight + margin * 2) / 2);
+
+                      // 隐藏 Cesium 默认的标签
+                      cluster.label.show = false;
+                    };
+
+                    // 处理图片加载失败
+                    borderImage.onerror = function () {
+                      console.error('Failed to load border image from:', borderImage.src);
+                    };
                   }
               );
             }
