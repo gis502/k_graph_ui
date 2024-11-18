@@ -242,48 +242,52 @@ export default {
         console.log("获取的数据:", res); // 打印获取的数据
         this.tableData = res.data.map((item) => {
           let formattedCreateTime = '';
-          let formattedShootingTime = '';
 
           // 确保 createTime 存在且有效
           if (item.hasOwnProperty('createTime') && item.createTime) {
             const createTime = new Date(item.createTime);
+
             // 确认解析后的 createTime 是否有效
             if (!isNaN(createTime)) {
-              // 格式化为 yyyy-MM-dd HH:mm:ss
+              // 格式化为 yyyy年MM月dd日 HH:mm:ss
               const year = createTime.getFullYear();
-              const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份需要加 1，且补零
+              const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
               const day = createTime.getDate().toString().padStart(2, '0');
               const hours = createTime.getHours().toString().padStart(2, '0');
               const minutes = createTime.getMinutes().toString().padStart(2, '0');
               const seconds = createTime.getSeconds().toString().padStart(2, '0');
 
-              formattedCreateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+              // 格式化为需要的格式
+              formattedCreateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
             } else {
               console.log(`无效的日期: ${item.createTime}`);
             }
           } else {
-            console.log("没有 createTime 或其值为空:", item); // 如果没有 createTime 或为空，输出提示
+            console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
           }
 
-          // 确保 createTime 存在且有效
+        let formattedShootingTime = '';
+          // 确保 shootingTime 存在且有效
           if (item.hasOwnProperty('shootingTime') && item.shootingTime) {
             const shootingTime = new Date(item.shootingTime);
+
             // 确认解析后的 createTime 是否有效
             if (!isNaN(shootingTime)) {
-              // 格式化为 yyyy-MM-dd HH:mm:ss
+              // 格式化为 yyyy年MM月dd日 HH:mm:ss
               const year = shootingTime.getFullYear();
-              const month = (shootingTime.getMonth() + 1).toString().padStart(2, '0'); // 月份需要加 1，且补零
+              const month = (shootingTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
               const day = shootingTime.getDate().toString().padStart(2, '0');
               const hours = shootingTime.getHours().toString().padStart(2, '0');
               const minutes = shootingTime.getMinutes().toString().padStart(2, '0');
               const seconds = shootingTime.getSeconds().toString().padStart(2, '0');
 
-              formattedShootingTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+              // 格式化为需要的格式
+              formattedShootingTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
             } else {
-              console.log(`无效的日期: ${item.createTime}`);
+              console.log(`无效的日期: ${item.shootingTime}`);
             }
           } else {
-            console.log("没有 createTime 或其值为空:", item); // 如果没有 createTime 或为空，输出提示
+            console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
           }
 
           // 仅返回修改后的 createTime
@@ -303,92 +307,148 @@ export default {
 
     // 筛选
     onSubmit() {
-      // 如果 createTime 存在，转换为 ISO 8601 格式的字符串；如果为空，设置为 null
-      const createTimeIso = this.dialogContent.createTime ? new Date(this.dialogContent.createTime).toISOString() : null;
-
-      // 如果 shootingTime 存在，转换为 ISO 8601 格式的字符串；如果为空，设置为 null
-      const shootingTimeIso = this.dialogContent.shootingTime ? new Date(this.dialogContent.shootingTime).toISOString() : null;
-
       this.filterContent = {
         name: this.dialogContent.modelName || null,
-        createTime: createTimeIso,  // 将 createTime 转换为 ISO 8601 格式的字符串或 null
-        shootingTime: shootingTimeIso,
-        height: this.dialogContent.modelHeight || null,
+        createTime: this.dialogContent.createTime,
+        shootingTime: this.dialogContent.shootingTime,
+        height: this.dialogContent.height || null,
         angle: this.dialogContent.rotationAngle || null,
         path: this.dialogContent.modelPath || null,
         uuid: this.dialogContent.uuid || null,
       };
-
-      console.log("filterContent", this.filterContent); // 打印 filterContent
-
+      console.log("filterContent", this.filterContent);
       // 发送请求
       RemoteSensingFilterContent(this.filterContent).then(res => {
         console.log("RemoteSensingFilterContent", res); // 打印返回的响应
-
-        this.tableData = res.data.map((item, index) => {
+        // 假设 res.data 包含查询结果
+        const data = res.data || [];
+        this.total = res.total || data.length; // 确保获取总数，使用返回的分页信息（假设是 res.total）
+        // 格式化数据并更新 tableData
+        this.tableData = res.data.map((item) => {
           let formattedCreateTime = '';
-
-
-          // 格式化 createTime 为 yyyy-MM-dd HH:mm:ss 格式
-          if (item.createTime) {
-            const createTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
-            formattedCreateTime = createTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
-          }
-
           let formattedShootingTime = '';
-          if (item.shootingTime) {
-            const shootingTime = new Date(item.shootingTime); // 将 createTime 转为 Date 对象
-            formattedShootingTime = shootingTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 yyyy-MM-dd HH:mm:ss
+
+          // 确保 createTime 存在且有效
+          if (item.hasOwnProperty('createTime') && item.createTime) {
+            const createTime = new Date(item.createTime);
+
+            // 确认解析后的 createTime 是否有效
+            if (!isNaN(createTime)) {
+              // 格式化为 yyyy年MM月dd日 HH:mm:ss
+              const year = createTime.getFullYear();
+              const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+              const day = createTime.getDate().toString().padStart(2, '0');
+              const hours = createTime.getHours().toString().padStart(2, '0');
+              const minutes = createTime.getMinutes().toString().padStart(2, '0');
+              const seconds = createTime.getSeconds().toString().padStart(2, '0');
+
+              // 格式化为需要的格式
+              formattedCreateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+            } else {
+              console.log(`无效的日期: ${item.createTime}`);
+            }
+          } else {
+            console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
           }
 
-          return {
-            serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
-            uuid: item.uuid,
-            name: item.name,
-            height: item.height,
-            path: item.path,
-            angle: item.angle,
-            createTime: formattedCreateTime,  // 使用格式化后的 createTime
-            shootingTime: formattedShootingTime,
-          };
+          // 仅返回修改后的 createTime
+          item.createTime = formattedCreateTime;
+
+          // 确保 createTime 存在且有效
+          if (item.hasOwnProperty('shootingTime') && item.shootingTime) {
+            const shootingTime = new Date(item.shootingTime);
+
+            // 确认解析后的 createTime 是否有效
+            if (!isNaN(shootingTime)) {
+              // 格式化为 yyyy年MM月dd日 HH:mm:ss
+              const year = shootingTime.getFullYear();
+              const month = (shootingTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+              const day = shootingTime.getDate().toString().padStart(2, '0');
+              const hours = shootingTime.getHours().toString().padStart(2, '0');
+              const minutes = shootingTime.getMinutes().toString().padStart(2, '0');
+              const seconds = shootingTime.getSeconds().toString().padStart(2, '0');
+
+              // 格式化为需要的格式
+              formattedShootingTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+            } else {
+              console.log(`无效的日期: ${item.shootingTime}`);
+            }
+          } else {
+            console.log('没有 shootingTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
+          }
+          // 仅返回修改后的 createTime
+          item.shootingTime = formattedShootingTime;
+
+          return item;
         });
-
-        // 更新表格数据和总数
-        this.total = res.total;  // 总记录数
-        this.tableData = this.getPageArr();  // 获取当前页面数据
-
+        // 如果需要分页，调用分页更新方法（如果分页逻辑依赖当前页面和每页数据）
+        this.updateTableData();
         // 隐藏筛选表单
         this.queryFormVisible = false;
-
         // 清空表单字段
         this.clearFormValue();
       }).catch(error => {
         console.error("查询失败:", error);
       });
     },
+
     // 搜索框
     handleQuery() {
       const searchKey = this.queryParams.trim();  // 获取搜索关键字
-      console.log("sssssssssssssssssssssssssssss",searchKey)
 
       // 调用同一个方法进行查询
       queryRemoteSensingData(searchKey || '')
           .then(res => {
-            console.log("sssssssssssssssssssssssssssssssssssssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:",searchKey)
-            console.log("获取的数据111111111111111111111111111111111111111111111111111:", res); // 打印获取的数据
 
             // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
             this.tableData = res.data.map((item, index) => {
               // 格式化 createTime
               let formattedCreateTime = '';
-              if (item.createTime) {
-                const addTime = new Date(item.createTime); // 将 createTime 转为 Date 对象
-                formattedCreateTime = addTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 YYYY-MM-DD HH:mm:ss
+              // 确保 createTime 存在且有效
+              if (item.hasOwnProperty('createTime') && item.createTime) {
+                const createTime = new Date(item.createTime);
+
+                // 确认解析后的 createTime 是否有效
+                if (!isNaN(createTime)) {
+                  // 格式化为 yyyy年MM月dd日 HH:mm:ss
+                  const year = createTime.getFullYear();
+                  const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+                  const day = createTime.getDate().toString().padStart(2, '0');
+                  const hours = createTime.getHours().toString().padStart(2, '0');
+                  const minutes = createTime.getMinutes().toString().padStart(2, '0');
+                  const seconds = createTime.getSeconds().toString().padStart(2, '0');
+
+                  // 格式化为需要的格式
+                  formattedCreateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+                } else {
+                  console.log(`无效的日期: ${item.createTime}`);
+                }
+              } else {
+                console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
               }
+
               let formattedShootingTime = '';
-              if (item.shootingTime) {
-                const shootingTime = new Date(item.shootingTime); // 将 createTime 转为 Date 对象
-                formattedShootingTime = shootingTime.toISOString().replace('T', ' ').substring(0, 19); // 格式化为 YYYY-MM-DD HH:mm:ss
+              // 确保 createTime 存在且有效
+              if (item.hasOwnProperty('shootingTime') && item.shootingTime) {
+                const shootingTime = new Date(item.shootingTime);
+
+                // 确认解析后的 createTime 是否有效
+                if (!isNaN(shootingTime)) {
+                  // 格式化为 yyyy年MM月dd日 HH:mm:ss
+                  const year = shootingTime.getFullYear();
+                  const month = (shootingTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+                  const day = shootingTime.getDate().toString().padStart(2, '0');
+                  const hours = shootingTime.getHours().toString().padStart(2, '0');
+                  const minutes = shootingTime.getMinutes().toString().padStart(2, '0');
+                  const seconds = shootingTime.getSeconds().toString().padStart(2, '0');
+
+                  // 格式化为需要的格式
+                  formattedShootingTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+                } else {
+                  console.log(`无效的日期: ${item.shootingTime}`);
+                }
+              } else {
+                console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
               }
 
               return {
@@ -448,8 +508,8 @@ export default {
         this.dialogContent = {
           name: row.name,
           path: row.path,
-          createTime: new Date(row.createTime).toISOString(),
-          shootingTime: new Date(row.shootingTime).toISOString(),
+          createTime: row.createTime,
+          shootingTime: row.createTime,
           height: row.height,
           angle: row.angle,
           uuid: row.uuid
@@ -493,8 +553,8 @@ export default {
             angle: this.dialogContent.angle,
             path: this.dialogContent.path,
             // 如果 createTime 是一个 Date 对象，转换为 ISO 字符串格式
-            createTime: this.dialogContent.createTime ? new Date(this.dialogContent.createTime).toISOString() : null,
-            shootingTime: this.dialogContent.shootingTime ? new Date(this.dialogContent.shootingTime).toISOString() : null,
+            createTime: this.dialogContent.createTime,
+            shootingTime: this.dialogContent.shootingTime,
             uuid: this.dialogContent.uuid,
           };
 
