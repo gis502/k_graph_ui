@@ -6,6 +6,7 @@
         <div class="earthquake-info-panel">
           <el-card class="eqbox-card">
             <div slot="header" class="clearfix">
+                <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25"><path d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z" fill="#fbf102" p-id="2672"></path></svg>
               <span>震中信息</span>
             </div>
             <table class="earthquake-info-table">
@@ -525,10 +526,10 @@ export default {
 }
 
 .eq-videoMonitorWin {
-  position: absolute;
-  width: 270px;
-  padding: 0px;
-  z-index: 80;
+   position: absolute;
+    width: 270px;
+    padding: 0px;
+    z-index: 80;
   box-shadow: 0 4px 8px rgb(60, 215, 255), 0 6px 20px rgb(25, 108, 210);
 }
 
@@ -549,7 +550,7 @@ export default {
 
 .earthquake-info-table {
   width: 100%;
-  background-color: rgb(252, 253, 253);
+  background-color: rgb(255, 255, 255);
   color: #000000;
   border-collapse: collapse;
 }
@@ -557,8 +558,8 @@ export default {
 .earthquake-info-table th,
 .earthquake-info-table td {
   padding: 8px;
-  text-align: center; /* 居中对齐 */
-  border: 1px solid #18c9dc; /* 格子边线 */
+  text-align: center;
+  border: 1px solid #21c9db;
   font-size: 0.8rem;
   font-weight: 550;
 }
@@ -644,12 +645,20 @@ export default {
   font-weight: 550;
 }
 
+
 .clearfix {
   font-size: 1.1rem;
   font-weight: 550;
   background-color: red;
   text-align: center;
   color: #FFFFFF;
+  height: 4vh;
+  display: flex; /* 使用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
 }
-
+svg {
+  vertical-align: middle; /* 保持文本和图标对齐 */
+  margin-right: 0.5rem; /* 图标和文本间距 */
+}
 </style>
