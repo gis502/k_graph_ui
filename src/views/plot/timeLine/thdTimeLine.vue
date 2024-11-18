@@ -42,6 +42,7 @@
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
+        <!-- TimeLinePanel 弹窗 -->
         <commonPanel
             :visible="timelinePopupVisible"
             :position="timelinePopupPosition"
@@ -64,7 +65,6 @@
         :popupData="routerPopupData"
     />
 
-
     <!-- 进度条-->
     <div class="bottom">
       <!--      播放暂停按钮-->
@@ -82,12 +82,9 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-          <!--          <div v-for="node in importantNodes" :key="node.position" class="time-node"-->
-          <!--               :style="{ left: `${node.position}%`, backgroundColor: node.color }"-->
-          <!--               >-->
-          <!--            @click="jumpToNode(node)"-->
-          <!--          </div>-->
+          <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
         <span class="speedButton">{{ speedOption }}</span>
         <div class="chooseSpeed">
           <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
@@ -109,77 +106,83 @@
         </div>
       </div>
     </div>
-    <!-- 进度条 end-->
 
-    <!--    两侧组件-->
-    <!--   应急响应-左上   -->
-    <timeLineEmergencyResponse
-        :eqid="eqid"
-        :currentTime="currentTime"
-        :eqstartTime="eqstartTime"
-        :isfirst="isfirst"
-        @addJumpNodes="addJumpNodes"
-    />
+    <div class="bottom-footer"></div>
 
-    <div v-if="PersoonnelCasuality===1">
-      <div class="personbutton">
-        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+    <div>
+      <div class="pop_left_background">
+        <!--   应急响应-左上   -->
+        <timeLineEmergencyResponse
+            :eqid="eqid"
+            :currentTime="currentTime"
+            :eqstartTime="eqstartTime"
+            :isfirst="isfirst"
+            @addJumpNodes="addJumpNodes"
+        />
+        <div>
+          <div class="personbutton" v-if="PersoonnelCasuality===1">
+            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+          </div>
+          <!--   人员伤亡-左中   -->
+          <timeLinePersonnelCasualties
+              v-if="PersoonnelCasuality===1"
+              :eqid="eqid"
+              :currentTime="currentTime"
+              @addJumpNodes="addJumpNodes"
+          />
+        </div>
+        <div>
+          <div class="personbutton" v-if="PersoonnelCasuality===2">
+            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+          </div>
+          <timeLineCasualtyStatistic
+              v-if="PersoonnelCasuality===2"
+              :zoomLevel="zoomLevel"
+              :pointsLayer="pointsLayer"
+              :currentTime="currentTime"
+          />
+        </div>
+        <!--   救援出队-左下   -->
+        <timeLineRescueTeam
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @addJumpNodes="addJumpNodes"
+        />
       </div>
-      <!--   人员伤亡-左中   -->
-      <timeLinePersonnelCasualties
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @addJumpNodes="addJumpNodes"
-      />
-    </div>
-
-    <div v-if="PersoonnelCasuality===2">
-      <div class="personbutton">
-        <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+      <div class="pop_right_background">
+        <!--  新闻-右上  -->
+        <div>
+          <news
+              :eqid="eqid"
+              :currentTime="currentTime"
+              @ifShowDialog="ifShowDialog"
+              @detailedNews="detailedNews"
+              @addJumpNodes="addJumpNodes"
+          ></news>
+        </div>
+        <!--      新闻弹框-->
+        <div>
+          <news-dialog
+              :showDetailedNewsDialog="showDetailedNewsDialog"
+              :showingNewsContent="showingNewsContent"
+              @hideNewsDialog="hideNewsDialog"
+          ></news-dialog>
+        </div>
+        <!--      标绘统计-->
+        <div>
+          <plotStatistics></plotStatistics>
+        </div>
+        <!--      缩略图-->
+        <div>
+          <mini-map></mini-map>
+        </div>
       </div>
-      <timeLineCasualtyStatistic
-          :zoomLevel="zoomLevel"
-          :pointsLayer="pointsLayer"
-          :currentTime="currentTime"
-      />
+      <!--      图例-->
+      <timeLineLegend
+          :activeComponent="activeComponent"
+          @toggleComponent="toggleComponent"
+      ></timeLineLegend>
     </div>
-
-    <!--   救援出队-左下   -->
-    <timeLineRescueTeam
-        :eqid="eqid"
-        :currentTime="currentTime"
-        @addJumpNodes="addJumpNodes"
-    />
-    <!--  新闻-右上  -->
-    <div>
-      <news
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @ifShowDialog="ifShowDialog"
-          @detailedNews="detailedNews"
-          @addJumpNodes="addJumpNodes"
-      ></news>
-    </div>
-    <!--      新闻弹框-->
-    <div>
-      <news-dialog
-          :showDetailedNewsDialog="showDetailedNewsDialog"
-          :showingNewsContent="showingNewsContent"
-          @hideNewsDialog="hideNewsDialog"
-      ></news-dialog>
-    </div>
-
-
-    <div>
-      <mini-map></mini-map>
-    </div>
-
-    <timeLineLegend
-        :activeComponent="activeComponent"
-        @toggleComponent="toggleComponent"
-    ></timeLineLegend>
-    <!--    两侧组件 end-->
-
 
     <!--   行政区划要素图层图例   -->
     <div id="legend"
@@ -248,9 +251,11 @@ import {initWebSocket} from "@/cesium/WS.js";
 import layeredShowPlot from "@/components/Cesium/layeredShowPlot.vue";
 import * as echarts from "echarts";
 import html2canvas from "html2canvas";
+import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
 
 export default {
   components: {
+    plotStatistics,
     layeredShowPlot,
     thematicMapPreview,
     RouterPanel,
@@ -2599,7 +2604,7 @@ export default {
 }
 
 #box {
-  height: calc(100vh - 140px);
+  height: calc(100vh - 106px);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -2607,7 +2612,7 @@ export default {
 }
 
 #cesiumContainer {
-  height: calc(100vh - 85px);
+  height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -2779,13 +2784,26 @@ export default {
   left: 2%;
 }
 
+
 .personbutton {
   position: absolute;
   z-index: 60;
-  top: 36%;
-  left: 19%;
+  top: 20.5%;
+  left: 31%;
+}
+:deep(.el-button--primary) {
+  border-color: #ffffff; /* 白色边框 */
+  background-color: #1a3749;
+  color: #ffffff; /* 白色字体 */
 }
 
+:deep(.el-button--primary):hover {
+  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
+}
+
+:deep(.el-button--primary):active {
+  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
+}
 .thematic-button {
   position: absolute;
   z-index: 20;
@@ -2925,7 +2943,7 @@ export default {
 }
 
 :deep(.close-item) {
-  margin-right: 0 !important;
+  margin-right: -5!important;
 }
 
 .logo-title {
@@ -3076,19 +3094,51 @@ export default {
   align-items: center; /* 垂直居中 */
 }
 
-:deep(.el-button--primary) {
-  background-color: transparent; /* 无背景颜色填充 */
-  border-color: #ffffff; /* 白色边框 */
-  background-color: #1a3749;
-  color: #ffffff; /* 白色字体 */
-  font-size: 16px;
+
+
+.pop_left_background {
+  top: 13%;
+  left: 1%;
+  height: 80.8vh;
+  width: 22%;
+  position: absolute;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
-:deep(.el-button--primary):hover {
-  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
+.pop_right_background {
+  top: 13%;
+  right: 1%;
+  height: 80.8vh;
+  width: 22%;
+  position: absolute;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
-:deep(.el-button--primary):active {
-  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
+:deep(.timelineLegend){
+  width: 19vw;
+  bottom: 6.8%;
 }
+:deep(.new-panel){
+  top: 3%;
+  left: 104%;
+  width: 239%;
+}
+:deep(.detailedNews){
+  width: 238%;
+  height: 69%;
+  top: 3%;
+  right: 102%;
+}
+:deep(.news-title:after){
+  top:21%;
+}
+:deep(.timelineLegend.open){
+  width:38%;
+}
+:deep(.close-items-row){
+  left:0%;
+}
+
 </style>

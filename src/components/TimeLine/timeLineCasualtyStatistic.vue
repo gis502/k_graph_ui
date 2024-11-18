@@ -2,9 +2,9 @@
   <div class="casualtyStatistic">
     <div>
       <span class="sub-title-new">伤亡详情：</span>
-      <span class="title-time">{{timestampToTime(currentTime)}}</span>
+      <span class="time">{{timestampToTime(currentTime)}}</span>
       <div class="sub-main">
-        <!--      <div width="">-->
+
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
@@ -434,9 +434,9 @@ export default {
   overflow-y: auto;
   overflow-x: hidden;
   position: absolute;
-  top: 34.5%;
-  width: 22%;
-  height: 21%;
+  top: 20%;
+  width: 100%;
+  height: 36%;
   padding: 10px;
   border-radius: 5px;
   left: 1%;
@@ -513,25 +513,14 @@ export default {
   position: relative;
 }
 
-.sub-title-new:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.title-time{
+
+.time{
+  right: 1%;
+  position: absolute;
   font-size: 0.9rem;
   font-weight: normal;
-  color: #ffeb00;
-  line-height: 1.8rem;
-  top: -8px;
-  position: relative;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffffff;
 }
 
 </style>

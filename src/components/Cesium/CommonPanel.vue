@@ -574,15 +574,15 @@ export default {
   position: absolute;
   width: 800px;
   padding: 20px;
-  z-index: 10;
+  z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
 }
 .eq-videoMonitorWin{
   position: absolute;
-  width: 418px;
+  width: 375px;
   padding: 10px;
-  z-index: 5;
+  z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
 }
@@ -623,7 +623,7 @@ export default {
 }
 
 .earthquake-info-panel {
-  padding: 20px;
+  padding: 0px;
   background-color: #f9f9f9;
   border-radius: 8px;
   max-width: 95%;
@@ -648,6 +648,7 @@ export default {
 
 .clearfix {
   font-size: 16px;
+  margin-bottom:6px;
 }
 
 </style>

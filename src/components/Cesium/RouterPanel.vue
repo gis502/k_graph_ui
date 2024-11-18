@@ -227,7 +227,7 @@ export default {
   height: 50vh;
   width: 789px;
   padding: 20px;
-  z-index: 10;
+  z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   /*border: 2px solid #18c9dc;*/
   overflow-y: auto;
