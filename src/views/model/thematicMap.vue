@@ -4,9 +4,10 @@
 
       <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
       <EarthquakeList
-        @imag-selected="onImagSelected"
-        @selectEq="selectEq"
-        :thematicMapClass="thematicMapClass"
+          @imag-selected="onImagSelected"
+          @selectEq="selectEq"
+          :thematicMapClass="thematicMapClass"
+          @eqPointPositionData="getEqPointPositionData"
       ></EarthquakeList>
 
       <!--            <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"-->
@@ -20,11 +21,11 @@
     </div>
     <!--    准提图预览组件    -->
     <thematicMapPreview
-      @ifShowThematicMapDialog="ifShowDialog"
-      :imgshowURL="imgshowURL"
-      :imgurlFromDate="imgurlFromDate"
-      :imgName="imgName"
-      :ifShowMapPreview="ifShowMapPreview"
+        @ifShowThematicMapDialog="ifShowDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
   </div>
@@ -56,7 +57,6 @@ export default {
       pagedEqData: [],
 
       selectedTabData: null,
-      selectedEqPoint: null,
       historyEqData: [],
       historyEqPoints: [],
 
@@ -94,6 +94,7 @@ export default {
       imgurlFromDate: "",
       imgName: '',
       thematicMapClass: 'TwoAndThreeDIntegration', // 二三维一体化的专题图
+      eqPointPositionData: {longitude: null, latitude: null}
     };
   },
   mounted() {
@@ -131,10 +132,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        500000,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          500000,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -145,11 +146,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -176,12 +177,7 @@ export default {
         // 判断点击的是不是地震点
         if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
           pickedObject.id.label._show._value = !pickedObject.id.label._show._value;
-        }
-
-        else {
-          if (this.selectedEqPoint) {
-            this.selectedEqPoint.label._show._value = false;
-          }
+        } else {
 
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
@@ -220,7 +216,7 @@ export default {
             image: eqMark,
             width: 20,
             height: 20,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
           },
           label: {
             text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
@@ -234,7 +230,6 @@ export default {
             clampToGround: true,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,  // 左侧对齐
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,   // 底部对齐
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           id: eq.eqid
         });
@@ -291,7 +286,7 @@ export default {
           // console.log("dataSource entity",entity)
           // 根据实体索引依次从颜色数组中取颜色
           const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-           // 使用 ColorMaterialProperty 包装颜色
+          // 使用 ColorMaterialProperty 包装颜色
           entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 设置填充颜色
           // console.log("--------", index, "----------------", entity)
         });
@@ -311,7 +306,8 @@ export default {
                 verticalOrigin: Cesium.VerticalOrigin.CENTER,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                pixelOffset: new Cesium.Cartesian2(0, 0)
+                pixelOffset: new Cesium.Cartesian2(0, 0),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
               })
             }));
             this.RegionLabels.push(regionlabel)
@@ -341,21 +337,6 @@ export default {
       });
     },
 
-    toTab(eq) {
-      this.currentTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
-      if (this.currentTab !== '震害事件') {
-
-        // 查找与选项卡名称匹配的地震数据
-        this.selectedTabData = this.getEqData.find(
-          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
-        );
-        // 如果找到对应数据，调用定位函数
-        if (this.selectedTabData) {
-          this.selectEqPoint();
-        }
-      }
-    },
-
     // 分页改变事件
     handleCurrentChange(page) {
       this.currentPage = page;
@@ -364,7 +345,6 @@ export default {
 
     back() {
       this.currentTab = '震害事件';
-      this.selectedTabData = null;
       this.removeData()
     },
 
@@ -376,9 +356,9 @@ export default {
           const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -395,145 +375,163 @@ export default {
       })
     },
 
-    selectEqPoint() {
-      // 检查 selectedTabData 是否存在
-      if (this.selectedTabData) {
-        // 清空 listEqPoints
-        this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
-        this.listEqPoints = [];
-
-        // 避免选择同一选项卡时重复生成实体导致重叠
-        window.viewer.entities.remove(this.selectedEqPoint);
-
-        // 提取 selectedEqPoint
-        this.selectedEqPoint = window.viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
-          ),
-          billboard: {
-            image: eqMark,
-            width: 25,
-            height: 25,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
-          },
-          label: {
-            text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-              this.selectedTabData.earthquakeName +
-              this.selectedTabData.magnitude + '级地震',
-            font: '18px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.BLACK,
-            showBackground: true,
-            show: true, // 显示 label
-            horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
-          },
-          id: this.selectedTabData.id
-        });
-
-        // 渲染 selectedEqPoint
-        // console.log("Selected Eq Point:", this.selectedEqPoint);
-      } else {
-        console.warn("No selectedTabData available");
-      }
-    },
-
     getAssetsFile() {
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
 
+    getEqPointPositionData(value) {
+      this.eqPointPositionData = value
+    },
+
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
-      console.log("imagData------------------", imagData)
-      this.imgurlFromDate = imagData.path
-      this.imgName = imagData.name
-      this.ifShowMapPreview = true
-      this.getAssetsFile()
-    },
+      if (!imagData.path) {
+        if (imagData.name === "三维模型图产出") {
+          // 切换到第三方地形
+          const terrainProvider = new Cesium.CesiumTerrainProvider({
+            url: Cesium.IonResource.fromAssetId(1), // 第三方地形服务的配置
+            requestWaterMask: true,
+            requestVertexNormals: true
+          });
 
-    ifShowDialog(val) {
-      // console.log("ifShowDialog-----",val)
-      this.isshowImagetype = val
-      this.ifShowMapPreview = false
-    },
+          // 更新 viewer 的地形服务
+          viewer.terrainProvider = terrainProvider;
 
-    selectEq(eq) {
-      this.locateEq(eq)
-    },
+          // 确保目标点经纬度有效
+          const targetLongitude = Number(this.eqPointPositionData.longitude);
+          const targetLatitude = Number(this.eqPointPositionData.latitude) - 0.15;
 
-    removeData() {
-      this.historyEqPoints = [];
-      this.historyEqData = [];
-      this.removeEntitiesByType("historyEq")
-      this.removeEntitiesByType("faultZone")
-      this.removeEntitiesByType("ovalCircle")
-      this.isHistoryEqPointsShow = false;
-    },
+          if (!isNaN(targetLongitude) && !isNaN(targetLatitude)) {
+            // 目标点 Cartesian3 坐标
+            const targetPoint = Cesium.Cartesian3.fromDegrees(targetLongitude, targetLatitude);
 
-    // 跳转至指挥大屏
-    navigateToVisualization(thisEq) {
-      const path = `/thd?eqid=${thisEq.eqid}`;
-      window.open(path, '_blank');
-    },
+            // 设置相机飞跃到目标点，倾斜角度为 45 度
+            viewer.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(targetLongitude, targetLatitude, 20000), // 目标点高度为 20000 米
+              orientation: {
+                heading: Cesium.Math.toRadians(0),  // 水平角度，保持默认
+                pitch: Cesium.Math.toRadians(-45), // 倾斜角度 45 度
+                roll: 0 // 没有滚转
+              },
+              duration: 3, // 飞跃时间
+              complete: () => {
+                console.log("飞跃完成，开始截图");
 
-    hidden(hidden) {
-      this.isHistoryEqPointsShow = hidden;
-      this.isShow = true;
-    },
-
-    // 时间戳转换
-    timestampToTime(timestamp, format = "full") {
-      let dateObj = new Date(timestamp);
-      let year = dateObj.getFullYear();
-      let month = dateObj.getMonth() + 1;
-      let day = dateObj.getDate();
-      let hh = dateObj.getHours();
-      let mm = dateObj.getMinutes();
-      let ss = dateObj.getSeconds();
-
-      // 去掉前导零
-      month = month > 9 ? month : month.toString().replace(/^0/, "");
-      day = day > 9 ? day : day.toString().replace(/^0/, "");
-      hh = hh > 9 ? hh : "0" + hh;
-      mm = mm > 9 ? mm : "0" + mm;
-      ss = ss > 9 ? ss : "0" + ss;
-
-      if (format === "date") {
-        // 返回仅日期格式
-        return `${year}年${month}月${day}日`;
+                // 地图加载完成后进行截图
+                this.captureRemoteSensingImage();
+              }
+            });
+          }
+        }
       } else {
-        // 返回完整的日期时间格式
-        return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+        this.imgurlFromDate = imagData.path
+        this.imgName = imagData.name
+        this.ifShowMapPreview = true
+        this.getAssetsFile()
       }
-    },
-    exportCesiumScene(type) {
+    }
+  },
+  // 截图 Cesium 场景
+  captureRemoteSensingImage() {
+    console.log("开始生遥感影像截图...");
+    if (window.viewer && window.viewer.scene) {
+      try {
+        // 获取 Cesium 场景的 Canvas 图像
+        const cesiumCanvas = window.viewer.scene.canvas;
+        if (!cesiumCanvas) {
+          throw new Error("未找到 Cesium 场景的 Canvas");
+        }
 
-      if (type == "history") {
-        // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
-        // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
-        // console.log("11111111111111111history")
-        // this.previewImage = finalCanvas.toDataURL('震区历史地震分布图-专业版-A3-横版.jpg');
+        const cesiumImage = cesiumCanvas.toDataURL("image/png"); // Cesium 场景导出为图片
+        console.log("Cesium 场景截图生成成功");
+
+        // 将截图结果设置为图片 URL
+        this.imgshowURL = cesiumImage;
+      } catch (error) {
+        console.error("Cesium 场景截图生成失败", error);
       }
-    },
+    }
+  },
+
+  ifShowDialog(val) {
+    // console.log("ifShowDialog-----",val)
+    this.isshowImagetype = val
+    this.ifShowMapPreview = false
+  },
+
+  selectEq(eq) {
+    this.locateEq(eq)
+  },
+
+  removeData() {
+    this.historyEqPoints = [];
+    this.historyEqData = [];
+    this.removeEntitiesByType("historyEq")
+    this.removeEntitiesByType("faultZone")
+    this.removeEntitiesByType("ovalCircle")
+    this.isHistoryEqPointsShow = false;
+  },
+
+  // 跳转至指挥大屏
+  navigateToVisualization(thisEq) {
+    const path = `/thd?eqid=${thisEq.eqid}`;
+    window.open(path, '_blank');
+  },
+
+  hidden(hidden) {
+    this.isHistoryEqPointsShow = hidden;
+    this.isShow = true;
+  },
+
+  // 时间戳转换
+  timestampToTime(timestamp, format = "full") {
+    let dateObj = new Date(timestamp);
+    let year = dateObj.getFullYear();
+    let month = dateObj.getMonth() + 1;
+    let day = dateObj.getDate();
+    let hh = dateObj.getHours();
+    let mm = dateObj.getMinutes();
+    let ss = dateObj.getSeconds();
+
+    // 去掉前导零
+    month = month > 9 ? month : month.toString().replace(/^0/, "");
+    day = day > 9 ? day : day.toString().replace(/^0/, "");
+    hh = hh > 9 ? hh : "0" + hh;
+    mm = mm > 9 ? mm : "0" + mm;
+    ss = ss > 9 ? ss : "0" + ss;
+
+    if (format === "date") {
+      // 返回仅日期格式
+      return `${year}年${month}月${day}日`;
+    } else {
+      // 返回完整的日期时间格式
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+    }
+  },
+  exportCesiumScene(type) {
+
+    if (type == "history") {
+      // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
+      // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
+      // console.log("11111111111111111history")
+      // this.previewImage = finalCanvas.toDataURL('震区历史地震分布图-专业版-A3-横版.jpg');
+    }
+  },
 
 
-    // 下载图片
-    downloadImage() {
-      const link = document.createElement('a');
-      link.download = '震情伤亡-震情灾情统计表.png';
-      link.href = this.previewImage;
-      link.click();
-      this.previewImage = null;
-    },
+  // 下载图片
+  downloadImage() {
+    const link = document.createElement('a');
+    link.download = '震情伤亡-震情灾情统计表.png';
+    link.href = this.previewImage;
+    link.click();
+    this.previewImage = null;
+  },
 
-    // 关闭预览窗口
-    closePreview() {
-      this.previewImage = null;
-    },
-
-  }
+  // 关闭预览窗口
+  closePreview() {
+    this.previewImage = null;
+  },
 }
 </script>
 

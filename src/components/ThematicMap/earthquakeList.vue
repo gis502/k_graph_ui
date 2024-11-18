@@ -157,6 +157,7 @@ export default {
       pageSize: 10,
       currentPage: 1,
       selectedEqPoint: '',
+      eqPointPositionData: {longitude:null,latitude:null}
     }
   },
   mounted() {
@@ -331,6 +332,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
+          this.$emit('eqPointPositionData',this.eqPointPositionData)
         }
       }
     },
@@ -351,6 +353,7 @@ export default {
             image: eqMark,
             width: 25,
             height: 25,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
@@ -364,10 +367,15 @@ export default {
             show: true,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           id: this.selectedTabData.id
         });
+        const longitude = this.selectedTabData.longitude;
+        const latitude = this.selectedTabData.latitude;
+        this.eqPointPositionData.longitude = longitude;
+        this.eqPointPositionData.latitude = latitude;
       }
     },
 
