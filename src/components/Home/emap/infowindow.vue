@@ -83,7 +83,7 @@ $tooltip-text-color: #00a1ff;
 $closeColor: #ff4c4c;
 
 .infowindowClass {
-  position: relative;
+  position: absolute;
   width: 340px;
   padding: 20px;
   background-color: $tooltip-background;
