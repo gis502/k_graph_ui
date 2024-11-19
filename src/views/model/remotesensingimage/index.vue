@@ -300,6 +300,9 @@ export default {
           return item;
         });
 
+        // 确保分页总数（total）正确
+        this.total = res.total || this.tableData.length;  // 如果没有返回 total，使用 tableData.length
+        this.currentPage = 1;  // 默认重置为第一页
         // 打印处理后的 tableData
         console.log("处理后的 tableData:", this.tableData);
       }).catch(error => {
@@ -393,7 +396,6 @@ export default {
         console.error("查询失败:", error);
       });
     },
-
     // 搜索框
     handleQuery() {
       const searchKey = this.queryParams.trim();  // 获取搜索关键字
@@ -466,7 +468,8 @@ export default {
             });
 
             // 更新分页的总数
-            this.total = res.data.total;  // 假设后端返回 total
+            this.total = this.tableData.length;
+            this.updateTableData(); // 初始化第一页数据
           })
           .catch(error => {
             console.error("查询时出现错误:", error);
@@ -500,7 +503,6 @@ export default {
 
     handleEdit(title, row = {}) {
       this.dialogTitle = title;
-
       if (title === "新增") {
         this.dialogContent = {
           name: '',
@@ -521,6 +523,8 @@ export default {
           angle: row.angle,
           uuid: row.uuid
         };
+        console.log(row.createTime)
+
       }
 
       this.dialogShow = true;
@@ -548,21 +552,33 @@ export default {
             ElMessage.info('删除操作已取消');
           });
     },
+
+    // 格式化日期时间方法
+    formatDate(dateStr) {
+      // 使用正则表达式将 `yyyy年MM月dd日 HH:mm:ss` 转化为 `yyyy-MM-dd'T'HH:mm:ss`
+      const regex = /^(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})$/;
+      const match = dateStr.match(regex);
+      if (match) {
+        // 提取各部分并拼接成符合后端要求的 `yyyy-MM-dd'T'HH:mm:ss` 格式
+        return `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}`;
+      }
+      return dateStr; // 如果格式不匹配，返回原始日期字符串
+    },
+
     // 新增 or 编辑 提交按钮
     commit() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          // 复制 dialogContent 对象
           const modelData = {
             name: this.dialogContent.name,
             height: this.dialogContent.height,
             angle: this.dialogContent.angle,
             path: this.dialogContent.path,
-            // 如果 createTime 是一个 Date 对象，转换为 ISO 字符串格式
-            createTime: this.dialogContent.createTime,
-            shootingTime: this.dialogContent.shootingTime,
+            createTime: this.formatDate(this.dialogContent.createTime),
+            shootingTime: this.formatDate(this.dialogContent.shootingTime),
             uuid: this.dialogContent.uuid,
           };
-
           const action = this.dialogTitle === '新增' ? insert : update;
           action(modelData).then(() => {
             this.fetchData();
@@ -615,14 +631,26 @@ export default {
       this.dialogContent = this.getEmptyDialogContent();
     },
 
+    /**
+     * 分页
+     */
+    updateTableData() {
+      // 根据分页逻辑获取当前页数据
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = this.currentPage * this.pageSize;
+      this.TableData = this.tableData.slice(start, end);
+    },
+
     handleSizeChange(val) {
+      // 每页条数变化时，更新数据
       this.pageSize = val;
-      this.fetchData();
+      this.updateTableData();
     },
 
     handleCurrentChange(val) {
+      // 当前页变化时，更新数据
       this.currentPage = val;
-      this.fetchData();
+      this.updateTableData();
     },
 
     getPageArr() {
