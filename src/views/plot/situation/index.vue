@@ -393,6 +393,7 @@ export default {
         //   label: '量算工具',
         // }
       ],
+      copiedPlotTreeData: [],
       defaultProps: {
         label: 'label',
         children: 'children',
@@ -768,7 +769,8 @@ export default {
 
       // 提取所有的最高级和第二级的label
       const highestAndSecondLabels = [];
-      this.plotTreeData.forEach(item => {
+      this.copiedPlotTreeData = this.plotTreeData
+      this.copiedPlotTreeData.forEach(item => {
         // 添加最高级label
         highestAndSecondLabels.push(item.label);
         // 添加每个子项的label
@@ -988,7 +990,7 @@ export default {
         this.isLoaded = true;
       }
 
-      this.plotTreeData.forEach(rootNode => {
+      this.copiedPlotTreeData.forEach(rootNode => {
         if (rootNode.children) {
           rootNode.children.forEach(child => {
             let arr = this.plotPicture.filter(item => item.type === child.label);
@@ -1166,7 +1168,7 @@ export default {
 
       for (let i = 0; i < splitData.length; i++) {
         // 获取对应的 drawtype 转换值
-        const drawtypeKey = splitData[i].plotInfo.drawtype;
+        const drawtypeKey = splitData[i].plotInfo.plotType;
         const mappedDrawtype = drawtypeMapping[drawtypeKey] || "unknown"; // 如果类型未匹配，设置为 "unknown"
         if (splitData[i].plotInfo.drawtype === "point" || splitData[i].plotInfo.drawtype === "点") {
           console.log("1111111111111111", splitData[i])
@@ -1192,10 +1194,6 @@ export default {
                 isDeleted: splitData[i].plotInfo.isDeleted,
               },
               plotinfo: {
-                geom: {
-                  type: "Point",
-                  coordinates: [splitData[i].plotInfo.longitude, splitData[i].plotInfo.latitude],
-                },
                 ...splitData[i].plotTypeInfo,
               },
             },
@@ -1323,17 +1321,6 @@ export default {
       console.log(assemblyPolygonArray)
       console.log(assemblyArrowArray)
 
-      // try {
-      //   // 直接处理数据
-      //   this.handleData(response.data.plotIds);
-      // } catch (error) {
-      //   // 捕获异常并提示错误
-      //   ElMessage({
-      //     message: '不能上传重复数据',
-      //     type: 'error',
-      //     duration: 3000,
-      //   });
-      // }
     },
 
     convertToDateTimeString(excelDate) {
