@@ -6,12 +6,23 @@
           应急响应
           <span class="time">{{ recordTime }}</span>
         </h2></div>
+      <div class="sub-main">
+        <ul class="sub-ul">
+          <li :class="[i === 0 || i === 1 ? 'high' : '']"
+              v-for="(item, i) in responseHistory"
+          >
       <div class="pop_content">
-        <p class="pop_txt"><span>{{ this.activity.department }}</span></p>
+        <p class="pop_txt"><span>{{item.time }}</span></p>
+        <p class="pop_txt"><span>{{ item.department }}</span></p>
         <p class="pop_responseName">
-          <span>{{ this.activity.ResponseName }}</span>
-          <span class="pop_txt">{{ this.activity.state }}</span>
+          <span>{{ item.ResponseName }}</span>
+          <span class="pop_txt">{{ item.state }}</span>
         </p>
+        <el-divider style="width: 140%;"></el-divider>
+
+      </div>
+          </li>
+        </ul>
       </div>
     </div>
     <div v-if="showNewPanel && this.responseNewPanelShow.length!=0 " class="new-panel" :style="{ height: panelHeight }">
@@ -235,6 +246,35 @@ export default {
   position: relative;
   left: 7%;
 }
+
+.sub-main {
+  margin-top: -6%;
+  max-height: 11vh;
+  left: -2%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding: 0px;
+}
+
+
+.sub-ul {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  overflow-y: hidden; /* 当内容超出时隐藏垂直滚动条 */
+  list-style-type: none; /* 去除列表项默认的项目符号 */
+}
+
+.sub-ul li {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  margin-bottom: -21px; /* Optional: Add some space between items */
+  /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
+  padding: 0; /* Optional: Add padding for better spacing */
+}
+
 .pop_content {
   left: 7%;
   top: -2%;
@@ -262,6 +302,7 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
+
 .new-panel {
   position: absolute;
   top: 8%;
@@ -304,6 +345,25 @@ export default {
   cursor: pointer; /* Change cursor to pointer */
   font-size: 24px; /* Adjust font size */
   color: #ffffff; /* Optional: Set color */
+}
+
+/* 整个滚动条 */
+::-webkit-scrollbar {
+  width: 6px; /* 滚动条的宽度 */
+  height: 12px; /* 滚动条的高度，对水平滚动条有效 */
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #008aff70; /* 轨道的背景颜色 */
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #1f9dca; /* 滑块的背景颜色 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 
 </style>
