@@ -417,6 +417,7 @@ export default {
               complete: () => { // 使用箭头函数
                 console.log("飞跃完成，开始截图");
                 this.captureRemoteSensingImage(); // 确保 this 指向 Vue 实例
+                this.imgName = imagData.name
               }
             });
 
@@ -445,6 +446,7 @@ export default {
 
           // 将截图结果设置为图片 URL
           this.imgshowURL = cesiumImage;
+          this.imgurlFromDate = cesiumImage;
           this.ifShowMapPreview = true
         } catch (error) {
           console.error("Cesium 场景截图生成失败", error);

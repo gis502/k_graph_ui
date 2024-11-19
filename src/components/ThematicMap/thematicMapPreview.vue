@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { jsPDF } from 'jspdf';
+import {jsPDF} from 'jspdf';
 
 export default {
   data() {
@@ -86,16 +86,31 @@ export default {
       return new URL(imgshowURL, import.meta.url).href
     },
     async downloadImage() {
+      try {
+        const link = document.createElement('a'); // 创建下载链接
+        link.download = `${this.imgNameLocal || 'download'}.jpg`; // 设置默认文件名
 
-      const link = document.createElement('a');
-      link.download = this.imgNameLocal + '.jpg';
-      // console.log(this.imgurlFromDateLocal,"this.imgurlFromDateLocal")
-      const imgModule = await import(this.imgurlFromDateLocal);
-      console.log(imgModule)
+        // 判断是否为 Base64 数据
+        const isBase64 = this.imgurlFromDateLocal.startsWith('data:image');
 
-      link.href = imgModule.default;
-      link.click();
-      this.$emit('ifShowThematicMapDialog', null);
+        if (isBase64) {
+          // 如果是 Base64 数据，直接使用
+          link.href = this.imgurlFromDateLocal;
+        } else if (this.imgurlFromDateLocal.startsWith('http') || this.imgurlFromDateLocal.startsWith('/')) {
+          // 如果是 URL，直接赋值
+          link.href = this.imgurlFromDateLocal;
+        } else {
+          // 如果是模块路径，动态导入
+          const imgModule = await import(this.imgurlFromDateLocal);
+          link.href = imgModule.default;
+        }
+
+        link.click(); // 触发下载
+        this.$emit('ifShowThematicMapDialog', null); // 触发关闭事件
+      } catch (error) {
+        console.error('下载图片失败:', error);
+        this.$message && this.$message.error('下载图片失败，请检查图片地址或模块路径是否正确！');
+      }
     },
     closePreview() {
       this.$emit('ifShowThematicMapDialog', null);
