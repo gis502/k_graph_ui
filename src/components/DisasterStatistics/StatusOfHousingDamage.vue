@@ -5,8 +5,9 @@
 <script setup>
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
-import {getHousingSituationList} from "../../api/system/housingSituation";
+import {fromHousingSituation, getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
+
 
 
 const chart = ref(null);
@@ -19,7 +20,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -42,9 +43,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("StatusOfHousingDamage",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromHousingSituation(store.globalEqId,newValue).then(res => {
+    console.log("房屋损毁情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 const currentlyDamaged = ref([]) // 目前受损

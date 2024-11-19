@@ -9,14 +9,15 @@ import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
 import {getBarrierlakeSituation} from "../../api/system/barrierlakeSituation";
 import {getMaterialDonation} from "../../api/system/materialDonation";
-import {getSocialOrder} from "../../api/system/socialOrder";
+import {fromSocialOrder, getSocialOrder} from "../../api/system/socialOrder";
+import {fromCharity} from "../../api/system/charitableOrganization";
 const props = defineProps({
   eqid:{
     type: String,
     required: true
   },
   userInput:{
-    type:String,
+    type:[String,Date],
     required: true
   }
 });
@@ -39,9 +40,12 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("ConcentratedWaterSupplyProjectDamage",userInputTime.value,store.globalEqId)
-  // 后端逻辑处理：
 
+  // 后端逻辑处理：
+  fromSocialOrder(store.globalEqId,newValue).then(res => {
+    console.log("社会秩序情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 const eqid = ref('');

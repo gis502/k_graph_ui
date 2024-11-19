@@ -7,14 +7,15 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getRescueForces} from "../../api/system/rescueTeams";
+import {fromRescueForces, getRescueForces} from "../../api/system/rescueTeams";
+import {fromLargeSpecialRescueEquipment} from "../../api/system/rescueEquipment";
 const props = defineProps({
   eqid:{
     type: String,
     required: true
   },
   userInput:{
-    type:String,
+    type:[String,Date],
     required: true
   }
 });
@@ -37,9 +38,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("ConcentratedWaterSupplyProjectDamage",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromRescueForces(store.globalEqId,newValue).then(res => {
+    console.log("救援力量情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 const eqid = ref('');

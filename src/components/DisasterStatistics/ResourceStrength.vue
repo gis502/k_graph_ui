@@ -28,7 +28,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String,Date],
     required: true
   }
 });

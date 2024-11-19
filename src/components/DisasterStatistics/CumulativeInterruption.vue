@@ -18,13 +18,8 @@ const props = defineProps({
     type: String,
     required: true
   },
-  userInput:{
-    type:String,
-    required: true
-  }
 });
 
-// 时间查询功能
 const formatDateChina = (dateStr) => {
   if(dateStr){
     const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
@@ -37,16 +32,6 @@ const formatDateChina = (dateStr) => {
     return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
   }
 };
-
-const userInputTime = ref('')
-
-watch(()=>props.userInput,(newValue) => {
-  userInputTime.value = newValue;
-  console.log("CumulativeInterruption",userInputTime.value,store.globalEqId)
-  // 后端逻辑处理：
-
-})
-// --------------------------------------------------------------------------------------------------------
 
 const chart = ref(null);
 const echartData = ref([

@@ -6,7 +6,7 @@
 <script setup>
 import {ref, onMounted, watch} from 'vue';
 import * as echarts from 'echarts';
-import {getTotal} from "../../api/system/statistics";
+import {fromAftershock, getTotal} from "../../api/system/statistics";
 
 import { defineProps } from 'vue';
 import {useGlobalStore} from "../../store";
@@ -18,7 +18,7 @@ const props = defineProps({
     required: true,
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -41,12 +41,16 @@ const formatDateChina = (dateStr) => {
 watch(()=>props.userInput,(newValue) => {
   console.log("DisasterStatistics接收到了",store.globalEqId,"最新的时间",newValue)
   // 后端操作：
-
+  fromAftershock(store.globalEqId,newValue).then(res => {
+    console.log("地震灾情信息返回的数据",res)
+    updateData(res.data)
+  })
 })
 
 // -------------------------------------------------------------------------------------------------
 
 // 这行代码里面的赋值已经不再是neweqid的默认值，这里的作用是为了一开始watch没有监听到eqid值变化的时候给的值
+
 // 防止因为没有eqid的传值而报错，删除或者更换为空值或者其他非正常eqid值都会报错
 
 const neweqid = ref('');

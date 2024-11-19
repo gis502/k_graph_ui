@@ -6,7 +6,8 @@
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useGlobalStore} from "../../store";
-import {getPublicOpinion} from "../../api/system/publicOpinion";
+import {fromPublic, getPublicOpinion} from "../../api/system/publicOpinion";
+import {fromSocialOrder} from "../../api/system/socialOrder";
 
 
 const chart = ref(null);
@@ -19,7 +20,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String,Date],
     required: true
   }
 });
@@ -42,9 +43,12 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("ConcentratedWaterSupplyProjectDamage",userInputTime.value,store.globalEqId)
-  // 后端逻辑处理：
 
+  // 后端逻辑处理：
+  fromPublic(store.globalEqId,newValue).then(res => {
+    console.log("宣传舆论情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 

@@ -2,7 +2,7 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">当前累计中断情况<br>
-        <CumulativeInterruption :eqid="eqid" :userInput="userInputTime"/>
+        <CumulativeInterruption :eqid="eqid"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">电力设施损毁及抢修情况<br>
         <PowerSupply :eqid="eqid" :userInput="userInputTime"/>
@@ -34,7 +34,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });

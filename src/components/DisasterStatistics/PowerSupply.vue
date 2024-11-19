@@ -19,7 +19,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as echarts from 'echarts';
-import { getPowerSupply } from "../../api/system/powerSupply";
+import {fromPowerSupplyInformation, getPowerSupply} from "../../api/system/powerSupply";
 import { defineProps } from "vue";
 import {useGlobalStore} from "../../store";
 
@@ -36,7 +36,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -59,9 +59,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("PowerSupply",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromPowerSupplyInformation(store.globalEqId,newValue).then(res => {
+    console.log("电力设施损毁及抢修情况",res)
+    updataData(res.data)
+  })
 })
 // ----------------------------------------------------------------------------------------
 

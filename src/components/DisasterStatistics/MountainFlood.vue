@@ -7,14 +7,14 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getSecondaryDisaster} from "../../api/system/mountainFlood";
+import {fromSecondaryDisasterInfo, getSecondaryDisaster} from "../../api/system/mountainFlood";
 const props = defineProps({
   eqid:{
     type: String,
     required: true
   },
   userInput:{
-    type:String,
+    type:[String,Date],
     required: true
   }
 });
@@ -37,9 +37,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("BarrierLakeSituation",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromSecondaryDisasterInfo(store.globalEqId,newValue).then(res => {
+    console.log("山洪危险区情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 const eqid = ref('');

@@ -6,7 +6,7 @@
 <script setup>
 import { onMounted, onBeforeUnmount, ref, watch, defineProps } from 'vue';
 import * as echarts from 'echarts';
-import { getTotal } from "../../api/system/relocation";
+import { fromTransferSettlementInfo, getTotal} from "../../api/system/relocation";
 import {useGlobalStore} from "../../store";
 
 const props = defineProps({
@@ -15,7 +15,7 @@ const props = defineProps({
     required: true,
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -35,7 +35,10 @@ const formatDateChina = (dateStr) => {
 watch(()=>props.userInput,(newValue) => {
   console.log("ResettlementGraph接收到了",store.globalEqId,"最新的时间",newValue)
   // 后端操作：
-
+  fromTransferSettlementInfo(store.globalEqId,newValue).then(res=>{
+    console.log("转移安置的返回数据",res)
+    updateChartData(res.data);
+  })
 })
 
 // -------------------------------------------------------------------------------------------------

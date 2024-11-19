@@ -33,7 +33,12 @@
         </el-select>
       </el-col>
       <el-col :span="1.5">
-        <el-input  style="width: 240px; height: 40px" placeholder="请输入查询时间" v-model="inputValue"/>
+        <el-date-picker
+            v-model="inputValue"
+            type="datetime"
+            placeholder="请选择查询时间"
+            style="width: 240px; height: 40px"
+        />
       </el-col>
       <el-col :span="1.5">
         <el-button type="primary" @click="handleClick">查询</el-button>
@@ -174,9 +179,25 @@ const getTableField = () => {
     // 模拟异步请求后赋值给 FieldName
   })
 }
-//获取地震列表
+
+// 时间处理为年 月 日 格式
+const formatDate = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+// 获取地震列表
 const getEarthquake = () => {
   getExcelUploadEarthquake().then(res => {
+
     eqlists.value = res
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
@@ -186,9 +207,13 @@ const getEarthquake = () => {
           const eqid = file.split(' - ')[0]?.trim();
           const details = file.split(' - ')[1]?.trim();
 
+          // 对时间进行处理：
+          const time = formatDate(details.split(' ')[0] +' ' +details.split(' ')[1]);
+          const newDetails = `${time}`+ ' ' +details.split(' ')[2] + ' ' + details.split(' ')[3] + details.split(' ')[4];
+
           // 提取 `-` 后面的部分
           return {
-            label: details, // 使用提取的部分作为标签
+            label: newDetails, // 使用提取的部分作为标签
             value: eqid// 选择值为 ID
           }
         }

@@ -10,7 +10,7 @@
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useGlobalStore} from "../../store";
-import {getEnsureWaterSupply} from "../../api/system/supplyWater";
+import {fromSupplyWater, getEnsureWaterSupply} from "../../api/system/supplyWater";
 const latestTime = ref(''); // 时间
 const earthquakeAreaName = ref([]); // 地点
 const waterSupplyPoints = ref([]); // 受损数量
@@ -24,7 +24,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -49,7 +49,10 @@ watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
   console.log("EnsureWaterSupplyResettlementSites",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromSupplyWater(store.globalEqId,newValue).then(res => {
+    console.log("保障安置点供水统计",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 

@@ -8,14 +8,15 @@ import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
 import {getBarrierlakeSituation} from "../../api/system/barrierlakeSituation";
-import {getRedCrossDonations} from "../../api/system/redCrossDonation";
+import {fromRedCrossDonations, getRedCrossDonations} from "../../api/system/redCrossDonation";
+import {fromMaterialDonation} from "../../api/system/materialDonation";
 const props = defineProps({
   eqid:{
     type: String,
     required: true
   },
   userInput:{
-    type:String,
+    type:[String,Date],
     required: true
   }
 });
@@ -38,9 +39,12 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("ConcentratedWaterSupplyProjectDamage",userInputTime.value,store.globalEqId)
-  // 后端逻辑处理：
 
+  // 后端逻辑处理：
+  fromRedCrossDonations(store.globalEqId,newValue).then(res => {
+    console.log("红十字会系统接收捐赠资金情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 const eqid = ref('');

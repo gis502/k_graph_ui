@@ -7,7 +7,8 @@ import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
-import {getRiskConstructionGeohazards} from "../../api/system/geologicalDisaster";
+import {fromRiskConstructionGeohazards, getRiskConstructionGeohazards} from "../../api/system/geologicalDisaster";
+import {fromSecondaryDisasterInfo} from "../../api/system/mountainFlood";
 const chart = ref(null);
 const FieldName = ref(['现有隐患点（个）','新增隐患点（个）','正在施工点（个）','基础设施检查点（个）','预警发布（次）','转移避险（人）']);
 let echartsInstance = null; // 全局变量
@@ -18,7 +19,7 @@ eqid:{
       required: true
 },
 userInput:{
-  type:String,
+  type:[String,Date],
       required: true
 }
 });
@@ -41,9 +42,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("ConcentratedWaterSupplyProjectDamage",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromRiskConstructionGeohazards(store.globalEqId,newValue).then(res => {
+    console.log("地质灾害情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 
@@ -69,7 +72,6 @@ setTimeout(()=>{
     update(res)
   });
 },500)
-
 
 function update(data){
   // 如果返回的数组为空，设置默认值

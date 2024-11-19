@@ -25,6 +25,7 @@
     "cesium-navigation-es6": "^3.0.8",
     "columns": "^0.8.0",
     "d3": "^7.9.0",
+    "dayjs": "^1.11.13",
     "echarts": "5.5.1",
     "echarts-gl": "^2.0.9",
     "element-plus": "2.7.6",

@@ -6,7 +6,7 @@
 <script setup>
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
-import {getFacility} from "../../api/system/CommunicationFacilityDamageRepairStatus";
+import {fromFacility, getFacility} from "../../api/system/CommunicationFacilityDamageRepairStatus";
 import {useGlobalStore} from "../../store";
 const eqid = ref('');
 const props = defineProps({
@@ -15,7 +15,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -37,9 +37,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("TrafficSituation",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromFacility(store.globalEqId,newValue).then(res => {
+    console.log("通信设施损毁及抢修情况",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 

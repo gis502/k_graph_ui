@@ -10,7 +10,7 @@
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useGlobalStore} from "../../store";
-import {getSupplySituationList} from "../../api/system/supplySituation";
+import {fromSupplySituation, getSupplySituationList} from "../../api/system/supplySituation";
 const latestTime = ref(''); // 时间
 const earthquakeAreaName = ref([]); // 地点
 const centralizedWaterProjectDamages = ref([]); // 受损数量
@@ -24,7 +24,7 @@ const props = defineProps({
     required: true
   },
   userInput:{
-    type:String,
+    type:[String, Date],
     required: true
   }
 });
@@ -47,9 +47,11 @@ const userInputTime = ref('')
 
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
-  console.log("ConcentratedWaterSupplyProjectDamage",userInputTime.value,store.globalEqId)
   // 后端逻辑处理：
-
+  fromSupplySituation(store.globalEqId,newValue).then(res => {
+    console.log("集中供水工程受损统计",res)
+    update(res.data)
+  })
 })
 // --------------------------------------------------------------------------------------------------------
 
