@@ -33,7 +33,6 @@
 
 <script>
 import * as Cesium from "cesium";
-import html2canvas from "html2canvas";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
@@ -58,7 +57,6 @@ export default {
       pagedEqData: [],
 
       selectedTabData: null,
-      selectedEqPoint: null,
       historyEqData: [],
       historyEqPoints: [],
 
@@ -87,7 +85,7 @@ export default {
       isshowRegion: true,//行政区划
       RegionLabels: [],
 
-      img:null,
+
       isshowImagetype: false,
       ifShowMapPreview: false, // 是否预览专题图
       previewImage: false, // 保存预览图片的 URL
@@ -103,6 +101,7 @@ export default {
     this.init();
     this.getEq();
   },
+
   methods: {
     // 获取地震列表并渲染
     getEq() {
@@ -133,10 +132,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        500000,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          500000,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -147,11 +146,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.renderQueryEqPoints();
@@ -178,12 +177,7 @@ export default {
         // 判断点击的是不是地震点
         if (Cesium.defined(pickedObject) && pickedObject.id.billboard) {
           pickedObject.id.label._show._value = !pickedObject.id.label._show._value;
-        }
-
-        else {
-          if (this.selectedEqPoint) {
-            this.selectedEqPoint.label._show._value = false;
-          }
+        } else {
 
           this.listEqPoints.forEach(entity => {
             entity.label._show._value = false;
@@ -222,7 +216,7 @@ export default {
             image: eqMark,
             width: 20,
             height: 20,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
           },
           label: {
             text: this.timestampToTime(eq.occurrenceTime, 'date') + eq.earthquakeName + eq.magnitude + '级地震',
@@ -236,7 +230,6 @@ export default {
             clampToGround: true,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,  // 左侧对齐
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,   // 底部对齐
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           id: eq.eqid
         });
@@ -293,7 +286,7 @@ export default {
           // console.log("dataSource entity",entity)
           // 根据实体索引依次从颜色数组中取颜色
           const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-           // 使用 ColorMaterialProperty 包装颜色
+          // 使用 ColorMaterialProperty 包装颜色
           entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 设置填充颜色
           // console.log("--------", index, "----------------", entity)
         });
@@ -313,7 +306,8 @@ export default {
                 verticalOrigin: Cesium.VerticalOrigin.CENTER,
                 horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                 fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                pixelOffset: new Cesium.Cartesian2(0, 0)
+                pixelOffset: new Cesium.Cartesian2(0, 0),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
               })
             }));
             this.RegionLabels.push(regionlabel)
@@ -343,21 +337,6 @@ export default {
       });
     },
 
-    toTab(eq) {
-      this.currentTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
-      if (this.currentTab !== '震害事件') {
-
-        // 查找与选项卡名称匹配的地震数据
-        this.selectedTabData = this.getEqData.find(
-          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.currentTab
-        );
-        // 如果找到对应数据，调用定位函数
-        if (this.selectedTabData) {
-          this.selectEqPoint();
-        }
-      }
-    },
-
     // 分页改变事件
     handleCurrentChange(page) {
       this.currentPage = page;
@@ -366,7 +345,6 @@ export default {
 
     back() {
       this.currentTab = '震害事件';
-      this.selectedTabData = null;
       this.removeData()
     },
 
@@ -378,9 +356,9 @@ export default {
           const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -393,57 +371,12 @@ export default {
     pickEqPoint(eq) {
       this.listEqPoints.forEach(entity => {
         entity.label._show._value = entity._id === eq.eqid;
+        // console.log(entity.label)
       })
     },
 
-    selectEqPoint() {
-      // 检查 selectedTabData 是否存在
-      if (this.selectedTabData) {
-        // 清空 listEqPoints
-        this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
-        this.listEqPoints = [];
-
-        // 避免选择同一选项卡时重复生成实体导致重叠
-        window.viewer.entities.remove(this.selectedEqPoint);
-
-        // 提取 selectedEqPoint
-        this.selectedEqPoint = window.viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
-          ),
-          billboard: {
-            image: eqMark,
-            width: 25,
-            height: 25,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
-          },
-          label: {
-            text: this.timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-              this.selectedTabData.earthquakeName +
-              this.selectedTabData.magnitude + '级地震',
-            font: '18px sans-serif',
-            fillColor: Cesium.Color.WHITE,
-            outlineColor: Cesium.Color.BLACK,
-            showBackground: true,
-            show: true, // 显示 label
-            horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
-          },
-          id: this.selectedTabData.id
-        });
-
-        // 渲染 selectedEqPoint
-        // console.log("Selected Eq Point:", this.selectedEqPoint);
-      } else {
-        console.warn("No selectedTabData available");
-      }
-    },
-
-    getEqPointPositionData(value) {
-      console.log("eqPointPositionData",value)
-      this.eqPointPositionData = value
+    getAssetsFile() {
+      this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
 
     // 遥感影像视角跳转方法
@@ -485,58 +418,92 @@ export default {
       });
     },
 
-
-    getAssetsFile() {
-        this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+    getEqPointPositionData(value) {
+      this.eqPointPositionData = value
     },
 
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
-      console.log("imagData------------------", imagData)
-      if(!imagData.path){
-        if(imagData.name==="遥感影像图"){
-          console.log("==============================")
-        //   调用截图方法
-          this.captureRemoteSensingImage();
+      if (!imagData.path) {
+        if (imagData.name === "遥感影像图") {
+          //   调用截图方法
+          this.remoteSensingImagePerspectiveJump(() => {
+            this.captureRemoteSensingImage();
+          });
           this.imgName = imagData.name;
-          this.ifShowMapPreview = true;
-
         }
-      }else{
+        if (imagData.name === "三维模型图") {
+          // 检查当前地形服务是否已经是目标地形服务
+          const isThirdPartyTerrain = viewer.terrainProvider instanceof Cesium.CesiumTerrainProvider &&
+              viewer.terrainProvider._url === Cesium.IonResource.fromAssetId(1)._url;
+
+          if (!isThirdPartyTerrain) {
+            // 切换到第三方地形
+            const terrainProvider = new Cesium.CesiumTerrainProvider({
+              url: Cesium.IonResource.fromAssetId(1), // 第三方地形服务的配置
+              requestWaterMask: true,
+              requestVertexNormals: true
+            });
+
+            // 更新 viewer 的地形服务
+            viewer.terrainProvider = terrainProvider;
+          }
+
+          // 确保目标点经纬度有效
+          const targetLongitude = Number(this.eqPointPositionData.longitude);
+          const targetLatitude = Number(this.eqPointPositionData.latitude) - 0.25;
+
+          if (!isNaN(targetLongitude) && !isNaN(targetLatitude)) {
+            // 目标点 Cartesian3 坐标
+            const targetPoint = Cesium.Cartesian3.fromDegrees(targetLongitude, targetLatitude);
+
+            // 设置相机飞跃到目标点，倾斜角度为 45 度
+            viewer.camera.flyTo({
+              destination: Cesium.Cartesian3.fromDegrees(targetLongitude, targetLatitude, 8000),
+              orientation: {
+                heading: Cesium.Math.toRadians(0),
+                pitch: Cesium.Math.toRadians(-10),
+                roll: 0
+              },
+              duration: 3,
+              complete: () => { // 使用箭头函数
+                console.log("飞跃完成，开始截图");
+                this.captureRemoteSensingImage(); // 确保 this 指向 Vue 实例
+                this.imgName = imagData.name;
+              }
+            });
+          }
+        }
+      } else {
         this.imgurlFromDate = imagData.path
         this.imgName = imagData.name
         this.ifShowMapPreview = true
         this.getAssetsFile()
       }
     },
-
     // 截图 Cesium 场景
     captureRemoteSensingImage() {
-      console.log("视角跳转...");
-      this.remoteSensingImagePerspectiveJump(() => {
-        console.log("开始生成遥感影像截图...");
-        if (window.viewer && window.viewer.scene) {
-          try {
-            // 获取 Cesium 场景的 Canvas 图像
-            const cesiumCanvas = window.viewer.scene.canvas;
-            if (!cesiumCanvas) {
-              throw new Error("未找到 Cesium 场景的 Canvas");
-            }
-
-            const remoteSensingImage = cesiumCanvas.toDataURL("image/png"); // Cesium 场景导出为图片
-            console.log("Cesium 场景截图生成成功");
-
-            // 将截图结果设置为图片 URL
-            this.imgshowURL = remoteSensingImage;
-          } catch (error) {
-            console.error("Cesium 场景截图生成失败", error);
+      console.log("开始生遥感影像截图...");
+      if (window.viewer && window.viewer.scene) {
+        try {
+          // 获取 Cesium 场景的 Canvas 图像
+          const cesiumCanvas = window.viewer.scene.canvas;
+          if (!cesiumCanvas) {
+            throw new Error("未找到 Cesium 场景的 Canvas");
           }
-        } else {
-          console.error("Cesium Viewer 未初始化或场景不可用");
-        }
-      });
-    },
 
+          const cesiumImage = cesiumCanvas.toDataURL("image/png"); // Cesium 场景导出为图片
+          console.log("Cesium 场景截图生成成功");
+
+          // 将截图结果设置为图片 URL
+          this.imgshowURL = cesiumImage;
+          this.imgurlFromDate = cesiumImage;
+          this.ifShowMapPreview = true
+        } catch (error) {
+          console.error("Cesium 场景截图生成失败", error);
+        }
+      }
+    },
 
     ifShowDialog(val) {
       // console.log("ifShowDialog-----",val)
@@ -603,28 +570,17 @@ export default {
       }
     },
 
-
-    // 下载图片
-    downloadImage() {
-      const link = document.createElement('a');
-      link.download = '震情伤亡-震情灾情统计表.png';
-      link.href = this.previewImage;
-      link.click();
-      this.previewImage = null;
-    },
-
     // 关闭预览窗口
     closePreview() {
       this.previewImage = null;
     },
-
   }
 }
 </script>
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 85px) !important;
+  height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;

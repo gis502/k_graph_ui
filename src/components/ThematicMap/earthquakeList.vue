@@ -77,7 +77,7 @@
 
         <el-divider content-position="left"> 专题图</el-divider>
 
-        <div style="height: 420px">
+        <div style="height: 500px">
           <div class="eqTheme">
             <div class="button themes history"
                  style="width: 120px;"
@@ -304,6 +304,8 @@ export default {
 
     // 将选中的专题图信息传给父组件
     previewMap(item) {
+      console.log("111111111111")
+      console.log(item)
       this.$emit('imag-selected', item);
     },
 
