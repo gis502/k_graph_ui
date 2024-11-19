@@ -434,6 +434,7 @@ onMounted(() => {
 .left-body .left-top {
   width: 100%;
   height: 26%;
+  overflow: hidden;
 }
 
 .left-body .left-top .top-body {
@@ -483,6 +484,7 @@ onMounted(() => {
   width: 100%;
   height: 30%;
   margin-top: 1.6%;
+  overflow: hidden;
 }
 
 .left-body .left-bottom {
