@@ -407,131 +407,131 @@ export default {
 
             // 设置相机飞跃到目标点，倾斜角度为 45 度
             viewer.camera.flyTo({
-              destination: Cesium.Cartesian3.fromDegrees(targetLongitude, targetLatitude, 20000), // 目标点高度为 20000 米
+              destination: Cesium.Cartesian3.fromDegrees(targetLongitude, targetLatitude, 20000),
               orientation: {
-                heading: Cesium.Math.toRadians(0),  // 水平角度，保持默认
-                pitch: Cesium.Math.toRadians(-45), // 倾斜角度 45 度
-                roll: 0 // 没有滚转
+                heading: Cesium.Math.toRadians(0),
+                pitch: Cesium.Math.toRadians(-45),
+                roll: 0
               },
-              duration: 3, // 飞跃时间
-              complete: () => {
+              duration: 3,
+              complete: () => { // 使用箭头函数
                 console.log("飞跃完成，开始截图");
-
-                // 地图加载完成后进行截图
-                this.captureRemoteSensingImage();
+                this.captureRemoteSensingImage(); // 确保 this 指向 Vue 实例
               }
             });
+
           }
+        } else {
+          this.imgurlFromDate = imagData.path
+          this.imgName = imagData.name
+          this.ifShowMapPreview = true
+          this.getAssetsFile()
         }
+      }
+    },
+    // 截图 Cesium 场景
+    captureRemoteSensingImage() {
+      console.log("开始生遥感影像截图...");
+      if (window.viewer && window.viewer.scene) {
+        try {
+          // 获取 Cesium 场景的 Canvas 图像
+          const cesiumCanvas = window.viewer.scene.canvas;
+          if (!cesiumCanvas) {
+            throw new Error("未找到 Cesium 场景的 Canvas");
+          }
+
+          const cesiumImage = cesiumCanvas.toDataURL("image/png"); // Cesium 场景导出为图片
+          console.log("Cesium 场景截图生成成功");
+
+          // 将截图结果设置为图片 URL
+          this.imgshowURL = cesiumImage;
+          this.ifShowMapPreview = true
+        } catch (error) {
+          console.error("Cesium 场景截图生成失败", error);
+        }
+      }
+    },
+
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.isshowImagetype = val
+      this.ifShowMapPreview = false
+    },
+
+    selectEq(eq) {
+      this.locateEq(eq)
+    },
+
+    removeData() {
+      this.historyEqPoints = [];
+      this.historyEqData = [];
+      this.removeEntitiesByType("historyEq")
+      this.removeEntitiesByType("faultZone")
+      this.removeEntitiesByType("ovalCircle")
+      this.isHistoryEqPointsShow = false;
+    },
+
+    // 跳转至指挥大屏
+    navigateToVisualization(thisEq) {
+      const path = `/thd?eqid=${thisEq.eqid}`;
+      window.open(path, '_blank');
+    },
+
+    hidden(hidden) {
+      this.isHistoryEqPointsShow = hidden;
+      this.isShow = true;
+    },
+
+    // 时间戳转换
+    timestampToTime(timestamp, format = "full") {
+      let dateObj = new Date(timestamp);
+      let year = dateObj.getFullYear();
+      let month = dateObj.getMonth() + 1;
+      let day = dateObj.getDate();
+      let hh = dateObj.getHours();
+      let mm = dateObj.getMinutes();
+      let ss = dateObj.getSeconds();
+
+      // 去掉前导零
+      month = month > 9 ? month : month.toString().replace(/^0/, "");
+      day = day > 9 ? day : day.toString().replace(/^0/, "");
+      hh = hh > 9 ? hh : "0" + hh;
+      mm = mm > 9 ? mm : "0" + mm;
+      ss = ss > 9 ? ss : "0" + ss;
+
+      if (format === "date") {
+        // 返回仅日期格式
+        return `${year}年${month}月${day}日`;
       } else {
-        this.imgurlFromDate = imagData.path
-        this.imgName = imagData.name
-        this.ifShowMapPreview = true
-        this.getAssetsFile()
+        // 返回完整的日期时间格式
+        return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
       }
-    }
-  },
-  // 截图 Cesium 场景
-  captureRemoteSensingImage() {
-    console.log("开始生遥感影像截图...");
-    if (window.viewer && window.viewer.scene) {
-      try {
-        // 获取 Cesium 场景的 Canvas 图像
-        const cesiumCanvas = window.viewer.scene.canvas;
-        if (!cesiumCanvas) {
-          throw new Error("未找到 Cesium 场景的 Canvas");
-        }
+    },
+    exportCesiumScene(type) {
 
-        const cesiumImage = cesiumCanvas.toDataURL("image/png"); // Cesium 场景导出为图片
-        console.log("Cesium 场景截图生成成功");
-
-        // 将截图结果设置为图片 URL
-        this.imgshowURL = cesiumImage;
-      } catch (error) {
-        console.error("Cesium 场景截图生成失败", error);
+      if (type == "history") {
+        // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
+        // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
+        // console.log("11111111111111111history")
+        // this.previewImage = finalCanvas.toDataURL('震区历史地震分布图-专业版-A3-横版.jpg');
       }
-    }
-  },
-
-  ifShowDialog(val) {
-    // console.log("ifShowDialog-----",val)
-    this.isshowImagetype = val
-    this.ifShowMapPreview = false
-  },
-
-  selectEq(eq) {
-    this.locateEq(eq)
-  },
-
-  removeData() {
-    this.historyEqPoints = [];
-    this.historyEqData = [];
-    this.removeEntitiesByType("historyEq")
-    this.removeEntitiesByType("faultZone")
-    this.removeEntitiesByType("ovalCircle")
-    this.isHistoryEqPointsShow = false;
-  },
-
-  // 跳转至指挥大屏
-  navigateToVisualization(thisEq) {
-    const path = `/thd?eqid=${thisEq.eqid}`;
-    window.open(path, '_blank');
-  },
-
-  hidden(hidden) {
-    this.isHistoryEqPointsShow = hidden;
-    this.isShow = true;
-  },
-
-  // 时间戳转换
-  timestampToTime(timestamp, format = "full") {
-    let dateObj = new Date(timestamp);
-    let year = dateObj.getFullYear();
-    let month = dateObj.getMonth() + 1;
-    let day = dateObj.getDate();
-    let hh = dateObj.getHours();
-    let mm = dateObj.getMinutes();
-    let ss = dateObj.getSeconds();
-
-    // 去掉前导零
-    month = month > 9 ? month : month.toString().replace(/^0/, "");
-    day = day > 9 ? day : day.toString().replace(/^0/, "");
-    hh = hh > 9 ? hh : "0" + hh;
-    mm = mm > 9 ? mm : "0" + mm;
-    ss = ss > 9 ? ss : "0" + ss;
-
-    if (format === "date") {
-      // 返回仅日期格式
-      return `${year}年${month}月${day}日`;
-    } else {
-      // 返回完整的日期时间格式
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
-    }
-  },
-  exportCesiumScene(type) {
-
-    if (type == "history") {
-      // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
-      // this.previewImage ="@/assets/images/DamageAssessment/震区历史地震分布图-专业版-A3-横版.jpg"
-      // console.log("11111111111111111history")
-      // this.previewImage = finalCanvas.toDataURL('震区历史地震分布图-专业版-A3-横版.jpg');
-    }
-  },
+    },
 
 
-  // 下载图片
-  downloadImage() {
-    const link = document.createElement('a');
-    link.download = '震情伤亡-震情灾情统计表.png';
-    link.href = this.previewImage;
-    link.click();
-    this.previewImage = null;
-  },
+    // 下载图片
+    downloadImage() {
+      const link = document.createElement('a');
+      link.download = '震情伤亡-震情灾情统计表.png';
+      link.href = this.previewImage;
+      link.click();
+      this.previewImage = null;
+    },
 
-  // 关闭预览窗口
-  closePreview() {
-    this.previewImage = null;
-  },
+    // 关闭预览窗口
+    closePreview() {
+      this.previewImage = null;
+    },
+  }
 }
 </script>
 
