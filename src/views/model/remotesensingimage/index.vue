@@ -60,7 +60,7 @@
         </el-form-item>
 
 
-        <el-form-item label="遥感影像高度" prop="path">
+        <el-form-item label="遥感影像高度(米)" prop="path">
           <el-input
               v-model="dialogContent.height"
               placeholder="请输入内容"
@@ -100,7 +100,7 @@
         </el-form-item>
 
         <!-- 旋转角度 -->
-        <el-form-item label="旋转角度" prop="angle">
+        <el-form-item label="旋转角度(度)" prop="angle">
           <el-input v-model="dialogContent.angle" placeholder="请输入内容" type="number"></el-input>
         </el-form-item>
 
@@ -124,7 +124,7 @@
           <el-input v-model="dialogContent.modelName" style="width: 23vw;" placeholder="正射影像名称" clearable />
         </el-form-item>
 
-        <el-form-item label="遥感影像高度" prop="height">
+        <el-form-item label="遥感影像高度(米)" prop="height">
           <el-input
               type="number"
               v-model="dialogContent.height"
@@ -167,7 +167,7 @@
         </el-form-item>
 
         <!-- 旋转角度 -->
-        <el-form-item label="旋转角度" prop="rotationAngle">
+        <el-form-item label="旋转角度(度)" prop="rotationAngle">
           <el-input
               type="number"
               v-model="dialogContent.rotationAngle"
@@ -439,7 +439,7 @@ export default {
               // 确保 createTime 存在且有效
               if (item.hasOwnProperty('shootingTime') && item.shootingTime) {
                 const shootingTime = new Date(item.shootingTime);
-
+                console.log("")
                 // 确认解析后的 createTime 是否有效
                 if (!isNaN(shootingTime)) {
                   // 格式化为 yyyy年MM月dd日 HH:mm:ss
@@ -452,12 +452,16 @@ export default {
 
                   // 格式化为需要的格式
                   formattedShootingTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+
                 } else {
                   console.log(`无效的日期: ${item.shootingTime}`);
                 }
               } else {
                 console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
               }
+
+              item.createTime = formattedCreateTime;
+              item.shootingTime = formattedShootingTime;
 
               return item;
             });
