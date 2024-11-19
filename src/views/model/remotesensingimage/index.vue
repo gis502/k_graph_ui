@@ -14,7 +14,7 @@
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
     </el-form-item>
 
-    <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor"
+    <el-table :data="displayData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor"
               :cell-style="tableColor">
       <el-table-column label="序号" align="center" width="100">
         <template #default="{ row, column, $index }">
@@ -124,10 +124,10 @@
           <el-input v-model="dialogContent.modelName" style="width: 23vw;" placeholder="正射影像名称" clearable />
         </el-form-item>
 
-        <el-form-item label="遥感影像高度" prop="modelHeight">
+        <el-form-item label="遥感影像高度" prop="height">
           <el-input
               type="number"
-              v-model="dialogContent.modelHeight"
+              v-model="dialogContent.height"
               style="width: 23vw;"
               placeholder="请输入高度"
               clearable
@@ -202,6 +202,7 @@ export default {
     return {
       filterContent: [],  // 筛选内容
       tableData: [],  //存储 新增 or 编辑 后端返回数据
+      displayData: [],  // 当前页数据
       queryParams: '',  // 搜索框关键字
       queryFormVisible: false,
       total: 0,
@@ -303,6 +304,7 @@ export default {
         // 确保分页总数（total）正确
         this.total = res.total || this.tableData.length;  // 如果没有返回 total，使用 tableData.length
         this.currentPage = 1;  // 默认重置为第一页
+        this.updateTableData();
         // 打印处理后的 tableData
         console.log("处理后的 tableData:", this.tableData);
       }).catch(error => {
@@ -386,12 +388,13 @@ export default {
 
           return item;
         });
+
         // 如果需要分页，调用分页更新方法（如果分页逻辑依赖当前页面和每页数据）
         this.updateTableData();
         // 隐藏筛选表单
         this.queryFormVisible = false;
         // 清空表单字段
-        this.clearFormValue();
+        this.clearFormValue(this.formData || {});
       }).catch(error => {
         console.error("查询失败:", error);
       });
@@ -399,9 +402,10 @@ export default {
     // 搜索框
     handleQuery() {
       const searchKey = this.queryParams.trim();  // 获取搜索关键字
+      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
 
       // 调用同一个方法进行查询
-      queryRemoteSensingData(searchKey || '')
+      queryRemoteSensingData(result || '')
           .then(res => {
 
             // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
@@ -455,16 +459,7 @@ export default {
                 console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
               }
 
-              return {
-                serialNumber: (this.currentPage - 1) * this.pageSize + index + 1,  // 计算序号
-                uuid: item.uuid,
-                name: item.name,
-                height: item.height,
-                path: item.path,
-                angle: item.angle,
-                createTime: formattedCreateTime,  // 格式化日期
-                shootingTime: formattedShootingTime,
-              };
+              return item;
             });
 
             // 更新分页的总数
@@ -473,7 +468,9 @@ export default {
           })
           .catch(error => {
             console.error("查询时出现错误:", error);
-            ElMessage.error('查询失败，请稍后重试');
+            // 根据错误内容显示不同的提示信息
+            const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+            ElMessage.error(errorMessage);
           });
     },
 
@@ -614,10 +611,15 @@ export default {
     },
 
     // 清除formValue中的数据
-    clearFormValue() {
-      Object.keys(this.formValue).forEach(key => {
-        this.formValue[key] = ''
-      });
+    clearFormValue(formData) {
+      // 判断 formData 是否是一个对象，避免 null 或 undefined
+      if (formData && typeof formData === 'object') {
+        Object.keys(formData).forEach(key => {
+          formData[key] = '';  // 清空字段的值
+        });
+      } else {
+        console.error('传入的 formData 无效:', formData);
+      }
     },
     // 关闭dialog对话框 筛选
     Cancel() {
@@ -635,28 +637,21 @@ export default {
      * 分页
      */
     updateTableData() {
-      // 根据分页逻辑获取当前页数据
       const start = (this.currentPage - 1) * this.pageSize;
-      const end = this.currentPage * this.pageSize;
-      this.TableData = this.tableData.slice(start, end);
+      const end = start + this.pageSize;
+      this.displayData = this.tableData.slice(start, end);
     },
 
-    handleSizeChange(val) {
-      // 每页条数变化时，更新数据
-      this.pageSize = val;
+    handleSizeChange(newSize) {
+      this.pageSize = newSize;
       this.updateTableData();
     },
 
-    handleCurrentChange(val) {
-      // 当前页变化时，更新数据
-      this.currentPage = val;
+    handleCurrentChange(newPage) {
+      this.currentPage = newPage;
       this.updateTableData();
     },
 
-    getPageArr() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      return this.tableData.slice(start, start + this.pageSize);
-    },
 
     tableHeaderColor() {
       return {
