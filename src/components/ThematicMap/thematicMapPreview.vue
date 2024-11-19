@@ -4,7 +4,7 @@
     <h3 style="color: white">图片预览</h3>
     <img class="preview-image" :src=imgshowURL alt=""/>
     <div class="preview-buttons">
-      <button @click="getPdf()">导出为PDF</button>
+      <button @click="downloadPdf" class="download-button">导出为PDF</button>
       <button @click="downloadImage" class="download-button">下载图片</button>
       <button @click="closePreview" class="cancel-button">取消</button>
     </div>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import {jsPDF} from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 export default {
   data() {
@@ -49,68 +49,94 @@ export default {
     this.imgNameLocal = this.imgName
   },
   methods: {
-    getPdf() {
-      // 确保必要的变量已定义
-      const title = 'Exported PDF'; // 默认标题
-      const pageData = this.imgshowURL; // 目标图片数据 URL
-      const imgWidth = 595.28; // A4 宽度
-      const imgHeight = imgWidth / 592.28 * (841.89); // 根据宽高比例动态调整
-      const pageHeight = imgWidth / 592.28 * 841.89; // A4 页面高度
+    downloadPdf() {
+      if (!this.imgshowURL) {
+        console.error("图片数据为空，无法生成 PDF");
+        return;
+      }
+
+      // 确定 PDF 文件的动态名称
+      const title = this.imgName || "生成PDF"; // 动态 PDF 名称，默认为 "ExportedPDF"
+
+      // 图片数据
+      const pageData = this.imgshowURL; // Base64 图片数据
 
       // 初始化 jsPDF 实例
       const PDF = new jsPDF('', 'pt', 'a4');
 
-      // 根据图片高度计算是否需要分页
-      let leftHeight = imgHeight; // 图片的总高度
-      let position = 0; // PDF 内绘制起点位置
+      // A4 页面宽度和高度（单位：pt）
+      const pdfWidth = 595.28; // A4 宽度
+      const pdfHeight = 841.89; // A4 高度
 
-      // 开始绘制 PDF
-      do {
-        // 添加图片到当前页面
-        PDF.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
+      // 设置边距（单位：pt）
+      const margin = 20; // 边距大小
 
-        // 计算剩余高度与调整绘制位置
-        leftHeight -= pageHeight;
-        position -= pageHeight;
+      // 图片的实际宽高
+      const img = new Image();
+      img.src = pageData;
 
-        // 如果有剩余内容，添加新页面
-        if (leftHeight > 0) {
-          PDF.addPage();
+      img.onload = () => {
+        const imgWidth = img.width; // 图片原始宽度
+        const imgHeight = img.height; // 图片原始高度
+
+        // 计算图片显示在 PDF 中的宽高，保持比例，并预留边距
+        const availableWidth = pdfWidth - margin * 2;
+        const availableHeight = pdfHeight - margin * 2;
+
+        const ratio = imgWidth / imgHeight;
+        let displayWidth = availableWidth;
+        let displayHeight = availableWidth / ratio;
+
+        if (displayHeight > availableHeight) {
+          displayHeight = availableHeight;
+          displayWidth = availableHeight * ratio;
         }
-      } while (leftHeight > 0);
 
-      // 保存 PDF 文件
-      PDF.save(`${title}.pdf`);
+        let leftHeight = imgHeight * (displayWidth / imgWidth); // 按比例调整后的图片总高度
+        let position = margin; // 初始绘制位置，包含顶部边距
+
+        do {
+          // 添加图片到当前页面
+          PDF.addImage(
+              pageData,
+              'JPEG',
+              (pdfWidth - displayWidth) / 2, // 居中显示
+              position,
+              displayWidth,
+              displayHeight
+          );
+
+          // 计算剩余高度
+          leftHeight -= pdfHeight - margin * 2;
+          position = margin - leftHeight; // 更新绘制位置，包含分页
+
+          // 如果图片超出一页，添加新页面
+          if (leftHeight > 0) {
+            PDF.addPage();
+          }
+        } while (leftHeight > 0);
+
+        // 保存 PDF 文件
+        PDF.save(`${title}.pdf`);
+      };
+      img.onerror = () => {
+        console.error("加载图片失败，无法生成 PDF");
+      };
     },
     getAssetsFile(imgshowURL) {
       return new URL(imgshowURL, import.meta.url).href
     },
     async downloadImage() {
-      try {
-        const link = document.createElement('a'); // 创建下载链接
-        link.download = `${this.imgNameLocal || 'download'}.jpg`; // 设置默认文件名
 
-        // 判断是否为 Base64 数据
-        const isBase64 = this.imgurlFromDateLocal.startsWith('data:image');
+      const link = document.createElement('a');
+      link.download = this.imgNameLocal + '.jpg';
+      // console.log(this.imgurlFromDateLocal,"this.imgurlFromDateLocal")
+      const imgModule = await import(this.imgurlFromDateLocal);
+      console.log(imgModule)
 
-        if (isBase64) {
-          // 如果是 Base64 数据，直接使用
-          link.href = this.imgurlFromDateLocal;
-        } else if (this.imgurlFromDateLocal.startsWith('http') || this.imgurlFromDateLocal.startsWith('/')) {
-          // 如果是 URL，直接赋值
-          link.href = this.imgurlFromDateLocal;
-        } else {
-          // 如果是模块路径，动态导入
-          const imgModule = await import(this.imgurlFromDateLocal);
-          link.href = imgModule.default;
-        }
-
-        link.click(); // 触发下载
-        this.$emit('ifShowThematicMapDialog', null); // 触发关闭事件
-      } catch (error) {
-        console.error('下载图片失败:', error);
-        this.$message && this.$message.error('下载图片失败，请检查图片地址或模块路径是否正确！');
-      }
+      link.href = imgModule.default;
+      link.click();
+      this.$emit('ifShowThematicMapDialog', null);
     },
     closePreview() {
       this.$emit('ifShowThematicMapDialog', null);

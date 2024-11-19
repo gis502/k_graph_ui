@@ -134,7 +134,7 @@
         </el-form-item>
 
         <!-- 正射影像高度 -->
-        <el-form-item label="正摄影像高度" prop="modelSize">
+        <el-form-item label="正摄影像高度" prop="height">
           <el-input
               type="number"
               v-model="dialogContent.height"
