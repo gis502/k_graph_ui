@@ -1,27 +1,26 @@
 <template>
-  <div class="casualtyStatistic">
-    <div>
-      <span class="sub-title-new">伤亡详情：</span>
-      <span class="time">{{timestampToTime(currentTime)}}</span>
-      <div class="sub-main">
+  <div class="pop">
+    <div class="pop_header">
+      <span class="pop_title">伤亡详情</span>
+      <span class="title-time">{{timestampToTime(currentTime)}}</span>
 
+      <div class="sub-main">
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-          <el-table-column prop="address" label="位置" width="59" align="center"></el-table-column>
-          <el-table-column prop="死亡" label="死亡" width="48" align="center"
-                           :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="失踪" label="失踪" width="48" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="危重伤" label="危重伤" width="59" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="重伤" label="重伤" width="48" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="轻伤" label="轻伤" width="50" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
+            <el-table-column prop="死亡" label="死亡" width="60" align="center"
+                             :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
+            <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
         </el-table>
+        </div>
       </div>
     </div>
-  </div>
 
 </template>
-
 <script>
 import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
@@ -372,12 +371,12 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-        'font-size': '11px'
+        'font-size': '12px'
       }
     }
 
     // 修改table 中每行的样式
-    function tableColor({row, column, rowIndex, columnIndex}) {
+    function tableColor({rowIndex}) {
       if (rowIndex % 2 == 1) {
         return {
           'border-width': '1px',
@@ -385,9 +384,9 @@ export default {
           'border-color': '#555555',
           'background-color': '#313a44',
           'color': '#fff',
-          'padding': '0',
+          'padding': '1',
           'text-align': 'center',
-          'font-size': '11px'
+          'font-size': '12px'
         }
       } else {
         return {
@@ -396,9 +395,9 @@ export default {
           'border-color': '#555555',
           'background-color': '#304156',
           'color': '#fff',
-          'padding': '0',
+          'padding': '1',
           'text-align': 'center',
-          'font-size': '11px'
+          'font-size': '12px'
         }
       }
     }
@@ -412,7 +411,6 @@ export default {
       const ss = DateObj.getSeconds().toString().padStart(2, '0');
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
     }
-
     return {
       entityGroups,
       toggleEntities,
@@ -422,7 +420,7 @@ export default {
       formatPeople,
       tableHeaderColor,
       tableColor,
-      timestampToTime
+     timestampToTime
     };
   }
 }
@@ -430,25 +428,60 @@ export default {
 </script>
 
 <style scoped>
-.casualtyStatistic {
-  overflow-y: auto;
-  overflow-x: hidden;
+.pop {
   position: absolute;
-  top: 20%;
+  top: 19.5%;
   width: 100%;
-  height: 36%;
-  padding: 10px;
-  border-radius: 5px;
-  left: 1%;
-  z-index: 40;
-  background-color: rgb(22, 53, 77, 0.9);
-  backdrop-filter: none !important;
-  border: 1px solid #008aff70;
-  color: #FFFFFF;
+
+  z-index: 20;
 }
-
-
-:deep(.el-table__header-wrapper) {
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.pop_title {
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 550;
+  top: 15%;
+  position: relative;
+  left: 7%;
+}
+.title-time{
+  right: 1%;
+  position: absolute;
+  top: 16%;
+  font-size: 0.9rem;
+  font-weight: normal;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffffff;
+}
+.list-dialog .list-dialog__header {
+  height: 41px;
+  width: 100%;
+  line-height: 41px;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 4px 4px 0 0;
+  padding: 0 5px 0 10px;
+  position: relative;
+  top: 0;
+  left: 0;
+  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
+  background-size: 100% 100%;
+}
+.sub-main {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  margin-top: 10px;
+  margin-left: 5px;
+}
+:deep(.el-table__header-wrapper){
   background-color: rgb(25, 56, 77);
 }
 
@@ -461,6 +494,8 @@ export default {
 
 /* 设置“图层要素”样式 */
 :deep(.collapse ) {
+  overflow-y: auto;
+  overflow-x: hidden;
   font-size: 16px; /* 标题字号 */
   font-weight: bold; /* 标题加粗 */
   color: white; /* 标题文字颜色 */
@@ -468,10 +503,13 @@ export default {
   border: none !important; /* 取消边框 */
 }
 
+:deep(.el-collapse-item ) {
+}
+
 :deep(.el-checkbox__label ) {
   background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   color: white; /* 内容文字颜色 */
-  font-size: 12px; /* 内容字号 */
+  font-size: 14px; /* 内容字号 */
   padding: 10px; /* 内容内边距 */
 }
 
@@ -505,23 +543,6 @@ export default {
   height: 310px !important;
 }
 
-.sub-title-new {
-  color: #FFFFFF;
-  font-size: 1.1rem;
-  font-weight: 550;
-  top: -8px;
-  position: relative;
-}
-
-
-.time{
-  right: 1%;
-  position: absolute;
-  font-size: 0.9rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
-}
 
 </style>
 
