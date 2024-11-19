@@ -632,8 +632,8 @@ onBeforeUnmount(() => {
 
 .population-chart-container {
   width: 100%;
-  height: 100%; /* 确保人口图表占满容器 */
-  margin-top: -7px;
+  height: 90%; /* 确保人口图表占满容器 */
+  margin-top: 0x;
 }
 
 /* 标题样式 */
