@@ -14,7 +14,7 @@
     </el-form-item>
 
     <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-      <el-table-column label="序号" width="80" fixed="left">
+      <el-table-column label="序号" width="60" fixed="left">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
@@ -23,7 +23,6 @@
       <!-- 遍历每个表头，创建表格列 -->
       <el-table-column
           v-for="(header, index) in headersArr"
-          width="300"
           :key="index"
           :prop="header.prop"
           :label="header.label"
@@ -252,12 +251,12 @@ export default {
         // { prop: 'emergencyPhone', label: '应急电话', width: 150 }, 数据库没有一条数据
         { prop: 'emergencyMobile', label: '应急手机', width: 150 },
         { prop: 'affiliatedOrganization', label: '所属机构', width: 140 },
-        { prop: 'designServiceLife', label: '设计使用年限（年）', width: 450 },
+        { prop: 'designServiceLife', label: '设计使用年限（年）', width: 190 },
         { prop: 'dataSourceUnit', label: '数据来源单位', width: 180 },
         { prop: 'longitude', label: '经度（度分）', width: 120 },
         { prop: 'latitude', label: '纬度（度分）', width: 120 },
-        { prop: 'remarks', label: '备注', width: 270 },
-        { prop: 'startTime', label: '投入使用时间', width: 140 },
+        { prop: 'remarks', label: '备注', width: 300 },
+        { prop: 'startTime', label: '投入使用时间', width: 300 },
         { prop: 'description', label: '基本情况', width: 150 },
         { prop: 'seismicIntensity', label: '地震烈度（度）', width: 150 },
         { prop: 'shelterTypeName', label: '场所类型名称', width: 120 },
