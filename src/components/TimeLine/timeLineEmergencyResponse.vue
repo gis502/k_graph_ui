@@ -18,7 +18,7 @@
                 <span>{{ item.ResponseName }}</span>
                 <span class="pop_txt">{{ item.state }}</span>
               </p>
-              <el-divider style="width: 140%;"></el-divider>
+              <el-divider class="eldriver"></el-divider>
 
             </div>
           </li>
@@ -219,6 +219,7 @@ export default {
   width: 100%; /* 调整宽度 */
   height: 19%;
   z-index: 20; /* 提高层级 */
+
 }
 
 .pop_header {
@@ -359,5 +360,7 @@ export default {
   background-color: #1f9dca; /* 滑块的背景颜色 */
   border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
-
+.eldriver{
+  width: 120%;
+}
 </style>

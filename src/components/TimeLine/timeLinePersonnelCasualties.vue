@@ -35,12 +35,16 @@
 
 <script>
 import {getRescueActionCasualties} from "../../api/system/timeLine.js";
-import * as echarts from "echarts"; // 引入 ECharts
+import * as echarts from "echarts";
+import {getData} from "@/api/system/excel.js";
+import WebSocketReconnect from "@/api/websocket.js";
+import {initWebSocket} from "@/cesium/WS.js"; // 引入 ECharts
 
 export default {
   data() {
     return {
       Responsecontent: [],
+      casualtiesHistory:[],
       activity: {
         time: "",
         death: "0",
@@ -50,60 +54,48 @@ export default {
       chartInstance: null, // 保存 ECharts 实例
     };
   },
-  props: ["currentTime", "eqid"],
+  props: ["currentTime", "eqid","eqstartTime"],
   mounted() {
     this.init();
     this.initChart(); // 初始化图表
+
   },
   watch: {
     currentTime(newVal) {
       this.personnel_casualties_update(newVal);
+      this.updateChart();
     },
   },
   methods: {
     async init() {
-      const res = await getRescueActionCasualties({eqid: this.eqid});
-      res.sort((a, b) => (a.recordTime < b.recordTime ? -1 : 1));
-      let deathtotal = 0;
-      let misstotal = 0;
-      let injurytotal = 0;
-
-      for (let i = 0; i < res.length; i++) {
-        switch (res[i].casualtyStatus) {
-          case "死亡":
-            deathtotal += res[i].newCount;
-            break;
-          case "失联":
-            misstotal += res[i].newCount;
-            break;
-          default:
-            injurytotal += res[i].newCount;
-            break;
-        }
-        this.Responsecontent.push({
-          recordTime: res[i].recordTime,
-          death: deathtotal,
-          miss: misstotal,
-          injury: injurytotal,
-        });
-      }
+      // this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/');
+      this.websock = initWebSocket(this.eqid)
+      this.websock.eqid = this.eqid
+      this.websock.onmessage = (event) => {
+        console.log('收到消息：event', event);
+        console.log('收到消息：enevt data', event.data);
+        // 处理接收到的数据
+        // this.handleMessage(event.data);
+      };
+      this.Responsecontent = await getRescueActionCasualties({eqid: this.eqid});
       this.personnel_casualties_update(this.currentTime);
       this.updateChart(); // 更新图表数据
     },
     async personnel_casualties_update(currentTime) {
-      const activities = this.Responsecontent.filter((activity) => {
-        return new Date(activity.recordTime) <= currentTime;
+      this.casualtiesHistory = this.Responsecontent.filter((activity) => {
+        return new Date(activity.submissionDeadline) <= currentTime;
       });
-      if (activities.length >= 1) {
-        const latest = activities[activities.length - 1];
+      if (this.casualtiesHistory.length >= 1) {
+        const latest = this.casualtiesHistory[this.casualtiesHistory.length - 1];
         this.activity = {
-          time: this.timestampToTime(latest.recordTime),
-          death: latest.death,
-          miss: latest.miss,
-          injure: latest.injury,
+          time: this.timestampToTime(latest.submissionDeadline),
+          death: latest.totalDeceased,
+          miss: latest.totalMissing,
+          injure: latest.totalInjured,
         };
         this.updateChart(); // 更新图表数据
-      } else {
+      }
+      else {
         this.activity = {time: this.timestampToTime(currentTime), death: "0", miss: "0", injure: "0"};
       }
     },
@@ -133,7 +125,7 @@ export default {
         },
         xAxis: {
           type: "category",
-          data: [], // X轴数据
+          data: [this.timestampToTime(this.eqstartTime)], // X轴数据
           boundaryGap: false, // 起点和终点不留白
           axisLabel: {
             color: "#ffffff", // 白色字体
@@ -165,7 +157,7 @@ export default {
           {
             name: "死亡人数",
             type: "line",
-            data: [],
+            data: [0],
             smooth: true,
             lineStyle: {color: "rgba(255, 69, 58, 1)"},
             areaStyle: {color: "rgba(255, 69, 58, 0.2)"},
@@ -173,7 +165,7 @@ export default {
           {
             name: "失联人数",
             type: "line",
-            data: [],
+            data: [0],
             smooth: true,
             lineStyle: {color: "rgba(54, 162, 235, 1)"},
             areaStyle: {color: "rgba(54, 162, 235, 0.2)"},
@@ -181,7 +173,7 @@ export default {
           {
             name: "受伤人数",
             type: "line",
-            data: [],
+            data: [0],
             smooth: true,
             lineStyle: {color: "rgba(75, 192, 192, 1)"},
             areaStyle: {color: "rgba(75, 192, 192, 0.2)"},
@@ -190,15 +182,16 @@ export default {
       };
 
       this.chartInstance.setOption(option);
+
     },
     updateChart() {
       if (this.chartInstance) {
-        const labels = this.Responsecontent.map((item) =>
-            this.timestampToTime(item.recordTime)
+        const labels = this.casualtiesHistory.map((item) =>
+            this.timestampToTime(item.submissionDeadline)
         );
-        const deathData = this.Responsecontent.map((item) => item.death);
-        const missData = this.Responsecontent.map((item) => item.miss);
-        const injuryData = this.Responsecontent.map((item) => item.injury);
+        const deathData = this.casualtiesHistory.map((item) => item.totalDeceased);
+        const missData = this.casualtiesHistory.map((item) => item.totalMissing);
+        const injuryData = this.casualtiesHistory.map((item) => item.totalInjured);
 
         this.chartInstance.setOption({
           xAxis: {

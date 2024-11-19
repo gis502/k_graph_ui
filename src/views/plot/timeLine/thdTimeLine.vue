@@ -126,6 +126,7 @@
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
               v-if="PersoonnelCasuality===1"
+              :eqstartTime="eqstartTime"
               :eqid="eqid"
               :currentTime="currentTime"
               @addJumpNodes="addJumpNodes"
@@ -631,11 +632,20 @@ export default {
       syncCamera();
       this.initWebSocket()
       this.initcesiumPlot()
+
     },
     initWebSocket() {
       this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
+
+      this.websock.onmessage = (event) => {
+        console.log('收到消息：event', event);
+        console.log('收到消息：enevt data', event.data);
+        // 处理接收到的数据
+        // this.handleMessage(event.data);
+      };
     },
+
     initcesiumPlot() {
       let cesiumStore = useCesiumStore()
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
