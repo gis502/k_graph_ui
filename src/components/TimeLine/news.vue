@@ -20,7 +20,7 @@
                 <img :src="error" alt="新闻图片"/>
               </div>
               <div class="sub-content">
-                <p class="sub-time">{{ timestampToTime(item.publishTime) }}</p>
+                <p class="sub-time">{{ timestampToTimeDate(item.publishTime) }}</p>
                 <p class="sub-source">新闻来源：{{ item.sourceName }}</p>
                 <p class="sub-text">{{ item.title }}</p>
               </div>
@@ -84,10 +84,10 @@ export default {
         });
         this.showNews = activities.reverse()
         // console.log(this.showNews)
-        this.recordTime = this.timestampToTime(activities[0].publishTime)
+        this.recordTime = this.timestampToTimeDate(activities[0].publishTime)
       } else {
         this.showNews = []
-        this.recordTime = this.timestampToTime(currentTime)
+        this.recordTime = this.timestampToTimeDate(currentTime)
       }
     },
     showDetailedNews(row) {
@@ -104,6 +104,22 @@ export default {
       const mm = DateObj.getMinutes().toString().padStart(2, '0');
       const ss = DateObj.getSeconds().toString().padStart(2, '0');
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+    },
+    timestampToTimeDate(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
   },
 };

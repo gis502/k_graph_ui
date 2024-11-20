@@ -463,7 +463,7 @@ export default {
       console.log("eqData", eqData)
       let data = {
         tableName: `${this.timestampToTimeChinese(eqData.occurrenceTime, 'date')}${eqData.earthquakeName} ${eqData.magnitude}级地震`,
-        historyEqTime: eqData.occurrenceTime.replace("T", " "),
+        historyEqTime: this.timestampToTimeChinese(eqData.occurrenceTime.replace("T", " ")),
         earthquakeName: eqData.earthquakeName,
         lat: eqData.latitude,
         lon: eqData.longitude,
