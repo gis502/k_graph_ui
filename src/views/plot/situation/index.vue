@@ -12,8 +12,12 @@
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
             </template>
           </el-table-column>
-          <el-table-column prop="time" label="发震时间" width="160"/>
-          <el-table-column prop="earthquakeName" label="位置">
+          <el-table-column prop="time" label="发震时间" width="240">
+            <template #default="scope">
+              {{ timestampToTimeChina(scope.row.time) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="earthquakeName" label="位置" width="150">
             <template #default="scope">
               <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
                 <div>{{ scope.row.earthquakeName }}</div>
@@ -61,8 +65,7 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
-                   width="17%" height="43.3px">
+              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()" width="17%" height="43.3px">
             </el-tooltip>
           </span>
             <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
@@ -519,7 +522,6 @@ export default {
         excelContent: this.excelContent
       };
 
-      console.log(plotBTO)
       // console.log("sheet:",sheet)
 
       downloadPlotExcel(plotBTO).then(res => {
@@ -853,7 +855,6 @@ export default {
           fields: fields
         };
       });
-      console.log(this.sheet)
       this.downloadConfirmed = true
 
       if (this.isLoaded) {
@@ -882,13 +883,8 @@ export default {
         const plotIds = this.plotList.map(plot => plot.plotId);
         const plotTypes = this.plotList.map(plot => plot.plotType);
 
-        console.log(111)
-        console.log(plotIds)
-        console.log(plotTypes)
-
         getExcelPlotInfo(plotIds, plotTypes).then(res => {
           console.log(res)
-          console.log(222)
 
           // 提取 excelContent
           const excelContent = res.filter(item => item.plotInfo).map(item => {
@@ -1004,7 +1000,6 @@ export default {
           });
         }
       });
-
       this.loading = false;
     },
 
@@ -1033,7 +1028,7 @@ export default {
         const workbook = XLSX.read(data, {type: 'array'});
 
         // 检查是否正确读取工作簿内容
-        console.log("工作簿内容：", workbook.Sheets);
+        // console.log("工作簿内容：", workbook.Sheets);
 
         this.sheetData = workbook.Sheets
 
@@ -2267,8 +2262,7 @@ export default {
         labeldataSource.entities.removeAll()
       }
       if (window.labeldataSource) {
-        window.labeldataSource.entities.removeAll();
-        ; // 移除点
+        window.labeldataSource.entities.removeAll(); // 移除点
       }
       // console.log("剩余2：", window.pointDataSource.entities)
       Arrow.drawArr = []
@@ -2277,7 +2271,7 @@ export default {
       this.websock.eqid = this.eqid
       this.renderedPlotIds.clear(); // 清空已渲染 ID 集合
       this.initPlot(row.eqid)
-      this.title = row.occurrenceTime + row.earthquakeName + row.magnitude
+      this.title = this.timestampToTimeChina(row.occurrenceTime) + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
         orientation: {
@@ -2308,7 +2302,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].occurrenceTime.replace("T", " ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
+        that.title = this.timestampToTimeChina(that.tableData[0].occurrenceTime.replace("T", " ")) + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -2863,10 +2857,27 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
+    timestampToTimeChina(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-          v = c == 'x' ? r : (r & 0x3 | 0x8);
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -3005,7 +3016,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 530px;
+  width: 590px;
   height: 310px;
   position: absolute;
   padding: 10px;
