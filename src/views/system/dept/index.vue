@@ -65,11 +65,7 @@
           <dict-tag :options="sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="400">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="400" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:dept:edit']">
@@ -187,13 +183,23 @@ const {queryParams, form, rules} = toRefs(data);
 function getList() {
   loading.value = true;
   listDept(queryParams.value).then(response => {
-    deptList.value = proxy.handleTree(response.data, "deptId");
+    console.log("response", response);
 
-    firstLevelKeys.value = [String(response.data[0]?.deptId), String(response.data[1]?.deptId)]
+    // 对返回数据中的时间字段 createTime 进行格式化
+    const formattedData = response.data.map(item => ({
+      ...item,
+      createTime: item.createTime ? timestampToTime(item.createTime) : '无效时间' // 格式化时间
+    }));
+    // 处理树形结构
+    deptList.value = proxy.handleTree(formattedData, "deptId");
+
+    // 设置 firstLevelKeys
+    firstLevelKeys.value = [String(response.data[0]?.deptId), String(response.data[1]?.deptId)];
 
     loading.value = false;
   });
 }
+
 
 /** 取消按钮 */
 function cancel() {
@@ -292,6 +298,29 @@ function handleDelete(row) {
     proxy.$modal.msgSuccess("删除成功");
   }).catch(() => {
   });
+}
+
+/**
+ * 时间格式转换
+ * @param timestamp
+ * @returns {string}
+ */
+function timestampToTime(timestamp) {
+  let DateObj = new Date(timestamp)
+  // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+  let year = DateObj.getFullYear()
+  let month = DateObj.getMonth() + 1
+  let day = DateObj.getDate()
+  let hh = DateObj.getHours()
+  let mm = DateObj.getMinutes()
+  let ss = DateObj.getSeconds()
+  month = month > 9 ? month : '0' + month
+  day = day > 9 ? day : '0' + day
+  hh = hh > 9 ? hh : '0' + hh
+  mm = mm > 9 ? mm : '0' + mm
+  ss = ss > 9 ? ss : '0' + ss
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+  // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
 }
 
 getList();

@@ -15,42 +15,99 @@
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
     </el-form-item>
 
-    <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor"
-              :cell-style="tableColor">
-      <el-table-column prop="serialNumber" label="序号" width="60" align="center"></el-table-column>
-      <el-table-column prop="modelName" label="模型名称" width="200" align="center"></el-table-column>
-      <el-table-column prop="modelSize" label="模型大小(GB)" width="150" align="center"></el-table-column>
+    <el-table
+        :data="TableData"
+        class="table-center"
+        :stripe="true"
+        :header-cell-style="tableHeaderColor"
+        :cell-style="tableColor"
+    >
+      <el-table-column
+          prop="serialNumber"
+          label="序号"
+          width="80"
+          align="center"
+      ></el-table-column>
 
-      <!-- 添加时间列，启用 tooltip -->
-      <el-table-column prop="addTime" label="添加时间" align="center" width="180" show-overflow-tooltip></el-table-column>
+      <el-table-column
+          prop="modelName"
+          label="模型名称"
+          width="200"
+          align="center"
+      ></el-table-column>
 
-      <!-- 模型路径列，启用 tooltip -->
-      <el-table-column prop="modelPath" label="模型路径" width="250" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column
+          prop="modelSize"
+          label="模型大小(GB)"
+          width="150"
+          align="center"
+      ></el-table-column>
 
-      <el-table-column prop="modelHeight" label="模型中心高度(米)" align="center"></el-table-column>
-      <el-table-column prop="rotationAngle" label="旋转角度(度)" align="center"></el-table-column>
-      <el-table-column label="操作" align="center">
+      <el-table-column
+          prop="modelPath"
+          label="模型路径"
+          width="250"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="modelHeight"
+          label="模型中心高度(米)"
+          width="150"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="rotationAngle"
+          label="旋转角度(度)"
+          width="150"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="addTime"
+          label="添加时间"
+          width="200"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          label="操作"
+          width="200"
+          align="center"
+      >
         <template v-slot="scope">
-          <el-button size="mini" type="text" @click="handleOpen('修改', scope.row)">
+          <el-button
+              size="mini"
+              type="text"
+              @click="handleOpen('修改', scope.row)"
+          >
             <el-icon><Edit /></el-icon> 修改
           </el-button>
-          <el-button size="mini" type="text" @click="handleDelete(scope.row)">
+
+          <el-button
+              size="mini"
+              type="text"
+              @click="handleDelete(scope.row)"
+          >
             <el-icon><Delete /></el-icon> 删除
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-      <el-pagination
-          class="pagination"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="pageSizes"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total">
-      </el-pagination>
-<!--新增 编辑 弹框-->
+    <el-pagination
+
+        class="pagination"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+    </el-pagination>
+
+    <!--新增 编辑 弹框-->
     <el-dialog
         :title="dialogTitle"
         v-model="dialogShow"
@@ -195,7 +252,7 @@ export default {
   components: { Delete, ElButton, Edit, ElIcon, ElForm },
   data() {
     return {
-      TableData: [],
+      TableData: [],     // 当前页数据
       filterContent: [], //筛选内容
       tableData: [],     //存储 新增 or 编辑 or 筛选后端返回数据
       queryParams: '',  //搜索框关键字
@@ -243,13 +300,13 @@ export default {
 
   created() {
     this.fetchModelData();
-    this.fetchTotalCount(); // 获取总数
   },
 
   methods: {
     fetchTotalCount() {
       getModelTotalData().then(res => {
         this.total = res;
+        console.log("总条数 (total):", this.total);
       });
     },
     fetchModelData() {
@@ -291,8 +348,12 @@ export default {
             rotationAngle: item.tze
           };
         });
-        // 打印处理后的 tableData
-        console.log("处理后的 tableData:", this.tableData);
+        // 设置总条数
+        this.total = this.tableData.length;
+        console.log("处理后的数据 (tableData):", this.tableData);
+        console.log("总条数 (通过数据长度计算):", this.tableData.length);
+
+        this.updateTableData()
       }).catch(error => {
         console.error("获取数据失败:", error);
       });
@@ -304,7 +365,7 @@ export default {
       this.filterContent = {
         //  和后端字段对应
         name: this.dialogContent.modelName || null,
-        time: this.dialogContent.addTime,
+        time: this.formatISODateTimeToBackend(this.dialogContent.addTime), // 调用方法格式化时间
         tze: this.dialogContent.modelHeight || null,
         rze: this.dialogContent.rotationAngle || null,
         path: this.dialogContent.modelPath || null,
@@ -313,7 +374,7 @@ export default {
 
       console.log("filterContent", this.filterContent);
 
-      // 发送请求xf
+      // 发送请求
       ObliqueImageryFilterContent(this.filterContent).then(res => {
 
         // 格式化返回的结果，生成表格数据
@@ -459,7 +520,7 @@ export default {
         this.dialogContent = {
           modelName: row.modelName,
           modelSize: row.modelSize,
-          addTime: row.addTime,
+          addTime: this.formatDateToBackend(row.addTime), // 格式化时间
           modelPath: row.modelPath,
           modelHeight: row.modelHeight,
           rotationAngle: row.rotationAngle,
@@ -487,7 +548,7 @@ export default {
             tz: -557, // 假设这里是-557
             rze: this.dialogContent.rotationAngle,
             tze: this.dialogContent.modelHeight,
-            time: this.dialogContent.addTime, // 传递 ISO 8601 格式的字符串
+            time: this.formatISODateTimeToBackend(this.dialogContent.addTime), // 调用方法格式化时间
             uuid: this.dialogContent.modelid,
           };
           console.log("提交的模型大小:", modelData); // 调试输出
@@ -549,25 +610,54 @@ export default {
      * 分页
      */
     updateTableData() {
-      // 根据分页逻辑获取当前页数据
       const start = (this.currentPage - 1) * this.pageSize;
-      const end = this.currentPage * this.pageSize;
-      this.TableData = this.tableData.slice(start, end);
+      const end = start + this.pageSize;
+      this.TableData = this.tableData.slice(start, end); // 更新当前页数据
     },
-    handleSizeChange(val) {
-      // 每页条数变化时，更新数据
-      this.pageSize = val;
-      this.updateTableData();
+    handleSizeChange(newSize) {
+      this.pageSize = newSize; // 更新 pageSize
+      this.currentPage = 1; // 切换分页大小时重置为第一页
+      this.updateTableData(); // 重新加载数据
     },
-    handleCurrentChange(val) {
+    handleCurrentChange(page) {
       // 当前页变化时，更新数据
-      this.currentPage = val;
+      this.currentPage = page;
       this.updateTableData();
     },
     cancel() {
       this.dialogShow = false;
+    },
+    /**
+     * 将年月日转换成-的形式 （用于格式化传给后端）
+     * @param inputDate
+     * @returns {string}
+     */
+    formatDateToBackend(inputDate) {
+      // 使用正则表达式提取日期和时间部分
+      const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+      const matches = inputDate.match(regex);
+
+      if (matches) {
+        // 格式化为目标格式 "yyyy-MM-dd HH:mm:ss"
+        return `${matches[1]}-${matches[2]}-${matches[3]} ${matches[4]}:${matches[5]}:${matches[6]}`;
+      } else {
+        throw new Error("Invalid date format");
+      }
+    },
+    /**
+     * 将ISO格式换成后端想要的格式
+     * @param input
+     * @returns {*|string}
+     */
+    formatISODateTimeToBackend(input) {
+      if (!input) return '';
+      return input.replace('T', ' '); // 替换 'T' 为空格
     }
   },
+
+
+
+
 };
 </script>
 
