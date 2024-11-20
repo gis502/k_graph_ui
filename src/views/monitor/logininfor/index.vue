@@ -113,12 +113,7 @@
         </template>
       </el-table-column>
       <el-table-column label="描述" align="center" prop="msg" :show-overflow-tooltip="true"/>
-      <el-table-column label="访问时间" align="center" prop="loginTime" sortable="custom"
-                       :sort-orders="['descending', 'ascending']" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.loginTime) }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="访问时间" align="center" prop="loginTime" sortable="custom" :sort-orders="['descending', 'ascending']" width="220" />
     </el-table>
 
       <pagination
@@ -165,7 +160,12 @@ const queryParams = ref({
 function getList() {
   loading.value = true;
   list(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
-    logininforList.value = response.rows;
+    // 对时间字段进行格式化
+    logininforList.value = response.rows.map(item => ({
+      ...item,
+      loginTime: item.loginTime ? timestampToTime(item.loginTime) : '无效时间' // 格式化时间字段
+    }));
+    // 设置总条数
     total.value = response.total;
     loading.value = false;
   });
@@ -242,6 +242,29 @@ function handleExport() {
 }
 
 getList();
+
+/**
+ * 时间格式转换
+ * @param timestamp
+ * @returns {string}
+ */
+function timestampToTime(timestamp) {
+  let DateObj = new Date(timestamp)
+  // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+  let year = DateObj.getFullYear()
+  let month = DateObj.getMonth() + 1
+  let day = DateObj.getDate()
+  let hh = DateObj.getHours()
+  let mm = DateObj.getMinutes()
+  let ss = DateObj.getSeconds()
+  month = month > 9 ? month : '0' + month
+  day = day > 9 ? day : '0' + day
+  hh = hh > 9 ? hh : '0' + hh
+  mm = mm > 9 ? mm : '0' + mm
+  ss = ss > 9 ? ss : '0' + ss
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+  // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+}
 </script>
 
 <style scoped>
