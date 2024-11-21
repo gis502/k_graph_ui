@@ -205,7 +205,7 @@
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('eqList') }"
-          title="地震列表"
+          title="地震toggleComponent列表"
           @click="toggleComponent('eqList')"
       >
         <p>灾损评估</p>
@@ -3726,7 +3726,7 @@ export default {
 }
 
 .thd-listTable {
-  width: 26.5%;
+  width: 27.5%;
   top: 13%;
   height: 79%;
   z-index: 30;

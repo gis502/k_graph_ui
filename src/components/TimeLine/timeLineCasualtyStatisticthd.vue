@@ -2,23 +2,23 @@
   <div class="pop">
     <div class="pop_header">
       <span class="pop_title">伤亡详情</span>
-      <span class="title-time">{{timestampToTime(currentTime)}}</span>
+      <span class="title-time">{{ timestampToTime(currentTime) }}</span>
 
       <div class="sub-main">
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-            <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
-            <el-table-column prop="死亡" label="死亡" width="60" align="center"
-                             :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
+          <el-table-column prop="死亡" label="死亡" width="60" align="center"
+                           :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
         </el-table>
-        </div>
       </div>
     </div>
+  </div>
 
 </template>
 <script>
@@ -401,16 +401,25 @@ export default {
         }
       }
     }
+
     function timestampToTime(timestamp) {
-      const DateObj = new Date(timestamp);
-      const year = DateObj.getFullYear();
-      const month = (DateObj.getMonth() + 1).toString().padStart(2, '0');
-      const day = DateObj.getDate().toString().padStart(2, '0');
-      const hh = DateObj.getHours().toString().padStart(2, '0');
-      const mm = DateObj.getMinutes().toString().padStart(2, '0');
-      const ss = DateObj.getSeconds().toString().padStart(2, '0');
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     }
+
     return {
       entityGroups,
       toggleEntities,
@@ -420,7 +429,7 @@ export default {
       formatPeople,
       tableHeaderColor,
       tableColor,
-     timestampToTime
+      timestampToTime
     };
   }
 }
@@ -435,6 +444,7 @@ export default {
 
   z-index: 20;
 }
+
 .pop_header {
   top: -10%;
   height: 3.8vh;
@@ -443,6 +453,7 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
 .pop_title {
   color: #FFFFFF;
   font-size: 1.1rem;
@@ -451,7 +462,8 @@ export default {
   position: relative;
   left: 7%;
 }
-.title-time{
+
+.title-time {
   right: 1%;
   position: absolute;
   top: 16%;
@@ -460,6 +472,7 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
+
 .list-dialog .list-dialog__header {
   height: 41px;
   width: 100%;
@@ -475,13 +488,15 @@ export default {
   background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
   background-size: 100% 100%;
 }
+
 .sub-main {
   overflow-y: auto !important;
   overflow-x: hidden;
   margin-top: 10px;
   margin-left: 5px;
 }
-:deep(.el-table__header-wrapper){
+
+:deep(.el-table__header-wrapper) {
   background-color: rgb(25, 56, 77);
 }
 
