@@ -19,22 +19,53 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as echarts from 'echarts';
-import { getPowerSupply } from "../../api/system/powerSupply";
+import {fromPowerSupplyInformation, getPowerSupply} from "../../api/system/powerSupply";
 import { defineProps } from "vue";
 import {useGlobalStore} from "../../store";
 
 const chart1 = ref(null);
 const chart2 = ref(null);
 const chart3 = ref(null);
-const props = defineProps({
-  eqid: {
-    type: String,
-    required: true,
-  },
-});
 const eqid = ref('');
 const reportingDeadline = ref('')
 const store = useGlobalStore();
+
+const props = defineProps({
+  eqid:{
+    type: String,
+    required: true
+  },
+  userInput:{
+    type:[String, Date],
+    required: true
+  }
+});
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+  // 后端逻辑处理：
+  fromPowerSupplyInformation(store.globalEqId,newValue).then(res => {
+    console.log("电力设施损毁及抢修情况",res)
+    updataData(res.data)
+  })
+})
+// ----------------------------------------------------------------------------------------
 
 setTimeout(() => {
   getPowerSupply(store.globalEqId).then(res => {
@@ -55,6 +86,7 @@ function updataData(data){
     return new Date(max) > new Date(item.reportingDeadline) ? max : item.reportingDeadline;
   }, data[0]?.reportingDeadline); // 确保初始值
 
+  reportingDeadline.value = formatDateChina(reportingDeadline.value)
   // 更新图表1的数据
   option1.series[0].data[0].value = totalRestoredSubstations;
   option1.series[0].data[1].value = totalToBeRepairedSubstations;

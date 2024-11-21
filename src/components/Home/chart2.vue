@@ -1,12 +1,12 @@
 <template>
   <div>
-    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;   left: 4px;" indicator-position="none" :key="carouselKey">
+    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;" indicator-position="none" :key="carouselKey">
       <!-- 余震数量图表 -->
       <el-carousel-item style="height: 100%;">
-        <div class="chart-container" style="height: 90%;">
-          <img src="@/assets/最新地震余震情况.png" alt="最新地震余震情况" style="width: 127%; height: auto;">
+        <div class="chart-container" style="height: 100%;">
+          <div class="public-title">最新地震余震情况统计(次)</div>
           <span
-              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
+              style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ updateTime }}
           </span>
 
@@ -17,9 +17,9 @@
       <!-- 各区县人口总数表 -->
       <el-carousel-item>
         <div class="chart-container population-chart-container" >
-          <img src="@/assets/各区县人口.png" alt="各区县人口" style="width: 127%; height: auto;">
+          <div class="public-title">各区县人口总数（万人）</div>
           <span
-              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
+              style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ populationDataChartUpdateTime }}
           </span>
           <div ref="populationDataChart" class="chart"></div> <!-- 人口数据图表容器 -->
@@ -28,7 +28,7 @@
 
       <el-carousel-item>
         <div class="chart-container">
-          <img src="@/assets/隐患点.png" alt="隐患点" style="width: 127%; height: auto;">
+          <div class="public-title">隐患点</div>
 
           <!-- 风险点信息 -->
           <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
@@ -283,7 +283,6 @@ const handleAftershockData = () => {
       updateAftershockChart(res);
       console.log("getAftershockMagnitude", res);
       updateTime.value = res.submission_deadline; // 更新时间
-      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
 
       // 判断是否有有效余震数据
       const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
@@ -305,8 +304,7 @@ const handleAftershockData = () => {
     });
   } else {
     updateTime.value = new Date().toLocaleString(); // 设置当前时间
-    updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
-    initialIndex.value = 1; // 如果没有lastEq，默认展示静态图
+    initialIndex.value = 1; // 如果没有 lastEq，默认展示静态图
   }
 };
 
@@ -329,7 +327,6 @@ const handlePopulationData = () => {
       console.log("提取后的数据:", populationData.value);
 
       populationDataChartUpdateTime.value = res.data[0].updateTime; // 更新时间
-      populationDataChartUpdateTime.value = formatDate(  populationDataChartUpdateTime.value);  // 更改时间格式
       initPopulationDataChart(); // 数据加载完成后初始化图表
     } else {
       console.error("返回的数据格式不正确或数据为空", res);
@@ -340,7 +337,6 @@ const handlePopulationData = () => {
 };
 
 
-// 初始化人口数据图表
 const initPopulationDataChart = () => {
   console.log("人口数据图表容器:", populationDataChart.value); // 调试容器是否存在
   console.log("人口数据:", populationData.value); // 调试人口数据
@@ -389,12 +385,11 @@ const initPopulationDataChart = () => {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       formatter: (params) => {
-        // 在 tooltip 中为每个数据值前添加颜色圆点，以万人为单位
         return params.map(item => `${item.marker}${item.name}: ${(item.value / 10000).toFixed(2)} 万人`).join('<br/>');
       }
     },
     grid: {
-      left: 13,
+      left: -1,
       right: 30,
       top: 30,
       bottom: 50,
@@ -417,7 +412,7 @@ const initPopulationDataChart = () => {
       },
       axisLine: {
         lineStyle: {
-          fontSize: 6,
+          fontSize: 11,
           color: '#8AC4FF',
         },
       },
@@ -492,6 +487,7 @@ const initPopulationDataChart = () => {
     ],
   };
 
+  // 设置图表的option
   myPopulationDataChart.setOption(option);
 };
 
@@ -618,18 +614,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeChart); // 移除监听器
   clearInterval(slideInterval); // 组件卸载前清除定时器
 });
-
-
-function formatDate(date) {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
-  const day = d.getDate().toString().padStart(2, '0');
-  const hours = d.getHours().toString().padStart(2, '0');
-  const minutes = d.getMinutes().toString().padStart(2, '0');
-  const seconds = d.getSeconds().toString().padStart(2, '0');
-  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-}
 </script>
 
 <style scoped>
@@ -638,9 +622,7 @@ function formatDate(date) {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 252px;
-  left: 1%;
-  /*height: 400px; !* 明确设置图表高度 *!*/
+  height: 400px; /* 明确设置图表高度 */
 }
 
 .chart {
@@ -650,8 +632,8 @@ function formatDate(date) {
 
 .population-chart-container {
   width: 100%;
-  height: 100%; /* 确保人口图表占满容器 */
-  margin-top: -7px;
+  height: 90%; /* 确保人口图表占满容器 */
+  margin-top: 0x;
 }
 
 /* 标题样式 */
@@ -710,7 +692,7 @@ function formatDate(date) {
 }
 /* 3. 没有数据时的显示样式 */
 .no-data {
-  margin-top: -7px;
+  margin-top: -80px;
   display: flex;
   flex-direction: column;
   justify-content: center;

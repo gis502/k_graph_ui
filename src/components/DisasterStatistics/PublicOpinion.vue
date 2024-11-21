@@ -6,7 +6,8 @@
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useGlobalStore} from "../../store";
-import {getPublicOpinion} from "../../api/system/publicOpinion";
+import {fromPublic, getPublicOpinion} from "../../api/system/publicOpinion";
+import {fromSocialOrder} from "../../api/system/socialOrder";
 
 
 const chart = ref(null);
@@ -14,11 +15,42 @@ const FieldName = ref(['宣传报道（篇）','中省主要媒体报道（篇�
 let echartsInstance = null; // 全局变量
 const eqid = ref('');
 const props = defineProps({
-  eqid: {
+  eqid:{
     type: String,
-    required: true,
+    required: true
   },
+  userInput:{
+    type:[String,Date],
+    required: true
+  }
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+
+  // 后端逻辑处理：
+  fromPublic(store.globalEqId,newValue).then(res => {
+    console.log("宣传舆论情况",res)
+    update(res.data)
+  })
+})
+// --------------------------------------------------------------------------------------------------------
 
 const publicityReport = ref([]) // 宣传报道
 const provincialMediaReport = ref([]) // 中省主要媒体报道
@@ -54,6 +86,8 @@ function update(data){
     pressConference.value = data.map(item => item.pressConference || 0);
     negativeOpinionDisposal.value = data.map(item => item.negativeOpinionDisposal || 0);
     latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
+
+    latestTime.value = latestTime.value.map(item => formatDateChina(item))
   }
 
   echartsInstance.setOption({

@@ -2,27 +2,36 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model2">社会秩序情况<br>
-        <SocialOrder :eqid="eqid"/>
+        <SocialOrder :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">宣传舆论情况<br/>
-        <PublicOpinion :eqid="eqid"/>
+        <PublicOpinion :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import {defineProps, ref, watch} from "vue";
 import SocialOrder from "./SocialOrder";
 import PublicOpinion from "./PublicOpinion";
 
+const userInputTime = ref('')
 // 获取父组件的 eqid
 const props = defineProps({
-  newEqId: {
+  newEqId:{
     type: String,
+    required: true
+  },
+  userInput:{
+    type:[String,Date],
     required: true
   }
 });
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+})
 
 // 响应式变量
 const eqid = ref('');

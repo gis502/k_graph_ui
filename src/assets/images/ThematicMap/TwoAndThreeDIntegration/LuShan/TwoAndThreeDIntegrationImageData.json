@@ -21,5 +21,6 @@
     "path": "/ThematicMap/TwoAndThreeDIntegration/LuShan/NearbyHeritageSitesMap.jpg" },
   { "name": "震中与主要城市距离分布图",
     "path": "/ThematicMap/TwoAndThreeDIntegration/LuShan/EpicenterToCitiesDistanceMap.jpg" },
-  { "name": "遥感影像图" }
+  { "name": "遥感影像图" },
+  { "name": "三维模型图" }
 ]

@@ -7,19 +7,48 @@ import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
-import {getRiskConstructionGeohazards} from "../../api/system/geologicalDisaster";
-
-
+import {fromRiskConstructionGeohazards, getRiskConstructionGeohazards} from "../../api/system/geologicalDisaster";
+import {fromSecondaryDisasterInfo} from "../../api/system/mountainFlood";
 const chart = ref(null);
 const FieldName = ref(['现有隐患点（个）','新增隐患点（个）','正在施工点（个）','基础设施检查点（个）','预警发布（次）','转移避险（人）']);
 let echartsInstance = null; // 全局变量
 const eqid = ref('');
 const props = defineProps({
-  eqid: {
-    type: String,
-    required: true,
-  },
+eqid:{
+  type: String,
+      required: true
+},
+userInput:{
+  type:[String,Date],
+      required: true
+}
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+  // 后端逻辑处理：
+  fromRiskConstructionGeohazards(store.globalEqId,newValue).then(res => {
+    console.log("地质灾害情况",res)
+    update(res.data)
+  })
+})
+// --------------------------------------------------------------------------------------------------------
 
 const publicityReport = ref([]) // 宣传报道
 const provincialMediaReport = ref([]) // 中省主要媒体报道
@@ -44,8 +73,6 @@ setTimeout(()=>{
   });
 },500)
 
-quakeAreaName
-
 function update(data){
   // 如果返回的数组为空，设置默认值
   if (data.length === 0) {
@@ -66,6 +93,8 @@ function update(data){
     alarmCount.value = data.map(item => item.alarmCount || 0);
     evacuationCount.value = data.map(item => item.evacuationCount || 0);
     latestTime.value = data.map(item => formatDate(item.reportDeadline) || '抱歉暂无数据');
+
+    latestTime.value = latestTime.value.map(item => formatDateChina(item))
   }
 
   echartsInstance.setOption({

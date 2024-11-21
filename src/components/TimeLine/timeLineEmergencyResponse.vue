@@ -160,7 +160,7 @@ export default {
         this.activity.ResponseName = tmp.level;
         this.activity.state = tmp.status;
       } else {
-        this.recordTime = this.timestampToTime(currentTime);
+        this.recordTime = this.timestampToTimeChina(currentTime);
       }
     },
     existsInresponseHistory(item) {

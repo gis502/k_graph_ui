@@ -1,94 +1,100 @@
 <template>
-  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{latest_time}}</p>
+  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ lastTime }}</p>
   <div ref="chart" style="width: 100%; height: 200px;" className="container-left"></div>
 </template>
 
 <script setup>
 import {ref, onMounted, watch} from 'vue';
 import * as echarts from 'echarts';
-import {fromAftershock, getTotal} from "../../api/system/statistics";
+import {getWorkGroupInfo} from "../../api/system/systemApi.js";
 
-import { defineProps } from 'vue';
+import {defineProps} from 'vue';
 import {useGlobalStore} from "../../store";
 
 const store = useGlobalStore();
 const props = defineProps({
   eqid: {
     type: String,
-    required: true,
+    required: false,
   },
-  userInput:{
-    type:[String, Date],
-    required: true
-  }
 });
 
-// 时间查询功能
-const formatDateChina = (dateStr) => {
-  if (dateStr){
-    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
-    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
-    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-  }
-};
-
-
-watch(()=>props.userInput,(newValue) => {
-  console.log("DisasterStatistics接收到了",store.globalEqId,"最新的时间",newValue)
-  // 后端操作：
-  fromAftershock(store.globalEqId,newValue).then(res => {
-    console.log("地震灾情信息返回的数据",res)
-    updateData(res.data)
-  })
-})
-
-// -------------------------------------------------------------------------------------------------
-
 // 这行代码里面的赋值已经不再是neweqid的默认值，这里的作用是为了一开始watch没有监听到eqid值变化的时候给的值
-
 // 防止因为没有eqid的传值而报错，删除或者更换为空值或者其他非正常eqid值都会报错
-
 const neweqid = ref('');
 neweqid.value = store.globalEqId
 
-const total_magnitude_3_3_9 = ref(0);
-const total_magnitude_4_4_9 = ref(0);
-const total_magnitude_5_5_9 = ref(0);
-const all_aftershocks = ref(0);
-const latest_time = ref('');
 
-const updateData = (data) =>{
-  total_magnitude_3_3_9.value = 0;
-  total_magnitude_4_4_9.value = 0;
-  total_magnitude_5_5_9.value = 0;
+const bxArea = ref(0);  // 宝兴区
+const lsArea = ref(0);  // 芦山县
+const ycArea = ref(0);  // 雨城区
+const msArea = ref(0);  // 名山区
+const yjArea = ref(0);  // 荥经县
+const tqArea = ref(0);  // 天全县
+const smArea = ref(0);  // 石棉县
+const hyArea = ref(0);  // 汉源县
+const all_aftershocks = ref(0);
+const lastTime = ref('');
+
+const updateData = (data,time) => {
+  bxArea.value = 0;
+  lsArea.value = 0;
+  ycArea.value = 0;
+  msArea.value = 0;
+  yjArea.value = 0;
+  tqArea.value = 0;
+  smArea.value = 0;
+  hyArea.value = 0;
   all_aftershocks.value = 0;
-  latest_time.value = '';
+  lastTime.value = '';
 
   data.forEach(item => {
-    total_magnitude_3_3_9.value += item.magnitude_3_3_9;
-    total_magnitude_4_4_9.value += item.magnitude_4_4_9;
-    total_magnitude_5_5_9.value += item.magnitude_5_5_9;
-    all_aftershocks.value += item.total_aftershocks;
-
-    if (item.submission_deadline) {
-      const formattedTime = formatDate(new Date(item.submission_deadline));
-      if (!latest_time.value || new Date(item.submission_deadline) > new Date(latest_time.value)) {
-        latest_time.value = formattedTime;
+    switch (item.workgroupname) {
+      case '宝兴县':
+        bxArea.value = item.workgroupnameinfo;
+        break;
+      case '芦山县':
+        lsArea.value += item.workgroupnameinfo;
+        break;
+      case '雨城区':
+        ycArea.value += item.workgroupnameinfo;
+        break;
+      case '名山区':
+        msArea.value += item.workgroupnameinfo;
+        break;
+      case '荥经县':
+        yjArea.value += item.workgroupnameinfo;
+        break;
+      case '天全县':
+        tqArea.value += item.workgroupnameinfo;
+        break;
+      case '石棉县':
+        smArea.value += item.workgroupnameinfo;
+        break;
+      case '汉源县':
+        hyArea.value += item.workgroupnameinfo;
+        break;
+    }
+    if (time) {
+      const formattedTime = formatDate(new Date(time));
+      if (!lastTime.value || new Date(time) > new Date(lastTime.value)) {
+        lastTime.value = formattedTime;
       }
+
+      console.log("当前时间-》",lastTime)
+
     }
   });
 
-  latest_time.value = formatDateChina(latest_time.value)
-
   echartData.value = [
-    { value: total_magnitude_3_3_9.value, name: '3.0-3.9级', itemStyle: { normal: { color: '#ffeb31' }}},
-    { value: total_magnitude_4_4_9.value, name: '4.0-4.9级', itemStyle: { normal: { color: '#ffa602' }}},
-    { value: total_magnitude_5_5_9.value, name: '5.0-5.9级', itemStyle: { normal: { color: '#f81b1b' }}},
+    {value: bxArea.value, name: '宝兴县', itemStyle: {normal: {color: 'rgba(235,255,2,0.57)'}}},
+    {value: lsArea.value, name: '芦山县', itemStyle: {normal: {color: 'rgba(235,255,2,0.99)'}}},
+    {value: ycArea.value, name: '雨城区', itemStyle: {normal: {color: 'rgba(248,117,46,0.5)'}}},
+    {value: msArea.value, name: '名山区', itemStyle: {normal: {color: 'rgba(255,134,0,0.68)'}}},
+    {value: yjArea.value, name: '荥经县', itemStyle: {normal: {color: 'rgb(255,116,0)'}}},
+    {value: tqArea.value, name: '天全县', itemStyle: {normal: {color: 'rgba(248,27,27,0.98)'}}},
+    {value: smArea.value, name: '石棉县', itemStyle: {normal: {color: 'rgba(255,0,0,0.74)'}}},
+    {value: hyArea.value, name: '汉源县', itemStyle: {normal: {color: 'rgba(255,20,20,0.48)'}}},
   ];
 }
 // 监听传入的 eqid，更新地震信息
@@ -99,8 +105,11 @@ watch(() => props.eqid, (newValue) => {
 
 // 获取并更新图表数据的函数
 const fetchEarthquakeData = (eqid) => {
-  getTotal(eqid).then(res => {
-    updateData(res)
+  getWorkGroupInfo(eqid).then(res => {
+
+    console.log(res)
+
+    updateData(res.data.areaUploadData,res.data.lastTime)
   })
 };
 
@@ -121,12 +130,12 @@ const initChart = () => {
 
     const option = {
       title: {
-        text: '余震累积',
+        text: '各区统计信息',
         top: "center",
         right: "center",
         textStyle: {
           color: '#f2f2f2',
-          fontSize: 23,
+          fontSize: 20,
           align: 'center',
         },
         subtextStyle: {
@@ -143,7 +152,7 @@ const initChart = () => {
         textStyle: {
           color: '#fff',
         },
-        itemGap: 30,
+        itemGap: 5,
         data: echartData.value.map((item) => item.name),
       },
       series: [
@@ -198,13 +207,22 @@ onMounted(() => {
 });
 
 function formatDate(date) {
-  const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Shanghai' };
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Shanghai'
+  };
   return new Intl.DateTimeFormat('zh-CN', options).format(date).replace(/\//g, '-').replace(',', '');
 }
 
-setTimeout(()=>{
-    fetchEarthquakeData(store.globalEqId)
-},500)
+setTimeout(() => {
+  fetchEarthquakeData(store.globalEqId)
+}, 500)
 
 // 监听 echartData 的变化并重新初始化图表
 watch(echartData, () => {

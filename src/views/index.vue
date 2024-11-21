@@ -380,10 +380,11 @@ onMounted(() => {
 .header-center {
   color: #69d1e1; /* 设置字体颜色为 #69d1e1 */
   font-weight: bold;
-  font-size: 24px;
+  font-size: 22px;
   letter-spacing: 2px;
   text-align: center; /* 确保文本在容器内居中 */
   width: 100%; /* 确保 header-center 占满父容器 */
+  margin-left: -1.7%;
 }
 
 .header-time {
@@ -433,6 +434,7 @@ onMounted(() => {
 .left-body .left-top {
   width: 100%;
   height: 26%;
+  overflow: hidden;
 }
 
 .left-body .left-top .top-body {
@@ -482,6 +484,7 @@ onMounted(() => {
   width: 100%;
   height: 30%;
   margin-top: 1.6%;
+  overflow: hidden;
 }
 
 .left-body .left-bottom {
