@@ -593,7 +593,7 @@ export default {
         console.log("weight.value*********", weight.value)
 
         infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 380// 获取鼠标位置
+        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 378// 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
