@@ -123,11 +123,7 @@
                <dict-tag :options="sys_common_status" :value="scope.row.status" />
             </template>
          </el-table-column>
-         <el-table-column label="操作日期" align="center" prop="operTime" width="180" sortable="custom" :sort-orders="['descending', 'ascending']">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.operTime) }}</span>
-            </template>
-         </el-table-column>
+         <el-table-column label="操作日期" align="center" prop="operTime" width="200" sortable="custom" :sort-orders="['descending', 'ascending']" />
          <el-table-column label="消耗时间" align="center" prop="costTime" width="110" :show-overflow-tooltip="true" sortable="custom" :sort-orders="['descending', 'ascending']">
             <template #default="scope">
                <span>{{ scope.row.costTime }}毫秒</span>
@@ -236,11 +232,18 @@ const { queryParams, form } = toRefs(data);
 function getList() {
   loading.value = true;
   list(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
-    operlogList.value = response.rows;
+    console.log("response",response)
+    // 对返回数据的时间字段进行格式化
+    operlogList.value = response.rows.map(item => ({
+      ...item,
+      operTime: item.operTime ? timestampToTime(item.operTime) : '无效时间' // 格式化时间字段
+    }));
+    // 设置总条数
     total.value = response.total;
     loading.value = false;
   });
 }
+
 
 /** 操作日志类型字典翻译 */
 function typeFormat(row, column) {
@@ -309,4 +312,27 @@ function handleExport() {
 }
 
 getList();
+
+/**
+ * 时间格式转换
+ * @param timestamp
+ * @returns {string}
+ */
+function timestampToTime(timestamp) {
+  let DateObj = new Date(timestamp)
+  // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+  let year = DateObj.getFullYear()
+  let month = DateObj.getMonth() + 1
+  let day = DateObj.getDate()
+  let hh = DateObj.getHours()
+  let mm = DateObj.getMinutes()
+  let ss = DateObj.getSeconds()
+  month = month > 9 ? month : '0' + month
+  day = day > 9 ? day : '0' + day
+  hh = hh > 9 ? hh : '0' + hh
+  mm = mm > 9 ? mm : '0' + mm
+  ss = ss > 9 ? ss : '0' + ss
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+  // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+}
 </script>

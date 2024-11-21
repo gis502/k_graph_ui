@@ -108,11 +108,7 @@
                ></el-switch>
             </template>
          </el-table-column>
-         <el-table-column label="创建时间" align="center" prop="createTime">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.createTime) }}</span>
-            </template>
-         </el-table-column>
+         <el-table-column label="创建时间" align="center" prop="createTime" />
          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
               <el-tooltip content="修改" placement="top" v-if="scope.row.roleId !== 1">
@@ -300,11 +296,23 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询角色列表 */
 function getList() {
   loading.value = true;
-  listRole(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
-    roleList.value = response.rows;
-    total.value = response.total;
-    loading.value = false;
-  });
+  listRole(proxy.addDateRange(queryParams.value, dateRange.value))
+      .then(response => {
+        // 遍历 rows 并格式化 createTime 字段
+        roleList.value = response.rows.map(item => {
+          if (item.createTime) {
+            item.createTime = timestampToTime(item.createTime);
+          }
+          return item;
+        });
+        // 设置总条数
+        total.value = response.total;
+        // 停止加载
+        loading.value = false;
+
+        // 打印格式化后的 roleList
+        console.log("格式化后的 roleList", roleList.value);
+      })
 }
 
 /** 搜索按钮操作 */
@@ -579,6 +587,29 @@ function submitDataScope() {
 function cancelDataScope() {
   openDataScope.value = false;
   reset();
+}
+
+/**
+ * 时间格式转换
+ * @param timestamp
+ * @returns {string}
+ */
+function timestampToTime(timestamp) {
+  let DateObj = new Date(timestamp)
+  // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+  let year = DateObj.getFullYear()
+  let month = DateObj.getMonth() + 1
+  let day = DateObj.getDate()
+  let hh = DateObj.getHours()
+  let mm = DateObj.getMinutes()
+  let ss = DateObj.getSeconds()
+  month = month > 9 ? month : '0' + month
+  day = day > 9 ? day : '0' + day
+  hh = hh > 9 ? hh : '0' + hh
+  mm = mm > 9 ? mm : '0' + mm
+  ss = ss > 9 ? ss : '0' + ss
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+  // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
 }
 
 getList();
