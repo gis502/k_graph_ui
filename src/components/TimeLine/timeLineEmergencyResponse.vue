@@ -41,6 +41,7 @@
 </template>
 
 <script>
+
 import { getEmergencyResponse } from "../../api/system/timeLine.js";
 
 export default {
