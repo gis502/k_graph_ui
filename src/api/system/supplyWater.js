@@ -1,5 +1,4 @@
 import request from '@/utils/request';
-import dayjs from "dayjs";
 
 /**
  * 获取保障安置点供水统计
@@ -13,14 +12,3 @@ export function getEnsureWaterSupply(eqid){
     });
 }
 
-export function fromSupplyWater(eqid, time) {
-
-    // 格式化用户输入的时间
-    const formattedTime = dayjs(time).format('YYYY-MM-DDTHH:mm:ss');
-
-    return request({
-        url: '/system/fromSupplyWater', // 后端接口地址
-        method: 'get',
-        params: { eqid, time: formattedTime } // 传递参数
-    });
-}

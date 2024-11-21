@@ -28,6 +28,7 @@
     "dayjs": "^1.11.13",
     "echarts": "5.5.1",
     "echarts-gl": "^2.0.9",
+    "echarts-wordcloud": "^2.0.0",
     "element-plus": "2.7.6",
     "exceljs": "^4.4.0",
     "file-saver": "2.0.5",

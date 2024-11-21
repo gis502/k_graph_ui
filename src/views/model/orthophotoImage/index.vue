@@ -13,31 +13,88 @@
       <el-button type="primary" plain icon="Plus" @click="handleEdit('新增')">新增</el-button>
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
     </el-form-item>
-    <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor"
-              :cell-style="tableColor">
-      <el-table-column label="序号" align="center" width="100">
+    <el-table
+        :data="TableData"
+        class="table-center"
+        :stripe="true"
+        :header-cell-style="tableHeaderColor"
+        :cell-style="tableColor"
+    >
+      <el-table-column
+          label="序号"
+          align="center"
+          width="100"
+      >
         <template #default="{ $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="正射影像名称" width="150" align="center"></el-table-column>
-      <el-table-column prop="height" label="正射影像高度" width="200" align="center"></el-table-column>
-      <el-table-column label="添加时间" align="center" width="180">
+
+      <el-table-column
+          prop="name"
+          label="正射影像名称"
+          width="200"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="path"
+          label="正射影像路径"
+          width="300"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="height"
+          label="正射影像高度(米)"
+          width="150"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="angle"
+          label="旋转角度(度)"
+          width="150"
+          align="center"
+      ></el-table-column>
+
+      <el-table-column
+          prop="createTime"
+          label="添加时间"
+          width="220"
+          align="center"
+      >
         <template #default="{ row }">
-          <el-tooltip class="item" effect="dark" :content="row.createTime" placement="top">
-            <span class="ellipsis">{{ row.createTime }}</span>
-          </el-tooltip>
+          <span>{{ row.createTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="path" label="正射影像路径" width="200" align="center"></el-table-column>
-      <el-table-column prop="angle" label="旋转角度" width="180" align="center"></el-table-column>
-      <el-table-column label="操作" align="center">
+
+      <el-table-column
+          label="操作"
+          align="center"
+          width="250"
+      >
         <template #default="{ row }">
-          <el-button size="mini" type="text" icon="el-icon-view" @click="handleOpen(row)">浏览</el-button>
-          <el-button size="mini" type="text" @click="handleEdit('修改', row)">
+          <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-view"
+              @click="handleOpen(row)"
+          >
+            浏览
+          </el-button>
+          <el-button
+              size="mini"
+              type="text"
+              @click="handleEdit('修改', row)"
+          >
             <el-icon><Edit /></el-icon>修改
           </el-button>
-          <el-button size="mini" type="text" @click="handleDelete(row)">
+          <el-button
+              size="mini"
+              type="text"
+              @click="handleDelete(row)"
+          >
             <el-icon><Delete /></el-icon>删除
           </el-button>
         </template>
@@ -62,7 +119,7 @@
         <el-form-item label="正射影像名称" prop="name">
           <el-input
               v-model="dialogContent.name"
-              placeholder="请输入内容"
+              placeholder="请输入正射影像名称"
               style="width: 100%;"
           ></el-input>
         </el-form-item>
@@ -71,10 +128,12 @@
         <el-form-item label="正射影像高度" prop="height">
           <el-input
               v-model="dialogContent.height"
-              placeholder="请输入内容"
+              placeholder="请输入正射影像高度"
               type="number"
               style="width: 100%;"
-          ></el-input>
+          >
+            <template #append>米</template>
+          </el-input>
         </el-form-item>
 
         <!-- 添加时间 -->
@@ -93,7 +152,7 @@
         <el-form-item label="正射影像路径" prop="path">
           <el-input
               v-model="dialogContent.path"
-              placeholder="请输入内容"
+              placeholder="请输入正射影像路径"
               style="width: 100%;"
           ></el-input>
         </el-form-item>
@@ -102,10 +161,12 @@
         <el-form-item label="旋转角度" prop="angle">
           <el-input
               v-model="dialogContent.angle"
-              placeholder="请输入内容"
+              placeholder="请输入旋转角度"
               type="number"
               style="width: 100%;"
-          ></el-input>
+          >
+            <template #append>度</template>
+          </el-input>
         </el-form-item>
 
         <!-- 按钮部分 -->
@@ -128,20 +189,22 @@
           <el-input
               v-model="dialogContent.modelName"
               style="width: 100%;"
-              placeholder="正射影像名称"
+              placeholder="请输入正射影像名称"
               clearable
           />
         </el-form-item>
 
         <!-- 正射影像高度 -->
-        <el-form-item label="正摄影像高度" prop="modelSize">
+        <el-form-item label="正射影像高度" prop="height">
           <el-input
               type="number"
               v-model="dialogContent.height"
               style="width: 100%;"
-              placeholder="请输入模型大小"
+              placeholder="请输入正射影像高度"
               clearable
-          />
+          >
+            <template #append>米</template>
+          </el-input>
         </el-form-item>
 
         <!-- 添加时间 -->
@@ -150,7 +213,7 @@
               v-model="dialogContent.createTime"
               type="datetime"
               value-format="YYYY-MM-DDTHH:mm:ss"
-              placeholder="选择日期时间"
+              placeholder="请选择添加时间"
               style="width: 100%;"
               size="large"
               clearable
@@ -175,7 +238,9 @@
               style="width: 100%;"
               placeholder="请输入旋转角度"
               clearable
-          />
+          >
+            <template #append>度</template>
+          </el-input>
         </el-form-item>
       </el-form>
 
@@ -241,7 +306,6 @@ export default {
   created() {
     this.fetchData();
   },
-
   methods: {
     fetchData() {
       list().then(res => {
@@ -287,7 +351,7 @@ export default {
     onSubmit() {
       this.filterContent = {
         name: this.dialogContent.modelName || null,
-        createTime: this.dialogContent.createTime,
+          createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
         height: this.dialogContent.height || null,
         angle: this.dialogContent.rotationAngle || null,
         path: this.dialogContent.modelPath || null,
@@ -337,8 +401,7 @@ export default {
         // 隐藏筛选表单
         this.queryFormVisible = false;
         // 清空表单字段
-        // this.clearFormValue();
-        this.clearFormValue(this.formData || {});
+        this.clearFormValue();
       }).catch(error => {
         console.error("查询失败:", error);
       });
@@ -430,7 +493,7 @@ export default {
       if (title === "新增") {
         this.dialogContent = {
           name: '',
-          createTime: new Date().toISOString(),
+          createTime: '',
           path: '',
           height: '',
           angle: '',
@@ -440,7 +503,7 @@ export default {
         this.dialogContent = {
           name: row.name,
           path: row.path,
-          createTime: row.createTime,
+          createTime: this.formatDateToBackend(row.createTime),
           height: row.height,
           angle: row.angle,
           uuid: row.uuid
@@ -481,7 +544,7 @@ export default {
             height: this.dialogContent.height,
             angle: this.dialogContent.angle,
             path: this.dialogContent.path,
-            createTime: this.dialogContent.createTime,
+            createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
             uuid: this.dialogContent.uuid,
           };
 
@@ -519,19 +582,10 @@ export default {
     },
 
     // 清除formValue中的数据
-    // clearFormValue() {
-    //   Object.keys(this.formValue).forEach(key => {
-    //     this.formValue[key] = ''
-    //   });
-    clearFormValue(formData) {
-      // 判断 formData 是否是一个对象，避免 null 或 undefined
-      if (formData && typeof formData === 'object') {
-        Object.keys(formData).forEach(key => {
-          formData[key] = '';  // 清空字段的值
-        });
-      } else {
-        console.error('传入的 formData 无效:', formData);
-      }
+    clearFormValue() {
+      Object.keys(this.formValue).forEach(key => {
+        this.formValue[key] = ''
+      });
     },
     // 关闭dialog对话框 筛选
     Cancel() {
@@ -582,22 +636,42 @@ export default {
         'font-size': '16px',
       };
     },
+    /**
+     * 将年月日转换成-的形式 （用于格式化传给后端）
+     * @param inputDate
+     * @returns {string}
+     */
+    formatDateToBackend(inputDate) {
+      // 使用正则表达式提取日期和时间部分
+      const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+      const matches = inputDate.match(regex);
+
+      if (matches) {
+        // 格式化为目标格式 "yyyy-MM-dd HH:mm:ss"
+        return `${matches[1]}-${matches[2]}-${matches[3]} ${matches[4]}:${matches[5]}:${matches[6]}`;
+      } else {
+        throw new Error("Invalid date format");
+      }
+    },
+    /**
+     * 将ISO格式换成后端想要的格式
+     * @param input
+     * @returns {*|string}
+     */
+    formatISODateTimeToBackend(input) {
+      if (!input) return '';
+      return input.replace('T', ' '); // 替换 'T' 为空格
+    }
   },
+
+
+
 }
 </script>
 
 <style scoped>
 .table-center .el-table__cell {
   text-align: center;
-}
-
-.ellipsis {
-  display: inline-block;
-  max-width: 150px; /* 根据需要调整最大宽度 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
 }
 
 .pagination {
