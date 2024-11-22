@@ -4,7 +4,7 @@
       <div class="pop_header">
         <h2 class="pop_title">
           应急响应
-          <span class="time">{{ recordTime }}</span>      
+          <span class="time">{{ recordTime }}</span>
         </h2></div>
       <div class="pop_content">
         <p class="pop_txt"><span>{{ this.activity.department }}</span></p>
