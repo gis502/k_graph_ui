@@ -53,6 +53,7 @@ import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster
 import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
 import MaterialDonation from "@/components/DisasterStatistics/MaterialDonation.vue"
 import PublicSentiment from "@/components/DisasterStatistics/PublicSentiment.vue"
+import WorkGroupLog from "@/components/DisasterStatistics/WorkGroupLog.vue"
 
 // 选项数据
 const options = [
@@ -63,6 +64,7 @@ const options = [
   {label: '力量物资信息可视化',value: 'ResourceStrength'},
   {label: '资金及物资捐赠可视化', value: 'MaterialDonation'},
   {label: '宣传舆情信息可视化',value: 'PublicSentiment'},
+  {label: '工作组每日工作动态可视化',value: 'WorkGroupLog'},
 ]
 
 // 当前选择的组件标识符
@@ -77,6 +79,7 @@ const components = {
   ResourceStrength,
   MaterialDonation,
   PublicSentiment,
+  WorkGroupLog
 }
 
 // 动态获取选定的组件

@@ -12,8 +12,12 @@
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
             </template>
           </el-table-column>
-          <el-table-column prop="time" label="发震时间" width="160"/>
-          <el-table-column prop="earthquakeName" label="位置">
+          <el-table-column prop="time" label="发震时间" width="240">
+            <template #default="scope">
+              {{ timestampToTimeChina(scope.row.time) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="earthquakeName" label="位置" width="150">
             <template #default="scope">
               <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
                 <div>{{ scope.row.earthquakeName }}</div>
@@ -34,20 +38,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                size="small"
-                @click="plotAdj(scope.row)">查看
+                  size="small"
+                  @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next"
-          :total="total">
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next"
+            :total="total">
         </el-pagination>
 
       </el-form>
@@ -105,27 +109,27 @@
           @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolyline"
+          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolygon"
+          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-        :visible="popupVisible"
-        :position="popupPosition"
-        :popupData="popupData"
-        :ifedit="true"
-        @wsSendPoint="wsSendPoint"
-        @closePlotPop="closePlotPop"
+          :visible="popupVisible"
+          :position="popupPosition"
+          :popupData="popupData"
+          :ifedit="true"
+          @wsSendPoint="wsSendPoint"
+          @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-        :visible="dataSourcePopupVisible"
-        :position="dataSourcePopupPosition"
-        :popupData="dataSourcePopupData"
+          :visible="dataSourcePopupVisible"
+          :position="dataSourcePopupPosition"
+          :popupData="dataSourcePopupData"
       />
 
       <el-button type="primary" @click="exportCesiumTheme"
@@ -141,21 +145,21 @@
       </el-button>
 
       <el-upload
-        :action="uploadUrl"
-        :multiple="false"
-        :show-file-list="false"
-        :on-success="handleSuccess"
-        :before-upload="beforeUpload"
-        :headers="this.headers"
-        style="position: absolute;top: 150px;right: 100px;z-index: 100;"
+          :action="uploadUrl"
+          :multiple="false"
+          :show-file-list="false"
+          :on-success="handleSuccess"
+          :before-upload="beforeUpload"
+          :headers="this.headers"
+          style="position: absolute;top: 150px;right: 100px;z-index: 100;"
       >
         <el-button type="primary" @click="">上传当前地震标绘数据</el-button>
       </el-upload>
 
       <el-dialog
-        v-model="selectVisible"
-        width="30%"
-        @close="selectVisible=false"
+          v-model="selectVisible"
+          width="30%"
+          @close="selectVisible=false"
       >
         <template #title>
           <div style="text-align: center;">{{ this.excelPanel }}</div>
@@ -168,12 +172,12 @@
               <div>可选择标绘名称</div>
               <el-row>
                 <el-tree
-                  ref="tree"
-                  :data="filteredPlotTreeData"
-                  :props="defaultProps"
-                  show-checkbox
-                  node-key="id"
-                  @check-change="handleCheck"
+                    ref="tree"
+                    :data="filteredPlotTreeData"
+                    :props="defaultProps"
+                    show-checkbox
+                    node-key="id"
+                    @check-change="handleCheck"
                 >
                 </el-tree>
               </el-row>
@@ -209,7 +213,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
+    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -238,7 +242,7 @@
           </div>
         </div>
         <div
-          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+            style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
           <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
           <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
           <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
@@ -265,7 +269,8 @@
       <div class="compassContainer" ref="compassContainer"></div>
     </div>
 
-    <div v-if="isShowMessageIcon" style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
+    <div v-if="isShowMessageIcon"
+         style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
       <p style="color: #fff; margin: 0;">您正在进行标绘：</p>
       <img :src="this.messageIcon" style="width: 30px; height: 30px;">
     </div>
@@ -500,7 +505,7 @@ export default {
 
   watch: {
     isLoaded(val) {
-      if(val && this.downloadConfirmed) {
+      if (val && this.downloadConfirmed) {
         this.downloadExcel()
       }
     }
@@ -528,12 +533,12 @@ export default {
         // console.log(this.excelContent)
 
         const formattedTitle = this.title
-          // 删除时间部分，例如 T17:07:10 或 11:07:10
-          .replace(/\s?T?\d{2}:\d{2}:\d{2}/, "")
-          // 然后将日期部分 2024-05-27 转换为 2024年5月27日
-          .replace(/^(\d{4})-(\d{2})-(\d{2})/, (match, year, month, day) =>
-            `${year}年${parseInt(month, 10)}月${parseInt(day, 10)}日`
-          );
+            // 删除时间部分，例如 T17:07:10 或 11:07:10
+            .replace(/\s?T?\d{2}:\d{2}:\d{2}/, "")
+            // 然后将日期部分 2024-05-27 转换为 2024年5月27日
+            .replace(/^(\d{4})-(\d{2})-(\d{2})/, (match, year, month, day) =>
+                `${year}年${parseInt(month, 10)}月${parseInt(day, 10)}日`
+            );
 
         const excelTitle = this.excelContent.length > 0 ? `${formattedTitle}级地震-标绘数据` : "标绘数据模板";
 
@@ -630,7 +635,7 @@ export default {
             that.renderedPlotIds.add(item.plotId);
           }
         })
-        that.drawPoints(points,false)
+        that.drawPoints(points, false)
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
@@ -761,7 +766,7 @@ export default {
           return {
             ...category,
             children: category.children.filter(
-              (child) => child.label !== 'I类（次生地质灾害）'
+                (child) => child.label !== 'I类（次生地质灾害）'
             ),
           };
         }
@@ -790,9 +795,9 @@ export default {
 
       // 过滤掉最高级和第二级的label
       this.selectedNodes = checkedNodes
-        .map(node => node.label)
-        // 过滤掉最高级和第二级的 label
-        .filter(label => !highestAndSecondLabels.includes(label));
+          .map(node => node.label)
+          // 过滤掉最高级和第二级的 label
+          .filter(label => !highestAndSecondLabels.includes(label));
     },
 
     confirmDownload() {
@@ -802,13 +807,13 @@ export default {
         const typeKey = Object.keys(plotType).find(key => plotType[key].name === node);
         const fields = [];
         fields.unshift(
-          {name: "绘制类型", type: "text"},
-          {name: "经度", type: "text"},
-          {name: "纬度", type: "text"},
-          {name: "高程", type: "text"},
-          {name: "角度", type: "text"},
-          {name: "开始时间", type: "text"},
-          {name: "结束时间", type: "text"}
+            {name: "绘制类型", type: "text"},
+            {name: "经度", type: "text"},
+            {name: "纬度", type: "text"},
+            {name: "高程", type: "text"},
+            {name: "角度", type: "text"},
+            {name: "开始时间", type: "text"},
+            {name: "结束时间", type: "text"}
         );
 
         if (typeKey) {
@@ -833,7 +838,7 @@ export default {
       });
       this.downloadConfirmed = true
 
-      if(this.isLoaded) {
+      if (this.isLoaded) {
         this.downloadExcel()
       }
     },
@@ -876,12 +881,12 @@ export default {
             // 提取 plotTypeInfo 中的字段
             const plotTypeFields = plotInfo.plotType ? Object.values(plotType).find(team => team.name === plotInfo.plotType) : null;
             const filteredPlotTypeInfo = Object.keys(plotTypeFields).filter(key => key !== 'name')
-              .reduce((obj, key) => {
-                if (plotTypeInfo[key] !== undefined) {
-                  obj[plotTypeFields[key].name] = plotTypeInfo[key];
-                }
-                return obj;
-              }, {});
+                .reduce((obj, key) => {
+                  if (plotTypeInfo[key] !== undefined) {
+                    obj[plotTypeFields[key].name] = plotTypeInfo[key];
+                  }
+                  return obj;
+                }, {});
 
             // 返回提取的字段
             return {
@@ -911,7 +916,7 @@ export default {
               "结束时间": item["结束时间"],
               // 将 plotTypeInfo 中的其他字段加入
               ...Object.fromEntries(
-                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
+                  Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
               )
             };
 
@@ -969,12 +974,12 @@ export default {
 
             // 根据 flag 值决定是否应用过滤
             child.children = arr
-              .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
-              .map(item => ({
-                label: item.name,
-                uuid: item.uuid,
-                children: [] // 初始化为空数组
-              }));
+                .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
+                .map(item => ({
+                  label: item.name,
+                  uuid: item.uuid,
+                  children: [] // 初始化为空数组
+                }));
           });
         }
       });
@@ -1017,15 +1022,15 @@ export default {
         const firstCell = worksheet['A1'];
         if (!firstCell && firstCell !== "绘制类型") {
           this.$message({
-              type: 'error',
-              message: `文件的第一行数据有误，请检查文件内容！`
-            }
+                type: 'error',
+                message: `文件的第一行数据有误，请检查文件内容！`
+              }
           );
         }
       };
 
       reader.readAsArrayBuffer(file);
-      this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}`;
+      this.uploadUrl = `http://49.233.206.13:8080/excel/importPlotExcel/${filename}&${this.eqid}`;
       // this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}&${this.fieldMapping}`;
       return true;
     },
@@ -1188,9 +1193,9 @@ export default {
 
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-          parseFloat(targetInfo.longitude),
-          parseFloat(targetInfo.latitude),
-          70000
+            parseFloat(targetInfo.longitude),
+            parseFloat(targetInfo.latitude),
+            70000
         ),
         orientation: {
           heading: 6.283185307179581,
@@ -1406,8 +1411,8 @@ export default {
         // 创建下载链接并触发下载
         const link = document.createElement('a');
         link.download = `${this.title.replace(
-          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
-          "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
+            /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+            "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
         link.href = finalImage; // 设置图片来源
         link.click(); // 触发下载
       }).catch(error => {
@@ -1533,11 +1538,11 @@ export default {
       dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
 
       this.calculateCustomValues(
-        dataContext.points[0],
-        dataContext.points[dataContext.points.length - 1],
-        start,
-        end,
-        dataContext
+          dataContext.points[0],
+          dataContext.points[dataContext.points.length - 1],
+          start,
+          end,
+          dataContext
       );
     },
 
@@ -1989,7 +1994,7 @@ export default {
         labeldataSource.entities.removeAll()
       }
       if (window.labeldataSource) {
-          window.labeldataSource.entities.removeAll();; // 移除点
+        window.labeldataSource.entities.removeAll(); // 移除点
       }
       // console.log("剩余2：", window.pointDataSource.entities)
       Arrow.drawArr = []
@@ -1998,7 +2003,7 @@ export default {
       this.websock.eqid = this.eqid
       this.renderedPlotIds.clear(); // 清空已渲染 ID 集合
       this.initPlot(row.eqid)
-      this.title = row.occurrenceTime + row.earthquakeName + row.magnitude
+      this.title = this.timestampToTimeChina(row.occurrenceTime) + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
         orientation: {
@@ -2029,7 +2034,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].occurrenceTime.replace("T", " ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
+        that.title = this.timestampToTimeChina(that.tableData[0].occurrenceTime.replace("T", " ")) + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -2086,9 +2091,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          parseFloat(this.centerPoint.height || 0)
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -2262,7 +2267,7 @@ export default {
       // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
       window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
       this.isShowMessageIcon = true
-      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()
+      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' + item.img + '.png?t=' + new Date().getTime()
 
       if (item.plottype === '点图层') {
         console.log("点图层")
@@ -2379,7 +2384,7 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo,bool) {
+    drawPoints(pointInfo, bool) {
       cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
     ifPointAnimation(val) {
@@ -2584,10 +2589,27 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
+    timestampToTimeChina(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-          v = c == 'x' ? r : (r & 0x3 | 0x8);
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -2726,7 +2748,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 530px;
+  width: 590px;
   height: 310px;
   position: absolute;
   padding: 10px;

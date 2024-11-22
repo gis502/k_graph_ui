@@ -11,3 +11,4 @@ export function getEnsureWaterSupply(eqid){
         params: { eqid } // 传递参数
     });
 }
+
