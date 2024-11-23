@@ -5,6 +5,17 @@
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div class="modelAdj">查询信息</div>
+          <el-input
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              style="width: 200px; margin-right: 10px;"
+              @keyup.enter="handleQuery"
+          />
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        </div>
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true"
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor">
           <el-table-column label="序号" width="55">
@@ -307,6 +318,7 @@ import {getToken} from "../../../utils/auth.js";
 import * as XLSX from "xlsx";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import html2canvas from "html2canvas";
+import {querySituationData} from "@/api/system/model.js";
 
 export default {
   components: {
@@ -474,6 +486,8 @@ export default {
       downloadConfirmed: false,
       isShowMessageIcon: false,
       messageIcon: '',
+      queryParams:'',  // 搜索框关键字
+
     };
   },
   mounted() {
@@ -2958,7 +2972,44 @@ export default {
       } else {
         this.zoomLevel = '村'
       }
+    },
+
+    // 搜索框
+    handleQuery() {
+      const searchKey = this.queryParams.trim();  // 获取搜索关键字
+      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
+
+      // 如果搜索关键字为空，获取所有数据
+      if (!result) {
+        querySituationData()  // 调用没有传递参数的查询方法获取所有数据
+            .then(res => {
+              console.log("获取的所有数据:", res);  // 打印获取的数据
+              this.total = res.length;  // 更新总数
+              this.tableData = this.getPageArr(res);  // 获取分页数据
+            })
+            .catch(error => {
+              console.error("查询时出现错误:", error.message || error);  // 打印错误信息
+              const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+              ElMessage.error(errorMessage);
+            });
+      } else {
+        // 如果有搜索关键字，按关键字查询
+        querySituationData(result)  // 使用搜索关键字查询
+            .then(res => {
+              console.log("获取的数据:", res);  // 打印获取的数据
+              this.total = res.length;  // 更新总数
+              this.tableData = this.getPageArr(res);  // 获取分页数据
+            })
+            .catch(error => {
+              console.error("查询时出现错误:", error.message || error);  // 打印错误信息
+              const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+              ElMessage.error(errorMessage);
+            });
+      }
     }
+
+
+
   }
 }
 </script>

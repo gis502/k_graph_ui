@@ -20,39 +20,31 @@
           <el-button type="primary" @click="updataPosition">更新位置</el-button>
         </el-row>
       </el-form>
-      <el-form class="button-container" v-show="showSelectModel">
-        <div class="modelAdj">模型选择</div>
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(1)">0.4平方公里模型</el-button>-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(2)">7.37平方公里模型</el-button>-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="home">雅安</el-button>-->
-        <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
+      <el-form class="button-container" v-show="showSelectModel" style="display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div class="modelAdj">模型选择</div>
+          <el-input
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              style="width: 200px; margin-right: 10px;"
+              @keyup.enter="handleQuery"
+          />
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        </div>
+
+        <el-table :data="tableData" style="width: 100%; margin-bottom: 5px" :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
-          <el-table-column prop="name" label="模型名称" width="140px">
-            <!--          <template #default="scope">-->
-            <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
-            <!--          </template>-->
-          </el-table-column>
-          <!--          <el-table-column prop="path" label="模型路径" width="80">-->
-          <!--          <template #default="scope">-->
-          <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
-          <!--          </template>-->
-          <!--          </el-table-column>-->
-          <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
+          <el-table-column prop="name" label="模型名称" width="140px"></el-table-column>
           <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
-          <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
           <el-table-column prop="tze" label="模型中心高度(米)" width="160px"></el-table-column>
           <el-table-column label="操作" width="80" align="center">
-            <!--          <template #default="scope">-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="selectModel(scope.row.path)">查看</el-button>-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Delete" @click="deleteM(scope.row)">删除</el-button>-->
-            <!--            <el-button v-if="scope.row.show" type="text" :icon="Edit" @click="updataMCommit(scope.row)">确认</el-button>-->
-            <!--          </template>-->
             <template #default="scope">
               <el-button type="text" :icon="Edit" @click="changeModel(scope.row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
+
         <div>
           <el-pagination
               @size-change="handleSizeChange"
@@ -156,7 +148,8 @@ import {
   getAllModel,
   updataModel,
   updataModelNoElevation,
-  updataModelElevation
+  updataModelElevation, querytiltModelData,
+
 } from '@/api/system/model.js'
 // import tiltTable from '@/components/Model/tiltModel/tiltTable.vue'
 import {ElMessageBox} from 'element-plus';
@@ -186,6 +179,10 @@ let showArrowText = ref("显示坐标轴")
 let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
+const queryParams = ref('');  // 搜索框关键字
+// 分页
+
+
 
 
 //----------------------------model table---------------------------------------
@@ -408,6 +405,11 @@ function tableColor({row, column, rowIndex, columnIndex}) {
   }
 }
 
+/**
+ * 分页
+ * @param data
+ * @returns {*[]}
+ */
 //数组切片
 function getPageArr(data) {
   let arr = []
@@ -436,6 +438,8 @@ function handleCurrentChange(val) {
   tableData.value = getPageArr(modelList)
   // console.log(`当前页: ${val}`);
 }
+
+
 
 //----------------------无用法-------------------------------------
 
@@ -591,6 +595,42 @@ function home() {
     }
   });
 }
+
+// 搜索按钮
+function handleQuery() {
+  const searchKey = queryParams.value.trim();  // 获取搜索关键字
+
+  // 如果搜索关键字为空，直接显示所有数据
+  if (!searchKey) {
+    querytiltModelData()  // 不传递搜索关键字，获取所有数据
+        .then(res => {
+          console.log("获取的所有数据1111111111111:", res);
+          total.value = res.length;  // 更新分页总数
+          tableData.value = getPageArr(res);  // 获取分页数据
+        })
+        .catch(error => {
+          console.error("查询时出现错误:", error.message || error);
+        });
+  } else {
+    // 如果有搜索关键字，按关键字筛选数据
+    querytiltModelData(searchKey)
+        .then(res => {
+          console.log("获取的数据:", res); // 打印获取的数据
+          total.value = res.length;  // 更新分页总数
+          tableData.value = getPageArr(res);  // 获取分页数据
+        })
+        .catch(error => {
+          console.error("查询时出现错误:", error.message || error);
+        });
+  }
+}
+
+
+
+
+
+
+
 
 </script>
 
