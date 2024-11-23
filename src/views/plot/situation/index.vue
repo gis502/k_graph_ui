@@ -213,7 +213,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -505,7 +505,7 @@ export default {
 
   watch: {
     isLoaded(val) {
-      if (val && this.downloadConfirmed) {
+      if(val && this.downloadConfirmed) {
         this.downloadExcel()
       }
     }

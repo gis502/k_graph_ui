@@ -136,7 +136,7 @@ export default {
     const latestEqData = ref([]);  //最新数据初始化
     const historyEqData = ref([]);  //历史数据初始化
 
-    const infoWindowPosition = ref({x: 0, y: -920}); //信息窗的初始位置
+    const infoWindowPosition = ref({x: 0, y: 0}); //信息窗的初始位置
     const weight = ref(210); // 默认weight值
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
@@ -592,8 +592,8 @@ export default {
         mapConfig.value.infoWindowData = item;
         console.log("weight.value*********", weight.value)
 
-        infoWindowPosition.value.x = infoWindowPosition.value.x + e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y = infoWindowPosition.value.y + e.containerPoint.y - 380// 获取鼠标位置
+        infoWindowPosition.value.x =  e.containerPoint.x - 130// 获取鼠标位置
+        infoWindowPosition.value.y =  e.containerPoint.y - 190 // 获取鼠标位置
         console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
@@ -611,8 +611,8 @@ export default {
       marker.addEventListener('mouseout', () => {
         mapConfig.value.map.closeInfoWindow();
         showInfoWindow.value = false;
-        infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
-        infoWindowPosition.value.y = -550//- 330; // 获取鼠标位置
+        // infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
+        // infoWindowPosition.value.y = -550//- 330; // 获取鼠标位置
       });
 
       mapConfig.value.map.addOverLay(marker);

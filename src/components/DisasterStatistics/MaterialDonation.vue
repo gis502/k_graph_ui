@@ -2,35 +2,44 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">物资捐赠情况<br>
-        <GoodsDonation :eqid="eqid"/>
+        <GoodsDonation :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">红十字会系统接收捐赠资金情况<br>
-        <RedCrossDonation :eqid="eqid"/>
+        <RedCrossDonation :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">政府部门接收捐赠资金情况<br/>
-        <GovernmentDepartmentDonation :eqid="eqid"/>
+        <GovernmentDepartmentDonation :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">慈善组织接收捐赠资金情况<br/>
-        <CharitableOrganization :eqid="eqid"/>
+        <CharitableOrganization :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import {defineProps, ref, watch} from "vue";
 import GoodsDonation from "./GoodsDonation";
 import RedCrossDonation from "./RedCrossDonation";
 import GovernmentDepartmentDonation from "./GovernmentDepartmentDonation";
 import CharitableOrganization from "./CharitableOrganization";
 
+const userInputTime = ref('')
 // 获取父组件的 eqid
 const props = defineProps({
-  newEqId: {
+  newEqId:{
     type: String,
+    required: true
+  },
+  userInput:{
+    type:[String,Date],
     required: true
   }
 });
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+})
 
 // 响应式变量
 const eqid = ref('');

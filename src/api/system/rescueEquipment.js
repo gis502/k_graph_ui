@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+import dayjs from "dayjs";
 /**
  * 获取大型救援设备情况
  */
@@ -7,5 +8,17 @@ export function getEquipment(eqid){
         url: '/system/largespecialrescueequipment', // 对应的后台接口
         method: 'get',
         params: { eqid } // 传递参数
+    });
+}
+
+export function fromLargeSpecialRescueEquipment(eqid, time) {
+
+    // 格式化用户输入的时间
+    const formattedTime = dayjs(time).format('YYYY-MM-DDTHH:mm:ss');
+
+    return request({
+        url: '/system/fromLargeSpecialRescueEquipment', // 后端接口地址
+        method: 'get',
+        params: { eqid, time: formattedTime } // 传递参数
     });
 }

@@ -14,22 +14,49 @@
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
     </el-form-item>
 
-    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+    <el-table
+        :data="tableData"
+        :stripe="true"
+        :header-cell-style="tableHeaderColor"
+        :cell-style="tableColor"
+    >
       <el-table-column label="序号" width="60">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="occurrenceTime" label="发震时间" width="200"></el-table-column>
-      <el-table-column prop="earthquakeName" label="位置" width="300"></el-table-column>
+
+      <el-table-column
+          prop="occurrenceTime"
+          label="发震时间"
+          width="200"
+          show-overflow-tooltip
+      ></el-table-column>
+
+      <el-table-column
+          prop="earthquakeName"
+          label="位置"
+          width="300"
+          show-overflow-tooltip
+      ></el-table-column>
+
       <el-table-column prop="magnitude" label="震级(级)"></el-table-column>
       <el-table-column prop="longitude" label="经度(度分)"></el-table-column>
       <el-table-column prop="latitude" label="纬度(度分)"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)"></el-table-column>
+
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button type="text" icon="Edit" @click="handleOpen('修改',scope.row)">修改</el-button>
-          <el-button type="text" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button
+              type="text"
+              icon="Edit"
+              @click="handleOpen('修改', scope.row)"
+          >修改</el-button>
+          <el-button
+              type="text"
+              icon="Delete"
+              @click="handleDelete(scope.row)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -60,7 +87,7 @@
                   v-model="dialogContent.occurrenceTime"
                   type="datetime"
                   placeholder="选择日期时间"
-                  value-format="x"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
                   size="large">
               </el-date-picker>
             </el-form-item>
@@ -120,8 +147,7 @@
               end-placeholder="结束时间"
               :shortcuts="shortcuts"
               style="width: 23vw;"
-              value-format="x"
-          />
+              value-format="YYYY-MM-DDTHH:mm:ss"          />
         </el-form-item>
         <el-form-item label="地震震级"  prop="magnitude" class="formValue">
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;"  placeholder="起始震级"/>
@@ -477,7 +503,7 @@ export default {
     handleQuery() {
       // 获取搜索关键字
       const searchKey = this.queryParams.trim();
-
+      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
       // 如果搜索关键字为空，恢复为原始数据
       if (searchKey === "") {
         this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
@@ -485,7 +511,7 @@ export default {
       }
 
       // 发送搜索请求
-      queryEq({queryValue: searchKey}).then(res => {
+      queryEq({queryValue: result}).then(res => {
         console.log("检查返回的数据", res); // 检查返回的数据
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
@@ -674,8 +700,7 @@ export default {
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
 
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
   },
 }
