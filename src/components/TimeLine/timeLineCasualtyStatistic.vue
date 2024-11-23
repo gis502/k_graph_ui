@@ -99,8 +99,8 @@ export default {
     watch(
         () => props.currentTime,
         (val) => {
-          console.log("currentTimeupodate statistic:", val);
-          console.log(isDataReady, "isDataReady")
+          // console.log("currentTimeupodate statistic:", val);
+          // console.log(isDataReady, "isDataReady")
           if (!isDataReady.value) {
             getRescueActionCasualtiesPlotAndInfo(props.pointsLayer);
           }
@@ -192,7 +192,7 @@ export default {
           shifdata.push(item)
         }
       })
-      console.log(shifdata, "shifdata"); // 查看筛选结果
+      // console.log(shifdata, "shifdata"); // 查看筛选结果
 
       shifdata.forEach(pointdata => {
         let plotId = pointdata.plotInfo.plotId

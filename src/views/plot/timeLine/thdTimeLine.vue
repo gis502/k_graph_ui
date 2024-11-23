@@ -119,30 +119,29 @@
             :isfirst="isfirst"
             @addJumpNodes="addJumpNodes"
         />
-        <div>
-          <div class="personbutton" v-if="PersoonnelCasuality===1">
-            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
-          </div>
+<!--        <div>-->
+<!--          <div class="personbutton" v-if="PersoonnelCasuality===1">-->
+<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>-->
+<!--          </div>-->
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
-              v-if="PersoonnelCasuality===1"
               :eqstartTime="eqstartTime"
               :eqid="eqid"
               :currentTime="currentTime"
               @addJumpNodes="addJumpNodes"
           />
-        </div>
-        <div>
-          <div class="personbutton" v-if="PersoonnelCasuality===2">
-            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
-          </div>
-          <timeLineCasualtyStatistic
-              v-if="PersoonnelCasuality===2"
-              :zoomLevel="zoomLevel"
-              :pointsLayer="pointsLayer"
-              :currentTime="currentTime"
-          />
-        </div>
+<!--        </div>-->
+<!--        <div>-->
+<!--          <div class="personbutton" v-if="PersoonnelCasuality===2">-->
+<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>-->
+<!--          </div>-->
+<!--          <timeLineCasualtyStatistic-->
+<!--              v-if="PersoonnelCasuality===2"-->
+<!--              :zoomLevel="zoomLevel"-->
+<!--              :pointsLayer="pointsLayer"-->
+<!--              :currentTime="currentTime"-->
+<!--          />-->
+<!--        </div>-->
         <!--   救援出队-左下   -->
         <timeLineRescueTeam
             :eqid="eqid"
@@ -171,7 +170,10 @@
         </div>
         <!--      标绘统计-->
         <div>
-          <plotStatistics></plotStatistics>
+          <plotStatistics
+          :plots="plots"
+          :currentTime="currentTime"
+          ></plotStatistics>
         </div>
         <!--      缩略图-->
         <div>
@@ -276,7 +278,7 @@ export default {
   },
   data: function () {
     return {
-      PersoonnelCasuality: 1,
+
 // -----------弹窗们的状态变量-------------
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
