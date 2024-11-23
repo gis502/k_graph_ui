@@ -7,6 +7,8 @@
           <span class="time"></span>
         </h2></div>
       <div class="pop_content">
+        <div class="range">统计范围：雅安市</div>
+        <div class="num">总计：{{this.filtdata.length}}个</div>
         <div id="plotsStatisticChart"></div>
       </div>
     </div>
@@ -26,22 +28,24 @@ export default {
     return {
       chart: null, // 保存 ECharts 实例
       myChart1Data: [],
-
+      filtdata:[],
     };
   },
-  props: ['plots', 'currentTime'],
+  props: ['plots', 'currentTime','zoomLevel'],
   watch: {
     plots(newVal) {
-      this.updateStatisticzoomLevelCity();
+      this.updateStatistic();
     },
     currentTime(newVal) {
-      this.updateStatisticzoomLevelCity();
+      this.updateStatistic();
+    },
+    zoomLevel(newVal) {
+      // this.showZoomStatistic(val)
     }
   },
   mounted() {
     this.initEcharts() //初始化
-    this.updateStatisticzoomLevelCity()
-
+    this.updateStatistic()
   },
   methods: {
     //根据键取值，把值存到数组中 （一个工具函数）
@@ -68,7 +72,7 @@ export default {
       const option = {
         //位置布局
         grid: {
-          top: '15%',
+          top: '17%',
           bottom: -15,
           right: 50,
           left: 0,
@@ -100,33 +104,44 @@ export default {
         },
         ],
         series: [
-
           //和图例配置相关
           {
             name: '标绘点个数', // 确保这个名称与图例中的 data 属性匹配
             type: 'bar',
             yAxisIndex: 0,
             data: [],
-            barWidth: 5,
+            barWidth: 3,
             itemStyle: {
               color: '#59dbf8',
               barBorderRadius: 30,
+              fontSize:15,
             },
           },
-
           {
             type: 'bar',
             yAxisIndex: 0,
             data: [],
-            barWidth: 5,
+            barWidth: 3,
             itemStyle: {
               color: '#59dbf8',
               barBorderRadius: 30,
             },
+            label: {
+              show: true, // 显示标签
+              position: 'insideTopLeft', // 横向居中，纵向在顶部
+              offset: [0, -18],
+              color: '#fff', // 文本颜色
+              formatter: function (params) { //格式化标签内容：名称
+                // console.log(params,"params")
+                return (params.dataIndex+1)+" "+params.name ;
+              },
+              fontSize:15, // 字体大小
+              padding: [0, 0, -9, 0], // 根据需要调整内边距
+            }
           },
           {
             type: "bar",
-            barWidth: 5, //调整柱子高度
+            barWidth: 3, //调整柱子高度
             xAxisIndex: 0,
             barGap: "-100%",//调整柱子间隔
             data: [],//以最大值作为柱子长度
@@ -137,17 +152,18 @@ export default {
               },
             },
             zlevel: -1,
-            //为使得标签在div里水平居中，使用背景柱子的label，以长度一致的背景柱子确定水平中心
+            // 为使得标签在div里水平居中，使用背景柱子的label，以长度一致的背景柱子确定水平中心
             label: {
               show: true, // 显示标签
-              position: 'top', // 横向居中，纵向在顶部
+              position: 'insideTopRight', // 横向居中，纵向在顶部
+              offset: [0, -18],
               color: '#fff', // 文本颜色
-              formatter: function (params) { //格式化标签内容：名称+数量
+              formatter: function (params) { //格式化标签内容：数量
                 let findeditem = that.myChart1Data.filter(e => e.name === params.name)
                 // 使用数据项的 name 和 value 作为标签内容
-                return params.name + ' (' + findeditem[0].value + "个)";
+                return findeditem[0].value + "个";
               },
-              fontSize: 14, // 字体大小
+              fontSize:15, // 字体大小
               padding: [0, 0, -9, 0], // 根据需要调整内边距
             }
           },
@@ -161,8 +177,10 @@ export default {
           data: ['标绘点个数'], // 图例数据，这里与 series 中的 name 对应
           textStyle: {
             color: '#fff', // 图例文字颜色
+            fontSize:15,
           },
           itemHeight: 5, // 调整图例图标的高度
+
         },
         //滚动
         dataZoom: [
@@ -226,18 +244,20 @@ export default {
       //配置
       this.chart.setOption(option);
     },
-    updateStatisticzoomLevelCity() {
+    updateStatistic() {
       // console.log(this.plots,this.currentTime,"plots,currentTime statisrtic")
-      let filtdata = []
+      this.filtdata = []
       this.plots.forEach(item => {
         let currentDate = new Date(this.currentTime);
         let startDate = new Date(item.startTime);
         let endDate = new Date(item.endTime);
         if (startDate <= currentDate && endDate >= currentDate) {
-          filtdata.push(item)
+          this.filtdata.push(item)
         }
       })
-      let counts = filtdata.reduce((acc, obj) => {
+
+
+      let counts =  this.filtdata.reduce((acc, obj) => {
         // 如果acc中已经有这个icon值，则增加它的计数
         if (acc[obj.icon]) {
           acc[obj.icon].value += 1;
@@ -247,7 +267,7 @@ export default {
         return acc;
       }, {}); // 初始化一个空对象作为累加器
 
-// 将结果转换为数组
+      // 将结果转换为数组
       this.myChart1Data = Object.values(counts);
       this.myChart1Data = this.myChart1Data.sort((a, b) => {
         return b.value - a.value
@@ -268,7 +288,6 @@ export default {
             data: this.myChart1Data.map(item => item.value),
             itemStyle: {
               color: function (params) {
-
                 // 根据值的大小动态设置颜色
                 let value = params.name;
                 let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
@@ -319,9 +338,24 @@ export default {
               },
 
             },
+            // label: {
+            //   color: function (params) {
+            //     let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
+            //     console.log(top3Values,params.name,"top3Values,params.name")
+            //     // 判断当前条形图的名称是否在前三个值中
+            //     return top3Values.includes(params.name) ? '#c09933' : '#35aac5';
+            //   },
+            // }
           },
           {
-            data: Array(this.myChart1Data.length).fill(maxValue)
+            data: Array(this.myChart1Data.length).fill(maxValue),
+            // label: {
+            //   color: function (params) {
+            //     // 根据值的大小动态设置颜色
+            //     let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
+            //     return top3Values.includes(params.name) ? '#c09933' : '#35aac5';
+            //   },
+            // }
           }
         ]
       });
@@ -396,5 +430,19 @@ export default {
 #plotsStatisticChart {
   width: 100%;
   height: 20vh;
+}
+.range{
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  left: 1%;
+  top: 1%;
+}
+.num{
+  position: absolute;
+  color: #FFFFFF;
+  font-size: 0.9rem;
+  right: 9%;
+  top: 1%;
+  width:30%;
 }
 </style>

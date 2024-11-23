@@ -43,10 +43,6 @@ export default {
       type: String,
       default: ''
     },
-    // component:{
-    //   type: String,
-    //   default: "1"
-    // }
   },
   setup(props) {
     const isDataReady = ref(false);
@@ -84,10 +80,6 @@ export default {
     watch(
         () => props.zoomLevel,
         (val) => {
-          // if (isDataReady.value) {
-          //   console.log("zoomLevel:", val);
-          //   showStatisticInfo(val)
-          // }
           if (!isDataReady.value) {
             getRescueActionCasualtiesPlotAndInfo(props.pointsLayer);
           }
@@ -111,16 +103,7 @@ export default {
           immediate: true
         }
     );
-    // watch(
-    //     () => props.component,
-    //     (val) => {
-    //       props.component=val
-    //
-    //     },
-    //     {
-    //       immediate: true
-    //     }
-    // );
+
     function formatPeople(row, column, value) {
       return value + '人';
     }

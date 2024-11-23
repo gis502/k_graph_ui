@@ -119,10 +119,6 @@
             :isfirst="isfirst"
             @addJumpNodes="addJumpNodes"
         />
-<!--        <div>-->
-<!--          <div class="personbutton" v-if="PersoonnelCasuality===1">-->
-<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>-->
-<!--          </div>-->
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
               :eqstartTime="eqstartTime"
@@ -130,18 +126,6 @@
               :currentTime="currentTime"
               @addJumpNodes="addJumpNodes"
           />
-<!--        </div>-->
-<!--        <div>-->
-<!--          <div class="personbutton" v-if="PersoonnelCasuality===2">-->
-<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>-->
-<!--          </div>-->
-<!--          <timeLineCasualtyStatistic-->
-<!--              v-if="PersoonnelCasuality===2"-->
-<!--              :zoomLevel="zoomLevel"-->
-<!--              :pointsLayer="pointsLayer"-->
-<!--              :currentTime="currentTime"-->
-<!--          />-->
-<!--        </div>-->
         <!--   救援出队-左下   -->
         <timeLineRescueTeam
             :eqid="eqid"
@@ -173,6 +157,7 @@
           <plotStatistics
           :plots="plots"
           :currentTime="currentTime"
+          :zoomLevel="zoomLevel"
           ></plotStatistics>
         </div>
         <!--      缩略图-->

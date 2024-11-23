@@ -242,7 +242,7 @@ export default {
 
 .sub-main {
   margin-top: -6%;
-  max-height: 11vh;
+  max-height: 13vh;
   left: -2%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -275,17 +275,17 @@ export default {
 }
 
 .pop_responseName {
-  font-size: 1.1rem;
+  font-size:0.9rem;
   line-height: 0.6rem;
-  font-weight: bold;
+  font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #419fff;
 }
 
 .pop_txt {
   line-height: 0.6rem;
-  font-size: 1.1rem;
-  font-weight: 550;
+  font-size: 0.9rem;
+  font-weight: normal;
   color: #ffffff;
 }
 
@@ -361,6 +361,6 @@ export default {
   border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
 }
 .eldriver{
-  width: 120%;
+  width: 250px;
 }
 </style>

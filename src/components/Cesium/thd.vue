@@ -386,7 +386,10 @@
         </div>
         <!--      标绘统计-->
         <div>
-          <plotStatistics></plotStatistics>
+          <plotStatistics
+              :plots="plots"
+              :currentTime="currentTime"
+          ></plotStatistics>
         </div>
         <!--      缩略图-->
         <div>
@@ -4031,5 +4034,9 @@ export default {
 }
 :deep(.timelineLegend.open){
   width:33%;
+}
+
+:deep(.eldriver){
+  width: 300px;
 }
 </style>
