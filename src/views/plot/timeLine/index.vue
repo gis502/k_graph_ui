@@ -116,7 +116,7 @@ export default {
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2)
-        }));
+        }));  
         // 搜索之后更新数据
         this.getEqData = filteredData;
         this.total = filteredData.length;  // 更新总数
