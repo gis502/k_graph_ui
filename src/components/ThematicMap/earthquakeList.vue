@@ -77,7 +77,7 @@
 
         <el-divider content-position="left"> 专题图</el-divider>
 
-        <div style="height: 420px">
+        <div style="height: 500px">
           <div class="eqTheme">
             <div class="button themes history"
                  style="width: 120px;"
@@ -157,6 +157,7 @@ export default {
       pageSize: 10,
       currentPage: 1,
       selectedEqPoint: '',
+      eqPointPositionData: {longitude:null,latitude:null}
     }
   },
   mounted() {
@@ -303,6 +304,8 @@ export default {
 
     // 将选中的专题图信息传给父组件
     previewMap(item) {
+      console.log("111111111111")
+      console.log(item)
       this.$emit('imag-selected', item);
     },
 
@@ -331,6 +334,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
+          this.$emit('eqPointPositionData',this.eqPointPositionData)
         }
       }
     },
@@ -351,6 +355,7 @@ export default {
             image: eqMark,
             width: 25,
             height: 25,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             eyeOffset: new Cesium.Cartesian3(0, 0, -5000)
           },
           label: {
@@ -364,10 +369,15 @@ export default {
             show: true,
             horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             eyeOffset: new Cesium.Cartesian3(0, 0, -10000)
           },
           id: this.selectedTabData.id
         });
+        const longitude = this.selectedTabData.longitude;
+        const latitude = this.selectedTabData.latitude;
+        this.eqPointPositionData.longitude = longitude;
+        this.eqPointPositionData.latitude = latitude;
       }
     },
 
