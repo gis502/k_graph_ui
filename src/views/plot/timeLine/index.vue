@@ -230,7 +230,7 @@ export default {
     // 修改table header的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
       // console.log(row,"row")
-      if (row.magnitude > 5) {
+      if (row.magnitude >= 5) {
         // console.log('>')
         return {
           // 'background-color': 'rgb(65,159,255)',

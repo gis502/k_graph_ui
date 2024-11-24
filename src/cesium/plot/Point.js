@@ -363,7 +363,8 @@ export default class Point {
         window.pointDataSource = pointDataSource;
       }
       return pointDataSource
-    } else if (datasourcename === "label") {
+    }
+    else if (datasourcename === "label") {
       let labeldataSource = null
       if (window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'label')) {
         labeldataSource = window.labeldataSource

@@ -38,7 +38,7 @@ function websocketclose(e) {
 }
 
 function websocketonmessage(e) {
-    // console.log("e",e)
+    console.log("e",e)
     try {
         console.log("socketmessage",JSON.parse(e.data))
         let markType = JSON.parse(e.data).type

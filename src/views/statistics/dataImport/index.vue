@@ -3,11 +3,11 @@
     <div class="dataBox">
       <div class="dataManage" style="height: auto">
         <el-button size='large' type='primary' style="margin: 10px;" plain icon="Upload" @click="openUpload">
-            上传Excel文件
+          上传Excel文件
         </el-button>
         <el-button size='large' type='primary' style="margin: 10px;"
                    @click="downExcel($event)" plain icon="Download">
-            下载上传Excel文件
+          下载上传Excel文件
         </el-button>
         <el-button size='large' type='primary' @click="downloadForm" plain icon="Document">
           下载模板
@@ -180,56 +180,56 @@
                 :formatter='formatMessageUpdate'
             >
             </el-table-column>
-<!--            <el-table-column-->
-<!--                label='操作'-->
-<!--                align='center'-->
-<!--            >-->
-<!--              <template v-slot="scope">-->
-<!--                <el-button-->
-<!--                    size='small'-->
-<!--                    type='primary'-->
-<!--                    @click="openDetailPanel"-->
-<!--                >详情-->
-<!--                </el-button-->
-<!--                >-->
-<!--              </template>-->
-<!--            </el-table-column>-->
+            <!--            <el-table-column-->
+            <!--                label='操作'-->
+            <!--                align='center'-->
+            <!--            >-->
+            <!--              <template v-slot="scope">-->
+            <!--                <el-button-->
+            <!--                    size='small'-->
+            <!--                    type='primary'-->
+            <!--                    @click="openDetailPanel"-->
+            <!--                >详情-->
+            <!--                </el-button-->
+            <!--                >-->
+            <!--              </template>-->
+            <!--            </el-table-column>-->
           </el-table>
-<!--          <el-dialog-->
-<!--              title="详情"-->
-<!--              v-model="dialogVisible"-->
-<!--              width="75%">-->
-<!--            <el-table-->
-<!--                table-layout="fixed"-->
-<!--                ref="multipleTableRef"-->
-<!--                :data="messageData"-->
-<!--                height="510px"-->
-<!--                class="table tableMove"-->
-<!--                fit-->
-<!--                :row-style="{ height: '6.3vh' }"-->
-<!--            >-->
-<!--              <el-table-column-->
-<!--                  label="序号"-->
-<!--                  width="50"-->
-<!--                  align="center"-->
-<!--                  :formatter="changeIndex"-->
-<!--              />-->
-<!--              <el-table-column-->
-<!--                  v-for="col in columns"-->
-<!--                  :key="col.prop"-->
-<!--                  :prop="col.prop"-->
-<!--                  :label="col.label"-->
-<!--                  :align="col.align"-->
-<!--                  :width="col.width"-->
-<!--                  :formatter="col.label === '震级' ? formatMagnitude : undefined"-->
-<!--              />-->
-<!--              />-->
-<!--            </el-table>-->
-<!--            <span slot="footer" class="dialog-footer2">-->
-<!--              <el-button @click="dialogVisible = false">取 消</el-button>-->
-<!--              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
-<!--            </span>-->
-<!--          </el-dialog>-->
+          <!--          <el-dialog-->
+          <!--              title="详情"-->
+          <!--              v-model="dialogVisible"-->
+          <!--              width="75%">-->
+          <!--            <el-table-->
+          <!--                table-layout="fixed"-->
+          <!--                ref="multipleTableRef"-->
+          <!--                :data="messageData"-->
+          <!--                height="510px"-->
+          <!--                class="table tableMove"-->
+          <!--                fit-->
+          <!--                :row-style="{ height: '6.3vh' }"-->
+          <!--            >-->
+          <!--              <el-table-column-->
+          <!--                  label="序号"-->
+          <!--                  width="50"-->
+          <!--                  align="center"-->
+          <!--                  :formatter="changeIndex"-->
+          <!--              />-->
+          <!--              <el-table-column-->
+          <!--                  v-for="col in columns"-->
+          <!--                  :key="col.prop"-->
+          <!--                  :prop="col.prop"-->
+          <!--                  :label="col.label"-->
+          <!--                  :align="col.align"-->
+          <!--                  :width="col.width"-->
+          <!--                  :formatter="col.label === '震级' ? formatMagnitude : undefined"-->
+          <!--              />-->
+          <!--              />-->
+          <!--            </el-table>-->
+          <!--            <span slot="footer" class="dialog-footer2">-->
+          <!--              <el-button @click="dialogVisible = false">取 消</el-button>-->
+          <!--              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
+          <!--            </span>-->
+          <!--          </el-dialog>-->
         </div>
 
       </div>
@@ -259,7 +259,7 @@ import {ElMessage} from "element-plus";
 import {ref} from "vue";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
-
+import {initWebSocket} from '@/cesium/WS.js'
 
 export default {
   name: "index",
@@ -279,7 +279,7 @@ export default {
   },
   data() {
     return {
-      uploadFileName:'',
+      uploadFileName: '',
       headers: {
         Authorization: "Bearer " + getToken()
       },
@@ -288,7 +288,7 @@ export default {
       },
       form1: {
         tableName1: '',
-        eqId:''
+        eqId: ''
       },
       eqlists: [],//地震文件列表
       tableNameOptions: [],
@@ -327,12 +327,15 @@ export default {
       pageSize: 10,
       pageSizes: [10, 20, 30, 40],
       currentPage: 1,
+
+      websock: null,
     }
   },
   mounted() {
     this.getTableName()
     this.getExcelUploadByTimeButton()
     this.getEarthquake()
+    this.initWebsocket()
   },
   computed: {
     // 计算当前页的数据
@@ -343,12 +346,19 @@ export default {
     }
   },
   methods: {
+    initWebsocket() {
+      this.websock = initWebSocket("be3a5ea4-8dfd-a0a2-2510-21845f17960b")
+      this.websock.eqid = "be3a5ea4-8dfd-a0a2-2510-21845f17960b"
+    },
     // 打开上传文件弹窗
     openUpload() {
+      //上传表成功后放到上传成功的位置
+      this.websock.send(JSON.stringify("uploade"))
       this.importDialogVisible = true;
     },
     triggerFileInput() {
       this.$refs.fileInput.click();
+
     },
     handleFileChange(event) {
       const file = event.raw;
@@ -416,7 +426,7 @@ export default {
       getExcelUploadByTime({
         "time": this.timeValue,
         "requestParams": this.inputValueParams,
-        "username":this.name
+        "username": this.name
       }).then((res) => {
         this.tableData = res.data
         console.log(res.data)
@@ -563,9 +573,9 @@ export default {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = e.target.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
+        const workbook = XLSX.read(data, {type: 'binary'});
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const firstRow = XLSX.utils.sheet_to_json(firstSheet, { header: 1 })[0]; // 获取第一行数据
+        const firstRow = XLSX.utils.sheet_to_json(firstSheet, {header: 1})[0]; // 获取第一行数据
         console.log("Excel 第一行数据: ", firstRow);
         this.uploadFileName = firstRow; // 设置上传文件名
         // this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.uploadFileName}&${this.form1.tableName1}`;
@@ -578,22 +588,27 @@ export default {
                 message: `文件的第一行数据与表名不匹配，请检查文件内容！`
               }
           );
-          setTimeout( ()=> {
-            this.importDialogVisible =false
-          },2000)
+          setTimeout(() => {
+            this.importDialogVisible = false
+          }, 2000)
         } else {
           // 执行上传操作或其他逻辑
           this.isLoading = true;
-          if ('WebSocket' in window) {
-            this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name);
-          } else {
-            alert('该浏览器不支持 WebSocket');
-          }
-          this.websocket.socket.onmessage = (event) => {
-            if (Number.parseInt(event.data)) {
-              this.percent = Number.parseInt(event.data);
-            }
-          };
+          // if ('WebSocket' in window) {
+          //   // this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name);
+          //   // this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/');
+          //   this.websock = initWebSocket("be3a5ea4-8dfd-a0a2-2510-21845f17960b")
+          //   this.websock.eqid = "be3a5ea4-8dfd-a0a2-2510-21845f17960b"
+          //   // this.websock.send("uploade ")
+          //   this.websocket.send("uploade")
+          // } else {
+          //   alert('该浏览器不支持 WebSocket');
+          // }
+          // this.websocket.socket.onmessage = (event) => {
+          //   if (Number.parseInt(event.data)) {
+          //     this.percent = Number.parseInt(event.data);
+          //   }
+          // };
           this.uploadedFile = file;
         }
       };
@@ -603,7 +618,7 @@ export default {
     // 上传成功弹窗展示上传结果
     handleSuccess(res, file, fileList) {
       this.isLoading = false
-      if (res.code === 500 || res.msg === "上传失败，请检查文件格式"||res.msg === '操作失败') {
+      if (res.code === 500 || res.msg === "上传失败，请检查文件格式" || res.msg === '操作失败') {
         this.$alert('请参考下载模版样式！', '上传失败', {
           confirmButtonText: '确定',
           callback: action => {
@@ -611,7 +626,7 @@ export default {
             this.importDialogVisible = false; // 关闭弹窗
           }
         });
-      }else {
+      } else {
         const account = res.data.length
         // 获取Excel导入结果信息
         this.$alert("导入总数：" + account + " 成功数量：" + res.data.length, {
@@ -622,13 +637,16 @@ export default {
             this.importDialogVisible = false
           }
         });
-        setTimeout(()=>{
+        setTimeout(() => {
           this.percent = 0
           this.websocket.close(); // 关闭WebSocket连接
           // 关闭websocket连接
-        },500)
+        }, 500)
       }
-    }
+
+    },
+
+
   },
 
 
@@ -711,9 +729,11 @@ export default {
   max-width: 100%;
   margin-bottom: 20px;
 }
+
 :deep(.el-dialog__body) {
   text-align: end;
 }
+
 :deep(.el-dialog) {
   transform: none;
   left: 0;
