@@ -311,37 +311,43 @@ export default class Point {
             } else {
               let removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
                   function (clusteredEntities, cluster) {
-                    cluster.label.show = false;
-                    cluster.billboard.show = true;
-                    cluster.billboard.id = cluster.label.id;
-                    cluster.billboard.verticalOrigin =
-                        Cesium.VerticalOrigin.BOTTOM;
-
-                    // 设置 Billboard 高度引用地形
-                    cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
-
-                    // 禁用深度测试，使 Billboard 不会被地形遮挡
-                    cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-
-                    if (clusteredEntities.length >= 1000) {
-                      cluster.billboard.image = pin1000;
-                    } else if (clusteredEntities.length >= 500) {
-                      cluster.billboard.image = pin500;
-                    } else if (clusteredEntities.length >= 100) {
-                      cluster.billboard.image = pin100;
-                    } else if (clusteredEntities.length >= 50) {
-                      cluster.billboard.image = pin50;
-                    } else if (clusteredEntities.length >= 40) {
-                      cluster.billboard.image = pin40;
-                    } else if (clusteredEntities.length >= 30) {
-                      cluster.billboard.image = pin30;
-                    } else if (clusteredEntities.length >= 20) {
-                      cluster.billboard.image = pin20;
-                    } else if (clusteredEntities.length >= 10) {
-                      cluster.billboard.image = pin10;
+                    if (clusteredEntities.length < 10) {
+                      // 禁用 Billboard 显示
+                      cluster.billboard.show = false;
+                      cluster.label.show = false;
                     } else {
-                      cluster.billboard.image =
-                          singleDigitPins[clusteredEntities.length - 2];
+                      cluster.label.show = false;
+                      cluster.billboard.show = true;
+                      cluster.billboard.id = cluster.label.id;
+                      cluster.billboard.verticalOrigin =
+                          Cesium.VerticalOrigin.BOTTOM;
+
+                      // 设置 Billboard 高度引用地形
+                      cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+
+                      // 禁用深度测试，使 Billboard 不会被地形遮挡
+                      cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+
+                      if (clusteredEntities.length >= 1000) {
+                        cluster.billboard.image = pin1000;
+                      } else if (clusteredEntities.length >= 500) {
+                        cluster.billboard.image = pin500;
+                      } else if (clusteredEntities.length >= 100) {
+                        cluster.billboard.image = pin100;
+                      } else if (clusteredEntities.length >= 50) {
+                        cluster.billboard.image = pin50;
+                      } else if (clusteredEntities.length >= 40) {
+                        cluster.billboard.image = pin40;
+                      } else if (clusteredEntities.length >= 30) {
+                        cluster.billboard.image = pin30;
+                      } else if (clusteredEntities.length >= 20) {
+                        cluster.billboard.image = pin20;
+                      } else if (clusteredEntities.length >= 10) {
+                        cluster.billboard.image = pin10;
+                      } else {
+                        cluster.billboard.image =
+                            singleDigitPins[clusteredEntities.length - 2];
+                      }
                     }
                   }
               );
@@ -393,110 +399,170 @@ export default class Point {
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
 
-                    // 设置字体属性（先设置字体，以便测量）
-                    context.font = 'bold 18px Arial';
-                    const rowHeight = 30; // 每行高度
-                    const padding = 20; // 内边距
+                    // 设置字体和布局
+                    const titleFontSize = 18; // 标题字体大小
+                    const contentFontSize = 15; // 内容字体大小
+                    const rowHeight = 30; // 每行高度调整为 30
+                    const padding = 40; // 内边距
                     const margin = 10; // 外边距
-                    const canvasHeight = Math.max(50, rowHeight * (clusteredEntities.length + 1)) + padding * 6; // 表格信息下移
+                    const headerHeight = 50; // 表格标题高度调整为 50
+                    const extraHeight = 50; // 额外增加的背景高度
 
-                    // 测量每行文本的宽度
-                    let maxTextWidth = 0;
-                    clusteredEntities.forEach(entity => {
-                      // 获取每行的文本
-                      const text = entity.labeltext || '无信息';
-                      const words = text.split(' ');
-                      let currentLine = '';
-                      words.forEach(word => {
-                        let testLine = currentLine + (currentLine ? ' ' : '') + word;
-                        let testWidth = context.measureText(testLine).width;
+                    // 动态计算标题宽度（确保标题适配背景）
+                    const title = '出队情况，伤亡人员统计（标绘）';
+                    context.font = `bold ${titleFontSize}px Arial`;
+                    const titleWidth = context.measureText(title).width + 2 * padding; // 标题宽度
 
-                        // 如果文本行宽度大于最大宽度，则换行
-                        if (testWidth > maxTextWidth) {
-                          maxTextWidth = testWidth;
-                        }
-                        currentLine = testLine;
-                      });
-                    });
+                    // 红色标绘的文字和操场椭圆
+                    const markText = '应急' ;
+                    const markFontSize = 22; // 红色文字字体大小
+                    context.font = `bold ${markFontSize}px Arial`;
+                    const markTextWidth = context.measureText(markText).width; // 标绘文字宽度
+                    const markPadding = 10; // 跑道椭圆文字左右的间距
+                    const trackHeight = markFontSize + 14; // 跑道椭圆高度
+                    const trackWidth = markTextWidth + markPadding * 2.5; // 跑道椭圆宽度
 
-                    // 调整 Canvas 宽度以适应最宽的文本
-                    const canvasWidth = maxTextWidth + padding * 6; // 留出内边距空间
-                    canvas.width = canvasWidth + margin * 2; // 计算总宽度
-                    canvas.height = canvasHeight + margin * 2;
+                    // 动态计算 Canvas 的宽度和高度
+                    const canvasWidth = Math.max(titleWidth+130, 460); // 保证最小宽度为 400
+                    const canvasHeight =
+                        headerHeight + rowHeight * clusteredEntities.length + padding * 2 + extraHeight; // 计算总高度
 
-                    // 绘制黑色透明背景并加圆角
-                    context.fillStyle = 'rgba(0, 0, 0, 0.7)'; // 黑色透明背景
-                    const borderRadius = 20; // 圆角半径
-                    context.beginPath();
-                    context.moveTo(margin + borderRadius, margin);
-                    context.lineTo(margin + canvasWidth + margin - borderRadius, margin);
-                    context.arcTo(margin + canvasWidth + margin, margin, margin + canvasWidth + margin, margin + canvasHeight, borderRadius);
-                    context.lineTo(margin + canvasWidth + margin, margin + canvasHeight - borderRadius);
-                    context.arcTo(margin + canvasWidth + margin, margin + canvasHeight, margin + canvasWidth + margin - borderRadius, margin + canvasHeight, borderRadius);
-                    context.lineTo(margin + borderRadius, margin + canvasHeight);
-                    context.arcTo(margin, margin + canvasHeight, margin, margin + canvasHeight - borderRadius, borderRadius);
-                    context.lineTo(margin, margin + borderRadius);
-                    context.arcTo(margin, margin, margin + borderRadius, margin, borderRadius);
-                    context.closePath();
-                    context.fill();
+                    canvas.width = canvasWidth; // 设置 Canvas 宽度
+                    canvas.height = canvasHeight; // 设置 Canvas 高度
 
-                    // 加载本地边框图片
-                    const borderImage = new Image();
-                    borderImage.src = '/images/背景边框.png'; // 本地图片路径
-                    borderImage.onload = function () {
-                      // 绘制边框图片
-                      context.drawImage(borderImage, margin, margin, canvasWidth, canvasHeight);
+                    // 加载背景图片
+                    const backgroundImage = new Image();
+                    backgroundImage.src = '/images/背景边框.png'; // 确保路径正确
+                    backgroundImage.onload = function () {
+                      // 背景图片放大比例（例如 1.2 表示放大 20%）
+                      const scaleFactor = 1.6;
 
-                      // 绘制表格头部
-                      context.fillStyle = '#333333'; // 深灰背景
-                      context.fillRect(margin + padding, margin + padding + 20, canvasWidth - padding * 2, rowHeight); // 表格距离上边框远一些
+                      // 计算背景图片缩放比例
+                      const imageAspectRatio = backgroundImage.width / backgroundImage.height;
+                      const canvasAspectRatio = canvasWidth / canvasHeight;
+                      let drawWidth, drawHeight, offsetX, offsetY;
 
-                      // 绘制头部文字
-                      context.fillStyle = '#ffffff'; // 白色字体
-                      context.font = 'bold 18px Arial';
-                      context.textAlign = 'left';
+                      if (imageAspectRatio < canvasAspectRatio) {
+                        // 图片更高，以 Canvas 高度为准缩放，并放大
+                        drawHeight = canvasHeight * scaleFactor;
+                        drawWidth = drawHeight * imageAspectRatio;
+                        offsetX = (canvasWidth - drawWidth) / 2; // 水平居中
+                        offsetY = (canvasHeight - drawHeight) / 2; // 垂直居中
+                      } else {
+                        // 图片更宽，以 Canvas 宽度为准缩放，并放大
+                        drawWidth = canvasWidth * scaleFactor;
+                        drawHeight = drawWidth / imageAspectRatio;
+                        offsetX = (canvasWidth - drawWidth) / 2; // 水平居中
+                        offsetY = (canvasHeight - drawHeight) / 2; // 垂直居中
+                      }
+
+                      // 绘制背景图片（完全显示并放大）
+                      context.drawImage(backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+
+                      // 绘制操场跑道样式的红色椭圆
+                      const trackX = padding - 7; // 椭圆起点 X
+                      const trackY = headerHeight / 2 + padding / 2; // 椭圆起点 Y
+                      const radius = trackHeight / 2; // 椭圆两端的圆弧半径
+                      const straightWidth = trackWidth - 2 * radius; // 椭圆中间的直线长度
+
+                      context.strokeStyle = '#D77786'; // 红色边框
+                      context.lineWidth = 3; // 加粗椭圆边框
+                      context.beginPath();
+                      // 左侧圆弧
+                      context.arc(trackX + radius, trackY, radius, Math.PI / 2, -Math.PI / 2, false);
+                      // 上方直线
+                      context.lineTo(trackX + radius + straightWidth, trackY - radius);
+                      // 右侧圆弧
+                      context.arc(
+                          trackX + radius + straightWidth,
+                          trackY,
+                          radius,
+                          -Math.PI / 2,
+                          Math.PI / 2,
+                          false
+                      );
+                      // 下方直线
+                      context.lineTo(trackX + radius, trackY + radius);
+                      context.closePath();
+                      context.stroke();
+
+                      // 绘制红色标绘文字
+                      context.font = `bold ${markFontSize}px Arial`;
+                      context.fillStyle = '#D77786'; // 红色字体
+                      context.textAlign = 'center';
                       context.textBaseline = 'middle';
-                      context.fillText('序号', margin + padding + 10, margin + padding + 20 + rowHeight / 2);
-                      context.fillText('信息', margin + padding + 60, margin + padding + 20 + rowHeight / 2); // 文字位置右移
+                      context.fillText(markText, trackX + trackWidth / 2, trackY);
+
+                      // 绘制表格标题文字
+                      context.font = `bold ${titleFontSize}px Arial`; // 标题字体
+                      context.fillStyle = '#ffffff'; // 白色文字
+                      context.textAlign = 'center';
+                      context.textBaseline = 'middle';
+                      context.fillText(
+                          title,
+                          canvasWidth / 2,
+                          headerHeight / 2 + padding / 2
+                      ); // 居中绘制标题
 
                       // 绘制表格内容
                       clusteredEntities.forEach((entity, index) => {
-                        const yPosition = margin + padding + (index + 2) * rowHeight; // 每行的 Y 位置，下移表格信息
+                        const yPosition = headerHeight + padding + index * rowHeight;
 
-                        // 绘制网格线
-                        context.strokeStyle = '#ffffff'; // 网格线为白色
-                        context.lineWidth = 1;
-                        context.beginPath();
-                        context.moveTo(margin + padding, yPosition);
-                        context.lineTo(margin + padding + canvasWidth - padding * 2, yPosition);
-                        context.stroke();
+                        // 确保内容在背景范围内
+                        if (yPosition + rowHeight > canvasHeight - padding) {
+                          console.warn('内容超出背景范围，跳过绘制');
+                          return;
+                        }
 
-                        // 绘制行数据
+                        // 绘制内容
+                        context.font = `${contentFontSize}px Arial`; // 内容字体
                         context.fillStyle = '#ffffff'; // 白色字体
-                        context.fillText(`${index + 1}`, margin + padding + 10, yPosition + rowHeight / 2);
-                        context.fillText(`${entity.labeltext || '无信息'}`, margin + padding + 60, yPosition + rowHeight / 2); // 文字右移
+                        context.textAlign = 'left';
+                        context.fillText(
+                            `${entity.labeltext || '无信息'}`,
+                            padding, // 左对齐
+                            yPosition + rowHeight / 2
+                        );
                       });
 
                       // 将 Canvas 转换为 Billboard 图像
                       const canvasImage = canvas.toDataURL('image/png');
 
-                      // 设置 Billboard
-                      cluster.billboard.show = true;
-                      cluster.billboard.image = canvasImage; // 设置背景图像
-                      cluster.billboard.width = (canvasWidth + margin * 2) / 2; // 根据需要调整比例
-                      cluster.billboard.height = (canvasHeight + margin * 2) / 2;
+                      try {
+                        // 检查 Billboard 是否已初始化
+                        if (cluster.billboard) {
+                          cluster.billboard.show = true;
+                          cluster.billboard.image = canvasImage;
 
-                      // 设置标签位置在图标上方
-                      cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
-                      cluster.billboard.pixelOffset = new Cesium.Cartesian2(0, -(canvasHeight + margin * 2) / 2);
+                          // 调整宽高比例
+                          cluster.billboard.width = canvasWidth * 0.7;
+                          cluster.billboard.height = canvasHeight * 0.7;
 
-                      // 隐藏 Cesium 默认的标签
-                      cluster.label.show = false;
+                          // 设置 Billboard 位置：背景图片右下角对齐标绘图标正上方
+                          cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+                          cluster.billboard.pixelOffset = new Cesium.Cartesian2(
+                              -(canvasWidth * 0.35), // 调整为右下角更贴近图标
+                              -(canvasHeight * 0.1) // 上移贴近图标
+                          );
+
+                          // 隐藏 Cesium 默认的标签
+                          cluster.label.show = false;
+                        } else {
+                          console.warn('Billboard _textureAtlas 未初始化，跳过设置图像');
+                        }
+                      } catch (error) {
+                        // 捕获 Cesium 的内部报错，避免控制台输出
+                        if (error.message && error.message.includes('_textureAtlas')) {
+
+                        } else {
+                          console.error('Billboard 设置时出错:', error);
+                        }
+                      }
                     };
 
-                    // 处理图片加载失败
-                    borderImage.onerror = function () {
-                      console.error('Failed to load border image from:', borderImage.src);
+                    // 捕获图片加载错误
+                    backgroundImage.onerror = function () {
+                      console.error('背景图片加载失败，请检查路径是否正确');
                     };
                   }
               );
@@ -515,6 +581,7 @@ export default class Point {
 
 //标签文字
   labeltext(plotType, res) {
+    // console.log("标签",res)
     let labeltext = plotType
     if (res.plotTypeInfo && res.plotTypeInfo.location) {
       labeltext = res.plotTypeInfo.location + labeltext
