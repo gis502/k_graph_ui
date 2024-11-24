@@ -292,6 +292,11 @@
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
+    <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
+    <plotSearch
+      :eqid ="eqid"
+    ></plotSearch>
+
 
   </div>
 </template>
@@ -320,11 +325,12 @@ import * as XLSX from "xlsx";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import html2canvas from "html2canvas";
 import {querySituationData} from "@/api/system/model.js";
+import plotSearch from '@/components/Cesium/plotSearch.vue'
 
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot,plotSearch
   },
   data: function () {
     return {
@@ -2687,9 +2693,10 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo, bool) {
+    drawPoints(pointInfo,bool) {
       cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
+
     ifPointAnimation(val) {
       this.ifPointAnimate = val
     },
