@@ -5,6 +5,18 @@
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div class="modelAdj">查询</div>
+          <el-input
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              style="width: 200px; margin-right: 10px;"
+              @keyup.enter="handleQuery"
+          />
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </div>
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true"
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor">
           <el-table-column label="序号" width="55">
@@ -12,8 +24,12 @@
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
             </template>
           </el-table-column>
-          <el-table-column prop="time" label="发震时间" width="160"/>
-          <el-table-column prop="earthquakeName" label="位置">
+          <el-table-column prop="time" label="发震时间" width="240">
+            <template #default="scope">
+              {{ timestampToTimeChina(scope.row.time) }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="earthquakeName" label="位置" width="150">
             <template #default="scope">
               <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
                 <div>{{ scope.row.earthquakeName }}</div>
@@ -61,7 +77,8 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()" width="17%" height="43.3px">
+              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
+                   width="17%" height="43.3px">
             </el-tooltip>
           </span>
             <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
@@ -98,11 +115,11 @@
         </el-row>
       </el-form>
       <addMarkCollectionDialog
-          :addMarkDialogFormVisible="addMarkDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @drawPoints="drawPoints"
-          @ifPointAnimate="ifPointAnimation"
-          @clearMarkDialogForm="resetAddMarkCollection"
+        :addMarkDialogFormVisible="addMarkDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @drawPoints="drawPoints"
+        @ifPointAnimate="ifPointAnimation"
+        @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
         :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
@@ -169,7 +186,7 @@
               <el-row>
                 <el-tree
                   ref="tree"
-                  :data="filteredPlotTreeData"
+                  :data="plotTreeData"
                   :props="defaultProps"
                   show-checkbox
                   node-key="id"
@@ -209,7 +226,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
+    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -265,7 +282,8 @@
       <div class="compassContainer" ref="compassContainer"></div>
     </div>
 
-    <div v-if="isShowMessageIcon" style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
+    <div v-if="isShowMessageIcon"
+         style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
       <p style="color: #fff; margin: 0;">您正在进行标绘：</p>
       <img :src="this.messageIcon" style="width: 30px; height: 30px;">
     </div>
@@ -274,6 +292,11 @@
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
+    <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
+    <plotSearch
+      :eqid ="eqid"
+    ></plotSearch>
+
 
   </div>
 </template>
@@ -301,11 +324,13 @@ import {getToken} from "../../../utils/auth.js";
 import * as XLSX from "xlsx";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import html2canvas from "html2canvas";
+import {querySituationData} from "@/api/system/model.js";
+import plotSearch from '@/components/Cesium/plotSearch.vue'
 
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot,plotSearch
   },
   data: function () {
     return {
@@ -391,7 +416,7 @@ export default {
         //   label: '量算工具',
         // }
       ],
-      filteredPlotTreeData: [],
+      copiedPlotTreeData: [],
       defaultProps: {
         label: 'label',
         children: 'children',
@@ -468,6 +493,8 @@ export default {
       downloadConfirmed: false,
       isShowMessageIcon: false,
       messageIcon: '',
+      queryParams:'',  // 搜索框关键字
+
     };
   },
   mounted() {
@@ -480,6 +507,7 @@ export default {
     this.getEq()
     // 获取标绘图片
     this.getPlotPicture()
+    this.initTree()
   },
   beforeUnmount() {
     console.log("111", window.viewer)
@@ -500,7 +528,7 @@ export default {
 
   watch: {
     isLoaded(val) {
-      if(val && this.downloadConfirmed) {
+      if (val && this.downloadConfirmed) {
         this.downloadExcel()
       }
     }
@@ -510,6 +538,21 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
+    initTree() {
+      const highestAndSecondLabels = [];
+      this.copiedPlotTreeData = this.plotTreeData
+      this.copiedPlotTreeData.forEach(item => {
+        // 添加最高级label
+        highestAndSecondLabels.push(item.label);
+        // 添加每个子项的label
+        if (item.children) {
+          item.children.forEach(child => {
+            highestAndSecondLabels.push(child.label);
+          });
+        }
+      });
+    },
 
     downloadExcel() {
       const plotBTO = {
@@ -630,7 +673,7 @@ export default {
             that.renderedPlotIds.add(item.plotId);
           }
         })
-        that.drawPoints(points,false)
+        that.drawPoints(points, false)
         that.pointsLayer = [...points]
         console.log(that.pointsLayer)
         let polylineArr = data.filter(e => e.drawtype === 'polyline');
@@ -756,17 +799,6 @@ export default {
     },
 
     showSelect(flag) {
-      this.filteredPlotTreeData = this.plotTreeData.map((category) => {
-        if (category.children) {
-          return {
-            ...category,
-            children: category.children.filter(
-              (child) => child.label !== 'I类（次生地质灾害）'
-            ),
-          };
-        }
-        return category;
-      });
       this.selectVisible = true
       this.initializeTreeChildren(flag)
       // console.log("数据：",this.excelContent)
@@ -777,7 +809,8 @@ export default {
 
       // 提取所有的最高级和第二级的label
       const highestAndSecondLabels = [];
-      this.filteredPlotTreeData.forEach(item => {
+      this.copiedPlotTreeData = this.plotTreeData
+      this.copiedPlotTreeData.forEach(item => {
         // 添加最高级label
         highestAndSecondLabels.push(item.label);
         // 添加每个子项的label
@@ -798,18 +831,42 @@ export default {
     confirmDownload() {
       this.loading = true
       this.sheet = this.selectedNodes.map(node => {
-        // 反向查找键
         const typeKey = Object.keys(plotType).find(key => plotType[key].name === node);
         const fields = [];
-        fields.unshift(
-          {name: "绘制类型", type: "text"},
-          {name: "经度", type: "text"},
-          {name: "纬度", type: "text"},
-          {name: "高程", type: "text"},
-          {name: "角度", type: "text"},
-          {name: "开始时间", type: "text"},
-          {name: "结束时间", type: "text"}
-        );
+
+        console.log(typeKey)
+        console.log(fields)
+
+        // 指定类型列表
+        const specialTypes = [
+          "unsearchedArea", "searchedArea", "unrescuedArea", "rescuedArea", "rescueArea",
+          "straightArrows", "attackArrows", "pincerArrows",
+          "collapse", "landslide", "mudslide", "groundFissure", "landSubsidence", "groundCollapse",
+          "restrictedHighway", "impassableHighway", "impassableRailways",
+          "unavailableTransmissionAndDistributionLines", "unusableGasPipeline", "unavailableWaterSupplyNetwork"
+        ];
+
+        // 根据 typeKey 动态设置 fields.unshift
+        if (specialTypes.includes(typeKey)) {
+          fields.unshift(
+            {name: "绘制类型", type: "text"},
+            {name: "经纬度集合", type: "text"},
+            {name: "高程", type: "text"},
+            {name: "角度", type: "text"},
+            {name: "开始时间", type: "text"},
+            {name: "结束时间", type: "text"}
+          );
+        } else {
+          fields.unshift(
+            {name: "绘制类型", type: "text"},
+            {name: "经度", type: "text"},
+            {name: "纬度", type: "text"},
+            {name: "高程", type: "text"},
+            {name: "角度", type: "text"},
+            {name: "开始时间", type: "text"},
+            {name: "结束时间", type: "text"}
+          );
+        }
 
         if (typeKey) {
           const typeData = plotType[typeKey];
@@ -825,7 +882,12 @@ export default {
             fields.push(field);
           }
         }
-        fields.splice(7, 1); // 删除第九个元素
+
+        const endTimeIndex = fields.findIndex(field => field.name === "结束时间");
+        if (endTimeIndex !== -1 && endTimeIndex + 1 < fields.length) {
+          fields.splice(endTimeIndex + 1, 1);
+        }
+
         return {
           name: node,
           fields: fields
@@ -833,9 +895,10 @@ export default {
       });
       this.downloadConfirmed = true
 
-      if(this.isLoaded) {
+      if (this.isLoaded) {
         this.downloadExcel()
       }
+      // console.log(this.sheet)
     },
 
     cancelDownload() {
@@ -845,6 +908,7 @@ export default {
       this.isLoaded = false
       this.loading = false
 
+      console.log(this.$refs.tree)
       // 逐个取消勾选
       this.$refs.tree.setCheckedNodes([])
     },
@@ -860,7 +924,7 @@ export default {
         const plotTypes = this.plotList.map(plot => plot.plotType);
 
         getExcelPlotInfo(plotIds, plotTypes).then(res => {
-          // console.log(res)
+          console.log(res)
 
           // 提取 excelContent
           const excelContent = res.filter(item => item.plotInfo).map(item => {
@@ -870,7 +934,10 @@ export default {
             const drawTypeMap = new Map([
               ["point", "点"],
               ["polyline", "线"],
-              ["polygon", "面"]
+              ["polygon", "面"],
+              ["attack", "攻击箭头"],
+              ["straight", "直线箭头"],
+              ["pincer", "钳击箭头"]
             ]);
 
             // 提取 plotTypeInfo 中的字段
@@ -883,16 +950,34 @@ export default {
                 return obj;
               }, {});
 
+            const formattedCoordinates = plotInfo.geom.coordinates
+              // 判断 coordinates 是否为二维数组，如果是，则处理每个坐标对
+              .map(coord => {
+                if (Array.isArray(coord)) {
+                  if (coord.length === 2) {
+                    // 如果是简单的坐标对（[经度, 纬度]），直接格式化
+                    return `(${coord[0]}, ${coord[1]})`;
+                  } else if (Array.isArray(coord[0]) && coord[0].length === 2) {
+                    // 如果是一个包含多个坐标对的数组，处理其中的每个坐标对
+                    return coord.map(subCoord => `(${subCoord[0]}, ${subCoord[1]})`).join("、");
+                  }
+                }
+                return '';  // 如果格式不符合要求，则返回空字符串
+              })
+              .filter(coord => coord !== '')  // 过滤掉无效的空字符串
+              .join("、");  // 使用中文顿号连接
+
             // 返回提取的字段
             return {
               "绘制类型": drawTypeMap.get(plotInfo.drawtype) || "未知类型",
               "标绘类型": plotInfo.plotType,
               "经度": plotInfo.longitude,
               "纬度": plotInfo.latitude,
+              "经纬度集合": formattedCoordinates,
               "高程": plotInfo.elevation,
               "角度": plotInfo.angle,
-              "开始时间": plotInfo.startTime,
-              "结束时间": plotInfo.endTime,
+              "开始时间": plotInfo.startTime ? plotInfo.startTime.replace("T", " ") : "", // 检查是否为 null 或 undefined
+              "结束时间": plotInfo.endTime ? plotInfo.endTime.replace("T", " ") : "", // 同样检查
               ...filteredPlotTypeInfo, // 保留 plotTypeInfo 中的字段
             };
           });
@@ -905,13 +990,14 @@ export default {
               "绘制类型": item["绘制类型"],
               "经度": item["经度"],
               "纬度": item["纬度"],
+              "经纬度集合": item["经纬度集合"],
               "高程": item["高程"],
               "角度": item["角度"],
               "开始时间": item["开始时间"],
               "结束时间": item["结束时间"],
               // 将 plotTypeInfo 中的其他字段加入
               ...Object.fromEntries(
-                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "高程", "角度", "开始时间", "结束时间"].includes(key))
+                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "经纬度集合", "高程", "角度", "开始时间", "结束时间"].includes(key))
               )
             };
 
@@ -940,41 +1026,17 @@ export default {
         this.isLoaded = true;
       }
 
-      const excludedNames = [
-        "直线箭头",
-        "攻击箭头",
-        "钳击箭头",
-        "限制通行公路",
-        "不可通行公路",
-        "不可通行铁路",
-        "不可用输、配电线路",
-        "不可用输气管线",
-        "不可用供水管网",
-        "未搜索区域",
-        "已搜索区域",
-        "未营救区域",
-        "已营救区域",
-        "正在营救区域",
-        "泥石流",
-        "滑坡",
-        "崩塌",
-        "地面塌陷",
-        "地面沉降"
-      ];
-
-      this.filteredPlotTreeData.forEach(rootNode => {
+      this.copiedPlotTreeData.forEach(rootNode => {
         if (rootNode.children) {
           rootNode.children.forEach(child => {
             let arr = this.plotPicture.filter(item => item.type === child.label);
 
-            // 根据 flag 值决定是否应用过滤
-            child.children = arr
-              .filter(item => !excludedNames.includes(item.name)) // 过滤掉不需要的名称
-              .map(item => ({
-                label: item.name,
-                uuid: item.uuid,
-                children: [] // 初始化为空数组
-              }));
+            // 去掉过滤逻辑
+            child.children = arr.map(item => ({
+              label: item.name,
+              uuid: item.uuid,
+              children: [] // 初始化为空数组
+            }));
           });
         }
       });
@@ -1031,18 +1093,269 @@ export default {
     },
 
     handleSuccess(response) {
+      console.log(response)
+      // 解构 response 中的 plotDataList 和 updatedPlotProperty
+      const {plotDataList, updatedPlotProperty} = response.data;
 
-      try {
-        // 直接处理数据
-        this.handleData(response.data.plotIds);
-      } catch (error) {
-        // 捕获异常并提示错误
-        ElMessage({
-          message: '不能上传重复数据',
-          type: 'error',
-          duration: 3000,
-        });
+      console.log(plotDataList)
+      console.log(555)
+      console.log(updatedPlotProperty)
+
+      // 提取 updatedPlotProperty 中的字段，将括号内的内容解析为对象
+      const regex = /\(plotId=([a-f0-9\-]+),\s*(.*)\)/;
+      const updatedFields = updatedPlotProperty.map(item => {
+        const match = item.match(regex);
+        if (match) {
+          const plotId = match[1];
+          const fields = match[2].split(',').reduce((acc, field) => {
+            const [key, value] = field.split('=').map(str => str.trim());
+            acc[key] = value;
+            return acc;
+          }, {});
+          return {plotId, ...fields};
+        }
+        return null;
+      }).filter(Boolean); // 过滤掉不匹配的项
+
+      // 将 updatedFields 转为 Map 方便快速查找
+      const updatedFieldsMap = updatedFields.reduce((acc, field) => {
+        acc[field.plotId] = field;
+        return acc;
+      }, {});
+
+      // 合并 plotDataList 和 updatedFields
+      const mergedData = plotDataList.map(plot => {
+        const updatedField = updatedFieldsMap[plot.plotId]; // 获取与 plotId 对应的更新字段
+        if (updatedField) {
+          return {
+            ...plot,
+            ...updatedField // 动态合并所有匹配的字段
+          };
+        }
+        return plot; // 如果没有匹配，返回原始 plot 数据
+      });
+
+      console.log(777)
+      console.log(mergedData)
+
+      // 拆分 mergedData 中的对象
+      let splitData = mergedData.map((item) => {
+        let {
+          earthquakeId,
+          plotId,
+          creationTime,
+          plotType,
+          drawtype,
+          geomDetails,
+          geom,
+          longitude,
+          latitude,
+          elevation,
+          icon,
+          startTime,
+          endTime,
+          severity,
+          isDeleted,
+          ...dynamicFields // 剩下的是动态字段
+        } = item;
+
+        let plotInfo = {
+          earthquakeId,
+          plotId,
+          creationTime,
+          plotType,
+          drawtype,
+          geomDetails,
+          geom,
+          longitude,
+          latitude,
+          elevation,
+          icon,
+          startTime,
+          endTime,
+          severity,
+          isDeleted,
+        };
+
+        let plotTypeInfo = {
+          plotId,
+          ...dynamicFields,
+        };
+
+        return {plotInfo, plotTypeInfo};
+      });
+
+      console.log(333)
+      console.log(splitData)
+
+      // 分别存储点、线、面、箭头类格式化数据
+      let assemblyPointArray = [];
+      let assemblyPolylineArray = [];
+      let assemblyPolygonArray = [];
+      let assemblyArrowArray = [];
+
+      const drawtypeMapping = {
+        "面": "polygon",
+        "攻击箭头": "attack",
+        "钳击箭头": "pincer",
+        "直线箭头": "straight",
+      };
+
+      for (let i = 0; i < splitData.length; i++) {
+        // 获取对应的 drawtype 转换值
+        const drawtypeKey = splitData[i].plotInfo.plotType;
+        const mappedDrawtype = drawtypeMapping[drawtypeKey] || "unknown"; // 如果类型未匹配，设置为 "unknown"
+        if (splitData[i].plotInfo.drawtype === "point" || splitData[i].plotInfo.drawtype === "点") {
+          console.log("1111111111111111", splitData[i])
+          console.log("点")
+          console.log(splitData[i].plotInfo.longitude)
+          console.log(splitData[i].plotInfo.latitude)
+          const plotData = {
+            type: "point",
+            operate: "add",
+            data: {
+              plot: {
+                earthquakeId: splitData[i].plotInfo.earthquakeId,
+                plotId: splitData[i].plotInfo.plotId,
+                creationTime: this.timestampToTime(new Date()).replace(" ", "T"),
+                plotType: splitData[i].plotInfo.plotType,
+                drawtype: "point",
+                geom: splitData[i].plotInfo.geom,
+                elevation: splitData[i].plotInfo.elevation,
+                icon: splitData[i].plotInfo.icon,
+                startTime: this.timestampToTime(splitData[i].plotInfo.startTime).replace(" ", "T"),
+                endTime: this.timestampToTime(splitData[i].plotInfo.endTime).replace(" ", "T"),
+                severity: splitData[i].plotInfo.severity,
+                isDeleted: splitData[i].plotInfo.isDeleted,
+              },
+              plotinfo: {
+                ...splitData[i].plotTypeInfo,
+              },
+            },
+
+          };
+
+          assemblyPointArray.push(plotData); // 存储每个结果
+        } else {
+          const geomDetails = splitData[i].plotInfo.geomDetails;
+
+          console.log(geomDetails)
+
+          // 将 geomDetails 转换为数组形式的 coordinates
+          const coordinates = geomDetails
+            .split("、")
+            .map(coord => {
+              const [lng, lat] = coord
+                .replace(/[()]/g, "")
+                .split(",")
+                .map(Number);
+              return [lng, lat];
+            });
+
+          if (splitData[i].plotInfo.drawtype === "polyline" || splitData[i].plotInfo.drawtype === "线") {
+            console.log("线")
+            const plotData = {
+              type: "polyline",
+              operate: "add",
+              data: {
+                plot: {
+                  earthquakeId: splitData[i].plotInfo.earthquakeId,
+                  plotId: splitData[i].plotInfo.plotId,
+                  creationTime: this.timestampToTime(new Date()).replace(" ", "T"),
+                  plotType: splitData[i].plotInfo.plotType,
+                  drawtype: "polyline",
+                  geom: {
+                    type: "LineString",
+                    coordinates: coordinates,
+                  },
+                  elevation: splitData[i].plotInfo.elevation,
+                  icon: splitData[i].plotInfo.icon,
+                  startTime: this.timestampToTime(splitData[i].plotInfo.startTime).replace(" ", "T"),
+                  endTime: this.timestampToTime(splitData[i].plotInfo.endTime).replace(" ", "T"),
+                  severity: splitData[i].plotInfo.severity,
+                  isDeleted: splitData[i].plotInfo.isDeleted,
+                },
+                plotinfo: {
+                  ...splitData[i].plotTypeInfo,
+                },
+              }
+            };
+
+            assemblyPolylineArray.push(plotData); // 存储每个结果
+          } else if (splitData[i].plotInfo.drawtype === "polygon" || splitData[i].plotInfo.drawtype === "面") {
+            console.log("面")
+            const plotData = {
+              type: "polygon",
+              operate: "add",
+              data: {
+                plot: {
+                  earthquakeId: splitData[i].plotInfo.earthquakeId,
+                  plotId: splitData[i].plotInfo.plotId,
+                  creationTime: this.timestampToTime(new Date()).replace(" ", "T"),
+                  plotType: splitData[i].plotInfo.plotType,
+                  drawtype: mappedDrawtype,
+                  geom: {
+                    type: "Polygon",
+                    coordinates: coordinates,
+                  },
+                  elevation: splitData[i].plotInfo.elevation,
+                  icon: splitData[i].plotInfo.icon,
+                  startTime: this.timestampToTime(splitData[i].plotInfo.startTime).replace(" ", "T"),
+                  endTime: this.timestampToTime(splitData[i].plotInfo.endTime).replace(" ", "T"),
+                  severity: splitData[i].plotInfo.severity,
+                  isDeleted: splitData[i].plotInfo.isDeleted,
+                },
+                plotinfo: {
+                  ...splitData[i].plotTypeInfo,
+                },
+              }
+            };
+
+            assemblyPolygonArray.push(plotData); // 存储每个结果
+          } else {
+            console.log("箭头")
+            const plotData = {
+              type: "arrow",
+              operate: "add",
+              data: {
+                plot: {
+                  earthquakeId: splitData[i].plotInfo.earthquakeId,
+                  plotId: splitData[i].plotInfo.plotId,
+                  creationTime: this.timestampToTime(new Date()).replace(" ", "T"),
+                  plotType: splitData[i].plotInfo.plotType,
+                  drawtype: mappedDrawtype,
+                  geom: {
+                    type: "MultiPoint",
+                    coordinates: coordinates,
+                  },
+                  elevation: splitData[i].plotInfo.elevation,
+                  icon: splitData[i].plotInfo.icon,
+                  startTime: this.timestampToTime(splitData[i].plotInfo.startTime).replace(" ", "T"),
+                  endTime: this.timestampToTime(splitData[i].plotInfo.endTime).replace(" ", "T"),
+                  severity: splitData[i].plotInfo.severity,
+                  isDeleted: splitData[i].plotInfo.isDeleted,
+                },
+                plotinfo: {
+                  ...splitData[i].plotTypeInfo,
+                },
+              }
+            };
+
+            assemblyArrowArray.push(plotData); // 存储每个结果
+          }
+        }
+
       }
+      // 合并所有数组并遍历发送
+      [...assemblyPointArray, ...assemblyPolylineArray, ...assemblyPolygonArray, ...assemblyArrowArray].forEach(data => {
+        this.wsSendPoint(JSON.stringify(data));
+      });
+
+      console.log(assemblyPointArray)
+      console.log(assemblyPolylineArray)
+      console.log(assemblyPolygonArray)
+      console.log(assemblyArrowArray)
+
     },
 
     convertToDateTimeString(excelDate) {
@@ -1989,7 +2302,7 @@ export default {
         labeldataSource.entities.removeAll()
       }
       if (window.labeldataSource) {
-          window.labeldataSource.entities.removeAll();; // 移除点
+        window.labeldataSource.entities.removeAll(); // 移除点
       }
       // console.log("剩余2：", window.pointDataSource.entities)
       Arrow.drawArr = []
@@ -1998,7 +2311,7 @@ export default {
       this.websock.eqid = this.eqid
       this.renderedPlotIds.clear(); // 清空已渲染 ID 集合
       this.initPlot(row.eqid)
-      this.title = row.occurrenceTime + row.earthquakeName + row.magnitude
+      this.title = this.timestampToTimeChina(row.occurrenceTime) + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
         orientation: {
@@ -2015,6 +2328,8 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+        console.log("********************************************************")
+        console.log("res",res)
         let resData = res.filter(item => item.magnitude >= 5)
         let data = []
         for (let i = 0; i < resData.length; i++) {
@@ -2029,7 +2344,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
-        that.title = that.tableData[0].occurrenceTime.replace("T", " ") + that.tableData[0].earthquakeName + that.tableData[0].magnitude
+        that.title = this.timestampToTimeChina(that.tableData[0].occurrenceTime.replace("T", " ")) + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
           orientation: {
@@ -2201,14 +2516,30 @@ export default {
       let arr = []
       let start = (this.currentPage - 1) * this.pageSize
       let end = this.currentPage * this.pageSize
+
+      // 确保结束索引不超过总数据量
       if (end > this.total) {
         end = this.total
       }
+
+      // 遍历数据并加入分页数据中
       for (; start < end; start++) {
-        arr.push(this.getEqData[start])
+        if (this.getEqData[start]) {
+          // 调试：打印当前访问的数据
+          console.log('正在访问的数据索引:', start, '数据:', this.getEqData[start]);
+          arr.push(this.getEqData[start])
+        } else {
+          // 调试：如果数据为空
+          console.log('无效数据，跳过索引:', start);
+        }
       }
+
+      // 调试：打印当前分页数据
+      console.log('当前分页数据:', arr);
+
       return arr
     },
+
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
@@ -2262,7 +2593,7 @@ export default {
       // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
       window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
       this.isShowMessageIcon = true
-      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()
+      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' + item.img + '.png?t=' + new Date().getTime()
 
       if (item.plottype === '点图层') {
         console.log("点图层")
@@ -2382,6 +2713,7 @@ export default {
     drawPoints(pointInfo,bool) {
       cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
+
     ifPointAnimation(val) {
       this.ifPointAnimate = val
     },
@@ -2584,6 +2916,23 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
+    timestampToTimeChina(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
@@ -2658,7 +3007,70 @@ export default {
       } else {
         this.zoomLevel = '村'
       }
-    }
+    },
+
+    // 搜索框
+    handleQuery() {
+      const searchKey = this.queryParams.trim();  // 获取搜索关键字
+
+      // 如果搜索框为空，直接调用 this.getEq()
+      if (!searchKey) {
+        this.getEq(); // 调用无参数查询的方法
+        return;
+      }
+
+      // 格式化搜索关键字，转换为后端可以识别的格式（例如：ISO时间字符串）
+      const formattedKey = searchKey
+          .replace(/年/g, "-")
+          .replace(/月/g, "-")
+          .replace(/日/g, " ")
+          .replace(/时/g, ":")
+          .replace(/分/g, ":")
+          .replace(/秒/g, "");
+
+      // 根据是否有格式化的搜索关键字来调用不同的查询方法
+      const queryPromise = formattedKey ? querySituationData(formattedKey) : querySituationData();
+
+      queryPromise
+          .then(res => {
+            console.log("获取的数据:", res);
+
+            // 只筛选震中震级大于等于5的数据
+            let resData = res.data.filter(item => item.magnitude >= 5);
+
+            // 格式化返回的数据
+            this.getEqData = resData.map(item => {
+              // 格式化时间：将ISO时间中的'T'替换为' '
+              item.time = item.occurrenceTime.replace("T", " ");
+
+              // 格式化震级、纬度和经度
+              item.magnitude = Number(item.magnitude).toFixed(1); // 震级保留1位小数
+              item.latitude = Number(item.latitude).toFixed(2); // 纬度保留2位小数
+              item.longitude = Number(item.longitude).toFixed(2); // 经度保留2位小数
+
+              return item;
+            });
+
+            // 更新总数
+            this.total = this.getEqData.length;
+
+            // 获取分页数据
+            this.tableData = this.getPageArr();
+          })
+          .catch(error => {
+            console.error("查询时出现错误:", error.message || error);
+            const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+            ElMessage.error(errorMessage);  // 弹出错误提示
+          });
+    },
+
+    // 重置功能
+    resetQuery() {
+      this.queryParams = '';  // 清空搜索输入框
+      this.getEq()
+    },
+
+
   }
 }
 </script>
@@ -2726,8 +3138,8 @@ export default {
 }
 
 .situation_eqTable {
-  width: 530px;
-  height: 310px;
+  width: 590px;
+  height: 372px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
@@ -2741,7 +3153,7 @@ export default {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 345px;
+  top: 418px;
   left: 10px;
   width: 530px;
   z-index: 10;

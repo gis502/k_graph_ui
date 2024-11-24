@@ -115,7 +115,7 @@ import {insert, update, removeById, list, searchSafetyProtection} from "@/api/sy
 import {ElMessage, ElMessageBox} from 'element-plus'
 
 let getData = ref([]) // 后端获取的所有数据
-let total = ref(12) // 一共多少条数据
+let total = ref(0) // 一共多少条数据
 let tableData = ref([]) // 表格中显示的数据数组
 let currentPage = ref(1) // 当前是第几页
 let pageSizes = ref([10, 20]) //选择一页显示多少条数据
@@ -141,6 +141,7 @@ onMounted(() => {
 })
 const restaurants = ref([{value: "全部IPv4地址"}, {value: "全部IPv6地址"}])
 
+// 搜索
 const querySearch = (queryString, cb) => {
   let results = queryString
       ? restaurants.value.filter(createFilter(queryString))
@@ -152,6 +153,7 @@ const querySearch = (queryString, cb) => {
   cb(results)
 }
 
+// 筛选
 function createFilter(queryString) {
   return (restaurants) => {
     return (restaurants.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
@@ -206,7 +208,7 @@ function handleQuery() {
 
   // 如果搜索关键字为空，恢复为原始数据
   if (searchKey === "") {
-    getList();  // 重新加载所有数据
+    getList(); // 重新加载所有数据
     return;
   }
 
@@ -217,10 +219,22 @@ function handleQuery() {
 
   // 调用搜索接口
   searchSafetyProtection(searchKey).then(response => {
-    console.log("后端返回的数据：", response)
+    console.log("后端返回的数据：", response);
+
     // 处理返回数据
     if (response) {
+      // 更新表格数据
       tableData.value = response;
+
+      // 更新总数
+      total.value = tableData.value.length;
+
+      // 根据分页获取当前页的数据
+      tableData.value = getPageArr(
+          response,
+          currentPage.value,
+          pageSize.value
+      );
     }
   }).catch(error => {
     console.error("搜索请求失败: ", error);

@@ -1,12 +1,12 @@
 <template>
   <div>
-    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;" indicator-position="none" :key="carouselKey">
+    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;   left: 4px;" indicator-position="none" :key="carouselKey">
       <!-- 余震数量图表 -->
       <el-carousel-item style="height: 100%;">
-        <div class="chart-container" style="height: 100%;">
-          <div class="public-title">最新地震余震情况统计(次)</div>
+        <div class="chart-container" style="height: 90%;">
+          <img src="@/assets/最新地震余震情况.png" alt="最新地震余震情况" style="width: 127%; height: auto;">
           <span
-              style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
+              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ updateTime }}
           </span>
 
@@ -17,9 +17,9 @@
       <!-- 各区县人口总数表 -->
       <el-carousel-item>
         <div class="chart-container population-chart-container" >
-          <div class="public-title">各区县人口总数（万人）</div>
+          <img src="@/assets/各区县人口.png" alt="各区县人口" style="width: 127%; height: auto;">
           <span
-              style="padding-left: 5px; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
+              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
             更新时间：{{ populationDataChartUpdateTime }}
           </span>
           <div ref="populationDataChart" class="chart"></div> <!-- 人口数据图表容器 -->
@@ -28,7 +28,7 @@
 
       <el-carousel-item>
         <div class="chart-container">
-          <div class="public-title">隐患点</div>
+          <img src="@/assets/隐患点.png" alt="隐患点" style="width: 127%; height: auto;">
 
           <!-- 风险点信息 -->
           <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
@@ -112,64 +112,165 @@ let myPopulationDataChart = null; // 人口数据图表实例
 // 控制初始展示的索引
 const initialIndex = ref(0); // 当前展示的隐患点索引
 
+
+// 初始化余震图表
+// 注册一个自定义图形（斜角柱状图）
+const myShape = {
+  x: 0,
+  y: 0,
+  width: 10, //柱宽
+};
+
+// 绘制斜角柱状图的左侧面
+const InclinedRoofColumn = echarts.graphic.extendShape({
+  shape: myShape,
+  buildPath: function (ctx, shape) {
+    const xAxisPoint = shape.xAxisPoint;
+    const c0 = [shape.x, shape.y - 6]; // 降低柱状图左侧高度，以控制倾斜角度与方向
+    const c1 = [shape.x - 10, shape.y];
+    const c2 = [xAxisPoint[0] - 10, xAxisPoint[1]];
+    const c3 = [xAxisPoint[0], xAxisPoint[1]];
+    ctx
+        .moveTo(c0[0], c0[1])
+        .lineTo(c1[0], c1[1])
+        .lineTo(c2[0], c2[1])
+        .lineTo(c3[0], c3[1])
+        .closePath();
+  },
+});
+
+// 注册斜角柱状图形
+echarts.graphic.registerShape('InclinedRoofColumn', InclinedRoofColumn);
+
 // 初始化余震图表
 const initAftershockChart = () => {
   if (!aftershockChart.value) return; // 检查图表容器是否存在
-  myAftershockChart = echarts.init(aftershockChart.value); // 初始化ECharts实例
 
   const option = {
-    tooltip: { trigger: 'axis' },
-    grid: { left: '2%', right: '4%', top: '20%', bottom: '30%', containLabel: true },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (params) => {
+        return params.map(item => `${item.marker}${item.name}: ${(item.value).toFixed(2)} 次`).join('<br/>');
+      },
+    },
+    grid: {
+      left: 20,
+      right: 20,
+      top: 50,
+      bottom: 40,
+      containLabel: true,
+    },
     xAxis: {
       type: 'category',
-      data: ['3-3.9级', '4-4.9级', '5-5.9级', '6.0级及以上'],
+      data: ['3-3.9级', '4-4.9级', '5-5.9级', '     6.0级及以上'],
       axisLabel: {
-        color: '#FFFFFF',
+        color: '#ffffff',
+        interval: 0, // 显示所有标签
+
+      },
+      axisLine: {
+        lineStyle: {
+          color: '#8AC4FF',
+        },
+      },
+      axisTick: {
         show: true,
-        interval: 0,
+        inside: true,
+        length: 2,
+      },
+      splitLine: {
+        show: false,
       },
     },
     yAxis: {
       type: 'value',
       axisLabel: {
-        color: '#ffffff' // 设置 Y 轴标签的颜色为白色
-      }
+        fontSize: 11,
+        color: '#8AC4FF',
+        formatter: (value) => value.toFixed(0) + ' 次',
+      },
+      axisTick: {
+        show: true,
+        inside: true,
+        length: 2,
+        lineStyle: {
+          color: '#8AC4FF',
+        },
+      },
+      splitLine: {
+        show: false,
+      },
     },
     series: [
       {
-        name: '余震数量',
-        data: [0, 0, 0, 0],
-        type: 'bar',
-        itemStyle: {
-          color: (params) => {
-            const colors = ['#2889ff', '#ffeb2f', '#ffa500', '#ff2f2f'];
-            return colors[params.dataIndex];
-          }
+        type: 'custom', // 使用自定义图形
+        renderItem: (params, api) => {
+          const location = api.coord([api.value(0), api.value(1)]);
+          const point = api.coord([api.value(0), 0]);
+          return {
+            type: 'group',
+            children: [
+              {
+                type: 'InclinedRoofColumn', // 使用刚才注册的自定义图形
+                shape: {
+                  api,
+                  xValue: api.value(0),
+                  yValue: api.value(1),
+                  x: location[0] + 5, // 控制柱状图顶部偏移位置，使其居中
+                  y: location[1],
+                  xAxisPoint: [point[0] + 5, point[1]], // 控制柱状图底部偏移位置，使其居中
+                },
+                style: {
+                  fill: echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#438BFD' },
+                    { offset: 0.5, color: '#13B0D7' },
+                    { offset: 1, color: '#13B0D7' },
+                  ]),
+                },
+              },
+              {
+                type: 'image',
+                x: location[0] - 16, // 控制图片位置，将其添加到柱状图正中间
+                scaleX: 1,
+                y: location[1] - 21, // 控制图片位置，将其添加到柱状图最顶端
+                style: {
+                  image: '', // barHeader 为 UI 给出的发光源切图
+                },
+              },
+            ],
+          };
         },
-        label: { show: true, position: 'top', color: '#fff' }
-      }
-    ]
+        data: [0, 0, 0, 0], // 初始数据
+      },
+    ],
   };
+
+  // 初始化 ECharts 实例
+  myAftershockChart = echarts.init(aftershockChart.value);
   myAftershockChart.setOption(option);
 };
 
 
 // 更新余震图表
 const updateAftershockChart = (data) => {
-  if (myAftershockChart) {
-    myAftershockChart.setOption({
-      series: [
-        {
-          data: [
-            data.magnitude_3_3_9 || 0,
-            data.magnitude_4_4_9 || 0,
-            data.magnitude_5_5_9 || 0,
-            0
-          ],
-        }
-      ]
-    });
-  }
+  if (!myAftershockChart) return; // 检查图表实例是否存在
+
+  // 确保传入的 data 中的每个值都具有默认值，防止 undefined 或 null
+  const updatedData = [
+    data.magnitude_3_3_9 || 0, // 3-3.9级余震数量
+    data.magnitude_4_4_9 || 0, // 4-4.9级余震数量
+    data.magnitude_5_5_9 || 0, // 5-5.9级余震数量
+    data.magnitude_6_plus || 0 // 6.0级及以上余震数量
+  ];
+
+  // 只更新 series 中的数据
+  myAftershockChart.setOption({
+    series: [{
+      name: '余震数量',
+      data: updatedData
+    }]
+  });
 };
 
 
@@ -178,29 +279,33 @@ const updateAftershockChart = (data) => {
 const handleAftershockData = () => {
   if (props.lastEq) {
     getAftershockMagnitude(props.lastEq.eqid).then((res) => {
-      updateAftershockChart(res); // 更新余震图表
+      // 更新余震图表
+      updateAftershockChart(res);
       console.log("getAftershockMagnitude", res);
       updateTime.value = res.submission_deadline; // 更新时间
+      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
 
-      // 根据余震数据是否存在决定初始展示的图表
+      // 判断是否有有效余震数据
       const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
-      console.log("hasAftershockData", hasAftershockData);
 
-      // 设置 initialIndex 的值
+      // 设置初始展示的图表
       initialIndex.value = hasAftershockData ? 0 : 1;
       console.log("initialIndex 值:", initialIndex.value);
 
-      carouselKey.value++;
+      carouselKey.value++; // 更新轮播图
 
       nextTick(() => {
+        // 初始化图表
+        initAftershockChart();
+        initPopulationDataChart();
+        // 更新余震图表并同步更新流光柱状图
+        updateAftershockChart(res);
 
-          initAftershockChart()
-          initPopulationDataChart()
-          updateAftershockChart(res); // 重新初始化余震图表
       });
     });
   } else {
     updateTime.value = new Date().toLocaleString(); // 设置当前时间
+    updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
     initialIndex.value = 1; // 如果没有lastEq，默认展示静态图
   }
 };
@@ -224,6 +329,7 @@ const handlePopulationData = () => {
       console.log("提取后的数据:", populationData.value);
 
       populationDataChartUpdateTime.value = res.data[0].updateTime; // 更新时间
+      populationDataChartUpdateTime.value = formatDate(  populationDataChartUpdateTime.value);  // 更改时间格式
       initPopulationDataChart(); // 数据加载完成后初始化图表
     } else {
       console.error("返回的数据格式不正确或数据为空", res);
@@ -243,7 +349,41 @@ const initPopulationDataChart = () => {
 
   const { xAxisData, seriesData } = populationData.value; // 解构提取数据
 
-  myPopulationDataChart = echarts.init(populationDataChart.value);
+  // 注册自定义的倾斜屋顶柱状图
+  const myShape = {
+    x: 0,
+    y: 0,
+    width: 10, // 柱宽
+  };
+
+  const InclinedRoofColumn = echarts.graphic.extendShape({
+    shape: myShape,
+    buildPath: function (ctx, shape) {
+      const xAxisPoint = shape.xAxisPoint;
+      const c0 = [shape.x, shape.y - 6]; // 降低柱状图左侧高度以控制倾斜角度与倾斜方向
+      const c1 = [shape.x - 10, shape.y];
+      const c2 = [xAxisPoint[0] - 10, xAxisPoint[1]];
+      const c3 = [xAxisPoint[0], xAxisPoint[1]];
+      ctx
+          .moveTo(c0[0], c0[1])
+          .lineTo(c1[0], c1[1])
+          .lineTo(c2[0], c2[1])
+          .lineTo(c3[0], c3[1])
+          .closePath();
+    },
+  });
+  echarts.graphic.registerShape('InclinedRoofColumn', InclinedRoofColumn);
+
+  // 初始化echarts实例
+  const myPopulationDataChart = echarts.init(populationDataChart.value);
+
+  // 定义固定的渐变色
+  const gradient = echarts.graphic.LinearGradient(0, 0, 0, 1, [
+    { offset: 0, color: '#438BFD' }, // 上端颜色
+    { offset: 0.5, color: '#13B0D7' }, // 中间颜色
+    { offset: 1, color: '#13B0D7' },  // 下端颜色
+  ]);
+
   const option = {
     tooltip: {
       trigger: 'axis',
@@ -253,22 +393,103 @@ const initPopulationDataChart = () => {
         return params.map(item => `${item.marker}${item.name}: ${(item.value / 10000).toFixed(2)} 万人`).join('<br/>');
       }
     },
+    grid: {
+      left: 13,
+      right: 30,
+      top: 30,
+      bottom: 50,
+      containLabel: true,
+    },
     xAxis: {
       type: 'category',
       data: xAxisData,
       axisLabel: {
         color: '#ffffff', // 设置 X 轴标签的颜色为白色
         formatter: (value) => value.split("").join("\n")
-      }
+      },
+      axisTick: {
+        alignWithLabel: true,
+        inside: true,
+        length: 2,
+      },
+      splitLine: {
+        show: false,
+      },
+      axisLine: {
+        lineStyle: {
+          fontSize: 6,
+          color: '#8AC4FF',
+        },
+      },
     },
     yAxis: {
       type: 'value',
+      axisTick: {
+        show: true,
+        inside: true,
+        length: 2,
+        lineStyle: {
+          color: '#8AC4FF',
+        },
+      },
       axisLabel: {
-        color: '#ffffff',
-        formatter: (value) => value / 10000
-      }
+        fontSize: 11,
+        color: '#8AC4FF',
+        formatter: function(value) {
+          return (value / 10000).toFixed(0) + ' 万人'; // 转换为万人单位并保留两位小数
+        },
+      },
+      splitLine: {
+        show: false,
+      },
     },
-    series: [{ data: seriesData, type: 'bar' }]
+    series: [
+      {
+        type: 'custom',
+        renderItem: (params, api) => {
+          const location = api.coord([api.value(0), api.value(1)]);
+          const point = api.coord([api.value(0), 0]);
+
+          return {
+            type: 'group',
+            children: [
+              {
+                type: 'InclinedRoofColumn', // 使用自定义图形
+                shape: {
+                  api,
+                  xValue: api.value(0),
+                  yValue: api.value(1),
+                  x: location[0] + 5, // 控制柱状图顶部偏移位置，使居中
+                  y: location[1],
+                  xAxisPoint: [point[0] + 5, point[1]], // 控制柱状图底部偏移位置，使居中
+                },
+                style: {
+                  fill: gradient,  // 设置静态渐变色
+                  shadowColor: 'rgba(0, 0, 0, 0.3)', // 设置阴影效果
+                  shadowBlur: 10, // 模糊阴影
+                  shadowOffsetX: 3,
+                  shadowOffsetY: 3,
+                },
+              },
+              // 添加发光效果（如果需要）
+              {
+                type: 'image',
+                x: location[0] - 16, // 控制图片位置，将其添加到柱状图正中间
+                scaleX: 1,
+                y: location[1] - 21, // 控制图片位置，将其添加到柱状图最顶端
+                style: {
+                  image: "", // 替换成实际的图片路径
+                },
+              },
+            ],
+          };
+        },
+        data: seriesData, // 使用原数据
+        animationDuration: 2000, // 设置动画的时长，单位是毫秒
+        animationEasing: 'easeOutQuart', // 设置动画的缓动效果
+        animationDelay: (idx) => idx * 300, // 设置每个柱状图动画延迟，形成逐一上升的效果
+      },
+    ],
   };
 
   myPopulationDataChart.setOption(option);
@@ -397,6 +618,18 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeChart); // 移除监听器
   clearInterval(slideInterval); // 组件卸载前清除定时器
 });
+
+
+function formatDate(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+  const day = d.getDate().toString().padStart(2, '0');
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const seconds = d.getSeconds().toString().padStart(2, '0');
+  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+}
 </script>
 
 <style scoped>
@@ -405,7 +638,9 @@ onBeforeUnmount(() => {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 400px; /* 明确设置图表高度 */
+  height: 252px;
+  left: 1%;
+  /*height: 400px; !* 明确设置图表高度 *!*/
 }
 
 .chart {
@@ -415,8 +650,8 @@ onBeforeUnmount(() => {
 
 .population-chart-container {
   width: 100%;
-  height: 100%; /* 确保人口图表占满容器 */
-  margin-top: -7px;
+  height: 90%; /* 确保人口图表占满容器 */
+  margin-top: 0x;
 }
 
 /* 标题样式 */
@@ -475,7 +710,7 @@ onBeforeUnmount(() => {
 }
 /* 3. 没有数据时的显示样式 */
 .no-data {
-  margin-top: -80px;
+  margin-top: -7px;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -2,19 +2,19 @@
   <div class="casualtyStatistic">
     <div>
       <span class="sub-title-new">伤亡详情：</span>
-      <span class="title-time">{{timestampToTime(currentTime)}}</span>
+      <span class="time">{{timestampToTime(currentTime)}}</span>
       <div class="sub-main">
-        <!--      <div width="">-->
+
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-          <el-table-column prop="address" label="位置" width="67" align="center"></el-table-column>
-          <el-table-column prop="死亡" label="死亡" width="56" align="center"
+          <el-table-column prop="address" label="位置" width="59" align="center"></el-table-column>
+          <el-table-column prop="死亡" label="死亡" width="48" align="center"
                            :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="失踪" label="失踪" width="56" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="危重伤" label="危重伤" width="65" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="失踪" label="失踪" width="48" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="危重伤" label="危重伤" width="59" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="重伤" label="重伤" width="48" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="轻伤" label="轻伤" width="50" :formatter="formatPeople"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -99,8 +99,8 @@ export default {
     watch(
         () => props.currentTime,
         (val) => {
-          console.log("currentTimeupodate statistic:", val);
-          console.log(isDataReady, "isDataReady")
+          // console.log("currentTimeupodate statistic:", val);
+          // console.log(isDataReady, "isDataReady")
           if (!isDataReady.value) {
             getRescueActionCasualtiesPlotAndInfo(props.pointsLayer);
           }
@@ -192,7 +192,7 @@ export default {
           shifdata.push(item)
         }
       })
-      console.log(shifdata, "shifdata"); // 查看筛选结果
+      // console.log(shifdata, "shifdata"); // 查看筛选结果
 
       shifdata.forEach(pointdata => {
         let plotId = pointdata.plotInfo.plotId
@@ -372,7 +372,7 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-        'font-size': '12px'
+        'font-size': '11px'
       }
     }
 
@@ -387,7 +387,7 @@ export default {
           'color': '#fff',
           'padding': '0',
           'text-align': 'center',
-          'font-size': '12px'
+          'font-size': '11px'
         }
       } else {
         return {
@@ -398,7 +398,7 @@ export default {
           'color': '#fff',
           'padding': '0',
           'text-align': 'center',
-          'font-size': '12px'
+          'font-size': '11px'
         }
       }
     }
@@ -434,9 +434,9 @@ export default {
   overflow-y: auto;
   overflow-x: hidden;
   position: absolute;
-  top: 34.5%;
-  width: 25%;
-  height: 21%;
+  top: 20%;
+  width: 100%;
+  height: 36%;
   padding: 10px;
   border-radius: 5px;
   left: 1%;
@@ -447,21 +447,6 @@ export default {
   color: #FFFFFF;
 }
 
-.list-dialog .list-dialog__header {
-  height: 41px;
-  width: 100%;
-  line-height: 41px;
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 500;
-  border-radius: 4px 4px 0 0;
-  padding: 0 5px 0 10px;
-  position: relative;
-  top: 0;
-  left: 0;
-  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
-  background-size: 100% 100%;
-}
 
 :deep(.el-table__header-wrapper) {
   background-color: rgb(25, 56, 77);
@@ -483,13 +468,10 @@ export default {
   border: none !important; /* 取消边框 */
 }
 
-:deep(.el-collapse-item ) {
-}
-
 :deep(.el-checkbox__label ) {
   background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   color: white; /* 内容文字颜色 */
-  font-size: 14px; /* 内容字号 */
+  font-size: 12px; /* 内容字号 */
   padding: 10px; /* 内容内边距 */
 }
 
@@ -531,25 +513,14 @@ export default {
   position: relative;
 }
 
-.sub-title-new:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.title-time{
+
+.time{
+  right: 1%;
+  position: absolute;
   font-size: 0.9rem;
   font-weight: normal;
-  color: #ffeb00;
-  line-height: 1.8rem;
-  top: -8px;
-  position: relative;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffffff;
 }
 
 </style>

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-
+import dayjs from 'dayjs'; // 使用 dayjs 进行日期格式化
 
 /**
  * 余震数量统计
@@ -11,6 +11,18 @@ export function getAftershockMagnitude(eqid) {
         url: '/system/getLatestAftershockMagnitude',
         method: 'get',
         params: {eqid: eqid}
+    });
+}
+
+export function fromAftershock(eqid, time) {
+
+    // 格式化用户输入的时间
+    const formattedTime = dayjs(time).format('YYYY-MM-DDTHH:mm:ss');
+
+    return request({
+        url: '/system/fromAftershock', // 后端接口地址
+        method: 'get',
+        params: { eqid, time: formattedTime } // 传递参数
     });
 }
 

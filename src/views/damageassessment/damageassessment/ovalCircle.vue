@@ -34,7 +34,7 @@
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
-            发震时刻：{{ eq.occurrenceTime }}<br/>
+            发震时刻：{{ this.timestampToTime(eq.occurrenceTime, "fullDateTime") }}<br/>
             参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米
@@ -74,7 +74,7 @@
             <div style="padding: 1px 20px 10px 20px">
               <!-- 显示选项卡内容 -->
               <h4>地震名称：{{ selectedTabData.earthquakeName }} {{ selectedTabData.magnitude }}级地震</h4>
-              <p>发震时刻：{{ selectedTabData.occurrenceTime }}</p>
+              <p>发震时刻：{{ this.timestampToTime(selectedTabData.occurrenceTime, "fullDateTime") }}</p>
               <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
               <p>地震震级：{{ selectedTabData.magnitude }}</p>
               <p>震源深度：{{ selectedTabData.depth }}千米</p>
@@ -1088,8 +1088,6 @@ export default {
           id: this.selectedTabData.id
         });
 
-
-
         // 渲染 selectedEqPoint
         // console.log("Selected Eq Point:", this.selectedEqPoint);
       } else {
@@ -1149,6 +1147,8 @@ export default {
       if (format === "date") {
         // 返回仅日期格式
         return `${year}年${month}月${day}日`;
+      } else if (format === "fullDateTime") {
+        return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
       } else {
         // 返回完整的日期时间格式
         return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;

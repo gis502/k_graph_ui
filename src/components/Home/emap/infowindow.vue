@@ -83,10 +83,15 @@ $tooltip-text-color: #00a1ff;
 $closeColor: #ff4c4c;
 
 .infowindowClass {
-  position: relative;
+  position: absolute;
   width: 340px;
   padding: 20px;
   background-color: $tooltip-background;
+  //background-image: url('@/assets/home/弹窗2.png'); /* 添加背景图 */
+  //background-size: contain; /* 保证图片完全显示且不被裁剪 */
+  //background-position: center; /* 保证图片居中 */
+  //background-repeat: no-repeat; /* 防止背景图重复 */
+
   color: $tooltip-text-color;
   border-radius: 10px;
   border: 2px solid $tooltip-border-color;

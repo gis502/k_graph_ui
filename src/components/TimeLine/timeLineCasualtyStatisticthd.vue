@@ -1,26 +1,26 @@
 <template>
-  <div class="casualtyStatistic">
-    <div>
-      <span class="sub-title-new">伤亡详情：</span>
-      <span class="title-time">{{timestampToTime(currentTime)}}</span>
+  <div class="pop">
+    <div class="pop_header">
+      <span class="pop_title">伤亡详情</span>
+      <span class="title-time">{{ timestampToTime(currentTime) }}</span>
+
       <div class="sub-main">
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="flyTo">
-            <el-table-column prop="address" label="位置" width="88" align="center"></el-table-column>
-            <el-table-column prop="死亡" label="死亡" width="60" align="center"
-                             :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
-            <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
+          <el-table-column prop="死亡" label="死亡" width="60" align="center"
+                           :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
+          <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
         </el-table>
-</div>
       </div>
     </div>
+  </div>
 
 </template>
-
 <script>
 import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
@@ -43,10 +43,6 @@ export default {
       type: String,
       default: ''
     },
-    // component:{
-    //   type: String,
-    //   default: "1"
-    // }
   },
   setup(props) {
     const isDataReady = ref(false);
@@ -84,10 +80,6 @@ export default {
     watch(
         () => props.zoomLevel,
         (val) => {
-          // if (isDataReady.value) {
-          //   console.log("zoomLevel:", val);
-          //   showStatisticInfo(val)
-          // }
           if (!isDataReady.value) {
             getRescueActionCasualtiesPlotAndInfo(props.pointsLayer);
           }
@@ -111,16 +103,7 @@ export default {
           immediate: true
         }
     );
-    // watch(
-    //     () => props.component,
-    //     (val) => {
-    //       props.component=val
-    //
-    //     },
-    //     {
-    //       immediate: true
-    //     }
-    // );
+
     function formatPeople(row, column, value) {
       return value + '人';
     }
@@ -141,7 +124,7 @@ export default {
       const filteredPoints = pointsLayer
           .filter(data => ["死亡人员", "危重伤人员", "重伤人员", "轻伤人员"].includes(data.plotType))
       ;
-      console.log(filteredPoints, 'filteredPoints')
+      // console.log(filteredPoints, 'filteredPoints')
       const locationDataArray = await Promise.all(filteredPoints.map(async data => {
         const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
 
@@ -153,10 +136,10 @@ export default {
           return null;
         }
       }));
-      console.log(locationDataArray, 'locationDataArray')
+      // console.log(locationDataArray, 'locationDataArray')
       const validLocationData = locationDataArray.filter(item => item !== null);
       resInfo.value = []
-      console.log("resInfo.value000", resInfo.value)
+      // console.log("resInfo.value000", resInfo.value)
       await Promise.all(validLocationData.map(async data => {
 
         const {locationInfo, plotId, plotType, longitude, latitude, startTime, endTime} = data;
@@ -164,7 +147,7 @@ export default {
         resInfo.value.push({...await getPlotInfos({plotId, plotType}), locationInfo: locationInfo});
       }));
 
-      console.log("resInfo.value111", resInfo.value)
+      // console.log("resInfo.value111", resInfo.value)
       isDataReady.value = true;
       updateTime(props.currentTime)
     }
@@ -191,7 +174,7 @@ export default {
           shifdata.push(item)
         }
       })
-      console.log(shifdata, "shifdata"); // 查看筛选结果
+      // console.log(shifdata, "shifdata"); // 查看筛选结果
 
       shifdata.forEach(pointdata => {
         let plotId = pointdata.plotInfo.plotId
@@ -214,7 +197,7 @@ export default {
           });
         });
       })
-      console.log("groupedEntities", groupedEntities)
+      // console.log("groupedEntities", groupedEntities)
       const processStats = (entities) => {
         entities.forEach(group => {
           // console.log(group,"group")
@@ -240,7 +223,7 @@ export default {
     }
 
     function showStatisticInfo(zoomLevel) {
-      console.log("showStatisticInfo", zoomLevel)
+      // console.log("showStatisticInfo", zoomLevel)
       switch (zoomLevel) {
         case '市':
           pushStatisticInfo(groupedEntities.cityEntities, 200000)
@@ -262,7 +245,7 @@ export default {
 
 
     function pushStatisticInfo(entitys, height) {
-      console.log("pushStatisticInfo", entitys, height)
+      // console.log("pushStatisticInfo", entitys, height)
       statisticInfo.value = []
       entitys.forEach(entity => {
         let casualtyStatsTemplate = {
@@ -296,7 +279,7 @@ export default {
           return acc;
         }, {});
         statisticInfo.value.push(one)
-        console.log(statisticInfo, "statisticInfo")
+        // console.log(statisticInfo, "statisticInfo")
       })
     }
 
@@ -318,7 +301,7 @@ export default {
     }
 
     function flyTo(row, column, cell, event) {
-      console.log(row)
+      // console.log(row)
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(row.longitude),
@@ -371,7 +354,7 @@ export default {
         'color': '#fff',
         'padding': '0',
         'text-align': 'center',
-        'font-size': '14px'
+        'font-size': '12px'
       }
     }
 
@@ -386,7 +369,7 @@ export default {
           'color': '#fff',
           'padding': '1',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '12px'
         }
       } else {
         return {
@@ -397,20 +380,29 @@ export default {
           'color': '#fff',
           'padding': '1',
           'text-align': 'center',
-          'font-size': '14px'
+          'font-size': '12px'
         }
       }
     }
+
     function timestampToTime(timestamp) {
-      const DateObj = new Date(timestamp);
-      const year = DateObj.getFullYear();
-      const month = (DateObj.getMonth() + 1).toString().padStart(2, '0');
-      const day = DateObj.getDate().toString().padStart(2, '0');
-      const hh = DateObj.getHours().toString().padStart(2, '0');
-      const mm = DateObj.getMinutes().toString().padStart(2, '0');
-      const ss = DateObj.getSeconds().toString().padStart(2, '0');
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     }
+
     return {
       entityGroups,
       toggleEntities,
@@ -420,7 +412,7 @@ export default {
       formatPeople,
       tableHeaderColor,
       tableColor,
-     timestampToTime
+      timestampToTime
     };
   }
 }
@@ -428,21 +420,40 @@ export default {
 </script>
 
 <style scoped>
-.casualtyStatistic {
-  overflow-y: auto;
-  overflow-x: hidden;
+.pop {
   position: absolute;
-  top: 34.5%;
-  width: 25%;
-  height: 21%;
-  padding: 10px;
-  border-radius: 5px;
-  left: 1%;
-  z-index: 40;
-  background-color: rgb(22, 53, 77, 0.9);
-  backdrop-filter: none !important;
-  border: 1px solid #008aff70;
+  top: 19.5%;
+  width: 100%;
+
+  z-index: 20;
+}
+
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.pop_title {
   color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 550;
+  top: 15%;
+  position: relative;
+  left: 7%;
+}
+
+.title-time {
+  right: 1%;
+  position: absolute;
+  top: 16%;
+  font-size: 0.9rem;
+  font-weight: normal;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffffff;
 }
 
 .list-dialog .list-dialog__header {
@@ -461,7 +472,14 @@ export default {
   background-size: 100% 100%;
 }
 
-:deep(.el-table__header-wrapper){
+.sub-main {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+:deep(.el-table__header-wrapper) {
   background-color: rgb(25, 56, 77);
 }
 
@@ -474,6 +492,8 @@ export default {
 
 /* 设置“图层要素”样式 */
 :deep(.collapse ) {
+  overflow-y: auto;
+  overflow-x: hidden;
   font-size: 16px; /* 标题字号 */
   font-weight: bold; /* 标题加粗 */
   color: white; /* 标题文字颜色 */
@@ -519,34 +539,6 @@ export default {
   bottom: 41px;
   width: 398px !important;
   height: 310px !important;
-}
-
-.sub-title-new {
-  color: #FFFFFF;
-  font-size: 1.1rem;
-  font-weight: 550;
-  top:-9px;
-  position: relative;
-}
-.sub-title-new:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-.title-time{
-  font-size: 0.9rem;
-  font-weight: normal;
-  color: #ffeb00;
-  line-height: 1.8rem;
-  top: -8px;
-  position: relative;
 }
 
 

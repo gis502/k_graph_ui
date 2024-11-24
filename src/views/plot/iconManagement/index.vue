@@ -138,8 +138,14 @@
               </el-icon>
               <template #file="{ file }">
                 <!--              <div slot="file" slot-scope="{file}">-->
-                <!--              <img class="el-upload-list__item-thumbnail" :src="'http://localhost:8080/PlotsPic/' +file.url+ '.png?t=' + new Date().getTime()">-->
-                <img class="el-upload-list__item-thumbnail" :src="file.url">
+                <img
+                    class="el-upload-list__item-thumbnail"
+                    :src="
+          file.url.startsWith('blob:')
+        ? file.url
+        : 'http://localhost:8080/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
+      "
+                >
                 <span class="el-upload-list__item-actions">
                   <span class="el-upload-list__item-delete" @click="deleteUnloadPic">
                     <el-icon><Delete/></el-icon>
@@ -513,6 +519,8 @@ export default {
     resetQuery() {
       this.queryParams.menuName = ''
       this.getList();
+      // this.getPlotPicture();
+      // this.queryParams.menuName = ''
       // this.getPlotPicture();
       // this.handleQuery();
     },

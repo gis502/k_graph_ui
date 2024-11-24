@@ -32,7 +32,7 @@
         <template #default="{ row }">
           <!-- 特定字段处理：例如 startTime 为 null 或 '1970-01-01' 时为空 -->
           <div v-if="header.prop === 'startTime'">
-            {{ row.startTime && row.startTime !== '1970-01-01 08:00:00' ? row.startTime : '' }}
+            {{ row.startTime && row.startTime !== '1970年01月01日 08:00:00' ? row.startTime : '' }}
           </div>
 
           <!-- 其他字段直接显示 -->
@@ -153,7 +153,7 @@
                   v-model="dialogContent.startTime"
                   type="datetime"
                   placeholder="选择日期时间"
-                  value-format="x"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
                   size="large"
                   @change="handleStartDateChange"
               ></el-date-picker>
@@ -256,7 +256,7 @@ export default {
         { prop: 'longitude', label: '经度（度分）', width: 120 },
         { prop: 'latitude', label: '纬度（度分）', width: 120 },
         { prop: 'remarks', label: '备注', width: 300 },
-        { prop: 'startTime', label: '投入使用时间', width: 140 },
+        { prop: 'startTime', label: '投入使用时间', width: 300 },
         { prop: 'description', label: '基本情况', width: 150 },
         { prop: 'seismicIntensity', label: '地震烈度（度）', width: 150 },
         { prop: 'shelterTypeName', label: '场所类型名称', width: 120 },
@@ -445,17 +445,16 @@ export default {
         };
       });
       sheltersList().then(res => {
-        this.sheltersData = res
-        this.total = res.length
-        let data = []
-        for (let i = 0; i < res.length; i++) {
-          let item = res[i]
-          item.startTime = this.timestampToTime(item.startTime)
-          data.push(item)
-        }
+        this.sheltersData = res.map(item => {
+          return {
+            ...item,
+            startTime: this.timestampToTime(item.startTime) // 格式化 startTime
+          };
+        });
+        this.total = res.length;
+        this.tableData = this.getPageArr(); // 更新分页数据
+      });
 
-        this.tableData = this.getPageArr() // 这里不传参数，默认使用 this.sheltersData
-      })
     },
     handleOpen(feature, row) {
       this.dialogShow = true; // 确保 dialogShow 设置为 true 以显示弹窗
@@ -623,16 +622,17 @@ export default {
 
     // 将时间戳转为 ISO 格式
     formatDateToISOString(timestamp) {
-      return timestamp ? new Date(timestamp).toISOString() : null;
+      if (!timestamp) return null; // 如果时间戳为空，返回 null
+      const date = new Date(timestamp);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
     },
 
-// 时间戳转为可显示的日期格式
-    timestampToTime(timestamp) {
-      if (!timestamp) return ''; // 如果时间戳为空，则返回空字符串
-      const date = new Date(timestamp);
-      return date.toLocaleString();  // 返回本地化的日期时间字符串
-    }
-    ,
 
 
     // 关闭dialog对话框
@@ -726,29 +726,29 @@ export default {
         }
       }
     },
-    // timestampToTime(timestamp) {
-    //   // console.log("转换前的时间戳:", timestamp);
-    //   let DateObj = new Date(timestamp)
-    //   if (isNaN(DateObj.getTime())) {
-    //     console.error("无效的时间戳:", timestamp);
-    //     return "";
-    //   }
-    //   // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-    //   let year = DateObj.getFullYear()
-    //   let month = DateObj.getMonth() + 1
-    //   let day = DateObj.getDate()
-    //   let hh = DateObj.getHours()
-    //   let mm = DateObj.getMinutes()
-    //   let ss = DateObj.getSeconds()
-    //   month = month > 9 ? month : '0' + month
-    //   day = day > 9 ? day : '0' + day
-    //   hh = hh > 9 ? hh : '0' + hh
-    //   mm = mm > 9 ? mm : '0' + mm
-    //   ss = ss > 9 ? ss : '0' + ss
-    //
-    //   // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-    //   return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    // },
+    timestampToTime(timestamp) {
+      // console.log("转换前的时间戳:", timestamp);
+      let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
 
 
   }
