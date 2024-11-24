@@ -65,7 +65,8 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()" width="17%" height="43.3px">
+              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
+                   width="17%" height="43.3px">
             </el-tooltip>
           </span>
             <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
@@ -213,7 +214,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
+    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -485,6 +486,7 @@ export default {
     this.getEq()
     // 获取标绘图片
     this.getPlotPicture()
+    this.initTree()
   },
   beforeUnmount() {
     console.log("111", window.viewer)
@@ -505,7 +507,7 @@ export default {
 
   watch: {
     isLoaded(val) {
-      if(val && this.downloadConfirmed) {
+      if (val && this.downloadConfirmed) {
         this.downloadExcel()
       }
     }
@@ -515,6 +517,21 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
+    initTree() {
+      const highestAndSecondLabels = [];
+      this.copiedPlotTreeData = this.plotTreeData
+      this.copiedPlotTreeData.forEach(item => {
+        // 添加最高级label
+        highestAndSecondLabels.push(item.label);
+        // 添加每个子项的label
+        if (item.children) {
+          item.children.forEach(child => {
+            highestAndSecondLabels.push(child.label);
+          });
+        }
+      });
+    },
 
     downloadExcel() {
       const plotBTO = {
@@ -869,6 +886,7 @@ export default {
       this.isLoaded = false
       this.loading = false
 
+      console.log(this.$refs.tree)
       // 逐个取消勾选
       this.$refs.tree.setCheckedNodes([])
     },
@@ -2877,7 +2895,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
