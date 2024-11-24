@@ -133,7 +133,6 @@ export default {
         else {
           this.showNewPanel = true
           this.responseNewPanelShow = []
-
           // 到目前为止所有
           activities.forEach(item => {
             if (!this.existsInresponseHistory(item)) {
@@ -219,9 +218,7 @@ export default {
   width: 100%; /* 调整宽度 */
   height: 19%;
   z-index: 20; /* 提高层级 */
-
 }
-
 .pop_header {
   top: -10%;
   height: 3.8vh;
@@ -297,7 +294,6 @@ export default {
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
-
 .new-panel {
   position: absolute;
   top: 8%;

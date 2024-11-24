@@ -32,10 +32,21 @@
           />
         </el-select>
       </el-col>
+      <el-col :span="1.5">
+        <el-date-picker
+            v-model="inputValue"
+            type="datetime"
+            placeholder="请选择查询时间"
+            style="width: 240px; height: 40px"
+        />
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="primary" @click="handleClick">查询</el-button>
+      </el-col>
       <!-- 动态组件显示 -->
     </el-row>
     <div class="container-center">
-      <component :is="selectedComponent" :newEqId="newEqId" />
+      <component :is="selectedComponent" :newEqId="newEqId" :userInput="userInput"/>
     </div>
   </div>
 </template>
@@ -53,6 +64,21 @@ import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster
 import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
 import MaterialDonation from "@/components/DisasterStatistics/MaterialDonation.vue"
 import PublicSentiment from "@/components/DisasterStatistics/PublicSentiment.vue"
+import WorkGroupLog from "@/components/DisasterStatistics/WorkGroupLog.vue"
+
+
+// 查询时间功能
+const inputValue = ref('')
+const userInput = ref('')
+
+const handleClick = () => {
+  userInput.value = inputValue.value;
+  inputValue.value = '';
+}
+
+
+// -------------------------------------------------------------------------------------------------------
+
 
 // 选项数据
 const options = [
@@ -63,6 +89,7 @@ const options = [
   {label: '力量物资信息可视化',value: 'ResourceStrength'},
   {label: '资金及物资捐赠可视化', value: 'MaterialDonation'},
   {label: '宣传舆情信息可视化',value: 'PublicSentiment'},
+  {label: '工作组每日工作动态可视化',value: 'WorkGroupLog'},
 ]
 
 // 当前选择的组件标识符
@@ -77,6 +104,7 @@ const components = {
   ResourceStrength,
   MaterialDonation,
   PublicSentiment,
+  WorkGroupLog
 }
 
 // 动态获取选定的组件
@@ -127,7 +155,6 @@ import {useGlobalStore} from "../../../store";
 const newEqId = computed(() => eqlistName.value);
 const store = useGlobalStore();
 watch([() => eqlistName.value,() => selectedComponentKey.value], (newValue) => {
-  console.log(newValue,123)
   store.setGlobalVariable(newValue[0]); // 更新全局的eqid
   store.setGlobalChange(newValue[1]); // 更新全局的模块变化标识
 });
@@ -155,9 +182,25 @@ const getTableField = () => {
     // 模拟异步请求后赋值给 FieldName
   })
 }
-//获取地震列表
+
+// 时间处理为年 月 日 格式
+const formatDate = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+// 获取地震列表
 const getEarthquake = () => {
   getExcelUploadEarthquake().then(res => {
+
     eqlists.value = res
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
@@ -167,9 +210,13 @@ const getEarthquake = () => {
           const eqid = file.split(' - ')[0]?.trim();
           const details = file.split(' - ')[1]?.trim();
 
+          // 对时间进行处理：
+          const time = formatDate(details.split(' ')[0] +' ' +details.split(' ')[1]);
+          const newDetails = `${time}`+ ' ' +details.split(' ')[2] + ' ' + details.split(' ')[3] + details.split(' ')[4];
+
           // 提取 `-` 后面的部分
           return {
-            label: details, // 使用提取的部分作为标签
+            label: newDetails, // 使用提取的部分作为标签
             value: eqid// 选择值为 ID
           }
         }
@@ -259,5 +306,12 @@ const clearSelection = () => {
   overflow-y: auto;
 }
 
+.el-button{
+  text-align: center;
+  line-height: 40px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 1000;
+}
 </style>
 

@@ -455,13 +455,15 @@ export default {
       console.log("eqData", eqData)
       let data = {
         tableName: `${this.timestampToTimeChinese(eqData.occurrenceTime, 'date')}${eqData.earthquakeName} ${eqData.magnitude}级地震`,
-        historyEqTime: this.timestampToTimeChinese(eqData.occurrenceTime),
+        historyEqTime: this.timestampToTimeChinese(eqData.occurrenceTime.replace("T", " ")),
         earthquakeName: eqData.earthquakeName,
         lat: Number(eqData.latitude).toFixed(2),
         lon: Number(eqData.longitude).toFixed(2),
         magnitude: Number(eqData.magnitude).toFixed(1),
       }
       that.earthquakeInfo = data
+      console.log("更新", that.earthquakeInfo)
+
     },
     // 删除标注
     deletePoint(bool, id) {
@@ -565,7 +567,6 @@ export default {
 }
 
 .cell-item {
-
   width: 100%;
   text-align: center;
   white-space: nowrap; /* 避免换行 */
@@ -595,10 +596,14 @@ export default {
   margin-bottom: 5px;
 }
 
+.box-card {
+  margin-bottom: 5px;
+  font-size: 25px;
+}
 
 .videoMonitorWin {
   position: absolute;
-  width: 1000px;
+  width: 800px;
   padding: 20px;
   z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
@@ -644,7 +649,6 @@ export default {
 .el-descriptions__label {
   font-weight: 550;
 }
-
 
 .clearfix {
   font-size: 1.1rem;

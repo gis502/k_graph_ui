@@ -7,13 +7,43 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getSecondaryDisaster} from "../../api/system/mountainFlood";
+import {fromSecondaryDisasterInfo, getSecondaryDisaster} from "../../api/system/mountainFlood";
 const props = defineProps({
-  eqid: {
+  eqid:{
     type: String,
-    required: true,
+    required: true
   },
+  userInput:{
+    type:[String,Date],
+    required: true
+  }
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+  // 后端逻辑处理：
+  fromSecondaryDisasterInfo(store.globalEqId,newValue).then(res => {
+    console.log("山洪危险区情况",res)
+    update(res.data)
+  })
+})
+// --------------------------------------------------------------------------------------------------------
 const eqid = ref('');
 const latestTime = ref('') // 时间
 const affectedArea = ref(["抱歉暂无数据"]) //地点
@@ -71,6 +101,8 @@ function update(data){
     latestTime.value = data.reduce((max, item) => {
       return new Date(formatDate(max)) > new Date(formatDate(item.reportingDeadline)) ? formatDate(max) : formatDate(item.reportingDeadline);
     }, formatDate(data[0].reportingDeadline)); // 确保初始值
+
+    latestTime.value =formatDateChina(latestTime.value)
   }
 
 

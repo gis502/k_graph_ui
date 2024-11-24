@@ -5,8 +5,9 @@
 <script setup>
 import * as echarts from "echarts";
 import {defineProps, onBeforeUnmount, onMounted, ref, watch} from "vue";
-import {getHousingSituationList} from "../../api/system/housingSituation";
+import {fromHousingSituation, getHousingSituationList} from "../../api/system/housingSituation";
 import {useGlobalStore} from "../../store";
+
 
 
 const chart = ref(null);
@@ -14,11 +15,41 @@ const FieldName = ref(['目前受损（个）','目前禁用（个）','目前�
 let echartsInstance = null; // 全局变量
 const eqid = ref('');
 const props = defineProps({
-  eqid: {
+  eqid:{
     type: String,
-    required: true,
+    required: true
   },
+  userInput:{
+    type:[String, Date],
+    required: true
+  }
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+  // 后端逻辑处理：
+  fromHousingSituation(store.globalEqId,newValue).then(res => {
+    console.log("房屋损毁情况",res)
+    update(res.data)
+  })
+})
+// --------------------------------------------------------------------------------------------------------
 const currentlyDamaged = ref([]) // 目前受损
 const currentlyDisabled = ref([]) // 目前禁用
 const currentlyRestricted = ref([]) // 目前限用
@@ -30,8 +61,6 @@ const store = useGlobalStore()
 
 setTimeout(()=>{
   getHousingSituationList(store.globalEqId).then(res => {
-
-    console.log('jiwdjwjdjwdjjwdidjiwjdjwidjiwjd',res)
     update(res)
   });
 },500)
@@ -50,11 +79,13 @@ function update(data){
   } else {
     affectedAreaName.value = data.map(item => item.affectedAreaName || '无数据');
     currentlyDamaged.value = data.map(item => item.currentlyDamaged || 0);
-    currentlyDisabled.value = data.map(item => item.currentlyDisabled || 0);
+    currentlyDisabled.value = data.map(item    => item.currentlyDisabled || 0);
     currentlyRestricted.value = data.map(item => item.currentlyRestricted || 0);
     currentlyAvailable.value = data.map(item => item.currentlyAvailable || 0);
     latestTime.value = data.map(item => formatDate(item.submissionDeadline) || '抱歉暂无数据');
     latestTimes.value = data.map(item => item.submissionDeadline || '抱歉暂无数据');
+
+    latestTime.value = latestTime.value.map(item => formatDateChina(item))
   }
 
   echartsInstance.setOption({

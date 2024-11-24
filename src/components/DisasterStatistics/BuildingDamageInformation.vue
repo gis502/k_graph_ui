@@ -2,13 +2,13 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">保障安置点供水统计<br>
-        <EnsureWaterSupplyResettlementSites :eqid="eqid"/>
+        <EnsureWaterSupplyResettlementSites :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">集中供水工程受损统计<br>
-        <ConcentratedWaterSupplyProjectDamage :eqid="eqid"/>
+        <ConcentratedWaterSupplyProjectDamage :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">房屋损毁情况<br/>
-        <StatusOfHousingDamage :eqid="eqid"/>
+        <StatusOfHousingDamage :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
     </div>
   </div>
@@ -18,15 +18,26 @@
 import ConcentratedWaterSupplyProjectDamage from "@/components/DisasterStatistics/ConcentratedWaterSupplyProjectDamage.vue";
 import EnsureWaterSupplyResettlementSites from "@/components/DisasterStatistics/EnsureWaterSupplyResettlementSites.vue";
 import StatusOfHousingDamage from "@/components/DisasterStatistics/StatusOfHousingDamage.vue";
-import { ref, watch } from "vue";
+import {defineProps, ref, watch} from "vue";
 
 // 获取父组件的 eqid
+const userInputTime = ref('')
+// 获取父组件的 eqid
 const props = defineProps({
-  newEqId: {
+  newEqId:{
     type: String,
+    required: true
+  },
+  userInput:{
+    type:[String, Date],
     required: true
   }
 });
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+})
+
 
 // 响应式变量
 const eqid = ref('');

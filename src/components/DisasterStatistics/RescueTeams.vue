@@ -7,13 +7,44 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getRescueForces} from "../../api/system/rescueTeams";
+import {fromRescueForces, getRescueForces} from "../../api/system/rescueTeams";
+import {fromLargeSpecialRescueEquipment} from "../../api/system/rescueEquipment";
 const props = defineProps({
-  eqid: {
+  eqid:{
     type: String,
-    required: true,
+    required: true
   },
+  userInput:{
+    type:[String,Date],
+    required: true
+  }
 });
+
+// 时间查询功能
+const formatDateChina = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+const userInputTime = ref('')
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+  // 后端逻辑处理：
+  fromRescueForces(store.globalEqId,newValue).then(res => {
+    console.log("救援力量情况",res)
+    update(res.data)
+  })
+})
+// --------------------------------------------------------------------------------------------------------
 const eqid = ref('');
 const plaCount = ref([]) // 解放军数量
 const armedPoliceCount = ref([]) // 武警数量
@@ -116,6 +147,8 @@ function update(data){
     latestTime.value = data.reduce((max,item)=> {
       return formatDate(max) > formatDate(item.submissionDeadline) ? formatDate(max) : formatDate(item.submissionDeadline)
     },formatDate(data[0].submissionDeadline))
+
+    latestTime.value = formatDateChina(latestTime.value)
 
     xName.value = data.map(item => item.earthquakeAreaName || '抱歉暂无数据')
 
