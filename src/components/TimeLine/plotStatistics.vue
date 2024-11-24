@@ -51,11 +51,11 @@ export default {
       this.updateTimeStatistic();
     },
     zoomLevel(newVal) {
-      console.log("zoomLevel watch",newVal)
-      if(!this.isDataReady){
-        this.getRescueActionCasualtiesPlotAndInfo(newVal);
-      }
-      this.showZoomStatistic()
+      // console.log("zoomLevel watch",newVal)
+      // if(!this.isDataReady){
+      //   this.getRescueActionCasualtiesPlotAndInfo(newVal);
+      // }
+      // this.showZoomStatistic()
     },
     viewCenterCoordinate(newVal){
       // console.log("viewCenterCoordinate watch",newVal)
@@ -329,45 +329,45 @@ export default {
       const originalArray = Array.from(this.dataIntime);
 
       // console.log(this.viewCenterCoordinate,originalArray,"originalArray")
-      if(!this.viewCenterCoordinate.lon){
-        this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
-        this.centerPosionName='雅安市'
-        console.log(this.centerPosionName,"this.centerPosionName")
-      }
-      else{
-        let viewCenterLocation=await this.getReverseGeocode(this.viewCenterCoordinate.lon,this.viewCenterCoordinate.lat)
+      // if(!this.viewCenterCoordinate.lon){
+      //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
+      //   this.centerPosionName='雅安市'
+      //   console.log(this.centerPosionName,"this.centerPosionName")
+      // }
+      // else{
+      //   let viewCenterLocation=await this.getReverseGeocode(this.viewCenterCoordinate.lon,this.viewCenterCoordinate.lat)
 
-        switch (this.zoomLevel) {
-          case '市':
+        // switch (this.zoomLevel) {
+        //   case '市':
+        //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
+        //     this.centerPosionName='雅安市'
+        //     console.log(this.centerPosionName,"this.centerPosionName")
+        //     break;
+        //   case '区/县':
+        //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.county ===viewCenterLocation.county);
+        //     this.centerPosionName=viewCenterLocation.county
+        //     console.log(this.centerPosionName,"this.centerPosionName")
+        //     break;
+        //   case '乡/镇':
+        //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.town === viewCenterLocation.town);
+        //     this.centerPosionName=viewCenterLocation.town
+        //     console.log(this.centerPosionName,"this.centerPosionName")
+        //     break;
+        //     // case '村':
+        //     //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.address === viewCenterLocation.address);
+        //     //   this.centerPosionName=viewCenterLocation.address
+        //     //   break;
+        //   default:
             this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
             this.centerPosionName='雅安市'
             console.log(this.centerPosionName,"this.centerPosionName")
-            break;
-          case '区/县':
-            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.county ===viewCenterLocation.county);
-            this.centerPosionName=viewCenterLocation.county
-            console.log(this.centerPosionName,"this.centerPosionName")
-            break;
-          case '乡/镇':
-            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.town === viewCenterLocation.town);
-            this.centerPosionName=viewCenterLocation.town
-            console.log(this.centerPosionName,"this.centerPosionName")
-            break;
-            // case '村':
-            //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.address === viewCenterLocation.address);
-            //   this.centerPosionName=viewCenterLocation.address
-            //   break;
-          default:
-            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
-            this.centerPosionName='雅安市'
-            console.log(this.centerPosionName,"this.centerPosionName")
-            break;
-        }
+            // break;
+        // }
         // arr=originalArray.filter(data => data.locationInfo.city === '雅安市');
         // break;
         console.log(this.dataInTimeAndZoom,"arrinZoom")
 
-      }
+      // }
 
 
       let counts =  this.dataInTimeAndZoom.reduce((acc, obj) => {
