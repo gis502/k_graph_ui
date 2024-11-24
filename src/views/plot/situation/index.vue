@@ -898,6 +898,7 @@ export default {
       if (this.isLoaded) {
         this.downloadExcel()
       }
+      // console.log(this.sheet)
     },
 
     cancelDownload() {
