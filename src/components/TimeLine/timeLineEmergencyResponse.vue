@@ -41,6 +41,7 @@
 </template>
 
 <script>
+
 import { getEmergencyResponse } from "../../api/system/timeLine.js";
 
 export default {
@@ -155,7 +156,7 @@ export default {
         //显示的一个
         let tmp = activities[activities.length - 1];
         this.activity.time = this.timestampToTimeChina(tmp.responseTime);
-        this.recordTime = this.timestampToTime(tmp.responseTime);
+        this.recordTime = this.timestampToTimeChina(tmp.responseTime);
         this.activity.department = tmp.unit;
         this.activity.ResponseName = tmp.level;
         this.activity.state = tmp.status;

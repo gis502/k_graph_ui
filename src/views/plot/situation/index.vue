@@ -49,20 +49,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                size="small"
-                @click="plotAdj(scope.row)">查看
+                  size="small"
+                  @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next"
-          :total="total">
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next"
+            :total="total">
         </el-pagination>
 
       </el-form>
@@ -121,27 +121,27 @@
         @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolyline"
+          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolygon"
+          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-        :visible="popupVisible"
-        :position="popupPosition"
-        :popupData="popupData"
-        :ifedit="true"
-        @wsSendPoint="wsSendPoint"
-        @closePlotPop="closePlotPop"
+          :visible="popupVisible"
+          :position="popupPosition"
+          :popupData="popupData"
+          :ifedit="true"
+          @wsSendPoint="wsSendPoint"
+          @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-        :visible="dataSourcePopupVisible"
-        :position="dataSourcePopupPosition"
-        :popupData="dataSourcePopupData"
+          :visible="dataSourcePopupVisible"
+          :position="dataSourcePopupPosition"
+          :popupData="dataSourcePopupData"
       />
 
       <el-button type="primary" @click="exportCesiumTheme"
@@ -225,7 +225,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
+<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -254,7 +254,7 @@
           </div>
         </div>
         <div
-          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+            style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
           <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
           <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
           <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
@@ -520,7 +520,7 @@ export default {
 
   watch: {
     isLoaded(val) {
-      if (val && this.downloadConfirmed) {
+      if(val && this.downloadConfirmed) {
         this.downloadExcel()
       }
     }
@@ -537,7 +537,6 @@ export default {
         excelContent: this.excelContent
       };
 
-      console.log(plotBTO)
       // console.log("sheet:",sheet)
 
       downloadPlotExcel(plotBTO).then(res => {
@@ -871,7 +870,6 @@ export default {
           fields: fields
         };
       });
-      console.log(this.sheet)
       this.downloadConfirmed = true
 
       if (this.isLoaded) {
@@ -900,13 +898,8 @@ export default {
         const plotIds = this.plotList.map(plot => plot.plotId);
         const plotTypes = this.plotList.map(plot => plot.plotType);
 
-        console.log(111)
-        console.log(plotIds)
-        console.log(plotTypes)
-
         getExcelPlotInfo(plotIds, plotTypes).then(res => {
           console.log(res)
-          console.log(222)
 
           // 提取 excelContent
           const excelContent = res.filter(item => item.plotInfo).map(item => {
@@ -2285,8 +2278,7 @@ export default {
         labeldataSource.entities.removeAll()
       }
       if (window.labeldataSource) {
-        window.labeldataSource.entities.removeAll();
-        ; // 移除点
+        window.labeldataSource.entities.removeAll(); // 移除点
       }
       // console.log("剩余2：", window.pointDataSource.entities)
       Arrow.drawArr = []
@@ -2383,9 +2375,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          parseFloat(this.centerPoint.height || 0)
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -2878,8 +2870,8 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
     timestampToTimeChina(timestamp) {
       let DateObj = new Date(timestamp)
@@ -2901,7 +2893,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-          v = c == 'x' ? r : (r & 0x3 | 0x8);
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -3077,7 +3069,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 530px;
+  width: 590px;
   height: 310px;
   position: absolute;
   padding: 10px;
