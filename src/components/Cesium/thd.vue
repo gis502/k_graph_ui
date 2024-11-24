@@ -389,6 +389,9 @@
           <plotStatistics
               :plots="plots"
               :currentTime="currentTime"
+              :zoomLevel="zoomLevel"
+              :isTimerRunning="isTimerRunning"
+              :viewCenterCoordinate="viewCenterCoordinate"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
@@ -765,6 +768,21 @@ export default {
       viewer.camera.changed.addEventListener(() => {
         const cameraHeight = viewer.camera.positionCartographic.height
         this.updateZoomLevel(cameraHeight)
+
+        let centerResult = viewer.camera.pickEllipsoid(
+            new Cesium.Cartesian2(
+                viewer.canvas.clientWidth / 2,
+                viewer.canvas.clientHeight / 2,
+            ),
+        );
+        let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
+        let curLongitude = (curPosition.longitude * 180) / Math.PI;
+        let curLatitude = (curPosition.latitude * 180) / Math.PI;
+        this.viewCenterCoordinate={
+          lon:curLongitude,
+          lat:curLatitude
+        }
+
       })
       window.viewer = viewer
       Arrow.disable();
@@ -1843,10 +1861,13 @@ export default {
         this.zoomLevel = '市'
       } else if (cameraHeight > 70000) {
         this.zoomLevel = '区/县'
-      } else if (cameraHeight > 8000) {
+      }
+      // else if (cameraHeight > 8000) {
+          //   this.zoomLevel = '乡/镇'
+      // }
+      else {
+        // this.zoomLevel = '村'
         this.zoomLevel = '乡/镇'
-      } else {
-        this.zoomLevel = '村'
       }
     },
     //----------------------时间轴end

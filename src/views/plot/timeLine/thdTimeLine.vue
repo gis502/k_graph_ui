@@ -158,6 +158,8 @@
           :plots="plots"
           :currentTime="currentTime"
           :zoomLevel="zoomLevel"
+          :isTimerRunning="isTimerRunning"
+          :viewCenterCoordinate="viewCenterCoordinate"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
@@ -240,6 +242,7 @@ import layeredShowPlot from "@/components/Cesium/layeredShowPlot.vue";
 import * as echarts from "echarts";
 import html2canvas from "html2canvas";
 import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
+import axios from "axios";
 
 export default {
   components: {
@@ -427,6 +430,11 @@ export default {
       timelinePopupShowCenterStrart: true, //自动弹出的震中信息框标志
       intervalIdcolor: null,
       isfirst: false,  //控制应急响应面板的弹出框的
+
+      viewCenterCoordinate:{
+        lon:null,
+        lat:null
+      },//视角中心坐标
     };
   },
   created() {
@@ -484,7 +492,26 @@ export default {
       viewer.camera.changed.addEventListener(() => {
         const cameraHeight = viewer.camera.positionCartographic.height
         this.updateZoomLevel(cameraHeight)
+
+        let centerResult = viewer.camera.pickEllipsoid(
+            new Cesium.Cartesian2(
+                viewer.canvas.clientWidth / 2,
+                viewer.canvas.clientHeight / 2,
+            ),
+        );
+        let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
+        let curLongitude = (curPosition.longitude * 180) / Math.PI;
+        let curLatitude = (curPosition.latitude * 180) / Math.PI;
+        console.log(curLongitude,curLatitude,"curLongitude,curLatitude")
+        this.viewCenterCoordinate={
+          lon:curLongitude,
+          lat:curLatitude
+        }
+
+        // this.getReverseGeocode(curLongitude,curLatitude)
+
       })
+
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
@@ -1410,19 +1437,6 @@ export default {
         this.jumpTimes.push(item)
       })
     },
-    updateZoomLevel(cameraHeight) {
-      console.log("层级", cameraHeight)
-      // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
-        this.zoomLevel = '区/县'
-      } else if (cameraHeight > 8000) {
-        this.zoomLevel = '乡/镇'
-      } else {
-        this.zoomLevel = '村'
-      }
-    },
 
     //---------------------------------------------------------------------------------------------
 
@@ -1467,6 +1481,41 @@ export default {
       return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
 
+    //底图级别
+    updateZoomLevel(cameraHeight) {
+      console.log("层级", cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      }
+      // else if (cameraHeight > 8000) {
+      //   this.zoomLevel = '乡/镇'
+      // }
+      else {
+        // this.zoomLevel = '村'
+        this.zoomLevel = '乡/镇'
+      }
+    },
+    //底图中心点所属位置
+    // async getReverseGeocode(lon, lat) {
+    //   try {
+    //     const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+    //       params: {
+    //         postStr: JSON.stringify({lon, lat, ver: 1}),
+    //         type: 'geocode',
+    //         tk: '80eb284748e84ca6c70468c906f0c889'
+    //       }
+    //     });
+    //     // console.log(response.data.result.addressComponent,"response.data.result.addressComponent")
+    //     this.viewCentertown= response.data.result.addressComponent.town;
+    //   } catch (error) {
+    //     console.error("逆地理编码失败:", error);
+    //     this.viewCentertown=null;
+    //     // return null;
+    //   }
+    // },
     /**
      * 处理实体点击事件的弹窗显示逻辑
      */

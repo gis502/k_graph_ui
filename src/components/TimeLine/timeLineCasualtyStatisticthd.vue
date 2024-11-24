@@ -124,7 +124,7 @@ export default {
       const filteredPoints = pointsLayer
           .filter(data => ["死亡人员", "危重伤人员", "重伤人员", "轻伤人员"].includes(data.plotType))
       ;
-      console.log(filteredPoints, 'filteredPoints')
+      // console.log(filteredPoints, 'filteredPoints')
       const locationDataArray = await Promise.all(filteredPoints.map(async data => {
         const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
 
@@ -136,10 +136,10 @@ export default {
           return null;
         }
       }));
-      console.log(locationDataArray, 'locationDataArray')
+      // console.log(locationDataArray, 'locationDataArray')
       const validLocationData = locationDataArray.filter(item => item !== null);
       resInfo.value = []
-      console.log("resInfo.value000", resInfo.value)
+      // console.log("resInfo.value000", resInfo.value)
       await Promise.all(validLocationData.map(async data => {
 
         const {locationInfo, plotId, plotType, longitude, latitude, startTime, endTime} = data;
@@ -147,7 +147,7 @@ export default {
         resInfo.value.push({...await getPlotInfos({plotId, plotType}), locationInfo: locationInfo});
       }));
 
-      console.log("resInfo.value111", resInfo.value)
+      // console.log("resInfo.value111", resInfo.value)
       isDataReady.value = true;
       updateTime(props.currentTime)
     }
@@ -174,7 +174,7 @@ export default {
           shifdata.push(item)
         }
       })
-      console.log(shifdata, "shifdata"); // 查看筛选结果
+      // console.log(shifdata, "shifdata"); // 查看筛选结果
 
       shifdata.forEach(pointdata => {
         let plotId = pointdata.plotInfo.plotId
@@ -197,7 +197,7 @@ export default {
           });
         });
       })
-      console.log("groupedEntities", groupedEntities)
+      // console.log("groupedEntities", groupedEntities)
       const processStats = (entities) => {
         entities.forEach(group => {
           // console.log(group,"group")
@@ -223,7 +223,7 @@ export default {
     }
 
     function showStatisticInfo(zoomLevel) {
-      console.log("showStatisticInfo", zoomLevel)
+      // console.log("showStatisticInfo", zoomLevel)
       switch (zoomLevel) {
         case '市':
           pushStatisticInfo(groupedEntities.cityEntities, 200000)
@@ -245,7 +245,7 @@ export default {
 
 
     function pushStatisticInfo(entitys, height) {
-      console.log("pushStatisticInfo", entitys, height)
+      // console.log("pushStatisticInfo", entitys, height)
       statisticInfo.value = []
       entitys.forEach(entity => {
         let casualtyStatsTemplate = {
@@ -279,7 +279,7 @@ export default {
           return acc;
         }, {});
         statisticInfo.value.push(one)
-        console.log(statisticInfo, "statisticInfo")
+        // console.log(statisticInfo, "statisticInfo")
       })
     }
 
@@ -301,7 +301,7 @@ export default {
     }
 
     function flyTo(row, column, cell, event) {
-      console.log(row)
+      // console.log(row)
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(row.longitude),

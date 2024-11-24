@@ -7,8 +7,8 @@
           <span class="time"></span>
         </h2></div>
       <div class="pop_content">
-        <div class="range">统计范围：雅安市</div>
-        <div class="num">总计：{{this.filtdata.length}}个</div>
+        <div class="range">统计范围：{{this.centerPosionName}}</div>
+        <div class="num">总计：{{this.dataInTimeAndZoom.length}}个</div>
         <div id="plotsStatisticChart"></div>
       </div>
     </div>
@@ -22,6 +22,8 @@ import * as echarts from "echarts";
 // 原因： Echarts 管理的状态和数据与 Vue 的响应式产生冲突，导致Echarts 无法正常更新而报错。
 // 解决：markRaw，取消 VUE 的响应式系统观测 Echarts 的变化更新，让Echarts 自动更新。
 import {markRaw} from 'vue'
+import {getPlotInfos} from "@/api/system/plot.js";
+import axios from "axios";
 
 export default {
   data() {
@@ -29,25 +31,47 @@ export default {
       chart: null, // 保存 ECharts 实例
       myChart1Data: [],
       filtdata:[],
+      resInfo:[],
+      isDataReady:false,
+      dataInTimeAndZoom:[],
+      centerPosionName:'',
     };
   },
-  props: ['plots', 'currentTime','zoomLevel'],
+  props: ['plots', 'currentTime','zoomLevel','viewCenterCoordinate'],
   watch: {
     plots(newVal) {
-      this.updateStatistic();
+      this.getRescueActionCasualtiesPlotAndInfo();
     },
+
     currentTime(newVal) {
-      this.updateStatistic();
+      console.log("currentTime watch",newVal)
+      if(!this.isDataReady){
+        this.getRescueActionCasualtiesPlotAndInfo(newVal);
+      }
+      this.updateTimeStatistic();
     },
     zoomLevel(newVal) {
-      // this.showZoomStatistic(val)
+      console.log("zoomLevel watch",newVal)
+      if(!this.isDataReady){
+        this.getRescueActionCasualtiesPlotAndInfo(newVal);
+      }
+      this.showZoomStatistic()
+    },
+    viewCenterCoordinate(newVal){
+      console.log("viewCenterCoordinate watch",newVal)
+      if(!this.isDataReady){
+        this.getRescueActionCasualtiesPlotAndInfo(newVal);
+      }
+      this.showZoomStatistic()
     }
+
   },
   mounted() {
     this.initEcharts() //初始化
-    this.updateStatistic()
+    // this.updateStatistic()
   },
   methods: {
+    //图表操作
     //根据键取值，把值存到数组中 （一个工具函数）
     getArrByKey(data, k) {
       let key = k || "value";
@@ -244,35 +268,125 @@ export default {
       //配置
       this.chart.setOption(option);
     },
-    updateStatistic() {
-      // console.log(this.plots,this.currentTime,"plots,currentTime statisrtic")
-      this.filtdata = []
-      this.plots.forEach(item => {
+    //取位置
+    async getRescueActionCasualtiesPlotAndInfo() {
+      console.log("this.plots getRescueActionCasualtiesPlotAndInfo",this.plots)
+      if(!this.plots){return;}
+      const locationDataArray = await Promise.all(this.plots.map(async data => {
+        const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
+        try {
+          const locationInfo = await this.getReverseGeocode(longitude, latitude);
+          return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
+        } catch (error) {
+          console.error(`Failed to get location info for plotId ${plotId}:`, error);
+          return null;
+        }
+      }));
+      const validLocationData = locationDataArray.filter(item => item !== null);
+      this.resInfo = []
+      await Promise.all(validLocationData.map(async data => {
+        const {locationInfo, plotId, plotType, longitude, latitude, startTime, endTime} = data;
+        this.resInfo.push({plotId:plotId,plotType: plotType, startTime:startTime,endTime:endTime,locationInfo: locationInfo});
+      }));
+      this.isDataReady=true;
+      // console.log("resInfo.value111", this.resInfo)
+      this.updateTimeStatistic()
+    },
+    async getReverseGeocode(lon, lat) {
+      try {
+        const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+          params: {
+            postStr: JSON.stringify({lon, lat, ver: 1}),
+            type: 'geocode',
+            tk: '80eb284748e84ca6c70468c906f0c889'
+          }
+        });
+        return response.data.result.addressComponent;
+      } catch (error) {
+        console.error("逆地理编码失败:", error);
+        return null;
+      }
+    },
+
+    updateTimeStatistic() {
+      if(!this.currentTime){return;}
+      this.dataIntime = []
+      this.resInfo.forEach(item => {
         let currentDate = new Date(this.currentTime);
         let startDate = new Date(item.startTime);
         let endDate = new Date(item.endTime);
         if (startDate <= currentDate && endDate >= currentDate) {
-          this.filtdata.push(item)
+          this.dataIntime.push(item)
         }
       })
+      // console.log("dataIntime",dataIntime)
+      this.showZoomStatistic()
+    },
+    async showZoomStatistic(){
+      if(!this.dataIntime){return;}
+      this.dataInTimeAndZoom=[]
+      console.log(this.dataIntime,"this.dataIntime")
+      const originalArray = Array.from(this.dataIntime);
+
+      // console.log(this.viewCenterCoordinate,originalArray,"originalArray")
+      if(!this.viewCenterCoordinate.lon){
+        this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
+        this.centerPosionName='雅安市'
+        console.log(this.centerPosionName,"this.centerPosionName")
+      }
+      else{
+        let viewCenterLocation=await this.getReverseGeocode(this.viewCenterCoordinate.lon,this.viewCenterCoordinate.lat)
+
+        switch (this.zoomLevel) {
+          case '市':
+            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
+            this.centerPosionName='雅安市'
+            console.log(this.centerPosionName,"this.centerPosionName")
+            break;
+          case '区/县':
+            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.county ===viewCenterLocation.county);
+            this.centerPosionName=viewCenterLocation.county
+            console.log(this.centerPosionName,"this.centerPosionName")
+            break;
+          case '乡/镇':
+            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.town === viewCenterLocation.town);
+            this.centerPosionName=viewCenterLocation.town
+            console.log(this.centerPosionName,"this.centerPosionName")
+            break;
+            // case '村':
+            //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.address === viewCenterLocation.address);
+            //   this.centerPosionName=viewCenterLocation.address
+            //   break;
+          default:
+            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
+            this.centerPosionName='雅安市'
+            console.log(this.centerPosionName,"this.centerPosionName")
+            break;
+        }
+        // arr=originalArray.filter(data => data.locationInfo.city === '雅安市');
+        // break;
+        console.log(this.dataInTimeAndZoom,"arrinZoom")
+
+      }
 
 
-      let counts =  this.filtdata.reduce((acc, obj) => {
+      let counts =  this.dataInTimeAndZoom.reduce((acc, obj) => {
+        console.log(acc,obj,"occ,obj")
         // 如果acc中已经有这个icon值，则增加它的计数
-        if (acc[obj.icon]) {
-          acc[obj.icon].value += 1;
+        if (acc[obj.plotType]) {
+          acc[obj.plotType].value += 1;
         } else {
-          acc[obj.icon] = {name: obj.icon, value: 1};
+          acc[obj.plotType] = {name: obj.plotType, value: 1};
         }
         return acc;
       }, {}); // 初始化一个空对象作为累加器
 
       // 将结果转换为数组
       this.myChart1Data = Object.values(counts);
+      console.log(this.myChart1Data,"this.myChart1Data")
       this.myChart1Data = this.myChart1Data.sort((a, b) => {
         return b.value - a.value
       });
-
       let maxValue = Math.max(...this.getArrByKey(this.myChart1Data, 'value'));
       let yAxisData = this.getArrByKey(this.myChart1Data, 'name');
       let that = this
@@ -336,30 +450,17 @@ export default {
                   };
                 }
               },
-
             },
-            // label: {
-            //   color: function (params) {
-            //     let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
-            //     console.log(top3Values,params.name,"top3Values,params.name")
-            //     // 判断当前条形图的名称是否在前三个值中
-            //     return top3Values.includes(params.name) ? '#c09933' : '#35aac5';
-            //   },
-            // }
           },
           {
             data: Array(this.myChart1Data.length).fill(maxValue),
-            // label: {
-            //   color: function (params) {
-            //     // 根据值的大小动态设置颜色
-            //     let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
-            //     return top3Values.includes(params.name) ? '#c09933' : '#35aac5';
-            //   },
-            // }
           }
         ]
       });
-    }
+    },
+    // pushStatisticInfo(dataIntime){
+    //
+    // }
 
   }
 
