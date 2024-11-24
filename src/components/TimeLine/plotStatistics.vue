@@ -58,11 +58,11 @@ export default {
       this.showZoomStatistic()
     },
     viewCenterCoordinate(newVal){
-      console.log("viewCenterCoordinate watch",newVal)
-      if(!this.isDataReady){
-        this.getRescueActionCasualtiesPlotAndInfo(newVal);
-      }
-      this.showZoomStatistic()
+      // console.log("viewCenterCoordinate watch",newVal)
+      // if(!this.isDataReady){
+      //   this.getRescueActionCasualtiesPlotAndInfo(newVal);
+      // }
+      // this.showZoomStatistic()
     }
 
   },

@@ -69,19 +69,20 @@ export default {
   methods: {
     async init() {
       // this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/');
-      this.websock = initWebSocket(this.eqid)
-      this.websock.eqid = this.eqid
-      this.websock.onmessage = (event) => {
-        console.log('收到消息：event', event);
-        console.log('收到消息：enevt data', event.data);
+      // this.websock = initWebSocket(this.eqid)
+      // this.websock.eqid = this.eqid
+      // this.websock.onmessage = (event) => {
+        // console.log('收到消息：event', event);
+        // console.log('收到消息：enevt data', event.data);
         // 处理接收到的数据
         // this.handleMessage(event.data);
-      };
+      // };
       this.Responsecontent = await getRescueActionCasualties({eqid: this.eqid});
       this.personnel_casualties_update(this.currentTime);
       this.updateChart(); // 更新图表数据
     },
     async personnel_casualties_update(currentTime) {
+      console.log(this.Responsecontent,"this.Responsecontent personnel_casualties_update")
       this.casualtiesHistory = this.Responsecontent.filter((activity) => {
         return new Date(activity.submissionDeadline) <= currentTime;
       });
