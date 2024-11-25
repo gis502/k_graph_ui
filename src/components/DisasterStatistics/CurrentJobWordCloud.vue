@@ -1,5 +1,5 @@
 <template>
-  <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ latestTime }}</p>
+  <p style="margin: 0;font-size: 16px;color: orangered">图表上传时间：{{ latestTime }}</p>
   <div>
     <div ref="chart" style="width: 95%; height: 200px; margin-left: 10px; "></div>
   </div>

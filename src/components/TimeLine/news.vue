@@ -1,14 +1,14 @@
 <template>
   <div>
     <div id="news">
-      <div class="pop_header">
-        <h2 class="sub-title-new">
+      <div className="pop_header">
+        <h2 className="sub-title-new">
           最新新闻
           <!-- <span class="title-time">{{ recordTime }}</span> -->
-          <span class="title-time"></span>
+          <span className="title-time"></span>
         </h2>
-        <div class="sub-main">
-          <div ref="chart"  class="chart" style="width: 440px;height: 268px;"></div>
+        <div className="sub-main">
+          <div ref="chart" className="chart" style="width: 440px;height: 268px;"></div>
         </div>
       </div>
     </div>
@@ -20,35 +20,57 @@ import {defineProps, onMounted, ref, watch,} from 'vue';
 import * as echarts from "echarts";
 import 'echarts-gl';
 import {getVillages} from "../../api/system/ZhongDuanVillage";
+import {getSupplySituationList} from "../../api/system/supplySituation";
+
 let echartsInstance = null;
 // 声明 ref 变量，用于 DOM 引用
 const chart = ref(null);
 const props = defineProps({
-  eqid:{
+  eqid: {
     type: String,
     required: true
   },
 });
 const latestTime = ref(''); // 最新时间
 const ecData = ref([]);
-const currentlyBlackedOutVillages = ref('') // 供电
-const currentInterruptedVillages  = ref('') // 通信
-const roadBlockVillage = ref('') // 道路
+const currentlyBlackedOutVillages = ref('') ;// 供电
+const currentInterruptedVillages = ref('') ;// 通信
+const roadBlockVillage = ref('') ;// 道路
+const centralizedWaterProjectDamages = ref(''); // 受损数量
 const eqid = ref("")
 
 eqid.value = props.eqid;
 
-getVillages(eqid.value).then(res => {
-    update(res)
+function fetchData() {
+  getVillages(eqid.value).then(res => {
+    const formatDateTime = (dateString) => {
+      if (dateString === null) {
+        return null;
+      }
+      return dateString.split('T')[0] + ' ' + dateString.split('T')[1].split('.')[0];
+    };
+    latestTime.value = formatDateTime(res[0].insertTime);
+    latestTime.value = formatDateChina(latestTime.value)
+    currentInterruptedVillages.value = res[0].currentInterruptedVillages;
+    currentlyBlackedOutVillages.value = res[0].currentlyBlackedOutVillages;
+    roadBlockVillage.value = res[0].roadBlockVillage;
+  })
+  getSupplySituationList(eqid.value).then(res => {
+    centralizedWaterProjectDamages.value = res.reduce((sum, item) => sum + item.centralizedWaterProjectDamage, 0);
+  })
+
+  setTimeout(()=>{
+    update()
     const initChart = () => {
       echartsInstance = echarts.init(chart.value);
       const pieData = ecData.value
 //设置图表配置项
-      const option = getPie3D(pieData,0.8)
+      const option = getPie3D(pieData, 0.8)
 //设置交互事件 鼠标移入 点击
       bindListen(echartsInstance)
+
 //获取配置项
-      function getPie3D (pieData, internalDiameterRatio) {
+      function getPie3D(pieData, internalDiameterRatio) {
         let series = [];
         let sumValue = 0;
         let startValue = 0;
@@ -136,12 +158,12 @@ getVillages(eqid.value).then(res => {
               "#F18843",
               "#F6C458",
               "#2CC9FF",
-              "#1050A2",
+              // "#1050A2",
               "#3BFFFF",
             ],
             //图例列表的布局朝向。
             orient: "vertical",
-            right:40,
+            right: 40,
             bottom: 20,
             //图例文字每项之间的间隔
             itemGap: 10,
@@ -228,8 +250,9 @@ getVillages(eqid.value).then(res => {
         };
         return option;
       };
+
 // 生成扇形的曲面参数方程，用于 series-surface.parametricEquation
-      function getParametricEquation (startRatio, endRatio, isSelected, isHovered, k, h) {
+      function getParametricEquation(startRatio, endRatio, isSelected, isHovered, k, h) {
         // 计算
         let midRatio = (startRatio + endRatio) / 2;
         let startRadian = startRatio * Math.PI * 2;
@@ -297,8 +320,9 @@ getVillages(eqid.value).then(res => {
           },
         };
       };
+
       //这是一个自定义计算的方法
-      function fomatFloat (num, n) {
+      function fomatFloat(num, n) {
         var f = parseFloat(num);
         if (isNaN(f)) {
           return false;
@@ -316,13 +340,15 @@ getVillages(eqid.value).then(res => {
         }
         return s;
       };
+
 //获取3d丙图的最高扇区的高度
-      function getHeight3D (series, height) {
+      function getHeight3D(series, height) {
         series.sort((a, b) => {
           return b.pieData.value - a.pieData.value;
         });
         return (height * 20) / series[0].pieData.value;
       }
+
       function bindListen(echartsInstance) {
         let hoveredIndex = "";
         let isDelay = false; // 标志位，控制延时禁用 mouseover
@@ -387,13 +413,48 @@ getVillages(eqid.value).then(res => {
           }, 2000);
         });
       }
+
       echartsInstance.setOption(option);
     }
     initChart()
-  })
+  },500)
+}
+
+function update() {
+  ecData.value = [
+    {
+      name: "道路中断村（个）", //名称
+      value: roadBlockVillage.value, //值
+      itemStyle: {
+        color: "#F18843",//半透明
+      },
+    },
+    {
+      name: "供电中断村（个）",
+      value: currentlyBlackedOutVillages.value,
+      itemStyle: {
+        color: "#F6C458",
+      },
+    },
+    {
+      name: "通信中断村（个）",
+      value: currentInterruptedVillages.value,
+      itemStyle: {
+        color: "#2CC9FF",
+      },
+    },
+    {
+      name: "供水受损点（处）",
+      value: centralizedWaterProjectDamages.value,
+      itemStyle: {
+        color: "#3BFFFF",
+      },
+    },
+  ]
+}
 
 const formatDateChina = (dateStr) => {
-  if(dateStr){
+  if (dateStr) {
     const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
@@ -404,45 +465,6 @@ const formatDateChina = (dateStr) => {
     return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
   }
 };
-
-function update(data){
-  const formatDateTime = (dateString) => {
-    if (dateString === null ){
-      return null;
-    }
-    return dateString.split('T')[0] + ' ' + dateString.split('T')[1].split('.')[0];
-  };
-  latestTime.value = formatDateTime(data[0].insertTime);
-  latestTime.value = formatDateChina(latestTime.value)
-  currentInterruptedVillages.value = data[0].currentInterruptedVillages;
-  currentlyBlackedOutVillages.value = data[0].currentlyBlackedOutVillages;
-  roadBlockVillage.value = data[0].roadBlockVillage;
-
-  ecData.value = [
-    {
-      name: "道路中断村", //名称
-      value:  roadBlockVillage.value, //值
-      itemStyle: {
-        color: "#F18843",//半透明
-      },
-    },
-    {
-      name: "供电中断村",
-      value: currentlyBlackedOutVillages.value,
-      itemStyle: {
-        color: "#F6C458",
-      },
-    },
-    {
-      name: "通信中断村",
-      value:currentInterruptedVillages.value,
-      itemStyle: {
-        color: "#2CC9FF",
-      },
-    },
-  ]
-
-}
 
 // 时间戳转为普通日期（格式：YYYY-MM-DD HH:mm:ss）
 const timestampToTime = (timestamp) => {
@@ -474,7 +496,7 @@ const timestampToTimeDate = (timestamp) => {
 };
 
 onMounted(() => {
-  getVillages(eqid.value);
+  fetchData();
 });
 
 </script>
@@ -524,7 +546,7 @@ onMounted(() => {
   position: relative;
   padding: 0px;
   background-image: url("@/assets/home/底.png");
-  background-repeat: no-repeat;  /* 防止图片重复 */
+  background-repeat: no-repeat; /* 防止图片重复 */
   background-position: 73px 70px;
 }
 

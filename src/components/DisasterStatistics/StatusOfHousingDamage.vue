@@ -146,7 +146,7 @@ const initChart = () => {
         let result = `${params[0].axisValue}<br/>`;
         // 第二行显示截止时间
         const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
-        result += `<span style="color: red;">统计截止时间: ${latestTime.value[timeIndex]}</span><br/>`;
+        result += `<span style="color: red;">图表上传时间: ${latestTime.value[timeIndex]}</span><br/>`;
         // 显示系列名和数值
         params.forEach(item => {
           result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
