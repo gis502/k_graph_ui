@@ -177,23 +177,9 @@ function getImageryProviderArr() {
 }
 
 //地形
-function getTerrainProviderViewModelsArr() {
+export function getTerrainProviderViewModelsArr() {
     let baseURL = import.meta.env.VITE_APP_API_URL
     return [
-        new Cesium.ProviderViewModel({
-            //图层的名称
-            name: '仅底图',
-            //显示项目被隐藏的工具提示
-            tooltip: 'WGS84标准球体',
-            //代表图层的图标
-            iconUrl: Ellipsoid,
-            //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
-            creationFunction: function () {
-                return new Cesium.EllipsoidTerrainProvider({
-                    ellipsoid: Cesium.Ellipsoid.WGS84
-                })
-            }
-        }),
         new Cesium.ProviderViewModel({
             //图层的名称
             name: '本地DEM地形',
@@ -228,6 +214,26 @@ function getTerrainProviderViewModelsArr() {
                 })
             }
         }),
+
+
+
+
+        new Cesium.ProviderViewModel({
+            //图层的名称
+            name: '仅底图',
+            //显示项目被隐藏的工具提示
+            tooltip: 'WGS84标准球体',
+            //代表图层的图标
+            iconUrl: Ellipsoid,
+            //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
+            creationFunction: function () {
+                return new Cesium.EllipsoidTerrainProvider({
+                    ellipsoid: Cesium.Ellipsoid.WGS84
+                })
+            }
+        }),
+
+
     ]
 }
 

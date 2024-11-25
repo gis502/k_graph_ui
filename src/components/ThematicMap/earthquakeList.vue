@@ -92,9 +92,9 @@
         <el-divider content-position="left"> 灾情报告</el-divider>
         <div class="eqTheme">
           <div class="button themes history"
-               v-for="item in reportData"
+               v-for="(item,index) in reportData"
                style="width: 120px;"
-               @click="exportCesiumScene(item)"
+               @click="exportCesiumScene(item,index)"
           >{{ item.name }}
           </div>
         </div>
@@ -146,7 +146,10 @@ export default {
         {
           name: '震区基本情况报告',
           path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'
-        }
+        },
+          {
+              name: '分析研判组件'
+          }
       ],
       filteredEqData: [],
       pagedEqData: [],
@@ -175,7 +178,11 @@ export default {
         this.reportData = this.twoAndThreeDIntegrationReport
       }
     },
-    exportCesiumScene(item) {
+    exportCesiumScene(item,index) {
+        if(index === 2){
+            this.$emit('generateReport', this.selectedTabData)
+            console.log("selectedTabData--------------",this.selectedTabData)
+        }
       if (item.path) {
         const link = document.createElement('a');
         link.href = item.path;
