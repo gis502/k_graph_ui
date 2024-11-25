@@ -12,7 +12,7 @@ export function getEmergencyResponse(data) {
 // 获取 人员伤亡
 export function getRescueActionCasualties(data) {
     return request({
-        url: '/timeLine/rescueActionCasualties',
+        url: '/casualty/getAllRecordInfo',
         method: 'get',
         params:data
     });

@@ -40,3 +40,32 @@ export function updataModelElevation(data) {
         data: data
     })
 }
+
+/**
+ * /system/queryEq
+ * 倾斜模型调整
+ * @param inputData
+ * @returns {*}
+ */
+export function querytiltModelData(inputData) {
+    return request({
+        url: '/system/model/queryName',  // 后端接口地址
+        method: 'get',
+        params: {inputData}  // 如果没有传值，则为空字符串
+    });
+}
+
+
+/**
+ * /system/queryName
+ * 态势标绘搜索框查询
+ * @param inputData
+ * @returns {*}
+ */
+export function querySituationData(inputData) {
+    return request({
+        url: '/system/queryName',  // 后端接口地址
+        method: 'get',
+        params: {inputData}  // 如果没有传值，则为空字符串
+    });
+}

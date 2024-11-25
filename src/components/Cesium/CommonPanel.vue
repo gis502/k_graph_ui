@@ -4,39 +4,31 @@
     <div v-if="!showEqStatus">
       <div class="eq-videoMonitorWin" :style="styleObject">
         <div class="earthquake-info-panel">
-          <el-card class="box-card">
+          <el-card class="eqbox-card">
             <div slot="header" class="clearfix">
+                <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25"><path d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z" fill="#fbf102" p-id="2672"></path></svg>
               <span>震中信息</span>
             </div>
-            <el-descriptions :column="1" size="default" border>
-              <!-- 地震名称 -->
-              <el-descriptions-item label="震中位置">
-                <el-text size="large">
-                  {{ earthquakeInfo.earthquakeName || "无数据" }}
-                </el-text>
-              </el-descriptions-item>
-
-              <!-- 地震发生时间 -->
-              <el-descriptions-item label="发生时间">
-                <el-text size="large">
-                  {{ earthquakeInfo.historyEqTime }}
-                </el-text>
-              </el-descriptions-item>
-
-              <!-- 地震震级 -->
-              <el-descriptions-item label="震级">
-                <el-text size="large">
+            <table class="earthquake-info-table">
+              <tr>
+                <th>震中位置</th>
+                <td>{{ earthquakeInfo.earthquakeName || "无数据" }}</td>
+              </tr>
+              <tr>
+                <th>发生时间</th>
+                <td>{{ earthquakeInfo.historyEqTime }}</td>
+              </tr>
+              <tr>
+                <th>震&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;级</th>
+                <td>
                   {{ earthquakeInfo.magnitude || "无数据" }} 级
-                </el-text>
-              </el-descriptions-item>
-
-              <!-- 经纬度 -->
-              <el-descriptions-item label="经纬度">
-                <el-text size="large">
-                  经度: {{ earthquakeInfo.lon || "无数据" }}，纬度: {{ earthquakeInfo.lat || "无数据" }}
-                </el-text>
-              </el-descriptions-item>
-            </el-descriptions>
+                </td>
+              </tr>
+              <tr>
+                <th>震中经纬</th>
+                <td>经度: {{ earthquakeInfo.lon || "无数据" }}°E，纬度: {{ earthquakeInfo.lat || "无数据" }}°N</td>
+              </tr>
+            </table>
           </el-card>
         </div>
       </div>
@@ -116,8 +108,8 @@
                 </template>
                 <div>
                   <el-text size="large">
-                    经度: {{ plotInfoNew.longitude || "无数据" }},
-                    纬度: {{ plotInfoNew.latitude || "无数据" }}
+                    经度: {{ plotInfoNew.longitude || "无数据" }}°E,
+                    纬度: {{ plotInfoNew.latitude || "无数据" }}°N
                   </el-text>
                 </div>
               </el-descriptions-item>
@@ -465,9 +457,9 @@ export default {
         tableName: `${this.timestampToTimeChinese(eqData.occurrenceTime, 'date')}${eqData.earthquakeName} ${eqData.magnitude}级地震`,
         historyEqTime: this.timestampToTimeChinese(eqData.occurrenceTime.replace("T", " ")),
         earthquakeName: eqData.earthquakeName,
-        lat: eqData.latitude,
-        lon: eqData.longitude,
-        magnitude: eqData.magnitude,
+        lat: Number(eqData.latitude).toFixed(2),
+        lon: Number(eqData.longitude).toFixed(2),
+        magnitude: Number(eqData.magnitude).toFixed(1),
       }
       that.earthquakeInfo = data
       console.log("更新", that.earthquakeInfo)
@@ -530,9 +522,48 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
   /*width: 43px!important;*/
+}
+
+.eq-videoMonitorWin {
+   position: absolute;
+    width: 270px;
+    padding: 0px;
+    z-index: 80;
+  box-shadow: 0 4px 8px rgb(60, 215, 255), 0 6px 20px rgb(25, 108, 210);
+}
+
+.earthquake-info-panel {
+  padding: 0px;
+  border-radius: 25px;
+  max-width: 100%;
+  margin: 0px 0px;
+}
+
+.eqbox-card {
+
+}
+
+:deep(.el-card__body) {
+  padding: 0px 0px 0px 0px !important;
+}
+
+.earthquake-info-table {
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  color: #000000;
+  border-collapse: collapse;
+}
+
+.earthquake-info-table th,
+.earthquake-info-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #21c9db;
+  font-size: 0.8rem;
+  font-weight: 550;
 }
 
 .cell-item {
@@ -578,26 +609,6 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
 }
-.eq-videoMonitorWin{
-  position: absolute;
-  width: 375px;
-  padding: 10px;
-  z-index: 80;
-  background-color: rgba(40, 40, 40, 0.7);
-  border: 2px solid #18c9dc;
-}
-.ponpTitle {
-  font-size: 23px;
-  text-align: center;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.ponpTable {
-  text-align: center;
-  color: white;
-  margin-bottom: 10px;
-}
 
 .ponpTable td {
   padding: 10px;
@@ -622,13 +633,6 @@ export default {
   margin-bottom: 2px;
 }
 
-.earthquake-info-panel {
-  padding: 0px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  max-width: 95%;
-  margin: 10px 10px;
-}
 
 .Marking-info-panel {
   padding: 20px;
@@ -639,16 +643,26 @@ export default {
 }
 
 .el-card__header {
-  font-weight: bold;
+  font-weight: 550;
 }
 
 .el-descriptions__label {
-  font-weight: bold;
+  font-weight: 550;
 }
 
 .clearfix {
-  font-size: 16px;
-  margin-bottom:6px;
+  font-size: 1.1rem;
+  font-weight: 550;
+  background-color: red;
+  text-align: center;
+  color: #FFFFFF;
+  height: 4vh;
+  display: flex; /* 使用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
 }
-
+svg {
+  vertical-align: middle; /* 保持文本和图标对齐 */
+  margin-right: 0.5rem; /* 图标和文本间距 */
+}
 </style>

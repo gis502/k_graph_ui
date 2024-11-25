@@ -5,6 +5,18 @@
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div class="modelAdj">查询</div>
+          <el-input
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              style="width: 200px; margin-right: 10px;"
+              @keyup.enter="handleQuery"
+          />
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </div>
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true"
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor">
           <el-table-column label="序号" width="55">
@@ -38,20 +50,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                  size="small"
-                  @click="plotAdj(scope.row)">查看
+                size="small"
+                @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            layout="total, prev, pager, next"
-            :total="total">
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="pageSize"
+          layout="total, prev, pager, next"
+          :total="total">
         </el-pagination>
 
       </el-form>
@@ -110,27 +122,27 @@
         @clearMarkDialogForm="resetAddMarkCollection"
       />
       <addPolylineDialog
-          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolyline"
+        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolyline"
       />
       <addPolygonDialog
-          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-          @wsSendPoint="wsSendPoint"
-          @clearMarkDialogForm="resetPolygon"
+        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+        @wsSendPoint="wsSendPoint"
+        @clearMarkDialogForm="resetPolygon"
       />
       <commonPanel
-          :visible="popupVisible"
-          :position="popupPosition"
-          :popupData="popupData"
-          :ifedit="true"
-          @wsSendPoint="wsSendPoint"
-          @closePlotPop="closePlotPop"
+        :visible="popupVisible"
+        :position="popupPosition"
+        :popupData="popupData"
+        :ifedit="true"
+        @wsSendPoint="wsSendPoint"
+        @closePlotPop="closePlotPop"
       />
       <dataSourcePanel
-          :visible="dataSourcePopupVisible"
-          :position="dataSourcePopupPosition"
-          :popupData="dataSourcePopupData"
+        :visible="dataSourcePopupVisible"
+        :position="dataSourcePopupPosition"
+        :popupData="dataSourcePopupData"
       />
 
       <el-button type="primary" @click="exportCesiumTheme"
@@ -214,7 +226,7 @@
 
     </div>
     <!-- Cesium 视图 -->
-<!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
+    <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
     <!-- 预览图片的 div -->
     <div v-if="previewImage" class="preview-container">
@@ -243,7 +255,7 @@
           </div>
         </div>
         <div
-            style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
           <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
           <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
           <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
@@ -280,6 +292,11 @@
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
+    <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
+    <plotSearch
+      :eqid ="eqid"
+    ></plotSearch>
+
 
   </div>
 </template>
@@ -307,11 +324,13 @@ import {getToken} from "../../../utils/auth.js";
 import * as XLSX from "xlsx";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import html2canvas from "html2canvas";
+import {querySituationData} from "@/api/system/model.js";
+import plotSearch from '@/components/Cesium/plotSearch.vue'
 
 export default {
   components: {
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot,plotSearch
   },
   data: function () {
     return {
@@ -474,6 +493,8 @@ export default {
       downloadConfirmed: false,
       isShowMessageIcon: false,
       messageIcon: '',
+      queryParams:'',  // 搜索框关键字
+
     };
   },
   mounted() {
@@ -486,6 +507,7 @@ export default {
     this.getEq()
     // 获取标绘图片
     this.getPlotPicture()
+    this.initTree()
   },
   beforeUnmount() {
     console.log("111", window.viewer)
@@ -506,7 +528,7 @@ export default {
 
   watch: {
     isLoaded(val) {
-      if(val && this.downloadConfirmed) {
+      if (val && this.downloadConfirmed) {
         this.downloadExcel()
       }
     }
@@ -516,6 +538,21 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
+    initTree() {
+      const highestAndSecondLabels = [];
+      this.copiedPlotTreeData = this.plotTreeData
+      this.copiedPlotTreeData.forEach(item => {
+        // 添加最高级label
+        highestAndSecondLabels.push(item.label);
+        // 添加每个子项的label
+        if (item.children) {
+          item.children.forEach(child => {
+            highestAndSecondLabels.push(child.label);
+          });
+        }
+      });
+    },
 
     downloadExcel() {
       const plotBTO = {
@@ -861,6 +898,7 @@ export default {
       if (this.isLoaded) {
         this.downloadExcel()
       }
+      // console.log(this.sheet)
     },
 
     cancelDownload() {
@@ -870,6 +908,7 @@ export default {
       this.isLoaded = false
       this.loading = false
 
+      console.log(this.$refs.tree)
       // 逐个取消勾选
       this.$refs.tree.setCheckedNodes([])
     },
@@ -1001,7 +1040,6 @@ export default {
           });
         }
       });
-
       this.loading = false;
     },
 
@@ -1030,7 +1068,7 @@ export default {
         const workbook = XLSX.read(data, {type: 'array'});
 
         // 检查是否正确读取工作簿内容
-        console.log("工作簿内容：", workbook.Sheets);
+        // console.log("工作簿内容：", workbook.Sheets);
 
         this.sheetData = workbook.Sheets
 
@@ -2290,6 +2328,8 @@ export default {
     getEq() {
       let that = this
       getAllEq().then(res => {
+        console.log("********************************************************")
+        console.log("res",res)
         let resData = res.filter(item => item.magnitude >= 5)
         let data = []
         for (let i = 0; i < resData.length; i++) {
@@ -2361,9 +2401,9 @@ export default {
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            parseFloat(this.centerPoint.height || 0)
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -2476,14 +2516,30 @@ export default {
       let arr = []
       let start = (this.currentPage - 1) * this.pageSize
       let end = this.currentPage * this.pageSize
+
+      // 确保结束索引不超过总数据量
       if (end > this.total) {
         end = this.total
       }
+
+      // 遍历数据并加入分页数据中
       for (; start < end; start++) {
-        arr.push(this.getEqData[start])
+        if (this.getEqData[start]) {
+          // 调试：打印当前访问的数据
+          console.log('正在访问的数据索引:', start, '数据:', this.getEqData[start]);
+          arr.push(this.getEqData[start])
+        } else {
+          // 调试：如果数据为空
+          console.log('无效数据，跳过索引:', start);
+        }
       }
+
+      // 调试：打印当前分页数据
+      console.log('当前分页数据:', arr);
+
       return arr
     },
+
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.pageSize = val
@@ -2654,9 +2710,10 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo, bool) {
+    drawPoints(pointInfo,bool) {
       cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
+
     ifPointAnimation(val) {
       this.ifPointAnimate = val
     },
@@ -2879,7 +2936,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -2950,7 +3007,70 @@ export default {
       } else {
         this.zoomLevel = '村'
       }
-    }
+    },
+
+    // 搜索框
+    handleQuery() {
+      const searchKey = this.queryParams.trim();  // 获取搜索关键字
+
+      // 如果搜索框为空，直接调用 this.getEq()
+      if (!searchKey) {
+        this.getEq(); // 调用无参数查询的方法
+        return;
+      }
+
+      // 格式化搜索关键字，转换为后端可以识别的格式（例如：ISO时间字符串）
+      const formattedKey = searchKey
+          .replace(/年/g, "-")
+          .replace(/月/g, "-")
+          .replace(/日/g, " ")
+          .replace(/时/g, ":")
+          .replace(/分/g, ":")
+          .replace(/秒/g, "");
+
+      // 根据是否有格式化的搜索关键字来调用不同的查询方法
+      const queryPromise = formattedKey ? querySituationData(formattedKey) : querySituationData();
+
+      queryPromise
+          .then(res => {
+            console.log("获取的数据:", res);
+
+            // 只筛选震中震级大于等于5的数据
+            let resData = res.data.filter(item => item.magnitude >= 5);
+
+            // 格式化返回的数据
+            this.getEqData = resData.map(item => {
+              // 格式化时间：将ISO时间中的'T'替换为' '
+              item.time = item.occurrenceTime.replace("T", " ");
+
+              // 格式化震级、纬度和经度
+              item.magnitude = Number(item.magnitude).toFixed(1); // 震级保留1位小数
+              item.latitude = Number(item.latitude).toFixed(2); // 纬度保留2位小数
+              item.longitude = Number(item.longitude).toFixed(2); // 经度保留2位小数
+
+              return item;
+            });
+
+            // 更新总数
+            this.total = this.getEqData.length;
+
+            // 获取分页数据
+            this.tableData = this.getPageArr();
+          })
+          .catch(error => {
+            console.error("查询时出现错误:", error.message || error);
+            const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+            ElMessage.error(errorMessage);  // 弹出错误提示
+          });
+    },
+
+    // 重置功能
+    resetQuery() {
+      this.queryParams = '';  // 清空搜索输入框
+      this.getEq()
+    },
+
+
   }
 }
 </script>
@@ -3019,7 +3139,7 @@ export default {
 
 .situation_eqTable {
   width: 590px;
-  height: 310px;
+  height: 372px;
   position: absolute;
   padding: 10px;
   border-radius: 5px;
@@ -3033,7 +3153,7 @@ export default {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 345px;
+  top: 418px;
   left: 10px;
   width: 530px;
   z-index: 10;

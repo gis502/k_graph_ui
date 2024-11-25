@@ -20,39 +20,31 @@
           <el-button type="primary" @click="updataPosition">更新位置</el-button>
         </el-row>
       </el-form>
-      <el-form class="button-container" v-show="showSelectModel">
-        <div class="modelAdj">模型选择</div>
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(1)">0.4平方公里模型</el-button>-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(2)">7.37平方公里模型</el-button>-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="home">雅安</el-button>-->
-        <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
+      <el-form class="button-container" v-show="showSelectModel" style="display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div class="modelAdj">模型选择</div>
+          <el-input
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              style="width: 200px; margin-right: 10px;"
+              @keyup.enter="handleQuery"
+          />
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </div>
+        <el-table :data="tableData" style="width: 100%; margin-bottom: 5px" :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
-          <el-table-column prop="name" label="模型名称" width="140px">
-            <!--          <template #default="scope">-->
-            <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
-            <!--          </template>-->
-          </el-table-column>
-          <!--          <el-table-column prop="path" label="模型路径" width="80">-->
-          <!--          <template #default="scope">-->
-          <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
-          <!--          </template>-->
-          <!--          </el-table-column>-->
-          <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
+          <el-table-column prop="name" label="模型名称" width="140px"></el-table-column>
           <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
-          <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
           <el-table-column prop="tze" label="模型中心高度(米)" width="160px"></el-table-column>
           <el-table-column label="操作" width="80" align="center">
-            <!--          <template #default="scope">-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="selectModel(scope.row.path)">查看</el-button>-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Delete" @click="deleteM(scope.row)">删除</el-button>-->
-            <!--            <el-button v-if="scope.row.show" type="text" :icon="Edit" @click="updataMCommit(scope.row)">确认</el-button>-->
-            <!--          </template>-->
             <template #default="scope">
               <el-button type="text" :icon="Edit" @click="changeModel(scope.row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
+
         <div>
           <el-pagination
               @size-change="handleSizeChange"
@@ -156,7 +148,8 @@ import {
   getAllModel,
   updataModel,
   updataModelNoElevation,
-  updataModelElevation
+  updataModelElevation, querytiltModelData,
+
 } from '@/api/system/model.js'
 // import tiltTable from '@/components/Model/tiltModel/tiltTable.vue'
 import {ElMessageBox} from 'element-plus';
@@ -186,6 +179,11 @@ let showArrowText = ref("显示坐标轴")
 let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
+let queryParams = ref('');  // 搜索框关键字
+
+
+
+
 
 
 //----------------------------model table---------------------------------------
@@ -361,7 +359,7 @@ function initModelTable() {
   getAllModel().then(res => {
     console.log(res)
     modelList = res
-    total.value = res.length
+    total.value = modelList.length
     tableData.value = getPageArr(modelList)
     console.log("modelList, tableData", modelList, tableData)
   })
@@ -408,20 +406,42 @@ function tableColor({row, column, rowIndex, columnIndex}) {
   }
 }
 
+/**
+ * 分页
+ * @param data
+ * @returns {*[]}
+ */
 //数组切片
 function getPageArr(data) {
   let arr = []
+
+  // 打印分页的起始和结束位置
   let start = (currentPage.value - 1) * pageSize.value
   let end = currentPage.value * pageSize.value
+  console.log('Start index:', start);  // 打印起始索引
+  console.log('End index:', end);      // 打印结束索引
+
   if (end > total.value) {
     end = total.value
   }
+
+  console.log('Adjusted End index:', end); // 打印调整后的结束索引
+
+  // 遍历数据，打印每个数据项
   for (; start < end; start++) {
-    data[start].show = false
-    arr.push(data[start])
+    // 检查是否存在数据项
+    if (data[start]) {
+      console.log('Data item:', data[start]);  // 打印每个数据项
+      data[start].show = false
+      arr.push(data[start])
+    } else {
+      console.log('No data at index', start);  // 如果没有数据，打印当前索引
+    }
   }
+  console.log('Current page data:', arr);  // 打印当前页的数据
   return arr
 }
+
 
 //`每页 ${val} 条`
 function handleSizeChange(val) {
@@ -436,6 +456,8 @@ function handleCurrentChange(val) {
   tableData.value = getPageArr(modelList)
   // console.log(`当前页: ${val}`);
 }
+
+
 
 //----------------------无用法-------------------------------------
 
@@ -592,11 +614,32 @@ function home() {
   });
 }
 
+// 搜索按钮
+function handleQuery() {
+  const searchKey = queryParams.value.trim();  // 获取搜索关键字
+
+  querytiltModelData(searchKey || undefined)  // 如果没有搜索关键字，传递 `undefined` 获取所有数据
+      .then(res => {
+        modelList = res.data
+        console.log("获取的数据:", modelList); // 打印获取的数据
+        total.value = modelList.length;  // 更新分页总数
+        tableData.value = getPageArr(modelList);  // 获取分页数据
+      })
+      .catch(error => {
+        console.error("查询时出现错误:", error.message || error);
+      });
+}
+
+function resetQuery() {
+  queryParams.value = '';
+  initModelTable();// 清空搜索输入框
+}
+
 </script>
 
 <style scoped>
 .el-pagination {
-  margin-top: 10px;
+  margin-top: 21px;
   justify-content: center;
 }
 
@@ -691,14 +734,14 @@ function home() {
   padding: 10px;
   border-radius: 5px;
   width: 560px;
-  top: 265px;
+  top: 307px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
 .button-container {
-  height: 195px;
+  height: 455px;
   width: 560px;
   position: absolute;
   padding: 10px;

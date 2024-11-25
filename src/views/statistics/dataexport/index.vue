@@ -260,7 +260,7 @@ const queryEqId = ref("")
 /** 监听 */
 watch(flag, (newFlag) => {
   const selectedFile = files.value.find(file => file.fileFlag === newFlag);
-  console.log(newFlag)
+  console.log("newFlag",newFlag)
   if (selectedFile && selectedFile.fileColumn) {
     const fileColumn = JSON.parse(selectedFile.fileColumn);
     const map = new Map(Object.entries(fileColumn));
@@ -285,12 +285,14 @@ watch(flag, (newFlag) => {
 
 // 请求数据
 const getList = async () => {
+  console.log(requestParams.value,"requestParams.value")
   await getData({
     currentPage: currentPage.value,
     pageSize: pageSize.value,
     requestParams: requestParams.value,
     flag: flag.value
   }).then(res => {
+    console.log("res getData",res)
     tableData.value = res.data.records
     total.value = res.data.total
   })
