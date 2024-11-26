@@ -84,18 +84,19 @@
         </div>
       </template>
     </el-dialog>
-    <el-dialog v-model="isNoPermission" title="提示" style="top: 25vh" width="500">
+    <el-dialog v-model="isNoPermission" title="提示" style="top: 25vh" min-width="500">
       <div style="font-size: 17px">
         <span>您没有权限使用此功能，如需操作，请联系管理员进行操作。</span>
         <br>
         <span>联系方式：176-222-222-222</span>
       </div>
       <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="isNoPermission = false">关闭</el-button>
+        <div class="dialog-footer" style="text-align: right;">
+          <el-button @click="isNoPermission = false" type="primary">关闭</el-button>
         </div>
       </template>
     </el-dialog>
+
   </div>
 </template>
 

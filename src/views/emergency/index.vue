@@ -712,10 +712,13 @@ export default {
               emergencyTeamArr.push(item);
             }
           });
-
+          this.suppliesList = []
+          this.suppliesList.push(suppliesArr, emergencyTeamArr, reservesArr);
           this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
           this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
           this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+          this.listField = 'supplies'
+          this.changeDataList('supplies')
 
           //  画圆
           const position = Cesium.Cartesian3.fromDegrees(
@@ -1630,6 +1633,7 @@ export default {
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       this.removePoints(this.showIcon);
+      window.viewer.entities.removeAll();
       viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.addSupplyPointCurrently.lng),
