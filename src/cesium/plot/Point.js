@@ -538,7 +538,14 @@ export default class Point {
                           // 调整宽高比例
                           cluster.billboard.width = canvasWidth * 0.7;
                           cluster.billboard.height = canvasHeight * 0.7;
+                          cluster.billboard.verticalOrigin =
+                              Cesium.VerticalOrigin.BOTTOM;
 
+                          // 设置 Billboard 高度引用地形
+                          cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+
+                          // 禁用深度测试，使 Billboard 不会被地形遮挡
+                          cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
                           // 设置 Billboard 位置：背景图片右下角对齐标绘图标正上方
                           cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
                           cluster.billboard.pixelOffset = new Cesium.Cartesian2(
@@ -549,21 +556,17 @@ export default class Point {
                           // 隐藏 Cesium 默认的标签
                           cluster.label.show = false;
                         } else {
-                          console.warn('Billboard _textureAtlas 未初始化，跳过设置图像');
                         }
                       } catch (error) {
                         // 捕获 Cesium 的内部报错，避免控制台输出
                         if (error.message && error.message.includes('_textureAtlas')) {
-
                         } else {
-                          console.error('Billboard 设置时出错:', error);
                         }
                       }
                     };
 
                     // 捕获图片加载错误
                     backgroundImage.onerror = function () {
-                      console.error('背景图片加载失败，请检查路径是否正确');
                     };
                   }
               );
@@ -623,6 +626,7 @@ export default class Point {
     let intervalId1 = setInterval(() => {
       colorFactor = colorFactor === 1.0 ? 0.5 : 1.0;
     }, intervalTime1);
+
     viewer.entities.add({
       id: data.plotId,
       plottype: data.plotType,
@@ -654,6 +658,7 @@ export default class Point {
 
 //pointData聚合图层
   addPointToPointData(data) {
+
     window.pointDataSource.entities.add({
       id: data.plotId,
       plottype: data.plotType,
@@ -675,6 +680,20 @@ export default class Point {
         data
       }
     })
+    window.pointDataSource.entities.add({
+      id: data.plotId + '_base',
+      position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
+      billboard: {
+        image: '/images/图标外框.png', // 圆形底座图片
+        width: 110, // 底座宽度
+        height: 110, // 底座高度
+        eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+        scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+        depthTest: false, // 禁止深度测试
+        disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
+      },
+    });
   }
 
 //标签图层
