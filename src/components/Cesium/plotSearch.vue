@@ -22,11 +22,11 @@
       </div>
       <!-- 地震列表 -->
       <div class="eqList">
-        <div v-for="eq in pagedEqData" :key="eq.eqid" class="eqCard" @click="locateEq(eq)">
+        <div v-for="plot in pagedEqData" :key="plot.plotInfo.eqid" class="eqCard" @click="locateEq(plot)">
           <!-- 圆圈震级 -->
           <div style="width: 55px">
             <div class="eqMagnitude">
-              <img width="30px" height="30px" :src="'http://localhost:8080/uploads/PlotsPic/' +eq.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+              <img width="30px" height="30px" :src="'http://localhost:8080/uploads/PlotsPic/' +plot.plotInfo.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">
             </div>
           </div>
 
@@ -34,15 +34,39 @@
           <div class="eqText">
                         <span
                             class="eqTitle">
-                          {{ eq.plotType}}
+                         {{ plot.locationInfo.province }} {{ plot.locationInfo.city }}{{ plot.locationInfo.county }} {{ plot.locationInfo.town }}
                         </span>
             <br/>
-            <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
-                            标绘类型：{{ eq.plotType }}<br/>
-<!--                            参考位置：{{ eq.earthquakeName }}<br/>-->
-                            标绘经纬：{{ parseFloat(eq.longitude).toFixed(2) }}°E, {{ parseFloat(eq.latitude).toFixed(2) }}°N<br/>
-                            标绘高程：{{ eq.elevation }}米
-                        </span>
+<!--             伤亡和出队信息-->
+            <div class="disaster-info">
+              <!-- 标绘类型 -->
+              <div>
+                <span class="info-label">标绘类型：{{ plot.plotInfo.plotType }}</span>
+              </div>
+
+              <!-- 伤亡人数 -->
+              <div v-if="plot.plotInfo.plotType === '轻伤人员' ||plot.plotInfo.plotType === '重伤人员'||plot.plotInfo.plotType === '危重伤人员'||plot.plotInfo.plotType === '死亡人员' ">
+                <span class="info-label">伤亡人员：</span><span class="highlight highlight-danger">{{ plot.plotTypeInfo.newCount }} 人</span>
+              </div>
+
+              <!-- 出队信息 -->
+              <div v-if="plot.plotInfo.plotType === '已出发队伍'|| plot.plotInfo.plotType === '正在参与队伍'||plot.plotInfo.plotType === '待命队伍'">
+                <span class="info-label">队伍名称：</span><span class="highlight highlight-info">{{ plot.plotTypeInfo.teamName }}</span>
+                <span class="info-label">出队人数：</span><span class="highlight highlight-success">{{ plot.plotTypeInfo.personnelCount }} 人</span>
+              </div>
+            </div>
+
+            <!-- 地点、道路、POI 和经纬度 -->
+            <div class="location-info">
+              <span class="info-label"><strong>具体地点：</strong>{{ plot.locationInfo.address }} （{{ plot.locationInfo.address_position }}方向 {{ plot.locationInfo.address_distance }} 米）</span>
+              <br>
+              <span class="info-label"><strong>附近道路：</strong>{{ plot.locationInfo.road }} （距离 {{ plot.locationInfo.road_distance }} 米）</span>
+              <br>
+<!--              <span class="info-label"><strong>附近 POI：</strong>{{ plot.locationInfo.poi }} （{{ plot.locationInfo.poi_position }}方向 {{ plot.locationInfo.poi_distance }} 米）</span>-->
+<!--              <br>-->
+              <span class="info-label"><strong>标绘经纬：</strong>{{ parseFloat(plot.plotInfo.longitude).toFixed(2) }}°E, {{ parseFloat(plot.plotInfo.latitude).toFixed(2) }}°N</span>
+              <br>
+            </div>
           </div>
 
           <!-- 详情按钮 -->
@@ -134,6 +158,7 @@ import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
 import * as Cesium from "cesium";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
+import axios from "axios";
 
 export default {
   name: "plotSearch",
@@ -203,7 +228,7 @@ export default {
   },
   mounted() {
     this.fetch()
-    this.getPlot(this.eqid)
+    // this.getPlot(this.eqid)
   },
   methods: {
     // 根据父组件传值来判断调用哪些专题图
@@ -229,19 +254,71 @@ export default {
     getAssetsFile() {
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
-    // 获取地震列表并渲染
-    getPlot(eqid) {
-      getPlot({eqid}).then((res) => {
-        console.log("log",res)
-        this.selectPlotData = res
-        this.filteredEqData = res;
+     async getReverseGeocode(lon, lat) {
+       try {
+         const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+           params: {
+             postStr: JSON.stringify({lon, lat, ver: 1}),
+             type: 'geocode',
+             tk: '7b6b98b997001a1c5557356e8518e3b4'
+           }
+         });
+         return response.data.result.addressComponent;
+       } catch (error) {
+         console.error("逆地理编码失败:", error);
+         return null;
+       }
+     },
+    async getPlot(eqid) {
+      try {
+        // 获取 plot 数据
+        const res = await getPlot({eqid});
+        console.log("log", res);
+
+        // 提取并去重 plotType
         this.uniquePlotTypes = [...new Set(res.map((item) => item.plotType))];
-        console.log(this.uniquePlotTypes,"uniquePlotTypes")
-        // 提取并去重 plottype 数据
-        this.updatePagedEqData();
-        // console.log("data:", data)
-      });
+        console.log(this.uniquePlotTypes, "uniquePlotTypes");
+
+        // 提取所有 plotIds 和 plotTypes
+        const plotIds = res.map((plot) => plot.plotId);
+        const plotTypes = res.map((plot) => plot.plotType);
+
+        // 分批加载 getExcelPlotInfo 数据
+        const batchSize = 10; // 每次加载 10 个
+        const updatedRes = [];
+        for (let i = 0; i < plotIds.length; i += batchSize) {
+          const batchPlotIds = plotIds.slice(i, i + batchSize);
+          const batchPlotTypes = plotTypes.slice(i, i + batchSize);
+
+          console.log(`加载第 ${i / batchSize + 1} 批数据`);
+          const batchData = await getExcelPlotInfo(batchPlotIds, batchPlotTypes);
+
+          // 立即处理和展示当前批次数据
+          const processedBatchData = await Promise.all(
+              batchData.map(async (plot) => {
+                if (plot.plotInfo && plot.plotInfo.longitude && plot.plotInfo.latitude) {
+                  const locationInfo = await this.getReverseGeocode(
+                      plot.plotInfo.longitude,
+                      plot.plotInfo.latitude
+                  );
+                  return {...plot, locationInfo};
+                }
+                return plot;
+              })
+          );
+
+          updatedRes.push(...processedBatchData); // 合并当前批次数据
+          this.selectPlotData = updatedRes; // 实时更新展示数据
+          this.filteredEqData = updatedRes;
+          this.updatePagedEqData();
+        }
+
+        console.log("最终处理后的数据:", this.selectPlotData);
+      } catch (error) {
+        console.error("获取地震列表或处理失败:", error);
+      }
     },
+
     // 分页数据更新
     updatePagedEqData() {
       const start = (this.currentPage - 1) * this.pageSize;
@@ -314,10 +391,10 @@ export default {
     },
 
 
-    locateEq(eq) {
+    locateEq(plot) {
         // 提取标绘的经纬度
-        const longitude = parseFloat(eq.longitude);
-        const latitude = parseFloat(eq.latitude);
+        const longitude = parseFloat(plot.plotInfo.longitude);
+        const latitude = parseFloat(plot.plotInfo.latitude);
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
@@ -338,23 +415,41 @@ export default {
     // 模糊匹配地震时间、位置和震级
     filterEq() {
       if (this.title) {
+        const keyword = this.title.toLowerCase(); // 转为小写以支持不区分大小写的匹配
         this.filteredEqData = this.selectPlotData.filter((eq) => {
-          console.log("eq",eq)
-          // const dateStr = this.timestampToTime(eq.occurrenceTime, 'date');
-          const positionStr = eq.plotType;
-          const magnitudeStr = eq.magnitude;
-          const drawtype = eq.drawtype;
+          // 拼接 locationInfo 的相关字段
+          const locationInfoStr = `${eq.locationInfo?.province || ''} ${eq.locationInfo?.city || ''} ${eq.locationInfo?.county || ''} ${eq.locationInfo?.town || ''} ${eq.locationInfo?.address || ''} ${eq.locationInfo?.poi || ''} ${eq.locationInfo?.road || ''}`.toLowerCase();
+
+          // 拼接 plotInfo 的相关字段
+          const plotInfoStr = `${eq.plotInfo?.plotType || ''} ${eq.plotInfo?.damageForm || ''} ${eq.plotInfo?.usageType || ''}`.toLowerCase();
+
+          // 动态拼接 plotTypeInfo 中的所有字段
+          const plotTypeInfoStr = Object.entries(eq.plotTypeInfo || {})
+              .map(([key, value]) => `${key}: ${value || ''}`) // 转成键值对字符串
+              .join(' ')
+              .toLowerCase();
+
+          // 其他需要匹配的字段
+          const magnitudeStr = `${eq.magnitude || ''}`.toLowerCase();
+          const drawTypeStr = `${eq.drawtype || ''}`.toLowerCase();
+
+          // 模糊匹配
           return (
-              drawtype.includes(this.title) ||
-              positionStr.includes(this.title)
+              locationInfoStr.includes(keyword) ||
+              plotInfoStr.includes(keyword) ||
+              plotTypeInfoStr.includes(keyword) ||
+              magnitudeStr.includes(keyword) ||
+              drawTypeStr.includes(keyword)
           );
         });
       } else {
-        this.filteredEqData = this.selectPlotData;
+        this.filteredEqData = this.selectPlotData; // 如果没有输入内容，返回全部数据
       }
-      this.currentPage = 1;
-      this.updatePagedEqData();
+
+      this.currentPage = 1; // 重置分页
+      this.updatePagedEqData(); // 更新分页数据
     },
+
 
     // 将选中的专题图信息传给父组件
     // previewMap(item) {
@@ -478,13 +573,13 @@ export default {
 
 .eqList {
   position: relative;
-  height: calc(85vh - 88px);
+  height: calc(85vh - 100px);
   overflow-y: auto;
 }
 
 .eqCard {
   display: flex;
-  height: 110px;
+  height: 150px;
   border-bottom: #0d325f 2px solid;
   cursor: pointer;
 }
@@ -521,7 +616,7 @@ export default {
   transform: translateX(0);
   will-change: transform;
   color: #409eff;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .eqText .eqTitle:hover {
@@ -666,4 +761,51 @@ export default {
   z-index: 2;
   margin: 0;
 }
+
+/* 统一行内展示 */
+
+.disaster-info span {
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 10px;
+  line-height: 1.6;
+}
+.disaster-info{
+  margin-top: 6px;
+}
+.location-info span {
+  display: inline-block;
+  font-size: 14px;
+  margin-right: 15px; /* 每段内容间距 */
+  line-height: 1.6;
+}
+
+.info-label {
+  color: #ccc;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.highlight {
+  font-weight: bold;
+}
+
+.highlight-danger {
+  color: #e74c3c; /* 红色，突出危险 */
+}
+
+.highlight-success {
+  color: #2ecc71; /* 绿色，突出安全或出队人数 */
+}
+
+.highlight-info {
+  color: #3498db; /* 蓝色，突出队伍名称 */
+}
+
+/* 地点、道路、POI 和经纬度部分 */
+.location-info span strong {
+  color: #ffd700; /* 金黄色，强调重要信息 */
+}
+
+
 </style>
