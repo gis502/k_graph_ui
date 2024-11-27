@@ -11,6 +11,7 @@
               <el-dropdown-menu>
                 <el-dropdown-item command="tilt">倾斜影像</el-dropdown-item>
                 <el-dropdown-item command="ortho">正射影像</el-dropdown-item>
+                <el-dropdown-item command="remote">遥感影像</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -18,6 +19,7 @@
         <!-- 根据 selectedType 显示不同的组件 -->
         <tiltPhotography v-if="selectedType === 'tilt'"/>
         <orthophotoImage v-if="selectedType === 'ortho'"/>
+        <remotesensingimage v-if="selectedType === 'remote'"/>
       </el-tab-pane>
       <el-tab-pane label="结构型" name="second">
         <database></database>
@@ -30,6 +32,7 @@
 import {ref, computed} from 'vue'
 import tiltPhotography from '@/views/model/tiltPhotography/index.vue'
 import orthophotoImage from '@/views/model/orthophotoImage/index.vue'
+import remotesensingimage from '@/views/model/remotesensingimage/index.vue'
 import database from '@/views/system/data/database.vue'
 import {ArrowDown} from "@element-plus/icons-vue";
 
