@@ -10,8 +10,8 @@
       <el-carousel :interval="0" arrow="always" :initial-index="initialIndex" indicator-position="none">
 
         <el-carousel-item>
- <span style=" padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
-            23年各区县人口情况
+ <span style=" position: absolute;    font-weight: bold;padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
+            2023年各区县人口情况
           </span>
 
           <!-- 新饼图 -->
@@ -23,8 +23,8 @@
 
           <!-- 卡片布局 -->
           <div class="card-layout">
-            <span style="position: fixed; padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 17px; color: #fff;">
-            海拔高度
+            <span style="position: fixed; padding-left: 0px;margin-top: 2%; font-size: 17px; color: #fff;  font-weight: bold;">
+            地形地貌
           </span>
             <div class="card-list">
               <!-- 顶部区域 -->
@@ -59,7 +59,7 @@
 
 
         <el-carousel-item>
-    <span style=" padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
+    <span style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
             {{ eqyear }}年各区县经济情况
           </span>
 
@@ -260,11 +260,11 @@ const colors = ['rgba(113, 226, 135, 1)', 'rgba(119, 247, 253, 1)', 'rgba(44, 10
 
 
 //------------------------------------初始化echars-----------------------------------------
-// 初始化折线图和饼图
+// 初始化echars图
 const initCharts = () => {
 
 
-  // 经济折线图初始化（保持之前逻辑）
+  // 经济柱状图图初始化（保持之前逻辑）
   console.log("解构经济提取数据countyDistrict:", datas.value.countyDistrict);
   console.log("解构经济提取数据datas:", datas.value);
   lineChartInstance = echarts.init(lineChart.value);
@@ -280,8 +280,8 @@ const initCharts = () => {
         value,
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            {offset: 0, color: 'rgba(252,115,65,0.85)'}, // 红色渐变
-            {offset: 1, color: 'rgba(138,35,11,0.87)'}, // 深红色渐变
+            {offset: 0, color: 'rgb(255,138,94)'}, // 红色渐变
+            {offset: 1, color: 'rgb(138,35,11)'}, // 深红色渐变
           ]),
         },
       };
@@ -333,7 +333,7 @@ const initCharts = () => {
     },
     yAxis: [
       {
-        name: "(万元)",
+        name: "(亿元)",
         nameTextStyle: {
           align: "left",
           color: "#fff",
@@ -429,10 +429,10 @@ const initCharts = () => {
       color:
           index === targetIndex
               ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                {offset: 0, color: 'rgb(239,133,75)'}, // 红色渐变起点
-                {offset: 0.33, color: 'rgba(255, 77, 77, 1)'}, // 红色中间色
-                {offset: 0.66, color: 'rgba(255, 51, 51, 1)'}, // 红色中间色
-                {offset: 1, color: 'rgba(255, 0, 0, 1)'},     // 红色渐变终点
+                {offset: 0, color: 'rgb(255,156,103)'}, // 红色渐变起点
+                {offset: 0.33, color: 'rgb(253,99,168)'}, // 红色中间色
+                {offset: 0.66, color: 'rgb(255,70,98)'}, // 红色中间色
+                {offset: 1, color: 'rgb(168,12,83)'},     // 红色渐变终点
               ])
               : new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 {offset: 0, color: 'rgba(113, 226, 135, 1)'}, // 默认渐变起点
@@ -453,14 +453,14 @@ const initCharts = () => {
       left: "16%",
       right: "15%",
       top: "20%",
-      bottom: "25%",
+      bottom: "20%",
     },
     xAxis: {
       type: 'category',
-      name: '区县（个）',
+      name: '区县',
       nameTextStyle: {
         color: '#FFFFFF',
-        fontSize: 8,
+        fontSize: 9,
       },
       axisLine: {
         show: false,
@@ -482,7 +482,7 @@ const initCharts = () => {
       name: '人口（万）',
       nameTextStyle: {
         color: '#FFFFFF',
-        fontSize: 8,
+        fontSize: 9,
       },
       axisLine: {
         show: false,
@@ -623,6 +623,7 @@ onBeforeUnmount(() => {
 
 .chart-container {
   position: relative;
+  top: 7.5% !important;
   width: 98%;
   height: 98%;
   min-height: 50px;
@@ -642,9 +643,9 @@ onBeforeUnmount(() => {
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
-  width: 91%;
-  height: 100%;
-  left: 3%;
+  width: 82%;
+  height: 105%;
+  left: 6%;
 }
 
 /* 卡片列表 */
@@ -704,7 +705,7 @@ onBeforeUnmount(() => {
 .card.bottom-left {
   flex: 1;
   text-align: left;
-  margin-right: 5%;
+  margin-right: 11%;
 }
 
 .card.bottom-right {
