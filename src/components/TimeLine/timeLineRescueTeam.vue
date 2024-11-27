@@ -697,7 +697,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: space-between;
   position: absolute;
-  bottom: 14%;
+  bottom: 16%;
   width: 91%;
   left: 3.2%;
 }
@@ -737,7 +737,7 @@ onBeforeUnmount(() => {
 .card .bottom-value {
   font-size: 11px;
   font-weight: bold;
-  margin-top: -7px;
+  margin-top: -5px;
   color: rgba(255, 255, 255, 0.7);
 }
 
