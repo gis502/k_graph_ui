@@ -173,7 +173,13 @@ const economicData = async () => {
 
       const districtEconomy = response.map(item => item.districtEconomy || '暂无数据');
       const countyDistrict = response.map(item => item.countyDistrict || '未知区县');
-      const growthRate = response.map(item => item.growthRate || '未知区县');
+      //replace('%', '')：去掉百分号。
+      //trim()：去除空白字符，防止前后有多余空格或制表符。
+      const growthRate = response.map(item => {
+        const rate = item.growthRate || '未知区县';
+        return rate === '未知区县' ? rate : rate.replace('%', '').trim();
+      });
+
 
       datas.value.districtEconomy = districtEconomy; // 响应式更新
       datas.value.countyDistrict = countyDistrict; // 响应式更新
@@ -302,6 +308,14 @@ const initCharts = () => {
   const lineoption = {
     tooltip: {
       trigger: "item",
+      formatter: function (params) {
+        // Tooltip 中显示时补充百分号
+        if (params.seriesName === "同比增长率") {
+          return `${params.name}: ${params.value}%`;
+        } else {
+          return `${params.name}: ${params.value}亿元`;
+        }
+      },
     },
     grid: {
       left: "16%",
@@ -357,6 +371,7 @@ const initCharts = () => {
             color: "#fff",
             fontSize: 12,
           },
+          // formatter: '{value}', // 不加百分号，显示实际的亿元数值
         },
       },
       {
@@ -367,6 +382,7 @@ const initCharts = () => {
         axisTick: {show: false},
         axisLabel: {
           textStyle: {fontSize: 12, color: "#fff"},
+          formatter: '{value}%', // 动态添加百分号
         },
       },
     ],
@@ -379,26 +395,33 @@ const initCharts = () => {
       itemGap: 16,
     },
     series: [
-      // {
-      //   name: "环比",
-      //   z: 9,
-      //   yAxisIndex: 1,
-      //   type: "line",
-      //   // data: [12,14],
-      //   data: datas.value.growthRate,
-      //   symbol: "circle",
-      //   symbolSize: 10,
-      //   lineStyle: {
-      //     width: 3,
-      //     color: "#ffbb00",
-      //   },
-      //   areaStyle: {
-      //     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-      //       {offset: 0, color: "rgba(255,187,0,.8)"},
-      //       {offset: 1, color: "rgba(25,163,223,0)"},
-      //     ]),
-      //   },
-      // },
+      {
+        name: "同比增长率",
+        z: 9,
+        yAxisIndex: 1,
+        type: "line",
+        // data: [12,14],
+        data: datas.value.growthRate,
+        symbol: "circle",
+        symbolSize: 10,
+        lineStyle: {
+          width: 3,
+          color: "#ffbb00",
+        },
+        itemStyle: {
+          // 使用渐变色
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#12B9DB' },  // 渐变起始颜色
+            { offset: 1, color: '#6F8EF2' }   // 渐变结束颜色
+          ]),
+        },
+        // areaStyle: {
+        //   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        //     {offset: 0, color: "rgba(255,187,0,.8)"},
+        //     {offset: 1, color: "rgba(25,163,223,0)"},
+        //   ]),
+        // },
+      },
       {
         name: "地区生产总值（GDP）",
         type: "bar",
