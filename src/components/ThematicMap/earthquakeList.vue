@@ -342,6 +342,7 @@ export default {
         if (this.selectedTabData) {
           this.selectEqPoint();
           this.$emit('eqPointPositionData',this.eqPointPositionData)
+          this.$emit('selectedEq', eq); // 发送eq数据到父组件
         }
       }
     },
