@@ -2,7 +2,7 @@
   <div class="preview-container" v-show="ifShow">
     <div class="export-image" v-show="showDisplayBorders">
       <div class="export-info">
-        <p>{{ imgName }}</p>
+        <h2>{{ formattedImgName() }}</h2>
       </div>
       <div class="main_coantainer">
         <div class="top_container">
@@ -13,7 +13,7 @@
         <div class="middow">
           <div class="left"></div>
           <div class="main">
-            <img :src="imgshowURL" alt="导出图片" style="width: 100%;height: 100%">
+            <img :src="imgshowURL" alt="遥感影像" style="width: 100%;height: 100%">
           </div>
           <div class="right"></div>
         </div>
@@ -29,7 +29,20 @@
         <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
       </div>
     </div>
-    <div v-show="!showDisplayBorders">
+    <div class="export-model-image" v-show="modelsCondition">
+      <div class="export-info">
+        <h2>{{ formattedImgName() }}</h2>
+      </div>
+      <div class="main">
+        <img :src="imgshowURL" alt="三维模型" style="width: 100%;height: 100%">
+      </div>
+      <div style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
+        <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
+        <p style="flex: 1; text-align: center;">制作时间： {{ pictureCreateTime }} </p>
+        <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
+      </div>
+    </div>
+    <div v-show="exportingImagesCondition">
       <img :src="imgshowURL" alt="导出图片" style="width: 100%;height: 100%">
     </div>
     <div class="preview-buttons">
@@ -56,7 +69,8 @@ export default {
   },
   props: [
     'imgshowURL', 'imgurlFromDate', 'imgName',
-    'ifShowMapPreview', 'corners', 'step','showDisplayBorders'
+    'ifShowMapPreview', 'corners', 'step','showDisplayBorders',
+    'modelsCondition', 'exportingImagesCondition','selectedEq'
   ],
   watch: {
     imgshowURL(newVal) {
@@ -67,21 +81,49 @@ export default {
       this.imgurlFromDateLocal = this.imgurlFromDate
     },
     imgName() {
-      this.imgNameLocal = this.imgName
       if (this.showDisplayBorders){
         this.exportImage()
+      }
+      if(this.modelsCondition){
+        this.setPictureCreateTime();
       }
     },
     ifShowMapPreview(bool) {
       this.ifShow = bool
     },
+
   },
   mounted() {
     this.imgshowURLLocal = this.getAssetsFile(this.imgshowURLLocal)
     this.imgurlFromDateLocal = this.imgurlFromDate
-    this.imgNameLocal = this.imgName
+    // this.setImgNameLocal = this.imgName
   },
   methods: {
+    // 标题名称
+    formattedImgName() {
+      console.log("777777777777777")
+      console.log(this.selectedEq)
+      if (!this.selectedEq) {
+        console.error('selectedEqData or earthquakeName is undefined');
+        return;
+      }
+      console.log("-------------------------------------------------")
+      let earthquakeName = this.selectedEq.earthquakeName;
+
+      // 如果 earthquakeName 中包含 "市"，去掉 "市" 及其后面的内容
+      if (earthquakeName.includes("市")) {
+        earthquakeName = earthquakeName.split("市")[0];  // 保留 "市" 前面的部分
+      }
+
+      // 如果 earthquakeName 中不包含 "州"，去掉 "州" 及其后面的内容
+      if (earthquakeName.includes("州")) {
+        earthquakeName = earthquakeName.split("州")[0];  // 保留 "州" 前面的部分
+      }
+
+      // 然后拼接 magnitude 和 "级地震震区"
+      this.imgNameLocal = `${earthquakeName}${this.selectedEq.magnitude}级地震震区${this.imgName}`;
+      return this.imgNameLocal
+    },
     downloadPdf() {
       // 判断是否是遥感影像图
       if (this.imgName === "遥感影像图") {
@@ -109,13 +151,39 @@ export default {
         }).catch(err => {
           console.error("截图失败：", err);
         });
-      } else {
+      }
+      if (this.imgName === "三维模型图") {
+        // 获取要截取的 DOM 元素
+        const elementToCapture = document.querySelector('.export-model-image');
+
+        // 检查 DOM 元素是否存在
+        if (!elementToCapture) {
+          console.error("无法找到要截取的 DOM 元素");
+          return;
+        }
+
+        // 使用 html2canvas 截图
+        html2canvas(elementToCapture, {
+          useCORS: true, // 允许跨域请求
+          logging: true, // 打开日志
+          scale: 2, // 提高图像质量
+          backgroundColor: null // 设置背景透明
+        }).then(canvas => {
+          // 将 canvas 转换为 Base64 图片数据
+          const img = canvas.toDataURL('image/png');
+
+          // 调用生成 PDF 的函数
+          this.generatePdf(img);
+        }).catch(err => {
+          console.error("截图失败：", err);
+        });
+      }
+      else {
         // 如果不是遥感影像图，直接使用现有的图片生成 PDF
         if (!this.imgshowURL) {
           console.error("图片数据为空，无法生成 PDF");
           return;
         }
-
         // 调用生成 PDF 的函数
         this.generatePdf(this.imgshowURL);
       }
@@ -124,7 +192,7 @@ export default {
 // 独立的生成 PDF 方法
     generatePdf(imageData) {
       // 确定 PDF 文件的动态名称
-      const title = this.imgName || "生成PDF"; // 默认名称为 "生成PDF"
+      const title = this.imgNameLocal || "生成PDF"; // 默认名称为 "生成PDF"
 
       // 初始化 jsPDF 实例
       const PDF = new jsPDF('', 'pt', 'a4');
@@ -206,6 +274,8 @@ export default {
         }).then(canvas => {
           // 将 canvas 转换为图片
           const finalImage = canvas.toDataURL('image/png');
+          this.setPictureCreateTime()
+
 
           // 创建下载链接并触发下载
           const link = document.createElement('a');
@@ -215,7 +285,32 @@ export default {
         }).catch(error => {
           console.error('Error capturing the screenshot:', error);
         });
-      } else {
+      }
+      if (this.imgName === "三维模型图") {
+        // 获取要截取的 DOM 元素
+        const elementToCapture = document.querySelector('.export-model-image');
+
+        // 使用 html2canvas 截图
+        html2canvas(elementToCapture, {
+          useCORS: true, // 允许跨域请求，确保图片加载
+          logging: true, // 打开日志以查看可能的错误
+          scale: 2, // 提高图像质量
+          backgroundColor: null // 使背景透明
+        }).then(canvas => {
+          // 将 canvas 转换为图片
+          const finalImage = canvas.toDataURL('image/png');
+          this.setPictureCreateTime()
+
+          // 创建下载链接并触发下载
+          const link = document.createElement('a');
+          link.download = `${this.imgNameLocal}.png`; // 设置下载文件名
+          link.href = finalImage; // 设置图片来源
+          link.click(); // 触发下载
+        }).catch(error => {
+          console.error('Error capturing the screenshot:', error);
+        });
+      }
+      else {
         try {
           const link = document.createElement('a'); // 创建下载链接
           link.download = `${this.imgNameLocal || 'download'}.jpg`; // 设置默认文件名
