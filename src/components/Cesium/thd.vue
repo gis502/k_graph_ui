@@ -492,7 +492,7 @@ import newsDialog from "@/components/TimeLine/newsDialog.vue";
 import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue";
 import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue";
 import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue";
-import Deom from "@/components/TimeLine/deom.vue";
+// import Deom from "@/components/TimeLine/deom.vue";
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
@@ -559,7 +559,7 @@ export default {
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
-    Deom,
+    // Deom,
     timeLineLegend,
     newsDialog,
     commonPanel,

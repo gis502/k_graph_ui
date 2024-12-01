@@ -76,6 +76,9 @@ export default {
     imgshowURL(newVal) {
       // console.log("newVal",newVal)
       this.imgshowURLLocal = this.getAssetsFile(newVal)
+      if (this.showDisplayBorders){
+        this.exportImage()
+      }
     },
     imgurlFromDate() {
       this.imgurlFromDateLocal = this.imgurlFromDate
@@ -364,13 +367,17 @@ export default {
       this.setPictureCreateTime()
     },
 
-    //动态添加盒子方法
-    addBoxes(container, prefix, dataContext, reverse = false) {
+    removeBoxs(container){
       if (!container) return;
       // 清空容器中的已有盒子
       while (container.firstChild) {
         container.removeChild(container.firstChild);
       }
+    },
+
+    //动态添加盒子方法
+    addBoxes(container, prefix, dataContext, reverse = false) {
+      this.removeBoxs(container)
 
       let points = dataContext.points;
       let flexPercentages = dataContext.flexPercentages;
@@ -558,6 +565,12 @@ export default {
 }
 
 .middow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.top_container {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
