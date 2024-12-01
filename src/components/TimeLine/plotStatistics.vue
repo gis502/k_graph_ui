@@ -35,9 +35,12 @@ export default {
       isDataReady:false,
       dataInTimeAndZoom:[],
       centerPosionName:'',
+      option:null,
+      scrollInterval:null,
+
     };
   },
-  props: ['plots', 'currentTime','zoomLevel','viewCenterCoordinate'],
+  props: ['plots', 'currentTime','zoomLevel','viewCenterCoordinate','isTimerRunning'],
   watch: {
     plots(newVal) {
       this.getRescueActionCasualtiesPlotAndInfo();
@@ -63,14 +66,26 @@ export default {
       //   this.getRescueActionCasualtiesPlotAndInfo(newVal);
       // }
       // this.showZoomStatistic()
+    },
+    isTimerRunning(newVal){
+      if(newVal===false){
+        // console.log("isTimerRunning plotStatistic",newVal)
+        this.scroll()
+      }
+      else{
+        this.scrollToStart()
+      }
+      //true 不滚动
+      //fasle 滚动
     }
-
   },
   mounted() {
     this.initEcharts() //初始化
     // this.updateStatistic()
   },
   methods: {
+
+
     //图表操作
     //根据键取值，把值存到数组中 （一个工具函数）
     getArrByKey(data, k) {
@@ -93,7 +108,7 @@ export default {
       //数组最大值
 
       //配置
-      const option = {
+      this.option = {
         //位置布局
         grid: {
           top: '17%',
@@ -266,7 +281,7 @@ export default {
       };
 
       //配置
-      this.chart.setOption(option);
+      this.chart.setOption(this.option);
     },
     //取位置
     async getRescueActionCasualtiesPlotAndInfo() {
@@ -458,10 +473,45 @@ export default {
         ]
       });
     },
-    // pushStatisticInfo(dataIntime){
-    //
-    // }
-
+    scrollToStart(){
+      if (this.scrollInterval) {
+        clearInterval(this.scrollInterval);
+      }
+      this.chart.setOption({
+        dataZoom: [
+          //拖拽滚动条滚动
+          {
+            // 数据窗口范围的起始数值
+            startValue: 0,
+            // 数据窗口范围的结束数值（一页显示多少条数据）
+            endValue: 4,
+          },
+        ],
+      })
+    },
+    scroll(){
+      if (this.scrollInterval) {
+        clearInterval(this.scrollInterval);
+      }
+      let start=this.option.dataZoom[0].startValue+1
+      let end=this.option.dataZoom[0].endValue+1
+      this.scrollInterval = setInterval(() => {
+        console.log("scrollInterval start end",start,end)
+        this.chart.setOption({
+          dataZoom: [
+            //拖拽滚动条滚动
+            {
+              // 数据窗口范围的起始数值
+              startValue: start,
+              // 数据窗口范围的结束数值（一页显示多少条数据）
+              endValue: end,
+            },
+          ],
+        })
+        start=start+1
+        end=end+1
+      }, 2000);
+    }
   }
 
 };

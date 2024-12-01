@@ -652,12 +652,12 @@ export default {
       this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
 
-      this.websock.onmessage = (event) => {
-        console.log('收到消息：event', event);
-        console.log('收到消息：enevt data', event.data);
-        // 处理接收到的数据
-        // this.handleMessage(event.data);
-      };
+      // this.websock.onmessage = (event) => {
+      //   console.log('收到消息：event', event);
+      //   console.log('收到消息：enevt data', event.data);
+      //   // 处理接收到的数据
+      //   // this.handleMessage(event.data);
+      // };
     },
 
     initcesiumPlot() {
