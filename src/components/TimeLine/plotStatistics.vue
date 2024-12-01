@@ -6,7 +6,9 @@
           标绘统计
           <span class="time"></span>
         </h2></div>
-      <div class="pop_content">
+      <div class="pop_content"
+           @mouseenter="handleMouseEnter"
+           @mouseleave="handleMouseLeave">
         <div class="range">统计范围：{{this.centerPosionName}}</div>
         <div class="num">总计：{{this.dataInTimeAndZoom.length}}个</div>
         <div id="plotsStatisticChart"></div>
@@ -153,7 +155,7 @@ export default {
             itemStyle: {
               color: '#59dbf8',
               barBorderRadius: 30,
-              fontSize:15,
+              fontSize: 15,
             },
           },
           {
@@ -172,9 +174,9 @@ export default {
               color: '#fff', // 文本颜色
               formatter: function (params) { //格式化标签内容：名称
                 // console.log(params,"params")
-                return (params.dataIndex+1)+" "+params.name ;
+                return (params.dataIndex + 1) + " " + params.name;
               },
-              fontSize:15, // 字体大小
+              fontSize: 15, // 字体大小
               padding: [0, 0, -9, 0], // 根据需要调整内边距
             }
           },
@@ -202,7 +204,7 @@ export default {
                 // 使用数据项的 name 和 value 作为标签内容
                 return findeditem[0].value + "个";
               },
-              fontSize:15, // 字体大小
+              fontSize: 15, // 字体大小
               padding: [0, 0, -9, 0], // 根据需要调整内边距
             }
           },
@@ -216,7 +218,7 @@ export default {
           data: ['标绘点个数'], // 图例数据，这里与 series 中的 name 对应
           textStyle: {
             color: '#fff', // 图例文字颜色
-            fontSize:15,
+            fontSize: 15,
           },
           itemHeight: 5, // 调整图例图标的高度
 
@@ -285,8 +287,10 @@ export default {
     },
     //取位置
     async getRescueActionCasualtiesPlotAndInfo() {
-      console.log("this.plots getRescueActionCasualtiesPlotAndInfo",this.plots)
-      if(!this.plots){return;}
+      console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
+      if (!this.plots) {
+        return;
+      }
       const locationDataArray = await Promise.all(this.plots.map(async data => {
         const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
         try {
@@ -301,9 +305,15 @@ export default {
       this.resInfo = []
       await Promise.all(validLocationData.map(async data => {
         const {locationInfo, plotId, plotType, longitude, latitude, startTime, endTime} = data;
-        this.resInfo.push({plotId:plotId,plotType: plotType, startTime:startTime,endTime:endTime,locationInfo: locationInfo});
+        this.resInfo.push({
+          plotId: plotId,
+          plotType: plotType,
+          startTime: startTime,
+          endTime: endTime,
+          locationInfo: locationInfo
+        });
       }));
-      this.isDataReady=true;
+      this.isDataReady = true;
       // console.log("resInfo.value111", this.resInfo)
       this.updateTimeStatistic()
     },
@@ -324,7 +334,9 @@ export default {
     },
 
     updateTimeStatistic() {
-      if(!this.currentTime){return;}
+      if (!this.currentTime) {
+        return;
+      }
       this.dataIntime = []
       this.resInfo.forEach(item => {
         let currentDate = new Date(this.currentTime);
@@ -337,10 +349,12 @@ export default {
       // console.log("dataIntime",dataIntime)
       this.showZoomStatistic()
     },
-    async showZoomStatistic(){
-      if(!this.dataIntime){return;}
-      this.dataInTimeAndZoom=[]
-      console.log(this.dataIntime,"this.dataIntime")
+    async showZoomStatistic() {
+      if (!this.dataIntime) {
+        return;
+      }
+      this.dataInTimeAndZoom = []
+      console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
 
       // console.log(this.viewCenterCoordinate,originalArray,"originalArray")
@@ -352,41 +366,41 @@ export default {
       // else{
       //   let viewCenterLocation=await this.getReverseGeocode(this.viewCenterCoordinate.lon,this.viewCenterCoordinate.lat)
 
-        // switch (this.zoomLevel) {
-        //   case '市':
-        //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
-        //     this.centerPosionName='雅安市'
-        //     console.log(this.centerPosionName,"this.centerPosionName")
-        //     break;
-        //   case '区/县':
-        //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.county ===viewCenterLocation.county);
-        //     this.centerPosionName=viewCenterLocation.county
-        //     console.log(this.centerPosionName,"this.centerPosionName")
-        //     break;
-        //   case '乡/镇':
-        //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.town === viewCenterLocation.town);
-        //     this.centerPosionName=viewCenterLocation.town
-        //     console.log(this.centerPosionName,"this.centerPosionName")
-        //     break;
-        //     // case '村':
-        //     //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.address === viewCenterLocation.address);
-        //     //   this.centerPosionName=viewCenterLocation.address
-        //     //   break;
-        //   default:
-            this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
-            this.centerPosionName='雅安市'
-            console.log(this.centerPosionName,"this.centerPosionName")
-            // break;
-        // }
-        // arr=originalArray.filter(data => data.locationInfo.city === '雅安市');
-        // break;
-        console.log(this.dataInTimeAndZoom,"arrinZoom")
+      // switch (this.zoomLevel) {
+      //   case '市':
+      //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
+      //     this.centerPosionName='雅安市'
+      //     console.log(this.centerPosionName,"this.centerPosionName")
+      //     break;
+      //   case '区/县':
+      //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.county ===viewCenterLocation.county);
+      //     this.centerPosionName=viewCenterLocation.county
+      //     console.log(this.centerPosionName,"this.centerPosionName")
+      //     break;
+      //   case '乡/镇':
+      //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.town === viewCenterLocation.town);
+      //     this.centerPosionName=viewCenterLocation.town
+      //     console.log(this.centerPosionName,"this.centerPosionName")
+      //     break;
+      //     // case '村':
+      //     //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.address === viewCenterLocation.address);
+      //     //   this.centerPosionName=viewCenterLocation.address
+      //     //   break;
+      //   default:
+      this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
+      this.centerPosionName = '雅安市'
+      console.log(this.centerPosionName, "this.centerPosionName")
+      // break;
+      // }
+      // arr=originalArray.filter(data => data.locationInfo.city === '雅安市');
+      // break;
+      console.log(this.dataInTimeAndZoom, "arrinZoom")
 
       // }
 
 
-      let counts =  this.dataInTimeAndZoom.reduce((acc, obj) => {
-        console.log(acc,obj,"occ,obj")
+      let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
+        console.log(acc, obj, "occ,obj")
         // 如果acc中已经有这个icon值，则增加它的计数
         if (acc[obj.plotType]) {
           acc[obj.plotType].value += 1;
@@ -398,7 +412,7 @@ export default {
 
       // 将结果转换为数组
       this.myChart1Data = Object.values(counts);
-      console.log(this.myChart1Data,"this.myChart1Data")
+      console.log(this.myChart1Data, "this.myChart1Data")
       this.myChart1Data = this.myChart1Data.sort((a, b) => {
         return b.value - a.value
       });
@@ -442,8 +456,7 @@ export default {
                     ],
                     global: false // 缺省为 false
                   };
-                }
-                else {
+                } else {
                   // 如果不在前三个值中，返回单一颜色
                   return {
                     type: 'linear',
@@ -473,7 +486,7 @@ export default {
         ]
       });
     },
-    scrollToStart(){
+    scrollToStart() {
       if (this.scrollInterval) {
         clearInterval(this.scrollInterval);
       }
@@ -489,14 +502,14 @@ export default {
         ],
       })
     },
-    scroll(){
+    scroll() {
       if (this.scrollInterval) {
         clearInterval(this.scrollInterval);
       }
-      let start=this.option.dataZoom[0].startValue+1
-      let end=this.option.dataZoom[0].endValue+1
+      let start = this.option.dataZoom[0].startValue + 1
+      let end = this.option.dataZoom[0].endValue + 1
       this.scrollInterval = setInterval(() => {
-        console.log("scrollInterval start end",start,end)
+        console.log("scrollInterval start end", start, end)
         this.chart.setOption({
           dataZoom: [
             //拖拽滚动条滚动
@@ -508,10 +521,24 @@ export default {
             },
           ],
         })
-        start=start+1
-        end=end+1
+        start = start + 1
+        end = end + 1
       }, 2000);
-    }
+    },
+
+    handleMouseEnter() {
+      // 鼠标悬停时，清除自动滚动的 interval
+      if (this.scrollInterval) {
+        clearInterval(this.scrollInterval);
+      }
+    },
+    handleMouseLeave() {
+      if (!this.isTimerRunning){
+        // 鼠标移开时，恢复自动滚动的 interval
+        this.scroll();
+      }
+
+    },
   }
 
 };
@@ -582,18 +609,20 @@ export default {
   width: 100%;
   height: 20vh;
 }
-.range{
+
+.range {
   color: #FFFFFF;
   font-size: 0.9rem;
   left: 1%;
   top: 1%;
 }
-.num{
+
+.num {
   position: absolute;
   color: #FFFFFF;
   font-size: 0.9rem;
   right: 9%;
   top: 1%;
-  width:30%;
+  width: 30%;
 }
 </style>

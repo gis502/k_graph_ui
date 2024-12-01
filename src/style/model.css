@@ -1,0 +1,40 @@
+.tool-container-1 {
+    position: absolute;
+    padding: 10px;
+    border-radius: 5px;
+    width: 36%;
+    top: 9%;
+    left: 1%;
+    z-index: 30; /* 更高的层级 */
+    background-color: rgba(40, 40, 40, 1);
+}
+
+.tool-container {
+    position: absolute;
+    padding: 10px;
+    border-radius: 5px;
+    width: 36%;
+    top: 52%;
+    left: 1%;
+    z-index: 30; /* 更高的层级 */
+    background-color: rgba(40, 40, 40,1);
+}
+
+.el-pagination {
+    margin-top: 10px;
+    justify-content: center;
+}
+
+:deep(.el-pagination__total) {
+    color: #FFFFFF;
+}
+
+:deep(.el-pagination>.is-last) {
+    color: #FFFFFF;
+}
+
+:deep(.el-table--fit .el-table__inner-wrapper:before) {
+    width: 0;
+}
+
+
