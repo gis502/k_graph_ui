@@ -22,11 +22,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="遥感影像名称" width="150" align="center"></el-table-column>
-      <el-table-column prop="height" label="遥感影像高度（米）" width="200" align="center"></el-table-column>
-      <el-table-column prop="createTime" label="添加时间" align="center" width="180"></el-table-column>
       <el-table-column prop="path" label="遥感影像路径" width="200" align="center"></el-table-column>
-      <el-table-column prop="angle" label="旋转角度（度）" width="180" align="center"></el-table-column>
-      <el-table-column prop="shootingTime" label="拍摄时间" align="center" width="180"></el-table-column>
+      <el-table-column prop="createTime" label="添加时间" align="center" width="250"></el-table-column>
+      <el-table-column prop="shootingTime" label="拍摄时间" align="center" width="250"></el-table-column>
       <el-table-column label="操作" align="center">
         <template v-slot="scope">
           <el-button size="mini" type="text" icon="el-icon-view" @click="handleOpen('浏览', scope.row)">浏览</el-button>
@@ -60,11 +58,10 @@
         </el-form-item>
 
 
-        <el-form-item label="遥感影像高度(米)" prop="path">
+        <el-form-item label="遥感影像路径" prop="path">
           <el-input
-              v-model="dialogContent.height"
+              v-model="dialogContent.path"
               placeholder="请输入内容"
-              type="number"
           ></el-input>
         </el-form-item>
 
@@ -92,17 +89,6 @@
           ></el-date-picker>
         </el-form-item>
 
-        <el-form-item label="遥感影像路径" prop="height">
-          <el-input
-              v-model="dialogContent.path"
-              placeholder="请输入内容"
-          ></el-input>
-        </el-form-item>
-
-        <!-- 旋转角度 -->
-        <el-form-item label="旋转角度(度)" prop="angle">
-          <el-input v-model="dialogContent.angle" placeholder="请输入内容" type="number"></el-input>
-        </el-form-item>
 
         <span slot="footer" class="dialog-footer">
       <el-button @click="cancel">取消</el-button>
@@ -122,16 +108,6 @@
         <!-- 名称 -->
         <el-form-item label="遥感影像名称">
           <el-input v-model="dialogContent.modelName" style="width: 23vw;" placeholder="正射影像名称" clearable />
-        </el-form-item>
-
-        <el-form-item label="遥感影像高度(米)" prop="height">
-          <el-input
-              type="number"
-              v-model="dialogContent.height"
-              style="width: 23vw;"
-              placeholder="请输入高度"
-              clearable
-          />
         </el-form-item>
 
         <!-- 添加时间 -->
@@ -166,16 +142,6 @@
           />
         </el-form-item>
 
-        <!-- 旋转角度 -->
-        <el-form-item label="旋转角度(度)" prop="rotationAngle">
-          <el-input
-              type="number"
-              v-model="dialogContent.rotationAngle"
-              style="width: 23vw;"
-              placeholder="请输入旋转角度"
-              clearable
-          />
-        </el-form-item>
       </el-form>
 
       <div class="dialog-footer">
@@ -217,19 +183,11 @@ export default {
         createTime: '',
         shootingTime:'',
         path: '',
-        height: '',
-        angle: '',
         uuid: ''
       },
       rules: {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
-        ],
-        height: [
-          { message: '高度必须是数字', trigger: 'blur', required: false }
-        ],
-        angle: [
-          {  message: '角度必须是数字', trigger: 'blur', required: false }
         ]
       }
 
@@ -318,8 +276,6 @@ export default {
         name: this.dialogContent.modelName || null,
         createTime: this.dialogContent.createTime,
         shootingTime: this.dialogContent.shootingTime,
-        height: this.dialogContent.height || null,
-        angle: this.dialogContent.rotationAngle || null,
         path: this.dialogContent.modelPath || null,
         uuid: this.dialogContent.uuid || null,
       };
@@ -491,8 +447,6 @@ export default {
         createTime: '',
         shootingTime:'',
         path: '',
-        height: '',
-        angle: '',
         uuid: '',
       };
     },
@@ -510,8 +464,6 @@ export default {
           createTime: new Date().toISOString(),
           shootingTime: new Date().toISOString(),
           path: '',
-          height: '',
-          angle: '',
           uuid: ''
         };
       } else if (title === "修改") {
@@ -520,8 +472,6 @@ export default {
           path: row.path,
           createTime: row.createTime,
           shootingTime: row.createTime,
-          height: row.height,
-          angle: row.angle,
           uuid: row.uuid
         };
         console.log(row.createTime)
@@ -573,8 +523,6 @@ export default {
           // 复制 dialogContent 对象
           const modelData = {
             name: this.dialogContent.name,
-            height: this.dialogContent.height,
-            angle: this.dialogContent.angle,
             path: this.dialogContent.path,
             createTime: this.formatDate(this.dialogContent.createTime),
             shootingTime: this.formatDate(this.dialogContent.shootingTime),
@@ -602,8 +550,6 @@ export default {
         name: '',
         createTime: '',
         path: '',
-        height: '',
-        angle: '',
         uuid: '',
         shootingTime: ''
       };

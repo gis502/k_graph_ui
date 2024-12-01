@@ -490,10 +490,6 @@ export default {
       rectangleBounds: [],//按东南西北的顺序存储
       latLonEntities: [], // 用于存储经纬度线实体的数组
       //下面的是用来解决导出图片边框和经纬度数字展示用的
-      topStart: null,
-      topEnd: null,
-      leftStart: null,
-      leftEnd: null,
       step: 0.5,
       divBoxCount: 0,
       flexPercentages: [],
@@ -2714,16 +2710,6 @@ img {
   width: 100%;
 }
 
-.download-button,
-.cancel-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-}
 
 .download-button:hover,
 .cancel-button:hover {
@@ -2798,12 +2784,6 @@ img {
 .right {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.bottom_container {
-  display: flex;
-  flex-direction: row;
   justify-content: space-between;
 }
 

@@ -92,9 +92,9 @@
         <el-divider content-position="left"> 灾情报告</el-divider>
         <div class="eqTheme">
           <div class="button themes history"
-               v-for="item in reportData"
+               v-for="(item,index) in reportData"
                style="width: 120px;"
-               @click="exportCesiumScene(item)"
+               @click="exportCesiumScene(item,index)"
           >{{ item.name }}
           </div>
         </div>
@@ -146,7 +146,10 @@ export default {
         {
           name: '震区基本情况报告',
           path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'
-        }
+        },
+          {
+              name: '分析研判组件'
+          }
       ],
       filteredEqData: [],
       pagedEqData: [],
@@ -157,7 +160,6 @@ export default {
       pageSize: 10,
       currentPage: 1,
       selectedEqPoint: '',
-      eqPointPositionData: {longitude:null,latitude:null}
     }
   },
   mounted() {
@@ -175,7 +177,10 @@ export default {
         this.reportData = this.twoAndThreeDIntegrationReport
       }
     },
-    exportCesiumScene(item) {
+    exportCesiumScene(item,index) {
+        if(index === 2){
+            this.$emit('generateReport', this.selectedTabData)
+        }
       if (item.path) {
         const link = document.createElement('a');
         link.href = item.path;
@@ -334,7 +339,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
-          this.$emit('eqPointPositionData',this.eqPointPositionData)
+          this.$emit('selectEq', eq); // 发送eq数据到父组件
         }
       }
     },
@@ -374,10 +379,6 @@ export default {
           },
           id: this.selectedTabData.id
         });
-        const longitude = this.selectedTabData.longitude;
-        const latitude = this.selectedTabData.latitude;
-        this.eqPointPositionData.longitude = longitude;
-        this.eqPointPositionData.latitude = latitude;
       }
     },
 
