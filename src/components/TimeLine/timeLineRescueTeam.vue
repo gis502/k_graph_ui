@@ -597,7 +597,7 @@ onBeforeUnmount(() => {
   top: 54.4%;
 
 
-  height: 100%;
+  height: 28%;
   width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
 }
