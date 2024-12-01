@@ -2118,7 +2118,6 @@ export default {
 
             pathSegments.unshift(that.pos[0]);
             pathSegments.push(that.pos[1]);
-            that.pos = [];  // 清空路径点
 
             // 将新的路径绘制到地图上
             that.polylineD(pathSegments, that.propertiesId);  // 传递路径和 id 更新折线

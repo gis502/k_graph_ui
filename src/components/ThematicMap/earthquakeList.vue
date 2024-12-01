@@ -160,7 +160,6 @@ export default {
       pageSize: 10,
       currentPage: 1,
       selectedEqPoint: '',
-      eqPointPositionData: {longitude:null,latitude:null}
     }
   },
   mounted() {
@@ -181,7 +180,6 @@ export default {
     exportCesiumScene(item,index) {
         if(index === 2){
             this.$emit('generateReport', this.selectedTabData)
-            console.log("selectedTabData--------------",this.selectedTabData)
         }
       if (item.path) {
         const link = document.createElement('a');
@@ -341,7 +339,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
-          this.$emit('eqPointPositionData',this.eqPointPositionData)
+          this.$emit('selectEq', eq); // 发送eq数据到父组件
         }
       }
     },
@@ -381,10 +379,6 @@ export default {
           },
           id: this.selectedTabData.id
         });
-        const longitude = this.selectedTabData.longitude;
-        const latitude = this.selectedTabData.latitude;
-        this.eqPointPositionData.longitude = longitude;
-        this.eqPointPositionData.latitude = latitude;
       }
     },
 

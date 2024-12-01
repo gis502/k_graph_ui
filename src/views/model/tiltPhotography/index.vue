@@ -21,59 +21,60 @@
         :stripe="true"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
+        style="table-layout: fixed; width: 100%;"
     >
       <el-table-column
           prop="serialNumber"
           label="序号"
-          width="80"
+          min-width="80"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="modelName"
           label="模型名称"
-          width="200"
+          min-width="200"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="modelSize"
           label="模型大小(GB)"
-          width="150"
+          min-width="120"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="modelPath"
           label="模型路径"
-          width="250"
+          min-width="250"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="modelHeight"
           label="模型中心高度(米)"
-          width="150"
+          min-width="150"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="rotationAngle"
           label="旋转角度(度)"
-          width="150"
+          min-width="150"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="addTime"
           label="添加时间"
-          width="200"
+          min-width="200"
           align="center"
       ></el-table-column>
 
       <el-table-column
           label="操作"
-          width="200"
+          min-width="200"
           align="center"
       >
         <template v-slot="scope">
@@ -95,6 +96,7 @@
         </template>
       </el-table-column>
     </el-table>
+
     <el-pagination
 
         class="pagination"

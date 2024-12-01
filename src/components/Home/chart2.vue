@@ -148,8 +148,17 @@ const initAftershockChart = () => {
 
   const option = {
     tooltip: {
+      textStyle:{
+        color: '#15ecf4'
+      },
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      axisPointer: {
+        lineStyle: {
+          color: '#15ecf4'
+        }
+      },
+      backgroundColor: 'rgba(0,0,0,.8)',
+      extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
       formatter: (params) => {
         return params.map(item => `${item.marker}${item.name}: ${(item.value).toFixed(2)} 次`).join('<br/>');
       },
@@ -386,8 +395,17 @@ const initPopulationDataChart = () => {
 
   const option = {
     tooltip: {
+      textStyle:{
+        color: '#15ecf4'
+      },
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      axisPointer: {
+        lineStyle: {
+          color: '#15ecf4'
+        }
+      },
+      backgroundColor: 'rgba(0,0,0,.8)',
+      extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
       formatter: (params) => {
         // 在 tooltip 中为每个数据值前添加颜色圆点，以万人为单位
         return params.map(item => `${item.marker}${item.name}: ${(item.value / 10000).toFixed(2)} 万人`).join('<br/>');

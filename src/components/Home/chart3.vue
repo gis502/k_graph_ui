@@ -4,6 +4,11 @@
         style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
       更新时间：{{ updateTime }}
     </span>
+    <div class="row death">
+      <span class="label">遇难人数</span>
+      <span class="count">{{ deathCount }}</span>
+      <span class="suffix">人</span>
+    </div>
     <div class="row injury">
       <span class="label">受伤人数</span>
       <span class="count">{{ injuryCount }}</span>
@@ -14,9 +19,9 @@
       <span class="count">{{ missingCount }}</span>
       <span class="suffix">人</span>
     </div>
-    <div class="row death">
-      <span class="label">遇难人数</span>
-      <span class="count">{{ deathCount }}</span>
+    <div class="row affectedPopulation">
+      <span class="label">累计受灾人数</span>
+      <span class="count">{{ affectedPopulationCount }}</span>
       <span class="suffix">人</span>
     </div>
   </div>
@@ -26,15 +31,41 @@
 import {ref, watch } from 'vue';
 // import { getCasualtyStats } from '@/api/system/casualtystats.js'; // 引入之前定义的 API 方法
 import {gettotal} from '@/api/system/casualtystats.js'
+import {getOneData} from"@/api/system/casualtystats.js"
 const props = defineProps(['lastEq'])
 
 
 const injuryCount = ref(0);
 const missingCount = ref(0);
 const deathCount = ref(0);
+const affectedPopulationCount = ref(0);
 const updateTime = ref('')
 watch(() => props.lastEq, () => {
   if (props.lastEq){
+    getOneData(props.lastEq.eqid).then((res) => {
+      // 确保返回的结果包含 data 且是数组类型
+      if (res && res.data && Array.isArray(res.data)) {
+        let totalAffectedPopulation = 0;
+
+        // 遍历返回的所有记录，累加 affectedPopulation
+        res.data.forEach((item) => {
+          totalAffectedPopulation += item.affectedPopulation || 0;
+        });
+
+        // 更新 affectedPopulationCount
+        affectedPopulationCount.value = totalAffectedPopulation;
+
+        // 打印调试信息，确保数据正确
+        console.log("Returned data:", res.data);
+        console.log("Total affected population:", totalAffectedPopulation);
+      } else {
+        console.error("Invalid response data:", res);
+      }
+    }).catch((error) => {
+      // 捕获请求失败时的错误
+      console.error("Error fetching data:", error);
+    });
+
     gettotal(props.lastEq.eqid).then((res) => {
 
       if (res && Array.isArray(res)) {
@@ -50,7 +81,7 @@ watch(() => props.lastEq, () => {
           console.log("Injury count for this item:", item.injuryCount);
           console.log("Missing count for this item:", item.missingCount);
           console.log("Death count for this item:", item.deathCount);
-          console.log(res)
+          console.log("resssssssssssssssssssssssssssssssssssssss",res)
           // 确保 item 中的字段存在，并进行累加
           totalInjury += item.totalInjured || 0;  // 使用 || 以防 item.injuryCount 为 null 或 undefined
           totalMissing += item.totalMissing || 0;
@@ -61,6 +92,7 @@ watch(() => props.lastEq, () => {
         injuryCount.value = totalInjury;
         missingCount.value = totalMissing;
         deathCount.value = totalDeath;
+
         // 更新最新时间
         // 使用可选链和默认值，防止latestInsertTime为undefined时报错
         // 检查时间字段并安全访问
@@ -102,6 +134,9 @@ watch(() => props.lastEq, () => {
   //       updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
   //     }
     })
+
+
+
   }
 });
 
@@ -119,7 +154,7 @@ watch(() => props.lastEq, () => {
 
 .row {
   margin: 0.65vh 0;
-  height: 4.8vh;
+  height: 3.4vh;
   display: flex;
   align-items: center;
   font-size: 13px;
@@ -152,5 +187,9 @@ watch(() => props.lastEq, () => {
 .death {
   background: linear-gradient(to right, rgba(24, 8, 8, 0.5) 30%, rgba(0, 0, 0, 0) 70%);
   border-left-color: rgba(9, 0, 0, 0.5); /* Black border */
+}
+.affectedPopulation{
+  background: linear-gradient(to right, rgba(13, 72, 129, 0.5) 30%, rgba(0, 0, 0, 0) 70%);
+  border-left-color: rgba(20, 135, 227, 0.5);
 }
 </style>

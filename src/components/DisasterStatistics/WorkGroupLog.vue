@@ -9,9 +9,7 @@
         <AffectAreaInfo :eqid="eqid"/>
       </dv-border-box-13>
 
-      <dv-border-box-13 class="model2">需求清单信息统计<br>
-        <ProblemRequireWordCloud />
-      </dv-border-box-13>
+
 
     </div>
   </div>
@@ -282,17 +280,6 @@ const clearSelection = () => {
 }
 
 .model1 {
-  width: 48%;
-  height: 40%;
-  position: relative;
-  text-align: center;
-  float: right;
-  font-size: 20px;
-  margin: 10px;
-  color: #FFFFFF;
-  padding-top: 10px;
-}
-.model2 {
   width: 100%;
   height: 50%;
   font-size: 25px;

@@ -75,8 +75,6 @@ const handleClick = () => {
   userInput.value = inputValue.value;
   inputValue.value = '';
 }
-
-
 // -------------------------------------------------------------------------------------------------------
 
 
