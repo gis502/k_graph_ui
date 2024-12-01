@@ -318,9 +318,11 @@ export default {
         window.viewer.entities.removeById(data.plotId + "_polygon")
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(data.plotId);
+          const entityToRemove_base = window.pointDataSource.entities.getById(data.plotId+"_base");
           console.log("entityToRemove", entityToRemove)
           if (entityToRemove) {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            window.pointDataSource.entities.remove(entityToRemove_base); // 移除点
           }
         }
         if (window.labeldataSource) {
