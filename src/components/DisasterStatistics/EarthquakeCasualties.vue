@@ -52,12 +52,117 @@ const formatDate = (dateStr) => {
 
 const userInputTime = ref('')
 
+const updateData = (data) => {
+  // 得到后端数据开始操作：
+  const areas = data.length > 0 ? data.map(item => item.affected_area_name) : ["抱歉暂无数据"];
+  const totalDeceased = data.length > 0 ? data.map(item => item.total_deceased) : [0];
+  const totalMissing = data.length > 0 ? data.map(item => item.total_missing) : [0];
+  const totalInjured = data.length > 0 ? data.map(item => item.total_injured) : [0];
+  const times = data.length > 0 ? data.map(item => formatDate(item.submission_deadline)) : ["抱歉暂无数据"];
+
+  // 初始化 ECharts 实例
+  const chartInstance = echarts.init(chart.value);
+  // 更新图表配置
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter: function (params) {
+        // 第一行显示地区名称
+        let result = `${params[0].axisValue}<br/>`;
+
+        // 第二行显示截止时间
+        const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
+        result += `<span style="color: red;">图表上传时间: ${times[timeIndex]}</span><br/>`;
+
+        // 显示系列名和数值
+        params.forEach(item => {
+          result += `${item.marker} ${item.seriesName}: ${item.value}<br/>`;
+        });
+
+        return result;
+      }
+    },
+    legend: {
+      data:FieldName.value,
+      align: 'right',
+      right: 10,
+      textStyle: {
+        color: "#fff"
+      },
+      itemWidth: 10,
+      itemHeight: 10,
+      itemGap: 35
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: [{
+      type: 'category',
+      data: areas, // 使用动态获取的区域数据
+      // 其他 xAxis 配置
+    }],
+    yAxis: [{
+      type: 'value',
+      axisLabel: {
+        // 移除百分比格式化
+        // formatter: '{value} %'
+      },
+      axisTick: {
+        show: false
+      },
+      axisLine: {
+        show: false,
+        lineStyle: {
+          color: "#00c7ff",
+          width: 1,
+          type: "solid"
+        }
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#063374"
+        }
+      }
+    }],
+    series: [
+      {
+        name: '累计遇难（人）',
+        type: 'bar',
+        data: totalDeceased, // 使用动态获取的死亡人数
+        // 其他系列配置
+      },
+      {
+        name: '累计失联（人）',
+        type: 'bar',
+        data: totalMissing, // 使用动态获取的失联人数
+        // 其他系列配置
+      },
+      {
+        name: '累计受伤（人）',
+        type: 'bar',
+        data: totalInjured, // 使用动态获取的受伤人数
+        // 其他系列配置
+      }
+    ]
+  };
+
+  chartInstance.setOption(option); // 设置更新后的配置
+  window.addEventListener('resize', () => {
+    chartInstance.resize();
+  });
+}
 watch(()=>props.userInput,(newValue) => {
   userInputTime.value = newValue;
   // 后端逻辑处理：
   fromCasualty(store.globalEqId,newValue).then(res => {
-    console.log("人员伤亡返回的数据",res)
-    // updateChartData(res.data)
+    console.log("人员伤亡返回的数据",res.data)
+    updateData(res.data)
   })
 })
 // ------------------------------------------------------------------------------------------------
@@ -91,7 +196,7 @@ const updateChartData = (data) => {
 
         // 第二行显示截止时间
         const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
-        result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
+        result += `<span style="color: red;">图表上传时间: ${times[timeIndex]}</span><br/>`;
 
         // 显示系列名和数值
         params.forEach(item => {
@@ -297,7 +402,7 @@ const getTableField = () => {
 
           // 第二行显示截止时间
           const timeIndex = params[0].dataIndex; // 根据 dataIndex 获取对应的时间
-          result += `<span style="color: red;">统计截止时间: ${times[timeIndex]}</span><br/>`;
+          result += `<span style="color: red;">图表上传时间: ${times[timeIndex]}</span><br/>`;
 
           // 显示系列名和数值
           params.forEach(item => {
