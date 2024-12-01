@@ -7,8 +7,6 @@
           @imag-selected="onImagSelected"
           @selectEq="selectEq"
           :thematicMapClass="thematicMapClass"
-          @eqPointPositionData="getEqPointPositionData"
-          @selectedEq = "getSelectedEqData"
       ></EarthquakeList>
 
       <!--            <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"-->
@@ -26,18 +24,15 @@
     </div>
     <!--    准提图预览组件    -->
     <thematicMapPreview
-        ref="thematicMapPreviewRef"
         @ifShowThematicMapDialog="ifShowDialog"
         :imgshowURL="imgshowURL"
         :imgurlFromDate="imgurlFromDate"
         :imgName="imgName"
         :ifShowMapPreview="ifShowMapPreview"
+        :selectedEq="selectedEqData"
+        :showTypes="showTypes"
         :corners="corners"
         :step="step"
-        :showDisplayBorders="showDisplayBorders"
-        :modelsCondition="modelsCondition"
-        :exportingImagesCondition="exportingImagesCondition"
-        :selectedEq="selectedEqData"
         style="width: 70%"
     ></thematicMapPreview>
 
@@ -105,30 +100,33 @@ export default {
 
 
       //-----------导出图片----------------
-      selectedEqData: null,
       loading: false, // 控制加载状态
-      isshowImagetype: false,
-      ifShowMapPreview: false, // 是否预览专题图
+
+      thematicMapClass: 'TwoAndThreeDIntegration', // 二三维一体化的专题图
+
+      //向预览组件传递数据
       imgshowURL: null,// 保存预览图片的 URL
       imgurlFromDate: "",
       imgName: '',
-      thematicMapClass: 'TwoAndThreeDIntegration', // 二三维一体化的专题图
-      eqPointPositionData: {longitude: null, latitude: null},
-      modelsCondition: false,
+      ifShowMapPreview: false, // 是否预览专题图
+      selectedEqData: null,
+      //这个showTypes注意，1为前端存储的图片，2是截图加自动生成经纬度线，3是三维模型图，就是等高线
+      showTypes: 1,
 
-      exportingImagesCondition: false,
-      contourSource: null, // 存等高线
-      // 导出图片时经纬度线
-      rectangleBounds: [],//按东南西北的顺序存储
-      latLonEntities: [], // 用于存储经纬度线实体的数组
+      //下面这两个是经纬度线往子组件穿的数据
       corners:{},
       //下面的是用来解决导出图片边框和经纬度数字展示用的
       step: 0.5,
+
+      // 导出图片时经纬度线用到的
+      //还有step也在经纬度这里用到了
+      rectangleBounds: [],//按东南西北的顺序存储
+      latLonEntities: [], // 用于存储经纬度线实体的数组
       divBoxCount: 0,
       flexPercentages: [],
       points: [],
-      showDisplayBorders:false,//默认不显示边框
 
+      contourSource: null, // 存等高线
     };
   },
   mounted() {
@@ -419,18 +417,14 @@ export default {
     // 遥感影像视角跳转方法
     remoteSensingImagePerspectiveJump(callback) {
       // 确保 Viewer 和数据有效
-      if (!window.viewer || !this.eqPointPositionData) {
+      if (!window.viewer) {
         console.error("Viewer 未初始化或经纬度数据无效");
         return;
       }
-      const longitude = parseFloat(this.eqPointPositionData.longitude);
-      const latitude = parseFloat(this.eqPointPositionData.latitude);
-
-      console.log("longitude", longitude);
-      console.log("latitude", latitude);
+      const longitude = parseFloat(this.selectedEqData.longitude);
+      const latitude = parseFloat(this.selectedEqData.latitude);
 
       if (isNaN(longitude) || isNaN(latitude)) {
-        console.error("经纬度数据无效:", this.eqPointPositionData);
         return;
       }
 
@@ -455,17 +449,6 @@ export default {
       });
     },
 
-    getEqPointPositionData(value) {
-      console.log("11111",value)
-      this.eqPointPositionData = value
-    },
-    /**
-     * earthquakeList 页面 传给父组件制定的值
-     * @param value
-     */
-    getSelectedEqData(value){
-      this.selectedEqData = value
-    },
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
       if (!imagData.path) {
@@ -502,8 +485,8 @@ export default {
           }
 
           // 确保目标点经纬度有效
-          const targetLongitude = Number(this.eqPointPositionData.longitude);
-          const targetLatitude = Number(this.eqPointPositionData.latitude) - 0.02;
+          const targetLongitude = Number(this.selectedEqData.longitude);
+          const targetLatitude = Number(this.selectedEqData.latitude) - 0.02;
 
           if (!isNaN(targetLongitude) && !isNaN(targetLatitude)) {
             viewer.camera.flyTo({
@@ -544,12 +527,8 @@ export default {
                   cameraController.enableZoom = true;
                   cameraController.enableTranslate = true;
 
-                  console.log("---------------------------------------------1");
-
                   // 截图完成后销毁等高线
                   this.destroyContourLines();
-
-                  console.log("----------------------------------------------2");
 
                   // 隐藏加载中的提示
                   this.loading = false;
@@ -562,9 +541,7 @@ export default {
         this.imgurlFromDate = imagData.path
         this.imgName = imagData.name
         this.ifShowMapPreview = true
-        this.showDisplayBorders = false
-        this.modelsCondition = false
-        this.exportingImagesCondition = true
+        this.showTypes = 1
         this.getAssetsFile()
       }
     },
@@ -572,8 +549,8 @@ export default {
     addContourLines() {
       return new Promise((resolve, reject) => {
         // 确保目标点经纬度有效
-        const targetLongitude = Number(this.eqPointPositionData.longitude);
-        const targetLatitude = Number(this.eqPointPositionData.latitude);
+        const targetLongitude = Number(this.selectedEqData.longitude);
+        const targetLatitude = Number(this.selectedEqData.latitude);
         console.log("------------------------")
         console.log("等高线 targetLongitude", targetLongitude)
         console.log("等高线 targetLatitude", targetLatitude)
@@ -704,9 +681,7 @@ export default {
           this.imgurlFromDate = cesiumImage;
           this.ifShowMapPreview = true;
           this.imgName = name;
-          this.showDisplayBorders = false;
-          this.modelsCondition = true;
-          this.exportingImagesCondition = false;
+          this.showTypes = 3
 
         } catch (error) {
           console.error("Cesium 场景截图生成失败", error);
@@ -716,12 +691,12 @@ export default {
 
     ifShowDialog(val) {
       // console.log("ifShowDialog-----",val)
-      this.isshowImagetype = val
       this.ifShowMapPreview = false
     },
 
     selectEq(eq) {
       this.locateEq(eq)
+      this.selectedEqData = eq
     },
 
     removeData() {
@@ -839,9 +814,7 @@ export default {
         });
         this.latLonEntities = [];
 
-        this.showDisplayBorders = true;
-        this.modelsCondition = false;
-        this.exportingImagesCondition = false;
+        this.showTypes = 2
         this.imgName = name;
         this.loading = false;
       }

@@ -25,6 +25,7 @@
       :imgurlFromDate="imgurlFromDate"
       :imgName="imgName"
       :ifShowMapPreview="ifShowMapPreview"
+      :showTypes="showTypes"
     ></thematicMapPreview>
 
   </div>
@@ -87,14 +88,18 @@ export default {
       RegionLabels: [],
 
 
-      isshowImagetype: false,
-      ifShowMapPreview: false, // 是否预览专题图
       previewImage: false, // 保存预览图片的 URL
       previewImagePath: '',
-      imgshowURL: null,
+      thematicMapClass: 'DisasterDamageAssessment', // 二三维一体化的专题图
+
+
+      //向预览组件传递数据
+      imgshowURL: null,// 保存预览图片的 URL
       imgurlFromDate: "",
       imgName: '',
-      thematicMapClass: 'DisasterDamageAssessment', // 二三维一体化的专题图
+      ifShowMapPreview: false, // 是否预览专题图
+      //这个showTypes注意，1为前端存储的图片，2是截图加自动生成经纬度线，3是三维模型图，就是等高线
+      showTypes: 1,
     };
   },
   mounted() {
@@ -490,21 +495,21 @@ export default {
 
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
-      console.log("imagData------------------", imagData)
       this.imgurlFromDate = imagData.path
       this.imgName = imagData.name
       this.ifShowMapPreview = true
+      this.showTypes = 1
       this.getAssetsFile()
     },
 
     ifShowDialog(val) {
       // console.log("ifShowDialog-----",val)
-      this.isshowImagetype = val
       this.ifShowMapPreview = false
     },
 
     selectEq(eq) {
       this.locateEq(eq)
+      this.selectedEqData = eq
     },
 
     removeData() {

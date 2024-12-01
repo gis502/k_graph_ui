@@ -1,6 +1,6 @@
 <template>
   <div class="preview-container" v-show="ifShow">
-    <div class="export-image" v-show="showDisplayBorders">
+    <div class="export-image" v-show="showTypes === 2">
       <div class="export-info">
         <h2>{{ formattedImgName() }}</h2>
       </div>
@@ -29,7 +29,7 @@
         <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
       </div>
     </div>
-    <div class="export-model-image" v-show="modelsCondition">
+    <div class="export-model-image" v-show="showTypes === 3">
       <div class="export-info">
         <h2>{{ formattedImgName() }}</h2>
       </div>
@@ -42,7 +42,7 @@
         <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
       </div>
     </div>
-    <div v-show="exportingImagesCondition">
+    <div v-show="showTypes === 1">
       <img :src="imgshowURL" alt="导出图片" style="width: 100%;height: 100%">
     </div>
     <div class="preview-buttons">
@@ -57,26 +57,25 @@
 import {jsPDF} from 'jspdf';
 import html2canvas from "html2canvas";
 
-export default {
-  data() {
-    return {
-      imgshowURLLocal: '',
-      imgurlFromDateLocal: '',
-      imgNameLocal: '',
-      ifShow: false,
-      pictureCreateTime: '',
-    }
-  },
-  props: [
-    'imgshowURL', 'imgurlFromDate', 'imgName',
-    'ifShowMapPreview', 'corners', 'step','showDisplayBorders',
-    'modelsCondition', 'exportingImagesCondition','selectedEq'
+  export default {
+    data() {
+      return {
+        imgshowURLLocal: '',
+        imgurlFromDateLocal: '',
+        imgNameLocal: '',
+        ifShow: false,
+        pictureCreateTime: '',
+      }
+    },
+    props: [
+      'imgshowURL', 'imgurlFromDate', 'imgName',
+      'ifShowMapPreview', 'selectedEq','showTypes','corners', 'step',
   ],
   watch: {
     imgshowURL(newVal) {
       // console.log("newVal",newVal)
       this.imgshowURLLocal = this.getAssetsFile(newVal)
-      if (this.showDisplayBorders){
+      if (this.showTypes === 2){
         this.exportImage()
       }
     },
@@ -84,10 +83,10 @@ export default {
       this.imgurlFromDateLocal = this.imgurlFromDate
     },
     imgName() {
-      if (this.showDisplayBorders){
-        this.exportImage()
-      }
-      if(this.modelsCondition){
+      // if (this.showTypes === 2){
+      //   this.exportImage()
+      // }
+      if(this.showTypes === 3){
         this.setPictureCreateTime();
       }
     },
@@ -104,13 +103,9 @@ export default {
   methods: {
     // 标题名称
     formattedImgName() {
-      console.log("777777777777777")
-      console.log(this.selectedEq)
       if (!this.selectedEq) {
-        console.error('selectedEqData or earthquakeName is undefined');
         return;
       }
-      console.log("-------------------------------------------------")
       let earthquakeName = this.selectedEq.earthquakeName;
 
       // 如果 earthquakeName 中包含 "市"，去掉 "市" 及其后面的内容

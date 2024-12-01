@@ -471,6 +471,8 @@
       :imgurlFromDate="imgurlFromDate"
       :imgName="imgName"
       :ifShowMapPreview="ifShowMapPreview"
+      :showTypes="showTypes"
+      style="width: 40%"
     ></thematicMapPreview>
     <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
@@ -734,6 +736,9 @@ export default {
       imgurlFromDate: '',
       imgName: '',
       ifShowMapPreview: false, // 是否预览专题图
+      //这个showTypes注意，1为前端存储的图片，2是截图加自动生成经纬度线，3是三维模型图，就是等高线
+      showTypes: 1,
+
       //专题图下载end
 
       //报告产出
@@ -3222,6 +3227,7 @@ export default {
         console.log(selectedData)
         this.imgurlFromDate = selectedData.path
         this.imgName = selectedData.name
+        this.showTypes = 1
         // console.log("11111",this.imgurlFromDate, this.imgName)
         this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
         // console.log(this.imgshowURL)
