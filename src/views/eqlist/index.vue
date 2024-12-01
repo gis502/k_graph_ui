@@ -29,7 +29,7 @@
       <el-table-column
           prop="occurrenceTime"
           label="发震时间"
-          width="200"
+          width="250"
           show-overflow-tooltip
       ></el-table-column>
 
@@ -320,7 +320,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         earthquakeName: '',
-        occurrenceTime: Date.now(), // 初始化为当前时间的时间戳
+        occurrenceTime: '', // 初始化为当前时间的时间戳
         magnitude: '',
         longitude: '',
         latitude: '',
@@ -391,8 +391,8 @@ export default {
       let startTime = null;
       let endTime = null;
       if (occurrenceTime && occurrenceTime.length === 2) {
-        startTime = new Date(occurrenceTime[0]).toISOString();  // 转换为 ISO 格式
-        endTime = new Date(occurrenceTime[1]).toISOString();    // 转换为 ISO 格式
+        startTime = this.formatISODateTimeToBackend(occurrenceTime[0])
+        endTime = this.formatISODateTimeToBackend(occurrenceTime[1])
 
         // console.log("转换后的开始时间:", startTime);
         // console.log("转换后的结束时间:", endTime);
@@ -463,6 +463,7 @@ export default {
           item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
+        console.log("返回的数据：",res)
         that.tableData = this.getPageArr()
       })
     },
@@ -493,9 +494,18 @@ export default {
       if (title === "新增") {
         this.dialogTitle = title
         console.log(this.dialogTitle)
-      } else {
+      }
+      else if (title === "修改") {
         this.dialogTitle = title
-        this.dialogContent = {...row}
+        this.dialogContent = {
+          earthquakeName: row.earthquakeName,
+          occurrenceTime: this.formatDateToBackend(row.occurrenceTime), // 初始化为当前时间的时间戳
+          magnitude: row.magnitude,
+          longitude: row.longitude,
+          latitude: row.latitude,
+          depth: row.depth,
+          eqid: row.eqid,
+        }
       }
       this.dialogShow = !this.dialogShow
     },
@@ -550,35 +560,26 @@ export default {
         }
       });
 
-// 检查发震时间是否已选择，如果未选择，则设置为当前时间
-      if (!this.dialogContent.occurrenceTime) {
-        this.dialogContent.occurrenceTime = new Date().toISOString();
-      } else {
-        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
-      }
+      // this.dialogContent.occurrenceTime = this.formatDateToBackend(this.dialogContent.occurrenceTime); // 调用方法格式化时间
+      console.log("formatDateToBackend格式化时间commit：", this.dialogContent.occurrenceTime);
+      this.dialogContent.occurrenceTime = this.formatISODateTimeToBackend(this.dialogContent.occurrenceTime); // 调用方法格式化时间
+      console.log("formatDateToBackend“T”->' 'commit：", this.dialogContent.occurrenceTime);
 
-      let that = this;
+
       if (this.dialogTitle === "新增") {
-        this.dialogContent.eqid = this.guid();
-        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
-
-
-        // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
+        console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
         addEq(this.dialogContent).then(res => {
-          that.getEq();
-          that.dialogShow = false;
+          this.getEq();
+          this.dialogShow = false;
           this.clearDialogContent();
         });
       } else {
-        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
 
-        // console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
+
+        console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
         updataEq(this.dialogContent).then(res => {
-          that.getEq();
-          that.dialogShow = false;
+          this.getEq();
+          this.dialogShow = false;
           this.clearDialogContent();
         });
       }
@@ -702,6 +703,34 @@ export default {
 
       return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
+
+    /**
+     * 将年月日转换成-的形式 （用于格式化传给后端）
+     * @param inputDate
+     * @returns {string}
+     */
+    formatDateToBackend(inputDate) {
+      // 使用正则表达式提取日期和时间部分
+      const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+      const matches = inputDate.match(regex);
+
+      if (matches) {
+        // 格式化为目标格式 "yyyy-MM-dd HH:mm:ss"
+        return `${matches[1]}-${matches[2]}-${matches[3]} ${matches[4]}:${matches[5]}:${matches[6]}`;
+      } else {
+        throw new Error("Invalid date format");
+      }
+    },
+    /**
+     * 将ISO格式换成后端想要的格式
+     * @param input
+     * @returns {*|string}
+     */
+    formatISODateTimeToBackend(input) {
+      if (!input) return '';
+      return input.replace('T', ' '); // 替换 'T' 为空格
+    }
+
   },
 }
 
