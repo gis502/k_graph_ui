@@ -8,7 +8,7 @@
           <span className="title-time"></span>
         </h2>
         <div className="sub-main">
-          <div ref="chart" className="chart" style="width: 440px;height: 268px;"></div>
+          <div ref="chart" className="chart" style="width: 100%;height: 24vh"></div>
         </div>
       </div>
     </div>
@@ -151,6 +151,16 @@ function fetchData() {
         // 准备待返回的配置项，把准备好的 legendData、series 传入。
 
         let option = {
+          title:{
+            left: 20,
+            top: 10,
+            text:'生命线中断情况',
+            textStyle: {
+              fontSize: 18,  // 设置标题文本的字体大小
+              fontWeight: 'bold',  // 设置字体粗细
+              color: '#03d6ff'  // 设置字体颜色
+            },
+          },
           //图例组件
           legend: {
             data: legendData,
@@ -163,8 +173,8 @@ function fetchData() {
             ],
             //图例列表的布局朝向。
             orient: "vertical",
-            right: 40,
-            bottom: 20,
+            right: 20,
+            bottom: 60,
             //图例文字每项之间的间隔
             itemGap: 10,
             show: true,
@@ -233,7 +243,7 @@ function fetchData() {
             show: false,
             boxHeight: boxHeight, //圆环的高度
             //这是饼图的位置
-            left: -30,
+            left: -50,
             top: -30,
             viewControl: {
               //3d效果可以放大、旋转等，请自己去查看官方配置
@@ -417,7 +427,7 @@ function fetchData() {
       echartsInstance.setOption(option);
     }
     initChart()
-  },500)
+  },1000)
 }
 
 function update() {
@@ -547,7 +557,7 @@ onMounted(() => {
   padding: 0px;
   background-image: url("@/assets/home/底.png");
   background-repeat: no-repeat; /* 防止图片重复 */
-  background-position: 73px 70px;
+  background-position: 53px 70px;
 }
 
 </style>
