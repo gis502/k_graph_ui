@@ -1203,8 +1203,7 @@ export default {
       // 批量渲染点 + 非初始化状态渲染标会点动画
       if (points.length > 0) {
         if (this.timelinePopupShowCenterStrart) {
-          let centerMark = viewer.entities.getById(this.centerPoint.plotid);
-          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)
+          this.centerMarkOpacityTo1()
           clearInterval(this.intervalIdcolor); // 停止颜色切换
           this.timelinePopupShowCenterStrart = false;
           this.timelinePopupVisible = false;
@@ -1404,8 +1403,7 @@ export default {
         else {
           this.stopTimer();
           clearInterval(this.intervalIdcolor)
-          let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
-          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
+          this.centerMarkOpacityTo1()
         }
       }
     },
@@ -1514,6 +1512,8 @@ export default {
     stopTimer() {
       this.isfirst = true
       this.isTimerRunning = false;
+      this.centerMarkOpacityTo1()
+
       this.ifUpdateEndTime()
     },
 
@@ -1785,7 +1785,6 @@ export default {
       });
     },
     //中心点闪烁
-    //中心点闪烁
     flashingCenter() {
 
       //震中点闪烁
@@ -1907,6 +1906,13 @@ export default {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    },
+    //取消闪烁，透明度到1
+    centerMarkOpacityTo1(){
+      let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
+      centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
+      let smallcenterMark = smallViewer.entities.getById(this.centerPoint.plotid);
+      smallcenterMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
     },
     addJumpNodes(val) {
       val.forEach(item => {
