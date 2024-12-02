@@ -13,7 +13,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>8
 </template>
 
 <script setup>
@@ -180,7 +180,7 @@ function fetchData() {
             //图例列表的布局朝向。
             orient: "vertical",
             right: 20,
-            bottom: 60,
+            bottom: 35,
             //图例文字每项之间的间隔
             itemGap: 10,
             show: true,
@@ -249,8 +249,8 @@ function fetchData() {
             show: false,
             boxHeight: boxHeight, //圆环的高度
             //这是饼图的位置
-            left: -50,
-            top: -30,
+            left: -60,
+            top: -15,
             viewControl: {
               //3d效果可以放大、旋转等，请自己去查看官方配置
               alpha: 25, //角度(这个很重要 调节角度的)
@@ -577,7 +577,7 @@ onMounted(() => {
   padding: 0px;
   background-image: url("@/assets/home/底.png");
   background-repeat: no-repeat; /* 防止图片重复 */
-  background-position: 53px 70px;
+  background-position: 26px 40px;
 }
 .time {
   right: 9%;
