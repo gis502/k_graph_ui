@@ -297,13 +297,28 @@
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
-        <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <span class="speedButton">{{ speedOption }}</span>
-        <div class="chooseSpeed">
-          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-            {{ option }}
-          </option>
+
+        <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
+          <span class="speedButton">{{ speedOption }}</span>
+          <div class="chooseSpeed" v-if="showSpeedOptions">
+            <option
+                v-for="option in speedOptions"
+                :key="option"
+                @click.stop="selectSpeed(option)"
+                class="speed-option"
+            >
+              {{ option }}
+            </option>
+          </div>
         </div>
+
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
+<!--        <span class="speedButton">{{ speedOption }}</span>-->
+<!--        <div class="chooseSpeed">-->
+<!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+<!--            {{ option }}-->
+<!--          </option>-->
+<!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -368,10 +383,6 @@
           :earthquakeName="centerPoint.earthquakeName"
         />
       </div>
-
-
-
-
       <div class="pop_right_background">
         <!--  新闻-右上  -->
         <div>
@@ -471,6 +482,8 @@
       :imgurlFromDate="imgurlFromDate"
       :imgName="imgName"
       :ifShowMapPreview="ifShowMapPreview"
+      :showTypes="showTypes"
+      style="width: 40%"
     ></thematicMapPreview>
     <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
@@ -489,10 +502,9 @@ import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import newsDialog from "@/components/TimeLine/newsDialog.vue";
-import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue";
-import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue";
-import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue";
-import Deom from "@/components/TimeLine/deom.vue";
+import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
+import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
+import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
@@ -534,7 +546,6 @@ import {
 } from '@/api/system/model.js'
 import {
   goModel,
-  watchTerrainProviderChanged,
   findModel
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
@@ -559,7 +570,6 @@ export default {
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
     timeLineRescueTeam,
-    Deom,
     timeLineLegend,
     newsDialog,
     commonPanel,
@@ -734,6 +744,9 @@ export default {
       imgurlFromDate: '',
       imgName: '',
       ifShowMapPreview: false, // 是否预览专题图
+      //这个showTypes注意，1为前端存储的图片，2是截图加自动生成经纬度线，3是三维模型图，就是等高线
+      showTypes: 1,
+
       //专题图下载end
 
       //报告产出
@@ -1744,6 +1757,7 @@ export default {
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
+      this.showSpeedOptions=false
     },
 
 
@@ -3222,6 +3236,7 @@ export default {
         console.log(selectedData)
         this.imgurlFromDate = selectedData.path
         this.imgName = selectedData.name
+        this.showTypes = 1
         // console.log("11111",this.imgurlFromDate, this.imgName)
         this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
         // console.log(this.imgshowURL)
@@ -3297,7 +3312,21 @@ export default {
       goModel(row)
     },
     watchTerrainProviderChanged() {
-      watchTerrainProviderChanged()
+      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
+        if (isTerrainLoaded()) {
+          tz.value = _modelInfo.tze
+          rz.value = modelInfo.rze
+          transferModel(window.modelObject, 0, 0, modelInfo.tze, 100)
+          rotationModel(window.modelObject, rz.value)
+          findModel()
+        } else {
+          tz.value = modelInfo.tz
+          rz.value = modelInfo.rz
+          transferModel(window.modelObject, 0, 0, modelInfo.tz, 100)
+          rotationModel(window.modelObject, rz.value)
+          findModel()
+        }
+      });
     },
     findModel() {
       findModel()
@@ -3630,15 +3659,54 @@ export default {
   height: auto;
   cursor: pointer;
 }
-
-#speedSelect {
-  left: -103px;
-  position: relative;
-  padding: 5px;
-  font-size: 14px;
+.speed-selector {
+  position: absolute;
+  cursor: pointer;
+  display: inline-block;
+  right: -12%;
+  bottom: -50%;
 }
 
+.speedButton {
+  padding: 2px 20px;
+  background-color: #dddddd; /* 蓝色背景 */
+  border-radius: 30px; /* 椭圆框 */
+  text-align: center;
+  color: #1b6cd0; /* 文字颜色 */
 
+}
+
+.chooseSpeed {
+  position: absolute;
+  bottom: 100%; /* 向上展开 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background-color: #dddddd; /* 蓝色背景 */
+  padding: 5px 0;
+  border-radius: 6px; /* 椭圆框 */
+  min-width: 100%; /* 确保下拉菜单宽度至少与按钮一样宽 */
+  z-index: 1000; /* 确保下拉菜单在最上层 */
+}
+
+.speed-option {
+  padding: 2px 20px;
+  color: #1b6cd0; /* 文字颜色 */
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.speed-option:hover,
+.speed-option:focus {
+  background-color: #71a8e3; /* 蓝色背景 */
+}
+
+.speed-option.selected {
+  background-color:  #71a8e3; /* 选中项更深的蓝色 */
+}
 .time-ruler {
   position: relative;
   width: 69%;
@@ -3651,34 +3719,6 @@ export default {
   flex-direction: row;
 }
 
-.speedButton {
-  position: relative;
-  left: 104%;
-  color: white;
-  top: -50%;
-}
-
-/* 原有的 chooseSpeed 样式 */
-.chooseSpeed {
-  width: 40px;
-  height: 60px;
-  position: absolute;
-  padding: 0 0px 5px;
-  border-radius: 3px;
-  top: -65px;
-  left: 97%;
-  z-index: 30; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-  color: white;
-  text-align: center;
-  display: none; /* 默认隐藏 */
-}
-
-/* 当 mouse hover speedButton 时显示 chooseSpeed */
-.speedButton:hover + .chooseSpeed,
-.chooseSpeed:hover {
-  display: block;
-}
 
 .time-ruler-line {
   position: absolute;

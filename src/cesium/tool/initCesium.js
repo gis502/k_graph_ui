@@ -177,7 +177,7 @@ function getImageryProviderArr() {
 }
 
 //地形
-function getTerrainProviderViewModelsArr() {
+export function getTerrainProviderViewModelsArr() {
     let baseURL = import.meta.env.VITE_APP_API_URL
     return [
         new Cesium.ProviderViewModel({
@@ -228,6 +228,7 @@ function getTerrainProviderViewModelsArr() {
                 })
             }
         }),
+
     ]
 }
 

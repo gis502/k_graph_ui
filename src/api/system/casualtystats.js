@@ -41,6 +41,15 @@ export function fromCasualty(eqid, time) {
     });
 }
 
+export function getOneData(eqid) {
+    return request({
+        url: '/afterSeismicInformation/getonedata', // 对应的后台接口
+        method: 'get',
+        params: { eqid } // 传递参数
+    });
+}
+
+
 
 
 

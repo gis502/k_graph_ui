@@ -332,6 +332,7 @@ export default class Polyline {
       // 5.每段距离求和
       lengthAll += s
     }
+    console.log("量算-----结果2：",lengthAll)
     return lengthAll
   }
 

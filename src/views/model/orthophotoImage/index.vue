@@ -33,35 +33,21 @@
       <el-table-column
           prop="name"
           label="正射影像名称"
-          width="200"
+          width="350"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="path"
           label="正射影像路径"
-          width="300"
-          align="center"
-      ></el-table-column>
-
-      <el-table-column
-          prop="height"
-          label="正射影像高度(米)"
-          width="150"
-          align="center"
-      ></el-table-column>
-
-      <el-table-column
-          prop="angle"
-          label="旋转角度(度)"
-          width="150"
+          width="600"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="createTime"
           label="添加时间"
-          width="220"
+          width="300"
           align="center"
       >
         <template #default="{ row }">
@@ -112,7 +98,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
     </el-pagination>
-<!--新增 or 编辑 弹框-->
+    <!--新增 or 编辑 弹框-->
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30vw">
       <el-form ref="form" :model="dialogContent" :rules="rules" label-width="120px">
         <!-- 正射影像名称 -->
@@ -124,16 +110,13 @@
           ></el-input>
         </el-form-item>
 
-        <!-- 正射影像高度 -->
-        <el-form-item label="正射影像高度" prop="height">
+        <!-- 正射影像路径 -->
+        <el-form-item label="正射影像路径" prop="path">
           <el-input
-              v-model="dialogContent.height"
-              placeholder="请输入正射影像高度"
-              type="number"
+              v-model="dialogContent.path"
+              placeholder="请输入正射影像路径"
               style="width: 100%;"
-          >
-            <template #append>米</template>
-          </el-input>
+          ></el-input>
         </el-form-item>
 
         <!-- 添加时间 -->
@@ -146,27 +129,6 @@
               style="width: 100%;"
               size="large"
           ></el-date-picker>
-        </el-form-item>
-
-        <!-- 正射影像路径 -->
-        <el-form-item label="正射影像路径" prop="path">
-          <el-input
-              v-model="dialogContent.path"
-              placeholder="请输入正射影像路径"
-              style="width: 100%;"
-          ></el-input>
-        </el-form-item>
-
-        <!-- 旋转角度 -->
-        <el-form-item label="旋转角度" prop="angle">
-          <el-input
-              v-model="dialogContent.angle"
-              placeholder="请输入旋转角度"
-              type="number"
-              style="width: 100%;"
-          >
-            <template #append>度</template>
-          </el-input>
         </el-form-item>
 
         <!-- 按钮部分 -->
@@ -194,19 +156,6 @@
           />
         </el-form-item>
 
-        <!-- 正射影像高度 -->
-        <el-form-item label="正射影像高度" prop="height">
-          <el-input
-              type="number"
-              v-model="dialogContent.height"
-              style="width: 100%;"
-              placeholder="请输入正射影像高度"
-              clearable
-          >
-            <template #append>米</template>
-          </el-input>
-        </el-form-item>
-
         <!-- 添加时间 -->
         <el-form-item label="添加时间" prop="createTime">
           <el-date-picker
@@ -230,18 +179,6 @@
           />
         </el-form-item>
 
-        <!-- 旋转角度 -->
-        <el-form-item label="旋转角度" prop="rotationAngle">
-          <el-input
-              type="number"
-              v-model="dialogContent.rotationAngle"
-              style="width: 100%;"
-              placeholder="请输入旋转角度"
-              clearable
-          >
-            <template #append>度</template>
-          </el-input>
-        </el-form-item>
       </el-form>
 
       <!-- 按钮部分 -->
@@ -284,19 +221,11 @@ export default {
         name: '',
         createTime: '',
         path: '',
-        height: '',
-        angle: '',
         uuid: ''
       },
       rules: {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
-        ],
-        height: [
-          { message: '高度必须是数字', trigger: 'blur', required: false }
-        ],
-        angle: [
-          {  message: '角度必须是数字', trigger: 'blur', required: false }
         ]
       }
 
@@ -351,9 +280,7 @@ export default {
     onSubmit() {
       this.filterContent = {
         name: this.dialogContent.modelName || null,
-          createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
-        height: this.dialogContent.height || null,
-        angle: this.dialogContent.rotationAngle || null,
+        createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
         path: this.dialogContent.modelPath || null,
         uuid: this.dialogContent.uuid || null,
       };
@@ -475,8 +402,6 @@ export default {
         name: '',
         createTime: '',
         path: '',
-        height: '',
-        angle: '',
         uuid: ''
       };
     },
@@ -495,8 +420,6 @@ export default {
           name: '',
           createTime: '',
           path: '',
-          height: '',
-          angle: '',
           uuid: ''
         };
       } else if (title === "修改") {
@@ -504,8 +427,6 @@ export default {
           name: row.name,
           path: row.path,
           createTime: this.formatDateToBackend(row.createTime),
-          height: row.height,
-          angle: row.angle,
           uuid: row.uuid
         };
       }
@@ -541,8 +462,6 @@ export default {
         if (valid) {
           const modelData = {
             name: this.dialogContent.name,
-            height: this.dialogContent.height,
-            angle: this.dialogContent.angle,
             path: this.dialogContent.path,
             createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
             uuid: this.dialogContent.uuid,
@@ -570,13 +489,11 @@ export default {
         name: '',
         createTime: '',
         path: '',
-        height: '',
-        angle: '',
         uuid: ''
       };
     },
-  // 新增弹框关闭
-  cancel() {
+    // 新增弹框关闭
+    cancel() {
       this.dialogShow = false;
       this.clearDialogContent();
     },
@@ -622,6 +539,7 @@ export default {
       this.updateTableData();
     },
 
+
     tableHeaderColor() {
       return {
         'font-size': '16px'
@@ -642,6 +560,11 @@ export default {
      * @returns {string}
      */
     formatDateToBackend(inputDate) {
+      // 如果输入为空，则直接返回 null
+      if (!inputDate) {
+        return null;
+      }
+
       // 使用正则表达式提取日期和时间部分
       const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
       const matches = inputDate.match(regex);
@@ -654,6 +577,7 @@ export default {
       }
     },
     /**
+     *
      * 将ISO格式换成后端想要的格式
      * @param input
      * @returns {*|string}

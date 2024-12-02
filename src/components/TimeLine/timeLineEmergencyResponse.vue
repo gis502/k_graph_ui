@@ -159,9 +159,9 @@ export default {
         });
         //显示的一个
         let tmp = activities[activities.length - 1];
-        this.recordTime = this.timestampToTime(tmp.responseTime);
+        this.recordTime = this.timestampToTimeChina(tmp.responseTime);
       } else {
-        this.recordTime = this.timestampToTime(currentTime);
+        this.recordTime = this.timestampToTimeChina(currentTime);
       }
     },
     existsInresponseHistory(item) {
