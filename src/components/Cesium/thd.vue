@@ -297,13 +297,28 @@
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
-        <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <span class="speedButton">{{ speedOption }}</span>
-        <div class="chooseSpeed">
-          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-            {{ option }}
-          </option>
+
+        <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
+          <span class="speedButton">{{ speedOption }}</span>
+          <div class="chooseSpeed" v-if="showSpeedOptions">
+            <option
+                v-for="option in speedOptions"
+                :key="option"
+                @click.stop="selectSpeed(option)"
+                class="speed-option"
+            >
+              {{ option }}
+            </option>
+          </div>
         </div>
+
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
+<!--        <span class="speedButton">{{ speedOption }}</span>-->
+<!--        <div class="chooseSpeed">-->
+<!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+<!--            {{ option }}-->
+<!--          </option>-->
+<!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -1742,6 +1757,7 @@ export default {
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
+      this.showSpeedOptions=false
     },
 
 
@@ -3643,15 +3659,54 @@ export default {
   height: auto;
   cursor: pointer;
 }
-
-#speedSelect {
-  left: -103px;
-  position: relative;
-  padding: 5px;
-  font-size: 14px;
+.speed-selector {
+  position: absolute;
+  cursor: pointer;
+  display: inline-block;
+  right: -12%;
+  bottom: -50%;
 }
 
+.speedButton {
+  padding: 2px 20px;
+  background-color: #dddddd; /* 蓝色背景 */
+  border-radius: 30px; /* 椭圆框 */
+  text-align: center;
+  color: #1b6cd0; /* 文字颜色 */
 
+}
+
+.chooseSpeed {
+  position: absolute;
+  bottom: 100%; /* 向上展开 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background-color: #dddddd; /* 蓝色背景 */
+  padding: 5px 0;
+  border-radius: 6px; /* 椭圆框 */
+  min-width: 100%; /* 确保下拉菜单宽度至少与按钮一样宽 */
+  z-index: 1000; /* 确保下拉菜单在最上层 */
+}
+
+.speed-option {
+  padding: 2px 20px;
+  color: #1b6cd0; /* 文字颜色 */
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.speed-option:hover,
+.speed-option:focus {
+  background-color: #71a8e3; /* 蓝色背景 */
+}
+
+.speed-option.selected {
+  background-color:  #71a8e3; /* 选中项更深的蓝色 */
+}
 .time-ruler {
   position: relative;
   width: 69%;
@@ -3664,34 +3719,6 @@ export default {
   flex-direction: row;
 }
 
-.speedButton {
-  position: relative;
-  left: 104%;
-  color: white;
-  top: -50%;
-}
-
-/* 原有的 chooseSpeed 样式 */
-.chooseSpeed {
-  width: 40px;
-  height: 60px;
-  position: absolute;
-  padding: 0 0px 5px;
-  border-radius: 3px;
-  top: -65px;
-  left: 97%;
-  z-index: 30; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-  color: white;
-  text-align: center;
-  display: none; /* 默认隐藏 */
-}
-
-/* 当 mouse hover speedButton 时显示 chooseSpeed */
-.speedButton:hover + .chooseSpeed,
-.chooseSpeed:hover {
-  display: block;
-}
 
 .time-ruler-line {
   position: absolute;
