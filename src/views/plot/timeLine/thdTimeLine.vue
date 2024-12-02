@@ -119,18 +119,37 @@
             :isfirst="isfirst"
             @addJumpNodes="addJumpNodes"
         />
+        <div>
+          <div class="personbutton" v-if="PersoonnelCasuality===1">
+            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
+          </div>
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
-              :eqstartTime="eqstartTime"
+              v-if="PersoonnelCasuality===1"
               :eqid="eqid"
               :currentTime="currentTime"
               @addJumpNodes="addJumpNodes"
           />
+        </div>
+        <div>
+          <div class="personbutton" v-if="PersoonnelCasuality===2">
+            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
+          </div>
+          <timeLineCasualtyStatisticthd
+              v-if="PersoonnelCasuality===2"
+              :zoomLevel="zoomLevel"
+              :pointsLayer="pointsLayer"
+              :currentTime="currentTime"
+          />
+        </div>
         <!--   救援出队-左下   -->
         <timeLineRescueTeam
+            v-if="eqyear"
             :eqid="eqid"
             :currentTime="currentTime"
             @addJumpNodes="addJumpNodes"
+            :eqyear="eqyear"
+            :earthquakeName="centerPoint.earthquakeName"
         />
       </div>
       <div class="pop_right_background">
@@ -155,11 +174,11 @@
         <!--      标绘统计-->
         <div>
           <plotStatistics
-          :plots="plots"
-          :currentTime="currentTime"
-          :zoomLevel="zoomLevel"
-          :isTimerRunning="isTimerRunning"
-          :viewCenterCoordinate="viewCenterCoordinate"
+              :plots="plots"
+              :currentTime="currentTime"
+              :zoomLevel="zoomLevel"
+              :isTimerRunning="isTimerRunning"
+              :viewCenterCoordinate="viewCenterCoordinate"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
@@ -243,9 +262,11 @@ import * as echarts from "echarts";
 import html2canvas from "html2canvas";
 import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
 import axios from "axios";
+import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 
 export default {
   components: {
+    timeLineCasualtyStatisticthd,
     plotStatistics,
     layeredShowPlot,
     thematicMapPreview,
@@ -435,6 +456,7 @@ export default {
         lon:null,
         lat:null
       },//视角中心坐标
+      PersoonnelCasuality:1,
     };
   },
   created() {
