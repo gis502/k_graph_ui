@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="pop">
+    <div class="pop" :class="{ 'tech-glow': showNewPanel }">
       <div class="pop_header">
         <h2 class="pop_title">
           应急响应
@@ -25,29 +25,29 @@
         </ul>
       </div>
     </div>
-    <div v-if="showNewPanel && this.responseNewPanelShow.length!=0 " class="new-panel" :style="{ height: panelHeight }">
-      <div class="close-button" @click="hideDetailedNews">
-        &times; <!-- 叉号字符 -->
-      </div>
-      <table class="data-table">
-        <thead>
-        <tr>
-          <th>时间</th>
-          <th>部门</th>
-          <th>状态</th>
-          <th>响应级别</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="(item, index) in responseNewPanelShow" :key="index">
-          <td>{{ item.time }}</td>
-          <td>{{ item.department }}</td>
-          <td>{{ item.state }}</td>
-          <td>{{ item.ResponseName }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+<!--    <div v-if="showNewPanel && this.responseNewPanelShow.length!=0 " class="new-panel" :style="{ height: panelHeight }">-->
+<!--      <div class="close-button" @click="hideDetailedNews">-->
+<!--        &times; &lt;!&ndash; 叉号字符 &ndash;&gt;-->
+<!--      </div>-->
+<!--      <table class="data-table">-->
+<!--        <thead>-->
+<!--        <tr>-->
+<!--          <th>时间</th>-->
+<!--          <th>部门</th>-->
+<!--          <th>状态</th>-->
+<!--          <th>响应级别</th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody>-->
+<!--        <tr v-for="(item, index) in responseNewPanelShow" :key="index">-->
+<!--          <td>{{ item.time }}</td>-->
+<!--          <td>{{ item.department }}</td>-->
+<!--          <td>{{ item.state }}</td>-->
+<!--          <td>{{ item.ResponseName }}</td>-->
+<!--        </tr>-->
+<!--        </tbody>-->
+<!--      </table>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -103,7 +103,8 @@ export default {
       //结束位置也不显示
       if (this.isfirst) {
         this.showNewPanel = false
-      } else {
+      }
+      else {
         if (activities.length > 0){
           activities.sort((a, b) => {
             if (a.responseTime < b.responseTime) return -1;
@@ -218,7 +219,33 @@ export default {
   width: 100%; /* 调整宽度 */
   height: 19%;
   z-index: 20; /* 提高层级 */
+  transition: border 0.3s ease-in-out;
 }
+
+.tech-glow {
+  animation: tech-glow-animation 1.5s infinite;
+}
+
+@keyframes tech-glow-animation {
+
+  0%, 100% {
+    box-shadow:
+        0 0 5px rgba(0, 123, 255, 0.6), /* 蓝色 */
+        0 0 10px rgba(0, 123, 255, 0.4),
+        0 0 15px rgba(0, 123, 255, 0.4),
+        0 0 20px rgba(255, 255, 0, 0.4), /* 黄色 */
+        0 0 25px rgba(252, 1, 1, 0.4); /* 红色 */
+  }
+  50% {
+    box-shadow:
+        0 0 5px rgba(0, 123, 255, 0.7), /* 蓝色 */
+        0 0 10px rgba(0, 123, 255, 0.5),
+        0 0 15px rgba(255, 255, 0, 0.5), /* 黄色 */
+        0 0 20px rgba(255, 0, 0, 0.5), /* 红色 */
+        0 0 25px rgba(255, 0, 0, 0.6);
+  }
+}
+
 .pop_header {
   top: -10%;
   height: 3.8vh;
