@@ -189,7 +189,7 @@
                   :data="plotTreeData"
                   :props="defaultProps"
                   show-checkbox
-                  node-key="id"
+                  node-key="label"
                   @check-change="handleCheck"
                 >
                 </el-tree>
@@ -273,7 +273,7 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;"/>
+            <img :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()" alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
         <el-table-column prop="plotType" label="类型" width="180"></el-table-column>
@@ -908,9 +908,10 @@ export default {
       this.isLoaded = false
       this.loading = false
 
-      console.log(this.$refs.tree)
+      console.log(this.$refs.tree.getCheckedKeys())
       // 逐个取消勾选
       this.$refs.tree.setCheckedNodes([])
+      this.$refs.tree.setCurrentKey(null)
     },
 
     // 新方法展示与点击节点相关的name字段
