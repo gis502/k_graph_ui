@@ -3,7 +3,8 @@
     <div id="news">
       <div className="pop_header">
         <h2 className="sub-title-new">
-          最新新闻
+          生命线情况
+          <span class="time">{{timestampToTimeChina(props.currentTime) }}</span>
           <!-- <span class="title-time">{{ recordTime }}</span> -->
           <span className="title-time"></span>
         </h2>
@@ -30,6 +31,10 @@ const props = defineProps({
     type: String,
     required: true
   },
+  currentTime:{
+    type: String,
+    required: true
+  }
 });
 const latestTime = ref(''); // 最新时间
 const ecData = ref([]);
@@ -154,7 +159,8 @@ function fetchData() {
           title:{
             left: 20,
             top: 10,
-            text:'生命线中断情况',
+            // text:'生命线中断情况',
+            text:'',
             textStyle: {
               fontSize: 18,  // 设置标题文本的字体大小
               fontWeight: 'bold',  // 设置字体粗细
@@ -462,7 +468,21 @@ function update() {
     },
   ]
 }
-
+function  timestampToTimeChina(timestamp) {
+  let DateObj = new Date(timestamp);
+  let year = DateObj.getFullYear();
+  let month = DateObj.getMonth() + 1;
+  let day = DateObj.getDate();
+  let hh = DateObj.getHours();
+  let mm = DateObj.getMinutes();
+  let ss = DateObj.getSeconds();
+  month = month > 9 ? month : '0' + month;
+  day = day > 9 ? day : '0' + day;
+  hh = hh > 9 ? hh : '0' + hh;
+  mm = mm > 9 ? mm : '0' + mm;
+  ss = ss > 9 ? ss : '0' + ss;
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
+}
 const formatDateChina = (dateStr) => {
   if (dateStr) {
     const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
@@ -559,5 +579,12 @@ onMounted(() => {
   background-repeat: no-repeat; /* 防止图片重复 */
   background-position: 53px 70px;
 }
-
+.time {
+  right: 9%;
+  position: absolute;
+  font-size: 0.9rem;
+  font-weight: normal;
+  font-family: 'myFirstFont', sans-serif;
+  color: #ffffff;
+}
 </style>

@@ -5,13 +5,10 @@ let rz = ref(0)
 let originRz = 0
 let originTz = 0
 let opacity = ref(100)
-let modelStatus = true
-let modelStatusContent = ref("隐藏当前模型")
-let modelName = ''
 
-let modelInfo = reactive({
-    name: null, path: null, rz: null, tz: null, rze: null, tze: null, time: null, modelid: null
-})
+
+
+
 /**
  * 监听地形提供器变化
  * 当地形提供器发生变化时，此方法将被触发
@@ -19,33 +16,11 @@ let modelInfo = reactive({
  * 如果地形已加载，则使用一组预设高度；如果地形未加载，则使用另一组预设高度
  * 目前，高度设置和查找地形的方法被注释掉，需要在适当时候启用或移除
  */
-export function watchTerrainProviderChanged() {
-    // console.log("watchTerrainProviderChanged")
-    window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-        if (isTerrainLoaded()) {
-            changeHeight(modelInfo.tze)
-            tz.value = modelInfo.tze
-            findModel()
-        } else {
-            changeHeight(modelInfo.tz)
-            tz.value = modelInfo.tz
-            findModel()
-        }
-    });
-}
 
 //查看模型
 export function goModel(row) {
-    console.log(row,"row in js")
-    modelInfo.name = row.name
-    modelInfo.path = row.path
-    modelInfo.tz = row.tz
-    modelInfo.rz = row.rz
-    modelInfo.time = row.time
-    modelInfo.modelid = row.modelid
-    modelInfo.tze = row.tze
-    modelInfo.rze = row.rze
-    selectModel(row.path)
+    // console.log(row,"row in js")
+    selectModel(row)
 }
 //找到模型
 export function findModel() {
@@ -170,36 +145,31 @@ export function hide(modelStatus) {
  * @author White Mo
  * @date 2024/3/22
  */
-export function changeHeight(_tz) {
-    transferModel(window.modelObject, 0, 0, _tz, opacity.value)
-}
+// export function changeHeight(_tz) {
+//     transferModel(window.modelObject, 0, 0, _tz, opacity.value)
+// }
 /**
  * @Description: 调用模型更改函数绕Z轴旋转
  * @author White Mo
  * @date 2024/3/22
  */
-export function changeRotationZ(rz) {
-    rotationModel(window.modelObject, rz)
-}
+// export function changeRotationZ(rz) {
+//     rotationModel(window.modelObject, rz)
+// }
 /**
  * @Description: 调用模型更改函数更改透明度
  * @author White Mo
  * @date 2024/3/22
  */
-export function changeOpacity(_opacity) {
-    transferModel(window.modelObject, 0, 0, tz.value, _opacity)
-}
+// export function changeOpacity(_opacity) {
+//     transferModel(window.modelObject, 0, 0, tz.value, _opacity)
+// }
 
 
-function selectModel(modelName) {
+function selectModel(row) {
     remove3dData()
-    initModel(modelName)
-    // window.viewer.zoomTo(
-    //     window.modelObject
-    // )
+    initModel(row)
     window.viewer.zoomTo(window.modelObject)
-    // modelStatus = true
-    // modelStatusContent.value = "隐藏当前模型"
 }
 
 function remove3dData() {
@@ -211,8 +181,8 @@ function remove3dData() {
  * @author White Mo
  * @date 2024/3/25
  */
-function initModel(modelName) {
-
+function initModel(row) {
+    let modelName=row.path
     let baseURL = import.meta.env.VITE_APP_API_URL
 
     const customShader = new CustomShader({
@@ -237,16 +207,16 @@ function initModel(modelName) {
         window.viewer.scene.primitives.add(window.modelObject);
         console.log("模型已加载")
         if (isTerrainLoaded()) {
-            changeHeight(modelInfo.tze)
-            tz.value = modelInfo.tze
+            // changeHeight(row.tze)
+            transferModel(window.modelObject, 0, 0, row.tze, opacity.value)
+            rotationModel(window.modelObject, row.rze)
+            // tz.value = row.tze
             findModel()
         } else {
-            // tz.value = modelInfo.tz
-            // changeHeight(modelInfo.tz)
-            // findModel()
             const cartographic = Cesium.Cartographic.fromCartesian(tileset.boundingSphere.center);//获取模型高度
             tz.value = 20 - Math.trunc(cartographic.height)//高度取整
             transferModel(tileset, 0, 0, tz.value, 0, 0, 0, 1, 1)//模型贴地
+            rotationModel(window.modelObject, row.rz)
             console.log(tz.value, Math.trunc(cartographic.height), 123)
         }
     })
@@ -258,7 +228,7 @@ function initModel(modelName) {
  * @author White Mo
  * @date 2024/3/26
  */
-function rotationModel(tileset, rz) {
+export function rotationModel(tileset, rz) {
 
     if (!checkModelLoad()) {
         return
@@ -318,7 +288,7 @@ function rotationModel(tileset, rz) {
  * @author White Mo
  * @date 2024/3/22
  */
-function transferModel(model, _tx, _ty, _tz, _opacity) {
+export function transferModel(model, _tx, _ty, _tz, _opacity) {
     if (!checkModelLoad()) {
         return
     }
