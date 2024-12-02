@@ -3,7 +3,7 @@
     <div id="news">
       <div className="pop_header">
         <h2 className="sub-title-new">
-          最新新闻
+          生命线情况
           <!-- <span class="title-time">{{ recordTime }}</span> -->
           <span className="title-time"></span>
         </h2>
@@ -154,7 +154,8 @@ function fetchData() {
           title:{
             left: 20,
             top: 10,
-            text:'生命线中断情况',
+            // text:'生命线中断情况',
+            text:'',
             textStyle: {
               fontSize: 18,  // 设置标题文本的字体大小
               fontWeight: 'bold',  // 设置字体粗细

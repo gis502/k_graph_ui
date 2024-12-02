@@ -521,9 +521,16 @@ export default {
             },
           ],
         })
-        start = start + 1
-        end = end + 1
-      }, 2000);
+
+        if(end==this.myChart1Data.length-1){
+          start=0
+          end=4
+        }
+        else{
+          start = start + 1
+          end = end + 1
+        }
+      }, 3000);
     },
 
     handleMouseEnter() {
