@@ -2259,7 +2259,7 @@ export default {
       let latitude = Cesium.Math.toDegrees(cartographic.latitude);
       let longitude = Cesium.Math.toDegrees(cartographic.longitude);
       // 根据地形是否加载来获取高度
-      let height = this.isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
+      let height = isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
 
       // 返回计算得到的经纬度和高度
       return {
