@@ -360,14 +360,16 @@ function updataPosition() {
 function watchTerrainProviderChanged() {
   window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
     if (isTerrainLoaded()) {
-      changeHeight(modelInfo.tze)
       tz.value = modelInfo.tze
       rz.value = modelInfo.rze
+      changeHeight(modelInfo.tze)
+      rotationModel(window.modelObject, rz.value)
       findModel()
     } else {
-      changeHeight(modelInfo.tz)
       tz.value = modelInfo.tz
       rz.value = modelInfo.rz
+      changeHeight(modelInfo.tz)
+      rotationModel(window.modelObject, rz.value)
       findModel()
     }
   });
