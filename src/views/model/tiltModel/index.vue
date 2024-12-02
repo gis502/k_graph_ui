@@ -158,14 +158,15 @@ import {CustomShader} from "cesium";
 
 import {
   goModel,
-  watchTerrainProviderChanged,
   findModel,
   showArrow,
   hide,
-  changeHeight,
-  changeRotationZ,
-  changeOpacity,
-  isTerrainLoaded
+  // changeHeight,
+  // changeRotationZ,
+  // changeOpacity,
+  isTerrainLoaded,
+  transferModel,
+  rotationModel
 } from '../../../functionjs/model.js';
 
 let pageStatus = ref(true)
@@ -180,10 +181,6 @@ let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
 let queryParams = ref('');  // 搜索框关键字
-
-
-
-
 
 
 //----------------------------model table---------------------------------------
@@ -290,7 +287,8 @@ function changeModel(row){
   modelInfo.tz = row.tz
   modelInfo.rz = row.rz
   modelInfo.time = row.time
-  modelInfo.modelid = row.modelid
+  // modelInfo.modelid = row.modelid
+  modelInfo.modelid = row.uuid
   modelInfo.tze = row.tze
   modelInfo.rze = row.rze
   goModel(row)
@@ -320,12 +318,14 @@ function hideModel() {
 
 // 更新模型位置
 function updataPosition() {
-  let data = {
-    rze: rz.value,
-    tze: tz.value,
-    modelid: modelInfo.modelid
-  }
+
   if (isTerrainLoaded()) {
+    let data = {
+      rze: rz.value,
+      tze: tz.value,
+      uuid: modelInfo.modelid
+    }
+    console.log(data,"update data")
     updataModelElevation(data).then(res => {
       ElMessage({
         showClose: true,
@@ -338,6 +338,12 @@ function updataPosition() {
   }
 
   else {
+    let data = {
+      rz: rz.value,
+      tz: tz.value,
+      uuid: modelInfo.modelid
+    }
+    console.log(data,"update data")
     updataModelNoElevation(data).then(res => {
       ElMessage({
         showClose: true,
@@ -350,8 +356,35 @@ function updataPosition() {
   }
 }
 
-
-
+//监听地形
+function watchTerrainProviderChanged() {
+  window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
+    if (isTerrainLoaded()) {
+      changeHeight(modelInfo.tze)
+      tz.value = modelInfo.tze
+      rz.value = modelInfo.rze
+      findModel()
+    } else {
+      changeHeight(modelInfo.tz)
+      tz.value = modelInfo.tz
+      rz.value = modelInfo.rz
+      findModel()
+    }
+  });
+}
+function changeHeight(_tz) {
+  tz.value=_tz
+  transferModel(window.modelObject, 0, 0, _tz, opacity.value)
+}
+function changeRotationZ(_rz) {
+  console.log(modelInfo,"modelInfo")
+  rz.value=_rz
+  rotationModel(window.modelObject, _rz)
+}
+function changeOpacity(_opacity) {
+  opacity.value=_opacity
+  transferModel(window.modelObject, 0, 0, tz.value, _opacity)
+}
 //-----------------------模型table----------------------------
 
 // 初始化模型table数据
