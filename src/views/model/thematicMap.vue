@@ -695,6 +695,7 @@ export default {
     },
 
     selectEq(eq) {
+      console.log("asdrgergdvbrtbhdf",eq)
       this.locateEq(eq)
       this.selectedEqData = eq
     },
