@@ -21,7 +21,7 @@
     </div>
     <div class="row affectedPopulation">
       <span class="label">累计受灾人数</span>
-      <span class="count">{{ affectedPopulationCount }}</span>
+      <span class="affected_count">{{ affectedPopulationCount }}</span>
       <span class="suffix">人</span>
     </div>
   </div>
@@ -154,7 +154,7 @@ watch(() => props.lastEq, () => {
 
 .row {
   margin: 0.65vh 0;
-  height: 3.4vh;
+  height: 3.2vh;
   display: flex;
   align-items: center;
   font-size: 13px;
@@ -170,6 +170,11 @@ watch(() => props.lastEq, () => {
   margin-left: 4vw; /* Pushes count to the right */
 }
 
+.affected_count {
+  font-size: 25px; /* Larger font size for the numbers */
+  color: rgb(248, 150, 150);
+  margin-left: 2.5vw; /* Pushes count to the right */
+}
 .suffix {
   margin-left: 10px; /* Space between count and suffix */
 }

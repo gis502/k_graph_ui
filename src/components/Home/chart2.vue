@@ -31,7 +31,7 @@
           <img src="@/assets/隐患点.png" alt="隐患点" style="width: 127%; height: auto;">
 
           <!-- 风险点信息 -->
-          <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
+          <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -12px">
             <div class="button-top" style="margin-bottom: 5px;">
               <span @click="slideUp" class="white-text">▲</span>
             </div>
@@ -64,7 +64,7 @@
               </el-col>
             </div>
 
-            <div class="button-bottom" style="margin-top: 5px;">
+            <div class="button-bottom" style="margin-top: -24px;">
               <span @click="slideDown" class="white-text">▼</span>
             </div>
           </div>
@@ -669,7 +669,7 @@ function formatDate(date) {
 .population-chart-container {
   width: 100%;
   height: 90%; /* 确保人口图表占满容器 */
-  margin-top: 0x;
+
 }
 
 /* 标题样式 */
@@ -712,7 +712,7 @@ function formatDate(date) {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin: 0; /* Ensure no margin is applied */
+  margin-top: -3%;
 
 }
 

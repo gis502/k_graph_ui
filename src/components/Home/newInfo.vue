@@ -89,11 +89,12 @@ const initNewEq = () => {
 }
 
 .eqName {
-  margin-bottom: 2px; /* 添加与下方内容的间距 */
-  font-size: 13px; /* 调整标题字体大小 */
+  margin-bottom: -0.6%;
+  font-size: 13px;
   font-weight: bold;
-  text-align: center; /* 水平居中 */
+  text-align: center;/* 字体水平居中 */
   color: white;
+  margin-top: -2.5%;
 }
 
 .newColCommon {
