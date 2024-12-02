@@ -513,28 +513,28 @@ export default {
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-      viewer.camera.changed.addEventListener(() => {
-        const cameraHeight = viewer.camera.positionCartographic.height
-        this.updateZoomLevel(cameraHeight)
-
-        let centerResult = viewer.camera.pickEllipsoid(
-            new Cesium.Cartesian2(
-                viewer.canvas.clientWidth / 2,
-                viewer.canvas.clientHeight / 2,
-            ),
-        );
-        let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
-        let curLongitude = (curPosition.longitude * 180) / Math.PI;
-        let curLatitude = (curPosition.latitude * 180) / Math.PI;
-        console.log(curLongitude,curLatitude,"curLongitude,curLatitude")
-        this.viewCenterCoordinate={
-          lon:curLongitude,
-          lat:curLatitude
-        }
+      // viewer.camera.changed.addEventListener(() => {
+        // const cameraHeight = viewer.camera.positionCartographic.height
+        // this.updateZoomLevel(cameraHeight)
+        //
+        // let centerResult = viewer.camera.pickEllipsoid(
+        //     new Cesium.Cartesian2(
+        //         viewer.canvas.clientWidth / 2,
+        //         viewer.canvas.clientHeight / 2,
+        //     ),
+        // );
+        // let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
+        // let curLongitude = (curPosition.longitude * 180) / Math.PI;
+        // let curLatitude = (curPosition.latitude * 180) / Math.PI;
+        // console.log(curLongitude,curLatitude,"curLongitude,curLatitude")
+        // this.viewCenterCoordinate={
+        //   lon:curLongitude,
+        //   lat:curLatitude
+        // }
 
         // this.getReverseGeocode(curLongitude,curLatitude)
 
-      })
+      // })
 
       window.viewer = viewer
       Arrow.disable();
@@ -879,7 +879,7 @@ export default {
         }
 
         // 获取地震数据并更新地图和变量
-        this.checkIfOvalCircleLayer();
+        // this.checkIfOvalCircleLayer();
         this.updateMapandVariablebeforInit()
 
       })
@@ -2735,9 +2735,6 @@ export default {
       smallcenterMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
     },
 
-    //---为同指挥大屏相同，冗余代码
-    checkIfOvalCircleLayer() {
-    },
 
 
   }
