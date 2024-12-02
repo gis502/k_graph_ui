@@ -2,7 +2,7 @@
   <div class="pop">
     <div class="pop_header">
       <h2 class="pop_title">基础信息
-        <span class="time">{{ recordtime }}</span>
+        <span class="time">{{timestampToTimeChina(props.currentTime) }}</span>
       </h2>
 
     </div>
@@ -77,10 +77,10 @@
 import {getAftershockMagnitude, getPopulationData, getRiskPoint} from "@/api/system/statistics.js";
 import {getDistrictEconomy} from "@/api/system/districtEconomy.js"; //地形、经济
 
-import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
+import {ref, onMounted, onBeforeUnmount, nextTick, watch} from 'vue';
 import * as echarts from 'echarts';
 
-const recordtime = ref(new Date().toLocaleString());
+// const recordtime = ref(new Date().toLocaleString());
 const initialIndex = ref(0);
 
 const lineChart = ref(null); //经济折线图
@@ -90,7 +90,9 @@ let lineChartInstance = null;
 let pieChartInstance = null;
 
 // 接收父组件的 eqid
-const props = defineProps(['eqid', 'eqyear', 'earthquakeName']); // 接收 eqid 和 eqyear
+const props = defineProps(['eqid', 'eqyear', 'earthquakeName','currentTime']); // 接收 eqid 和 eqyear
+
+
 // 计算earthquakeName的最后三个字符
 const earthquakeNameSuffix = props.earthquakeName.slice(-3);
 
@@ -261,7 +263,21 @@ function formatDate(date) {
   const seconds = d.getSeconds().toString().padStart(2, '0');
   return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 }
-
+function  timestampToTimeChina(timestamp) {
+  let DateObj = new Date(timestamp);
+  let year = DateObj.getFullYear();
+  let month = DateObj.getMonth() + 1;
+  let day = DateObj.getDate();
+  let hh = DateObj.getHours();
+  let mm = DateObj.getMinutes();
+  let ss = DateObj.getSeconds();
+  month = month > 9 ? month : '0' + month;
+  day = day > 9 ? day : '0' + day;
+  hh = hh > 9 ? hh : '0' + hh;
+  mm = mm > 9 ? mm : '0' + mm;
+  ss = ss > 9 ? ss : '0' + ss;
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
+}
 const colors = ['rgba(113, 226, 135, 1)', 'rgba(119, 247, 253, 1)', 'rgba(44, 104, 231, 1)', 'rgba(93, 202, 250, 1)'];
 
 

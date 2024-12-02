@@ -4,7 +4,7 @@
       <div class="pop_header">
         <h2 class="pop_title">
           标绘统计
-          <span class="time"></span>
+          <span class="time">{{this.timestampToTimeChina(this.currentTime) }}</span>
         </h2></div>
       <div class="pop_content"
            @mouseenter="handleMouseEnter"
@@ -546,6 +546,21 @@ export default {
       }
 
     },
+    timestampToTimeChina(timestamp) {
+  let DateObj = new Date(timestamp);
+  let year = DateObj.getFullYear();
+  let month = DateObj.getMonth() + 1;
+  let day = DateObj.getDate();
+  let hh = DateObj.getHours();
+  let mm = DateObj.getMinutes();
+  let ss = DateObj.getSeconds();
+  month = month > 9 ? month : '0' + month;
+  day = day > 9 ? day : '0' + day;
+  hh = hh > 9 ? hh : '0' + hh;
+  mm = mm > 9 ? mm : '0' + mm;
+  ss = ss > 9 ? ss : '0' + ss;
+  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
+},
   }
 
 };
