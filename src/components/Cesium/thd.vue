@@ -368,10 +368,6 @@
           :earthquakeName="centerPoint.earthquakeName"
         />
       </div>
-
-
-
-
       <div class="pop_right_background">
         <!--  新闻-右上  -->
         <div>
@@ -491,9 +487,9 @@ import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import newsDialog from "@/components/TimeLine/newsDialog.vue";
-import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue";
-import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue";
-import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue";
+import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
+import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
+import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
@@ -535,7 +531,6 @@ import {
 } from '@/api/system/model.js'
 import {
   goModel,
-  watchTerrainProviderChanged,
   findModel
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
@@ -3301,7 +3296,21 @@ export default {
       goModel(row)
     },
     watchTerrainProviderChanged() {
-      watchTerrainProviderChanged()
+      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
+        if (isTerrainLoaded()) {
+          tz.value = _modelInfo.tze
+          rz.value = modelInfo.rze
+          transferModel(window.modelObject, 0, 0, modelInfo.tze, 100)
+          rotationModel(window.modelObject, rz.value)
+          findModel()
+        } else {
+          tz.value = modelInfo.tz
+          rz.value = modelInfo.rz
+          transferModel(window.modelObject, 0, 0, modelInfo.tz, 100)
+          rotationModel(window.modelObject, rz.value)
+          findModel()
+        }
+      });
     },
     findModel() {
       findModel()
