@@ -425,6 +425,7 @@ export default {
           icon: `<svg t="1731159977406" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9427" width="32" height="32"><path d="M811.292444 540.444444c89.429333 0 160.967111 70.826667 160.967112 159.345778 0 29.496889-8.931556 56.035556-23.836445 79.644445l63.658667 62.919111c5.973333 5.916444 11.918222 17.720889 11.918222 29.496889 0 20.679111-17.891556 38.371556-38.741333 38.371555-11.946667 0-20.878222-5.888-29.809778-11.804444l-63.687111-62.919111c-23.836444 14.762667-50.659556 23.608889-80.497778 23.608889-89.400889 0-160.938667-70.826667-160.938667-159.317334 0-88.519111 71.537778-159.345778 160.967111-159.345778zM220.302222 334.506667c26.424889 0 44.032 17.436444 44.032 43.576889 0 26.168889-17.635556 43.605333-44.032 43.605333h-52.906666L96.967111 770.474667h521.102222a202.012444 202.012444 0 0 0 60.757334 87.210666H44.060444c-13.226667 0-26.453333-4.380444-35.271111-17.464889C0 827.164444 0 818.432 0 805.347556l88.120889-435.968c4.408889-21.788444 22.016-34.872889 44.060444-34.872889h88.120889z m587.747556 253.952c-63.374222 0-114.062222 46.961778-114.062222 105.671111 0 58.680889 50.688 105.642667 114.062222 105.642666 63.345778 0 114.062222-46.933333 114.062222-105.642666s-50.716444-105.671111-114.062222-105.671111z m-177.237334-167.310223c55.580444 0 101.432889 40.903111 107.946667 93.696a204.714667 204.714667 0 0 0-35.470222 17.294223v-4.323556c0-39.253333-32.426667-71.111111-72.476445-71.111111H336.298667c-38.428444 0-69.888 29.354667-72.334223 66.446222l-0.170666 4.664889v90.851556H338.488889v-55.125334h36.266667v55.125334h89.514666v-100.807111h36.266667v100.807111h90.624v-55.125334h36.238222v51.484445A198.912 198.912 0 0 0 612.778667 654.222222H227.555556v-126.407111c0-57.059556 45.681778-103.651556 103.139555-106.524444l5.603556-0.142223h294.513777z m-221.354666 80.924445v39.708444h-74.126222V502.044444h74.126222z m427.633778-167.566222c22.044444 0 39.651556 13.084444 44.088888 34.872889l32.426667 160.341333a204.288 204.288 0 0 0-95.488-27.562667l-16.270222-80.469333h-52.878222c-26.424889 0-44.032-17.436444-44.032-43.605333 0-26.168889 17.635556-43.576889 44.032-43.576889h88.120889zM509.383111 85.333333c31.288889 0 61.297778 12.202667 83.427556 33.905778a114.744889 114.744889 0 0 1 34.360889 75.264l0.199111 6.542222v17.806223h33.166222l0.711111 35.384888h-65.962667v9.756445c0 71.480889-49.664 129.422222-111.274666 129.422222-59.818667 0-108.686222-54.897778-111.502223-123.164444l-0.142222-6.257778v-9.784889h-56.888889v-35.555556h24.263111v-17.777777c0.085333-61.838222 49.635556-112.298667 111.928889-115.399111L457.557333 85.333333h51.825778z m48.384 169.073778h-149.703111v9.756445c0 51.911111 33.905778 93.866667 75.377778 93.866666 40.049778 0 72.817778-38.684444 74.296889-88.291555l0.028444-5.575111v-9.756445zM493.795556 120.888889h-20.650667v71.111111h-36.266667v-68.266667a80.412444 80.412444 0 0 0-60.728889 72.419556l-0.170666 4.920889v17.777778h214.954666l0.199111-17.436445a80.156444 80.156444 0 0 0-56.263111-75.946667l-4.835555-1.365333V192H493.795556v-71.111111z" fill="#ffffff"></path></svg>`,
           // items: ['添加受灾点', '物资查询', '救援力量查询', '物资匹配', '行政区划匹配', '半径查询', '显示所有物资点'],
           items: [
+            // {name: '添加受灾点', action: 'addDisasterPoint'},
             {name: '物资查询', action: 'panels.searchSupplyDialog = true'},
             {name: '救援力量查询', action: 'panels.searchEmergencyTeamDialog = true'},
             {name: '物资匹配', action: 'marchSupply'},
@@ -585,6 +586,7 @@ export default {
       ],
       selectedRegions: [],
       selectedDataByRegions: {},
+        selectedDataByRadius: {},
 
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
@@ -593,8 +595,8 @@ export default {
       popupData: {}, // 弹窗内容，传值给子组件
       tableNameOptions: [],
       eqlistName: '',
-      searchSupplyBy: '',
-      isShowMessage: ''
+      isShowMessage: false,  // 是否显示提示-添加受灾点
+      searchSupplyBy: null,  // 匹配的方式
     };
   },
   mounted() {
@@ -716,20 +718,21 @@ export default {
               emergencyTeamArr.push(item);
             }
           });
-          this.suppliesList = []
-          this.suppliesList.push(suppliesArr, emergencyTeamArr, reservesArr);
+
           this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
           this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
           this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-          this.listField = 'supplies'
-          this.changeDataList('supplies')
 
           //  画圆
           const position = Cesium.Cartesian3.fromDegrees(
               parseFloat(res.longitude),
               parseFloat(res.latitude)
           );
-
+          viewer.entities.values.forEach((entity) => {
+            if (entity.ellipse) {
+              viewer.entities.remove(entity);
+            }
+          });
           viewer.entities.add({
             position: position,
             ellipse: {
@@ -973,18 +976,14 @@ export default {
                 this.clickCount,
                 Cesium.Color.RED
             );
+            this.isShowMessage = false
             // console.log("已添加标注点");
             this.canMarkPoint = false;
-            this.isShowMessage = false
-            switch (this.searchSupplyBy) {
-              case 'RadiusDialog':
+            if(this.searchSupplyBy === 'RadiusDialog'){
                 this.panels.searchSupplyByRadiusDialog = true
-                break;
-              case 'marchSupplyDialog':
-                this.panels.marchSupplyDialog = true
-                break;
-            }
 
+            }else if(this.searchSupplyBy = 'RadiusDialog')
+              this.panels.marchSupplyDialog = true
           }
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -1189,8 +1188,10 @@ export default {
       }
     },
 
+      // 行政区域匹配
     handleDistrictClick() {
       let district = this.selectedRegions[0]
+        this.selectedDataByRegions = []
       //清除其他实体标签
       this.removethdRegions()
       this.removeDataSourcesLayer('YaanRegionLayer');
@@ -1201,7 +1202,7 @@ export default {
       });
       if (filteredFeatures.length > 0) {
 
-        console.log("filteredFeatures---------------------------", filteredFeatures)
+        // console.log("filteredFeatures---------------------------", filteredFeatures)
 
         this.removePoints(this.suppliesList[0]);
         this.removePoints(this.suppliesList[1]);
@@ -1230,7 +1231,7 @@ export default {
           // 保存区域图层以便后续使用
           window.regionLayerJump = dataSource
 
-          console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates)
+          // console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates)
           // 遍历每个过滤后的地理特征
           filteredFeatures.forEach((feature) => {
             // 获取特征的中心点坐标
@@ -1278,16 +1279,16 @@ export default {
           regionCode: this.selectedRegions[0].adcode
         }
         marchByRegion(obj).then(res => {
-          console.log("marchByRegion-----------------------", res)
-          let suppliesArr = res.insideDisasterReliefSupplies
-          let emergencyTeamArr = res.insideRescueTeamsInfo
-          let reservesArr = res.insideEmergencyRescueEquipment
-          this.selectedDataByRegions = {suppliesArr, emergencyTeamArr, reservesArr}
-          console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
+          // console.log("marchByRegion-----------------------", res)
+          let supplies = res.insideDisasterReliefSupplies
+          let emergencyTeam = res.insideRescueTeamsInfo
+          let reserves = res.insideEmergencyRescueEquipment
+          this.selectedDataByRegions = {supplies, emergencyTeam, reserves}
+          // console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
 
-          this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-          this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-          this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+          this.processPoints(supplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+          this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+          this.processPoints(emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
           this.listField = 'supplies'
           this.changeDataList('supplies')
         })
@@ -1333,22 +1334,56 @@ export default {
 
     // 切换数据列表
     changeDataList(param) {
+        console.log("11111111111111111")
       this.selectedSuppliesList = []
-      let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+      let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+      let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
+        let array
 
+        if(flag1){
+            array = 'selectedDataByRegions'
+        }else if(flag2){
+            array = 'selectedDataByRadius'
+        }
       if (param === 'supplies') {
-        this.listField = 'supplies'
-        this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+          this.listField = 'supplies'
+        // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+          this.selectedSuppliesList = (flag1 || flag2) === true ? this[array].supplies : this.suppliesList[0]
+          // this.selectedSuppliesList = this[array].suppliesArr
       } else if (param === 'emergencyTeam') {
         this.listField = 'emergencyTeam'
-        this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+        // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+        //   this.selectedSuppliesList = this[array].emergencyTeamArr
+          this.selectedSuppliesList = (flag1 || flag2) === true ? this[array].emergencyTeam : this.suppliesList[2]
       } else {
         this.listField = 'reserves'
-        this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+        // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+        //   this.selectedSuppliesList = this[array].reservesArr
+          this.selectedSuppliesList = (flag1 || flag2) === true ? this[array].reserves : this.suppliesList[1]
       }
       this.showIcon = this.selectedSuppliesList;
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+
+      //   console.log("111")
+      //   this.selectedSuppliesList = []
+      //   let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+      //
+      //   console.log("flag:",flag)
+      //   if (param === 'supplies') {
+      //       this.listField = 'supplies'
+      //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+      //   } else if (param === 'emergencyTeam') {
+      //       this.listField = 'emergencyTeam'
+      //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+      //   } else {
+      //       this.listField = 'reserves'
+      //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+      //   }
+      //   console.log("this.listField:",this.listField)
+      //   this.showIcon = this.selectedSuppliesList;
+      //   this.total = this.selectedSuppliesList.length;
+      //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
     },
 
     // 绘制点
@@ -1501,13 +1536,20 @@ export default {
 
     // 物资匹配dialog能打开
     async marchSupply() {
-      this.addDisasterPoint()
-      this.isShowMessage = true
-      this.searchSupplyBy = 'marchSupplyDialog'
+      // if (this.addSupplyPointCurrently.lat === 0) {
+      //   await ElMessageBox.alert('请先添加受灾点。', '提示', {
+      //     confirmButtonText: '确认',
+      //   });
+      // } else {
+      //   this.panels.marchSupplyDialog = true
+      // }
+        this.addDisasterPoint()
+        this.isShowMessage = true
+        this.searchSupplyBy = 'marchSupplyDialog'
+
     },
     // 物资匹配
     async marchSupplies() {
-      window.viewer.entities.removeAll();
       this.removePoints(this.suppliesList[0]);
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
@@ -1547,41 +1589,89 @@ export default {
 
     // 半径查询
     async searchSuppliesByRadius() {
-      this.addDisasterPoint()
-      this.isShowMessage = true
-      this.searchSupplyBy = 'RadiusDialog'
+      // if (this.addSupplyPointCurrently.lat === 0) {
+      //   await ElMessageBox.alert('请先添加受灾点。', '提示', {
+      //     confirmButtonText: '确认',
+      //   });
+      // } else {
+      //   this.panels.searchSupplyByRadiusDialog = true
+      // }
+        this.addDisasterPoint()
+        this.isShowMessage = true
+        this.searchSupplyBy = 'RadiusDialog'
     },
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
       this.ifDrawEllipse = true
-      this.selectedSuppliesList = await this.marchSupplyByRadius(this.searchSupplyForm.radius)
-      this.drawSupplyPoint(this.searchSupplyForm.radius)
+      let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
+      // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
+        this.selectedDataByRadius = {
+            supplies: result[0],
+            reserves: result[1],
+            emergencyTeam: result[2]
+        };
+        this.selectPoints(this.searchSupplyForm.radius)
+        this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+        this.listField = 'supplies'
+        this.changeDataList('supplies')
       this.panels.searchSupplyByRadiusDialog = false
     },
     // 半径匹配
-    async marchSupplyByRadius(radius) {
+    async marchSupplyByRadius(array, radius) {
+      // 移除现有的点
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
       let result = []
+        let suppliesArr = []
+        let reservesArr = []
+        let emergencyTeamArr = []
       let longitude = parseFloat(this.addSupplyPointCurrently.lng);
       let latitude = parseFloat(this.addSupplyPointCurrently.lat);
       const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-
-      this.all.forEach((item) => {
-        item.forEach((point) => {
-          const pointLongitude = parseFloat(point.longitude);
-          const pointLatitude = parseFloat(point.latitude);
-          const initialPoint = Cesium.Cartesian3.fromDegrees(
-              pointLongitude,
-              pointLatitude
-          );
-          // 距离以公里为单位
-          const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-          if (distance < radius) {
-            result.push(point);
-          }
-        })
-      });
-
+      if(Array.isArray(array)){
+          array.forEach((arr,index) => {
+              arr.forEach((point) => {
+                  const pointLongitude = parseFloat(point.longitude);
+                  const pointLatitude = parseFloat(point.latitude);
+                  const initialPoint = Cesium.Cartesian3.fromDegrees(
+                      pointLongitude,
+                      pointLatitude
+                  );
+                  // 距离以公里为单位
+                  const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+                  if (distance < radius) {
+                      if(index === 0){
+                          suppliesArr.push(point);
+                      }else if(index === 1){
+                          reservesArr.push(point);
+                      }else{
+                          emergencyTeamArr.push(point);
+                      }
+                  }
+              });
+          })
+          result.push(suppliesArr)
+          result.push(reservesArr)
+          result.push(emergencyTeamArr)
+      }else if(typeof array === 'string'){
+          array.forEach((point) => {
+              const pointLongitude = parseFloat(point.longitude);
+              const pointLatitude = parseFloat(point.latitude);
+              const initialPoint = Cesium.Cartesian3.fromDegrees(
+                  pointLongitude,
+                  pointLatitude
+              );
+              // 距离以公里为单位
+              const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+              if (distance < radius) {
+                  result.push(point);
+              }
+          });
+      }
       return result
     },
     // 通过目标数量匹配物资
@@ -1632,8 +1722,10 @@ export default {
       }
     },
 
-    drawSupplyPoint(radius) {
-      window.viewer.entities.removeAll();
+    drawSupplyPoint(param, radius) {
+      this.total = this.selectedSuppliesList.length;
+      this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      this.removePoints(this.showIcon);
       viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.addSupplyPointCurrently.lng),
@@ -1644,38 +1736,44 @@ export default {
           color: Cesium.Color.RED,
         },
       });
-
-
+      this.showIcon = [];
+      this.showIcon = this.selectedSuppliesList;
+      // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
       let reservesArr = []  // 抢险救灾装备
       let suppliesArr = []  // 救灾物资储备
       let emergencyTeamArr = []  // 救援力量
-
-      this.selectedSuppliesList.forEach((item) => {
-        if (item.type === "reserves") {
-          reservesArr.push(item);
-        } else if (item.type === "supplies") {
-          suppliesArr.push(item);
-        } else if (item.type === "emergency") {
-          emergencyTeamArr.push(item);
-        }
-      });
-
-      this.suppliesList = []
-      this.suppliesList.push(suppliesArr, emergencyTeamArr, reservesArr);
-
-      this.listField = 'supplies'
-      this.changeDataList('supplies')
-      this.panels.tableVisible = true
+      if (param === 'searchSupplies') {
+        this.showIcon.forEach((item) => {
+          suppliesArr.push(item)
+        })
+      } else if (param === 'searchEmergencyTeam') {
+        this.showIcon.forEach((item) => {
+          emergencyTeamArr.push(item)
+        })
+      } else if (param === 'searchReserves') {
+        this.showIcon.forEach((item) => {
+          reservesArr.push(item)
+        })
+      } else {
+        this.showIcon.forEach((item) => {
+          if (item.type === "reserves") {
+            reservesArr.push(item);
+          } else if (item.type === "supplies") {
+            suppliesArr.push(item);
+          } else if (item.type === "emergency") {
+            emergencyTeamArr.push(item);
+          }
+        });
+      }
       this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
       this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
       this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
       if (this.ifDrawEllipse) {
         this.selectPoints(radius);
       }
+      // }
 
     },
-
-
     // 查询指定范围内的物资点
 
     selectPoints(radius) {
@@ -1875,6 +1973,7 @@ export default {
       });
       this.propertiesId = []; // 清空propertiesId，为新的路径规划准备
 
+        console.log("111")
       this.handler.setInputAction((event) => {
         if (!this.isRouting) return; // 如果路径规划已完成，则不执行后续代码
 
@@ -1885,6 +1984,7 @@ export default {
         let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
 
+          console.log("222")
         that.pos.push([lon, lat]);
         let billBoardId = Date.now();
         if (that.pos.length === 1) {
@@ -1894,6 +1994,7 @@ export default {
           that.billboardD(position, end, billBoardId);
           this.propertiesId.push(billBoardId);  // 将billboardId加入propertiesId数组
         }
+          console.log("333")
 
         if (that.pos.length === 2) {
           // 已获取两个点，开始路径规划
@@ -1905,6 +2006,7 @@ export default {
           let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
           let avoidArea = "";
 
+            console.log("444")
           // 添加受灾区域逻辑
           if (that.areas.length > 0) {
             let area = JSON.parse(JSON.stringify(that.areas));
@@ -1916,7 +2018,7 @@ export default {
             }
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
-
+            console.log("555")
           axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
               .then(res => {
                 pathM += parseInt(res.data.route.paths[0].distance);
@@ -2146,6 +2248,7 @@ export default {
           window.viewer.scene.canvas
       );
       let that = this;
+        that.pos = [];  // 清空路径点
       handler.setInputAction(async (click) => {
         let pickedEntity = window.viewer.scene.pick(click.position);
         // let entity = window.selectedEntity = pickedEntity?.id
