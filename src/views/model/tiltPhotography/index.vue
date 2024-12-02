@@ -635,6 +635,11 @@ export default {
      * @returns {string}
      */
     formatDateToBackend(inputDate) {
+      // 如果输入为空，则直接返回 null
+      if (!inputDate) {
+        return null;
+      }
+
       // 使用正则表达式提取日期和时间部分
       const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
       const matches = inputDate.match(regex);

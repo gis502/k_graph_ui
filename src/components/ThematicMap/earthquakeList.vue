@@ -68,7 +68,7 @@
           <h4>地震名称：{{ selectedTabData.earthquakeName }} {{ selectedTabData.magnitude }}级地震</h4>
           <p>发震时刻：{{ this.timestampToTime(selectedTabData.occurrenceTime, "fullDateTime")  }}</p>
           <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
-          <p>地震震级：{{ selectedTabData.magnitude }}</p>
+          <p>地震震级：{{ selectedTabData.magnitude }}级</p>
           <p>震源深度：{{ selectedTabData.depth }}千米</p>
           <p>参考位置：{{ selectedTabData.earthquakeName }}</p>
         </div>

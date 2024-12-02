@@ -291,8 +291,9 @@ const handleAftershockData = () => {
       // 更新余震图表
       updateAftershockChart(res);
       console.log("getAftershockMagnitude", res);
-      updateTime.value = res.submission_deadline; // 更新时间
-      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
+      updateTime.value = res.submission_deadline ? res.submission_deadline : new Date(); // 如果 submission_deadline 为 null，使用当前时间
+      updateTime.value = formatDate(updateTime.value);  // 更改时间格式
+
 
       // 判断是否有有效余震数据
       const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
@@ -639,15 +640,28 @@ onBeforeUnmount(() => {
 
 
 function formatDate(date) {
+  // 如果 date 为 null 或空字符串，返回 null 或其他适合的空值
+  if (!date) {
+    return null;  // 或者返回 ''，取决于你需要的返回值
+  }
+
   const d = new Date(date);
+
+  // 如果 date 无法解析为有效日期，返回 null 或其他默认值
+  if (isNaN(d.getTime())) {
+    return null;  // 或者返回 '无效日期'
+  }
+
   const year = d.getFullYear();
   const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
   const day = d.getDate().toString().padStart(2, '0');
   const hours = d.getHours().toString().padStart(2, '0');
   const minutes = d.getMinutes().toString().padStart(2, '0');
   const seconds = d.getSeconds().toString().padStart(2, '0');
+
   return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 }
+
 </script>
 
 <style scoped>
