@@ -168,7 +168,7 @@
       <div class="system-title">
         {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
           this.centerPoint.earthquakeName
-        }}{{ this.centerPoint.magnitude }}级地震
+        }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
       </div>
     </div>
     <div class="logo-menu menue-left">

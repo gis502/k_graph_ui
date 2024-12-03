@@ -10,7 +10,7 @@
           <div class="logo-title-content" style="padding: 0 0 15px 0;">
             <p>{{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日{{
                 this.centerPoint.earthquakeName
-              }}{{ this.centerPoint.magnitude }}级地震</p></div>
+              }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震</p></div>
         </div>
 
         <div class="logo-left-weather">
