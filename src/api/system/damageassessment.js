@@ -49,3 +49,19 @@ export function saveEconomicLossData(saveEconomicLoss){
   })
 }
 
+// export function dataTest(data){
+//   return request({
+//     url: '/test/post/resp',
+//     method: 'post',
+//     data: data
+//   })
+// }
+
+export function getDA(type, EqEventGetResultTownDTO){
+  return request({
+    url: '/damageassessment/getDA',
+    method: 'post',
+    data: EqEventGetResultTownDTO,
+    params: { type }
+  })
+}
