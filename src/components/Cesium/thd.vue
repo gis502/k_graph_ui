@@ -118,7 +118,7 @@
     <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
       <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
         <div class="list-dialog__header">
-          <span>专题图产出</span>
+          <span>报告导出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
@@ -175,7 +175,7 @@
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('dataStats') }"
-          title="数据统计"
+          title="灾情总览"
           @click="toggleComponent('dataStats')"
       >
         <p>灾情总览</p>
@@ -186,15 +186,15 @@
           title="地震列表"
           @click="toggleComponent('eqList')"
       >
-        <p>灾损评估</p>
+        <p>地震列表</p>
       </div>
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('model') }"
-          title="三维模型"
+          title="标绘统计"
           @click="toggleComponent('model')"
       >
-        <p>态势标绘</p>
+        <p>标绘统计</p>
       </div>
     </div>
     <div class="logo-menu menue-right">
@@ -204,7 +204,7 @@
           title="图层要素"
           @click="toggleComponent('layerChoose')"
       >
-        <p>资源调度</p>
+        <p>图层要素</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -212,7 +212,7 @@
           title="专题图产出"
           @click="toggleComponent('thematicMapDownload')"
       >
-        <p>灾情统计</p>
+        <p>专题图产出</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -220,7 +220,7 @@
           title="报告导出"
           @click="toggleComponent('reportDownload')"
       >
-        <p>图件产出</p>
+        <p>报告导出</p>
       </div>
       <div
           class="logo-menu-tittle"
