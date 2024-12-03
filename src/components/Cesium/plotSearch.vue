@@ -34,37 +34,44 @@
           <div class="eqText">
                         <span
                             class="eqTitle">
-                         {{ plot.locationInfo.province }} {{ plot.locationInfo.city }}{{ plot.locationInfo.county }} {{ plot.locationInfo.town }}
+                        {{ plot.plotInfo.plotType }}
                         </span>
             <br/>
 <!--             伤亡和出队信息-->
             <div class="disaster-info">
               <!-- 标绘类型 -->
               <div>
-                <span class="info-label">标绘类型：{{ plot.plotInfo.plotType }}</span>
+                <span class="info-label">所属地点 :{{ plot.locationInfo.city }}{{ plot.locationInfo.county }} {{ plot.locationInfo.town }}</span>
               </div>
 
               <!-- 伤亡人数 -->
               <div v-if="plot.plotInfo.plotType === '轻伤人员' ||plot.plotInfo.plotType === '重伤人员'||plot.plotInfo.plotType === '危重伤人员'||plot.plotInfo.plotType === '死亡人员' ">
-                <span class="info-label">伤亡人员：</span><span class="highlight highlight-danger">{{ plot.plotTypeInfo.newCount }} 人</span>
+                <span class="info-label large-text">伤亡人员：</span><span class="highlight highlight-danger large-text">{{ plot.plotTypeInfo.newCount }} 人</span>
               </div>
 
               <!-- 出队信息 -->
-              <div v-if="plot.plotInfo.plotType === '已出发队伍'|| plot.plotInfo.plotType === '正在参与队伍'||plot.plotInfo.plotType === '待命队伍'">
-                <span class="info-label">队伍名称：</span><span class="highlight highlight-info">{{ plot.plotTypeInfo.teamName }}</span>
-                <span class="info-label">出队人数：</span><span class="highlight highlight-success">{{ plot.plotTypeInfo.personnelCount }} 人</span>
+              <div v-if="plot.plotInfo.plotType === '已出发队伍'|| plot.plotInfo.plotType === '正在参与队伍'||plot.plotInfo.plotType === '待命队伍' "  style="display: flex; align-items: center;">
+                <span class="info-label">队伍名称:</span>
+                <div class="team-name-wrapper">
+                  <span class="highlight highlight-info team-name">{{ plot.plotTypeInfo.teamName }}</span>
+                </div>
+                <span class="info-label large-text">出队人数：</span><span class="highlight highlight-success large-text">{{ plot.plotTypeInfo.personnelCount }} 人</span>
               </div>
             </div>
 
             <!-- 地点、道路、POI 和经纬度 -->
             <div class="location-info">
-              <span class="info-label"><strong>具体地点：</strong>{{ plot.locationInfo.address }} （{{ plot.locationInfo.address_position }}方向 {{ plot.locationInfo.address_distance }} 米）</span>
-              <br>
-              <span class="info-label"><strong>附近道路：</strong>{{ plot.locationInfo.road }} （距离 {{ plot.locationInfo.road_distance }} 米）</span>
+              <div style="display: flex; align-items: center;">
+               <strong>具体地点：</strong>
+               <div class="local-place-wrapper">
+                 <span class="info-label small-text local-place">{{ plot.locationInfo.address }} （{{ plot.locationInfo.address_position }}方向 {{ plot.locationInfo.address_distance }} 米）</span>
+               </div>
+              </div>
+              <span class="info-label small-text"><strong>附近道路：</strong>{{ plot.locationInfo.road }} （距离 {{ plot.locationInfo.road_distance }} 米）</span>
               <br>
 <!--              <span class="info-label"><strong>附近 POI：</strong>{{ plot.locationInfo.poi }} （{{ plot.locationInfo.poi_position }}方向 {{ plot.locationInfo.poi_distance }} 米）</span>-->
 <!--              <br>-->
-              <span class="info-label"><strong>标绘经纬：</strong>{{ parseFloat(plot.plotInfo.longitude).toFixed(2) }}°E, {{ parseFloat(plot.plotInfo.latitude).toFixed(2) }}°N</span>
+              <span class="info-label small-text"><strong>标绘经纬：</strong>{{ parseFloat(plot.plotInfo.longitude).toFixed(2) }}°E, {{ parseFloat(plot.plotInfo.latitude).toFixed(2) }}°N</span>
               <br>
             </div>
           </div>
@@ -606,7 +613,6 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  position: relative;
 }
 
 .eqTitle {
@@ -770,14 +776,36 @@ export default {
   margin-right: 10px;
   line-height: 1.6;
 }
+
 .disaster-info{
   margin-top: 6px;
 }
+
 .location-info span {
   display: inline-block;
-  font-size: 14px;
+  font-size: 12px;
   margin-right: 15px; /* 每段内容间距 */
   line-height: 1.6;
+}
+
+/* 伤亡和出队样式 */
+.large-text {
+  font-size: 16px; /* 伤亡人员和出队人数字体更大 */
+  font-weight: bold;
+}
+.team-name {
+  transform: translateX(0);
+  will-change: transform;
+  display: inline-block;
+  position: relative;
+}
+/* 队伍名称换行处理 */
+.team-name:hover{
+  transform: translateX(-70%);
+  transition: transform 5.0s ease;
+}
+.team-name{
+  transition: none;
 }
 
 .info-label {
@@ -786,6 +814,15 @@ export default {
   margin-right: 5px;
 }
 
+/* 为 team-name 添加限制和动画区域 */
+.team-name-wrapper {
+  display: inline-block; /* 不换行 */
+  position: relative;
+  max-width: 200px; /* 设置宽度限制 */
+  overflow: hidden; /* 超出内容隐藏 */
+  white-space: nowrap; /* 防止内容换行 */
+  margin-right: 10px; /* 间距调整 */
+}
 .highlight {
   font-weight: bold;
 }
@@ -806,6 +843,35 @@ export default {
 .location-info span strong {
   color: #ffd700; /* 金黄色，强调重要信息 */
 }
+.location-info strong {
+  display: inline-block;
+  font-size: 12px;
+  color: #ffd700; /* 金黄色，强调重要信息 */
+}
+/*地点名称*/
+.local-place {
+  transform: translateX(0);
+  will-change: transform;
+  display: inline-block;
+  position: relative;
+}
+/* 地点名称 */
+.local-place:hover{
+  transform: translateX(-50%);
+  transition: transform 5.0s ease;
+}
 
+.local-place{
+  transition: none;
+}
 
+/* 为 local-place 添加限制和动画区域 */
+.local-place-wrapper {
+  display: inline-block; /* 不换行 */
+  position: relative;
+  max-width: 200px; /* 设置宽度限制 */
+  overflow: hidden; /* 超出内容隐藏 */
+  white-space: nowrap; /* 防止内容换行 */
+  margin-right: 10px; /* 间距调整 */
+}
 </style>
