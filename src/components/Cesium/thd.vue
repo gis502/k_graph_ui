@@ -1370,12 +1370,13 @@ export default {
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     // 暂停播放切换
     toggleTimer() {
+      let that=this
       // 如果计时器未运行，则初始化计时器线
       if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
         this.isTimerRunning = true
         this.initTimerLine();
         setTimeout(() => {
-          this.bofang();
+          that.bofang();
         }, 3000);
       } else {
         if (!this.isTimerRunning) {
@@ -1420,11 +1421,6 @@ export default {
       setTimeout(() => {
         this.flashingCenter()
       }, 3000);
-
-      let data = {
-        ...this.centerPoint,
-        drawtype: this.centerPoint.plotid
-      }
     },
     bofang() { //正向播放
       this.isfirst = false
@@ -1917,6 +1913,7 @@ export default {
     },
     //----------------------时间轴end
     clearResource(viewer) {
+      this.isTimerRunning = false;
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
