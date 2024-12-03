@@ -107,7 +107,7 @@
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;"/>
           <span style="margin: 0 10px"> 至 </span>
           <el-input v-model="formValue.endMagnitude" style="width: 5vw;"/>
-          <span style="margin: 0 10px">(里氏)</span>
+          <span style="margin: 0 10px">(级)</span>
         </el-form-item>
         <el-form-item label="地震深度">
           <el-input v-model="formValue.startDepth" style="width: 5vw"/>
