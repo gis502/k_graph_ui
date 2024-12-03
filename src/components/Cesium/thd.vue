@@ -6566,7 +6566,7 @@ export default {
   position: absolute;
   top: 94.5%;
   left: 3%;
-  z-index: 500;
+  z-index: 10;
 }
 
 :deep(.cesium-viewer-geocoderContainer .search-results) {
@@ -6926,11 +6926,24 @@ export default {
 }
 
 :deep(.eqTable) {
-  bottom: -74px;
-  height: calc(100% - 115px);
+  bottom: -55px;
+  height: calc(100% - 153px);
+  width: 100%;
+  right: 1%;
 }
 
 :deep(.eqList) {
-  height: calc(69vh - 100px);
+  height: calc(69vh - 181px);
+}
+:deep(.pagination) {
+  z-index: 999;
+  width: 100%;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
+}
+:deep(.eqCard:hover) {
+  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
+  background:  transparent;
+  transition: all 0.3s;
 }
 </style>

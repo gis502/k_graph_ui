@@ -1,21 +1,12 @@
 <template>
   <div class="eqTable" v-show="isLeftShow">
     <div class="eqListContent" v-if="currentTab === '震害事件'">
+      <div class="pop">
+        <div class="pop_header">
+          <span class="pop_title">标绘查询</span>
+        </div>
+      </div>
       <div style="display: flex">
-<!--        &lt;!&ndash; 选择框 &ndash;&gt;-->
-<!--        <el-select-->
-<!--            v-model="selectedPlotType"-->
-<!--            placeholder="请选择标绘类型"-->
-<!--            class="query"-->
-<!--            clearable-->
-<!--        >-->
-<!--          <el-option-->
-<!--              v-for="(type, index) in uniquePlotTypes"-->
-<!--              :key="index"-->
-<!--              :label="type"-->
-<!--              :value="type"-->
-<!--          ></el-option>-->
-<!--        </el-select>-->
         <!-- 搜索框 -->
         <el-input v-model="title" placeholder="请输入搜索内容" class="query" @input="filterEq" clearable>
         </el-input>
@@ -634,7 +625,8 @@ export default {
   width: 333px;
   height: calc(100% - 50px);
   z-index: 100;
-  background-color: #2d3d51;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
 .query {
@@ -656,7 +648,7 @@ export default {
 }
 
 .eqCard:hover {
-  background-color: #202933;
+  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
   transition: all 0.3s;
 }
 
@@ -723,7 +715,7 @@ export default {
   position: absolute;
   bottom: 0;
   width: 333px;
-  background-color: #2d3d51;
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
   border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
@@ -811,8 +803,9 @@ export default {
  align-items: center;
  justify-content: center;
  width: 10px;
- height: 50px;
- background-color: #2d3d51;
+ height: 36px;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
  -webkit-border-top-left-radius: 10px;
  -webkit-border-bottom-left-radius: 10px;
  cursor: pointer;
@@ -826,7 +819,8 @@ export default {
   right: 0;
   width: 30px;
   height: 40px;
-  background-color: rgba(48, 65, 86, 0.5);
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
   cursor: pointer;
   z-index: 2;
   margin: 0;
@@ -954,4 +948,26 @@ export default {
   z-index: 101; /* 确保提示信息显示在上层 */
 }
 
+.pop {
+  width: 100%;
+  z-index: 20;
+}
+
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.pop_title {
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 550;
+  top: 15%;
+  position: relative;
+  left: 7%;
+}
 </style>
