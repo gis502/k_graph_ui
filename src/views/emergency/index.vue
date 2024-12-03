@@ -1285,7 +1285,7 @@ export default {
           let reserves = res.insideEmergencyRescueEquipment
           this.selectedDataByRegions = {supplies, emergencyTeam, reserves}
           // console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
-          this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+            this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
           this.processPoints(supplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
 
           this.processPoints(emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
@@ -1557,14 +1557,14 @@ export default {
       let radiusResult = []
       let countResult = []
       this.selectedSuppliesList = []
-      // console.log("result-------------------",result)
+      console.log("result-------------------",result)
       let i = 1.0
       let flag = false
       while (i < 15.0 && !flag) {
         radiusResult = await this.marchSupplyByRadius(result, i)
-        // console.log("radiusResult-------------------",radiusResult)
+        console.log("radiusResult-------------------",radiusResult)
         countResult = this.marchSupplyByCount(radiusResult)
-        // console.log("countResult-------------------", countResult);
+        console.log("countResult-------------------", countResult);
         if (countResult.length > 0) {
           flag = true
           this.marchSupplyRadius = i
@@ -1632,7 +1632,7 @@ export default {
       let longitude = parseFloat(this.addSupplyPointCurrently.lng);
       let latitude = parseFloat(this.addSupplyPointCurrently.lat);
       const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-      if(Array.isArray(array)){
+      if(Array.isArray(array[0])){
           array.forEach((arr,index) => {
               arr.forEach((point) => {
                   const pointLongitude = parseFloat(point.longitude);
@@ -1657,7 +1657,8 @@ export default {
           result.push(suppliesArr)
           result.push(reservesArr)
           result.push(emergencyTeamArr)
-      }else if(typeof array === 'string'){
+      // }else if(typeof array === 'string'){
+      }else{
           array.forEach((point) => {
               const pointLongitude = parseFloat(point.longitude);
               const pointLatitude = parseFloat(point.latitude);
