@@ -406,37 +406,37 @@ export default {
           locationKey: 'areaName',
           dataKeys: ['totalOutOfServiceSubstations', 'restoredSubstations', 'restoredBaseStations','totalDisabledBaseStations'],
           legendName: 'TransportationElectricity',
-          labels: ['累计停运变电站(座)：', '已恢复变电站(座)：', '抢通恢复基站(个)：','累计退服基站(个)']
+          labels: ['累计停运变电站(座)', '已恢复变电站(座)', '抢通恢复基站(个)','累计退服基站(个)']
         },
         BuildingDamageInformation: {
           locationKey: 'affectedAreaName',
           dataKeys: ['currentlyDamaged', 'currentlyDisabled', 'currentlyRestricted', 'currentlyAvailable'],
           legendName: 'BuildingDamageInformation',
-          labels: ['房屋受损数量：', '房屋禁用数量：', '房屋限用数量：', '房屋可用数量：']
+          labels: ['房屋受损数量', '房屋禁用数量', '房屋限用数量', '房屋可用数量']
         },
         SecondaryDisaster: {
           locationKey: 'quakeAreaName',
           dataKeys: ['evacuationCount', 'existingRiskPoints', 'alarmCount'],
           legendName: 'SecondaryDisaster',
-          labels: ['疏散数量：', '现有风险点数量：', '警报数量：']
+          labels: ['疏散数量', '现有风险点数量', '警报数量']
         },
         ResourceStrength: {
           locationKey: 'earthquakeAreaName',
           dataKeys: ['tentsCount', 'quiltsCount', 'foldingBedsCount'],
           legendName: 'ResourceStrength',
-          labels: ['帐篷数：', '棉被床数：', '折叠床数：']
+          labels: ['帐篷数', '棉被床数', '折叠床数']
         },
         MaterialDonation: {
           locationKey: 'earthquakeAreaName',
           dataKeys: ['governmentDonationAmount', 'charityDonationAmount', 'redCrossDonationAmount'],
           legendName: 'MaterialDonation',
-          labels: '接收捐赠资金(万元)：'
+          labels: '接收捐赠资金(万元)'
         },
         PublicSentiment: {
           locationKey: 'earthquakeZoneName',
           dataKeys: ['publicityReport', 'publicOpinionRiskWarning', 'negativeOpinionDisposal'],
           legendName: 'PublicSentiment',
-          labels: ['宣传报道(篇)：', '舆情风险提示(条)：', '处置负面舆论(条)：']
+          labels: ['宣传报道(篇)', '舆情风险提示(条)', '处置负面舆论(条)']
         }
       },
 
