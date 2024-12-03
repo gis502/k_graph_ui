@@ -1285,9 +1285,9 @@ export default {
           let reserves = res.insideEmergencyRescueEquipment
           this.selectedDataByRegions = {supplies, emergencyTeam, reserves}
           // console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
-
-          this.processPoints(supplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
           this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+          this.processPoints(supplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+
           this.processPoints(emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
           this.listField = 'supplies'
           this.changeDataList('supplies')
