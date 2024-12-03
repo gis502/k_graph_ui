@@ -21,11 +21,10 @@ import {ref, onMounted} from 'vue';
 import {ElMessage} from "element-plus";
 import {getField, getData} from "@/api/system/excel.js";
 import * as echarts from 'echarts';
-import 'echarts-wordcloud';
+
 import AffectAreaInfo from "@/components/DisasterStatistics/AffectAreaInfo.vue";
 import WorkGroupInfo from "@/components/DisasterStatistics/WorkGroupInfo.vue";
-import ProblemRequireWordCloud from "@/components/DisasterStatistics/ProblemRequireWordCloud.vue";
-import CurrentJobWordCloud from "@/components/DisasterStatistics/CurrentJobWordCloud.vue";
+
 import { defineProps } from 'vue';
 import {gettotal} from "../../api/system/casualtystats"
 
