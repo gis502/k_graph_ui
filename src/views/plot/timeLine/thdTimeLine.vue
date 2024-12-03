@@ -1253,12 +1253,14 @@ export default {
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     // 暂停播放切换
     toggleTimer() {
+
       // 如果计时器未运行，则初始化计时器线
       if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
         this.isTimerRunning = true
         this.initTimerLine();
+        let that=this
         setTimeout(() => {
-          this.bofang();
+          that.bofang();
         }, 3000);
       } else {
         if (!this.isTimerRunning) {
@@ -1288,7 +1290,7 @@ export default {
       })
       // 标记计时器为运行状态
       this.isTimerRunning = true;
-      console.log(this.isOperateTimeLine,"this.isOperateTimeLine init")
+      // console.log(this.isOperateTimeLine,"this.isOperateTimeLine init")
       if(!this.isOperateTimeLine){
         // 初始化
         this.currentTimePosition = 0;
@@ -1309,12 +1311,12 @@ export default {
           }
         }, 3000);
       }
-
-
     },
     bofang() { //正向播放
-      console.log(this.isOperateTimeLine,"this.isOperateTimeLine bofang")
+      // console.log(this.isOperateTimeLine,"this.isOperateTimeLine bofang")
       // console.log("bofang")
+      console.log(" window.pointDataSource", window.pointDataSource)
+      console.log(" window.pointDataSource", window.labeldataSource)
       this.isfirst = false
       if (!this.isTimerRunning) { //根据次数跳出
         this.stopTimer();
@@ -2690,8 +2692,12 @@ export default {
     },
 
     clearResource(viewer) {
+      // this.stopTimer();
+      this.isTimerRunning = false;
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
+      // window.pointDataSource.entities.removeAll()
+      // window.labeldataSource.entities.removeAll()
       // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
