@@ -22,6 +22,9 @@
       </div>
       <!-- 地震列表 -->
       <div class="eqList">
+        <div v-if="noDataMessage" class="no-data-message">
+          {{ noDataMessage }}
+        </div>
         <div v-for="plot in pagedEqData" :key="plot.plotInfo.eqid" class="eqCard" @click="locateEq(plot)">
           <!-- 圆圈震级 -->
           <div style="width: 55px">
@@ -174,16 +177,27 @@ export default {
       type: String,
       default: null,
     },
+    plotArray: {
+      type: Array, // 指定类型为数组
+      default: () => [], // 使用空数组作为默认值
+    },
   },
   watch: {
     eqid: {
       immediate: true, // 如果 `eqid` 在初始时就有值，立即调用
       handler(newEqid, oldEqid) {
         if (newEqid !== oldEqid && this.eqid !== null) {
-          console.log(`eqid 发生变化：${oldEqid} => ${newEqid}`);
-          this.getPlot(newEqid); // 响应最新的 eqid 值
+          // console.log(`eqid 发生变化：${oldEqid} => ${newEqid}`);
+          this.getPlot({ eqid: newEqid }); // 传递 eqid 对象
         }
       },
+    },
+    plotArray: {
+      handler(newData) {
+          // console.log("plotArray 发生变化，新增数据：", newData);
+          this.getPlot({ plotArray: newData });
+      },
+      deep: true, // 深度监听
     },
   },
   data() {
@@ -194,8 +208,8 @@ export default {
       isHistoryEqPointsShow: false,
       selectPlotData: [],
       selectedPlotType: null, // 选择框绑定的值
-      uniquePlotTypes:null,
-
+      uniquePlotTypes: null,
+      noDataMessage: null,
 
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
       // 列表地震
@@ -276,30 +290,41 @@ export default {
          return null;
        }
      },
-    async getPlot(eqid) {
+    async getPlot(params) {
+      console.log("params",params)
       try {
-        // 获取 plot 数据
-        const res = await getPlot({eqid});
-        console.log("log", res);
+        // 判断是通过 eqid 还是 plotArray 调用
+        if (params.eqid) {
+          console.log("通过 eqid 获取数据", params.eqid);
+          this.selectPlotData = [];
+          this.filteredEqData = [];
 
-        // 提取并去重 plotType
-        this.uniquePlotTypes = [...new Set(res.map((item) => item.plotType))];
-        console.log(this.uniquePlotTypes, "uniquePlotTypes");
+          // 获取 plot 数据
+          const res = await getPlot({ eqid: params.eqid });
+          if (!res || res.length === 0) {
+            this.pagedEqData = [];
+            this.filteredEqData = [];
+            this.selectPlotData = [];
+            this.noDataMessage = "该地震暂无标绘数据";
+            return;
+          }
 
-        // 提取所有 plotIds 和 plotTypes
-        const plotIds = res.map((plot) => plot.plotId);
-        const plotTypes = res.map((plot) => plot.plotType);
+          this.noDataMessage = null;
+          await this.processPlotData(res); // 处理获取的数据
+        }
 
-        // 分批加载 getExcelPlotInfo 数据
-        const batchSize = 10; // 每次加载 10 个
-        const updatedRes = [];
-        for (let i = 0; i < plotIds.length; i += batchSize) {
-          const batchPlotIds = plotIds.slice(i, i + batchSize);
-          const batchPlotTypes = plotTypes.slice(i, i + batchSize);
+        if (params.plotArray) {
+          console.log("通过 plotArray 获取数据", params.plotArray);
+          // 如果是单个对象，转换为数组处理
+          const plotArray = Array.isArray(params.plotArray)
+              ? params.plotArray
+              : [params.plotArray]; // 如果不是数组，则转为数组
+          const plotIds = plotArray.map((plot) => plot.plotId);
+          const plotTypes = plotArray.map((plot) => plot.plotType);
 
-          console.log(`加载第 ${i / batchSize + 1} 批数据`);
-          const batchData = await getExcelPlotInfo(batchPlotIds, batchPlotTypes);
-
+          const updatedRes = [];
+          const batchData = await getExcelPlotInfo(plotIds, plotTypes);
+          console.log("batchData",batchData)
           // 立即处理和展示当前批次数据
           const processedBatchData = await Promise.all(
               batchData.map(async (plot) => {
@@ -314,16 +339,55 @@ export default {
               })
           );
 
+            // 将新的数据累加到现有的数据中
           updatedRes.push(...processedBatchData); // 合并当前批次数据
-          this.selectPlotData = updatedRes; // 实时更新展示数据
-          this.filteredEqData = updatedRes;
-          this.updatePagedEqData();
-        }
-
-        console.log("最终处理后的数据:", this.selectPlotData);
+          // 将新增数据累加到现有数据中
+          this.selectPlotData = [...this.selectPlotData, ...updatedRes];  // 累加新的标绘点
+          this.filteredEqData = [...this.filteredEqData, ...updatedRes];  // 同步更新筛选后的数据
+          this.updatePagedEqData(); // 更新分页数据
+          this.noDataMessage = null;
+          }
       } catch (error) {
         console.error("获取地震列表或处理失败:", error);
       }
+    },
+
+    async processPlotData(res) {
+      const plotIds = res.map((plot) => plot.plotId);
+      const plotTypes = res.map((plot) => plot.plotType);
+
+      const batchSize = 10;
+      const updatedRes = [];
+      for (let i = 0; i < plotIds.length; i += batchSize) {
+        const batchPlotIds = plotIds.slice(i, i + batchSize);
+        const batchPlotTypes = plotTypes.slice(i, i + batchSize);
+
+        console.log(`加载第 ${i / batchSize + 1} 批数据`);
+        const batchData = await getExcelPlotInfo(batchPlotIds, batchPlotTypes);
+
+        // 立即处理和展示当前批次数据
+        const processedBatchData = await Promise.all(
+            batchData.map(async (plot) => {
+              if (plot.plotInfo && plot.plotInfo.longitude && plot.plotInfo.latitude) {
+                const locationInfo = await this.getReverseGeocode(
+                    plot.plotInfo.longitude,
+                    plot.plotInfo.latitude
+                );
+                return {...plot, locationInfo};
+              }
+              return plot;
+            })
+        );
+
+        // 将新的数据累加到现有的数据中
+        updatedRes.push(...processedBatchData); // 合并当前批次数据
+      }
+
+      // 将新增数据累加到现有数据中
+      this.selectPlotData = [...this.selectPlotData, ...updatedRes];  // 累加新的标绘点
+      this.filteredEqData = [...this.filteredEqData, ...updatedRes];  // 同步更新筛选后的数据
+      this.updatePagedEqData(); // 更新分页数据
+
     },
 
     // 分页数据更新
@@ -874,4 +938,20 @@ export default {
   white-space: nowrap; /* 防止内容换行 */
   margin-right: 10px; /* 间距调整 */
 }
+
+.no-data-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffffff;
+  font-size: 18px;
+  text-align: center;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.6); /* 半透明背景 */
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  z-index: 101; /* 确保提示信息显示在上层 */
+}
+
 </style>

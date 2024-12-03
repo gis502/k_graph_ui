@@ -142,6 +142,8 @@ export default {
         let bool = true
         this.$emit('ifPointAnimate',bool)
         this.$emit('drawPoints', data.plot)
+        this.$emit('sendPlot', data.plot.plotId,data.plot.plotType)
+
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         // let form = {...this.form}
         console.log("完成",data)
