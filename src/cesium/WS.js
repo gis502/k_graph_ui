@@ -5,6 +5,7 @@ import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 
 let webSocket
 let ip = "ws://localhost:8080/ws/"
+let message=''
 // import cesiumPlot from '@/cesium/plot/cesiumPlot'
 export function initWebSocket(eqid) {
     const wsuri = ip + eqid;
@@ -12,11 +13,12 @@ export function initWebSocket(eqid) {
         console.log("您的浏览器不支持WebSocket");
     } else {
         webSocket = new WebSocket(wsuri);
-        webSocket.onmessage = websocketonmessage;
+        // webSocket.onmessage = websocketonmessage;
         webSocket.onopen = websocketonopen;
         webSocket.onerror = websocketonerror;
         webSocket.onclose = websocketclose;
         webSocket.eqid = eqid
+       // webSocket.message=e
     }
     return webSocket
 }
@@ -38,6 +40,7 @@ function websocketclose(e) {
 }
 
 function websocketonmessage(e) {
+    message=e
     console.log("e",e)
     try {
         console.log("socketmessage",JSON.parse(e.data))
@@ -48,7 +51,8 @@ function websocketonmessage(e) {
                 let markData = JSON.parse(e.data).data
                 wsAdd(markType, markData)
             }
-        } else if (markOperate === "delete") {
+        }
+        else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id
             console.log(id, 567)
             if (markType === "point") {
@@ -84,7 +88,8 @@ function websocketonmessage(e) {
                 console.log(polygonRemoved, pointDataRemoved);
             }
         }
-    } catch (err) {
+    }
+    catch (err) {
         console.log(err, 'ws中catch到错误');
     }
 }

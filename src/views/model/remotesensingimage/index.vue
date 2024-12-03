@@ -227,7 +227,7 @@ export default {
             console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
           }
 
-        let formattedShootingTime = '';
+          let formattedShootingTime = '';
           // 确保 shootingTime 存在且有效
           if (item.hasOwnProperty('shootingTime') && item.shootingTime) {
             const shootingTime = new Date(item.shootingTime);
@@ -506,6 +506,10 @@ export default {
 
     // 格式化日期时间方法
     formatDate(dateStr) {
+      // 如果输入为空，则直接返回 null
+      if (!dateStr) {
+        return null;
+      }
       // 使用正则表达式将 `yyyy年MM月dd日 HH:mm:ss` 转化为 `yyyy-MM-dd'T'HH:mm:ss`
       const regex = /^(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})$/;
       const match = dateStr.match(regex);

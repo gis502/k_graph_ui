@@ -83,9 +83,6 @@ import html2canvas from "html2canvas";
       this.imgurlFromDateLocal = this.imgurlFromDate
     },
     imgName() {
-      // if (this.showTypes === 2){
-      //   this.exportImage()
-      // }
       if(this.showTypes === 3){
         this.setPictureCreateTime();
       }
@@ -259,7 +256,8 @@ import html2canvas from "html2canvas";
       return new URL(imgshowURL, import.meta.url).href
     },
     async downloadImage() {
-      if (this.imgName === "遥感影像图") {
+      console.log('下载图片')
+      if (this.imgName === "遥感影像图" || this.imgName === "标绘专题图") {
         // 获取要截取的 DOM 元素
         const elementToCapture = document.querySelector('.export-image');
 
@@ -280,11 +278,12 @@ import html2canvas from "html2canvas";
           link.download = `${this.imgName}.png`; // 设置下载文件名
           link.href = finalImage; // 设置图片来源
           link.click(); // 触发下载
+          console.log("1111111111111111")
         }).catch(error => {
           console.error('Error capturing the screenshot:', error);
         });
       }
-      if (this.imgName === "三维模型图") {
+      else if (this.imgName === "三维模型图") {
         // 获取要截取的 DOM 元素
         const elementToCapture = document.querySelector('.export-model-image');
 
@@ -307,8 +306,7 @@ import html2canvas from "html2canvas";
         }).catch(error => {
           console.error('Error capturing the screenshot:', error);
         });
-      }
-      else {
+      } else {
         try {
           const link = document.createElement('a'); // 创建下载链接
           link.download = `${this.imgNameLocal || 'download'}.jpg`; // 设置默认文件名

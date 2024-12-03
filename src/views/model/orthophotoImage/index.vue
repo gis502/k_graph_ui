@@ -33,21 +33,21 @@
       <el-table-column
           prop="name"
           label="正射影像名称"
-          width="200"
+          width="350"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="path"
           label="正射影像路径"
-          width="300"
+          width="600"
           align="center"
       ></el-table-column>
 
       <el-table-column
           prop="createTime"
           label="添加时间"
-          width="220"
+          width="300"
           align="center"
       >
         <template #default="{ row }">
@@ -98,7 +98,7 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
     </el-pagination>
-<!--新增 or 编辑 弹框-->
+    <!--新增 or 编辑 弹框-->
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30vw">
       <el-form ref="form" :model="dialogContent" :rules="rules" label-width="120px">
         <!-- 正射影像名称 -->
@@ -492,8 +492,8 @@ export default {
         uuid: ''
       };
     },
-  // 新增弹框关闭
-  cancel() {
+    // 新增弹框关闭
+    cancel() {
       this.dialogShow = false;
       this.clearDialogContent();
     },
@@ -560,6 +560,11 @@ export default {
      * @returns {string}
      */
     formatDateToBackend(inputDate) {
+      // 如果输入为空，则直接返回 null
+      if (!inputDate) {
+        return null;
+      }
+
       // 使用正则表达式提取日期和时间部分
       const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
       const matches = inputDate.match(regex);
@@ -572,6 +577,7 @@ export default {
       }
     },
     /**
+     *
      * 将ISO格式换成后端想要的格式
      * @param input
      * @returns {*|string}

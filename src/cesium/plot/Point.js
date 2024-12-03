@@ -138,7 +138,8 @@ export default class Point {
           latitude: Number(points.latitude),
           ...points
         }
-      } else {
+      }
+      else {
         data = {
           longitude: Number(points.geom.coordinates[0]),
           latitude: Number(points.geom.coordinates[1]),
@@ -311,11 +312,11 @@ export default class Point {
             } else {
               let removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
                   function (clusteredEntities, cluster) {
-                    if (clusteredEntities.length < 10) {
-                      // 禁用 Billboard 显示
-                      cluster.billboard.show = false;
-                      cluster.label.show = false;
-                    } else {
+                    // if (clusteredEntities.length < 10) {
+                    //   // 禁用 Billboard 显示
+                    //   cluster.billboard.show = false;
+                    //   cluster.label.show = false;
+                    // } else {
                       cluster.label.show = false;
                       cluster.billboard.show = true;
                       cluster.billboard.id = cluster.label.id;
@@ -349,7 +350,7 @@ export default class Point {
                             singleDigitPins[clusteredEntities.length - 2];
                       }
                     }
-                  }
+                  // }
               );
             }
 
@@ -638,9 +639,10 @@ export default class Point {
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-        color: new Cesium.CallbackProperty(() => {
-          return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
-        }, false),
+        // color: new Cesium.CallbackProperty(() => {
+        //   return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+        // }, false),
+        color: Cesium.Color.WHITE.withAlpha(1),
         scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
         depthTest: false, // 禁止深度测试
@@ -720,6 +722,20 @@ export default class Point {
         data
       }
     })
+    // labeldataSource.entities.add({
+    //   id: data.plotId + '_base',
+    //   position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
+    //   billboard: {
+    //     image: '/images/图标外框.png', // 圆形底座图片
+    //     width: 110, // 底座宽度
+    //     height: 110, // 底座高度
+    //     eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+    //     scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+    //     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+    //     depthTest: false, // 禁止深度测试
+    //     disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
+    //   },
+    // });
   }
 
   flyTo(data) {

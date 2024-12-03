@@ -11,14 +11,14 @@
         <span style="margin: 0 6px">发震时间:</span> {{ time }}
       </div>
       <div class="info-item" style="margin-bottom: 3px">
-        <span style="margin: 0 6px">地震震级: </span> {{ magnitude }} <span style="margin: 0 5px">级</span>
+        <span style="margin: 0 6px">地震震级: </span> {{  Number(magnitude).toFixed(1) }} <span style="margin: 0 5px">级</span>
       </div>
       <div class="info-item" style="margin-bottom: 3px">
         <span style="margin: 0 6px">震源深度:</span> {{ depth }}<span style="margin: 0 5px">千米</span>
       </div>
       <div class="info-item" style="margin-bottom: 3px">
-        <span style="margin: 0 6px">震中经纬: </span><span>东经</span>{{ latitude }}<span>度</span>
-        <span style="margin-left:5px">北纬</span>{{ longitude }}<span>度</span>
+        <span style="margin: 0 6px">震中经纬: </span><span>东经</span>{{ Number(latitude).toFixed(2) }}<span>度</span>
+        <span style="margin-left:5px">北纬</span>{{ Number(longitude).toFixed(2)  }}<span>度</span>
       </div>
     </div>
   </div>

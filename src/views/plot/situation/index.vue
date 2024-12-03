@@ -189,7 +189,7 @@
                   :data="plotTreeData"
                   :props="defaultProps"
                   show-checkbox
-                  node-key="id"
+                  node-key="label"
                   @check-change="handleCheck"
                 >
                 </el-tree>
@@ -228,52 +228,12 @@
     <!-- Cesium 视图 -->
     <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
 
-    <!-- 预览图片的 div -->
-    <div v-if="previewImage" class="preview-container">
-      <div class="export-image">
-        <div class="export-info">
-          <p>{{ this.title.replace("T", " ") + "级地震-标绘专题图" }}</p>
-
-        </div>
-        <div class="main_coantainer">
-          <div class="top_container">
-            <div class="box"></div>
-            <div class="top"></div>
-            <div class="box"></div>
-          </div>
-          <div class="middow">
-            <div class="left"></div>
-            <div class="main">
-              <img :src="previewImage" alt="导出图片">
-            </div>
-            <div class="right"></div>
-          </div>
-          <div class="bottom_container">
-            <div class="box"></div>
-            <div class="bottom"></div>
-            <div class="box"></div>
-          </div>
-        </div>
-        <div
-          style="font-size:14px ;padding: 0; width: 100%; margin-top: 0; background-color: white; display: flex; justify-content: space-between; align-items: center; text-align: center;">
-          <p style="flex: 1; text-align: left; margin-left: 10px;"></p>
-          <p style="flex: 1; text-align: center;">制作时间：{{ pictureCreateTime }}</p>
-          <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
-        </div>
-
-      </div>
-      <div class="preview-buttons">
-        <button @click="downloadImage" class="download-button">下载</button>
-        <button @click="closePreview" class="cancel-button">取消</button>
-      </div>
-    </div>
-
     <div class="legend-container" style="position: absolute;bottom: 0;right: 0;" v-if="showLegend">
       <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }" :data="legendPlotData"
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="scope.row.icon" alt="icon" style="width: 20px; height: 20px;"/>
+            <img :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()" alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
         <el-table-column prop="plotType" label="类型" width="180"></el-table-column>
@@ -292,6 +252,18 @@
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
+
+    <!--    准提图预览组件    -->
+    <thematicMapPreview
+        @ifShowThematicMapDialog="ifShowDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
+        :showTypes="showTypes"
+        :corners="corners"
+        :step="step"
+    ></thematicMapPreview>
     <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
     <plotSearch
       :eqid ="eqid"
@@ -326,9 +298,11 @@ import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import html2canvas from "html2canvas";
 import {querySituationData} from "@/api/system/model.js";
 import plotSearch from '@/components/Cesium/plotSearch.vue'
+import ThematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 
 export default {
   components: {
+    ThematicMapPreview,
     dataSourcePanel,
     addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot,plotSearch
   },
@@ -468,22 +442,32 @@ export default {
       excelPanel: '',
       // ----------------------------------
       legendTableData: [],
-      previewImage: null, // 保存预览图片的 URL
+
+      //-----------导出图片----------------
       loading: false, // 控制加载状态
-      pictureCreateTime: '',
-      // 导出图片时经纬度线
+      //向预览组件传递数据
+      imgshowURL: null,// 保存预览图片的 URL
+      imgurlFromDate: "",
+      imgName: '',
+      ifShowMapPreview: false, // 是否预览专题图
+      //这个showTypes注意，1为前端存储的图片，2是截图加自动生成经纬度线，3是三维模型图，就是等高线\
+      selectedEqData: null,
+      showTypes: 1,
+
+      //下面这两个是经纬度线往子组件穿的数据
+      corners:{},
+      //下面的是用来解决导出图片边框和经纬度数字展示用的
+      step: 0.5,
+
+      // 导出图片时经纬度线用到的
+      //还有step也在经纬度这里用到了
       rectangleBounds: [],//按东南西北的顺序存储
       latLonEntities: [], // 用于存储经纬度线实体的数组
       //下面的是用来解决导出图片边框和经纬度数字展示用的
-      topStart: null,
-      topEnd: null,
-      leftStart: null,
-      leftEnd: null,
-      step: 0.5,
       divBoxCount: 0,
       flexPercentages: [],
       points: [],
-      hasGeneratedPoints: false,
+      //-------------
       legendPlotData: [],
       showLegend: false,
       eqInfo: {},
@@ -908,9 +892,10 @@ export default {
       this.isLoaded = false
       this.loading = false
 
-      console.log(this.$refs.tree)
+      console.log(this.$refs.tree.getCheckedKeys())
       // 逐个取消勾选
       this.$refs.tree.setCheckedNodes([])
+      this.$refs.tree.setCurrentKey(null)
     },
 
     // 新方法展示与点击节点相关的name字段
@@ -1540,6 +1525,10 @@ export default {
       }, 3000);
     },
 
+    ifShowDialog(val) {
+      this.ifShowMapPreview = false
+    },
+
     async exportCesiumScene() {
 
       // 开始导出时，显示加载动画
@@ -1550,7 +1539,6 @@ export default {
       cameraController.enableRotate = false;
       cameraController.enableZoom = false;
       cameraController.enableTranslate = false;
-      console.log("Cesium相机：", cameraController)
 
       //  2: 获取地图当前视野范围的经纬度，并加载经纬度线
       this.getLatLonBounds();  // 获取当前视野经纬度范围
@@ -1567,7 +1555,6 @@ export default {
         const cesiumImage = cesiumCanvas.toDataURL('image/png');  // Cesium 场景导出为图片
 
         //  5-7: 分别渲染图例、距离标尺和指南针
-        // const legendCanvas = await this.renderElementToCanvas('.noteContainer', '图例');
         const distanceLegendCanvas = await this.renderElementToCanvas('.distance-legend', '距离标尺');
         const compassCanvas = await this.renderElementToCanvas('.compassContainer', '指南针');
         const legendCanvas = await this.renderElementToCanvas('.legend-container', '图例');
@@ -1588,12 +1575,12 @@ export default {
         finalContext.drawImage(legendCanvas, finalCanvas.width - legendCanvas.width, finalCanvas.height - legendCanvas.height)
 
         //  14: 将合成后的 Canvas 转换为图片
-        this.previewImage = finalCanvas.toDataURL('image/png');
+        this.imgshowURL = finalCanvas.toDataURL('image/png');
+        this.ifShowMapPreview = true
 
       } catch (error) {
         console.error('导出场景失败:', error);
       } finally {
-        this.setPictureCreateTime()
         //  15: 恢复 Cesium 相机交互，并移除经纬度线
         cameraController.enableRotate = true;
         cameraController.enableZoom = true;
@@ -1603,35 +1590,8 @@ export default {
           window.viewer.entities.remove(entity);  // 移除经纬度线
         });
         this.latLonEntities = [];
-
-        this.getScreenCorners()
-        // 分别处理四条边的数据
-        const topData = {};
-        const sideData = {};
-        const bottomData = {};
-
-        // 生成点数据
-        this.generatePointsWithPercentage(this.corners.topStart, this.corners.topEnd, topData);
-        this.generatePointsWithPercentage(this.corners.leftStart, this.corners.leftEnd, sideData);
-        this.generatePointsWithPercentage(this.corners.bottomStart, this.corners.bottomEnd, bottomData);
-
-        // 等待 DOM 渲染完成
-        await nextTick();
-        // 添加盒子
-        const topContainer = document.querySelector('.top');
-        const bottomContainer = document.querySelector('.bottom');
-        const leftContainer = document.querySelector('.left');
-        const rightContainer = document.querySelector('.right');
-
-        // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
-        [topContainer].forEach(container => this.addBoxes(container, 'div_t', topData));
-
-        // 为 leftContainer 和 rightContainer 生成盒子（反转顺序，从下往上显示）
-        [leftContainer, rightContainer].forEach(container => this.addBoxes(container, 'div_l', sideData, true));
-
-        // 为 topContainer 和 bottomContainer 生成盒子（保持默认顺序）
-        [bottomContainer].forEach(container => this.addBoxes(container, 'div_t', bottomData));
-
+        this.showTypes = 2
+        this.imgName = "标绘专题图";
         this.loading = false;
       }
     },
@@ -1662,25 +1622,22 @@ export default {
       context.drawImage(img, x, y);
     },
 
-    // 获取地图当前视野范围的最东、最西、最南、最北的经纬度，用于经纬度线的绘制
-    getLatLonBounds() {
-      const viewer = window.viewer;
-
-      // 通过摄像机视角获取视野范围的边界矩形
-      const rectangle = viewer.camera.computeViewRectangle();
-
-      if (rectangle) {
-        // 获取最西经度（west）、最东经度（east）、最南纬度（south）、最北纬度（north）
-        this.rectangleBounds[0] = Math.ceil(Cesium.Math.toDegrees(rectangle.east));//向上取整，东方
-        this.rectangleBounds[1] = Math.floor(Cesium.Math.toDegrees(rectangle.south));//南方
-        this.rectangleBounds[2] = Math.floor(Cesium.Math.toDegrees(rectangle.west));//向下取整,西方
-        this.rectangleBounds[3] = Math.ceil(Cesium.Math.toDegrees(rectangle.north));//北方
-      }
+    // 等待 Cesium 渲染完成
+    waitForCesiumRender() {
+      return new Promise(resolve => {
+        const scene = viewer.scene;
+        const removeListener = scene.postRender.addEventListener(() => {
+          removeListener();
+          setTimeout(resolve, 500);  // 增加等待时间确保渲染完成
+        });
+        scene.requestRender();
+      });
     },
 
+    // 等待所有经纬度线实体完成渲染，并确保 Cesium 渲染循环完成
     waitForEntitiesToRender(entityCount) {
       return new Promise(resolve => {
-        const scene = window.viewer.scene;
+        const scene = viewer.scene;
 
         // 监听渲染循环是否完成
         const checkEntitiesRendered = () => {
@@ -1700,59 +1657,22 @@ export default {
       });
     },
 
-    // 下载图片
-    downloadImage() {
-      this.showLegend = false;
-      this.legendPlotData = []
-      // 获取要截取的 DOM 元素
-      const elementToCapture = document.querySelector('.export-image');
-      // 使用 html2canvas 截图
-      html2canvas(elementToCapture, {
-        useCORS: true, // 允许跨域请求，确保图片加载
-        logging: true, // 打开日志以查看可能的错误
-        scale: 2, // 提高图像质量
-        backgroundColor: null // 使背景透明
-      }).then(canvas => {
-        // 将 canvas 转换为图片
-        const finalImage = canvas.toDataURL('image/png');
-
-        // 创建下载链接并触发下载
-        const link = document.createElement('a');
-        link.download = `${this.title.replace(
-          /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
-          "$1年$2月$3日")}级地震-标绘专题图.png`; // 设置下载文件名
-        link.href = finalImage; // 设置图片来源
-        link.click(); // 触发下载
-      }).catch(error => {
-        console.error('Error capturing the screenshot:', error);
-      });
-    },
-
-    // 关闭预览窗口
-    closePreview() {
-      this.previewImage = null;
-      this.showLegend = false;
-      this.legendPlotData = []
-    },
-
-
     // 添加经纬度线到 Cesium 场景
     addLatLonLines() {
       const viewer = window.viewer;
-      const step = 0.5; // 间隔为 0.5 度
       const alpha = 0.7; // 白色透明度
 
       // 添加经度或纬度线所用的函数
       const addLines = (start, end, constantCoord, isLongitude) => {
         //start 和 end：表示线段的起始和结束位置。对于经度线，start 和 end 是经度的范围；对于纬度线，是纬度的范围。
-        for (let coord = start; coord <= end; coord += step) {
+        for (let coord = start; coord <= end; coord += this.step) {
           const positions = [];
 
           // 根据是否是经度线，调整另一个坐标的范围
           //isLongitude：指示当前绘制的是经度线（true）还是纬度线（false）。
-          for (let varCoord = isLongitude ? this.rectangleBounds[1] : this.rectangleBounds[2];
-               varCoord <= (isLongitude ? this.rectangleBounds[3] : this.rectangleBounds[0]);
-               varCoord += step) {
+          for (let varCoord = isLongitude ? this.rectangleBounds[2] : this.rectangleBounds[0];
+               varCoord <= (isLongitude ? this.rectangleBounds[3] : this.rectangleBounds[1]);
+               varCoord += this.step) {
             if (isLongitude) {
               positions.push(Cesium.Cartesian3.fromDegrees(coord, varCoord)); // 经度线：lon 固定，lat 变化
             } else {
@@ -1771,39 +1691,42 @@ export default {
           this.latLonEntities.push(entity); // 将实体存储到数组中
         }
       };
-      // 添加中国区域内的经度线
-      addLines(this.rectangleBounds[2], this.rectangleBounds[0], 'longitude', true);
-
-      // 添加中国区域内的纬度线
-      addLines(this.rectangleBounds[1], this.rectangleBounds[3], 'latitude', false);
+      // 添加经度线
+      addLines(this.rectangleBounds[0], this.rectangleBounds[1], 'longitude', true);
+      // 添加纬度线
+      addLines(this.rectangleBounds[2], this.rectangleBounds[3], 'latitude', false);
     },
 
-    waitForCesiumRender() {
-      return new Promise(resolve => {
-        const scene = window.viewer.scene;
-        const removeListener = scene.postRender.addEventListener(() => {
-          removeListener();
-          setTimeout(resolve, 500);  // 增加等待时间确保渲染完成
-        });
-        scene.requestRender();
-      });
-    },
-
-    // 设置图片创建时间
-    setPictureCreateTime() {
-      const date = new Date();
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1; // 月份从0开始，需要加1
-      const day = date.getDate();
-
-      // 格式化日期为 YYYY年MM月DD日
-      this.pictureCreateTime = `${year}年${month}月${day}日`;
-    },
-
-    getScreenCorners() {
+    // 获取地图当前视野范围的最东、最西、最南、最北的经纬度，用于经纬度线的绘制
+    getLatLonBounds() {
       const viewer = window.viewer;
       const scene = viewer.scene;
       const canvas = scene.canvas;
+
+      const cameraHeight = viewer.camera.positionCartographic.height;
+      if (cameraHeight >= 550000) {
+        this.step = 2;
+      } else if (cameraHeight >= 350000 && cameraHeight < 550000) {
+        this.step = 0.7;
+      } else if (cameraHeight >= 200000 && cameraHeight < 350000) {
+        this.step = 0.5;
+      } else if (cameraHeight >= 150000 && cameraHeight < 200000) {
+        this.step = 0.4;
+      } else if (cameraHeight >= 100000 && cameraHeight < 150000) {
+        this.step = 0.3;
+      } else if (cameraHeight >= 50000 && cameraHeight < 100000) {
+        this.step = 0.2;
+      } else if (cameraHeight >= 25000 && cameraHeight < 50000) {
+        this.step = 0.1;
+      } else if (cameraHeight >= 10000 && cameraHeight < 25000) {
+        this.step = 0.05;
+      } else if (cameraHeight >= 6000 && cameraHeight < 10000) {
+        this.step = 0.02;
+      } else if (cameraHeight >= 1500 && cameraHeight < 6000) {
+        this.step = 0.01;
+      } else if (cameraHeight >= 0 && cameraHeight < 1500) {
+        this.step = 0.005;
+      }
 
       // 获取四个角的屏幕坐标
       const topLeft = new Cesium.Cartesian2(0, 0);
@@ -1817,7 +1740,7 @@ export default {
       const bottomLeftCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomLeft));
       const bottomRightCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(scene.camera.pickEllipsoid(bottomRight));
 
-      // 获取经纬度
+      // 用于生成盒子的参数
       this.corners = {
         topStart: Cesium.Math.toDegrees(topLeftCartographic.longitude),
         topEnd: Cesium.Math.toDegrees(topRightCartographic.longitude),
@@ -1827,129 +1750,11 @@ export default {
         bottomEnd: Cesium.Math.toDegrees(bottomRightCartographic.longitude)
       };
 
-      // console.log(this.corners);
-    },
-    // 生成点和百分比，传入不同的标识符，避免共享同一数据集
-    generatePointsWithPercentage(start, end, dataContext) {
-      dataContext.points = [];
-      dataContext.flexPercentages = [];
 
-      const adjustedStart = Math.ceil(start / this.step) * this.step;
-      const adjustedEnd = Math.floor(end / this.step) * this.step;
-
-      for (let current = adjustedStart; current <= adjustedEnd; current += this.step) {
-        dataContext.points.push(Number(current.toFixed(2)));
-      }
-
-      const basePercentage = (this.step / (end - start)) * 100;
-      dataContext.divBoxCount = dataContext.points.length;
-      dataContext.flexPercentages = Array(dataContext.divBoxCount).fill(basePercentage);
-
-      this.calculateCustomValues(
-        dataContext.points[0],
-        dataContext.points[dataContext.points.length - 1],
-        start,
-        end,
-        dataContext
-      );
-    },
-
-    // 计算自定义值并保存到特定的数据上下文
-    calculateCustomValues(firstPoint, lastPoint, start, end, dataContext) {
-      const halfStep = this.step / 2;
-      const number1 = end - start;
-
-      const diffFirst = firstPoint - start;
-      if (diffFirst > halfStep) {
-        const percentageFirst = ((firstPoint - start - halfStep) / number1) * 100;
-        dataContext.flexPercentages.unshift(percentageFirst);
-        dataContext.points.unshift('');
-      } else if (diffFirst < halfStep) {
-        const percentage1 = (2 * (firstPoint - start) / number1) * 100;
-        const percentage2 = ((halfStep - (firstPoint - start)) / number1) * 100;
-        dataContext.flexPercentages.unshift(percentage1);
-        dataContext.flexPercentages[1] = percentage2;
-        dataContext.points.splice(1, 0, '');
-      }
-
-      const diffLast = end - lastPoint;
-      if (diffLast > halfStep) {
-        const percentageLast = ((end - lastPoint - halfStep) / number1) * 100;
-        dataContext.flexPercentages.push(percentageLast);
-        dataContext.points.push('');
-      } else if (diffLast < halfStep) {
-        const percentage1 = ((halfStep - (end - lastPoint)) / number1) * 100;
-        const percentage2 = (2 * (end - lastPoint) / number1) * 100;
-        dataContext.flexPercentages[dataContext.flexPercentages.length - 1] = percentage1;
-        dataContext.flexPercentages.push(percentage2);
-        dataContext.points.splice(-1, 0, '');
-      }
-
-      dataContext.divBoxCount = dataContext.points.length;
-    },
-
-    addBoxes(container, prefix, dataContext, reverse = false) {
-      if (!container) return;
-      let points = dataContext.points;
-      let flexPercentages = dataContext.flexPercentages;
-
-      // 如果需要反转顺序
-      if (reverse) {
-        points = [...points].reverse();
-        flexPercentages = [...flexPercentages].reverse();
-      }
-      Array.from({length: dataContext.divBoxCount}).forEach((_, i) => {
-        const box = document.createElement('div');
-        box.className = `${prefix}${i}`;
-        // 只对有效的数值进行转换
-        if (points[i]) {
-          box.textContent = this.convertToDMS(points[i], reverse);  // 转换为度分秒格式
-        } else {
-          box.textContent = '';  // 保留空值
-        }
-        container.appendChild(box);
-
-        // 设置盒子样式
-        const boxStyles = {
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          color: 'black',
-          width: '19.47px',
-          height: '19.47px',
-          fontSize: '10px',
-          flex: flexPercentages[i], // 使用反转后的 flexPercentages
-          whiteSpace: 'nowrap', // 防止文字换行
-        };
-
-        // 如果 reverse 为 true，才旋转 90 度
-        if (reverse) {
-          boxStyles.transform = 'rotate(-90deg)';
-        }
-
-        // 应用样式
-        Object.assign(box.style, boxStyles);
-      });
-    },
-
-    // 将浮点数转换为度分秒格式
-    convertToDMS(point, reverse) {
-      const absolute = Math.abs(point);
-      const degrees = Math.floor(absolute);  // 整数部分为度
-      const minutes = Math.floor((absolute - degrees) * 60);  // 小数部分乘以 60 得到分
-      const seconds = Math.floor(((absolute - degrees) * 60 - minutes) * 60);  // 小数部分乘以 60 再得到秒
-
-      let direction;
-
-      if (reverse) {
-        // 只考虑南北方向
-        direction = point >= 0 ? '北' : '南';
-      } else {
-        // 只考虑东西方向
-        direction = point >= 0 ? '东' : '西';
-      }
-
-      return `${degrees}°${minutes}'${seconds}"${direction}`;
+      this.rectangleBounds[0] = Math.ceil(this.corners.topStart / this.step) * this.step - this.step;
+      this.rectangleBounds[1] = Math.floor(this.corners.topEnd / this.step) * this.step + 2 * this.step;
+      this.rectangleBounds[2] = Math.ceil(this.corners.leftStart / this.step) * this.step - this.step;
+      this.rectangleBounds[3] = Math.floor(this.corners.leftEnd / this.step) * this.step + 2 * this.step;
     },
 
     // -----------------------------------------------------------------------------------------------------------------

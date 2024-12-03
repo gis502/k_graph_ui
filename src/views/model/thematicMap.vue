@@ -695,6 +695,7 @@ export default {
     },
 
     selectEq(eq) {
+      console.log("asdrgergdvbrtbhdf",eq)
       this.locateEq(eq)
       this.selectedEqData = eq
     },
@@ -986,7 +987,7 @@ export default {
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 50px) !important;
+  height: calc(100vh - 84px) !important;
   width: 100%;
   margin: 0;
   padding: 0;

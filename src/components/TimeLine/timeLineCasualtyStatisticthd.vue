@@ -7,21 +7,70 @@
       <div class="sub-main">
         <el-table :data="statisticInfo"
                   :header-cell-style="tableHeaderColor"
-                  :cell-style="tableColor" @row-click="flyTo">
-          <el-table-column prop="address" label="位置" width="70" align="center"></el-table-column>
-          <el-table-column prop="死亡" label="死亡" width="60" align="center"
-                           :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="失踪" label="失踪" width="60" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="危重伤" label="危重伤" width="70" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="重伤" label="重伤" width="60" :formatter="formatPeople"></el-table-column>
-          <el-table-column prop="轻伤" label="轻伤" width="60" :formatter="formatPeople"></el-table-column>
+                  :cell-style="tableColor" @row-click="flyTo"
+                  :row-style="{ height: '37.5px', fontSize: '13px'}"
+        >
+
+          <el-table-column label=" " min-width="16px" show-overflow-tooltip>
+            <template #default="scope">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; "  class="arrow-container">
+                <img src="@/assets/images/arrow.png" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="address"
+              label="位置"
+              width="80"
+              align="center"
+              show-overflow-tooltip>
+
+          </el-table-column>
+          <el-table-column
+              prop="死亡"
+              label="死亡"
+              width="60"
+              align="center"
+              :formatter="formatPeople"
+              show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+              prop="失踪"
+              label="失踪"
+              width="60"
+              :formatter="formatPeople"
+              show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+              prop="危重伤"
+              label="危重伤"
+              width="70"
+              :formatter="formatPeople"
+              show-overflow-tooltip>
+              </el-table-column>
+          <el-table-column
+              prop="重伤"
+              label="重伤"
+              width="60"
+              :formatter="formatPeople"
+              show-overflow-tooltip>
+
+          </el-table-column>
+          <el-table-column
+              prop="轻伤"
+              label="轻伤"
+              width="60"
+              :formatter="formatPeople"
+              show-overflow-tooltip>
+
+          </el-table-column>
         </el-table>
       </div>
     </div>
   </div>
 
 </template>
-<script>
+<script >
 import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
 import axios from "axios";
@@ -60,7 +109,6 @@ export default {
       townshipEntities: [],
       villageEntities: []
     };
-
 
     // const plotInfo=ref([])
     const resInfo = ref([]);
@@ -344,46 +392,27 @@ export default {
 
     }
 
-    // 修改table的header的样式
-    function tableHeaderColor() {
-      return {
-        'border-width': '1px',
-        'border-style': 'solid',
-        'border-color': '#555555',
-        'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
-        'color': '#fff',
-        'padding': '0',
-        'text-align': 'center',
-        'font-size': '12px'
-      }
-    }
+    const tableHeaderColor = () => ({
+      'background': 'linear-gradient(180deg, rgba(27,60,108,0.09) 0%, rgba(20,83,174,1) 100%)',
+      'color': '#fff',
+      'text-align': 'center',
+      'font-size': '13px',
+      'padding': '0',
+      'margin': '0'
+    });
 
-    // 修改table 中每行的样式
-    function tableColor({rowIndex}) {
-      if (rowIndex % 2 == 1) {
-        return {
-          'border-width': '1px',
-          'border-style': 'solid',
-          'border-color': '#555555',
-          'background-color': '#313a44',
-          'color': '#fff',
-          'padding': '1',
-          'text-align': 'center',
-          'font-size': '12px'
-        }
-      } else {
-        return {
-          'border-width': '1px',
-          'border-style': 'solid',
-          'border-color': '#555555',
-          'background-color': '#304156',
-          'color': '#fff',
-          'padding': '1',
-          'text-align': 'center',
-          'font-size': '12px'
-        }
-      }
-    }
+    const tableColor = ({rowIndex}) => {
+      // const backgroundColor = rowIndex % 2 === 1 ? '#313a44' : '#304156';
+      return {
+        // 'border-width':'1px',
+        // 'border-style':'solid',
+        // 'border-color': '#555555',
+        'background-color': '#ffffff00',
+        // 'color': '#ffffff00',
+        'padding': '0',
+        'margin': '1'
+      };
+    };
 
     function timestampToTime(timestamp) {
       let DateObj = new Date(timestamp)
@@ -422,7 +451,7 @@ export default {
 <style scoped>
 .pop {
   position: absolute;
-  top: 19.5%;
+  /*top: 19.5%;*/
   width: 100%;
 
   z-index: 20;
@@ -539,6 +568,65 @@ export default {
   bottom: 41px;
   width: 398px !important;
   height: 310px !important;
+}
+
+
+/*表格页面样式*/
+:deep(.el-table__inner-wrapper::before) {
+  width: 0
+}
+
+:deep(.el-table) {
+  --el-table-bg-color : ''
+}
+
+:deep(.el-pagination){
+  --el-pagination-item-gap : 6px;
+}
+
+:deep(.el-table--default .cell){
+  padding : 0 4px
+}
+
+
+:deep(.el-table tr) {
+  background:#ffffff00;
+  font-weight: 1000;
+}
+
+:deep(.el-table){
+  --el-table-border: 0px solid;
+}
+
+
+
+/*默认状态*/
+:deep(.el-table tr) {
+  background: #ffffff00;
+  color: #ffffff;
+  font-weight: 1000;
+  position: relative;
+  transition: box-shadow 0.3s ease; /* 添加过渡效果 */
+}
+
+:deep(.el-table tr:hover) {
+  background: linear-gradient(0deg, rgba(38, 166, 221, 0.9) 30%, rgba(230, 247, 255, 1) 100%);
+  font-weight: 1000;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  box-shadow: 0 0 8px 2px rgba(48, 140, 255, 1); /* 使用渐变阴影 */
+
+}
+
+/* 添加样式来控制箭头图标显示与隐藏 */
+.arrow-icon {
+  display: none;  /* 初始状态下箭头不显示 */
+}
+
+/* 鼠标悬浮在行上时，显示箭头图标 */
+:deep(.el-table tr:hover) .arrow-icon {
+  display: inline-block; /* 显示箭头 */
 }
 
 
