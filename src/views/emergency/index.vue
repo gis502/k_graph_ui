@@ -586,7 +586,8 @@ export default {
       ],
       selectedRegions: [],
       selectedDataByRegions: {},
-        selectedDataByRadius: {},
+      selectedDataByRadius: {},
+      selectedDataBySupplies: {},
 
       //-----------弹窗部分-------------------
       selectedEntityHighDiy: null,
@@ -1338,28 +1339,31 @@ export default {
       this.selectedSuppliesList = []
       let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
       let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
+      let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
         let array
 
         if(flag1){
             array = 'selectedDataByRegions'
         }else if(flag2){
             array = 'selectedDataByRadius'
+        }else if(flag3){
+            array = 'selectedDataBySupplies'
         }
       if (param === 'supplies') {
           this.listField = 'supplies'
         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-          this.selectedSuppliesList = (flag1 || flag2) === true ? this[array].supplies : this.suppliesList[0]
+          this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
           // this.selectedSuppliesList = this[array].suppliesArr
       } else if (param === 'emergencyTeam') {
         this.listField = 'emergencyTeam'
         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
         //   this.selectedSuppliesList = this[array].emergencyTeamArr
-          this.selectedSuppliesList = (flag1 || flag2) === true ? this[array].emergencyTeam : this.suppliesList[2]
+          this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
       } else {
         this.listField = 'reserves'
         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
         //   this.selectedSuppliesList = this[array].reservesArr
-          this.selectedSuppliesList = (flag1 || flag2) === true ? this[array].reserves : this.suppliesList[1]
+          this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
       }
       this.showIcon = this.selectedSuppliesList;
       this.total = this.selectedSuppliesList.length;
@@ -1584,6 +1588,11 @@ export default {
           confirmButtonText: '确认',
         });
       }
+      this.selectedDataBySupplies.supplies = countResult
+        this.selectedDataBySupplies.emergencyTeam = []
+        this.selectedDataBySupplies.reserves = []
+        this.listField = 'supplies'
+        this.changeDataList('supplies')
       this.panels.marchSupplyDialog = false
     },
 

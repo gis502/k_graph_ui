@@ -486,26 +486,26 @@
           </div>
       </div>
 
-      <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="drawN">量算</el-button>
-      </div>
+<!--      <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--          <el-button @click="drawN">量算</el-button>-->
+<!--      </div>-->
 
-      <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="route">路径规划</el-button>
-      </div>
-      <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="addArea">添加障碍区域</el-button>
-      </div>
-      <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="removeAll">清空所有实体</el-button>
-      </div>
+<!--      <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--          <el-button @click="route">路径规划</el-button>-->
+<!--      </div>-->
+<!--      <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--          <el-button @click="addArea">添加障碍区域</el-button>-->
+<!--      </div>-->
+<!--      <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--          <el-button @click="removeAll">清空所有实体</el-button>-->
+<!--      </div>-->
 
 
-        <!--    路劲规划    -->
+        <!--    路径规划    -->
 <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
 <!--          <div class="panelTop">-->
 <!--              <h2 class="panelName">路径规划</h2>-->
