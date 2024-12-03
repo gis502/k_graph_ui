@@ -185,7 +185,7 @@ let queryParams = ref('');  // 搜索框关键字
 
 //----------------------------model table---------------------------------------
 let currentPage = ref(1)
-let pageSize = ref(6)
+let pageSize = ref(5) // 每页最大显示5条
 let total = ref(0)
 let modelList = []
 let tableData = ref([])
@@ -769,14 +769,14 @@ function resetQuery() {
   padding: 10px;
   border-radius: 5px;
   width: 560px;
-  top: 307px;
+  top: 43%;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
 .button-container {
-  height: 455px;
+  height: 36%;
   width: 560px;
   position: absolute;
   padding: 10px;
