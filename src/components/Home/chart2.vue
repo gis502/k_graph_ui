@@ -94,6 +94,7 @@ const props = defineProps(['lastEq']);
 const aftershockChart = ref(null);
 const populationDataChart = ref(null);
 const updateTime = ref('');
+const eqoccurrenceTime = ref('');
 const populationDataChartUpdateTime = ref('')
 
 // 避难点
@@ -290,17 +291,23 @@ const handleAftershockData = () => {
     getAftershockMagnitude(props.lastEq.eqid).then((res) => {
       // 更新余震图表
       updateAftershockChart(res);
-      console.log("getAftershockMagnitude", res);
-      updateTime.value = res.submission_deadline ? res.submission_deadline : new Date(); // 如果 submission_deadline 为 null，使用当前时间
-      updateTime.value = formatDate(updateTime.value);  // 更改时间格式
+      // console.log("getAftershockMagnitude", res);
 
+      if(res.submission_deadline) {
+        updateTime.value = res.submission_deadline; // 更新时间
+      }
+      else{
+        updateTime.value =eqoccurrenceTime.value; //地震时间
+
+      }
+      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
 
       // 判断是否有有效余震数据
       const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
 
       // 设置初始展示的图表
       initialIndex.value = hasAftershockData ? 0 : 1;
-      console.log("initialIndex 值:", initialIndex.value);
+      // console.log("initialIndex 值:", initialIndex.value);
 
       carouselKey.value++; // 更新轮播图
 
@@ -327,7 +334,7 @@ const populationData = ref({});
 // 处理人口数据
 const handlePopulationData = () => {
   getPopulationData().then((res) => {
-    console.log("后端返回的人口数据:", res); // 查看实际返回的数据
+    // console.log("后端返回的人口数据:", res); // 查看实际返回的数据
 
     // 确保返回数据是有效的，并且 data 字段存在
     if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
@@ -336,7 +343,7 @@ const handlePopulationData = () => {
       const seriesData = res.data.map(item => item.totalPopulation);  // 存储人口数
 
       populationData.value = { xAxisData, seriesData }; // 格式化存储数据
-      console.log("提取后的数据:", populationData.value);
+      // console.log("提取后的数据:", populationData.value);
 
       populationDataChartUpdateTime.value = res.data[0].updateTime; // 更新时间
       populationDataChartUpdateTime.value = formatDate(  populationDataChartUpdateTime.value);  // 更改时间格式
@@ -352,8 +359,8 @@ const handlePopulationData = () => {
 
 // 初始化人口数据图表
 const initPopulationDataChart = () => {
-  console.log("人口数据图表容器:", populationDataChart.value); // 调试容器是否存在
-  console.log("人口数据:", populationData.value); // 调试人口数据
+  // console.log("人口数据图表容器:", populationDataChart.value); // 调试容器是否存在
+  // console.log("人口数据:", populationData.value); // 调试人口数据
 
   if (!populationDataChart.value || !populationData.value) return;
 
@@ -519,7 +526,7 @@ const initPopulationDataChart = () => {
 // 获取隐患点数据
 const handleRiskPoint = () => {
   getRiskPoint(props.lastEq.eqid).then((res) => {
-    console.log("handleRiskPoint", res); // 打印整个响应数据
+    // console.log("handleRiskPoint", res); // 打印整个响应数据
 
     if (res && res.data && res.data.length > 0) {
       riskPointData.value = res.data; // 将数据存入数组
@@ -567,6 +574,11 @@ const slideRiskPoints = () => {
   }
 };
 
+function getEqInfo(eqid) {
+  getEqById({id: eqid}).then(res => {
+    eqoccurrenceTime.value=res.occurrenceTime
+  })
+}
 // 控制滚动的定时器
 let slideInterval = null;
 
@@ -607,6 +619,7 @@ const slideDown = () => {
 watch(() => props.lastEq,() => {
   handleAftershockData();
   handleRiskPoint();
+  getEqInfo(props.lastEq.eqid)
 });
 
 // 窗口大小调整时重新调整图表大小
@@ -621,6 +634,7 @@ const resizeChart = () => {
 
 // 组件挂载后执行初始化
 import { nextTick } from 'vue';
+import {getEqById} from "@/api/system/eqlist.js";
 
 onMounted(async () => {
   await nextTick(); // 等待 DOM 更新
@@ -630,6 +644,8 @@ onMounted(async () => {
   handlePopulationData(); // 处理人口数据
   window.addEventListener('resize', resizeChart); // 监听窗口大小变化
   resumeSlide();
+  getEqInfo(props.lastEq.eqid)
+  // getEqInfo()
 });
 
 // 组件卸载前移除监听器
@@ -658,10 +674,8 @@ function formatDate(date) {
   const hours = d.getHours().toString().padStart(2, '0');
   const minutes = d.getMinutes().toString().padStart(2, '0');
   const seconds = d.getSeconds().toString().padStart(2, '0');
-
   return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 }
-
 </script>
 
 <style scoped>

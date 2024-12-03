@@ -28,12 +28,12 @@
           </el-table>
           <div>
             <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="modelCurrentPage"
-              :page-size="modelPageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="ModelTotal">
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="modelCurrentPage"
+                :page-size="modelPageSize"
+                layout="total, prev, pager, next, jumper"
+                :total="ModelTotal">
             </el-pagination>
           </div>
         </div>
@@ -54,18 +54,18 @@
                   <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
                     <path
-                      d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                      p-id="6182" fill="#ffffff"></path>
+                        d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                        p-id="6182" fill="#ffffff"></path>
                   </svg>
                   <span>图层管理</span>
                 </div>
               </template>
               <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
                 <el-checkbox
-                  v-for="item in layeritems"
-                  :key="item.id"
-                  :label="item.name"
-                  style="margin: 0 0;"
+                    v-for="item in layeritems"
+                    :key="item.id"
+                    :label="item.name"
+                    style="margin: 0 0;"
                 >
                   {{ item.name }}
                 </el-checkbox>
@@ -81,8 +81,8 @@
                   <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
                     <path
-                      d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                      fill="#ffffff" p-id="2696"></path>
+                        d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                        fill="#ffffff" p-id="2696"></path>
                   </svg>
                   <span>视角跳转</span>
                 </div>
@@ -99,9 +99,9 @@
               <div class="district-buttons">
                 <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
                   <el-radio
-                    v-for="district in districts"
-                    :key="district.adcode"
-                    :label="district.name"
+                      v-for="district in districts"
+                      :key="district.adcode"
+                      :label="district.name"
                   >
                     {{ district.name }}
                   </el-radio>
@@ -122,10 +122,10 @@
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
             <el-radio
-              v-for="item in thematicMapitems"
-              :key="item.id"
-              :label="item.name"
-              style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
+                v-for="item in thematicMapitems"
+                :key="item.id"
+                :label="item.name"
+                style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
             >
               {{ item.name }}
             </el-radio>
@@ -145,10 +145,10 @@
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
             <el-radio
-              v-for="item in reportItems"
-              :key="item.id"
-              :label="item.name"
-              style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
+                v-for="item in reportItems"
+                :key="item.id"
+                :label="item.name"
+                style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
             >
               {{ item.name }}
             </el-radio>
@@ -165,25 +165,25 @@
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
         <commonPanel
-          :visible="timelinePopupVisible"
-          :position="timelinePopupPosition"
-          :popupData="timelinePopupData"
-          :ifedit="false"
-          @wsSendPoint="wsSendPoint"
-          @closePlotPop="closePlotPop"
+            :visible="timelinePopupVisible"
+            :position="timelinePopupPosition"
+            :popupData="timelinePopupData"
+            :ifedit="false"
+            @wsSendPoint="wsSendPoint"
+            @closePlotPop="closePlotPop"
         />
         <dataSourcePanel
-          :visible="dataSourcePopupVisible"
-          :position="dataSourcePopupPosition"
-          :popupData="dataSourcePopupData"
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
         />
       </div>
     </div>
     <!-- RouterPanel 弹窗 -->
     <RouterPanel
-      :visible="routerPopupVisible"
-      :position="routerPopupPosition"
-      :popupData="routerPopupData"
+        :visible="routerPopupVisible"
+        :position="routerPopupPosition"
+        :popupData="routerPopupData"
     />
 
     <div class="top-header">
@@ -195,60 +195,60 @@
     </div>
     <div class="logo-menu menue-left">
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('dataStats') }"
-        title="数据统计"
-        @click="toggleComponent('dataStats')"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('dataStats') }"
+          title="数据统计"
+          @click="toggleComponent('dataStats')"
       >
         <p>灾情总览</p>
       </div>
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('eqList') }"
-        title="地震列表"
-        @click="toggleComponent('eqList')"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('eqList') }"
+          title="地震列表"
+          @click="toggleComponent('eqList')"
       >
         <p>灾损评估</p>
       </div>
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('model') }"
-        title="三维模型"
-        @click="toggleComponent('model')"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('model') }"
+          title="三维模型"
+          @click="toggleComponent('model')"
       >
         <p>态势标绘</p>
       </div>
     </div>
     <div class="logo-menu menue-right">
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('layerChoose') }"
-        title="图层要素"
-        @click="toggleComponent('layerChoose')"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('layerChoose') }"
+          title="图层要素"
+          @click="toggleComponent('layerChoose')"
       >
         <p>资源调度</p>
       </div>
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
-        title="专题图产出"
-        @click="toggleComponent('thematicMapDownload')"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
+          title="专题图产出"
+          @click="toggleComponent('thematicMapDownload')"
       >
         <p>灾情统计</p>
       </div>
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('reportDownload') }"
-        title="报告导出"
-        @click="toggleComponent('reportDownload')"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('reportDownload') }"
+          title="报告导出"
+          @click="toggleComponent('reportDownload')"
       >
         <p>图件产出</p>
       </div>
       <div
-        class="logo-menu-tittle"
-        :class="{ 'logo-menu-active': isActive('frontPage') }"
-        title="返回首页"
-        @click="navigateToFrontPage"
+          class="logo-menu-tittle"
+          :class="{ 'logo-menu-active': isActive('frontPage') }"
+          title="返回首页"
+          @click="navigateToFrontPage"
       >
         <p>返回首页</p>
       </div>
@@ -262,8 +262,8 @@
                 <span class="pop-icon">
                   <svg width="20" height="20" viewBox="0 0 48 48">
                     <path
-                      d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
-                      fill="none" stroke="#BEE1FF" stroke-width="4"></path>
+                        d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
+                        fill="none" stroke="#BEE1FF" stroke-width="4"></path>
                     <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
                           stroke-linecap="round"></path>
                   </svg>
@@ -313,12 +313,12 @@
         </div>
 
         <!-- speedButton 和 chooseSpeed 放在一起 -->
-<!--        <span class="speedButton">{{ speedOption }}</span>-->
-<!--        <div class="chooseSpeed">-->
-<!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
-<!--            {{ option }}-->
-<!--          </option>-->
-<!--        </div>-->
+        <!--        <span class="speedButton">{{ speedOption }}</span>-->
+        <!--        <div class="chooseSpeed">-->
+        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+        <!--            {{ option }}-->
+        <!--          </option>-->
+        <!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -344,62 +344,62 @@
       <div class="pop_left_background">
         <!--   应急响应-左上   -->
         <timeLineEmergencyResponse
-          :eqid="eqid"
-          :currentTime="currentTime"
-          :eqstartTime="eqstartTime"
-          :isfirst="isfirst"
-          @addJumpNodes="addJumpNodes"
+            :eqid="eqid"
+            :currentTime="currentTime"
+            :eqstartTime="eqstartTime"
+            :isfirst="isfirst"
+            @addJumpNodes="addJumpNodes"
         />
         <div>
-          <div class="personbutton" v-if="PersoonnelCasuality===1">
-            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>
-          </div>
+<!--          <div class="personbutton" v-if="PersoonnelCasuality===1">-->
+<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>-->
+<!--          </div>-->
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
-            v-if="PersoonnelCasuality===1"
+              v-if="PersoonnelCasuality===1"
+              :eqid="eqid"
+              :currentTime="currentTime"
+              @addJumpNodes="addJumpNodes"
+          />
+        </div>
+<!--        <div>-->
+<!--          <div class="personbutton" v-if="PersoonnelCasuality===2">-->
+<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>-->
+<!--          </div>-->
+<!--          <timeLineCasualtyStatisticthd-->
+<!--              v-if="PersoonnelCasuality===2"-->
+<!--              :zoomLevel="zoomLevel"-->
+<!--              :pointsLayer="pointsLayer"-->
+<!--              :currentTime="currentTime"-->
+<!--          />-->
+<!--        </div>-->
+        <!--   救援出队-左下   -->
+        <timeLineRescueTeam
+            v-if="eqyear"
             :eqid="eqid"
             :currentTime="currentTime"
             @addJumpNodes="addJumpNodes"
-          />
-        </div>
-        <div>
-          <div class="personbutton" v-if="PersoonnelCasuality===2">
-            <el-button class="el-button--primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>
-          </div>
-          <timeLineCasualtyStatisticthd
-            v-if="PersoonnelCasuality===2"
-            :zoomLevel="zoomLevel"
-            :pointsLayer="pointsLayer"
-            :currentTime="currentTime"
-          />
-        </div>
-        <!--   救援出队-左下   -->
-        <timeLineRescueTeam
-          v-if="eqyear"
-          :eqid="eqid"
-          :currentTime="currentTime"
-          @addJumpNodes="addJumpNodes"
-          :eqyear="eqyear"
-          :earthquakeName="centerPoint.earthquakeName"
+            :eqyear="eqyear"
+            :earthquakeName="centerPoint.earthquakeName"
         />
       </div>
       <div class="pop_right_background">
         <!--  新闻-右上  -->
         <div>
           <news
-            :eqid="eqid"
-            :currentTime="currentTime"
-            @ifShowDialog="ifShowDialog"
-            @detailedNews="detailedNews"
-            @addJumpNodes="addJumpNodes"
+              :eqid="eqid"
+              :currentTime="currentTime"
+              @ifShowDialog="ifShowDialog"
+              @detailedNews="detailedNews"
+              @addJumpNodes="addJumpNodes"
           ></news>
         </div>
         <!--      新闻弹框-->
         <div>
           <news-dialog
-            :showDetailedNewsDialog="showDetailedNewsDialog"
-            :showingNewsContent="showingNewsContent"
-            @hideNewsDialog="hideNewsDialog"
+              :showDetailedNewsDialog="showDetailedNewsDialog"
+              :showingNewsContent="showingNewsContent"
+              @hideNewsDialog="hideNewsDialog"
           ></news-dialog>
         </div>
         <!--      标绘统计-->
@@ -419,8 +419,8 @@
       </div>
       <!--      图例-->
       <timeLineLegend
-        :activeComponent="activeComponent"
-        @toggleComponent="toggleComponent"
+          :activeComponent="activeComponent"
+          @toggleComponent="toggleComponent"
       ></timeLineLegend>
     </div>
     <!--    两侧组件 end-->
@@ -434,8 +434,8 @@
       <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
           <div
-            style="width: 20px; height: 20px; margin-right: 10px;"
-            :style="{ backgroundColor: colorItem.color.toCssColorString() }">
+              style="width: 20px; height: 20px; margin-right: 10px;"
+              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
           </div>
           <span>{{ colorItem.name }}</span>
         </div>
@@ -448,7 +448,8 @@
     </div>
 
     <div class="positionFlyToButton">
-      <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转" @click="showPositionFlyTo=!showPositionFlyTo" style="width: 31px;height: 31px;">
+      <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
+           @click="showPositionFlyTo=!showPositionFlyTo" style="width: 31px;height: 31px;">
     </div>
 
     <div class="universalPanel" v-if="showPositionFlyTo">
@@ -477,13 +478,13 @@
     </div>
 
     <thematicMapPreview
-      @ifShowThematicMapDialog="ifShowThematicMapDialog"
-      :imgshowURL="imgshowURL"
-      :imgurlFromDate="imgurlFromDate"
-      :imgName="imgName"
-      :ifShowMapPreview="ifShowMapPreview"
-      :showTypes="showTypes"
-      style="width: 40%"
+        @ifShowThematicMapDialog="ifShowThematicMapDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
+        :showTypes="showTypes"
+        style="width: 40%"
     ></thematicMapPreview>
     <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
@@ -546,7 +547,10 @@ import {
 } from '@/api/system/model.js'
 import {
   goModel,
-  findModel
+  findModel,
+  isTerrainLoaded,
+  transferModel,
+  rotationModel,
 } from '../../functionjs/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
@@ -823,25 +827,25 @@ export default {
       // console.log(this.eqid)
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-      viewer.camera.changed.addEventListener(() => {
-        const cameraHeight = viewer.camera.positionCartographic.height
-        this.updateZoomLevel(cameraHeight)
-
-        let centerResult = viewer.camera.pickEllipsoid(
-            new Cesium.Cartesian2(
-                viewer.canvas.clientWidth / 2,
-                viewer.canvas.clientHeight / 2,
-            ),
-        );
-        let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
-        let curLongitude = (curPosition.longitude * 180) / Math.PI;
-        let curLatitude = (curPosition.latitude * 180) / Math.PI;
-        this.viewCenterCoordinate={
-          lon:curLongitude,
-          lat:curLatitude
-        }
-
-      })
+      // viewer.camera.changed.addEventListener(() => {
+      //   const cameraHeight = viewer.camera.positionCartographic.height
+      //   this.updateZoomLevel(cameraHeight)
+      //
+      //   let centerResult = viewer.camera.pickEllipsoid(
+      //       new Cesium.Cartesian2(
+      //           viewer.canvas.clientWidth / 2,
+      //           viewer.canvas.clientHeight / 2,
+      //       ),
+      //   );
+      //   let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
+      //   let curLongitude = (curPosition.longitude * 180) / Math.PI;
+      //   let curLatitude = (curPosition.latitude * 180) / Math.PI;
+      //   this.viewCenterCoordinate = {
+      //     lon: curLongitude,
+      //     lat: curLatitude
+      //   }
+      //
+      // })
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
@@ -927,24 +931,24 @@ export default {
       smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
 
       smallViewer.imageryLayers.addImageryProvider(
-        new Cesium.WebMapTileServiceImageryProvider({
-          url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-            TianDiTuToken,
-          layer: "tdtAnnoLayer",
-          style: "default",
-          format: "image/jpeg",
-          tileMatrixSetID: "GoogleMapsCompatible"
-        })
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
       );
       smallViewer.imageryLayers.addImageryProvider(
-        new Cesium.WebMapTileServiceImageryProvider({
-          url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-            TianDiTuToken,
-          layer: "tdtAnnoLayer",
-          style: "default",
-          format: "image/jpeg",
-          tileMatrixSetID: "GoogleMapsCompatible"
-        })
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible"
+          })
       );
 
       // 隐藏缩略图视图器的版权信息
@@ -1124,8 +1128,8 @@ export default {
     },
     //控制视角跳转的递归函数
     flyPointsForOneIndex(points) {
-      if(this.timelinePopupVisible){
-        this.timelinePopupVisible=false
+      if (this.timelinePopupVisible) {
+        this.timelinePopupVisible = false
       }
       let timeEachPoint = 0
       points.forEach((point) => {
@@ -1203,8 +1207,7 @@ export default {
       // 批量渲染点 + 非初始化状态渲染标会点动画
       if (points.length > 0) {
         if (this.timelinePopupShowCenterStrart) {
-          let centerMark = viewer.entities.getById(this.centerPoint.plotid);
-          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)
+          this.centerMarkOpacityTo1()
           clearInterval(this.intervalIdcolor); // 停止颜色切换
           this.timelinePopupShowCenterStrart = false;
           this.timelinePopupVisible = false;
@@ -1404,8 +1407,7 @@ export default {
         else {
           this.stopTimer();
           clearInterval(this.intervalIdcolor)
-          let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
-          centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
+          this.centerMarkOpacityTo1()
         }
       }
     },
@@ -1449,8 +1451,7 @@ export default {
       if (!this.isTimerRunning) { //根据次数跳出
         this.stopTimer();
         return;
-      }
-      else {
+      } else {
         let flag = this.updateCurrentTimeOnce();
         if (flag) {
           if (this.isMarkingLayer) {
@@ -1514,6 +1515,8 @@ export default {
     stopTimer() {
       this.isfirst = true
       this.isTimerRunning = false;
+      this.centerMarkOpacityTo1()
+
       this.ifUpdateEndTime()
     },
 
@@ -1640,8 +1643,7 @@ export default {
         this.updatePlotOnce("3")
         this.flyToCenter()
         // this.xuanran(this.eqid)
-      }
-      else if (this.currentTimePosition <= 0) {
+      } else if (this.currentTimePosition <= 0) {
         // 当时间进度达到或超过100%时，重置为100%
         this.currentTimePosition = 0;
         // 设置当前时间为结束时间
@@ -1652,8 +1654,7 @@ export default {
         this.isTimerRunning = false
         this.updatePlotOnce("3")
         this.flyToCenter()
-      }
-      else {
+      } else {
         if (currentTimeTmp > this.currentTime) {
           this.updatePlotOnce("3")
         } else {
@@ -1731,8 +1732,7 @@ export default {
         this.stopTimer();
         this.updatePlotOnce("3")
         this.flyToCenter()
-      }
-      else {
+      } else {
         if (time > this.currentTime) {
           this.updatePlotOnce("3")
         } else {
@@ -1757,7 +1757,7 @@ export default {
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
-      this.showSpeedOptions=false
+      this.showSpeedOptions = false
     },
 
 
@@ -1784,7 +1784,6 @@ export default {
         duration: 3 // 飞行动画持续时间（秒）
       });
     },
-    //中心点闪烁
     //中心点闪烁
     flashingCenter() {
 
@@ -1908,6 +1907,13 @@ export default {
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
+    //取消闪烁，透明度到1
+    centerMarkOpacityTo1() {
+      let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
+      centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
+      let smallcenterMark = smallViewer.entities.getById(this.centerPoint.plotid);
+      smallcenterMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
+    },
     addJumpNodes(val) {
       val.forEach(item => {
         this.jumpTimes.push(item)
@@ -1921,7 +1927,7 @@ export default {
       } else if (cameraHeight > 70000) {
         this.zoomLevel = '区/县'
       }
-      // else if (cameraHeight > 8000) {
+          // else if (cameraHeight > 8000) {
           //   this.zoomLevel = '乡/镇'
       // }
       else {
@@ -2253,7 +2259,7 @@ export default {
       let latitude = Cesium.Math.toDegrees(cartographic.latitude);
       let longitude = Cesium.Math.toDegrees(cartographic.longitude);
       // 根据地形是否加载来获取高度
-      let height = this.isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
+      let height = isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
 
       // 返回计算得到的经纬度和高度
       return {
@@ -2274,8 +2280,8 @@ export default {
         if (this.selectedEntityPosition) {
           // console.log(this.selectedEntityPosition)
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           if (canvasPosition) {
             const faultInfoDiv = document.getElementById('faultInfo');
@@ -2301,8 +2307,8 @@ export default {
         if (this.selectedEntityPosition) {
           // 将地理坐标转换为窗口坐标
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
@@ -2399,33 +2405,6 @@ export default {
 
     backToHome() {
 
-    },
-
-
-    /**
-     * 检查地形是否已加载
-     * cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
-     * 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
-     * 该方法通过检查当前地形提供者的类型来确定地形是否已经加载
-     * 如果地形提供者是椭球地形提供者(EllipsoidTerrainProvider)，则视为地形未加载
-     * 如果地形提供者已定义且不是椭球地形提供者，则视为地形已加载
-     *
-     * @returns {Boolean} 返回地形是否已加载的状态
-     */
-    isTerrainLoaded() {
-      // 获取当前的地形提供者
-      let terrainProvider = window.viewer.terrainProvider;
-      // 检查地形提供者是否是椭球地形提供者
-      if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-        // 在控制台输出地形未加载的信息
-        // console.log("地形未加载")
-        return false;
-      } else if (Cesium.defined(terrainProvider)) {
-        // console.log("地形已加载")
-        return true;
-      }
-      // console.log("地形未加载")
-      return false;
     },
 
 
@@ -2623,9 +2602,9 @@ export default {
 
       // 根据经度和纬度创建一个三维坐标点，Z轴设置为120000，以确保视角高度
       const position = Cesium.Cartesian3.fromDegrees(
-        parseFloat(this.centerPoint.longitude),
-        parseFloat(this.centerPoint.latitude),
-        120000,
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          120000,
       );
 
       // 飞行到计算出的中心点位置
@@ -2784,9 +2763,9 @@ export default {
       if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
         // 创建一个Cartesian3对象，用于表示相机将要飞往的经纬度位置
         const position = Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          120000,
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            120000,
         );
         // 使用flyTo方法使相机飞往指定的经纬度位置
         viewer.camera.flyTo({destination: position,})
@@ -2794,9 +2773,9 @@ export default {
         // 当选中的图层数量不满足上述条件时，执行以下逻辑
         // 创建一个Cartesian3对象，用于表示相机将要飞往的默认经纬度位置
         const position = Cesium.Cartesian3.fromDegrees(
-          103.0,
-          29.98,
-          500000,
+            103.0,
+            29.98,
+            500000,
         );
         // 使用flyTo方法使相机飞往默认的经纬度位置
         viewer.camera.flyTo({destination: position,})
@@ -3020,15 +2999,15 @@ export default {
       if (!popLayerexists) {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapServiceImageryProvider({
-            url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
-            layers: 'yaan:pop', // 需要请求的图层名称
-            parameters: {
-              service: 'WMS', // 指定服务类型为WMS
-              format: 'image/png', // 指定返回的图像格式为PNG
-              transparent: true // 启用透明背景
-            }
-          })
+            new Cesium.WebMapServiceImageryProvider({
+              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
+              layers: 'yaan:pop', // 需要请求的图层名称
+              parameters: {
+                service: 'WMS', // 指定服务类型为WMS
+                format: 'image/png', // 指定返回的图像格式为PNG
+                transparent: true // 启用透明背景
+              }
+            })
         );
         popLayer.name = "PopLayer"; // 设置图层名称为"PopLayer"
       }
@@ -3049,16 +3028,16 @@ export default {
       if (!trafficLayerexists) {
         // 创建并添加交通图层
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            // 天地图交通图层的URL模板
-            url:
-              "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-              token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-          })
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通图层的URL模板
+              url:
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+            })
         );
         trafficLayer.name = "TrafficLayer"; // 设置名称
       }
@@ -3068,17 +3047,17 @@ export default {
       if (!trafficTxtLayerExists) {
         // 创建并添加交通注记图层
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            // 天地图交通注记图层的URL模板
-            url:
-              "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-              token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-            show: false, // 初始状态下不显示注记
-          })
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通注记图层的URL模板
+              url:
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false, // 初始状态下不显示注记
+            })
         )
         traffictxtLayer.name = "TrafficTxtLayer"
       }
@@ -3314,16 +3293,12 @@ export default {
     watchTerrainProviderChanged() {
       window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
         if (isTerrainLoaded()) {
-          tz.value = _modelInfo.tze
-          rz.value = modelInfo.rze
-          transferModel(window.modelObject, 0, 0, modelInfo.tze, 100)
-          rotationModel(window.modelObject, rz.value)
+          transferModel(window.modelObject, 0, 0, this.modelInfo.tze, 100)
+          rotationModel(window.modelObject, this.modelInfo.rze)
           findModel()
         } else {
-          tz.value = modelInfo.tz
-          rz.value = modelInfo.rz
-          transferModel(window.modelObject, 0, 0, modelInfo.tz, 100)
-          rotationModel(window.modelObject, rz.value)
+          transferModel(window.modelObject, 0, 0, this.modelInfo.tz, 100)
+          rotationModel(window.modelObject, this.modelInfo.rz)
           findModel()
         }
       });
@@ -3659,6 +3634,7 @@ export default {
   height: auto;
   cursor: pointer;
 }
+
 .speed-selector {
   position: absolute;
   cursor: pointer;
@@ -3705,8 +3681,9 @@ export default {
 }
 
 .speed-option.selected {
-  background-color:  #71a8e3; /* 选中项更深的蓝色 */
+  background-color: #71a8e3; /* 选中项更深的蓝色 */
 }
+
 .time-ruler {
   position: relative;
   width: 69%;
@@ -4169,7 +4146,7 @@ export default {
   width: 33%;
 }
 
-:deep(.eldriver){
+:deep(.eldriver) {
   width: 300px;
 }
 

@@ -14,7 +14,7 @@
     <el-col>
       <div class="newColCommon">
         <img src="@/assets/经纬度.png" class="icon" />
-        <span>震中经纬：东经{{ longitude }}度 北纬{{ latitude }}度</span>
+        <span>震中经纬：东经{{ Number(longitude).toFixed(2) }}度 北纬{{  Number(latitude).toFixed(2) }}度</span>
       </div>
     </el-col>
     <el-col>
@@ -57,7 +57,7 @@ watch(() => props.lastEq, () => {
 });
 
 const initNewEq = () => {
-  eqName.value = props.lastEq.earthquakeName + props.lastEq.magnitude + '级地震';
+  eqName.value = props.lastEq.earthquakeName +  Number(props.lastEq.magnitude).toFixed(1) + '级地震';
   // 转换并格式化发震时间
   const date = new Date(props.lastEq.occurrenceTime);
   const year = date.getFullYear();
