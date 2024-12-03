@@ -10,7 +10,6 @@
                   :cell-style="tableColor" @row-click="flyTo"
                   :row-style="{ height: '37.5px', fontSize: '13px'}"
         >
-
           <el-table-column label=" " min-width="16px" show-overflow-tooltip>
             <template #default="scope">
               <div style="display: flex; align-items: center; justify-content: center; height: 100%; "  class="arrow-container">
@@ -485,38 +484,23 @@ export default {
   color: #ffffff;
 }
 
-.list-dialog .list-dialog__header {
-  height: 41px;
-  width: 100%;
-  line-height: 41px;
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 500;
-  border-radius: 4px 4px 0 0;
-  padding: 0 5px 0 10px;
-  position: relative;
-  top: 0;
-  left: 0;
-  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
-  background-size: 100% 100%;
-}
-
 .sub-main {
-  overflow-y: auto !important;
+  overflow-y: hidden;
   overflow-x: hidden;
-  margin-top: 10px;
-  margin-left: 5px;
+  margin-top: 6%;
+  margin-left: 3%;
+  width: 94%;
 }
 
 :deep(.el-table__header-wrapper) {
-  background-color: rgb(25, 56, 77);
+  background-color: rgb(25 56 77 / 33%);
 }
 
 :deep(.el-table__body-wrapper) {
   flex: 1;
   overflow: hidden;
   position: relative;
-  background-color: rgb(23, 54, 76);
+  background-color: rgba(23, 54, 76, 0);
 }
 
 /* 设置“图层要素”样式 */

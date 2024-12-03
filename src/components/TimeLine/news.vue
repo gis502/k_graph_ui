@@ -1,19 +1,19 @@
 <template>
   <div>
     <div id="news">
-      <div className="pop_header">
-        <h2 className="sub-title-new">
+      <div class="pop_header">
+        <h2 class="sub-title-new">
           生命线情况
           <span class="time">{{timestampToTimeChina(props.currentTime) }}</span>
           <!-- <span class="title-time">{{ recordTime }}</span> -->
-          <span className="title-time"></span>
+          <span class="title-time"></span>
         </h2>
-        <div className="sub-main">
-          <div ref="chart" className="chart" style="width: 100%;height: 24vh"></div>
+        <div class="sub-main">
+          <div ref="chart" class="chart" style="width: 100%;height: 24vh"></div>
         </div>
       </div>
     </div>
-  </div>8
+  </div>
 </template>
 
 <script setup>
@@ -556,11 +556,10 @@ onMounted(() => {
   top: 26%;
   position: relative;
   left: 7%;
-  width: 91%;
 }
 
 .title-time {
-  right: 0%;
+  right: 9%;
   position: absolute;
   font-size: 0.9rem;
   font-weight: normal;

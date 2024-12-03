@@ -592,7 +592,6 @@ export default {
   top: 26%;
   position: relative;
   left: 7%;
-  width: 93%;
 }
 
 .pop_content {

@@ -2,23 +2,25 @@
   <div>
     <!--    地震列表切换-->
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
-      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 900;top: 0;">
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <damageThemeAssessment
-          :eqid="eqid">
+            :eqid="eqid">
         </damageThemeAssessment>
       </div>
     </div>
     <!--  态势标绘  -->
     <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
-      <div class="list-dialog__content" style="height: calc(100% - 30);">
-        <timeLineCasualtyStatisticthd
-            :zoomLevel="zoomLevel"
-            :pointsLayer="pointsLayer"
-            :currentTime="currentTime"
-        />
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+        <div class="list-dialog__content" style="height: calc(100% - 30);">
+          <timeLineCasualtyStatisticthd
+              :zoomLevel="zoomLevel"
+              :pointsLayer="pointsLayer"
+              :currentTime="currentTime"
+          />
+        </div>
       </div>
       <plotSearch
-          :eqid ="eqid"
+          :eqid="eqid"
       ></plotSearch>
     </div>
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
@@ -187,10 +189,10 @@
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('eqList') }"
-          title="地震列表"
+          title="灾损评估"
           @click="toggleComponent('eqList')"
       >
-        <p>地震列表</p>
+        <p>灾损评估</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -452,68 +454,68 @@
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
 
-      <div id="legend" v-show="true"
-           style="position: absolute;
+    <div id="legend" v-show="true"
+         style="position: absolute;
            right: 500px;
          z-index:20; bottom: 100px;
          right: 450px; color: #FFFFFF;
          background-color: rgba(0, 0, 0, 0.5);
          padding: 10px; border-radius: 5px;text-align: center;">
-          <div v-for="(item, index) in slopeStatistics" :key="index">
-              <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                  <div
-                          :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">
-                  </div>
-                  <span style="width: 80px;text-align: left">{{ item.degree }}</span>
-                  <span style="text-align: left">{{ item.proportion }}</span>
-              </div>
+      <div v-for="(item, index) in slopeStatistics" :key="index">
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+          <div
+              :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">
           </div>
+          <span style="width: 80px;text-align: left">{{ item.degree }}</span>
+          <span style="text-align: left">{{ item.proportion }}</span>
+        </div>
       </div>
+    </div>
 
-      <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;
+    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;
       z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="drawN">量算</el-button>
-      </div>
+      <el-button @click="drawN">量算</el-button>
+    </div>
 
-      <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;
+    <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;
       z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="route">路径规划</el-button>
-      </div>
-      <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;
+      <el-button @click="route">路径规划</el-button>
+    </div>
+    <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;
       z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="addArea">添加障碍区域</el-button>
-      </div>
-      <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;
+      <el-button @click="addArea">添加障碍区域</el-button>
+    </div>
+    <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;
       z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-          <el-button @click="removeAll">清空所有实体</el-button>
-      </div>
+      <el-button @click="removeAll">清空所有实体</el-button>
+    </div>
 
 
-        <!--    路径规划    -->
-<!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
-<!--          <div class="panelTop">-->
-<!--              <h2 class="panelName">路径规划</h2>-->
-<!--          </div>-->
+    <!--    路径规划    -->
+    <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
+    <!--          <div class="panelTop">-->
+    <!--              <h2 class="panelName">路径规划</h2>-->
+    <!--          </div>-->
 
-<!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
-<!--              <el-row style="margin: 20px;">-->
-<!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
-<!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
-<!--              </el-row>-->
-<!--              <div slot="header" class="clearfix"-->
-<!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
-<!--                  <div>-->
-<!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
-<!--                  </div>-->
-<!--                  <div v-if="visibleGuilde">-->
-<!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
-<!--                          {{ instruction }}-->
-<!--                      </div>-->
-<!--                      <div v-if="loading" class="loading">加载中...</div>-->
-<!--                  </div>-->
-<!--              </div>-->
-<!--          </div>-->
-<!--      </div>-->
+    <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
+    <!--              <el-row style="margin: 20px;">-->
+    <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
+    <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
+    <!--              </el-row>-->
+    <!--              <div slot="header" class="clearfix"-->
+    <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
+    <!--                  <div>-->
+    <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
+    <!--                  </div>-->
+    <!--                  <div v-if="visibleGuilde">-->
+    <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
+    <!--                          {{ instruction }}-->
+    <!--                      </div>-->
+    <!--                      <div v-if="loading" class="loading">加载中...</div>-->
+    <!--                  </div>-->
+    <!--              </div>-->
+    <!--          </div>-->
+    <!--      </div>-->
   </div>
 </template>
 
@@ -582,12 +584,12 @@ import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 import * as turf from "@turf/turf";
 import {
-    Cartesian3,
-    Cartographic, ClassificationType, Color, Entity,
-    Math as CesiumMath,
-    PolygonHierarchy,
-    Rectangle,
-    sampleTerrainMostDetailed
+  Cartesian3,
+  Cartographic, ClassificationType, Color, Entity,
+  Math as CesiumMath,
+  PolygonHierarchy,
+  Rectangle,
+  sampleTerrainMostDetailed
 } from "cesium";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
@@ -598,6 +600,7 @@ import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
+
 export default {
   computed: {
     Edit() {
@@ -834,7 +837,7 @@ export default {
         lon: "", // 经度
         lat: "", // 纬度
       },
-        // 坡面分析+距离量算
+      // 坡面分析+距离量算
       ifSlopeAnalyze: false,
       ifDistanceMeasure: false,
       polygonPos: [], // 存储包围盒坐标
@@ -848,173 +851,172 @@ export default {
       secondClickPosition: null,
       isShowSlopeLegend: false,
       slopeStatistics: [
-          {
-              degree: '< 15°',
-              color: '#00FF00',
-              proportion: ''
-          },
-          {
-              degree: '15°- 30°',
-              color: '#FFFF00',
-              proportion: ''
-          },
-          {
-              degree: '30°- 45°',
-              color: '#FFCC00',
-              proportion: ''
-          },
-          {
-              degree: '45°- 60°',
-              color: '#FF7F00',
-              proportion: ''
-          },
-          {
-              degree: '> 60°',
-              color: '#FF0000',
-              proportion: ''
-          }
+        {
+          degree: '< 15°',
+          color: '#00FF00',
+          proportion: ''
+        },
+        {
+          degree: '15°- 30°',
+          color: '#FFFF00',
+          proportion: ''
+        },
+        {
+          degree: '30°- 45°',
+          color: '#FFCC00',
+          proportion: ''
+        },
+        {
+          degree: '45°- 60°',
+          color: '#FF7F00',
+          proportion: ''
+        },
+        {
+          degree: '> 60°',
+          color: '#FF0000',
+          proportion: ''
+        }
       ],
 
 
+      // 路径规划+物资匹配
+      // ---------------------------------------------
+      handler: null, // 创建共享的 handler
+      isRouting: false, // 路径规划是否在进行中
+      isAddingArea: false, // 是否在添加受灾区域
+      propertiesId: [],  // 存储之前创建的实体（点和折线）的ID
+      pos: [],
+      areas: [],
+      RouteTime: " ", //全程所需时间
+      RouteWay: " ", //行进方式
+      showTips: false, //路径弹窗
+      totalRoute: "", //全长
+      cartime: "", //临时变量
+      humantime: "", //临时变量
+      visibleGuilde: false, //驾驶时导航显示
+      selectedDrive: "",
+      selectedWalk: "",
+      RouteGuilde: [],
+      loading: false,
+      // 资源快速匹配
+      showSuppliesList: [],
+      selectedSuppliesList: [],
+      showIcon: [],
+      activeMenuIndex: '3', // 显示的一级菜单 eg.路径规划、物资匹配
+      isCollapsed: false, // 控制是否收缩
 
-        // 路径规划+物资匹配
-        // ---------------------------------------------
-        handler: null, // 创建共享的 handler
-        isRouting: false, // 路径规划是否在进行中
-        isAddingArea: false, // 是否在添加受灾区域
-        propertiesId: [],  // 存储之前创建的实体（点和折线）的ID
-        pos: [],
-        areas: [],
-        RouteTime: " ", //全程所需时间
-        RouteWay: " ", //行进方式
-        showTips: false, //路径弹窗
-        totalRoute: "", //全长
-        cartime: "", //临时变量
-        humantime: "", //临时变量
-        visibleGuilde: false, //驾驶时导航显示
-        selectedDrive: "",
-        selectedWalk: "",
-        RouteGuilde: [],
-        loading: false,
-        // 资源快速匹配
-        showSuppliesList: [],
-        selectedSuppliesList: [],
-        showIcon: [],
-        activeMenuIndex: '3', // 显示的一级菜单 eg.路径规划、物资匹配
-        isCollapsed: false, // 控制是否收缩
+      panels: {
+        tableVisible: true, // 显示表格
+        searchSupplyDialog: false, // 物资查询dialog是否显示
+        searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
+        marchSupplyDialog: false, // 物资匹配dialog是否显示
+        searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
+        marchRegionsDialog: false,  //行政区划匹配dialog是否显示
+      },
 
-        panels: {
-            tableVisible: true, // 显示表格
-            searchSupplyDialog: false, // 物资查询dialog是否显示
-            searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
-            marchSupplyDialog: false, // 物资匹配dialog是否显示
-            searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
-            marchRegionsDialog: false,  //行政区划匹配dialog是否显示
-        },
+      searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
 
-        searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
+      ifDrawEllipse: false,
+      marchSupplyRadius: 0,
+      toolValue: "隐藏列表",
+      routeValue: "隐藏路径规划",
+      showSupply: "显示所有物资点",
+      // total: 0,
+      // pageSize: 5,
+      // currentPage: 1,
+      addSupplyPointCurrently: {
+        lng: 0,
+        lat: 0,
+        count: 0,
+        position: "",
+        type: "",
+        tel: "",
+      },
+      // 物资查询/匹配表单
+      searchSupplyForm: {
+        county: "",
+        address: "",
+        contactPerson: "",
+        contactPhone: "",
+        tents: 0,
+        raincoats: 0,
+        rainBoots: 0,
+        flashlights: 0,
+        radius: 0.0,
+      },
+      // 救援力量表单
+      searchEmergencyTeamForm: {
+        levelName: '',
+        teamTypeName: '',
+        totalMembers: 0,
+        address: '',
+        personInCharge: '',
+        chargePhone: ''
+      },
+      inputRadius: "",
+      inputData: '',
+      canMarkPoint: false,
+      DialogFormVisible: false,
+      affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
+      // 救援物资字段
+      listFieldsOfSupplies: [
+        {prop: 'county', label: '区域', width: 120},
+        {prop: 'address', label: '地址', width: 150},
+        {prop: 'contactPerson', label: '联系人', width: 100},
+        {prop: 'contactPhone', label: '联系电话', width: 120},
+        {prop: 'tents', label: '帐篷总数量', width: 100},
+        {prop: 'raincoats', label: '雨衣总数量', width: 100},
+        {prop: 'rainBoots', label: '雨鞋总数量', width: 100},
+        {prop: 'flashlights', label: '手电筒总数量', width: 130}
+      ],
+      // 救灾装备字段
+      listFieldOfReserves: [
+        {prop: 'county', label: '区域', width: 120},
+        {prop: 'address', label: '地址', width: 200},
+        {prop: 'contactPerson', label: '联系人', width: 80},
+        {prop: 'contactPhone', label: '联系电话', width: 120},
+        {prop: 'lifeJacket', label: '救生衣', width: 80},
+        {prop: 'lifebuoy', label: '救生圈', width: 80},
+        {prop: 'walkieTalkie', label: '对讲机', width: 80},
+        {prop: 'portableLight', label: '照明灯', width: 80}
+      ],
+      // 救援力量字段
+      listFieldOfEmergencyTeam: [
+        // { prop: 'county', label: '所属机构', width: 200, tooltip: true },
+        {prop: 'levelName', label: '级别名称', width: 150},
+        {prop: 'teamTypeName', label: '队伍类型名称', width: 160},
+        {prop: 'totalMembers', label: '队伍人数', width: 80},
+        {prop: 'address', label: '地址', width: 200},
+        {prop: 'personInCharge', label: '负责人'},
+        {prop: 'chargePhone', label: '负责人电话', width: 200},
+      ],
+      listField: '',  // 判断显示哪个列表
+      suppliesList: [],
+      supplyList: [],
+      all: [],
+      // labels: [],  // 保存标签实体的引用
+      // regionLayerJump: null,
+      // 行政区划----------------------------
+      // districts: [
+      //     {adcode: 511802, name: "雨城区"},
+      //     {adcode: 511803, name: "名山区"},
+      //     {adcode: 511822, name: "荥经县"},
+      //     {adcode: 511823, name: "汉源县"},
+      //     {adcode: 511824, name: "石棉县"},
+      //     {adcode: 511825, name: "天全县"},
+      //     {adcode: 511826, name: "芦山县"},
+      //     {adcode: 511827, name: "宝兴县"},
+      // ],
+      selectedRegions: [],
+      selectedDataByRegions: {},
 
-        ifDrawEllipse: false,
-        marchSupplyRadius: 0,
-        toolValue: "隐藏列表",
-        routeValue: "隐藏路径规划",
-        showSupply: "显示所有物资点",
-        // total: 0,
-        // pageSize: 5,
-        // currentPage: 1,
-        addSupplyPointCurrently: {
-            lng: 0,
-            lat: 0,
-            count: 0,
-            position: "",
-            type: "",
-            tel: "",
-        },
-        // 物资查询/匹配表单
-        searchSupplyForm: {
-            county: "",
-            address: "",
-            contactPerson: "",
-            contactPhone: "",
-            tents: 0,
-            raincoats: 0,
-            rainBoots: 0,
-            flashlights: 0,
-            radius: 0.0,
-        },
-        // 救援力量表单
-        searchEmergencyTeamForm: {
-            levelName: '',
-            teamTypeName: '',
-            totalMembers: 0,
-            address: '',
-            personInCharge: '',
-            chargePhone: ''
-        },
-        inputRadius: "",
-        inputData: '',
-        canMarkPoint: false,
-        DialogFormVisible: false,
-        affectedPoints: [{lng: 103.0058, lat: 29.9794, position: "a"}],
-        // 救援物资字段
-        listFieldsOfSupplies: [
-            {prop: 'county', label: '区域', width: 120},
-            {prop: 'address', label: '地址', width: 150},
-            {prop: 'contactPerson', label: '联系人', width: 100},
-            {prop: 'contactPhone', label: '联系电话', width: 120},
-            {prop: 'tents', label: '帐篷总数量', width: 100},
-            {prop: 'raincoats', label: '雨衣总数量', width: 100},
-            {prop: 'rainBoots', label: '雨鞋总数量', width: 100},
-            {prop: 'flashlights', label: '手电筒总数量', width: 130}
-        ],
-        // 救灾装备字段
-        listFieldOfReserves: [
-            {prop: 'county', label: '区域', width: 120},
-            {prop: 'address', label: '地址', width: 200},
-            {prop: 'contactPerson', label: '联系人', width: 80},
-            {prop: 'contactPhone', label: '联系电话', width: 120},
-            {prop: 'lifeJacket', label: '救生衣', width: 80},
-            {prop: 'lifebuoy', label: '救生圈', width: 80},
-            {prop: 'walkieTalkie', label: '对讲机', width: 80},
-            {prop: 'portableLight', label: '照明灯', width: 80}
-        ],
-        // 救援力量字段
-        listFieldOfEmergencyTeam: [
-            // { prop: 'county', label: '所属机构', width: 200, tooltip: true },
-            {prop: 'levelName', label: '级别名称', width: 150},
-            {prop: 'teamTypeName', label: '队伍类型名称', width: 160},
-            {prop: 'totalMembers', label: '队伍人数', width: 80},
-            {prop: 'address', label: '地址', width: 200},
-            {prop: 'personInCharge', label: '负责人'},
-            {prop: 'chargePhone', label: '负责人电话', width: 200},
-        ],
-        listField: '',  // 判断显示哪个列表
-        suppliesList: [],
-        supplyList: [],
-        all: [],
-        // labels: [],  // 保存标签实体的引用
-        // regionLayerJump: null,
-        // 行政区划----------------------------
-        // districts: [
-        //     {adcode: 511802, name: "雨城区"},
-        //     {adcode: 511803, name: "名山区"},
-        //     {adcode: 511822, name: "荥经县"},
-        //     {adcode: 511823, name: "汉源县"},
-        //     {adcode: 511824, name: "石棉县"},
-        //     {adcode: 511825, name: "天全县"},
-        //     {adcode: 511826, name: "芦山县"},
-        //     {adcode: 511827, name: "宝兴县"},
-        // ],
-        selectedRegions: [],
-        selectedDataByRegions: {},
-
-        //-----------弹窗部分-------------------
-        // selectedEntityHighDiy: null,
-        popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
-        popupVisible: false, // 弹窗的显示与隐藏，传值给子组件
-        popupData: {}, // 弹窗内容，传值给子组件
-        tableNameOptions: [],
-        eqlistName: ''
+      //-----------弹窗部分-------------------
+      // selectedEntityHighDiy: null,
+      popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
+      popupVisible: false, // 弹窗的显示与隐藏，传值给子组件
+      popupData: {}, // 弹窗内容，传值给子组件
+      tableNameOptions: [],
+      eqlistName: ''
     };
   },
   created() {
@@ -1033,8 +1035,8 @@ export default {
     // // ---------------------------------------------------
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
-      this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
-      // this.addSlopeCanvas()
+    this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
+    // this.addSlopeCanvas()
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -1128,18 +1130,18 @@ export default {
           // 将地图坐标（弧度）转为十进制的度数
           let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(6);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(6);
-          if(that.ifSlopeAnalyze){
+          if (that.ifSlopeAnalyze) {
             let geom = this.cartographicToGeoJSON(cartographic)
-            console.log("geom----",geom)
+            console.log("geom----", geom)
             // 获取地形的海拔高度（米）
             let height = cartographic.height.toFixed(2);
             if (!this.firstClickPosition) {
-              this.firstClickPosition = { longitude, latitude }
-              console.log("第一个点：",this.firstClickPosition)
+              this.firstClickPosition = {longitude, latitude}
+              console.log("第一个点：", this.firstClickPosition)
               this.drawSite(position)
             } else if (!this.secondClickPosition) {
-              this.secondClickPosition = { longitude, latitude }
-              console.log("第二个点：",this.secondClickPosition)
+              this.secondClickPosition = {longitude, latitude}
+              console.log("第二个点：", this.secondClickPosition)
               this.drawSite(position)
               // 计算矩形的两个角点并打印
               this.printRectangleCoordinates(this.firstClickPosition, this.secondClickPosition);
@@ -1235,14 +1237,14 @@ export default {
       this.initcesiumPlot()
     },
     initWebSocket() {
-      let that=this
+      let that = this
       this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
 
-      this.websock.onmessage = function(e) {
-        console.log("e",e)
+      this.websock.onmessage = function (e) {
+        console.log("e", e)
         try {
-          console.log("从服务器接收到的消息thdtimeline",JSON.parse(e.data))
+          console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
           let markType = JSON.parse(e.data).type
           let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
           if (markOperate === "add") {
@@ -1253,11 +1255,9 @@ export default {
               that.wsAdd(markType, markData)
               // data.plot.plotId
             }
-          }
-
-          else if (markOperate === "delete") {
+          } else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id
-            this.plotisshow[id]=0
+            this.plotisshow[id] = 0
             console.log(id, 567)
             if (markType === "point") {
               // 其实只有这里有用
@@ -1275,14 +1275,14 @@ export default {
               window.viewer.entities.remove(polyline)
             } else if (markType === "polygon") {
               let polygon = window.viewer.entities.getById(id)
-              console.log("1123",polygon)
+              console.log("1123", polygon)
               let polygonPosition = polygon.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
               polygonPosition.linePoint.forEach((item, index) => {
                 window.viewer.entities.remove(item)
               })
               window.viewer.entities.remove(polygon)
               window.viewer.entities.removeById(id + "_polygon")
-            } else if(markType === "arrow"){
+            } else if (markType === "arrow") {
               console.log("arrow------------------")
               arrow.clearById(id)
               let polygonRemoved = window.viewer.entities.removeById(id);
@@ -1291,8 +1291,7 @@ export default {
               console.log(polygonRemoved, pointDataRemoved);
             }
           }
-        }
-        catch (err) {
+        } catch (err) {
           console.log(err, 'ws中catch到错误');
         }
 
@@ -1300,10 +1299,10 @@ export default {
 
     },
     wsAdd(type, data) {
-      console.log(data,"new plot")
+      console.log(data, "new plot")
       this.plots.push(data.plot)
-      console.log(this.plots,"this.plots")
-      this.plotisshow[data.plot.plotId]=1
+      console.log(this.plots, "this.plots")
+      this.plotisshow[data.plot.plotId] = 1
       if (type === "point") {
         let points = [];
         let point = {
@@ -1315,11 +1314,11 @@ export default {
           latitude: Number(data.plot.geom.coordinates[1]),
           longitude: Number(data.plot.geom.coordinates[0]),
           height: Number(data.plot.elevation),
-          icon:  data.plot.icon
+          icon: data.plot.icon
         };
         points.push(point); // 收集点数据
 
-        cesiumPlot.drawPoints(points,true,3000);
+        cesiumPlot.drawPoints(points, true, 3000);
       } else if (type === "polyline") {
         // 绘制所需的信息
         let points = data.plot.geom.coordinates
@@ -1376,7 +1375,7 @@ export default {
       } else if (type === "polygon") {
         let polygonArr = [data.plot]
         cesiumPlot.getDrawPolygon(polygonArr);
-      }else if(type === "arrow"){
+      } else if (type === "arrow") {
         console.log(45678)
 
         // let positions = []
@@ -1386,11 +1385,11 @@ export default {
         //     let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
         //     positions.push(cart3);
         // }
-        if(data.plot.plotType==="攻击箭头"){
+        if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
-        }else if(data.plot.plotType==="钳击箭头"){
+        } else if (data.plot.plotType === "钳击箭头") {
           arrow.showPincerArrow([data.plot])
-        }else if(data.plot.plotType==="直线箭头"){
+        } else if (data.plot.plotType === "直线箭头") {
           arrow.showStraightArrow([data.plot])
         }
 
@@ -1402,16 +1401,16 @@ export default {
     },
 
     cartographicToGeoJSON(cartographic) {
-          // 将 Cesium.Cartographic 弧度转换为 GeoJSON 所需的度
-          let lon = Cesium.Math.toDegrees(cartographic.longitude); // 经度
-          let lat = Cesium.Math.toDegrees(cartographic.latitude);  // 纬度
+      // 将 Cesium.Cartographic 弧度转换为 GeoJSON 所需的度
+      let lon = Cesium.Math.toDegrees(cartographic.longitude); // 经度
+      let lat = Cesium.Math.toDegrees(cartographic.latitude);  // 纬度
 
-          // 返回 GeoJSON 格式的 Point 对象
-          return {
-              "type": "Point",
-              "coordinates": [lon, lat]
-          };
-      },
+      // 返回 GeoJSON 格式的 Point 对象
+      return {
+        "type": "Point",
+        "coordinates": [lon, lat]
+      };
+    },
 
     /**
      * 取地震信息+开始结束当前时间初始化
@@ -1433,14 +1432,14 @@ export default {
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
         //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
         // this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 60 * 1000);
-        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5 * 60 * 1000);
+        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 5 * 60 * 1000);
         // this.realTime = new Date(); //真实时间
         //
         // 根据当前时间和地震结束时间计算时间线推进数量
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
           // this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (60 * 1000);
-          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5*60 * 1000);
+          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
           // this.currentNodeIndex = this.timelineAdvancesNumber
         } else {
           this.eqendTime = this.tmpeqendTime
@@ -1492,7 +1491,7 @@ export default {
               }
               // 更新结束时间和当前时间
               this.eqendTime = new Date()
-              this.currentTime=this.eqendTime
+              this.currentTime = this.eqendTime
             }, 1000);
           }
         }
@@ -1550,13 +1549,13 @@ export default {
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
         console.log("获取 pointsLayer", this.pointsLayer)
-        this.plotsIsReady=true
+        this.plotsIsReady = true
       })
     },
     //控制视角跳转的递归函数
     flyPointsForOneIndex(points) {
-      if(this.timelinePopupVisible){
-        this.timelinePopupVisible=false
+      if (this.timelinePopupVisible) {
+        this.timelinePopupVisible = false
       }
       let timeEachPoint = 0
       points.forEach((point) => {
@@ -1837,11 +1836,11 @@ export default {
       const minLat = Math.min(firstPoint.latitude, secondPoint.latitude);
       const maxLat = Math.max(firstPoint.latitude, secondPoint.latitude);
 
-      this.addSlopeCanvas(minLon,maxLon,minLat,maxLat)
+      this.addSlopeCanvas(minLon, maxLon, minLat, maxLat)
     },
     // 坡面分析
     // addSlopeCanvas(){
-    addSlopeCanvas(minLon,maxLon,minLat,maxLat) {
+    addSlopeCanvas(minLon, maxLon, minLat, maxLat) {
       // addSlopeCanvas() {
       // 测试区域
       // const extent = turf.square([100.64, 28.22, 100.69, 28.27]);
@@ -1923,7 +1922,7 @@ export default {
       }
 
       // //console.log(window.viewer.terrainProvider)
-      setTimeout(()=>{
+      setTimeout(() => {
         // //console.log(viewer._cesiumWidget.terrainProvider,viewer.terrainProvider)
         // sampleTerrainMostDetailed(viewer._cesiumWidget.terrainProvider, positions).then((updatedPositions) => {
 
@@ -1976,7 +1975,7 @@ export default {
           this.createMaterial();
 
           // 创建 pointGrid 并计算等高线
-          let pointGrid = turf.pointGrid(extent, 0.001, { units: "degrees" });
+          let pointGrid = turf.pointGrid(extent, 0.001, {units: "degrees"});
           for (let i = positions.length; i < updatedPositions.length; i++) {
             heightArr.push(updatedPositions[i]); // 收集剩余位置的高度数据
           }
@@ -1997,7 +1996,7 @@ export default {
           }
 
           // 使用 turf.js 生成等高线
-          let lines = turf.isolines(pointGrid, breaks, { zProperty: "height" });
+          let lines = turf.isolines(pointGrid, breaks, {zProperty: "height"});
 
           // 平滑等高线
           lines.features.forEach((feature) => {
@@ -2028,7 +2027,7 @@ export default {
               });
         });
 
-      },5000)
+      }, 5000)
 
     },
     // 添加坡面实体
@@ -2122,7 +2121,7 @@ export default {
           const arrowLength = cellSize / 2; // 调整箭头长度
           let norm = Math.sqrt(fx ** 2 + fy ** 2) || 1; // 防止除以 0
 
-          if(fx * fy > 0){
+          if (fx * fy > 0) {
             norm = -norm
           }
 
@@ -2183,7 +2182,7 @@ export default {
     // 画线
     drawN() {
       this.ifDistanceMeasure = true
-      if(this.ifDistanceMeasure){
+      if (this.ifDistanceMeasure) {
         let result = cesiumPlot.drawActivatePolyline("量算")
         //console.log("量算-----结果1：",result)
         this.ifDistanceMeasure = false
@@ -3847,8 +3846,6 @@ export default {
     // ------------------------------路径规划+物资匹配---------------------------
 
 
-
-
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     // 暂停播放切换
     toggleTimer() {
@@ -3888,37 +3885,36 @@ export default {
       this.isTimerRunning = true;
       // console.log(this.isOperateTimeLine,"this.isOperateTimeLine init")
       // if(!this.isOperateTimeLine){
-        // 初始化
-        this.currentTimePosition = 0;
-        this.currentTime = this.eqstartTime;
-        this.currentNodeIndex = 0;
-        // 从 dataSource 中删除点
-        this.plots.forEach(item => {
-          if (this.plotisshow[item.plotId] === 1) {
-            this.plotisshow[item.plotId] = 0
-            cesiumPlot.deletePointById(item.plotId);
-          }
-        })
+      // 初始化
+      this.currentTimePosition = 0;
+      this.currentTime = this.eqstartTime;
+      this.currentNodeIndex = 0;
+      // 从 dataSource 中删除点
+      this.plots.forEach(item => {
+        if (this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          cesiumPlot.deletePointById(item.plotId);
+        }
+      })
 
-        this.flyToCenter()
-        setTimeout(() => {
-          if(!this.isOperateTimeLine){
-            this.flashingCenter()
-          }
-        }, 3000);
+      this.flyToCenter()
+      setTimeout(() => {
+        if (!this.isOperateTimeLine) {
+          this.flashingCenter()
+        }
+      }, 3000);
       // }
     },
     async bofang() { //正向播放
-      if(!this.plotsIsReady){
+      if (!this.plotsIsReady) {
         await this.getPlotwithStartandEndTime()
         this.isfirst = false
         if (!this.isTimerRunning) { //根据次数跳出
           this.stopTimer();
           return;
-        }
-        else {
+        } else {
           let flag = this.updateCurrentTimeOnce();
-          console.log(flag,"flag")
+          console.log(flag, "flag")
           if (flag) {
             if (this.isMarkingLayer) {
 
@@ -3931,16 +3927,14 @@ export default {
             }
           }
         }
-      }
-      else{
+      } else {
         this.isfirst = false
         if (!this.isTimerRunning) { //根据次数跳出
           this.stopTimer();
           return;
-        }
-        else {
+        } else {
           let flag = this.updateCurrentTimeOnce();
-          console.log(flag,"flag")
+          console.log(flag, "flag")
           if (flag) {
             if (this.isMarkingLayer) {
 
@@ -3957,7 +3951,7 @@ export default {
     },
     updateCurrentTimeOnce() {
       let flag = 1
-      let i=this.currentNodeIndex + 1;
+      let i = this.currentNodeIndex + 1;
       // console.log("i,this.jumpNodes",i,this.jumpNodes)
       for (; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
@@ -4030,7 +4024,7 @@ export default {
      */
     async forward() {
 
-      if(!this.plotsIsReady){
+      if (!this.plotsIsReady) {
         await this.getPlotwithStartandEndTime()
         this.isfirst = false
         let flag = this.updateCurrentTimeOnce();
@@ -4044,8 +4038,7 @@ export default {
           // }
         }
         // this.isOperateTimeLine=true
-      }
-      else{
+      } else {
         this.isfirst = false
         let flag = this.updateCurrentTimeOnce();
         if (flag) {
@@ -4069,7 +4062,7 @@ export default {
      * 并更新图表显示
      */
     async backward() {
-      if(!this.plotsIsReady){
+      if (!this.plotsIsReady) {
         await this.getPlotwithStartandEndTime()
         this.isfirst = false
         let flag = 1
@@ -4121,8 +4114,7 @@ export default {
           this.updatePlotOnce("3")
         }
         // this.isOperateTimeLine=true
-      }
-      else{
+      } else {
         this.isfirst = false
         let flag = 1
         // let nextNodeIndex = null;
@@ -4181,7 +4173,7 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     async jumpToTime(event) {
-      if(!this.plotsIsReady){
+      if (!this.plotsIsReady) {
         // this.isOperateTimeLine=true
         await this.getPlotwithStartandEndTime()
         this.isfirst = false
@@ -4219,8 +4211,7 @@ export default {
             this.updatePlotOnce("3")
           }
         }
-      }
-      else{
+      } else {
         // this.isOperateTimeLine=true
         // console.log(this.isOperateTimeLine,"this.isOperateTimeLine operate")
         this.isfirst = false
@@ -4251,8 +4242,7 @@ export default {
           // 调用 intimexuanran 方法，传入地震ID
           this.intimexuanran(this.eqid)
 
-        }
-        else {
+        } else {
           if (currentTimeTmp > this.currentTime) {
             this.updatePlotOnce("3")
           } else {
@@ -4311,7 +4301,7 @@ export default {
      * 当用户释放鼠标按钮时调用此方法，以重置拖拽状态并停止监听鼠标事件
      */
     async stopDrag(time) {
-      if(!this.plotsIsReady){
+      if (!this.plotsIsReady) {
         await this.getPlotwithStartandEndTime()
         this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
         // 根据开始时间和当前节点索引计算当前时间
@@ -4344,8 +4334,7 @@ export default {
         document.body.style.MozUserSelect = 'auto';
         document.body.style.msUserSelect = 'auto';
         // this.isOperateTimeLine=true
-      }
-      else{
+      } else {
         this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
         // 根据开始时间和当前节点索引计算当前时间
         // 注意：此处将时间增量从15分钟调整为5分钟
@@ -4543,7 +4532,7 @@ export default {
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     //取消闪烁，透明度到1
-    centerMarkOpacityTo1(){
+    centerMarkOpacityTo1() {
       let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
       centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
       let smallcenterMark = smallViewer.entities.getById(this.centerPoint.plotid);
@@ -6065,7 +6054,7 @@ export default {
 
 <style scoped>
 .menue-left {
-  left: 146px;
+  left: 9%;
 }
 
 .logo-menu .logo-menu-active {
@@ -6075,7 +6064,8 @@ export default {
 .logo-menu-tittle {
   color: #fff;
   height: 3.5vh;
-  margin-right: 7px;
+  width: 4.5vw;
+  margin-right: 12px;
   margin-top: 26px;
   display: flex;
   align-items: center;
@@ -6100,12 +6090,12 @@ export default {
 
 .logo-menu {
   position: absolute;
-  top: 2px;
+  top: 6px;
   display: flex;
 }
 
 .menue-right {
-  right: 2%;
+  right: 3%;
 }
 
 .logo-left-weather {
@@ -6118,13 +6108,15 @@ export default {
 .logo-left-time {
   position: absolute;
   top: 2.3vh;
+  left: 1vw;
   width: 9vw;
 }
 
 .logo-right-time {
   position: absolute;
-  top: 18px;
-  right: 26px;
+  top: 2.3vh;
+  right: 1vw;
+  width: 9vw;
 }
 
 .logo-time-hour {
@@ -6192,14 +6184,6 @@ export default {
   font-weight: 900;
 }
 
-.right-info {
-  position: absolute;
-  top: 43px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-}
-
 .bottom-footer {
   width: 100%;
   position: absolute;
@@ -6220,7 +6204,7 @@ export default {
   background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
-.pop_right_background {
+:deep(.pop_right_background) {
   top: 13%;
   right: 1%;
   height: 80.8vh;
@@ -6228,6 +6212,7 @@ export default {
   position: absolute;
   background: rgb(4, 20, 34);
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
+  z-index: 100;
 }
 
 #box {
@@ -6462,7 +6447,8 @@ export default {
   right: 0.3%;
   position: absolute;
 }
-.thd-listTable-cesium{
+
+.thd-listTable-cesium {
   width: 22.5%;
   top: 13%;
   height: 79%;
@@ -6938,11 +6924,13 @@ export default {
   width: 100%;
   margin-top: 30px;
 }
-:deep(.eqTable){
-  bottom:-74px;
+
+:deep(.eqTable) {
+  bottom: -74px;
   height: calc(100% - 115px);
 }
-:deep(.eqList){
+
+:deep(.eqList) {
   height: calc(69vh - 100px);
 }
 </style>
