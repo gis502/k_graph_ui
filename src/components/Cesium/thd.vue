@@ -2,7 +2,11 @@
   <div>
     <!--    地震列表切换-->
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
-      <earthquakeTable :eqData="eqtableData"/>
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 900;top: 0;">
+        <damageThemeAssessment
+          :eqid="eqid">
+        </damageThemeAssessment>
+      </div>
     </div>
     <!--  态势标绘  -->
     <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
@@ -588,6 +592,7 @@ import {
 import {ElMessage, ElMessageBox} from "element-plus";
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import axios from "axios";
+import damageThemeAssessment from "./damageThemeAssessment.vue";
 import PlotSearch from "./plotSearch.vue";
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
@@ -600,6 +605,7 @@ export default {
     },
   },
   components: {
+    damageThemeAssessment,
     PlotSearch,
     timeLineCasualtyStatisticthd,
     thematicMapPreview,
@@ -4648,9 +4654,9 @@ export default {
 
       // 如果激活的组件是地震列表，则获取地震数据
       if (this.activeComponent === 'eqList') {
-        this.getEq();
+
       }
-      if (this.activeComponent == 'layerChoose') {
+      if (this.activeComponent === 'layerChoose') {
         this.removethdRegions();
         const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
         // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
