@@ -242,7 +242,7 @@ export default {
     this.init();
     this.getEq();
     // this.computeSpaceDistance()
-    this.addSlopeCanvas()
+    // this.addSlopeCanvas()
   },
   beforeUnmount() {
     console.log("111",window.viewer)
@@ -311,34 +311,34 @@ export default {
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
         "地形服务";
 
-        // const ellipsoid = viewer.scene.globe.ellipsoid;
-        // const canvas = viewer.scene.canvas;
-        // let handler = new Cesium.ScreenSpaceEventHandler(canvas);
-        //
-        // handler.setInputAction((movement) => {
-        //     let ray = viewer.camera.getPickRay(movement.position)
-        //     let position = viewer.scene.globe.pick(ray, viewer.scene)
-        //     let cartographic = Cesium.Cartographic.fromCartesian(position)
-        //     let geom = this.cartographicToGeoJSON(cartographic)
-        //     let longitude = geom.coordinates[0]
-        //     let latitude = geom.coordinates[1]
-        //     // console.log("geom----",geom)
-        //     // this.drawSite(position)
-        //     if (!this.firstClickPosition) {
-        //         this.firstClickPosition = { longitude, latitude }
-        //         // console.log("第一个点：",position)
-        //         this.drawSite(position)
-        //     } else if (!this.secondClickPosition) {
-        //         this.secondClickPosition = { longitude, latitude }
-        //         // console.log("第一个点：",position)
-        //         this.drawSite(position)
-        //         // 计算矩形的两个角点并打印
-        //         this.printRectangleCoordinates(this.firstClickPosition, this.secondClickPosition);
-        //         // 重置点击位置
-        //         this.firstClickPosition = null;
-        //         this.secondClickPosition = null;
-        //     }
-        // }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        const ellipsoid = viewer.scene.globe.ellipsoid;
+        const canvas = viewer.scene.canvas;
+        let handler = new Cesium.ScreenSpaceEventHandler(canvas);
+
+        handler.setInputAction((movement) => {
+            let ray = viewer.camera.getPickRay(movement.position)
+            let position = viewer.scene.globe.pick(ray, viewer.scene)
+            let cartographic = Cesium.Cartographic.fromCartesian(position)
+            let geom = this.cartographicToGeoJSON(cartographic)
+            let longitude = geom.coordinates[0]
+            let latitude = geom.coordinates[1]
+            // console.log("geom----",geom)
+            this.drawSite(position)
+            if (!this.firstClickPosition) {
+                this.firstClickPosition = { longitude, latitude }
+                console.log("第一个点：",position)
+                this.drawSite(position)
+            } else if (!this.secondClickPosition) {
+                this.secondClickPosition = { longitude, latitude }
+                console.log("第一个点：",position)
+                this.drawSite(position)
+                // 计算矩形的两个角点并打印
+                this.printRectangleCoordinates(this.firstClickPosition, this.secondClickPosition);
+                // 重置点击位置
+                this.firstClickPosition = null;
+                this.secondClickPosition = null;
+            }
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         let cesiumStore = useCesiumStore()
         cesiumPlot.init(window.viewer, this.websock, cesiumStore)
@@ -496,6 +496,8 @@ export default {
       // ------------------------------坡面分析---------------------------
       // 计算矩形的四个角点并打印
       printRectangleCoordinates(firstPoint, secondPoint) {
+          // console.log("firstPoint:",firstPoint)
+          // console.log("secondPoint:",secondPoint)
           const minLon = Math.min(firstPoint.longitude, secondPoint.longitude);
           const maxLon = Math.max(firstPoint.longitude, secondPoint.longitude);
           const minLat = Math.min(firstPoint.latitude, secondPoint.latitude);
@@ -513,19 +515,9 @@ export default {
           // console.log('minLat: ', minLat);
           // console.log('maxLat: ', maxLat);
 
-          // 你可以在这里绘制矩形或者进一步处理
       },
 
       drawSite(clickedPoint) {
-          let point = {
-              // id: id,
-              // position: Cesium.Cartesian3.fromDegrees(
-              //     parseFloat(clickedPoint.longitude),
-              //     parseFloat(clickedPoint.latitude),
-              //     parseFloat(clickedPoint.height)
-              // ),
-          };
-          // this.affectedPoints.push(point);
           if (window.viewer) {
               window.viewer.entities.add({
                   position: clickedPoint,
@@ -540,12 +532,12 @@ export default {
           }
       },
 
-      // addSlopeCanvas(minLon,maxLon,minLat,maxLat) {
-      addSlopeCanvas() {
+      addSlopeCanvas(minLon,maxLon,minLat,maxLat) {
+      // addSlopeCanvas() {
           // 测试区域
-          const extent = turf.square([100.64, 28.22, 100.69, 28.27]);
+          // const extent = turf.square([100.64, 28.22, 100.69, 28.27]);
           // const extent = turf.square([minLon, minLat, maxLon, maxLat]);
-          // const extent = [minLon, minLat, maxLon, maxLat]
+          const extent = [minLon, minLat, maxLon, maxLat]
           // 获取包围盒坐标
           const polygonPos = turf.getCoord(extent);
           // const polygonPos = [minLon, minLat, maxLon, maxLat];
@@ -718,13 +710,13 @@ export default {
                       extruded: true,
                       clampToGround: true,
                   })
-                      .then((contourSource) => {
-                          window.viewer.dataSources.add(contourSource);
-                          console.log("Contour lines added successfully");
-                      })
-                      .catch((error) => {
-                          console.error("Error loading GeoJSON data:", error);
-                      });
+                  .then((contourSource) => {
+                      window.viewer.dataSources.add(contourSource);
+                      console.log("Contour lines added successfully");
+                  })
+                  .catch((error) => {
+                      console.error("Error loading GeoJSON data:", error);
+                  });
               });
 
           },5000)

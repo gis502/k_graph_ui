@@ -1,16 +1,11 @@
 export const CesiumIonDefaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1ZDBjZjAxOS0wMDhhLTRmZjEtYjNmOC1iNmM2ZmY2ZmQ1N2IiLCJpZCI6MjAxMDI1LCJpYXQiOjE3MTAxNTgxNjJ9.mdbJYEzXQkBnHNqpozz7MvZjJ_X9a3JZRGPA-ytGhLI'
-// 此处TianDiTuToken是杜科申请的仅用于本项目的token，不可在其他项目中使用
-// export const TianDiTuToken = '7b6b98b997001a1c5557356e8518e3b4'
-
-
-// ------------------------------以下是个人天地图token---------------------------------------
 // export const TianDiTuToken = 'e68c91cf49452e6a652ecdb092c9b1f2'
 // export const TianDiTuToken = '9ebfec8ffbd24e62c16b0f5bdc9ff723'
 //  export const TianDiTuToken = '9ebfec8ffbd24e62c16b0f5bdc9ff723'
 // export const TianDiTuToken = '31f4628fd3dd7fa4d98dd14042665db1'
 // export const TianDiTuToken = '5977634187c7e8866476add35ace55d0'
 // export const TianDiTuToken = '34d101b55f6166c49c42aed5a7ed345c'
-export const TianDiTuToken = '4efe059892a4283e04ccaa91e98521b0'
+// export const TianDiTuToken = '4efe059892a4283e04ccaa91e98521b0'
 // export const TianDiTuToken = 'e64cb3f2a11eff8a366abdd692a776bf'
 // export const TianDiTuToken = '0b583bb1e5e6d2a461535ef92d3c23b0'
 // export const TianDiTuToken = 'a1418113598cd03e04912204871d9459'
@@ -20,7 +15,7 @@ export const TianDiTuToken = '4efe059892a4283e04ccaa91e98521b0'
 // export const TianDiTuToken = 'cffbb2b949b93a3bc71d2f1978a6779e'
 // export const TianDiTuToken = '80eb284748e84ca6c70468c906f0c889'
 // export const TianDiTuToken = '450937d952bcfa9624333a6a8217a3ba'
-export const TianDiTuToken = 'c5a9207995cd0fcb836ba65985dc1fc1'
+// export const TianDiTuToken = 'c5a9207995cd0fcb836ba65985dc1fc1'
 
 
 
