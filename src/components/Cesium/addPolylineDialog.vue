@@ -131,6 +131,7 @@ export default {
         // let form = {...this.form}
         this.$emit('wsSendPoint', JSON.stringify({type: "polyline", operate: "add", data}))
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
+        this.$emit('sendPlot', data.plot.plotId,data.plot.plotType)
         ElMessage({
           message: '添加成功',
           type: 'success',

@@ -369,7 +369,8 @@ export default class Point {
       let labeldataSource = null
       if (window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'label')) {
         labeldataSource = window.labeldataSource
-      } else {
+      }
+      else {
         labeldataSource = new Cesium.CustomDataSource("label");
         let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
         dataSourcePromise.then(function (labeldataSource) {
@@ -387,7 +388,6 @@ export default class Point {
             }
           });
 
-
           let removeListener
 
           function customStyle() {
@@ -397,6 +397,7 @@ export default class Point {
             } else {
               let removeListener = labeldataSource.clustering.clusterEvent.addEventListener(
                   function (clusteredEntities, cluster) {
+                    cluster.label.show = false;
                     // 创建 Canvas 标签
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
@@ -557,6 +558,7 @@ export default class Point {
                           // 隐藏 Cesium 默认的标签
                           cluster.label.show = false;
                         } else {
+                          cluster.label.show = false;
                         }
                       } catch (error) {
                         // 捕获 Cesium 的内部报错，避免控制台输出
@@ -695,6 +697,9 @@ export default class Point {
         depthTest: false, // 禁止深度测试
         disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
       },
+      properties: {
+        data
+      }
     });
   }
 

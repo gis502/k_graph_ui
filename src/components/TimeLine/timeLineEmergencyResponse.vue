@@ -9,7 +9,7 @@
       <div class="sub-main">
         <ul class="sub-ul">
           <li :class="[i === 0 || i === 1 ? 'high' : '']"
-              v-for="(item, i) in responseHistory"
+              v-for="(item, i) in responseShow"
           >
             <div class="pop_content">
               <p class="pop_txt"><span>{{ item.time }}</span></p>
@@ -36,6 +36,7 @@ export default {
     return {
       EmergencyResponseResponsecontent: [],
       responseHistory: [],
+      responseShow:[],
       responseNewPanelShow: [],
       recordTime: '',
       showNewPanel: false,
@@ -72,7 +73,27 @@ export default {
       const activities = await this.EmergencyResponseResponsecontent.filter(activity => {
         return new Date(activity.responseTime) <= currentTime;
       });
-
+      if (activities.length > 0){
+        activities.sort((a, b) => {
+          if (a.responseTime < b.responseTime) return -1;
+          return 0;
+        });
+      }
+      console.log(activities,"activities")
+      this.responseShow=[]
+      // console.log("this.responseShow clear",this.responseShow)
+      for(let i =0;i<activities.length;i++){
+        // console.log("activities[i]",i,activities[i],activities[i].responseTime)
+        let tmpact = {
+          ResponseName: activities[i].level,
+          state: activities[i].status,
+          department: activities[i].unit,
+          time: this.timestampToTimeChina(activities[i].responseTime),
+        }
+        this.responseShow.unshift(tmpact)
+      }
+      console.log("this.responseShow",this.responseShow)
+      // this.responseShow
       if (currentTime === this.eqstartTime) {
         this.responseNewPanelShow = []
         this.responseHistory = []
@@ -82,13 +103,9 @@ export default {
         this.showNewPanel = false
       }
       else {
-        if (activities.length > 0){
-          activities.sort((a, b) => {
-            if (a.responseTime < b.responseTime) return -1;
-            if (a.responseTime > b.responseTime) return 1;
-            return 0;
-          });
-        }
+
+
+        // console.log(activities,"activities.sort")
         //没有更新
         if (this.responseHistory.length == activities.length) {
           this.showNewPanel = false
@@ -106,25 +123,57 @@ export default {
             }
             this.responseHistory.push(tmpact)
           })
-        }
+
+          // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {
+          //   // 将时间字符串转换为日期对象
+          //   const dateA = new Date(a.time.replace(/年|月|日/g, '-'));
+          //   const dateB = new Date(b.time.replace(/年|月|日/g, '-'));
+          //
+          //   // 比较日期对象
+          //   return dateA - dateB;
+          // });
+          // console.log( responseHistorytmp," this.responseHistory after")
+       }
         //前进
         else {
           this.showNewPanel = true
           this.responseNewPanelShow = []
+          // let responseNewPanelShowtmp = []
+          // console.log(activities[0],"activities0")
           // 到目前为止所有
-          activities.forEach(item => {
-            if (!this.existsInresponseHistory(item)) {
-              console.log(item, "notexit")
+          // activities
+          for(let i=activities.length-1;i>=0;i--){
+            if (!this.existsInresponseHistory(activities[i])) {
               let tmpact = {
-                ResponseName: item.level,
-                state: item.status,
-                department: item.unit,
-                time: this.timestampToTimeChina(item.responseTime),
+                ResponseName: activities[i].level,
+                state: activities[i].status,
+                department: activities[i].unit,
+                time: this.timestampToTimeChina(activities[i].responseTime),
               }
               this.responseHistory.push(tmpact)
               this.responseNewPanelShow.push(tmpact)
+              // responseNewPanelShowtmp.push(tmpact)
             }
-          })
+          }
+          console.log( this.responseHistory," this.responseHistory before")
+          // 假设this.responseHistory是一个Proxy包装的数组
+          // let arr=[]
+          // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {
+          //   // 将时间字符串转换为日期对象
+          //   const dateA = new Date(a.time.replace(/年|月|日/g, '-'));
+          //   const dateB = new Date(b.time.replace(/年|月|日/g, '-'));
+          //
+          //   // 比较日期对象
+          //   return dateA - dateB;
+          // });
+          // console.log( responseHistorytmp," this.responseHistory after")
+          // console.log(this.responseNewPanelShow,"this.responseNewPanelShow before")
+          // this.responseNewPanelShow.sort((a, b) => {
+          //     if (a.time < b.time) return -1;
+          //     return 0;
+          //   });
+          // // 假设this.responseHistory是您提供的数组
+          // console.log(this.responseNewPanelShow,"this.responseNewPanelShow after")
         }
       }
 
