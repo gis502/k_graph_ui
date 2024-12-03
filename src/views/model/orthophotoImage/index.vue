@@ -19,7 +19,9 @@
         :stripe="true"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
+        style="table-layout: fixed; width: 100%;"
     >
+      <!-- 序号列 -->
       <el-table-column
           label="序号"
           align="center"
@@ -30,24 +32,27 @@
         </template>
       </el-table-column>
 
+      <!-- 正射影像名称列 -->
       <el-table-column
           prop="name"
           label="正射影像名称"
-          width="350"
+          :min-width="200"
           align="center"
       ></el-table-column>
 
+      <!-- 正射影像路径列 -->
       <el-table-column
           prop="path"
           label="正射影像路径"
-          width="600"
+          :min-width="250"
           align="center"
       ></el-table-column>
 
+      <!-- 添加时间列 -->
       <el-table-column
           prop="createTime"
           label="添加时间"
-          width="300"
+          :min-width="200"
           align="center"
       >
         <template #default="{ row }">
@@ -55,10 +60,11 @@
         </template>
       </el-table-column>
 
+      <!-- 操作列 -->
       <el-table-column
           label="操作"
           align="center"
-          width="250"
+          :min-width="250"
       >
         <template #default="{ row }">
           <el-button
@@ -86,6 +92,7 @@
         </template>
       </el-table-column>
     </el-table>
+
 
     <!--分页按钮-->
     <el-pagination
