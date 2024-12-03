@@ -147,7 +147,7 @@ export default {
           console.log("klo")
           this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "add", data}))
         }
-
+        this.$emit('sendPlot', data.plot.plotId,data.plot.plotType)
         ElMessage({
           message: '添加成功',
           type: 'success',
