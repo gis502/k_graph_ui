@@ -120,16 +120,19 @@
         @drawPoints="drawPoints"
         @ifPointAnimate="ifPointAnimation"
         @clearMarkDialogForm="resetAddMarkCollection"
+        @sendPlot="sendPlot"
       />
       <addPolylineDialog
         :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
         @wsSendPoint="wsSendPoint"
         @clearMarkDialogForm="resetPolyline"
+        @sendPlot="sendPlot"
       />
       <addPolygonDialog
         :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
         @wsSendPoint="wsSendPoint"
         @clearMarkDialogForm="resetPolygon"
+        @sendPlot="sendPlot"
       />
       <commonPanel
         :visible="popupVisible"
@@ -267,6 +270,7 @@
     <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
     <plotSearch
       :eqid ="eqid"
+      :plotArray="plotArray"
     ></plotSearch>
 
 
@@ -478,6 +482,9 @@ export default {
       isShowMessageIcon: false,
       messageIcon: '',
       queryParams:'',  // 搜索框关键字
+
+      //--------------搜索框内容更新--
+      plotArray: [],
 
     };
   },
@@ -2526,7 +2533,7 @@ export default {
     resetAddMarkCollection() {
       let cesiumStore = useCesiumStore()
       new Promise((resolve, reject) => {
-        // 1-1 先清空store中的数据，这时触发监听，因为是异步，所以用promise写成同步进行
+        // 1-1 先清空store中的数据，这时触发监听，因为是异步，所以用promise写成同s进行
         cesiumStore.clearData()
         resolve()
       }).then(res => {
@@ -2665,6 +2672,17 @@ export default {
 
     //------------------------------------------------------------------------------
 
+    sendPlot(plotId,plotType){
+      // 初始化存储的数组
+      if (!this.plotArray) {
+        this.plotArray = [];
+      }
+      // 将 plotId 和 plotInfo 作为对象存储在数组中
+      const plotData = { plotId, plotType };
+      this.plotArray = plotData;
+      console.log("plotArray",this.plotArray)
+
+    },
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
     isTerrainLoaded() {
