@@ -14,7 +14,7 @@
     <el-col>
       <div class="newColCommon">
         <img src="@/assets/经纬度.png" class="icon" />
-        <span>震中经纬：东经{{ longitude }}度 北纬{{ latitude }}度</span>
+        <span>震中经纬：东经{{ Number(longitude).toFixed(2) }}度 北纬{{  Number(latitude).toFixed(2) }}度</span>
       </div>
     </el-col>
     <el-col>

@@ -644,6 +644,7 @@ onMounted(async () => {
   handlePopulationData(); // 处理人口数据
   window.addEventListener('resize', resizeChart); // 监听窗口大小变化
   resumeSlide();
+  getEqInfo(props.lastEq.eqid)
   // getEqInfo()
 });
 
