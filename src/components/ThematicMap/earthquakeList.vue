@@ -147,9 +147,10 @@ export default {
           name: '震区基本情况报告',
           path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'
         },
-          {
-              name: '分析研判组件'
-          }
+          // 没写，先注释掉
+          // {
+          //     name: '分析研判组件'
+          // }
       ],
       filteredEqData: [],
       pagedEqData: [],
