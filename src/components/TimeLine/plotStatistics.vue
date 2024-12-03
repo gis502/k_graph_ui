@@ -509,7 +509,7 @@ export default {
       let start = this.option.dataZoom[0].startValue + 1
       let end = this.option.dataZoom[0].endValue + 1
       this.scrollInterval = setInterval(() => {
-        console.log("scrollInterval start end", start, end)
+        // console.log("scrollInterval start end", start, end)
         this.chart.setOption({
           dataZoom: [
             //拖拽滚动条滚动

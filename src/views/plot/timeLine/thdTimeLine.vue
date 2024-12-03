@@ -85,12 +85,20 @@
           <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
         <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <span class="speedButton">{{ speedOption }}</span>
-        <div class="chooseSpeed">
-          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">
-            {{ option }}
-          </option>
+        <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
+          <span class="speedButton">{{ speedOption }}</span>
+          <div class="chooseSpeed" v-if="showSpeedOptions">
+            <option
+                v-for="option in speedOptions"
+                :key="option"
+                @click.stop="selectSpeed(option)"
+                class="speed-option"
+            >
+              {{ option }}
+            </option>
+          </div>
         </div>
+
       </div>
 
       <!--      时间点-->
@@ -120,9 +128,7 @@
             @addJumpNodes="addJumpNodes"
         />
         <div>
-<!--          <div class="personbutton" v-if="PersoonnelCasuality===1">-->
-<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=2">详情</el-button>-->
-<!--          </div>-->
+
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
               :eqid="eqid"
@@ -130,17 +136,7 @@
               @addJumpNodes="addJumpNodes"
           />
         </div>
-<!--        <div>-->
-<!--          <div class="personbutton" v-if="PersoonnelCasuality===2">-->
-<!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>-->
-<!--          </div>-->
-<!--          <timeLineCasualtyStatisticthd-->
-<!--              v-if="PersoonnelCasuality===2"-->
-<!--              :zoomLevel="zoomLevel"-->
-<!--              :pointsLayer="pointsLayer"-->
-<!--              :currentTime="currentTime"-->
-<!--          />-->
-<!--        </div>-->
+
         <!--   救援出队-左下   -->
         <timeLineRescueTeam
             v-if="eqyear"
@@ -355,7 +351,7 @@ export default {
       //时间轴当前前进步
       // currentNodeIndex: 2076,
       currentNodeIndex: 0,
-      realtimeinterval: null,
+      // realtimeinterval: null,
       // intervalId: null,
       eqendtimeinterval: null,
       // 倍速
@@ -457,10 +453,9 @@ export default {
         lon:null,
         lat:null
       },//视角中心坐标
-      PersoonnelCasuality:1,
 
       plotsIsReady:false,//是否已经请求到标绘数据
-      isOperateTimeLine:false,//初始化的时候如果做了其他时间轴交互操作，不执行动画
+      // isOperateTimeLine:false,//初始化的时候如果做了其他时间轴交互操作，不执行动画
     };
   },
   created() {
@@ -740,9 +735,10 @@ export default {
 
     },
     wsAdd(type, data) {
+      console.log(data,"new plot")
       this.plots.push(data.plot)
       console.log(this.plots,"this.plots")
-      this.plotisshow[data.plot]=1
+      this.plotisshow[data.plot.plotId]=1
       if (type === "point") {
         let points = [];
         let point = {
@@ -921,6 +917,7 @@ export default {
               }
               // 更新结束时间和当前时间
               this.eqendTime = new Date()
+              this.currentTime=this.eqendTime
             }, 1000);
           }
         }
@@ -1017,8 +1014,8 @@ export default {
       });
     },
     updatePlotOnce(type) {
-      this.isOperateTimeLine=false
-      console.log(this.isOperateTimeLine,"this.isOperateTimeLine updatePlotOnce")
+      // this.isOperateTimeLine=false
+      // console.log(this.isOperateTimeLine,"this.isOperateTimeLine updatePlotOnce")
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
       // --------------------------点绘制------------------------------
@@ -1253,9 +1250,10 @@ export default {
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     // 暂停播放切换
     toggleTimer() {
-
       // 如果计时器未运行，则初始化计时器线
       if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
+
+        console.log("toggleTimer1")
         this.isTimerRunning = true
         this.initTimerLine();
         let that=this
@@ -1267,9 +1265,11 @@ export default {
           this.flyToCenter()
           this.isTimerRunning = true
           this.bofang();
+          console.log("toggleTimer2")
         }
         // 如果计时器正在运行，则停止计时器
         else {
+          console.log("toggleTimer3")
           this.stopTimer();
           clearInterval(this.intervalIdcolor)
           this.centerMarkOpacityTo1()
@@ -1291,8 +1291,8 @@ export default {
       // 标记计时器为运行状态
       this.isTimerRunning = true;
       // console.log(this.isOperateTimeLine,"this.isOperateTimeLine init")
-      if(!this.isOperateTimeLine){
-        // 初始化
+      // if(!this.isOperateTimeLine){
+            // 初始化
         this.currentTimePosition = 0;
         this.currentTime = this.eqstartTime;
         this.currentNodeIndex = 0;
@@ -1303,28 +1303,27 @@ export default {
             cesiumPlot.deletePointById(item.plotId);
           }
         })
+        console.log(this.currentTimePosition,"this.currentTimePosition")
 
         this.flyToCenter()
         setTimeout(() => {
-          if(!this.isOperateTimeLine){
+          // if(!this.isOperateTimeLine){
             this.flashingCenter()
-          }
+          // }
         }, 3000);
-      }
+      // }
     },
-    bofang() { //正向播放
-      // console.log(this.isOperateTimeLine,"this.isOperateTimeLine bofang")
-      // console.log("bofang")
-      console.log(" window.pointDataSource", window.pointDataSource)
-      console.log(" window.pointDataSource", window.labeldataSource)
-      this.isfirst = false
-      if (!this.isTimerRunning) { //根据次数跳出
-        this.stopTimer();
-        return;
-      }
-      else {
+    async bofang() { //正向播放
+      if(!this.plotsIsReady){
+        await this.getPlotwithStartandEndTime()
+        this.isfirst = false
+        if (!this.isTimerRunning) { //根据次数跳出
+          this.stopTimer();
+          return;
+        }
+        else {
           let flag = this.updateCurrentTimeOnce();
-        console.log(flag,"flag")
+          console.log(flag,"flag")
           if (flag) {
             if (this.isMarkingLayer) {
 
@@ -1336,11 +1335,36 @@ export default {
               this.MarkingLayerRemove()
             }
           }
+        }
       }
+      else{
+        this.isfirst = false
+        if (!this.isTimerRunning) { //根据次数跳出
+          this.stopTimer();
+          return;
+        }
+        else {
+          let flag = this.updateCurrentTimeOnce();
+          console.log(flag,"flag")
+          if (flag) {
+            if (this.isMarkingLayer) {
+
+              this.updatePlotOnce(true)
+              setTimeout(() => {
+                this.bofang();
+              }, this.stopTimeforAddEntityOneIndex);
+            } else {
+              this.MarkingLayerRemove()
+            }
+          }
+        }
+      }
+
     },
     updateCurrentTimeOnce() {
       let flag = 1
       let i=this.currentNodeIndex + 1;
+      // console.log("i,this.jumpNodes",i,this.jumpNodes)
       for (; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
@@ -1348,11 +1372,9 @@ export default {
           break;
         }
       }
-        // console.log("i,this.timelineAdvancesNumber", i, this.timelineAdvancesNumber)
+
         if (i >= this.timelineAdvancesNumber) {
           flag = 0
-          // console.log("over")
-          // console.log("this.currentTime", this.currentTime, this.eqendTime)
           this.currentTimePosition = 100;
           this.currentNodeIndex = this.timelineAdvancesNumber
           this.currentTime = this.eqendTime
@@ -1427,7 +1449,7 @@ export default {
           }
           // }
         }
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
       }
       else{
         this.isfirst = false
@@ -1441,7 +1463,7 @@ export default {
           }
           // }
         }
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
       }
     },
 
@@ -1504,7 +1526,7 @@ export default {
           // 根据是否需要显示标绘层来更新图层
           this.updatePlotOnce("3")
         }
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
       }
       else{
         this.isfirst = false
@@ -1556,7 +1578,7 @@ export default {
           // 根据是否需要显示标绘层来更新图层
           this.updatePlotOnce("3")
         }
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
       }
     },
 
@@ -1566,7 +1588,7 @@ export default {
      */
     async jumpToTime(event) {
       if(!this.plotsIsReady){
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
         await this.getPlotwithStartandEndTime()
         this.isfirst = false
         let currentTimeTmp = this.currentTime
@@ -1605,8 +1627,8 @@ export default {
         }
       }
       else{
-        this.isOperateTimeLine=true
-        console.log(this.isOperateTimeLine,"this.isOperateTimeLine operate")
+        // this.isOperateTimeLine=true
+        // console.log(this.isOperateTimeLine,"this.isOperateTimeLine operate")
         this.isfirst = false
         let currentTimeTmp = this.currentTime
         // 获取时间轴的矩形区域，用于计算点击位置对应的进度
@@ -1727,7 +1749,7 @@ export default {
         document.body.style.WebkitUserSelect = 'auto';
         document.body.style.MozUserSelect = 'auto';
         document.body.style.msUserSelect = 'auto';
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
       }
       else{
         this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
@@ -1760,7 +1782,7 @@ export default {
         document.body.style.WebkitUserSelect = 'auto';
         document.body.style.MozUserSelect = 'auto';
         document.body.style.msUserSelect = 'auto';
-        this.isOperateTimeLine=true
+        // this.isOperateTimeLine=true
       }
 
     },
@@ -1776,6 +1798,7 @@ export default {
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
+      this.showSpeedOptions = false
     },
 
     addJumpNodes(val) {
@@ -2692,13 +2715,9 @@ export default {
     },
 
     clearResource(viewer) {
-      // this.stopTimer();
       this.isTimerRunning = false;
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
-      // window.pointDataSource.entities.removeAll()
-      // window.labeldataSource.entities.removeAll()
-      // viewer.scene.primitives.removeAll()
       // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
       viewer.destroy()
       gl.getExtension("WEBGL_lose_context").loseContext();
@@ -2997,13 +3016,6 @@ export default {
   cursor: pointer;
 }
 
-#speedSelect {
-  left: -103px;
-  position: relative;
-  padding: 5px;
-  font-size: 14px;
-}
-
 
 .time-ruler {
   position: relative;
@@ -3017,34 +3029,55 @@ export default {
   flex-direction: row;
 }
 
-.speedButton {
-  position: relative;
-  left: 105%;
-  color: white;
-  top: -50%;
-}
-
-/* 原有的 chooseSpeed 样式 */
-.chooseSpeed {
-  width: 40px;
-  height: 60px;
+.speed-selector {
   position: absolute;
-  padding: 0 0px 5px;
-  border-radius: 3px;
-  top: -65px;
-  left: 97%;
-  z-index: 30; /* 更高的层级 */
-  background-color: rgba(40, 40, 40, 0.7);
-  color: white;
-  text-align: center;
-  display: none; /* 默认隐藏 */
+  cursor: pointer;
+  display: inline-block;
+  right: -12%;
+  bottom: -50%;
 }
 
-/* 当 mouse hover speedButton 时显示 chooseSpeed */
-.speedButton:hover + .chooseSpeed,
-.chooseSpeed:hover {
-  display: block;
+.speedButton {
+  padding: 2px 20px;
+  background-color: #dddddd; /* 蓝色背景 */
+  border-radius: 30px; /* 椭圆框 */
+  text-align: center;
+  color: #1b6cd0; /* 文字颜色 */
+
 }
+
+.chooseSpeed {
+  position: absolute;
+  bottom: 100%; /* 向上展开 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  background-color: #dddddd; /* 蓝色背景 */
+  padding: 5px 0;
+  border-radius: 6px; /* 椭圆框 */
+  min-width: 100%; /* 确保下拉菜单宽度至少与按钮一样宽 */
+  z-index: 1000; /* 确保下拉菜单在最上层 */
+}
+
+.speed-option {
+  padding: 2px 20px;
+  color: #1b6cd0; /* 文字颜色 */
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.speed-option:hover,
+.speed-option:focus {
+  background-color: #71a8e3; /* 蓝色背景 */
+}
+
+.speed-option.selected {
+  background-color: #71a8e3; /* 选中项更深的蓝色 */
+}
+
 
 .time-ruler-line {
   position: absolute;
@@ -3078,32 +3111,6 @@ export default {
   /*transition: left 0.1s ease;*/
 }
 
-.time-node {
-  position: absolute;
-  height: 10px;
-  width: 10px;
-  border-radius: 60%;
-  cursor: pointer;
-  top: 0; /* 调整位置使其位于时间轴上方 */
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.tmp {
-  position: absolute;
-  top: 0%;
-  width: 100%;
-  height: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  right: 0%;
-  z-index: 1;
-  background-color: rgba(40, 40, 40, 0.3);
-}
-
 .button-container {
   position: absolute;
   z-index: 20;
@@ -3112,12 +3119,6 @@ export default {
 }
 
 
-.personbutton {
-  position: absolute;
-  z-index: 60;
-  top: 20.5%;
-  left: 31%;
-}
 
 :deep(.el-button--primary) {
   border-color: #ffffff; /* 白色边框 */
