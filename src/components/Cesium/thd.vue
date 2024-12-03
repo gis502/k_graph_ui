@@ -6663,7 +6663,7 @@ export default {
   flex: 1;
   overflow: hidden;
   position: relative;
-  background-color: rgb(23, 54, 76);
+  background-color: rgba(23, 54, 76, 0);
 }
 
 /* 设置“图层要素”样式 */
@@ -6938,6 +6938,7 @@ export default {
 :deep(.pagination) {
   z-index: 999;
   width: 100%;
+  border-color: #05709d;
   background: rgb(4, 20, 34);
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
