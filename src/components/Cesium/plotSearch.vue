@@ -251,7 +251,7 @@ export default {
     this.fetch()
     // this.getPlot(this.eqid)
   },
-  methods: {
+  methods : {
     // 根据父组件传值来判断调用哪些专题图
     fetch() {
       if (this.thematicMapClass === 'DisasterDamageAssessment') {
