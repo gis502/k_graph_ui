@@ -4,40 +4,18 @@
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
       <earthquakeTable :eqData="eqtableData"/>
     </div>
-    <!--  三维模型  -->
-    <div class="thd-listTable" v-if="activeComponent === 'model'">
-      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="list-dialog__header">
-          <span>三维模型</span>
-        </div>
-        <div class="list-dialog__content" style="height: calc(100% - 30);">
-          <el-table :data="modelTableData"
-                    style="width: 100%; margin-bottom: 2px;height: 32vw;"
-                    :header-cell-style="tableHeaderColor"
-                    :row-style="{ height: '37.5px', fontSize: '12px'}"
-                    :cell-style="tableColor" @row-click="">
-
-            <el-table-column prop="name" label="模型名称" width="auto" min-width="130px"
-                             show-overflow-tooltip></el-table-column>
-            <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
-
-              <template #default="scope">
-                <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div>
-            <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="modelCurrentPage"
-                :page-size="modelPageSize"
-                layout="total, prev, pager, next, jumper"
-                :total="ModelTotal">
-            </el-pagination>
-          </div>
-        </div>
+    <!--  态势标绘  -->
+    <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
+      <div class="list-dialog__content" style="height: calc(100% - 30);">
+        <timeLineCasualtyStatisticthd
+            :zoomLevel="zoomLevel"
+            :pointsLayer="pointsLayer"
+            :currentTime="currentTime"
+        />
       </div>
+      <plotSearch
+          :eqid ="eqid"
+      ></plotSearch>
     </div>
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
       <div class="list-dialog" style="width: 100%; height: 100%; z-index: 900;">
@@ -367,10 +345,10 @@
 <!--            <el-button class="el-button&#45;&#45;primary" size="small" @click="PersoonnelCasuality=1">返回</el-button>-->
 <!--          </div>-->
 <!--          <timeLineCasualtyStatisticthd-->
-<!--              v-if="PersoonnelCasuality===2"-->
-<!--              :zoomLevel="zoomLevel"-->
-<!--              :pointsLayer="pointsLayer"-->
-<!--              :currentTime="currentTime"-->
+<!--            v-if="PersoonnelCasuality===2"-->
+<!--            :zoomLevel="zoomLevel"-->
+<!--            :pointsLayer="pointsLayer"-->
+<!--            :currentTime="currentTime"-->
 <!--          />-->
 <!--        </div>-->
         <!--   救援出队-左下   -->
@@ -555,6 +533,7 @@ import {
 import {initWebSocket} from '@/cesium/WS.js'
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
+import PlotSearch from "./plotSearch.vue";
 
 
 export default {
@@ -564,6 +543,7 @@ export default {
     },
   },
   components: {
+    PlotSearch,
     timeLineCasualtyStatisticthd,
     thematicMapPreview,
     RouterPanel,
@@ -3799,6 +3779,14 @@ export default {
   right: 0.3%;
   position: absolute;
 }
+.thd-listTable-cesium{
+  width: 22.5%;
+  top: 13%;
+  height: 79%;
+  z-index: 30;
+  right: 0.3%;
+  position: absolute;
+}
 
 .dropdown {
   background-color: #333832;
@@ -4232,5 +4220,11 @@ export default {
   width: 30%;
   height: 30px;
 }
-
+:deep(.eqTable){
+  bottom:-74px;
+  height: calc(100% - 115px);
+}
+:deep(.eqList){
+  height: calc(69vh - 100px);
+}
 </style>
