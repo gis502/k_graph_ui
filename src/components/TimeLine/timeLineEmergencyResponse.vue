@@ -79,7 +79,7 @@ export default {
           return 0;
         });
       }
-      console.log(activities,"activities")
+      // console.log(activities,"activities")
       this.responseShow=[]
       // console.log("this.responseShow clear",this.responseShow)
       for(let i =0;i<activities.length;i++){
@@ -92,7 +92,7 @@ export default {
         }
         this.responseShow.unshift(tmpact)
       }
-      console.log("this.responseShow",this.responseShow)
+      // console.log("this.responseShow",this.responseShow)
       // this.responseShow
       if (currentTime === this.eqstartTime) {
         this.responseNewPanelShow = []
@@ -155,7 +155,7 @@ export default {
               // responseNewPanelShowtmp.push(tmpact)
             }
           }
-          console.log( this.responseHistory," this.responseHistory before")
+          // console.log( this.responseHistory," this.responseHistory before")
           // 假设this.responseHistory是一个Proxy包装的数组
           // let arr=[]
           // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {

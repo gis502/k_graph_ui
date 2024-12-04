@@ -287,8 +287,8 @@ const initCharts = () => {
 
 
   // 经济柱状图图初始化（保持之前逻辑）
-  console.log("解构经济提取数据countyDistrict:", datas.value.countyDistrict);
-  console.log("解构经济提取数据datas:", datas.value);
+  // console.log("解构经济提取数据countyDistrict:", datas.value.countyDistrict);
+  // console.log("解构经济提取数据datas:", datas.value);
   lineChartInstance = echarts.init(lineChart.value);
 
 // 找到与 props.earthquakeName 匹配的县区的下标
