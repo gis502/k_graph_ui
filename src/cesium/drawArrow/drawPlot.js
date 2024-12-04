@@ -217,6 +217,7 @@ const arrow = {
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
     clearById: function (id) {
+        console.log("clearById arrow")
         var $this = this;
         for (var i = 0; i < $this.drawArr.length; i++) {
             if (id === $this.drawArr[i].objId) {

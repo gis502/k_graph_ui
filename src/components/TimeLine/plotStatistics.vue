@@ -354,7 +354,7 @@ export default {
         return;
       }
       this.dataInTimeAndZoom = []
-      console.log(this.dataIntime, "this.dataIntime")
+      // console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
 
       // console.log(this.viewCenterCoordinate,originalArray,"originalArray")

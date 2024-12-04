@@ -236,8 +236,6 @@ import timeLineCasualtyStatistic from "@/components/TimeLine/timeLineCasualtySta
 import MiniMap from "@/components/TimeLine/miniMap.vue";
 import News from "@/components/TimeLine/news.vue";
 import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
-
-//报告产出
 import fileUrl from "@/assets/json/TimeLine/芦山地震人员伤亡态势专题报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
 import eqTable from '@/components/Home/eqtable.vue'
@@ -247,8 +245,6 @@ import {getFeaturesLayer} from "@/api/system/emergency.js";
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../../cesium/plot/eqThemes.js";
-
-//专题图
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {initWebSocket} from "@/cesium/WS.js";
@@ -259,7 +255,6 @@ import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
 import axios from "axios";
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
-
 export default {
   components: {
     timeLineCasualtyStatisticthd,
@@ -449,13 +444,11 @@ export default {
       intervalIdcolor: null,
       isfirst: false,  //控制应急响应面板的弹出框的
 
-      viewCenterCoordinate:{
-        lon:null,
-        lat:null
+      viewCenterCoordinate: {
+        lon: null,
+        lat: null
       },//视角中心坐标
 
-      plotsIsReady:false,//是否已经请求到标绘数据
-      // isOperateTimeLine:false,//初始化的时候如果做了其他时间轴交互操作，不执行动画
     };
   },
   created() {
@@ -504,7 +497,6 @@ export default {
       updateTime();
       setInterval(updateTime, 1000);
     },
-
     // 初始化控件等
     init() {
       this.isfirst = true
@@ -670,157 +662,63 @@ export default {
 
     },
     initWebSocket() {
-      let that=this
+      let that = this
       this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
 
-      this.websock.onmessage = function(e) {
-        console.log("e",e)
+      this.websock.onmessage = function (e) {
+        console.log("e", e)
         try {
-          console.log("从服务器接收到的消息thdtimeline",JSON.parse(e.data))
+          console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
           let markType = JSON.parse(e.data).type
           let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
           if (markOperate === "add") {
             if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
               let markData = JSON.parse(e.data).data
-
               //标绘点
               that.wsAdd(markType, markData)
-              // data.plot.plotId
             }
           }
-
           else if (markOperate === "delete") {
-            let id = JSON.parse(e.data).id
-            this.plotisshow[id]=0
-            console.log(id, 567)
+            let id = JSON.parse(e.data).id.toString()
+            that.plotisshow[id] = 0
             if (markType === "point") {
-              // 其实只有这里有用
-              console.log(5629)
-              let polygonRemoved = window.viewer.entities.removeById(id);
-              let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
-              window.viewer.entities.removeById(id + "_polygon")
-              console.log(polygonRemoved, pointDataRemoved);
-            } else if (markType === "polyline") {
+              cesiumPlot.deletePointById(id);
+            }
+            else if (markType === "polyline") {
               let polyline = window.viewer.entities.getById(id)
               let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
               polylinePosition.pointPosition.forEach((item, index) => {
                 window.viewer.entities.remove(item)
               })
               window.viewer.entities.remove(polyline)
-            } else if (markType === "polygon") {
-              let polygon = window.viewer.entities.getById(id)
-              console.log("1123",polygon)
-              let polygonPosition = polygon.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
-              polygonPosition.linePoint.forEach((item, index) => {
-                window.viewer.entities.remove(item)
-              })
-              window.viewer.entities.remove(polygon)
-              window.viewer.entities.removeById(id + "_polygon")
-            } else if(markType === "arrow"){
-              console.log("arrow------------------")
-              arrow.clearById(id)
-              let polygonRemoved = window.viewer.entities.removeById(id);
-              let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
-
-              console.log(polygonRemoved, pointDataRemoved);
+            }
+            else if (markType === "polygon") {
+              window.viewer.entities.removeById(id)
+            }
+            else if (markType === "arrow") {
+              Arrow.clearById(id)
             }
           }
-        }
-        catch (err) {
+        } catch (err) {
           console.log(err, 'ws中catch到错误');
         }
-
       };
-
     },
     wsAdd(type, data) {
-      console.log(data,"new plot")
+      // console.log(data,"wsAdd")
       this.plots.push(data.plot)
-      console.log(this.plots,"this.plots")
-      this.plotisshow[data.plot.plotId]=1
+      this.plotisshow[data.plot.plotId] = 1
       if (type === "point") {
-        let points = [];
-        let point = {
-          earthquakeId: data.plot.earthquakeId,
-          plotId: data.plot.plotId,
-          time: data.plot.creationTime.replace("T", " "),
-          plotType: data.plot.plotType,
-          drawtype: data.plot.drawtype,
-          latitude: Number(data.plot.geom.coordinates[1]),
-          longitude: Number(data.plot.geom.coordinates[0]),
-          height: Number(data.plot.elevation),
-          icon:  data.plot.icon
-        };
-        points.push(point); // 收集点数据
-
-        cesiumPlot.drawPoints(points,true,3000);
-      } else if (type === "polyline") {
-        // 绘制所需的信息
-        let points = data.plot.geom.coordinates
-        let plotId = data.plot.plotId
-        let elevation = data.plot.elevation
-        let type = data.plot.plotType
-        let img = data.plot.icon
-        let plotType = data.plot.plotType
-        // 构成线的所有实体点
-        let pointLinePoints = []
-        for (let i = 0; i < points.length; i++) {
-          let p = window.viewer.entities.add({
-            show: false,
-            position: new Cesium.Cartesian3(points[i][0], points[i][1], elevation),
-            id: plotId + 'point' + (i + 1),
-            point: {
-              pixelSize: 1,
-              color: Cesium.Color.RED,
-              outlineWidth: 2,
-              outlineColor: Cesium.Color.DARKRED,
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-              depthTest: false,//禁止深度测试但是没有下面那句有用
-              disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-            },
-          });
-          pointLinePoints.push(p)
-        }
-        let material = getMaterial(type, img)
-        let linePostion = []
-        let linedata = [{
-          plotId: plotId,
-          plotType: plotType,
-          drawtype: "polyline",
-        }]
-        points.forEach(e => {
-          // 线的positions需要数组里的点都是Cartesian3类型
-          linePostion.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
-        })
-        window.viewer.entities.add({
-          id: plotId, //+ 'polyline',
-          polyline: {
-            positions: linePostion,
-            width: 5,
-            material: material,
-            // material: Cesium.Color.YELLOW,
-            depthFailMaterial: Cesium.Color.YELLOW,
-            clampToGround: true,
-          },
-          properties: {
-            pointPosition: pointLinePoints,
-            data: linedata
-          }
-        })
-      } else if (type === "polygon") {
-        let polygonArr = [data.plot]
-        cesiumPlot.getDrawPolygon(polygonArr);
-      }else if(type === "arrow"){
-        console.log(45678)
-
-        // let positions = []
-        // let arrowData = data.plot
-
-        // for (let i = 0; i < arrowData.geom.coordinates.length; i++) {
-        //     let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
-        //     positions.push(cart3);
-        // }
+        cesiumPlot.drawPoints(data.plot, true, 3000);
+      }
+      else if (type === "polyline") {
+        cesiumPlot.getDrawPolyline([data.plot])
+      }
+      else if (type === "polygon") {
+        cesiumPlot.getDrawPolygon([data.plot]);
+      }
+      else if (type === "arrow") {
         if(data.plot.plotType==="攻击箭头"){
           arrow.showAttackArrow([data.plot])
         }else if(data.plot.plotType==="钳击箭头"){
@@ -828,14 +726,12 @@ export default {
         }else if(data.plot.plotType==="直线箭头"){
           arrow.showStraightArrow([data.plot])
         }
-
       }
     },
     initcesiumPlot() {
       let cesiumStore = useCesiumStore()
       cesiumPlot.init(window.viewer, this.websock, cesiumStore)
     },
-
 
     /**
      * 取地震信息+开始结束当前时间初始化
@@ -857,14 +753,14 @@ export default {
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
         //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
         // this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 60 * 1000);
-        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber*5 * 60 * 1000);
+        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 5 * 60 * 1000);
         // this.realTime = new Date(); //真实时间
         //
         // 根据当前时间和地震结束时间计算时间线推进数量
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
           // this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (60 * 1000);
-          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5*60 * 1000);
+          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
           // this.currentNodeIndex = this.timelineAdvancesNumber
         } else {
           this.eqendTime = this.tmpeqendTime
@@ -917,7 +813,7 @@ export default {
               }
               // 更新结束时间和当前时间
               this.eqendTime = new Date()
-              this.currentTime=this.eqendTime
+              this.currentTime = this.eqendTime
             }, 1000);
           }
         }
@@ -978,13 +874,13 @@ export default {
         //人员伤亡详情
         this.pointsLayer = [...pointArr]
         console.log("获取 pointsLayer", this.pointsLayer)
-        this.plotsIsReady=true
+
       })
     },
     //控制视角跳转的递归函数
     flyPointsForOneIndex(points) {
-      if(this.timelinePopupVisible){
-        this.timelinePopupVisible=false
+      if (this.timelinePopupVisible) {
+        this.timelinePopupVisible = false
       }
       let timeEachPoint = 0
 
@@ -1014,8 +910,7 @@ export default {
       });
     },
     updatePlotOnce(type) {
-      // this.isOperateTimeLine=false
-      // console.log(this.isOperateTimeLine,"this.isOperateTimeLine updatePlotOnce")
+
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
       let that = this
       // --------------------------点绘制------------------------------
@@ -1061,9 +956,6 @@ export default {
           cesiumPlot.deletePointById(item.plotId);
         }
       });
-      // 批量渲染点 + 非初始化状态渲染标会点动画
-
-      console.log("points.length",points.length)
       if (points.length > 0) {
         //如果震中标绘在闪烁，取消闪烁，震中面板不显示
         if (this.timelinePopupShowCenterStrart) {
@@ -1090,13 +982,8 @@ export default {
       //--------------------------线绘制------------------------------
       // 根据当前时间和显示状态过滤并更新线条数据
       let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
-      console.log("polylineArr", polylineArr)
-
       let filteredPolylineArr = []; // 用于存储符合条件的线条数据
-
       polylineArr.forEach(item => {
-        // console.log("isshow", this.plotisshow)
-        // that.drawPolyline(item)
         const currentDate = new Date(this.currentTime);
         // console.log(currentDate)
         const startDate = new Date(item.startTime);
@@ -1119,8 +1006,6 @@ export default {
         }
 
       })
-      // console.log("filteredPolylineArr",filteredPolylineArr)
-      // 将过滤后的线条数据传递给绘制函数
       cesiumPlot.getDrawPolyline(filteredPolylineArr)
 
       //--------------------------面绘制------------------------------
@@ -1215,11 +1100,10 @@ export default {
         }
       })
       if (attackArrShow.length > 0) {
-        Arrow.showStraightArrow(attackArrShow)
+        Arrow.showAttackArrow(attackArr)
       }
 
-      // let attackArr = this.plots.filter(e => e.drawtype === 'attack');
-      // Arrow.showAttackArrow(attackArr)
+
       let pincerArrShow = []
       let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
       pincerArr.forEach(item => {
@@ -1240,11 +1124,8 @@ export default {
         }
       })
       if (pincerArrShow.length > 0) {
-        Arrow.showStraightArrow(pincerArrShow)
+        Arrow.showPincerArrow(pincerArr)
       }
-      // let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
-      // Arrow.showPincerArrow(pincerArr)
-
     },
 
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
@@ -1256,7 +1137,7 @@ export default {
         console.log("toggleTimer1")
         this.isTimerRunning = true
         this.initTimerLine();
-        let that=this
+        let that = this
         setTimeout(() => {
           that.bofang();
         }, 3000);
@@ -1265,7 +1146,7 @@ export default {
           this.flyToCenter()
           this.isTimerRunning = true
           this.bofang();
-          console.log("toggleTimer2")
+          // console.log("toggleTimer2")
         }
         // 如果计时器正在运行，则停止计时器
         else {
@@ -1281,7 +1162,6 @@ export default {
      * 启动计时器，每隔一段时间更新当前时间位置
      */
     initTimerLine() {
-      // this.isOperateTimeLine
       this.isfirst = false
       this.jumpTimes.forEach(item => {
         var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
@@ -1290,8 +1170,6 @@ export default {
       })
       // 标记计时器为运行状态
       this.isTimerRunning = true;
-      // console.log(this.isOperateTimeLine,"this.isOperateTimeLine init")
-      // if(!this.isOperateTimeLine){
       // 初始化
       this.currentTimePosition = 0;
       this.currentTime = this.eqstartTime;
@@ -1300,70 +1178,38 @@ export default {
       this.plots.forEach(item => {
         if (this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
-          cesiumPlot.deletePointById(item.plotId);
+          cesiumPlot.deleteMakerById(item.plotId,item.drawtype,item.plotType);
         }
       })
-      console.log(this.currentTimePosition,"this.currentTimePosition")
-
       this.flyToCenter()
       setTimeout(() => {
-        // if(!this.isOperateTimeLine){
         this.flashingCenter()
-        // }
       }, 3000);
-      // }
     },
-    async bofang() { //正向播放
-      if(!this.plotsIsReady){
-        await this.getPlotwithStartandEndTime()
-        this.isfirst = false
-        if (!this.isTimerRunning) { //根据次数跳出
-          this.stopTimer();
-          return;
-        }
-        else {
-          let flag = this.updateCurrentTimeOnce();
-          console.log(flag,"flag")
-          if (flag) {
-            if (this.isMarkingLayer) {
+    bofang() { //正向播放
+      this.isfirst = false
+      if (!this.isTimerRunning) { //根据次数跳出
+        this.stopTimer();
+        return;
+      } else {
+        let flag = this.updateCurrentTimeOnce();
+        console.log(flag, "flag")
+        if (flag) {
+          if (this.isMarkingLayer) {
 
-              this.updatePlotOnce(true)
-              setTimeout(() => {
-                this.bofang();
-              }, this.stopTimeforAddEntityOneIndex);
-            } else {
-              this.MarkingLayerRemove()
-            }
+            this.updatePlotOnce(true)
+            setTimeout(() => {
+              this.bofang();
+            }, this.stopTimeforAddEntityOneIndex);
+          } else {
+            this.MarkingLayerRemove()
           }
         }
       }
-      else{
-        this.isfirst = false
-        if (!this.isTimerRunning) { //根据次数跳出
-          this.stopTimer();
-          return;
-        }
-        else {
-          let flag = this.updateCurrentTimeOnce();
-          console.log(flag,"flag")
-          if (flag) {
-            if (this.isMarkingLayer) {
-
-              this.updatePlotOnce(true)
-              setTimeout(() => {
-                this.bofang();
-              }, this.stopTimeforAddEntityOneIndex);
-            } else {
-              this.MarkingLayerRemove()
-            }
-          }
-        }
-      }
-
     },
     updateCurrentTimeOnce() {
       let flag = 1
-      let i=this.currentNodeIndex + 1;
+      let i = this.currentNodeIndex + 1;
       // console.log("i,this.jumpNodes",i,this.jumpNodes)
       for (; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
@@ -1434,36 +1280,19 @@ export default {
      * @param {function} this.intimexuanran 渲染函数，根据地震ID渲染地震效果
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
-    async forward() {
+    forward() {
 
-      if(!this.plotsIsReady){
-        await this.getPlotwithStartandEndTime()
-        this.isfirst = false
-        let flag = this.updateCurrentTimeOnce();
-        if (flag) {
-          // if (this.isTimerRunning) {
-          if (this.isMarkingLayer) {
-            this.updatePlotOnce("3")
-          } else {
-            this.MarkingLayerRemove()
-          }
-          // }
+
+      this.isfirst = false
+      let flag = this.updateCurrentTimeOnce();
+      if (flag) {
+        // if (this.isTimerRunning) {
+        if (this.isMarkingLayer) {
+          this.updatePlotOnce("3")
+        } else {
+          this.MarkingLayerRemove()
         }
-        // this.isOperateTimeLine=true
-      }
-      else{
-        this.isfirst = false
-        let flag = this.updateCurrentTimeOnce();
-        if (flag) {
-          // if (this.isTimerRunning) {
-          if (this.isMarkingLayer) {
-            this.updatePlotOnce("3")
-          } else {
-            this.MarkingLayerRemove()
-          }
-          // }
-        }
-        // this.isOperateTimeLine=true
+        // }
       }
     },
 
@@ -1474,111 +1303,56 @@ export default {
      * 否则，根据当前时间位置和节点索引计算新的时间位置和实际时间
      * 并更新图表显示
      */
-    async backward() {
-      if(!this.plotsIsReady){
-        await this.getPlotwithStartandEndTime()
-        this.isfirst = false
-        let flag = 1
-        // let nextNodeIndex = null;
-        for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
-          if (this.jumpNodes[i] === 1) {
-            this.nextNodeIndex = i;
-            // console.log("this.nextNodeIndex", this.nextNodeIndex)
-            flag = 1;
-            break;
-          }
-          // console.log(i, "i")
-          if (i <= 0) {
-            flag = 0
-            // console.log("over")
-            // console.log("this.currentTime",this.currentTime,this.eqendTime)
-            this.currentTimePosition = 0;
-            this.nextNodeIndex = 0;
-            this.currentNodeIndex = 0
-            this.currentTime = this.eqstartTime
+    backward() {
 
-            this.stopTimer();
-            this.plots.forEach(item => {
-              if (this.plotisshow[item.plotId] === 1) {
-                this.plotisshow[item.plotId] = 0
-                cesiumPlot.deletePointById(item.plotId);
-              }
-            })
-
-          }
+      this.isfirst = false
+      let flag = 1
+      // let nextNodeIndex = null;
+      for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
+        if (this.jumpNodes[i] === 1) {
+          this.nextNodeIndex = i;
+          // console.log("this.nextNodeIndex", this.nextNodeIndex)
+          flag = 1;
+          break;
         }
+        // console.log(i, "i")
+        if (i <= 0) {
+          flag = 0
+          // console.log("over")
+          // console.log("this.currentTime",this.currentTime,this.eqendTime)
+          this.currentTimePosition = 0;
+          this.nextNodeIndex = 0;
+          this.currentNodeIndex = 0
+          this.currentTime = this.eqstartTime
 
-        // 停止
-        // if (this.nextNodeIndex === null) {
-        //   this.currentTimePosition = 0;
-        //   this.currentTime = this.eqstartTime
-        //   this.stopTimer();
-        //   this.isTimerRunning = false
-        // }
-        //更新到下一跳
-        if (flag === 1) {
-          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
-          // 计算时间进度条的当前位置增量
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          // 根据是否需要显示标绘层来更新图层
-          this.updatePlotOnce("3")
+          this.stopTimer();
+          this.plots.forEach(item => {
+            if (this.plotisshow[item.plotId] === 1) {
+              this.plotisshow[item.plotId] = 0
+              cesiumPlot.deletePointById(item.plotId);
+            }
+          })
+
         }
-        // this.isOperateTimeLine=true
       }
-      else{
-        this.isfirst = false
-        let flag = 1
-        // let nextNodeIndex = null;
-        for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
-          if (this.jumpNodes[i] === 1) {
-            this.nextNodeIndex = i;
-            // console.log("this.nextNodeIndex", this.nextNodeIndex)
-            flag = 1;
-            break;
-          }
-          // console.log(i, "i")
-          if (i <= 0) {
-            flag = 0
-            // console.log("over")
-            // console.log("this.currentTime",this.currentTime,this.eqendTime)
-            this.currentTimePosition = 0;
-            this.nextNodeIndex = 0;
-            this.currentNodeIndex = 0
-            this.currentTime = this.eqstartTime
 
-            this.stopTimer();
-            this.plots.forEach(item => {
-              if (this.plotisshow[item.plotId] === 1) {
-                this.plotisshow[item.plotId] = 0
-                cesiumPlot.deletePointById(item.plotId);
-              }
-            })
-
-          }
-        }
-
-        // 停止
-        // if (this.nextNodeIndex === null) {
-        //   this.currentTimePosition = 0;
-        //   this.currentTime = this.eqstartTime
-        //   this.stopTimer();
-        //   this.isTimerRunning = false
-        // }
-        //更新到下一跳
-        if (flag === 1) {
-          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
-          // 计算时间进度条的当前位置增量
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          // 根据是否需要显示标绘层来更新图层
-          this.updatePlotOnce("3")
-        }
-        // this.isOperateTimeLine=true
+      // 停止
+      // if (this.nextNodeIndex === null) {
+      //   this.currentTimePosition = 0;
+      //   this.currentTime = this.eqstartTime
+      //   this.stopTimer();
+      //   this.isTimerRunning = false
+      // }
+      //更新到下一跳
+      if (flag === 1) {
+        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+        // 计算时间进度条的当前位置增量
+        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+        this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // 根据是否需要显示标绘层来更新图层
+        this.updatePlotOnce("3")
       }
     },
 
@@ -1586,86 +1360,43 @@ export default {
      * 根据用户点击的时间轴位置，跳转到相应的场景
      * @param {MouseEvent} event - 鼠标点击事件
      */
-    async jumpToTime(event) {
-      if(!this.plotsIsReady){
-        // this.isOperateTimeLine=true
-        await this.getPlotwithStartandEndTime()
-        this.isfirst = false
-        let currentTimeTmp = this.currentTime
-        // 获取时间轴的矩形区域，用于计算点击位置对应的进度
-        const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
-        // 计算点击位置相对于时间轴左边缘的距离
-        const clickedPosition = event.clientX - timeRulerRect.left;
-        // 根据点击位置计算当前时间进度的百分比
-        this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
-        // 更新时间进度条的宽度，以反映当前时间进度
-        this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
-        // 根据当前时间进度百分比和总步骤数计算当前步骤索引
-        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
-        // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
-        // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // console.log("this.currentTime jumpToTime",this.currentTime)
-        if (this.currentTimePosition >= 100) {
-          // 当时间进度达到或超过100%时，重置为100%
-          this.currentTimePosition = 100;
-          // 设置当前时间为结束时间
-          this.currentTime = this.eqendTime
-          // 停止计时器
-          this.stopTimer();
-          // 更新计时器运行状态标志为false
-          this.isTimerRunning = false
-          // 调用 intimexuanran 方法，传入地震ID
-          this.intimexuanran(this.eqid)
+    jumpToTime(event) {
+      this.isfirst = false
+      let currentTimeTmp = this.currentTime
+      // 获取时间轴的矩形区域，用于计算点击位置对应的进度
+      const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
+      // 计算点击位置相对于时间轴左边缘的距离
+      const clickedPosition = event.clientX - timeRulerRect.left;
+      // 根据点击位置计算当前时间进度的百分比
+      this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
+      // 更新时间进度条的宽度，以反映当前时间进度
+      this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
+      // 根据当前时间进度百分比和总步骤数计算当前步骤索引
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
+      // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
+      // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // console.log("this.currentTime jumpToTime",this.currentTime)
+      if (this.currentTimePosition >= 100) {
+        // 当时间进度达到或超过100%时，重置为100%
+        this.currentTimePosition = 100;
+        // 设置当前时间为结束时间
+        this.currentTime = this.eqendTime
+        // 停止计时器
+        this.stopTimer();
+        // 更新计时器运行状态标志为false
+        this.isTimerRunning = false
+        // 调用 intimexuanran 方法，传入地震ID
+        this.intimexuanran(this.eqid)
 
+      } else {
+        if (currentTimeTmp > this.currentTime) {
+          this.updatePlotOnce("3")
         } else {
-          if (currentTimeTmp > this.currentTime) {
-            this.updatePlotOnce("3")
-          } else {
-            this.updatePlotOnce("3")
-          }
+          this.updatePlotOnce("3")
         }
       }
-      else{
-        // this.isOperateTimeLine=true
-        // console.log(this.isOperateTimeLine,"this.isOperateTimeLine operate")
-        this.isfirst = false
-        let currentTimeTmp = this.currentTime
-        // 获取时间轴的矩形区域，用于计算点击位置对应的进度
-        const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
-        // 计算点击位置相对于时间轴左边缘的距离
-        const clickedPosition = event.clientX - timeRulerRect.left;
-        // 根据点击位置计算当前时间进度的百分比
-        this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
-        // 更新时间进度条的宽度，以反映当前时间进度
-        this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
-        // 根据当前时间进度百分比和总步骤数计算当前步骤索引
-        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
-        // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
-        // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // console.log("this.currentTime jumpToTime",this.currentTime)
-        if (this.currentTimePosition >= 100) {
-          // 当时间进度达到或超过100%时，重置为100%
-          this.currentTimePosition = 100;
-          // 设置当前时间为结束时间
-          this.currentTime = this.eqendTime
-          // 停止计时器
-          this.stopTimer();
-          // 更新计时器运行状态标志为false
-          this.isTimerRunning = false
-          // 调用 intimexuanran 方法，传入地震ID
-          this.intimexuanran(this.eqid)
 
-        }
-        else {
-          if (currentTimeTmp > this.currentTime) {
-            this.updatePlotOnce("3")
-          } else {
-            this.updatePlotOnce("3")
-          }
-        }
-      }
     },
 
     /**
@@ -1716,75 +1447,37 @@ export default {
      * 停止拖拽操作
      * 当用户释放鼠标按钮时调用此方法，以重置拖拽状态并停止监听鼠标事件
      */
-    async stopDrag(time) {
-      if(!this.plotsIsReady){
-        await this.getPlotwithStartandEndTime()
-        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-        // 根据开始时间和当前节点索引计算当前时间
-        // 注意：此处将时间增量从15分钟调整为5分钟
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // let timetmp=this.currentTime
-        // 重置isDragging状态，表示不再拖拽中
-        this.isDragging = false;
-        // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
-        document.removeEventListener('mousemove', this.drag);
-        // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
-        document.removeEventListener('mouseup', this.stopDrag);
+    stopDrag(time) {
+      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
+      // 根据开始时间和当前节点索引计算当前时间
+      // 注意：此处将时间增量从15分钟调整为5分钟
+      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+      // let timetmp=this.currentTime
+      // 重置isDragging状态，表示不再拖拽中
+      this.isDragging = false;
+      // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
+      document.removeEventListener('mousemove', this.drag);
+      // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
+      document.removeEventListener('mouseup', this.stopDrag);
 
-        // 当currentTimePosition达到或超过100时，进行特殊处理
-        if (this.currentTimePosition >= 100) {
-          this.currentTimePosition = 100;
-          this.currentTime = this.eqendTime;
-          this.stopTimer();
-          this.intimexuanran(this.eqid)
+      // 当currentTimePosition达到或超过100时，进行特殊处理
+      if (this.currentTimePosition >= 100) {
+        this.currentTimePosition = 100;
+        this.currentTime = this.eqendTime;
+        this.stopTimer();
+        this.intimexuanran(this.eqid)
+      } else {
+        if (time > this.currentTime) {
+          this.updatePlotOnce("3")
         } else {
-          if (time > this.currentTime) {
-            this.updatePlotOnce("3")
-          } else {
-            this.updatePlotOnce("3")
-          }
+          this.updatePlotOnce("3")
         }
-        // 恢复默认的选择行为
-        document.body.style.userSelect = 'auto';
-        document.body.style.WebkitUserSelect = 'auto';
-        document.body.style.MozUserSelect = 'auto';
-        document.body.style.msUserSelect = 'auto';
-        // this.isOperateTimeLine=true
       }
-      else{
-        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-        // 根据开始时间和当前节点索引计算当前时间
-        // 注意：此处将时间增量从15分钟调整为5分钟
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // let timetmp=this.currentTime
-        // 重置isDragging状态，表示不再拖拽中
-        this.isDragging = false;
-        // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
-        document.removeEventListener('mousemove', this.drag);
-        // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
-        document.removeEventListener('mouseup', this.stopDrag);
-
-        // 当currentTimePosition达到或超过100时，进行特殊处理
-        if (this.currentTimePosition >= 100) {
-          this.currentTimePosition = 100;
-          this.currentTime = this.eqendTime;
-          this.stopTimer();
-          this.intimexuanran(this.eqid)
-        } else {
-          if (time > this.currentTime) {
-            this.updatePlotOnce("3")
-          } else {
-            this.updatePlotOnce("3")
-          }
-        }
-        // 恢复默认的选择行为
-        document.body.style.userSelect = 'auto';
-        document.body.style.WebkitUserSelect = 'auto';
-        document.body.style.MozUserSelect = 'auto';
-        document.body.style.msUserSelect = 'auto';
-        // this.isOperateTimeLine=true
-      }
-
+      // 恢复默认的选择行为
+      document.body.style.userSelect = 'auto';
+      document.body.style.WebkitUserSelect = 'auto';
+      document.body.style.MozUserSelect = 'auto';
+      document.body.style.msUserSelect = 'auto';
     },
 
     /**
@@ -1806,969 +1499,6 @@ export default {
         this.jumpTimes.push(item)
       })
     },
-
-    //---------------------------------------------------------------------------------------------
-
-
-    //时间轴end-------------
-
-    /*
-    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-    * */
-    timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    },
-    timestampToTimeChinese(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
-    },
-
-    //底图级别
-    updateZoomLevel(cameraHeight) {
-      console.log("层级", cameraHeight)
-      // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
-        this.zoomLevel = '区/县'
-      }
-          // else if (cameraHeight > 8000) {
-          //   this.zoomLevel = '乡/镇'
-      // }
-      else {
-        // this.zoomLevel = '村'
-        this.zoomLevel = '乡/镇'
-      }
-    },
-    //底图中心点所属位置
-    // async getReverseGeocode(lon, lat) {
-    //   try {
-    //     const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
-    //       params: {
-    //         postStr: JSON.stringify({lon, lat, ver: 1}),
-    //         type: 'geocode',
-    //         tk: '80eb284748e84ca6c70468c906f0c889'
-    //       }
-    //     });
-    //     // console.log(response.data.result.addressComponent,"response.data.result.addressComponent")
-    //     this.viewCentertown= response.data.result.addressComponent.town;
-    //   } catch (error) {
-    //     console.error("逆地理编码失败:", error);
-    //     this.viewCentertown=null;
-    //     // return null;
-    //   }
-    // },
-    /**
-     * 处理实体点击事件的弹窗显示逻辑
-     */
-    entitiesClickPonpHandler() {
-      let that = this;
-      // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
-      window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-        // 检查点击位置是否拾取到实体
-        let pickedEntity = window.viewer.scene.pick(click.position);
-        console.log("点击选择的pickedEntity", pickedEntity)
-        window.selectedEntity = pickedEntity?.id;
-
-        // 绑定断裂带信息的 div 元素
-        const faultInfoDiv = document.getElementById('faultInfo');
-        // 如果拾取到实体
-        if (Cesium.defined(pickedEntity)) {
-          let entity = window.selectedEntity;
-          console.log(entity, "entity")
-          // 计算图标的世界坐标
-          this.selectedEntityPosition = this.calculatePosition(click.position);
-          this.updatePopupPosition(); // 确保位置已更新
-          const pickedObject = window.viewer.scene.pick(click.position);
-
-          if (entity._layer === "断裂带") {
-            console.log("断裂带")
-
-            const faultName = pickedObject.id.properties.name._value;
-
-            if (faultName) {
-              // 获取点击位置的地理坐标 (Cartesian3)
-              const cartesian = viewer.scene.pickPosition(click.position);
-              if (!Cesium.defined(cartesian)) {
-                return;
-              }
-
-              // 更新 faultInfo 的位置和内容
-              this.updateFaultInfoPosition(faultName);
-
-              // 显示 faultInfo
-              faultInfoDiv.style.display = 'block';
-
-              // 监听地图变化，动态更新 div 的位置
-              window.viewer.scene.postRender.addEventListener(() => {
-                this.updateFaultInfoPosition(faultName);
-              });
-
-              console.log(faultName)
-            }
-          }
-          // 如果点击的是标绘点
-          else if (entity._layer === "标绘点") {
-            this.timelinePopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
-            this.timelinePopupData = {}
-            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-            this.dataSourcePopupVisible = false
-            this.routerPopupVisible = false;
-          }
-          //聚合图标
-          else if (Object.prototype.toString.call(entity) === '[object Array]') {
-            if (entity[0].entityCollection.owner.name === "label") {
-              this.dataSourcePopupVisible = false
-              this.timelinePopupVisible = false
-              this.routerPopupVisible = false;
-            } else {
-              this.dataSourcePopupData = entity
-              this.dataSourcePopupVisible = true
-              this.timelinePopupVisible = false
-              this.routerPopupVisible = false;
-
-            }
-          }
-          //救援队伍、避难场所、应急物资
-          else if (entity._billboard) {
-            this.routerPopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPosition;
-            this.routerPopupData = this.extractDataForRouter(entity);
-            this.dataSourcePopupVisible = false
-            this.timelinePopupVisible = false;
-          }
-          //箭头标绘
-          else if (entity._polygon) {
-            this.timelinePopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPosition;
-            this.timelinePopupData = {}
-            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-            this.dataSourcePopupVisible = false
-            this.routerPopupVisible = false;
-          } else {
-            // 如果不是标绘点或路标
-            this.routerPopupVisible = false;
-            this.timelinePopupVisible = false;
-            this.dataSourcePopupVisible = false
-          }
-        }
-        //没有拾取到实体
-        else {
-          // 没有选中实体时隐藏 faultInfo
-          faultInfoDiv.style.display = 'none';
-          this.routerPopupVisible = false;
-          this.timelinePopupVisible = false;
-          this.dataSourcePopupVisible = false
-        }
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-      // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
-      window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-        // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
-          this.updatePopupPosition();
-        }
-      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-      window.viewer.screenSpaceEventHandler.setInputAction((wheelment) => {
-        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
-          this.updatePopupPosition();
-        }
-      }, Cesium.ScreenSpaceEventType.WHEEL);
-
-    },
-
-
-    /**
-     * 计算点击位置的经纬度和高度
-     *
-     * @param {Object} clickPosition - 点击位置的屏幕坐标
-     * @returns {Object} - 返回一个对象，包含经度(x)、纬度(y)和高度(z)
-     */
-    calculatePosition(clickPosition) {
-      // 根据点击位置获取射线
-      let ray = viewer.camera.getPickRay(clickPosition);
-      // 用射线在场景中拾取位置
-      let position = viewer.scene.globe.pick(ray, viewer.scene);
-      // 将拾取的位置转换为地理坐标
-      let cartographic = Cesium.Cartographic.fromCartesian(position);
-      // 将地理坐标的经纬度转换为度数
-      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-      // 根据地形是否加载来获取高度
-      let height = this.isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
-
-      // 返回计算得到的经纬度和高度
-      return {
-        x: longitude, // 经度
-        y: latitude,  // 纬度
-        z: height     // 高度
-      };
-    },
-
-
-    /**
-     * 更新故障信息在画布上的位置
-     * 此方法用于根据选定的实体位置，更新显示故障信息的div在画布上的位置
-     * @param {string} faultName - 故障的名称，将被显示在故障信息div中
-     */
-    updateFaultInfoPosition(faultName) {
-      this.$nextTick(() => {
-        if (this.selectedEntityPosition) {
-          // 将选定实体的经纬度坐标转换为窗口坐标系下的位置
-          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-              window.viewer.scene,
-              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
-          );
-          if (canvasPosition) {
-            // 获取故障信息的div元素
-            const faultInfoDiv = document.getElementById('faultInfo');
-            // 更新故障信息div的位置和内容
-            faultInfoDiv.style.left = canvasPosition.x + 'px';
-            faultInfoDiv.style.top = canvasPosition.y + 'px';
-            faultInfoDiv.innerHTML = `${faultName}`; // 更新内容
-          }
-        }
-      });
-    },
-
-
-    /**
-     * 更新弹窗位置
-     * 该方法用于更新路由和时间线弹窗在地图上的位置
-     * 它通过将选中的实体位置转换为屏幕坐标来实现
-     */
-    updatePopupPosition() {
-      // 使用$nextTick确保DOM更新后才执行位置计算
-      this.$nextTick(() => {
-        // 检查是否有选中的实体位置
-        if (this.selectedEntityPosition) {
-          console.log(this.selectedEntityPosition, "this.selectedEntityPosition")
-          // 将地理坐标转换为窗口坐标
-          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-              window.viewer.scene,
-              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
-          );
-          if (canvasPosition) {
-            this.routerPopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-            this.timelinePopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-            this.dataSourcePopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            }
-          }
-        }
-      });
-    },
-
-    /**
-     * 提取实体数据用于时间线
-     *
-     * 此函数的目的是将给定的实体对象转换为一个包含特定属性的新对象，
-     * 这些属性包括实体的ID、实体的类型以及一个中心点坐标这些信息对于在时间线上
-     *
-     * @param {Object} entity - 需要提取数据的实体对象，通常包含id和plottype属性
-     * @returns {Object} 返回一个新对象，包含plotid、plotname和centerPoint属性
-     */
-    extractDataForTimeline(entity) {
-      return {
-        plotid: entity.id,
-        plotname: entity.plottype,
-        centerPoint: this.centerPoint
-      };
-    },
-
-    /**
-     * 提取实体属性用于路由
-     *
-     * 此函数旨在根据实体的属性名称，动态地从实体对象中提取相应的属性值，
-     * 并将其组织成一个新的对象返回这对于构建动态路由或者进行属性比较等操作非常有用
-     *
-     * @param {Object} entity - 需要提取属性的实体对象，包含properties属性，其中包含可动态提取的属性
-     * @returns {Object} 返回一个新对象，该对象的属性和值根据entity.properties.propertyNames动态生成
-     */
-    extractDataForRouter(entity) {
-      let properties = {};
-      entity.properties.propertyNames.forEach(name => {
-        properties[name] = entity.properties[name].getValue();
-      });
-      return properties;
-    },
-
-
-    /**
-     * 显示新闻详细内容
-     * @param {Object} val - 要显示的新闻内容对象
-     */
-    detailedNews(val) {
-      console.log("detailedNews-----", val)
-      this.showingNewsContent = val
-
-    },
-
-    /**
-     * 控制详细新闻对话框的显示与隐藏
-     * @param {boolean} val - 控制对话框显示（true）或隐藏（false）的布尔值
-     */
-    ifShowDialog(val) {
-      // console.log("ifShowDialog-----",val)
-      this.showDetailedNewsDialog = val
-    },
-
-    /**
-     * 隐藏新闻对话框
-     * @param {boolean} val - 控制对话框显示（true）或隐藏（false）的布尔值
-     */
-    hideNewsDialog(val) {
-      // console.log("showDetailedNewsDialog-----",val)
-      this.showDetailedNewsDialog = val
-    },
-
-    /**
-     * 截图功能
-     * 此功能通过创建一个链接元素并模拟点击来触发文件下载
-     */
-    // takeScreenshot() {
-    //   const link = document.createElement('a');
-    //   link.href = fileUrl
-    //   link.download = '芦山地震人员伤亡态势专题报告.pdf';
-    //   link.click();
-    // },
-    //导出图片：简单来讲就是分别获取一下对应的元素，把对应的元素绘制到合成Canvas上，最后把Canvas转换成图片，实现截图。
-    //导出图片：简单来讲就是分别获取一下对应的元素，把对应的元素绘制到合成Canvas上，最后把Canvas转换成图片，实现截图。
-    async takeScreenshot() {
-
-      // //  4: 获取 Cesium 场景的 Canvas 图像
-      // const cesiumCanvas = window.viewer.scene.canvas;
-      // const cesiumImage = cesiumCanvas.toDataURL('image/png');  // Cesium 场景导出为图片
-      //
-      // //  8: 创建一个新的合成 Canvas
-      // const finalCanvas = this.createFinalCanvas();
-      // const finalContext = finalCanvas.getContext('2d', {willReadFrequently: true});
-      //
-      // //  9: 将 Cesium 场景绘制到合成 Canvas 上
-      // await this.drawImageToCanvas(finalContext, cesiumImage, 0, 0);
-      //
-      // //  14: 将合成后的 Canvas 转换为图片
-      // this.previewImage = finalCanvas.toDataURL('image/png');
-      const distanceLegendCanvas = await this.renderElementToCanvas('.distance-legend', '距离标尺');
-      // const compassCanvas = await this.renderElementToCanvas('.compassContainer', '指南针');
-
-      const finalCanvas = this.createFinalCanvas();
-      const finalContext = finalCanvas.getContext('2d', {willReadFrequently: true});
-
-      finalContext.drawImage(distanceLegendCanvas, 20, finalCanvas.height - distanceLegendCanvas.height - 20);
-      finalContext.drawImage(compassCanvas, 20, finalCanvas.height - compassCanvas.height - 20);
-
-      // finalContext.drawImage(compassCanvas, finalCanvas.width - compassCanvas.width - 20, 20);
-
-      // 获取要截取的 DOM 元素
-      const elementToCapture = document.querySelector('#cesiumContainer');
-      console.log(elementToCapture, "elementToCapture")
-      // 使用 html2canvas 截图
-      html2canvas(elementToCapture, {
-        useCORS: true, // 允许跨域请求，确保图片加载
-        logging: true, // 打开日志以查看可能的错误
-        scale: 2, // 提高图像质量
-        backgroundColor: null // 使背景透明
-      }).then(canvas => {
-        // 将 canvas 转换为图片
-        const finalImage = canvas.toDataURL('image/png');
-
-        // 创建下载链接并触发下载
-        const link = document.createElement('a');
-        link.download = `test.png`; // 设置下载文件名
-        link.href = finalImage; // 设置图片来源
-        link.click(); // 触发下载
-      }).catch(error => {
-        console.error('Error capturing the screenshot:', error);
-      });
-
-    },
-
-    // 创建最终合成的 Canvas
-    createFinalCanvas() {
-      const finalCanvas = document.createElement('canvas');
-      finalCanvas.width = document.querySelector('#cesiumContainer').offsetWidth;
-      finalCanvas.height = document.querySelector('#cesiumContainer').offsetHeight;
-      return finalCanvas;
-    },
-
-    // 将元素渲染为 Canvas
-    async renderElementToCanvas(selector, elementName) {
-      const element = document.querySelector(selector);
-      return await html2canvas(element, {
-        useCORS: true,
-        scale: 1,
-        backgroundColor: null
-      });
-    },
-
-    /**
-     * 检查地形是否已加载
-     * cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
-     * 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
-     * 该方法通过检查当前地形提供者的类型来确定地形是否已经加载
-     * 如果地形提供者是椭球地形提供者(EllipsoidTerrainProvider)，则视为地形未加载
-     * 如果地形提供者已定义且不是椭球地形提供者，则视为地形已加载
-     *
-     * @returns {Boolean} 返回地形是否已加载的状态
-     */
-    isTerrainLoaded() {
-      // 获取当前的地形提供者
-      let terrainProvider = window.viewer.terrainProvider;
-      // 检查地形提供者是否是椭球地形提供者
-      if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-        // 在控制台输出地形未加载的信息
-        // console.log("地形未加载")
-        return false;
-      } else if (Cesium.defined(terrainProvider)) {
-        // console.log("地形已加载")
-        return true;
-      }
-      // console.log("地形未加载")
-      return false;
-    },
-
-    /**
-     * 监听地形提供器变化
-     * 当地形提供器发生变化时，此方法将被触发
-     * 根据modelName的值设置不同的高度，并尝试查找地形
-     * 如果地形已加载，则使用一组预设高度；如果地形未加载，则使用另一组预设高度
-     * 目前，高度设置和查找地形的方法被注释掉，需要在适当时候启用或移除
-     */
-    watchTerrainProviderChanged() {
-      let that = this
-      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-        this.popupVisible = false // 地形改变时关闭弹窗
-        let tzs = []
-        if (that.modelName === 1) {
-          tzs[0] = 9
-          tzs[1] = -567
-        } else {
-          tzs[0] = 15
-          tzs[1] = -557
-        }
-        if (that.isTerrainLoaded()) {
-          // that.changeHeight(tzs[0])
-          // that.tz = tzs[0]
-          // that.find()
-        } else {
-          // that.changeHeight(tzs[1])
-          // that.tz = tzs[1]
-          // that.find()
-        }
-      });
-    },
-
-
-    /**
-     * 向地图中添加实体对象
-     *
-     * @param {Object} element - 实体对象，包含实体的各类属性
-     * @param {String} icon - 实体的图标URL
-     * @param {String} tableName - 实体所在的表名称
-     * @param {Number} longitude - 实体的经度
-     * @param {Number} latitude - 实体的纬度
-     */
-    addEntity(element, icon, tableName, longitude, latitude) {
-      // 使用Cesium的viewer实例向地图中添加一个实体
-      window.viewer.entities.add({
-        id: element.uuid, // 实体的唯一标识符，使用元素的UUID
-        position: Cesium.Cartesian3.fromDegrees(longitude, latitude), // 实体的地理位置，通过经度和纬度转换为Cartesian3坐标
-        billboard: { // 实体的图标配置
-          image: icon, // 图标的URL
-          width: 40, // 图标宽度
-          height: 40, // 图标高度
-          eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 图标相对于位置点的偏移量
-          color: Cesium.Color.WHITE.withAlpha(1), // 图标的颜色和透明度
-          scale: 0.8, // 图标的缩放比例
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 图标高度参考，使图标贴合地面
-          depthTest: false, // 禁用深度测试，防止图标被地形遮挡
-          disableDepthTestDistance: Number.POSITIVE_INFINITY // 设置禁用深度测试的距离为无穷远，确保图标始终不进行深度测试
-        },
-        properties: { // 实体的属性信息
-          tableName: tableName, // 动态传入的表名称
-          ...element, // 将element对象展开，自动填充所有属性
-          lon: element.longitude, // 实体的经度
-          lat: element.latitude // 实体的纬度
-        },
-      });
-    },
-
-    /**
-     * 根据类型删除实体
-     *
-     * 此函数用于从当前窗口的实体集合中，按指定类型删除所有实体
-     * 它通过遍历实体集合，检查每个实体的类型属性，如果匹配给定的类型，则删除该实体
-     * 采用倒序遍历以避免删除实体时可能导致的索引变化问题
-     *
-     * @param {string} type - 要删除的实体类型
-     */
-    removeEntitiesByType(type) {
-      // 获取当前窗口中所有的实体
-      let entities = window.viewer.entities.values;
-      // 倒序遍历实体数组，以确保删除实体时不会影响遍历
-      for (let i = entities.length - 1; i >= 0; i--) {
-        // 检查当前实体的类型是否与给定类型匹配
-        if (entities[i].properties?.type?.getValue() === type) {
-          // 如果匹配，则移除该实体
-          window.viewer.entities.remove(entities[i]);
-        }
-      }
-    },
-
-    /**
-     * 检查指定名称的图层是否存在于地图中
-     *
-     * @param {string} layerName - 需要检查的图层名称
-     * @return {boolean} - 如果图层存在，则返回true；否则返回false
-     */
-    imageryLayersExists(layerName) {
-      // 获取地图中所有的图层
-      const layers = viewer.imageryLayers;
-      // 遍历所有图层，检查是否存在指定名称的图层
-      for (let i = 0; i < layers.length; i++) {
-        if (layers.get(i).name === layerName) {
-          // 如果找到指定名称的图层，返回true
-          return true;
-        }
-      }
-      // 如果遍历完所有图层后仍未找到指定名称的图层，返回false
-      return false;
-    },
-
-
-    /**
-     * 添加雅安地区图层
-     * 此函数负责将雅安地区的地理边界数据加载到3D地图中，并为其添加可视化图层
-     * 如果图层已存在，则不会重复添加
-     */
-    addYaanRegion() {
-      // 检查是否已存在名为'YaanRegionLayer'的数据源，如果不存在则加载
-      if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
-        // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-          strokeWidth: 4,
-        });
-
-        // 当数据源加载成功后，执行以下操作
-        geoPromise.then((dataSource) => {
-          // 将数据源添加到地图中
-          window.viewer.dataSources.add(dataSource);
-          // 给图层取名字,以便删除时找到
-          dataSource.name = 'YaanRegionLayer';
-
-          // 定义雅安各区县的颜色和名称
-          const colors = [
-            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-            {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
-            {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
-            {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
-            {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
-            {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
-            {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
-            {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
-          ];
-          // 为每个区县实体设置颜色
-          dataSource.entities.values.forEach((entity, index) => {
-            // 根据实体索引依次从颜色数组中取颜色
-            const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-            const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
-            entity.polygon.material = colorMaterial; // 设置填充颜色
-            // console.log("--------", index, "----------------", entity)
-          });
-          // console.log("dataSource--------------", dataSource.entities.values.length)
-
-          // 生成图例
-          const legend = document.getElementById('legend');
-          legend.style.display = 'block';
-          colors.forEach((colorItem, index) => {
-            if (index > 0) {
-              const colorBox = document.createElement('div');
-              colorBox.style.display = 'flex';
-              colorBox.style.alignItems = 'center';
-              colorBox.style.marginBottom = '5px';
-
-              // 创建颜色方块
-              const colorSquare = document.createElement('div');
-              colorSquare.style.width = '20px';
-              colorSquare.style.height = '20px';
-              colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
-              colorSquare.style.marginRight = '10px';
-
-              // 创建颜色名称标签
-              const colorLabel = document.createElement('span');
-              colorLabel.textContent = colorItem.name;
-
-              // 将颜色方块和名称加入到图例中
-              colorBox.appendChild(colorSquare);
-              colorBox.appendChild(colorLabel);
-              legend.appendChild(colorBox);
-            }
-
-          });
-        }).catch((error) => {
-          // 如果加载数据源失败，则输出错误信息
-          console.error("加载GeoJSON数据失败:", error);
-        });
-      }
-    },
-
-
-    /**
-     * 添加人口图层
-     * 此方法用于在地图中添加一个人口图层，如果该图层已存在，则不进行任何操作
-     * 人口图层通过Web Map Service (WMS) 提供，具体配置包括服务URL、图层名称和一些请求参数
-     */
-    addPopLayer() {
-      let baseURL = import.meta.env.VITE_APP_API_URL
-      // 检查是否已存在名为'PopLayer'的图层
-      let popLayerexists = this.imageryLayersExists('PopLayer')
-      if (!popLayerexists) {
-        // 如果不存在，则创建并添加新的WMS图层
-        let popLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapServiceImageryProvider({
-              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
-              layers: 'yaan:pop', // 需要请求的图层名称
-              parameters: {
-                service: 'WMS', // 指定服务类型为WMS
-                format: 'image/png', // 指定返回的图像格式为PNG
-                transparent: true // 启用透明背景
-              }
-            })
-        );
-        popLayer.name = "PopLayer"; // 设置图层名称为"PopLayer"
-      }
-    },
-
-
-    /**
-     * 添加交通图层到地图
-     * 该方法首先检查是否已经存在名为'TrafficLayer'的图层，如果不存在，则从天地图服务添加交通图层
-     * 同样，如果不存在名为'TrafficTxtLayer'的图层，则添加交通注记图层
-     */
-    addTrafficLayer() {
-      // 获取天地图API令牌
-      let token = TianDiTuToken;
-
-      // 检查是否存在'TrafficLayer'图层
-      let trafficLayerexists = this.imageryLayersExists('TrafficLayer')
-      if (!trafficLayerexists) {
-        // 创建并添加交通图层
-        let trafficLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              // 天地图交通图层的URL模板
-              url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                  token,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-            })
-        );
-        trafficLayer.name = "TrafficLayer"; // 设置名称
-      }
-
-      // 检查是否存在'TrafficTxtLayer'图层
-      let trafficTxtLayerExists = this.imageryLayersExists('TrafficTxtLayer')
-      if (!trafficTxtLayerExists) {
-        // 创建并添加交通注记图层
-        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              // 天地图交通注记图层的URL模板
-              url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                  token,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-              show: false, // 初始状态下不显示注记
-            })
-        )
-        traffictxtLayer.name = "TrafficTxtLayer"
-      }
-    },
-
-    /**
-     * 移除指定名称的影像图层
-     *
-     * 该方法旨在从当前 viewer 的影像图层列表中移除第一个匹配给定图层名称的图层
-     * 主要用于动态管理地图上的影像图层，提高地图的可读性和性能
-     * @param {string} layerName - 要移除的影像图层的名称
-     *        图层名称是在添加图层时指定的，用于唯一标识每个图层
-     */
-    removeImageryLayer(layerName) {
-      // 获取当前 viewer 的所有影像图层
-      const layers = window.viewer.imageryLayers;
-      // 遍历所有图层，寻找与给定名称匹配的图层
-      for (let i = 0; i < layers.length; i++) {
-        // 当找到名称匹配的图层时
-        if (layers.get(i).name === layerName) {
-          // 移除该图层
-          layers.remove(layers.get(i));
-          // 完成移除后即返回，结束函数执行
-          return;
-        }
-      }
-    },
-
-    /**
-     * 移除数据源图层
-     *
-     * 本函数通过指定的图层名称，从当前窗口的 viewer 数据源中移除该图层如果图层存在，则会被成功移除
-     * 此操作用于清理或更新地图显示，确保地图界面的准确性和时效性
-     *
-     * @param {string} layerName - 图层名称，用于标识特定的图层
-     */
-    removeDataSourcesLayer(layerName) {
-      // 通过图层名称获取数据源对象如果存在，则执行移除操作
-      const dataSource = window.viewer.dataSources.getByName(layerName)[0];
-      if (dataSource) {
-        window.viewer.dataSources.remove(dataSource);
-      }
-    },
-    //标绘图层清除-->
-
-    /**
-     * 移除标记图层
-     * 遍历plots数组，查找并移除每个plot对应的图层实体
-     */
-    MarkingLayerRemove() {
-      // 遍历所有plot
-      this.plots.forEach(item => {
-        // 获取指定plotId的实体
-        const entity = viewer.entities.getById(item.plotId);
-        // 如果实体存在，则移除该实体
-        if (entity) {
-          viewer.entities.removeById(item.plotId);
-          // 标记该plotId对应的图层为隐藏状态
-          this.plotisshow[item.plotId] = 0
-        }
-      })
-    },
-
-    /**
-     * 处理标记图层切换
-     * 当切换到本地标记图层时，如果不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
-     * 当切换到非本地标记图层时，如果存在名为'drawingLayer'的图层，则从视图中移除该图层
-     *
-     * @param {boolean} isMarkingLayerLocal - 表示是否为本地标记图层
-     */
-    handleMarkingLayerChange(isMarkingLayerLocal) {
-      if (isMarkingLayerLocal) {
-        // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
-        if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
-          let newLayer = new Cesium.CustomDataSource('drawingLayer');
-          window.viewer.dataSources.add(newLayer);
-          newLayer.show = true;
-          this.isMarkingLayerLocal = true;
-        }
-      } else {
-        // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
-        this.isMarkingLayerLocal = false;
-        // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
-        let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
-        if (dataSource) {
-          window.viewer.dataSources.remove(dataSource);
-        }
-      }
-    },
-
-    /**
-     * 根据经纬度获取人口密度信息
-     *
-     * 该函数通过调用WMS服务来获取给定经纬度坐标附近的人口密度信息它发送一个HTTP请求，请求类型为GetFeatureInfo，
-     * 并指定了相应的查询图层和查询范围（通过bounding box指定）返回的人口密度信息将以JSON格式进行处理
-     *
-     * @param {number} longitude - 经度坐标，用于指定查询区域的中心点
-     * @param {number} latitude - 纬度坐标，用于指定查询区域的中心点
-     */
-    getPopDesity(longitude, latitude) {
-      let baseURL = import.meta.env.VITE_APP_API_URL
-      // WMS服务的URL
-      const url = baseURL + "/geoserver/yaan/wms"
-      // 查询区域的边界框大小，用于确定查询区域的范围
-      const bboxSize = 0.001
-      // 构建URL查询参数
-      const urlParams = new URLSearchParams({
-        service: 'WMS',
-        request: 'GetFeatureInfo',
-        version: '1.1.1',
-        layers: "yaan:pop",
-        query_layers: "yaan:pop",
-        bbox: `${longitude - bboxSize},${latitude - bboxSize},${longitude + bboxSize},${latitude + bboxSize}`,
-        width: 101,
-        height: 101,
-        info_format: 'application/json',
-        x: 50,
-        y: 50,
-        srs: 'EPSG:4326',
-      })
-      // 构建完整的请求URL
-      const fullUrl = `${url}?${urlParams.toString()}`;
-      // 打印调试信息
-      // console.log('GetFeatureInfo URL:', fullUrl);
-      // 发送HTTP请求，并处理响应
-      fetch(fullUrl).then(response => response.json()).then(data => {
-        // 处理返回的数据，这里仅打印出人口密度信息
-        // console.log(data.features[0].properties)
-      }).catch(error => {
-        // 错误处理，打印错误信息
-        // console.error('There was an error!', error);
-      });
-    },
-
-
-    /**
-     * 专题图下载
-     * 更新主题地图的预览
-     * 当选择了一个主题地图后，显示地图的预览图；如果没有选择，则隐藏预览图
-     */
-    updatethematicMap() {
-      if (this.selectthematicMap) {
-        this.ifShowMapPreview = true
-        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name === this.selectthematicMap);
-        // console.log(selectedData)
-        this.imgurlFromDate = selectedData.path
-        this.imgName = selectedData.name
-        // console.log("11111",this.imgurlFromDate, this.imgName)
-        this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
-        // console.log(this.imgshowURL)
-      } else {
-        this.ifShowMapPreview = false
-      }
-
-    },
-    ifShowThematicMapDialog(val) {
-      this.ifShowMapPreview = val // 是否预览专题图 = val
-      if (!val) {
-        this.selectthematicMap = null
-      }
-    },
-    //专题图 end
-
-    //报告产出
-    updateReportItem() {
-      if (this.selectReportItem) {
-        // console.log(this.selectReportItem)
-        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name === this.selectReportItem);
-        const link = document.createElement('a');
-        link.href = selectedData.path;
-        link.download = selectedData.name; // 指定下载的文件名
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => {
-          this.selectReportItem = null;
-        }, 1000); // 1000 毫秒后执行
-      }
-    },
-
-
-    // 关闭弹窗
-    closePlotPop() {
-      this.timelinePopupVisible = !this.timelinePopupVisible
-    },
-    // ws发送数据（只有点的是在这里）
-    wsSendPoint(data) {
-      this.websock.send(data)
-    },
-
-    clearResource(viewer) {
-      this.isTimerRunning = false;
-      let gl = viewer.scene.context._gl
-      viewer.entities.removeAll()
-      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
-      viewer.destroy()
-      gl.getExtension("WEBGL_lose_context").loseContext();
-      gl = null
-    },
-    /**
-     * 计算复选框列表的高度
-     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
-     *
-     * @returns {number} 返回复选框列表的总高度
-     */
-    getHeight() {
-      // 每个复选框的高度
-      const checkboxHeight = 50;
-      // 复选框之间的间距值
-      const margin = 10;
-      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
-      // console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
-      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
-      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
-    },
-
-    /**
-     * 图层要素 切换展开状态
-     *
-     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
-     *
-     * @returns {void} 无返回值
-     */
-    toggleExpand() {
-      // console.log("Toggle expand clicked");
-      this.isExpanded = !this.isExpanded;
-    },
-
-    /**
-     * 设置组件展开的面板互斥,避免堆叠
-     * 切换组件的显示状态
-     * @param {String} component - 要切换的组件名称
-     */
-    toggleComponent(component) {
-      // 收起图层要素
-      this.isExpanded = false;
-      // 清除主题地图预览的显示状态
-      this.isshowThematicMapPreview = null;
-      // 清除选择的主题地图
-      this.selectthematicMap = null;
-
-      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
-      this.activeComponent = this.activeComponent === component ? null : component;
-    },
-
     //飞到震中
     flyToCenter() {
       if (this.selectedEntity && (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible)) {
@@ -2918,15 +1648,910 @@ export default {
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
     //取消闪烁，透明度到1
-    centerMarkOpacityTo1(){
+    centerMarkOpacityTo1() {
       let centerMark = window.viewer.entities.getById(this.centerPoint.plotid);
       centerMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
       let smallcenterMark = smallViewer.entities.getById(this.centerPoint.plotid);
       smallcenterMark.billboard.color = Cesium.Color.WHITE.withAlpha(1)//颜色
     },
+    //---------------------------------------------------------------------------------------------
+    //时间轴end-------------
 
+    /*
+    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+    * */
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
 
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+    timestampToTimeChinese(timestamp) {
+      let DateObj = new Date(timestamp)
 
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+    },
+    //底图级别
+    updateZoomLevel(cameraHeight) {
+      console.log("层级", cameraHeight)
+      // 根据相机高度设置 zoomLevel
+      if (cameraHeight > 200000) {
+        this.zoomLevel = '市'
+      } else if (cameraHeight > 70000) {
+        this.zoomLevel = '区/县'
+      }
+          // else if (cameraHeight > 8000) {
+          //   this.zoomLevel = '乡/镇'
+      // }
+      else {
+        // this.zoomLevel = '村'
+        this.zoomLevel = '乡/镇'
+      }
+    },
+    /**
+     * 处理实体点击事件的弹窗显示逻辑
+     */
+    entitiesClickPonpHandler() {
+      let that = this;
+      // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
+      window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+        // 检查点击位置是否拾取到实体
+        let pickedEntity = window.viewer.scene.pick(click.position);
+        console.log("点击选择的pickedEntity", pickedEntity)
+        window.selectedEntity = pickedEntity?.id;
+
+        // 绑定断裂带信息的 div 元素
+        const faultInfoDiv = document.getElementById('faultInfo');
+        // 如果拾取到实体
+        if (Cesium.defined(pickedEntity)) {
+          let entity = window.selectedEntity;
+          console.log(entity, "entity")
+          // 计算图标的世界坐标
+          this.selectedEntityPosition = this.calculatePosition(click.position);
+          this.updatePopupPosition(); // 确保位置已更新
+          const pickedObject = window.viewer.scene.pick(click.position);
+
+          if (entity._layer === "断裂带") {
+            console.log("断裂带")
+
+            const faultName = pickedObject.id.properties.name._value;
+
+            if (faultName) {
+              // 获取点击位置的地理坐标 (Cartesian3)
+              const cartesian = viewer.scene.pickPosition(click.position);
+              if (!Cesium.defined(cartesian)) {
+                return;
+              }
+
+              // 更新 faultInfo 的位置和内容
+              this.updateFaultInfoPosition(faultName);
+
+              // 显示 faultInfo
+              faultInfoDiv.style.display = 'block';
+
+              // 监听地图变化，动态更新 div 的位置
+              window.viewer.scene.postRender.addEventListener(() => {
+                this.updateFaultInfoPosition(faultName);
+              });
+
+              console.log(faultName)
+            }
+          }
+          // 如果点击的是标绘点
+          else if (entity._layer === "标绘点") {
+            this.timelinePopupVisible = true;
+            this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
+            this.timelinePopupData = {}
+            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+            this.dataSourcePopupVisible = false
+            this.routerPopupVisible = false;
+          }
+          //聚合图标
+          else if (Object.prototype.toString.call(entity) === '[object Array]') {
+            if (entity[0].entityCollection.owner.name === "label") {
+              this.dataSourcePopupVisible = false
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            } else {
+              this.dataSourcePopupData = entity
+              this.dataSourcePopupVisible = true
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+
+            }
+          }
+          //救援队伍、避难场所、应急物资
+          else if (entity._billboard) {
+            this.routerPopupVisible = true;
+            this.timelinePopupPosition = this.selectedEntityPosition;
+            this.routerPopupData = this.extractDataForRouter(entity);
+            this.dataSourcePopupVisible = false
+            this.timelinePopupVisible = false;
+          }
+          //箭头标绘
+          else if (entity._polygon) {
+            this.timelinePopupVisible = true;
+            this.timelinePopupPosition = this.selectedEntityPosition;
+            this.timelinePopupData = {}
+            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+            this.dataSourcePopupVisible = false
+            this.routerPopupVisible = false;
+          } else {
+            // 如果不是标绘点或路标
+            this.routerPopupVisible = false;
+            this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
+          }
+        }
+        //没有拾取到实体
+        else {
+          // 没有选中实体时隐藏 faultInfo
+          faultInfoDiv.style.display = 'none';
+          this.routerPopupVisible = false;
+          this.timelinePopupVisible = false;
+          this.dataSourcePopupVisible = false
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+      // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
+      window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+        // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+          this.updatePopupPosition();
+        }
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+      window.viewer.screenSpaceEventHandler.setInputAction((wheelment) => {
+        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+          this.updatePopupPosition();
+        }
+      }, Cesium.ScreenSpaceEventType.WHEEL);
+
+    },
+    /**
+     * 计算点击位置的经纬度和高度
+     *
+     * @param {Object} clickPosition - 点击位置的屏幕坐标
+     * @returns {Object} - 返回一个对象，包含经度(x)、纬度(y)和高度(z)
+     */
+    calculatePosition(clickPosition) {
+      // 根据点击位置获取射线
+      let ray = viewer.camera.getPickRay(clickPosition);
+      // 用射线在场景中拾取位置
+      let position = viewer.scene.globe.pick(ray, viewer.scene);
+      // 将拾取的位置转换为地理坐标
+      let cartographic = Cesium.Cartographic.fromCartesian(position);
+      // 将地理坐标的经纬度转换为度数
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      // 根据地形是否加载来获取高度
+      let height = this.isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
+
+      // 返回计算得到的经纬度和高度
+      return {
+        x: longitude, // 经度
+        y: latitude,  // 纬度
+        z: height     // 高度
+      };
+    },
+    /**
+     * 更新故障信息在画布上的位置
+     * 此方法用于根据选定的实体位置，更新显示故障信息的div在画布上的位置
+     * @param {string} faultName - 故障的名称，将被显示在故障信息div中
+     */
+    updateFaultInfoPosition(faultName) {
+      this.$nextTick(() => {
+        if (this.selectedEntityPosition) {
+          // 将选定实体的经纬度坐标转换为窗口坐标系下的位置
+          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+          );
+          if (canvasPosition) {
+            // 获取故障信息的div元素
+            const faultInfoDiv = document.getElementById('faultInfo');
+            // 更新故障信息div的位置和内容
+            faultInfoDiv.style.left = canvasPosition.x + 'px';
+            faultInfoDiv.style.top = canvasPosition.y + 'px';
+            faultInfoDiv.innerHTML = `${faultName}`; // 更新内容
+          }
+        }
+      });
+    },
+    /**
+     * 更新弹窗位置
+     * 该方法用于更新路由和时间线弹窗在地图上的位置
+     * 它通过将选中的实体位置转换为屏幕坐标来实现
+     */
+    updatePopupPosition() {
+      // 使用$nextTick确保DOM更新后才执行位置计算
+      this.$nextTick(() => {
+        // 检查是否有选中的实体位置
+        if (this.selectedEntityPosition) {
+          console.log(this.selectedEntityPosition, "this.selectedEntityPosition")
+          // 将地理坐标转换为窗口坐标
+          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+          );
+          if (canvasPosition) {
+            this.routerPopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
+            this.timelinePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
+            this.dataSourcePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            }
+          }
+        }
+      });
+    },
+    /**
+     * 提取实体数据用于时间线
+     *
+     * 此函数的目的是将给定的实体对象转换为一个包含特定属性的新对象，
+     * 这些属性包括实体的ID、实体的类型以及一个中心点坐标这些信息对于在时间线上
+     *
+     * @param {Object} entity - 需要提取数据的实体对象，通常包含id和plottype属性
+     * @returns {Object} 返回一个新对象，包含plotid、plotname和centerPoint属性
+     */
+    extractDataForTimeline(entity) {
+      return {
+        plotid: entity.id,
+        plotname: entity.plottype,
+        centerPoint: this.centerPoint
+      };
+    },
+    /**
+     * 提取实体属性用于路由
+     *
+     * 此函数旨在根据实体的属性名称，动态地从实体对象中提取相应的属性值，
+     * 并将其组织成一个新的对象返回这对于构建动态路由或者进行属性比较等操作非常有用
+     *
+     * @param {Object} entity - 需要提取属性的实体对象，包含properties属性，其中包含可动态提取的属性
+     * @returns {Object} 返回一个新对象，该对象的属性和值根据entity.properties.propertyNames动态生成
+     */
+    extractDataForRouter(entity) {
+      let properties = {};
+      entity.properties.propertyNames.forEach(name => {
+        properties[name] = entity.properties[name].getValue();
+      });
+      return properties;
+    },
+    /**
+     * 显示新闻详细内容
+     * @param {Object} val - 要显示的新闻内容对象
+     */
+    detailedNews(val) {
+      console.log("detailedNews-----", val)
+      this.showingNewsContent = val
+
+    },
+    /**
+     * 控制详细新闻对话框的显示与隐藏
+     * @param {boolean} val - 控制对话框显示（true）或隐藏（false）的布尔值
+     */
+    ifShowDialog(val) {
+      // console.log("ifShowDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
+    /**
+     * 隐藏新闻对话框
+     * @param {boolean} val - 控制对话框显示（true）或隐藏（false）的布尔值
+     */
+    hideNewsDialog(val) {
+      // console.log("showDetailedNewsDialog-----",val)
+      this.showDetailedNewsDialog = val
+    },
+    /**
+     * 截图功能
+     * 此功能通过创建一个链接元素并模拟点击来触发文件下载
+     */
+    // takeScreenshot() {
+    //   const link = document.createElement('a');
+    //   link.href = fileUrl
+    //   link.download = '芦山地震人员伤亡态势专题报告.pdf';
+    //   link.click();
+    // },
+    //导出图片：简单来讲就是分别获取一下对应的元素，把对应的元素绘制到合成Canvas上，最后把Canvas转换成图片，实现截图。
+    //导出图片：简单来讲就是分别获取一下对应的元素，把对应的元素绘制到合成Canvas上，最后把Canvas转换成图片，实现截图。
+    async takeScreenshot() {
+
+      // //  4: 获取 Cesium 场景的 Canvas 图像
+      // const cesiumCanvas = window.viewer.scene.canvas;
+      // const cesiumImage = cesiumCanvas.toDataURL('image/png');  // Cesium 场景导出为图片
+      //
+      // //  8: 创建一个新的合成 Canvas
+      // const finalCanvas = this.createFinalCanvas();
+      // const finalContext = finalCanvas.getContext('2d', {willReadFrequently: true});
+      //
+      // //  9: 将 Cesium 场景绘制到合成 Canvas 上
+      // await this.drawImageToCanvas(finalContext, cesiumImage, 0, 0);
+      //
+      // //  14: 将合成后的 Canvas 转换为图片
+      // this.previewImage = finalCanvas.toDataURL('image/png');
+      const distanceLegendCanvas = await this.renderElementToCanvas('.distance-legend', '距离标尺');
+      // const compassCanvas = await this.renderElementToCanvas('.compassContainer', '指南针');
+
+      const finalCanvas = this.createFinalCanvas();
+      const finalContext = finalCanvas.getContext('2d', {willReadFrequently: true});
+
+      finalContext.drawImage(distanceLegendCanvas, 20, finalCanvas.height - distanceLegendCanvas.height - 20);
+      finalContext.drawImage(compassCanvas, 20, finalCanvas.height - compassCanvas.height - 20);
+
+      // finalContext.drawImage(compassCanvas, finalCanvas.width - compassCanvas.width - 20, 20);
+
+      // 获取要截取的 DOM 元素
+      const elementToCapture = document.querySelector('#cesiumContainer');
+      console.log(elementToCapture, "elementToCapture")
+      // 使用 html2canvas 截图
+      html2canvas(elementToCapture, {
+        useCORS: true, // 允许跨域请求，确保图片加载
+        logging: true, // 打开日志以查看可能的错误
+        scale: 2, // 提高图像质量
+        backgroundColor: null // 使背景透明
+      }).then(canvas => {
+        // 将 canvas 转换为图片
+        const finalImage = canvas.toDataURL('image/png');
+
+        // 创建下载链接并触发下载
+        const link = document.createElement('a');
+        link.download = `test.png`; // 设置下载文件名
+        link.href = finalImage; // 设置图片来源
+        link.click(); // 触发下载
+      }).catch(error => {
+        console.error('Error capturing the screenshot:', error);
+      });
+
+    },
+    // 创建最终合成的 Canvas
+    createFinalCanvas() {
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = document.querySelector('#cesiumContainer').offsetWidth;
+      finalCanvas.height = document.querySelector('#cesiumContainer').offsetHeight;
+      return finalCanvas;
+    },
+    // 将元素渲染为 Canvas
+    async renderElementToCanvas(selector, elementName) {
+      const element = document.querySelector(selector);
+      return await html2canvas(element, {
+        useCORS: true,
+        scale: 1,
+        backgroundColor: null
+      });
+    },
+    /**
+     * 检查地形是否已加载
+     * cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
+     * 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
+     * 该方法通过检查当前地形提供者的类型来确定地形是否已经加载
+     * 如果地形提供者是椭球地形提供者(EllipsoidTerrainProvider)，则视为地形未加载
+     * 如果地形提供者已定义且不是椭球地形提供者，则视为地形已加载
+     *
+     * @returns {Boolean} 返回地形是否已加载的状态
+     */
+    isTerrainLoaded() {
+      // 获取当前的地形提供者
+      let terrainProvider = window.viewer.terrainProvider;
+      // 检查地形提供者是否是椭球地形提供者
+      if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
+        // 在控制台输出地形未加载的信息
+        // console.log("地形未加载")
+        return false;
+      } else if (Cesium.defined(terrainProvider)) {
+        // console.log("地形已加载")
+        return true;
+      }
+      // console.log("地形未加载")
+      return false;
+    },
+    /**
+     * 监听地形提供器变化
+     * 当地形提供器发生变化时，此方法将被触发
+     * 根据modelName的值设置不同的高度，并尝试查找地形
+     * 如果地形已加载，则使用一组预设高度；如果地形未加载，则使用另一组预设高度
+     * 目前，高度设置和查找地形的方法被注释掉，需要在适当时候启用或移除
+     */
+    watchTerrainProviderChanged() {
+      let that = this
+      window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
+        this.popupVisible = false // 地形改变时关闭弹窗
+        let tzs = []
+        if (that.modelName === 1) {
+          tzs[0] = 9
+          tzs[1] = -567
+        } else {
+          tzs[0] = 15
+          tzs[1] = -557
+        }
+        if (that.isTerrainLoaded()) {
+          // that.changeHeight(tzs[0])
+          // that.tz = tzs[0]
+          // that.find()
+        } else {
+          // that.changeHeight(tzs[1])
+          // that.tz = tzs[1]
+          // that.find()
+        }
+      });
+    },
+    /**
+     * 向地图中添加实体对象
+     *
+     * @param {Object} element - 实体对象，包含实体的各类属性
+     * @param {String} icon - 实体的图标URL
+     * @param {String} tableName - 实体所在的表名称
+     * @param {Number} longitude - 实体的经度
+     * @param {Number} latitude - 实体的纬度
+     */
+    addEntity(element, icon, tableName, longitude, latitude) {
+      // 使用Cesium的viewer实例向地图中添加一个实体
+      window.viewer.entities.add({
+        id: element.uuid, // 实体的唯一标识符，使用元素的UUID
+        position: Cesium.Cartesian3.fromDegrees(longitude, latitude), // 实体的地理位置，通过经度和纬度转换为Cartesian3坐标
+        billboard: { // 实体的图标配置
+          image: icon, // 图标的URL
+          width: 40, // 图标宽度
+          height: 40, // 图标高度
+          eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 图标相对于位置点的偏移量
+          color: Cesium.Color.WHITE.withAlpha(1), // 图标的颜色和透明度
+          scale: 0.8, // 图标的缩放比例
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 图标高度参考，使图标贴合地面
+          depthTest: false, // 禁用深度测试，防止图标被地形遮挡
+          disableDepthTestDistance: Number.POSITIVE_INFINITY // 设置禁用深度测试的距离为无穷远，确保图标始终不进行深度测试
+        },
+        properties: { // 实体的属性信息
+          tableName: tableName, // 动态传入的表名称
+          ...element, // 将element对象展开，自动填充所有属性
+          lon: element.longitude, // 实体的经度
+          lat: element.latitude // 实体的纬度
+        },
+      });
+    },
+    /**
+     * 根据类型删除实体
+     *
+     * 此函数用于从当前窗口的实体集合中，按指定类型删除所有实体
+     * 它通过遍历实体集合，检查每个实体的类型属性，如果匹配给定的类型，则删除该实体
+     * 采用倒序遍历以避免删除实体时可能导致的索引变化问题
+     *
+     * @param {string} type - 要删除的实体类型
+     */
+    removeEntitiesByType(type) {
+      // 获取当前窗口中所有的实体
+      let entities = window.viewer.entities.values;
+      // 倒序遍历实体数组，以确保删除实体时不会影响遍历
+      for (let i = entities.length - 1; i >= 0; i--) {
+        // 检查当前实体的类型是否与给定类型匹配
+        if (entities[i].properties?.type?.getValue() === type) {
+          // 如果匹配，则移除该实体
+          window.viewer.entities.remove(entities[i]);
+        }
+      }
+    },
+    /**
+     * 检查指定名称的图层是否存在于地图中
+     *
+     * @param {string} layerName - 需要检查的图层名称
+     * @return {boolean} - 如果图层存在，则返回true；否则返回false
+     */
+    imageryLayersExists(layerName) {
+      // 获取地图中所有的图层
+      const layers = viewer.imageryLayers;
+      // 遍历所有图层，检查是否存在指定名称的图层
+      for (let i = 0; i < layers.length; i++) {
+        if (layers.get(i).name === layerName) {
+          // 如果找到指定名称的图层，返回true
+          return true;
+        }
+      }
+      // 如果遍历完所有图层后仍未找到指定名称的图层，返回false
+      return false;
+    },
+    /**
+     * 添加雅安地区图层
+     * 此函数负责将雅安地区的地理边界数据加载到3D地图中，并为其添加可视化图层
+     * 如果图层已存在，则不会重复添加
+     */
+    addYaanRegion() {
+      // 检查是否已存在名为'YaanRegionLayer'的数据源，如果不存在则加载
+      if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
+        // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          strokeWidth: 4,
+        });
+
+        // 当数据源加载成功后，执行以下操作
+        geoPromise.then((dataSource) => {
+          // 将数据源添加到地图中
+          window.viewer.dataSources.add(dataSource);
+          // 给图层取名字,以便删除时找到
+          dataSource.name = 'YaanRegionLayer';
+
+          // 定义雅安各区县的颜色和名称
+          const colors = [
+            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+            {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+            {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+            {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+            {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+            {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+            {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+            {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+          ];
+          // 为每个区县实体设置颜色
+          dataSource.entities.values.forEach((entity, index) => {
+            // 根据实体索引依次从颜色数组中取颜色
+            const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
+            const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
+            entity.polygon.material = colorMaterial; // 设置填充颜色
+            // console.log("--------", index, "----------------", entity)
+          });
+          // console.log("dataSource--------------", dataSource.entities.values.length)
+
+          // 生成图例
+          const legend = document.getElementById('legend');
+          legend.style.display = 'block';
+          colors.forEach((colorItem, index) => {
+            if (index > 0) {
+              const colorBox = document.createElement('div');
+              colorBox.style.display = 'flex';
+              colorBox.style.alignItems = 'center';
+              colorBox.style.marginBottom = '5px';
+
+              // 创建颜色方块
+              const colorSquare = document.createElement('div');
+              colorSquare.style.width = '20px';
+              colorSquare.style.height = '20px';
+              colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
+              colorSquare.style.marginRight = '10px';
+
+              // 创建颜色名称标签
+              const colorLabel = document.createElement('span');
+              colorLabel.textContent = colorItem.name;
+
+              // 将颜色方块和名称加入到图例中
+              colorBox.appendChild(colorSquare);
+              colorBox.appendChild(colorLabel);
+              legend.appendChild(colorBox);
+            }
+
+          });
+        }).catch((error) => {
+          // 如果加载数据源失败，则输出错误信息
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      }
+    },
+    /**
+     * 添加人口图层
+     * 此方法用于在地图中添加一个人口图层，如果该图层已存在，则不进行任何操作
+     * 人口图层通过Web Map Service (WMS) 提供，具体配置包括服务URL、图层名称和一些请求参数
+     */
+    addPopLayer() {
+      let baseURL = import.meta.env.VITE_APP_API_URL
+      // 检查是否已存在名为'PopLayer'的图层
+      let popLayerexists = this.imageryLayersExists('PopLayer')
+      if (!popLayerexists) {
+        // 如果不存在，则创建并添加新的WMS图层
+        let popLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapServiceImageryProvider({
+              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
+              layers: 'yaan:pop', // 需要请求的图层名称
+              parameters: {
+                service: 'WMS', // 指定服务类型为WMS
+                format: 'image/png', // 指定返回的图像格式为PNG
+                transparent: true // 启用透明背景
+              }
+            })
+        );
+        popLayer.name = "PopLayer"; // 设置图层名称为"PopLayer"
+      }
+    },
+    /**
+     * 添加交通图层到地图
+     * 该方法首先检查是否已经存在名为'TrafficLayer'的图层，如果不存在，则从天地图服务添加交通图层
+     * 同样，如果不存在名为'TrafficTxtLayer'的图层，则添加交通注记图层
+     */
+    addTrafficLayer() {
+      // 获取天地图API令牌
+      let token = TianDiTuToken;
+
+      // 检查是否存在'TrafficLayer'图层
+      let trafficLayerexists = this.imageryLayersExists('TrafficLayer')
+      if (!trafficLayerexists) {
+        // 创建并添加交通图层
+        let trafficLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通图层的URL模板
+              url:
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+            })
+        );
+        trafficLayer.name = "TrafficLayer"; // 设置名称
+      }
+
+      // 检查是否存在'TrafficTxtLayer'图层
+      let trafficTxtLayerExists = this.imageryLayersExists('TrafficTxtLayer')
+      if (!trafficTxtLayerExists) {
+        // 创建并添加交通注记图层
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通注记图层的URL模板
+              url:
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false, // 初始状态下不显示注记
+            })
+        )
+        traffictxtLayer.name = "TrafficTxtLayer"
+      }
+    },
+    /**
+     * 移除指定名称的影像图层
+     *
+     * 该方法旨在从当前 viewer 的影像图层列表中移除第一个匹配给定图层名称的图层
+     * 主要用于动态管理地图上的影像图层，提高地图的可读性和性能
+     * @param {string} layerName - 要移除的影像图层的名称
+     *        图层名称是在添加图层时指定的，用于唯一标识每个图层
+     */
+    removeImageryLayer(layerName) {
+      // 获取当前 viewer 的所有影像图层
+      const layers = window.viewer.imageryLayers;
+      // 遍历所有图层，寻找与给定名称匹配的图层
+      for (let i = 0; i < layers.length; i++) {
+        // 当找到名称匹配的图层时
+        if (layers.get(i).name === layerName) {
+          // 移除该图层
+          layers.remove(layers.get(i));
+          // 完成移除后即返回，结束函数执行
+          return;
+        }
+      }
+    },
+    /**
+     * 移除数据源图层
+     *
+     * 本函数通过指定的图层名称，从当前窗口的 viewer 数据源中移除该图层如果图层存在，则会被成功移除
+     * 此操作用于清理或更新地图显示，确保地图界面的准确性和时效性
+     *
+     * @param {string} layerName - 图层名称，用于标识特定的图层
+     */
+    removeDataSourcesLayer(layerName) {
+      // 通过图层名称获取数据源对象如果存在，则执行移除操作
+      const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+      if (dataSource) {
+        window.viewer.dataSources.remove(dataSource);
+      }
+    },
+    //标绘图层清除-->
+    /**
+     * 移除标记图层
+     * 遍历plots数组，查找并移除每个plot对应的图层实体
+     */
+    MarkingLayerRemove() {
+      // 遍历所有plot
+      this.plots.forEach(item => {
+        // 获取指定plotId的实体
+        const entity = viewer.entities.getById(item.plotId);
+        // 如果实体存在，则移除该实体
+        if (entity) {
+          viewer.entities.removeById(item.plotId);
+          // 标记该plotId对应的图层为隐藏状态
+          this.plotisshow[item.plotId] = 0
+        }
+      })
+    },
+    /**
+     * 处理标记图层切换
+     * 当切换到本地标记图层时，如果不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
+     * 当切换到非本地标记图层时，如果存在名为'drawingLayer'的图层，则从视图中移除该图层
+     *
+     * @param {boolean} isMarkingLayerLocal - 表示是否为本地标记图层
+     */
+    handleMarkingLayerChange(isMarkingLayerLocal) {
+      if (isMarkingLayerLocal) {
+        // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
+        if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
+          let newLayer = new Cesium.CustomDataSource('drawingLayer');
+          window.viewer.dataSources.add(newLayer);
+          newLayer.show = true;
+          this.isMarkingLayerLocal = true;
+        }
+      } else {
+        // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
+        this.isMarkingLayerLocal = false;
+        // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
+        let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
+        if (dataSource) {
+          window.viewer.dataSources.remove(dataSource);
+        }
+      }
+    },
+    /**
+     * 根据经纬度获取人口密度信息
+     *
+     * 该函数通过调用WMS服务来获取给定经纬度坐标附近的人口密度信息它发送一个HTTP请求，请求类型为GetFeatureInfo，
+     * 并指定了相应的查询图层和查询范围（通过bounding box指定）返回的人口密度信息将以JSON格式进行处理
+     *
+     * @param {number} longitude - 经度坐标，用于指定查询区域的中心点
+     * @param {number} latitude - 纬度坐标，用于指定查询区域的中心点
+     */
+    getPopDesity(longitude, latitude) {
+      let baseURL = import.meta.env.VITE_APP_API_URL
+      // WMS服务的URL
+      const url = baseURL + "/geoserver/yaan/wms"
+      // 查询区域的边界框大小，用于确定查询区域的范围
+      const bboxSize = 0.001
+      // 构建URL查询参数
+      const urlParams = new URLSearchParams({
+        service: 'WMS',
+        request: 'GetFeatureInfo',
+        version: '1.1.1',
+        layers: "yaan:pop",
+        query_layers: "yaan:pop",
+        bbox: `${longitude - bboxSize},${latitude - bboxSize},${longitude + bboxSize},${latitude + bboxSize}`,
+        width: 101,
+        height: 101,
+        info_format: 'application/json',
+        x: 50,
+        y: 50,
+        srs: 'EPSG:4326',
+      })
+      // 构建完整的请求URL
+      const fullUrl = `${url}?${urlParams.toString()}`;
+      // 打印调试信息
+      // console.log('GetFeatureInfo URL:', fullUrl);
+      // 发送HTTP请求，并处理响应
+      fetch(fullUrl).then(response => response.json()).then(data => {
+        // 处理返回的数据，这里仅打印出人口密度信息
+        // console.log(data.features[0].properties)
+      }).catch(error => {
+        // 错误处理，打印错误信息
+        // console.error('There was an error!', error);
+      });
+    },
+    /**
+     * 专题图下载
+     * 更新主题地图的预览
+     * 当选择了一个主题地图后，显示地图的预览图；如果没有选择，则隐藏预览图
+     */
+    updatethematicMap() {
+      if (this.selectthematicMap) {
+        this.ifShowMapPreview = true
+        const selectedData = MapPicUrl.find(item => item.eqid === this.eqid && item.name === this.selectthematicMap);
+        // console.log(selectedData)
+        this.imgurlFromDate = selectedData.path
+        this.imgName = selectedData.name
+        // console.log("11111",this.imgurlFromDate, this.imgName)
+        this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+        // console.log(this.imgshowURL)
+      } else {
+        this.ifShowMapPreview = false
+      }
+
+    },
+    ifShowThematicMapDialog(val) {
+      this.ifShowMapPreview = val // 是否预览专题图 = val
+      if (!val) {
+        this.selectthematicMap = null
+      }
+    },
+    updateReportItem() {
+      if (this.selectReportItem) {
+        // console.log(this.selectReportItem)
+        const selectedData = ReportUrl.find(item => item.eqid === this.eqid && item.name === this.selectReportItem);
+        const link = document.createElement('a');
+        link.href = selectedData.path;
+        link.download = selectedData.name; // 指定下载的文件名
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => {
+          this.selectReportItem = null;
+        }, 1000); // 1000 毫秒后执行
+      }
+    },
+    // 关闭弹窗
+    closePlotPop() {
+      this.timelinePopupVisible = !this.timelinePopupVisible
+    },
+    // ws发送数据（只有点的是在这里）
+    wsSendPoint(data) {
+      this.websock.send(data)
+    },
+    clearResource(viewer) {
+      this.isTimerRunning = false;
+      let gl = viewer.scene.context._gl
+      viewer.entities.removeAll()
+      // 不用写这个，viewer.destroy时包含此步，在DatasourceDisplay中
+      viewer.destroy()
+      gl.getExtension("WEBGL_lose_context").loseContext();
+      gl = null
+    },
+    /**
+     * 计算复选框列表的高度
+     * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
+     *
+     * @returns {number} 返回复选框列表的总高度
+     */
+    getHeight() {
+      // 每个复选框的高度
+      const checkboxHeight = 50;
+      // 复选框之间的间距值
+      const margin = 10;
+      // 输出用于校验的计算结果，帮助理解复选框数量如何影响高度计算
+      // console.log(((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin)
+      // 返回复选框列表的总高度，包括所有复选框的高度和它们之间的间距
+      return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
+    },
+    /**
+     * 图层要素 切换展开状态
+     *
+     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
+     *
+     * @returns {void} 无返回值
+     */
+    toggleExpand() {
+      // console.log("Toggle expand clicked");
+      this.isExpanded = !this.isExpanded;
+    },
+    /**
+     * 设置组件展开的面板互斥,避免堆叠
+     * 切换组件的显示状态
+     * @param {String} component - 要切换的组件名称
+     */
+    toggleComponent(component) {
+      // 收起图层要素
+      this.isExpanded = false;
+      // 清除主题地图预览的显示状态
+      this.isshowThematicMapPreview = null;
+      // 清除选择的主题地图
+      this.selectthematicMap = null;
+
+      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+      this.activeComponent = this.activeComponent === component ? null : component;
+    },
   }
 }
 </script>
@@ -3117,7 +2742,6 @@ export default {
   top: 8.3%;
   left: 2%;
 }
-
 
 
 :deep(.el-button--primary) {
