@@ -25,29 +25,6 @@
         </ul>
       </div>
     </div>
-<!--    <div v-if="showNewPanel && this.responseNewPanelShow.length!=0 " class="new-panel" :style="{ height: panelHeight }">-->
-<!--      <div class="close-button" @click="hideDetailedNews">-->
-<!--        &times; &lt;!&ndash; 叉号字符 &ndash;&gt;-->
-<!--      </div>-->
-<!--      <table class="data-table">-->
-<!--        <thead>-->
-<!--        <tr>-->
-<!--          <th>时间</th>-->
-<!--          <th>部门</th>-->
-<!--          <th>状态</th>-->
-<!--          <th>响应级别</th>-->
-<!--        </tr>-->
-<!--        </thead>-->
-<!--        <tbody>-->
-<!--        <tr v-for="(item, index) in responseNewPanelShow" :key="index">-->
-<!--          <td>{{ item.time }}</td>-->
-<!--          <td>{{ item.department }}</td>-->
-<!--          <td>{{ item.state }}</td>-->
-<!--          <td>{{ item.ResponseName }}</td>-->
-<!--        </tr>-->
-<!--        </tbody>-->
-<!--      </table>-->
-<!--    </div>-->
   </div>
 </template>
 

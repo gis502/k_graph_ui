@@ -4,7 +4,7 @@
       <eqTable :eqData="tableData"/>
     </div>
     <!--    title-->
-    <div id="title" class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 900; left: 0px; top: 0px;">
+    <div id="title" class="pop-dialog new-pannel fadein-down fadein-left" style="z-index: 100; left: 0px; top: 0px;">
       <div class="pop-dialog__content" style="height: 100%;">
         <div class="logo-title">
           <div class="logo-title-content" style="padding: 0 0 15px 0;">

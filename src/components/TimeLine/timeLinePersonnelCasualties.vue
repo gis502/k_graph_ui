@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <div class="pop">
@@ -307,7 +308,7 @@ export default {
 }
 
 .death_text {
-  color: #e80c1a;
+  color: #ffffff;
 
 }
 
