@@ -354,7 +354,7 @@ export default {
         return;
       }
       this.dataInTimeAndZoom = []
-      // console.log(this.dataIntime, "this.dataIntime")
+      console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
 
       // console.log(this.viewCenterCoordinate,originalArray,"originalArray")
@@ -522,11 +522,10 @@ export default {
           ],
         })
 
-        if(end==this.myChart1Data.length-1){
-          start=0
-          end=4
-        }
-        else{
+        if (end == this.myChart1Data.length - 1) {
+          start = 0
+          end = 4
+        } else {
           start = start + 1
           end = end + 1
         }
@@ -540,7 +539,7 @@ export default {
       }
     },
     handleMouseLeave() {
-      if (!this.isTimerRunning){
+      if (!this.isTimerRunning) {
         // 鼠标移开时，恢复自动滚动的 interval
         this.scroll();
       }

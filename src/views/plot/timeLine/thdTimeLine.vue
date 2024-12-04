@@ -255,6 +255,7 @@ import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
 import axios from "axios";
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
+
 export default {
   components: {
     timeLineCasualtyStatisticthd,
@@ -449,6 +450,7 @@ export default {
         lat: null
       },//视角中心坐标
 
+      canOperateTimerLine: false
     };
   },
   created() {
@@ -678,25 +680,21 @@ export default {
               //标绘点
               that.wsAdd(markType, markData)
             }
-          }
-          else if (markOperate === "delete") {
+          } else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
             that.plotisshow[id] = 0
             if (markType === "point") {
               cesiumPlot.deletePointById(id);
-            }
-            else if (markType === "polyline") {
+            } else if (markType === "polyline") {
               let polyline = window.viewer.entities.getById(id)
               let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
               polylinePosition.pointPosition.forEach((item, index) => {
                 window.viewer.entities.remove(item)
               })
               window.viewer.entities.remove(polyline)
-            }
-            else if (markType === "polygon") {
+            } else if (markType === "polygon") {
               window.viewer.entities.removeById(id)
-            }
-            else if (markType === "arrow") {
+            } else if (markType === "arrow") {
               Arrow.clearById(id)
             }
           }
@@ -711,19 +709,16 @@ export default {
       this.plotisshow[data.plot.plotId] = 1
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      }
-      else if (type === "polyline") {
+      } else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      }
-      else if (type === "polygon") {
+      } else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      }
-      else if (type === "arrow") {
-        if(data.plot.plotType==="攻击箭头"){
+      } else if (type === "arrow") {
+        if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
-        }else if(data.plot.plotType==="钳击箭头"){
+        } else if (data.plot.plotType === "钳击箭头") {
           arrow.showPincerArrow([data.plot])
-        }else if(data.plot.plotType==="直线箭头"){
+        } else if (data.plot.plotType === "直线箭头") {
           arrow.showStraightArrow([data.plot])
         }
       }
@@ -787,6 +782,7 @@ export default {
         this.flashingCenter()
         setTimeout(() => {
           // this.ifUpdateEndTime(this.eqid)
+          this.canOperateTimerLine = true
           this.toggleTimer() //模拟播放时间轴
         }, 3000);
       }, 3000);
@@ -873,8 +869,8 @@ export default {
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         //人员伤亡详情
         this.pointsLayer = [...pointArr]
-        console.log("获取 pointsLayer", this.pointsLayer)
-
+        // console.log("获取 pointsLayer", this.pointsLayer)
+        // this.plotsDataIsReady=true
       })
     },
     //控制视角跳转的递归函数
@@ -927,7 +923,7 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        console.log("time", startDate, currentDate, endDate)
+        // console.log("time", startDate, currentDate, endDate)
 
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
           // console.log("item.plotId add", item.plotId)
@@ -1133,7 +1129,6 @@ export default {
     toggleTimer() {
       // 如果计时器未运行，则初始化计时器线
       if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
-
         console.log("toggleTimer1")
         this.isTimerRunning = true
         this.initTimerLine();
@@ -1156,6 +1151,8 @@ export default {
           this.centerMarkOpacityTo1()
         }
       }
+
+
     },
     /**
      * 初始化计时线
@@ -1178,7 +1175,7 @@ export default {
       this.plots.forEach(item => {
         if (this.plotisshow[item.plotId] === 1) {
           this.plotisshow[item.plotId] = 0
-          cesiumPlot.deleteMakerById(item.plotId,item.drawtype,item.plotType);
+          cesiumPlot.deleteMakerById(item.plotId, item.drawtype, item.plotType);
         }
       })
       this.flyToCenter()
@@ -1281,18 +1278,17 @@ export default {
      * @param {function} this.updatePlot 更新图表函数，用于在时间线前进时更新图表
      */
     forward() {
-
-
-      this.isfirst = false
-      let flag = this.updateCurrentTimeOnce();
-      if (flag) {
-        // if (this.isTimerRunning) {
-        if (this.isMarkingLayer) {
-          this.updatePlotOnce("3")
-        } else {
-          this.MarkingLayerRemove()
+      if (this.canOperateTimerLine) {
+        this.isfirst = false
+        let flag = this.updateCurrentTimeOnce();
+        if (flag) {
+          // if (this.isTimerRunning) {
+          if (this.isMarkingLayer) {
+            this.updatePlotOnce("3")
+          } else {
+            this.MarkingLayerRemove()
+          }
         }
-        // }
       }
     },
 
@@ -1304,56 +1300,58 @@ export default {
      * 并更新图表显示
      */
     backward() {
+      if (this.canOperateTimerLine) {
+        this.isfirst = false
+        let flag = 1
+        // let nextNodeIndex = null;
+        for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
+          if (this.jumpNodes[i] === 1) {
+            this.nextNodeIndex = i;
+            // console.log("this.nextNodeIndex", this.nextNodeIndex)
+            flag = 1;
+            break;
+          }
+          // console.log(i, "i")
+          if (i <= 0) {
+            flag = 0
+            // console.log("over")
+            // console.log("this.currentTime",this.currentTime,this.eqendTime)
+            this.currentTimePosition = 0;
+            this.nextNodeIndex = 0;
+            this.currentNodeIndex = 0
+            this.currentTime = this.eqstartTime
 
-      this.isfirst = false
-      let flag = 1
-      // let nextNodeIndex = null;
-      for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
-        if (this.jumpNodes[i] === 1) {
-          this.nextNodeIndex = i;
-          // console.log("this.nextNodeIndex", this.nextNodeIndex)
-          flag = 1;
-          break;
+            this.stopTimer();
+            this.plots.forEach(item => {
+              if (this.plotisshow[item.plotId] === 1) {
+                this.plotisshow[item.plotId] = 0
+                cesiumPlot.deletePointById(item.plotId);
+              }
+            })
+
+          }
         }
-        // console.log(i, "i")
-        if (i <= 0) {
-          flag = 0
-          // console.log("over")
-          // console.log("this.currentTime",this.currentTime,this.eqendTime)
-          this.currentTimePosition = 0;
-          this.nextNodeIndex = 0;
-          this.currentNodeIndex = 0
-          this.currentTime = this.eqstartTime
 
-          this.stopTimer();
-          this.plots.forEach(item => {
-            if (this.plotisshow[item.plotId] === 1) {
-              this.plotisshow[item.plotId] = 0
-              cesiumPlot.deletePointById(item.plotId);
-            }
-          })
-
+        // 停止
+        // if (this.nextNodeIndex === null) {
+        //   this.currentTimePosition = 0;
+        //   this.currentTime = this.eqstartTime
+        //   this.stopTimer();
+        //   this.isTimerRunning = false
+        // }
+        //更新到下一跳
+        if (flag === 1) {
+          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
+          // 计算时间进度条的当前位置增量
+          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+          // 根据是否需要显示标绘层来更新图层
+          this.updatePlotOnce("3")
         }
       }
 
-      // 停止
-      // if (this.nextNodeIndex === null) {
-      //   this.currentTimePosition = 0;
-      //   this.currentTime = this.eqstartTime
-      //   this.stopTimer();
-      //   this.isTimerRunning = false
-      // }
-      //更新到下一跳
-      if (flag === 1) {
-        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
-        // 计算时间进度条的当前位置增量
-        // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
-        this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-        // 根据是否需要显示标绘层来更新图层
-        this.updatePlotOnce("3")
-      }
     },
 
     /**
@@ -1361,42 +1359,45 @@ export default {
      * @param {MouseEvent} event - 鼠标点击事件
      */
     jumpToTime(event) {
-      this.isfirst = false
-      let currentTimeTmp = this.currentTime
-      // 获取时间轴的矩形区域，用于计算点击位置对应的进度
-      const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
-      // 计算点击位置相对于时间轴左边缘的距离
-      const clickedPosition = event.clientX - timeRulerRect.left;
-      // 根据点击位置计算当前时间进度的百分比
-      this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
-      // 更新时间进度条的宽度，以反映当前时间进度
-      this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
-      // 根据当前时间进度百分比和总步骤数计算当前步骤索引
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
-      // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
-      // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // console.log("this.currentTime jumpToTime",this.currentTime)
-      if (this.currentTimePosition >= 100) {
-        // 当时间进度达到或超过100%时，重置为100%
-        this.currentTimePosition = 100;
-        // 设置当前时间为结束时间
-        this.currentTime = this.eqendTime
-        // 停止计时器
-        this.stopTimer();
-        // 更新计时器运行状态标志为false
-        this.isTimerRunning = false
-        // 调用 intimexuanran 方法，传入地震ID
-        this.intimexuanran(this.eqid)
+      if (this.canOperateTimerLine) {
 
-      } else {
-        if (currentTimeTmp > this.currentTime) {
-          this.updatePlotOnce("3")
+
+        this.isfirst = false
+        let currentTimeTmp = this.currentTime
+        // 获取时间轴的矩形区域，用于计算点击位置对应的进度
+        const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
+        // 计算点击位置相对于时间轴左边缘的距离
+        const clickedPosition = event.clientX - timeRulerRect.left;
+        // 根据点击位置计算当前时间进度的百分比
+        this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
+        // 更新时间进度条的宽度，以反映当前时间进度
+        this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
+        // 根据当前时间进度百分比和总步骤数计算当前步骤索引
+        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
+        // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
+        // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // console.log("this.currentTime jumpToTime",this.currentTime)
+        if (this.currentTimePosition >= 100) {
+          // 当时间进度达到或超过100%时，重置为100%
+          this.currentTimePosition = 100;
+          // 设置当前时间为结束时间
+          this.currentTime = this.eqendTime
+          // 停止计时器
+          this.stopTimer();
+          // 更新计时器运行状态标志为false
+          this.isTimerRunning = false
+          // 调用 intimexuanran 方法，传入地震ID
+          // this.intimexuanran(this.eqid)
+
         } else {
-          this.updatePlotOnce("3")
+          if (currentTimeTmp > this.currentTime) {
+            this.updatePlotOnce("3")
+          } else {
+            this.updatePlotOnce("3")
+          }
         }
       }
-
     },
 
     /**
@@ -1407,16 +1408,19 @@ export default {
      * @param {MouseEvent} event - 鼠标事件对象，包含拖拽开始时的坐标信息
      */
     startDrag(event) {
-      this.isfirst = false
-      this.isDragging = true; // 标记当前开始进入拖拽状态
-      this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
-      document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
-      document.addEventListener('mouseup', this.stopDrag(this.currentTime)); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
-      // 添加禁用选择的 CSS 样式
-      document.body.style.userSelect = 'none';
-      document.body.style.WebkitUserSelect = 'none';
-      document.body.style.MozUserSelect = 'none';
-      document.body.style.msUserSelect = 'none';
+      if (this.canOperateTimerLine) {
+
+        this.isfirst = false
+        this.isDragging = true; // 标记当前开始进入拖拽状态
+        this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
+        document.addEventListener('mousemove', this.drag); // 在文档上添加鼠标移动事件监听器，用于处理拖拽过程
+        document.addEventListener('mouseup', this.stopDrag(this.currentTime)); // 在文档上添加鼠标抬起事件监听器，用于结束拖拽
+        // 添加禁用选择的 CSS 样式
+        document.body.style.userSelect = 'none';
+        document.body.style.WebkitUserSelect = 'none';
+        document.body.style.MozUserSelect = 'none';
+        document.body.style.msUserSelect = 'none';
+      }
     },
 
     /**
@@ -1424,23 +1428,25 @@ export default {
      * @param {MouseEvent} event - 鼠标拖动事件对象
      */
     drag(event) {
-      // 如果没有拖动，则不执行后续操作
-      if (!this.isDragging) return;
-      // 获取时间尺的矩形信息
-      const timeRulerRect = this.$el.querySelector('.time-ruler').getBoundingClientRect();
-      // 计算鼠标点击位置相对于时间尺左边缘的水平距离
-      const clickedPosition = Math.max(timeRulerRect.left, Math.min(event.clientX, timeRulerRect.right)) - timeRulerRect.left;
-      // 计算新的进度位置百分比
-      const newPosition = (clickedPosition / timeRulerRect.width) * 100;
-      // 更新当前节点索引，根据时间线的总进度数进行比例转换
+      if (this.canOperateTimerLine) {
 
-      // 更新时间进度条的宽度，以反映新的进度位置
+        // 如果没有拖动，则不执行后续操作
+        if (!this.isDragging) return;
+        // 获取时间尺的矩形信息
+        const timeRulerRect = this.$el.querySelector('.time-ruler').getBoundingClientRect();
+        // 计算鼠标点击位置相对于时间尺左边缘的水平距离
+        const clickedPosition = Math.max(timeRulerRect.left, Math.min(event.clientX, timeRulerRect.right)) - timeRulerRect.left;
+        // 计算新的进度位置百分比
+        const newPosition = (clickedPosition / timeRulerRect.width) * 100;
+        // 更新当前节点索引，根据时间线的总进度数进行比例转换
 
-      // 更新当前时间进度位置
-      this.currentTimePosition = newPosition;
-      // this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
-      // this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition - 0.5}%`;
+        // 更新时间进度条的宽度，以反映新的进度位置
 
+        // 更新当前时间进度位置
+        this.currentTimePosition = newPosition;
+        // this.$el.querySelector('.time-progress').style.width = `${newPosition}%`;
+        // this.$el.querySelector('.time-slider').style.left = `${this.currentTimePosition - 0.5}%`;
+      }
     },
 
     /**
@@ -1448,36 +1454,39 @@ export default {
      * 当用户释放鼠标按钮时调用此方法，以重置拖拽状态并停止监听鼠标事件
      */
     stopDrag(time) {
-      this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
-      // 根据开始时间和当前节点索引计算当前时间
-      // 注意：此处将时间增量从15分钟调整为5分钟
-      this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-      // let timetmp=this.currentTime
-      // 重置isDragging状态，表示不再拖拽中
-      this.isDragging = false;
-      // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
-      document.removeEventListener('mousemove', this.drag);
-      // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
-      document.removeEventListener('mouseup', this.stopDrag);
+      if (this.canOperateTimerLine) {
 
-      // 当currentTimePosition达到或超过100时，进行特殊处理
-      if (this.currentTimePosition >= 100) {
-        this.currentTimePosition = 100;
-        this.currentTime = this.eqendTime;
-        this.stopTimer();
-        this.intimexuanran(this.eqid)
-      } else {
-        if (time > this.currentTime) {
-          this.updatePlotOnce("3")
+        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
+        // 根据开始时间和当前节点索引计算当前时间
+        // 注意：此处将时间增量从15分钟调整为5分钟
+        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        // let timetmp=this.currentTime
+        // 重置isDragging状态，表示不再拖拽中
+        this.isDragging = false;
+        // 移除鼠标移动事件监听器，防止拖拽结束后鼠标移动事件继续触发
+        document.removeEventListener('mousemove', this.drag);
+        // 移除鼠标释放事件监听器，释放后不再需要此事件处理函数
+        document.removeEventListener('mouseup', this.stopDrag);
+
+        // 当currentTimePosition达到或超过100时，进行特殊处理
+        if (this.currentTimePosition >= 100) {
+          this.currentTimePosition = 100;
+          this.currentTime = this.eqendTime;
+          this.stopTimer();
+          // this.intimexuanran(this.eqid)
         } else {
-          this.updatePlotOnce("3")
+          if (time > this.currentTime) {
+            this.updatePlotOnce("3")
+          } else {
+            this.updatePlotOnce("3")
+          }
         }
+        // 恢复默认的选择行为
+        document.body.style.userSelect = 'auto';
+        document.body.style.WebkitUserSelect = 'auto';
+        document.body.style.MozUserSelect = 'auto';
+        document.body.style.msUserSelect = 'auto';
       }
-      // 恢复默认的选择行为
-      document.body.style.userSelect = 'auto';
-      document.body.style.WebkitUserSelect = 'auto';
-      document.body.style.MozUserSelect = 'auto';
-      document.body.style.msUserSelect = 'auto';
     },
 
     /**
