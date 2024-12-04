@@ -82,7 +82,7 @@ export default {
       this.updateChart(); // 更新图表数据
     },
     async personnel_casualties_update(currentTime) {
-      console.log(this.Responsecontent,"this.Responsecontent personnel_casualties_update")
+      // console.log(this.Responsecontent,"this.Responsecontent personnel_casualties_update")
       this.casualtiesHistory = this.Responsecontent.filter((activity) => {
         return new Date(activity.submissionDeadline) <= currentTime;
       });

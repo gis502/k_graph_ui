@@ -49,7 +49,7 @@ export default {
     },
 
     currentTime(newVal) {
-      console.log("currentTime watch",newVal)
+      // console.log("currentTime watch",newVal)
       if(!this.isDataReady){
         this.getRescueActionCasualtiesPlotAndInfo(newVal);
       }
@@ -287,7 +287,7 @@ export default {
     },
     //取位置
     async getRescueActionCasualtiesPlotAndInfo() {
-      console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
+      // console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
       if (!this.plots) {
         return;
       }
@@ -354,7 +354,7 @@ export default {
         return;
       }
       this.dataInTimeAndZoom = []
-      console.log(this.dataIntime, "this.dataIntime")
+      // console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
 
       // console.log(this.viewCenterCoordinate,originalArray,"originalArray")
@@ -389,18 +389,18 @@ export default {
       //   default:
       this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
       this.centerPosionName = '雅安市'
-      console.log(this.centerPosionName, "this.centerPosionName")
+      // console.log(this.centerPosionName, "this.centerPosionName")
       // break;
       // }
       // arr=originalArray.filter(data => data.locationInfo.city === '雅安市');
       // break;
-      console.log(this.dataInTimeAndZoom, "arrinZoom")
+      // console.log(this.dataInTimeAndZoom, "arrinZoom")
 
       // }
 
 
       let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
-        console.log(acc, obj, "occ,obj")
+        // console.log(acc, obj, "occ,obj")
         // 如果acc中已经有这个icon值，则增加它的计数
         if (acc[obj.plotType]) {
           acc[obj.plotType].value += 1;
@@ -412,7 +412,7 @@ export default {
 
       // 将结果转换为数组
       this.myChart1Data = Object.values(counts);
-      console.log(this.myChart1Data, "this.myChart1Data")
+      // console.log(this.myChart1Data, "this.myChart1Data")
       this.myChart1Data = this.myChart1Data.sort((a, b) => {
         return b.value - a.value
       });
