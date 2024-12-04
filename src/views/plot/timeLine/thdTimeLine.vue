@@ -1269,7 +1269,7 @@ export default {
           this.flyToCenter()
           this.isTimerRunning = true
           console.log("bofang toggleTimer")
-          // this.bofang();
+          this.bofang();
         }
         // 如果计时器正在运行，则停止计时器
         else {

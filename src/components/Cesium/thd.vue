@@ -3383,7 +3383,7 @@ export default {
           this.flyToCenter()
           this.isTimerRunning = true
           console.log("bofang toggleTimer")
-          // this.bofang();
+          this.bofang();
         }
         // 如果计时器正在运行，则停止计时器
         else {
@@ -3469,6 +3469,7 @@ export default {
 
       if (i >= this.timelineAdvancesNumber) {
         flag = 0
+        console.log("flag i >= this.timelineAdvancesNumbe")
         this.currentTimePosition = 100;
         this.currentNodeIndex = this.timelineAdvancesNumber
         this.currentTime = this.eqendTime
@@ -3612,10 +3613,8 @@ export default {
 
     },
 
-    /**
-     * 根据用户点击的时间轴位置，跳转到相应的场景
-     * @param {MouseEvent} event - 鼠标点击事件
-     */
+
+    //跳转时间
     async jumpToTime(event) {
       console.log(this.plotsIsReady,"this.plotsIsReady jump")
       if(this.plotsIsReady){
