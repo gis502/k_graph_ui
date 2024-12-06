@@ -117,7 +117,7 @@
     <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
       <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
         <div class="pop_header">
-          <span class="pop_title">专题图产出</span>
+          <span class="pop_title">图件产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <!-- 切换按钮 -->
