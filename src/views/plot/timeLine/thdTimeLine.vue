@@ -450,7 +450,8 @@ export default {
         lat: null
       },//视角中心坐标
 
-      canOperateTimerLine: false
+      canOperateTimerLine: false,
+      wsaddMakers:[]
     };
   },
   created() {
@@ -677,8 +678,15 @@ export default {
           if (markOperate === "add") {
             if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
               let markData = JSON.parse(e.data).data
-              //标绘点
-              that.wsAdd(markType, markData)
+              if (!that.isTimerRunning && that.currentTimePosition >= 100){
+                //标绘点
+                that.wsAdd(markType, markData)
+              }
+              //播放或播放暂停
+              else{
+                // console.log(markType,markData,"markType,markData")
+                that.wsaddMakers.push({markType:markType,markData:markData})
+              }
             }
           } else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
@@ -704,7 +712,6 @@ export default {
       };
     },
     wsAdd(type, data) {
-      // console.log(data,"wsAdd")
       this.plots.push(data.plot)
       this.plotisshow[data.plot.plotId] = 1
       if (type === "point") {
@@ -749,8 +756,6 @@ export default {
         //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
         // this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 60 * 1000);
         this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 5 * 60 * 1000);
-        // this.realTime = new Date(); //真实时间
-        //
         // 根据当前时间和地震结束时间计算时间线推进数量
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
@@ -760,15 +765,12 @@ export default {
         } else {
           this.eqendTime = this.tmpeqendTime
         }
-        // this.currentTime = this.eqendTime
         this.currentTime = this.eqstartTime
-        //timelineAdvancesNumber  jumpNodes赋值为0
         for (let i = 0; i < this.timelineAdvancesNumber; i++) {
           this.jumpNodes[i] = 0;
         }
 
         // 获取地震数据并更新地图和变量
-        // this.checkIfOvalCircleLayer();
         this.updateMapandVariablebeforInit()
 
       })
@@ -781,7 +783,6 @@ export default {
       setTimeout(() => {
         this.flashingCenter()
         setTimeout(() => {
-          // this.ifUpdateEndTime(this.eqid)
           this.canOperateTimerLine = true
           this.toggleTimer() //模拟播放时间轴
         }, 3000);
@@ -811,6 +812,17 @@ export default {
               this.eqendTime = new Date()
               this.currentTime = this.eqendTime
             }, 1000);
+          }
+          let that=this
+          //处理websocket的标绘
+          // console.log(this.wsaddMakers,"this.wsaddMakers")
+          if(this.wsaddMakers.length>0){
+            this.wsaddMakers.forEach((item)=>{
+              let markType=item.markType
+              let markData=item.markData
+              that.wsAdd(markType, markData)
+            })
+            this.wsaddMakers=[]
           }
         }
       } else {

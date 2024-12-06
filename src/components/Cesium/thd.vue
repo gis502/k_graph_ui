@@ -1009,7 +1009,8 @@ export default {
       popupData: {}, // 弹窗内容，传值给子组件
       tableNameOptions: [],
       eqlistName: '',
-      canOperateTimerLine: false
+      canOperateTimerLine: false,
+      wsaddMakers:[]
     };
   },
   created() {
@@ -1243,7 +1244,16 @@ export default {
           if (markOperate === "add") {
             if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
               let markData = JSON.parse(e.data).data
-              that.wsAdd(markType, markData)
+              // that.wsAdd(markType, markData)
+              if (!that.isTimerRunning && that.currentTimePosition >= 100){
+                //标绘点
+                that.wsAdd(markType, markData)
+              }
+              //播放或播放暂停
+              else{
+                // console.log(markType,markData,"markType,markData")
+                that.wsaddMakers.push({markType:markType,markData:markData})
+              }
             }
           } else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id
@@ -1371,7 +1381,7 @@ export default {
      */
     ifUpdateEndTime(eqid) {
       if (this.realTime < this.tmpeqendTime) {
-        //console.log("还在更新的地震")
+        console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
         if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // 当没有结束时间定时器运行时，启动定时器
@@ -1389,9 +1399,20 @@ export default {
               this.currentTime = this.eqendTime
             }, 1000);
           }
+          let that=this
+          //处理websocket的标绘
+          // console.log(this.wsaddMakers,"this.wsaddMakers")
+          if(this.wsaddMakers.length>0){
+            this.wsaddMakers.forEach((item)=>{
+              let markType=item.markType
+              let markData=item.markData
+              that.wsAdd(markType, markData)
+            })
+            this.wsaddMakers=[]
+          }
         }
       } else {
-        //console.log("过去的地震")
+        console.log("过去的地震")
       }
     },
     getPlotwithStartandEndTime(eqid) {
