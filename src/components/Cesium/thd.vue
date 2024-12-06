@@ -827,8 +827,7 @@ export default {
         time: null,
         modelid: null
       },
-      //----------------------------------
-      nextNodeIndex: 1,
+
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
 
@@ -1032,33 +1031,6 @@ export default {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
     this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
-
-    // // 构建树结构数据
-    // // 顶层两个分类节点
-    // this.treeData = [
-    //   {
-    //     id: 'thematicMap_root',
-    //     name: '专题图',
-    //     type: 'category',
-    //     children: this.thematicMapitems.map(item => ({
-    //       id: `thematicMap_${item.id}`,
-    //       name: item.name,
-    //       type: 'thematicMap',
-    //       path: item.path
-    //     }))
-    //   },
-    //   {
-    //     id: 'report_root',
-    //     name: '报告产出',
-    //     type: 'category',
-    //     children: this.reportItems.map(item => ({
-    //       id: `report_${item.id}`,
-    //       name: item.name,
-    //       type: 'report',
-    //       path: item.path
-    //     }))
-    //   }
-    // ]
   },
   mounted() {
     this.init()
@@ -1285,7 +1257,8 @@ export default {
                 that.wsaddMakers.push({markType: markType, markData: markData})
               }
             }
-          } else if (markOperate === "delete") {
+          }
+          else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
             that.plotisshow[id] = 0
             if (markType === "point") {
@@ -1318,15 +1291,18 @@ export default {
       // console.log(jumpnode,"jumpnode")
       this.timelineAdvancesNumber = jumpnode + 1
       this.jumpNodes[jumpnode] = 1
-      // console.log(this.jumpNodes,"jumpNodes")
+
       this.currentNodeIndex = this.timelineAdvancesNumber
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      } else if (type === "polyline") {
+      }
+      else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      } else if (type === "polygon") {
+      }
+      else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      } else if (type === "arrow") {
+      }
+      else if (type === "arrow") {
         if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
         } else if (data.plot.plotType === "钳击箭头") {
@@ -1372,15 +1348,13 @@ export default {
         this.eqday = this.eqstartTime.getDate()
         // 计算结束时间 结束时间为开始后72小时，单位为毫秒
         //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        // this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 60 * 1000);
         this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 5 * 60 * 1000);
         // 根据当前时间和地震结束时间计算时间线推进数量
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
-          // this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (60 * 1000);
           this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-          // this.currentNodeIndex = this.timelineAdvancesNumber
-        } else {
+        }
+        else {
           this.eqendTime = this.tmpeqendTime
         }
         this.currentTime = this.eqstartTime
@@ -3326,7 +3300,6 @@ export default {
       let i = this.currentNodeIndex + 1;
       for (; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
-          this.nextNodeIndex = i;
           flag = 1
           break;
         }
@@ -3340,8 +3313,8 @@ export default {
       if (flag === 1) {
         let tmpTime = new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
         if (tmpTime <= this.eqendTime) {
-          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
+          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * i;
           this.currentTime = tmpTime
         } else {
           flag = 0
@@ -3364,8 +3337,7 @@ export default {
     },
     initEnd() {
       this.currentTimePosition = 100;
-      this.currentNodeIndex = this.timelineAdvancesNumber
-      this.nextNodeIndex = this.timelineAdvancesNumber
+      this.currentNodeIndex = Math.ceil(((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000));
       this.currentTime = this.eqendTime
       this.updatePlotOnce(false)
       setTimeout(() => {
@@ -3395,7 +3367,6 @@ export default {
         this.isfirst = false
         let flag = this.updateCurrentTimeOnce();
         if (flag) {
-          // if (this.isTimerRunning) {
           if (this.isMarkingLayer) {
             this.updatePlotOnce("3")
           } else {
@@ -3415,49 +3386,34 @@ export default {
     backward() {
       if (this.canOperateTimerLine) {
         this.isfirst = false
-        let flag = 1
-        // let nextNodeIndex = null;
-        for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
+        let flag = 0
+        let i = this.currentNodeIndex - 1;
+        for (; i >= 0; i--) {
+          // console.log()
           if (this.jumpNodes[i] === 1) {
-            this.nextNodeIndex = i;
-            // console.log("this.nextNodeIndex", this.nextNodeIndex)
+            // console.log(i,"i")
             flag = 1;
             break;
           }
-          // console.log(i, "i")
-          if (i <= 0) {
-            flag = 0
-            // console.log("over")
-            // console.log("this.currentTime",this.currentTime,this.eqendTime)
-            this.currentTimePosition = 0;
-            this.nextNodeIndex = 0;
-            this.currentNodeIndex = 0
-            this.currentTime = this.eqstartTime
-
-            this.stopTimer();
-            this.plots.forEach(item => {
-              if (this.plotisshow[item.plotId] === 1) {
-                this.plotisshow[item.plotId] = 0
-                cesiumPlot.deletePointById(item.plotId);
-              }
-            })
-
-          }
         }
 
-        // 停止
-        // if (this.nextNodeIndex === null) {
-        //   this.currentTimePosition = 0;
-        //   this.currentTime = this.eqstartTime
-        //   this.stopTimer();
-        //   this.isTimerRunning = false
-        // }
+        if (i <= 0) {
+          flag = 0
+          this.currentTimePosition = 0;
+          this.currentNodeIndex = 0
+          this.currentTime = this.eqstartTime
+
+          this.stopTimer();
+          this.plots.forEach(item => {
+            if (this.plotisshow[item.plotId] === 1) {
+              this.plotisshow[item.plotId] = 0
+              cesiumPlot.deletePointById(item.plotId);
+            }
+          })
+        }
         //更新到下一跳
         if (flag === 1) {
-          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
-          // 计算时间进度条的当前位置增量
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
           this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
           this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
           // 根据是否需要显示标绘层来更新图层
@@ -3484,7 +3440,6 @@ export default {
         this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
         // 根据当前时间进度百分比和总步骤数计算当前步骤索引
         this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
-        // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
         // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // console.log("this.currentTime jumpToTime",this.currentTime)
@@ -3884,17 +3839,6 @@ export default {
       return this.activeComponent === component; // 检查是否为活动组件
     },
 
-    // rxr
-// 点击树节点处理逻辑
-    handleNodeClick(data) {
-      if (data.type === 'thematicMap') {
-        // 处理专题图展示逻辑
-        this.showThematicMapPreview(data)
-      } else if (data.type === 'report') {
-        // 处理报告下载逻辑
-        this.downloadReport(data)
-      }
-    },
     showThematicMapPreview(item) {
       // item 中包含 name, path
       this.ifShowMapPreview = true
@@ -3903,15 +3847,6 @@ export default {
       this.showTypes = 1
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
-    // downloadReport(item) {
-    //   // 报告下载逻辑
-    //   const link = document.createElement('a');
-    //   link.href = item.path;
-    //   link.download = item.name; // 指定下载的文件名
-    //   document.body.appendChild(link);
-    //   link.click();
-    //   document.body.removeChild(link);
-    // },
     downloadReport(item) {
       // 报告下载逻辑
       const link = document.createElement("a");

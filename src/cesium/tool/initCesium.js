@@ -86,6 +86,16 @@ export function initCesium(Cesium,container) {
             roll: 0.0
         }
     });
+    // 默认添加 GeoServer 提供的 WMS 图层
+    viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
+        layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
+        parameters: {
+            service: 'WMS',
+            format: 'image/png',
+            transparent: true,
+        }
+    }));
     return viewer
 }
 
@@ -105,6 +115,7 @@ function getImageryProviderArr() {
                 return new Cesium.WebMapTileServiceImageryProvider({
                     // url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
                     url: `/tdtproxy/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+                    // url:`http://59.255.48.160:81/DataServer?tk=96c30e9410386f41137b8314ab34d088&T=img_w&x={x}&y={y}&l={z}`,
                     format: 'tiles',
                     tileMatrixSetID: 'c',
                     tilingScheme: new Cesium.GeographicTilingScheme(),

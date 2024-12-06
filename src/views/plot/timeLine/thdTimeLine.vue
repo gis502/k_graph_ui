@@ -436,7 +436,6 @@ export default {
 
       jumpTimes: [],
 
-      nextNodeIndex: 1,
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
 
@@ -451,7 +450,7 @@ export default {
       },//视角中心坐标
 
       canOperateTimerLine: false,
-      wsaddMakers:[]
+      wsaddMakers: []
     };
   },
   created() {
@@ -505,20 +504,17 @@ export default {
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-
       viewer.camera.changed.addEventListener(() => {
         const positionCartographic = viewer.camera.positionCartographic
         var height = positionCartographic.height;
         this.updateZoomLevel(height)
         var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
         var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
-        this.viewCenterCoordinate={
-          lon:longitude,
-          lat:latitude
+        this.viewCenterCoordinate = {
+          lon: longitude,
+          lat: latitude
         }
       })
-
-
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
@@ -659,7 +655,6 @@ export default {
       let that = this
       this.websock = initWebSocket(this.eqid)
       this.websock.eqid = this.eqid
-
       this.websock.onmessage = function (e) {
         console.log("e", e)
         try {
@@ -669,18 +664,17 @@ export default {
           if (markOperate === "add") {
             if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
               let markData = JSON.parse(e.data).data
-              if (!that.isTimerRunning && that.currentTimePosition >= 100){
+              if (!that.isTimerRunning && that.currentTimePosition >= 100) {
                 //标绘点
                 that.wsAdd(markType, markData)
               }
               //播放或播放暂停
-              else{
+              else {
                 // console.log(markType,markData,"markType,markData")
-                that.wsaddMakers.push({markType:markType,markData:markData})
+                that.wsaddMakers.push({markType: markType, markData: markData})
               }
             }
-          }
-          else if (markOperate === "delete") {
+          } else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
             that.plotisshow[id] = 0
             if (markType === "point") {
@@ -704,27 +698,21 @@ export default {
       };
     },
     wsAdd(type, data) {
-      // console.log(data.plot,"data.plot wsadd")
-      data.plot.longitude=Number(data.plot.geom.coordinates[0])
-      data.plot.latitude=Number(data.plot.geom.coordinates[1]),
+      data.plot.longitude = Number(data.plot.geom.coordinates[0])
+      data.plot.latitude = Number(data.plot.geom.coordinates[1])
       this.plots.push(data.plot)
       this.plotisshow[data.plot.plotId] = 1
       var jumpnode = Math.ceil((new Date() - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))
-      // console.log(jumpnode,"jumpnode")
-      this.timelineAdvancesNumber=jumpnode+1
+      this.timelineAdvancesNumber = jumpnode
       this.jumpNodes[jumpnode] = 1
-      // console.log(this.jumpNodes,"jumpNodes")
-      this.currentNodeIndex = this.timelineAdvancesNumber
+      this.currentNodeIndex = jumpnode
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      }
-      else if (type === "polyline") {
+      } else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      }
-      else if (type === "polygon") {
+      } else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      }
-      else if (type === "arrow") {
+      } else if (type === "arrow") {
         if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
         } else if (data.plot.plotType === "钳击箭头") {
@@ -816,16 +804,16 @@ export default {
               this.currentTime = this.eqendTime
             }, 1000);
           }
-          let that=this
+          let that = this
           //处理websocket的标绘
           // console.log(this.wsaddMakers,"this.wsaddMakers")
-          if(this.wsaddMakers.length>0){
-            this.wsaddMakers.forEach((item)=>{
-              let markType=item.markType
-              let markData=item.markData
+          if (this.wsaddMakers.length > 0) {
+            this.wsaddMakers.forEach((item) => {
+              let markType = item.markType
+              let markData = item.markData
               that.wsAdd(markType, markData)
             })
-            this.wsaddMakers=[]
+            this.wsaddMakers = []
           }
         }
       } else {
@@ -1177,7 +1165,7 @@ export default {
     initTimerLine() {
       this.isfirst = false
       // console.log(this.jumpTimes,"this.jumpTimes")
-      if(this.jumpTimes){
+      if (this.jumpTimes) {
         this.jumpTimes.forEach(item => {
           var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
           // console.log("jumpnode",jumpnode)
@@ -1186,7 +1174,7 @@ export default {
       }
 
       // console.log(this.jumpNodes,this.plots,"this.jumpNodes111")
-      console.log(this.plots,"this.plots111")
+      console.log(this.plots, "this.plots111")
       // 标记计时器为运行状态
       this.isTimerRunning = true;
       // 初始化
@@ -1231,7 +1219,6 @@ export default {
       let i = this.currentNodeIndex + 1;
       for (; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
-          this.nextNodeIndex = i;
           flag = 1
           break;
         }
@@ -1244,13 +1231,12 @@ export default {
 
       if (flag === 1) {
         let tmpTime = new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
-        if(tmpTime<=this.eqendTime){
-          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-          this.currentTime =tmpTime
-        }
-        else{
-          flag=0
+        if (tmpTime <= this.eqendTime) {
+          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
+          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * i;
+          this.currentTime = tmpTime
+        } else {
+          flag = 0
           this.initEnd()
         }
         // 根据是否需要显示标绘层来更新图层
@@ -1268,10 +1254,10 @@ export default {
       this.centerMarkOpacityTo1()
       this.ifUpdateEndTime()
     },
-    initEnd(){
+    initEnd() {
       this.currentTimePosition = 100;
-      this.currentNodeIndex = this.timelineAdvancesNumber
-      this.nextNodeIndex=this.timelineAdvancesNumber
+      this.currentNodeIndex = Math.ceil(((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000));
+
       this.currentTime = this.eqendTime
       this.updatePlotOnce(false)
       setTimeout(() => {
@@ -1301,7 +1287,6 @@ export default {
         this.isfirst = false
         let flag = this.updateCurrentTimeOnce();
         if (flag) {
-          // if (this.isTimerRunning) {
           if (this.isMarkingLayer) {
             this.updatePlotOnce("3")
           } else {
@@ -1321,49 +1306,34 @@ export default {
     backward() {
       if (this.canOperateTimerLine) {
         this.isfirst = false
-        let flag = 1
-        // let nextNodeIndex = null;
-        for (let i = this.currentNodeIndex - 1; i >= 0; i--) {
+        let flag = 0
+        let i = this.currentNodeIndex - 1;
+        for (; i >= 0; i--) {
+          // console.log()
           if (this.jumpNodes[i] === 1) {
-            this.nextNodeIndex = i;
-            // console.log("this.nextNodeIndex", this.nextNodeIndex)
+            console.log(i,"i")
             flag = 1;
             break;
           }
-          // console.log(i, "i")
-          if (i <= 0) {
-            flag = 0
-            // console.log("over")
-            // console.log("this.currentTime",this.currentTime,this.eqendTime)
-            this.currentTimePosition = 0;
-            this.nextNodeIndex = 0;
-            this.currentNodeIndex = 0
-            this.currentTime = this.eqstartTime
-
-            this.stopTimer();
-            this.plots.forEach(item => {
-              if (this.plotisshow[item.plotId] === 1) {
-                this.plotisshow[item.plotId] = 0
-                cesiumPlot.deletePointById(item.plotId);
-              }
-            })
-
-          }
         }
 
-        // 停止
-        // if (this.nextNodeIndex === null) {
-        //   this.currentTimePosition = 0;
-        //   this.currentTime = this.eqstartTime
-        //   this.stopTimer();
-        //   this.isTimerRunning = false
-        // }
+        if (i <= 0) {
+          flag = 0
+          this.currentTimePosition = 0;
+          this.currentNodeIndex = 0
+          this.currentTime = this.eqstartTime
+
+          this.stopTimer();
+          this.plots.forEach(item => {
+            if (this.plotisshow[item.plotId] === 1) {
+              this.plotisshow[item.plotId] = 0
+              cesiumPlot.deletePointById(item.plotId);
+            }
+          })
+        }
         //更新到下一跳
         if (flag === 1) {
-          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0)
-          // 计算时间进度条的当前位置增量
-          // let tmp = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentSpeed //进度条每次前进
+          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
           this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
           this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
           // 根据是否需要显示标绘层来更新图层
@@ -1919,7 +1889,7 @@ export default {
       this.$nextTick(() => {
         // 检查是否有选中的实体位置
         if (this.selectedEntityPosition) {
-          console.log(this.selectedEntityPosition, "this.selectedEntityPosition")
+          // console.log(this.selectedEntityPosition, "this.selectedEntityPosition")
           // 将地理坐标转换为窗口坐标
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
               window.viewer.scene,

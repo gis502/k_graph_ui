@@ -2,6 +2,19 @@
   <div>
     <div class="eqtitle">
       <span class="eqtitle-text_eqname">{{ this.title.replace("T", " ") }}级地震</span>
+      <div v-for="(menu, index) in menus" :key="index" class="menu-item" @mouseover="showDropdown(index)"
+           @mouseleave="hideDropdown(index)" @click="handleMenuAction(menu.action)">
+        <div class="menu-label">
+          <span v-if="menu.icon" v-html="menu.icon" style="margin-right: 10px"></span>
+          {{ menu.name }}
+        </div>
+        <div v-if="menu.showDropdown && menu.items.length > 0" class="dropdown">
+          <div v-for="(item, subIndex) in menu.items" :key="subIndex" class="dropdown-item"
+               @click="switchPanel(item.action)">
+            {{ item.name }}
+          </div>
+        </div>
+      </div>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
       <el-form class="situation_eqTable">
@@ -148,19 +161,9 @@
         :popupData="dataSourcePopupData"
       />
 
-      <el-button type="primary" @click="exportCesiumTheme"
-                 style="position: absolute;top: 50px;right: 100px;z-index: 100;">导出专题图
-      </el-button>
-
-      <el-button type="primary" @click="showSelect('import')"
-                 style="position: absolute;top: 100px;right: 100px;z-index: 100;">下载导入标绘数据模板
-      </el-button>
-
-      <el-button type="primary" @click="showSelect('export')"
-                 style="position: absolute;top: 200px;right: 100px;z-index: 100;">导出当前地震标绘数据
-      </el-button>
 
       <el-upload
+          ref="upload"
         :action="uploadUrl"
         :multiple="false"
         :show-file-list="false"
@@ -169,8 +172,21 @@
         :headers="this.headers"
         style="position: absolute;top: 150px;right: 100px;z-index: 100;"
       >
-        <el-button type="primary" @click="">上传当前地震标绘数据</el-button>
       </el-upload>
+      <!-- 提示框 -->
+      <el-dialog :visible.sync="successDialogVisible" title="导入成功" width="30%">
+        <p>文件已成功导入，以下为导入的概要信息：</p>
+        <el-table :data="importSummary" style="width: 100%">
+          <el-table-column prop="key" label="属性" width="120"></el-table-column>
+          <el-table-column prop="value" label="值"></el-table-column>
+        </el-table>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="successDialogVisible = false">关闭</el-button>
+        </div>
+      </el-dialog>
+
+      <el-notification v-if="errorMessage" :title="'导入失败'" :message="errorMessage" type="error" duration="5000">
+      </el-notification>
 
       <el-dialog
         v-model="selectVisible"
@@ -255,6 +271,20 @@
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
+    <!-- 用于显示统计信息的 div -->
+
+
+    <div class="dialog-visible" v-show="dialogVisible">
+      <div class="dialog-content">
+        <span class="dialog-close" @click="dialogVisible = false">×</span>
+        <h3>导入数据统计</h3>
+        <p>总共导入了 {{ totalCount }} 条标绘数据</p>
+        <p>总共花费时间：{{ elapsedTime }} 秒</p>
+        <p :class="importStatus === '导入成功' ? 'success' : 'error'">导入状态：{{ importStatus }}</p>
+        <button class="dialog-button" @click="dialogVisible = false">确定</button>
+      </div>
+    </div>
+
 
     <!--    准提图预览组件    -->
     <thematicMapPreview
@@ -284,7 +314,7 @@ import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
-import {initWebSocket} from '@/cesium/WS.js'
+import {initWebSocket,websocketonmessage} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
 import addPolylineDialog from "@/components/Cesium/addPolylineDialog.vue"
@@ -303,15 +333,49 @@ import html2canvas from "html2canvas";
 import {querySituationData} from "@/api/system/model.js";
 import plotSearch from '@/components/Cesium/plotSearch.vue'
 import ThematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
-
+import {Position} from "@element-plus/icons-vue";
 export default {
   components: {
+    Position,
     ThematicMapPreview,
     dataSourcePanel,
     addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot,plotSearch
   },
   data: function () {
     return {
+      //----------menu选择框----------------
+      menus: [
+        {
+          name: '标绘数据导入导出',
+          icon: `<svg t="1731159828946" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5849" width="32" height="32"><path d="M521.092741 500.408889c0-139.994074-111.540148-253.458963-249.135408-253.458963S22.821926 360.414815 22.821926 500.408889a258.322963 258.322963 0 0 0 14.52563 85.366518c21.973333 62.677333 94.971259 168.571259 218.638222 317.805037 0.839111 0.96237 1.801481 1.92 2.763852 2.768593 8.884148 7.324444 21.968593 6.120296 29.174518-2.768593 123.543704-149.001481 196.304593-254.900148 218.396445-317.330963a255.454815 255.454815 0 0 0 14.772148-85.840592z m-249.135408 84.522667c-45.866667 0-83.086222-37.82163-83.086222-84.522667S226.090667 416 271.957333 416s83.081481 37.82637 83.081482 84.408889c-0.118519 46.701037-37.214815 84.522667-83.081482 84.522667z m432.474074-83.446519c0.602074 0.720593 1.208889 1.322667 1.801482 1.801482 5.883259 4.92563 14.767407 4.081778 19.693037-1.801482 83.081481-100.252444 132.062815-171.448889 146.958222-213.475556a173.302519 173.302519 0 0 0 9.841778-57.870222c0-94.132148-75.036444-170.491259-167.604148-170.491259-92.572444 0-167.604148 76.245333-167.604148 170.491259 0 19.569778 3.242667 39.021037 9.723259 57.391408 14.881185 42.145185 63.872 113.464889 147.190518 213.95437z m10.690371-328.25363c30.852741 0 55.826963 25.453037 55.826963 56.789334 0 31.454815-24.978963 56.907852-55.826963 56.907852-30.857481 0-55.831704-25.453037-55.831704-56.907852-0.004741-31.454815 24.969481-56.789333 55.831704-56.789334z m230.878815 515.915852c-75.278222-28.695704-166.888296-21.371259-200.026074-122.823111h-56.192s-28.340148 98.569481 230.528 174.212741c144.080593 49.943704-75.761778 263.186963-489.623704 112.497778l-48.507259 58.112s246.97837 116.100741 478.577777 32.298666 162.446222-224.881778 85.24326-254.298074z" fill="#ffffff"></path></svg>`,
+          items: [
+            {name: '下载导入标绘数据模板', action: "showSelect(import)"},
+            {name: '导出当前地震标绘数据', action: "showSelect(export)"},
+            {name: '上传当前地震标绘数据', action: 'triggerUpload'}
+          ],
+          action: '',
+          showDropdown: false,
+        },
+        {
+          name: '导出专题图',
+          icon: `<svg class="svg-icon" aria-hidden="true" style="width: 32px;height: 32px"><use xlink:href="#icon-dict" fill=""></use></svg>`,
+          items: [],
+          action: 'exportCesiumTheme',
+          showDropdown: false
+        },
+      ],
+      panels: {
+        tableVisible: true, // 显示表格
+      },
+      successDialogVisible: false, // 控制成功提示框显示
+      errorMessage: "", // 错误信息提示
+      importSummary: [], // 导入文件的概要信息
+
+      // 用于控制弹窗显示与否
+      dialogVisible: false,
+      totalCount: 0,  // 总导入数据条数
+      elapsedTime: 0,  // 花费时间
+      importStatus: '',  // 导入状态
       //-----------标绘部分--------------
       polylineStatus: 0,//0 标绘线未激活状态，1 激活状态
       typeList: null,// 点标注控件根据此数据生成
@@ -530,6 +594,7 @@ export default {
   // },
   methods: {
 
+
     initTree() {
       const highestAndSecondLabels = [];
       this.copiedPlotTreeData = this.plotTreeData
@@ -593,6 +658,7 @@ export default {
       this.downloadConfirmed = false
       this.loading = false
     },
+
     // 初始化控件等
     init() {
       let viewer = initCesium(Cesium)
@@ -630,6 +696,7 @@ export default {
     initWebsocket() {
       console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
+      this.websock.onmessage = websocketonmessage;//涉及功能导入功能
       // this.websock.eqid = this.eqid
       // 为什么这样写不生效????
       // this.websock.onmessage = this.wsOnmessage()
@@ -1085,9 +1152,12 @@ export default {
     },
 
     handleSuccess(response) {
+      this.plotArray = []
+      const startTime = performance.now();
       console.log(response)
       // 解构 response 中的 plotDataList 和 updatedPlotProperty
       const {plotDataList, updatedPlotProperty} = response.data;
+      // 记录开始时间
 
       console.log(plotDataList)
       console.log(555)
@@ -1342,12 +1412,31 @@ export default {
       [...assemblyPointArray, ...assemblyPolylineArray, ...assemblyPolygonArray, ...assemblyArrowArray].forEach(data => {
         this.wsSendPoint(JSON.stringify(data));
       });
+      // 合并所有数据
+      // 合并所有数据并只提取 plot 中的 plotId 和 plotType
+      const allData = [...assemblyPointArray, ...assemblyPolylineArray, ...assemblyPolygonArray, ...assemblyArrowArray].map(item => {
+        return {
+          plotId: item.data.plot.plotId,
+          plotType: item.data.plot.plotType
+        };
+      });
+      // 提取每个元素的 data 部分
+      this.plotArray = allData;
 
-      console.log(assemblyPointArray)
-      console.log(assemblyPolylineArray)
-      console.log(assemblyPolygonArray)
-      console.log(assemblyArrowArray)
+      const totalCount = splitData.length; // 总数据数量
+      // 记录开始时间
+      const endTime = performance.now();
+      const elapsedTime = ((endTime - startTime) / 1000).toFixed(2); // 花费时间（秒）
 
+      // 判断导入是否成功
+      const importStatus = totalCount > 0 ? '导入成功' : '导入失败';
+
+      // 更新弹窗的数据
+      this.totalCount = totalCount;
+      this.elapsedTime = elapsedTime;
+      this.importStatus = importStatus;
+      // 弹出 Element UI 弹窗
+      this.dialogVisible = true;
     },
 
     convertToDateTimeString(excelDate) {
@@ -2070,7 +2159,6 @@ export default {
       });
     },
 
-
     // 更新弹窗的位置
     updatePopupPosition() {
       // 笛卡尔3转笛卡尔2（屏幕坐标）
@@ -2681,7 +2769,6 @@ export default {
       const plotData = { plotId, plotType };
       this.plotArray = plotData;
       console.log("plotArray",this.plotArray)
-
     },
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
@@ -2892,7 +2979,73 @@ export default {
       this.queryParams = '';  // 清空搜索输入框
       this.getEq()
     },
+    // ====================导航栏按钮============================
+    switchPanel(action) {
+      // 更新 panels 的状态，先设置所有为 false
+      for (let key in this.panels) {
+        if (this.panels.hasOwnProperty(key)) {
+          this.panels[key] = false;
+        }
+      }
+      this.toolValue = this.panels.tableVisible ? "隐藏列表" : "显示列表";
+      console.log(this.panels);  // 这里的 panels 会先被更新为 false
 
+      // 在下次 DOM 更新后执行 handleMenuAction(action)
+      this.$nextTick(() => {
+        console.log(action);  // 确保 action 的打印是在面板状态更新之后
+        this.handleMenuAction(action);  // 在面板状态更新后执行
+      });
+    },
+    showDropdown(index) {
+      this.menus[index].showDropdown = true;
+    },
+    hideDropdown(index) {
+      this.menus[index].showDropdown = false;
+    },
+    handleMenuAction(action) {
+      console.log(action);
+
+      // 判断是否存在对应的方法
+      if (this[action]) {
+        this[action](); // 无参数调用
+      } else if (action.includes('=')) {
+        // 解析 action 中的赋值操作
+        const [key, value] = action.split('=').map(item => item.trim());
+
+        // 处理类似 panels.searchSupplyDialog = true 这种赋值
+        const keys = key.split('.');  // 将属性路径分割成数组，处理多层嵌套属性
+        let obj = this;
+        for (let i = 0; i < keys.length - 1; i++) {
+          obj = obj[keys[i]];  // 遍历到嵌套对象
+        }
+        // 获取最后一个属性，并进行赋值
+        const lastKey = keys[keys.length - 1];
+        obj[lastKey] = value === 'true' ? true : value === 'false' ? false : value;
+
+      } else if (action.includes('(') && action.includes(')')) {
+        // 解析函数调用和传参
+        const [methodName, args] = action.split('(');
+        const params = args.replace(')', '').split(',').map(arg => arg.trim());
+
+        // 检查是否存在该方法，并传递参数
+        if (this[methodName]) {
+          console.log(action)
+          console.log(params)
+          this[methodName](...params); // 通过展开运算符传递参数
+        }
+      } else {
+        console.log('其他情况：', action);
+      }
+    },
+
+    // 触发文件选择
+    triggerUpload() {
+      if (this.$refs.upload) {
+        this.$refs.upload.$el.querySelector('input[type="file"]').click();
+      } else {
+        console.error("el-upload 未找到");
+      }
+    },
 
   }
 }
@@ -2900,17 +3053,27 @@ export default {
 
 <style scoped>
 
-.eqtitle {
-  background-color: #0d325f;
+.eqtitle{
+  position: absolute;
+  background: url(@/assets/images/EmergencyResourceInformation/导航栏发光样式.png) no-repeat;
+  background-color: #283b4d;
+  height: 7%;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background-size: 51% 100%;
+  z-index: 100;
   width: 100%;
-  height: 10%;
 }
 
 .eqtitle-text_eqname {
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  margin-left: 30px;
+  margin-left: 25px;
+  font-weight: 550;
+  font-size: 1.8rem;
+  position: relative;
+  background-repeat: no-repeat;
+  color: #fff;
+  text-shadow: 0 3px 6px #1973c0;
 }
 
 .posInfo {
@@ -2966,7 +3129,7 @@ export default {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 30px;
+  top: 80px;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
@@ -2976,7 +3139,7 @@ export default {
   position: absolute;
   padding: 10px;
   border-radius: 5px;
-  top: 418px;
+  top: 490px;
   left: 10px;
   width: 530px;
   z-index: 10;
@@ -3190,5 +3353,146 @@ img {
   z-index: 10000;
 }
 
+/*menu样式*/
+.menu-item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  width: 12%;
+  left: 5%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  margin-right: 1rem; /* 每个菜单项之间设置50px的间距 */
+}
+
+.menu-label {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-item:hover .menu-label {
+  color: #00aaff;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: rgba(46, 52, 63, 0.87);
+  /*padding: 10px;/*/
+  display: flex;
+  flex-direction: column;
+  z-index: 101; /* 设置高于 cesium-viewer 的 z-index */
+}
+
+.dropdown-item {
+  color: white;
+  padding: .7rem;
+  cursor: pointer;
+  z-index: 101; /* 设置高于 cesium-viewer 的 z-index */
+}
+
+.dropdown-item:hover {
+  background-color: #1b95ff;
+  /*color: #00aaff;*/
+}
+
+:deep(.cesium-viewer-toolbar) {
+  display: block;
+  /*搜索按钮优先级最高，避免被物资搜索框遮盖*/
+  z-index: 100;
+  position: absolute;
+  top: 64px;
+  right: 362px;
+}
+
+/*导入弹窗*/
+.dialog-visible {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.dialog-content {
+  position: relative;
+  width: 400px;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.dialog-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+}
+
+.dialog-close:hover {
+  color: #333;
+}
+
+h3 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.success {
+  color: green;
+}
+
+.error {
+  color: red;
+}
+
+.dialog-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #409EFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dialog-button:hover {
+  background-color: #66b1ff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 </style>
