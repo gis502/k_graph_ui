@@ -489,33 +489,6 @@
       z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
       <el-button @click="removeAll">清空所有实体</el-button>
     </div>
-
-
-    <!--    路径规划    -->
-    <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
-    <!--          <div class="panelTop">-->
-    <!--              <h2 class="panelName">路径规划</h2>-->
-    <!--          </div>-->
-
-    <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
-    <!--              <el-row style="margin: 20px;">-->
-    <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
-    <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
-    <!--              </el-row>-->
-    <!--              <div slot="header" class="clearfix"-->
-    <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
-    <!--                  <div>-->
-    <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
-    <!--                  </div>-->
-    <!--                  <div v-if="visibleGuilde">-->
-    <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
-    <!--                          {{ instruction }}-->
-    <!--                      </div>-->
-    <!--                      <div v-if="loading" class="loading">加载中...</div>-->
-    <!--                  </div>-->
-    <!--              </div>-->
-    <!--          </div>-->
-    <!--      </div>-->
   </div>
 </template>
 
