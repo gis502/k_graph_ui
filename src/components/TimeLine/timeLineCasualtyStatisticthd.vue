@@ -12,8 +12,10 @@
         >
           <el-table-column label=" " min-width="16px" show-overflow-tooltip>
             <template #default="scope">
-              <div style="display: flex; align-items: center; justify-content: center; height: 100%; "  class="arrow-container">
-                <img src="@/assets/images/arrow.png" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; "
+                   class="arrow-container">
+                <img src="@/assets/images/arrow.png" alt="统一图片" style="width: 18px; height: 20px;"
+                     class="arrow-icon">
               </div>
             </template>
           </el-table-column>
@@ -23,7 +25,6 @@
               width="80"
               align="center"
               show-overflow-tooltip>
-
           </el-table-column>
           <el-table-column
               prop="死亡"
@@ -46,7 +47,7 @@
               width="70"
               :formatter="formatPeople"
               show-overflow-tooltip>
-              </el-table-column>
+          </el-table-column>
           <el-table-column
               prop="重伤"
               label="重伤"
@@ -69,7 +70,7 @@
   </div>
 
 </template>
-<script >
+<script>
 import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
 import axios from "axios";
@@ -452,7 +453,6 @@ export default {
   position: absolute;
   /*top: 19.5%;*/
   width: 100%;
-
   z-index: 20;
 }
 
@@ -561,27 +561,26 @@ export default {
 }
 
 :deep(.el-table) {
-  --el-table-bg-color : ''
+  --el-table-bg-color: ''
 }
 
-:deep(.el-pagination){
-  --el-pagination-item-gap : 6px;
+:deep(.el-pagination) {
+  --el-pagination-item-gap: 6px;
 }
 
-:deep(.el-table--default .cell){
-  padding : 0 4px
+:deep(.el-table--default .cell) {
+  padding: 0 4px
 }
 
 
 :deep(.el-table tr) {
-  background:#ffffff00;
+  background: #ffffff00;
   font-weight: 1000;
 }
 
-:deep(.el-table){
+:deep(.el-table) {
   --el-table-border: 0px solid;
 }
-
 
 
 /*默认状态*/
@@ -605,7 +604,7 @@ export default {
 
 /* 添加样式来控制箭头图标显示与隐藏 */
 .arrow-icon {
-  display: none;  /* 初始状态下箭头不显示 */
+  display: none; /* 初始状态下箭头不显示 */
 }
 
 /* 鼠标悬浮在行上时，显示箭头图标 */

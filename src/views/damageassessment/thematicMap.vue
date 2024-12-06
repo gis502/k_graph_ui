@@ -9,14 +9,6 @@
         :thematicMapClass="thematicMapClass"
       ></EarthquakeList>
 
-      <!--            <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"-->
-      <!--                 @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">-->
-      <!--                <img src="../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"-->
-      <!--                     style="height: 60%;width: 60%;">-->
-      <!--            </div>-->
-      <!--            <div class="button unfold" v-show="isLeftShow === false" @click="isLeftShow=true,isFoldShow=true">-->
-      <!--                <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 60%;width: 60%;cursor: pointer">-->
-      <!--            </div>-->
     </div>
     <!--    准提图预览组件    -->
     <thematicMapPreview

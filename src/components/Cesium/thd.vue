@@ -24,9 +24,9 @@
       ></plotSearch>
     </div>
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
-      <div class="list-dialog" style="width: 100%; height: 100%; z-index: 900;">
-        <div class="list-dialog__other_header">
-          <span>图层要素</span>
+      <div class="pop" style="width: 100%; height: 100%; z-index: 900;">
+        <div class="pop_header">
+          <span class="pop_title">图层要素</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
 
@@ -99,9 +99,9 @@
 
     <!-- 专题图产出 -->
     <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
-      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="list-dialog__header">
-          <span>专题图产出</span>
+      <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
+        <div class="pop_header">
+          <span class="pop_title">专题图产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
@@ -120,11 +120,11 @@
         </div>
       </div>
     </div>
-    <!--  报告导出  -->
+    <!--  图件产出  -->
     <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
-      <div class="list-dialog" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="list-dialog__header">
-          <span>报告产出</span>
+      <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
+        <div class="pop_header">
+          <span class="pop_title">图件产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
           <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
@@ -207,26 +207,26 @@
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('layerChoose') }"
-          title="图层要素"
+          title="资源调度"
           @click="toggleComponent('layerChoose')"
       >
-        <p>图层要素</p>
+        <p>资源调度</p>
       </div>
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
-          title="专题图产出"
+          title="灾情统计"
           @click="toggleComponent('thematicMapDownload')"
       >
-        <p>专题图产出</p>
+        <p>灾情统计</p>
       </div>
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('reportDownload') }"
-          title="报告导出"
+          title="图件产出"
           @click="toggleComponent('reportDownload')"
       >
-        <p>报告导出</p>
+        <p>图件产出</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -785,7 +785,6 @@ export default {
         time: null,
         modelid: null
       },
-      //----------------------------------
 
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
@@ -1216,7 +1215,8 @@ export default {
                 that.wsaddMakers.push({markType: markType, markData: markData})
               }
             }
-          } else if (markOperate === "delete") {
+          }
+          else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
             that.plotisshow[id] = 0
             if (markType === "point") {
@@ -1253,11 +1253,14 @@ export default {
       this.currentNodeIndex = this.timelineAdvancesNumber
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      } else if (type === "polyline") {
+      }
+      else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      } else if (type === "polygon") {
+      }
+      else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      } else if (type === "arrow") {
+      }
+      else if (type === "arrow") {
         if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
         } else if (data.plot.plotType === "钳击箭头") {
@@ -3293,7 +3296,6 @@ export default {
     initEnd() {
       this.currentTimePosition = 100;
       this.currentNodeIndex = Math.ceil(((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000));
-
       this.currentTime = this.eqendTime
       this.updatePlotOnce(false)
       setTimeout(() => {
@@ -3347,7 +3349,7 @@ export default {
         for (; i >= 0; i--) {
           // console.log()
           if (this.jumpNodes[i] === 1) {
-            console.log(i,"i")
+            // console.log(i,"i")
             flag = 1;
             break;
           }
@@ -3376,7 +3378,6 @@ export default {
           this.updatePlotOnce("3")
         }
       }
-
     },
 
     /**
@@ -5349,7 +5350,7 @@ export default {
   width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
+background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   z-index: 100;
 }
 
@@ -5632,6 +5633,32 @@ export default {
   margin: 4px; /* 调整按钮之间的间距 */
 }
 
+.pop {
+  position: absolute;
+  width: 100%;
+  z-index: 20;
+  border-color: #05709d;
+  background: rgb(4, 20, 34);
+  /*background: rgba(47, 82, 117, 0.3) 88%;*/
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+}
+
+.pop_header {
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.pop_title {
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 550;
+  top: 15%;
+  position: relative;
+  left: 7%;
+}
 
 /*弹窗样式*/
 .grid-container {
@@ -5740,54 +5767,6 @@ export default {
   overflow: hidden;
   left: 6.5%;
   top: 91.5%;
-}
-
-.list-dialog .list-dialog__header {
-  height: 41px;
-  width: 100%;
-  line-height: 41px;
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 500;
-  border-radius: 4px 4px 0 0;
-  padding: 0 5px 0 10px;
-  position: relative;
-  top: 0;
-  left: 0;
-  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
-  background-size: 100% 100%;
-}
-
-.list-dialog__other_header {
-  height: 41px;
-  width: 100%;
-  line-height: 41px;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 500;
-  border-radius: 4px 4px 0 0;
-  padding: 0 5px 0 10px;
-  position: relative;
-  top: 0;
-  left: 0;
-  background: url(@/assets/images/CommandScreen/右侧列表底图.png) no-repeat;
-  background-size: 100% 100%;
-}
-
-.list-dialog {
-  height: 100%;
-  width: 100%;
-  background-color: rgb(22, 53, 77, 0.9);
-  padding: 0 !important;
-  backdrop-filter: none !important;
-  border: 1px solid #008aff70;
-}
-
-.list-dialog .list-dialog__content {
-  height: 100%;
-  padding: 11px;
-  overflow: auto;
-  border-radius: 4px;
 }
 
 .table {
@@ -6079,7 +6058,7 @@ export default {
   width: 100%;
   border-color: #05709d;
   background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
+background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 :deep(.eqCard:hover) {
