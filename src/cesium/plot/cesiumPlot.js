@@ -34,7 +34,6 @@ let cesiumPlot= {
   drawPoints(points,bool,stoptime){
     console.log("?",points)
     console.log("?",bool)
-    console.log(this.point,'this.point')
     this.point.drawPoints(points,bool,stoptime)
   },
 

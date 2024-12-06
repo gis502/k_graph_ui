@@ -47,7 +47,6 @@ export default {
     plots(newVal) {
       this.getRescueActionCasualtiesPlotAndInfo();
     },
-
     currentTime(newVal) {
       console.log("currentTime watch",newVal)
       if(!this.isDataReady){
@@ -63,7 +62,7 @@ export default {
       // this.showZoomStatistic()
     },
     viewCenterCoordinate(newVal){
-      // console.log("viewCenterCoordinate watch",newVal)
+      console.log("viewCenterCoordinate watch",newVal)
       // if(!this.isDataReady){
       //   this.getRescueActionCasualtiesPlotAndInfo(newVal);
       // }
@@ -71,14 +70,11 @@ export default {
     },
     isTimerRunning(newVal){
       if(newVal===false){
-        // console.log("isTimerRunning plotStatistic",newVal)
         this.scroll()
       }
       else{
         this.scrollToStart()
       }
-      //true 不滚动
-      //fasle 滚动
     }
   },
   mounted() {

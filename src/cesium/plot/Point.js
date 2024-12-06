@@ -152,7 +152,10 @@ export default class Point {
     }
     this.addDataSourceLayer("pointData")
     this.addDataSourceLayer("label")
+
+    console.log(points,"points 1234")
     points.forEach(data => {
+      console.log(points,"points data")
       let plotId = data.plotId
       let plotType = data.plotType
       let colorFactor = 1.0;
@@ -167,7 +170,9 @@ export default class Point {
       getPlotInfos({plotId, plotType}).then(res => {
         let labeltext = this.labeltext(plotType, res)
         if (bool) {
+          console.log("viewer.entities.getById(data.plotId)",viewer.entities.getById(data.plotId))
           if (!viewer.entities.getById(data.plotId)) {
+            console.log("this.addMakerPointActive")
             this.addMakerPointActive(data, stoptime)
 
             this.addPointToLabel(data, labeltext)
@@ -179,11 +184,12 @@ export default class Point {
             // 3、除人员伤亡和救援出队，移除标签文字
             setTimeout(() => {
               let entityDonghua = window.viewer.entities.getById(data.plotId);
-              if (entityDonghua) {
-                window.viewer.entities.remove(entityDonghua); // 移除点
-              }
+
               if (!window.pointDataSource.entities.getById(data.plotId)) {
                 window.pointDataSource.entities.add(entityDonghua)//加到点聚合图层
+              }
+              if (entityDonghua) {
+                window.viewer.entities.remove(entityDonghua); // 移除点
               }
               if (plotType === "失踪人员" || plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员" || plotType === "已出发队伍" || plotType === "正在参与队伍" || plotType === "待命队伍") {
               } else {
@@ -624,6 +630,7 @@ export default class Point {
 
 //单个点动画
   addMakerPointActive(data, stoptime) {
+    console.log(data,"data addMakerPointActive")
     let intervalTime1 = 200;
     let colorFactor = 1.0;
     let intervalId1 = setInterval(() => {

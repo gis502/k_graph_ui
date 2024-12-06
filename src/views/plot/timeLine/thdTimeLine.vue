@@ -505,28 +505,19 @@ export default {
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-      // viewer.camera.changed.addEventListener(() => {
-      // const cameraHeight = viewer.camera.positionCartographic.height
-      // this.updateZoomLevel(cameraHeight)
-      //
-      // let centerResult = viewer.camera.pickEllipsoid(
-      //     new Cesium.Cartesian2(
-      //         viewer.canvas.clientWidth / 2,
-      //         viewer.canvas.clientHeight / 2,
-      //     ),
-      // );
-      // let curPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
-      // let curLongitude = (curPosition.longitude * 180) / Math.PI;
-      // let curLatitude = (curPosition.latitude * 180) / Math.PI;
-      // console.log(curLongitude,curLatitude,"curLongitude,curLatitude")
-      // this.viewCenterCoordinate={
-      //   lon:curLongitude,
-      //   lat:curLatitude
-      // }
 
-      // this.getReverseGeocode(curLongitude,curLatitude)
+      viewer.camera.changed.addEventListener(() => {
+        const positionCartographic = viewer.camera.positionCartographic
+        var height = positionCartographic.height;
+        this.updateZoomLevel(height)
+        var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+        var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+        this.viewCenterCoordinate={
+          lon:longitude,
+          lat:latitude
+        }
+      })
 
-      // })
 
       window.viewer = viewer
       Arrow.disable();
@@ -688,7 +679,8 @@ export default {
                 that.wsaddMakers.push({markType:markType,markData:markData})
               }
             }
-          } else if (markOperate === "delete") {
+          }
+          else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
             that.plotisshow[id] = 0
             if (markType === "point") {
@@ -712,15 +704,27 @@ export default {
       };
     },
     wsAdd(type, data) {
+      // console.log(data.plot,"data.plot wsadd")
+      data.plot.longitude=Number(data.plot.geom.coordinates[0])
+      data.plot.latitude=Number(data.plot.geom.coordinates[1]),
       this.plots.push(data.plot)
       this.plotisshow[data.plot.plotId] = 1
+      var jumpnode = Math.ceil((new Date() - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))
+      // console.log(jumpnode,"jumpnode")
+      this.timelineAdvancesNumber=jumpnode+1
+      this.jumpNodes[jumpnode] = 1
+      // console.log(this.jumpNodes,"jumpNodes")
+      this.currentNodeIndex = this.timelineAdvancesNumber
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      } else if (type === "polyline") {
+      }
+      else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      } else if (type === "polygon") {
+      }
+      else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      } else if (type === "arrow") {
+      }
+      else if (type === "arrow") {
         if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
         } else if (data.plot.plotType === "钳击箭头") {
@@ -783,7 +787,6 @@ export default {
       setTimeout(() => {
         this.flashingCenter()
         setTimeout(() => {
-          this.canOperateTimerLine = true
           this.toggleTimer() //模拟播放时间轴
         }, 3000);
       }, 3000);
@@ -935,12 +938,11 @@ export default {
         // 获取点的开始和结束时间
         const startDate = new Date(item.startTime);
         const endDate = new Date(item.endTime);
-        // console.log("time", startDate, currentDate, endDate)
+        console.log("time", startDate, currentDate, endDate)
 
         if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
-          // console.log("item.plotId add", item.plotId)
+          console.log("item.plotId add", item)
           this.plotisshow[item.plotId] = 1;
-
           // 创建点数据
           let point = {
             earthquakeId: item.earthquakeId,
@@ -1146,9 +1148,11 @@ export default {
         this.initTimerLine();
         let that = this
         setTimeout(() => {
+          this.canOperateTimerLine = true
           that.bofang();
         }, 3000);
       } else {
+        this.canOperateTimerLine = true
         if (!this.isTimerRunning) {
           this.flyToCenter()
           this.isTimerRunning = true
@@ -1172,11 +1176,17 @@ export default {
      */
     initTimerLine() {
       this.isfirst = false
-      this.jumpTimes.forEach(item => {
-        var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
-        // console.log("jumpnode",jumpnode)
-        this.jumpNodes[jumpnode] = 1
-      })
+      // console.log(this.jumpTimes,"this.jumpTimes")
+      if(this.jumpTimes){
+        this.jumpTimes.forEach(item => {
+          var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
+          // console.log("jumpnode",jumpnode)
+          this.jumpNodes[jumpnode] = 1
+        })
+      }
+
+      // console.log(this.jumpNodes,this.plots,"this.jumpNodes111")
+      console.log(this.plots,"this.plots111")
       // 标记计时器为运行状态
       this.isTimerRunning = true;
       // 初始化
@@ -1219,7 +1229,6 @@ export default {
     updateCurrentTimeOnce() {
       let flag = 1
       let i = this.currentNodeIndex + 1;
-      // console.log("i,this.jumpNodes",i,this.jumpNodes)
       for (; i <= this.timelineAdvancesNumber; i++) {
         if (this.jumpNodes[i] === 1) {
           this.nextNodeIndex = i;
@@ -1230,33 +1239,20 @@ export default {
 
       if (i >= this.timelineAdvancesNumber) {
         flag = 0
-        this.currentTimePosition = 100;
-        this.currentNodeIndex = this.timelineAdvancesNumber
-        this.currentTime = this.eqendTime
-
-        viewer.scene.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
-              60000),
-          orientation: {
-            // 指向
-            heading: 6.283185307179581,
-            // 视角
-            pitch: -1.5688168484696687,
-            roll: 0.0
-          },
-          duration: 3 // 飞行动画持续时间（秒）
-        });
-        this.stopTimer();
-        // this.isTimerRunning=false
-        // break;
+        this.initEnd()
       }
-      // }
+
       if (flag === 1) {
-        this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
-        this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-        this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+        let tmpTime = new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+        if(tmpTime<=this.eqendTime){
+          this.currentNodeIndex = this.nextNodeIndex //前进timelineAdvancesNumber次，每次5分钟，
+          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+          this.currentTime =tmpTime
+        }
+        else{
+          flag=0
+          this.initEnd()
+        }
         // 根据是否需要显示标绘层来更新图层
       }
       return flag
@@ -1271,6 +1267,17 @@ export default {
       this.isTimerRunning = false;
       this.centerMarkOpacityTo1()
       this.ifUpdateEndTime()
+    },
+    initEnd(){
+      this.currentTimePosition = 100;
+      this.currentNodeIndex = this.timelineAdvancesNumber
+      this.nextNodeIndex=this.timelineAdvancesNumber
+      this.currentTime = this.eqendTime
+      this.updatePlotOnce(false)
+      setTimeout(() => {
+        this.stopTimer()
+        this.flyToCenter()
+      }, 3000);
     },
 
     /**
