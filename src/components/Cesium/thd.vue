@@ -132,7 +132,7 @@
                 :type="activeTab === 'report' ? 'primary' : 'default'"
                 @click="activeTab = 'report'"
             >
-              报告预览
+              报告产出
             </el-button>
           </div>
           <!-- 专题图 -->
