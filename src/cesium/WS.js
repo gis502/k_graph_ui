@@ -39,7 +39,7 @@ function websocketclose(e) {
     console.log('断开连接', e);
 }
 
-function websocketonmessage(e) {
+export function websocketonmessage(e) {
     message=e
     console.log("e",e)
     try {
