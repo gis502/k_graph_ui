@@ -99,17 +99,12 @@
 
     <!-- 专题图产出 -->
     <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
-      <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="pop_header">
-          <span class="pop_title">图件产出</span>
-        </div>
-        <div class="list-dialog__content" style="height: calc(100% - 40px);">
-
-
-          <div @click="toggleExpand"
-               style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
-          </div>
-        </div>
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+        <disasterStatistics
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @addJumpNodes="addJumpNodes"
+        />
       </div>
     </div>
 
@@ -600,6 +595,7 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import axios from "axios";
 import damageThemeAssessment from "./damageThemeAssessment.vue";
+import disasterStatistics from  "./disasterStatistics.vue"
 import PlotSearch from "./plotSearch.vue";
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
@@ -614,6 +610,7 @@ export default {
   },
   components: {
     damageThemeAssessment,
+    disasterStatistics,
     PlotSearch,
     timeLineCasualtyStatisticthd,
     thematicMapPreview,
