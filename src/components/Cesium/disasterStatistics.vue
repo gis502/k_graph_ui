@@ -13,7 +13,7 @@
         :value="option.value"
     />
   </el-select>
-  <div height="650px" interval="3000">
+  <div>
     <div
         v-for="(component, key) in componentMap"
         :key="key"
@@ -35,13 +35,13 @@ import materialDonation from  "./disasterStatisticsComponents/materialDonation.v
 import publicSentiment from  "./disasterStatisticsComponents/publicSentiment.vue"
 export default {
   components: {
-    earthquakeCasualties,
-    transportationElectricity,
-    buildingDamageInformation,
-    secondaryDisaster,
-    resourceStrength,
-    materialDonation,
-    publicSentiment
+    earthquakeCasualties: markRaw(earthquakeCasualties),
+    transportationElectricity: markRaw(transportationElectricity),
+    buildingDamageInformation: markRaw(buildingDamageInformation),
+    secondaryDisaster: markRaw(secondaryDisaster),
+    resourceStrength: markRaw(resourceStrength),
+    materialDonation: markRaw(materialDonation),
+    publicSentiment: markRaw(publicSentiment),
   },
   props: ["currentTime", "currentTime","eqid"],
   name: "",
@@ -76,27 +76,6 @@ export default {
     handleComponentChange(value) {
       // You can handle any additional logic here when a component is selected
       console.log(`Selected component: ${this.selectedComponentKey}`);
-      // if (this.selectedComponentKey === 'EarthquakeCasualties') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'TransportationElectricity') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'BuildingDamageInformation') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'SecondaryDisaster') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'ResourceStrength') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'MaterialDonation') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'PublicSentiment') {
-      //
-      // }
     },
   },
 };
