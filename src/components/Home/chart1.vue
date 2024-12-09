@@ -1,6 +1,6 @@
 <template>
   <div ref="chart1" class="chart1">
-    <el-carousel height="300px" indicator-position="none">
+    <el-carousel height="350px" indicator-position="none">
       <el-carousel-item v-for="(option, index) in chartOptions" :key="index">
         <div :ref="`chartContainer${index}`" class="chart" :style="{ width: '100%', height: '100%' }"></div>
       </el-carousel-item>
@@ -19,16 +19,13 @@ const chartInstances = ref([]);
 
 const calculateMagnitudeData = (data, years) => {
     const currentYear = new Date().getFullYear();
-  console.log("currentYear",currentYear)
     const startYear = currentYear - years;
-  console.log("startYear",startYear)
     const magnitudeCounts = {
       '<3': Array(years + 1).fill(0),
       '3-4.5': Array(years + 1).fill(0),
       '4.5-6': Array(years + 1).fill(0),
       '≥6': Array(years + 1).fill(0),
     };
-  console.log("magnitudeCounts===========",magnitudeCounts)
     data.forEach(item => {
       const year = new Date(item.occurrenceTime).getFullYear();
       const yearIndex = currentYear - year;
@@ -45,16 +42,12 @@ const calculateMagnitudeData = (data, years) => {
       }
     }
   });
-
-    console.log("magnitudeCounts111111111",magnitudeCounts)
     return magnitudeCounts;
-
 };
 
 const initChart = async () => {
   const currentYear = new Date().getFullYear();
   const threeYearMagnitudes = calculateMagnitudeData(props.eqData, 3);
-  console.log("threeYearMagnitudes",threeYearMagnitudes)
   const tenYearMagnitudes = calculateMagnitudeData(props.eqData, 10);
 
   // 以下是流光折线图的一些配置的

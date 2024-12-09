@@ -566,6 +566,7 @@ const openFilter = () => {
   formValue.value.earthquakeAreaName = ''
   queryFormVisible.value = !queryFormVisible.value
 }
+
 const filterData = () => {
 
   if (formValue.value.occurrenceTime !== '') {
