@@ -1,34 +1,34 @@
 <template>
   <el-carousel trigger="click" height="650px" interval="3000" indicator-position="none">
     <el-carousel-item>
-      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+      <span class="update-time1">
           更新时间：{{ updateTime1 }}
       </span>
       <div class="PCChart" ref="PC1Chart"></div>
     </el-carousel-item>
     <el-carousel-item>
-      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
-          更新时间：{{ updateTime2 }}
+      <span class="update-time1">
+          更新时间： {{ updateTime2 }}
       </span>
       <div class="panelChart" ref="TR1Chart"></div>
-      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
-          更新时间：{{ updateTime3 }}
+      <span class="update-time2">
+          更新时间： {{ updateTime3 }}
       </span>
       <div class="panelChart" ref="EA1Chart"></div>
     </el-carousel-item>
     <el-carousel-item>
-      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+      <span class="update-time1">
           更新时间：{{ updateTime1 }}
       </span>
       <div class="PCChart" ref="PC2Chart"></div>
     </el-carousel-item>
     <el-carousel-item>
-      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
-          更新时间：{{ updateTime2 }}
+      <span class="update-time1">
+          更新时间： {{ updateTime2 }}
       </span>
       <div class="panelChart" ref="TR2Chart"></div>
-      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
-          更新时间：{{ updateTime3 }}
+      <span class="update-time2">
+          更新时间： {{ updateTime3 }}
       </span>
       <div class="panelChart" ref="EA2Chart"></div>
     </el-carousel-item>
@@ -37,10 +37,11 @@
 
 <script>
 import * as echarts from "echarts";
-import { gettotal as getCasualty } from "@/api/system/casualtystats.js";
-import { getTotal as getDisasterStatistics } from "@/api/system/statistics";
-import { getTotal as getTransfer } from "@/api/system/relocation";
+import {gettotal as getCasualty} from "@/api/system/casualtystats.js";
+import {getTotal as getDisasterStatistics} from "@/api/system/statistics";
+import {getTotal as getTransfer} from "@/api/system/relocation";
 import img from '@/assets/cirque.png';
+
 export default {
   props: {
     eqid: {
@@ -67,27 +68,17 @@ export default {
       getCasualty(this.eqid).then(res => {
         this.loadPCData(res)
       })
-      getDisasterStatistics(this.eqid).then(res =>{
+      getDisasterStatistics(this.eqid).then(res => {
         this.loadEAData(res)
       })
-      getTransfer(this.eqid).then(res =>{
+      getTransfer(this.eqid).then(res => {
         this.loadTRData(res)
       })
     },
 
     // 处理人员伤亡数据
     loadPCData(res) {
-      // 更新最新时间
-      // 检查时间字段并安全访问
-      const firstItem = res[0];
-      const submissionDeadlines = res.map(item => item.submissionDeadline).filter(Boolean);
-      if (firstItem && firstItem.submissionDeadline) {
-        const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
-        this.updateTime1 = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
-        this.updateTime1 = this.formatDate(this.updateTime1);
-      } else {
-        this.updateTime1 = this.formatDate( this.updateTime1);  // 使用传入的时间字段
-      }
+      this.updateTime1 = this.calculateUpdateTime(res, 'submissionDeadline');
 
       // 假设 res 是一个包含多个对象的数组，我们从中提取数据
       const affectedData = res.map(item => ({
@@ -287,6 +278,8 @@ export default {
         return;
       }
 
+      this.updateTime2 = this.calculateUpdateTime(res, 'reportingDeadline');
+
       // 获取图表 DOM 元素
       const chartDom1 = this.$refs.TR1Chart;
       const myChart1 = echarts.init(chartDom1);
@@ -376,8 +369,8 @@ export default {
           itemStyle: {
             normal: {
               color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [
-                { offset: 0, color: '#00FFB4' },  // 渐变色起始颜色
-                { offset: 1, color: 'rgba(0, 255, 255, 0.1)' } // 渐变色结束颜色
+                {offset: 0, color: '#00FFB4'},  // 渐变色起始颜色
+                {offset: 1, color: 'rgba(0, 255, 255, 0.1)'} // 渐变色结束颜色
               ]),
               opacity: 1, // 设置柱子的透明度
               barBorderRadius: [0, 30, 30, 0],  // 设置圆角
@@ -402,6 +395,8 @@ export default {
 
     // 处理地震震情数据
     loadEAData(res) {
+      this.updateTime3 = this.calculateUpdateTime(res, 'submission_deadline');
+
       // 初始化一个对象来存储震级的累加值
       let totalMagnitude = {
         '3.3-3.9': 0,
@@ -418,19 +413,16 @@ export default {
         totalMagnitude['6.0及以上'] += item.magnitude_6 || 0;
       });
 
-      // 输出累加的震级数据
-      console.log("Total Magnitude Data:", totalMagnitude);
-
       // 将累加的数据传递给 echarts 进行展示
       this.initEAChart(totalMagnitude);
     },
     initEAChart(totalMagnitude) {
       // 震级数据
       const trafficWay = [
-        { name: '3.3-3.9', value: totalMagnitude['3.3-3.9'] },
-        { name: '4.4-4.9', value: totalMagnitude['4.4-4.9'] },
-        { name: '5.5-5.9', value: totalMagnitude['5.5-5.9'] },
-        { name: '6.0及以上', value: totalMagnitude['6.0及以上'] }
+        {name: '3.3-3.9', value: totalMagnitude['3.3-3.9']},
+        {name: '4.4-4.9', value: totalMagnitude['4.4-4.9']},
+        {name: '5.5-5.9', value: totalMagnitude['5.5-5.9']},
+        {name: '6.0及以上', value: totalMagnitude['6.0及以上']}
       ];
 
       const color = ['#00FFFF', '#409B5C', '#006CED', '#FFE000'];  // 震级类别的颜色
@@ -454,8 +446,8 @@ export default {
           name: '',
           itemStyle: {
             normal: {
-              label: { show: false },
-              labelLine: { show: false },
+              label: {show: false},
+              labelLine: {show: false},
               color: 'rgba(0, 0, 0, 0)',
               borderColor: 'rgba(0, 0, 0, 0)',
               borderWidth: 0
@@ -496,12 +488,10 @@ export default {
         tooltip: {
           show: true,
           formatter: function (params) {
-            let percent = 0;
             let total = 0;
             for (let i = 0; i < trafficWay.length; i++) {
               total += trafficWay[i].value;
             }
-            percent = ((params.value / total) * 100).toFixed(0);
             if (params.name !== '') {
               return params.name + ': ' + params.value + '次'
             } else {
@@ -543,13 +533,12 @@ export default {
                 show: true,
                 position: 'outside',
                 color: '#ddd',
-                formatter: function(params) {
-                  let percent = 0;
+                formatter: function (params) {
                   let total = 0;
                   for (let i = 0; i < trafficWay.length; i++) {
                     total += trafficWay[i].value;
                   }
-                  percent = ((params.value / total) * 100).toFixed(0);
+                  let percent = ((params.value / total) * 100).toFixed(0);
                   if (params.name !== '') {
                     return params.name + ': ' + params.value + '次' + '\n' +
                         '占百分比：' + percent + '%';
@@ -612,6 +601,15 @@ export default {
       }
     },
 
+    calculateUpdateTime(res, field) {
+      const submissionDeadlines = res.map(item => item[field]).filter(Boolean);
+      if (submissionDeadlines.length > 0) {
+        const latest = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
+        return this.formatDate(latest.toISOString().replace('T', ' ').substring(0, 19));
+      }
+      return null;
+    },
+
     formatDate(date) {
       const d = new Date(date);
       const year = d.getFullYear();
@@ -627,14 +625,32 @@ export default {
 </script>
 
 <style scoped>
-.PCChart{
-  float: right;
+.update-time1 {
+  padding-left: 5px;
+  background: linear-gradient(to right, rgb(218, 45, 45) 3%, rgba(254, 254, 254, 0) 90%);
+  display: inline-block;
+  color: white;
+}
+
+.update-time2 {
+  padding-left: 5px;
+  background: linear-gradient(to right, rgb(218, 45, 45) 3%, rgba(254, 254, 254, 0) 90%);
+  height: auto; /* 高度可以由内容决定 */
+  position: absolute; /* 绝对定位 */
+  top: 45%; /* 垂直方向到容器中间 */
+  left: 0;
+  color: white;
+}
+
+.PCChart {
+  margin: 0 auto;  /* 水平居中 */
   width: 440px;
   height: 630px;
 }
+
 .panelChart {
-  float: right;
+  margin: 0 auto;  /* 水平居中 */
   width: 440px;
-  height: 315px;
+  height: 300px;
 }
 </style>

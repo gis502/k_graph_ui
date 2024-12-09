@@ -1,15 +1,27 @@
 <template>
   <el-carousel trigger="click" height="570px" interval="3000" indicator-position="none">
     <el-carousel-item>
+      <span class="update-time">
+          更新时间：{{ updateTime1 }}
+      </span>
       <div class="panelChart" ref="MaterialDonationChart"></div>
     </el-carousel-item>
     <el-carousel-item>
+      <span class="update-time">
+          更新时间：{{ updateTime2 }}
+      </span>
       <div class="panelChart" ref="RedCrossDonationsChart"></div>
     </el-carousel-item>
     <el-carousel-item>
+      <span class="update-time">
+          更新时间：{{ updateTime3 }}
+      </span>
       <div class="panelChart" ref="GovernmentDonationsChart"></div>
     </el-carousel-item>
     <el-carousel-item>
+      <span class="update-time">
+          更新时间：{{ updateTime4 }}
+      </span>
       <div class="panelChart" ref="CharityDonationsChart"></div>
     </el-carousel-item>
   </el-carousel>
@@ -37,6 +49,10 @@ export default {
         Government: [],
         Charity: [],
       },
+      updateTime1: null,
+      updateTime2: null,
+      updateTime3: null,
+      updateTime4: null,
     };
   },
   mounted() {
@@ -70,6 +86,7 @@ export default {
       let affectedData = [];
       let legendData = [];
       if (chartTitle === 'MaterialDonation') {
+        this.updateTime1 = this.calculateUpdateTime(res, 'reportDeadline');
         // 物资捐赠的数据，字段为 materialDonationCount 和 drugsDonationCount
         affectedData = res.map(item => ({
           earthquakeAreaName: item.earthquakeAreaName,
@@ -78,6 +95,7 @@ export default {
         }));
         legendData = ['累计捐赠物资(万件)', '累计捐赠药品(箱)']
       } else if (chartTitle === 'RedCrossDonations') {
+        this.updateTime2 = this.calculateUpdateTime(res, 'submissionDeadline');
         // 红十字会捐赠的数据，字段为 donationAmount 和 todayAmount
         affectedData = res.map(item => ({
           earthquakeAreaName: item.earthquakeAreaName,
@@ -86,6 +104,7 @@ export default {
         }));
         legendData = ['累计接收捐赠资金(万元)', '当日接收捐赠资金(万元)']
       } else if (chartTitle === 'GovernmentDonations') {
+        this.updateTime3 = this.calculateUpdateTime(res, 'submissionDeadline');
         // 政府捐赠的数据，字段为 donationAmount 和 todayAmount
         affectedData = res.map(item => ({
           earthquakeAreaName: item.earthquakeAreaName,
@@ -94,6 +113,7 @@ export default {
         }));
         legendData = ['累计接收捐赠资金(万元)', '当日接收捐赠资金(万元)']
       } else if (chartTitle === 'CharityDonations') {
+        this.updateTime4 = this.calculateUpdateTime(res, 'submissionDeadline');
         // 慈善组织捐赠的数据，字段为 donationAmount 和 todayAmount
         affectedData = res.map(item => ({
           earthquakeAreaName: item.earthquakeAreaName,
@@ -116,30 +136,34 @@ export default {
       this.initChart(areaNames, donationData, todayData, chartTitle,legendData);
     },
 
-    // 图表初始化方法
-    initChart(areaNames, donationData, todayData, chartTitle,legendData) {
-      const chartRef = chartTitle.replace(' ', '') + 'Chart'; // 去掉空格并生成 ref 名
+    initChart(areaNames, donationData, todayData, chartTitle, legendData) {
+      const chartRef = chartTitle.replace(/\s+/g, '') + 'Chart'; // 去除空格并生成 ref 名称
       const chartDom = this.$refs[chartRef];
 
-      if (chartTitle === 'MaterialDonation'){
-        chartTitle = '物资捐赠情况'
-      }
-      if (chartTitle === 'RedCrossDonations'){
-        chartTitle = '红十字会捐赠情况'
-      }
-      if (chartTitle === 'GovernmentDonations'){
-        chartTitle = '政府捐赠情况'
-      }
-      if (chartTitle === 'CharityDonations'){
-        chartTitle = '慈善组织捐赠情况'
-      }
+      // 定义图表标题映射
+      const titleMapping = {
+        MaterialDonation: '物资捐赠情况',
+        RedCrossDonations: '红十字会捐赠情况',
+        GovernmentDonations: '政府捐赠情况',
+        CharityDonations: '慈善组织捐赠情况'
+      };
+
+      // 获取映射后的标题
+      chartTitle = titleMapping[chartTitle] || chartTitle;
 
       // 检查是否找到对应的图表 DOM
       if (!chartDom) {
+        console.warn(`未找到图表 DOM：${chartRef}`);
         return;
       }
 
       const myChart = echarts.init(chartDom);
+
+      // 公共样式配置
+      const commonTextStyle = {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 14
+      };
 
       const option = {
         backgroundColor: 'transparent',
@@ -156,19 +180,19 @@ export default {
           trigger: 'axis',
           backgroundColor: 'rgba(17,95,182,0.5)',
           textStyle: {
-            color: "#fff"
+            color: '#fff'
           },
           axisPointer: {
             type: 'shadow'
           }
         },
         legend: {
-          data: legendData, // 或者你可以根据数据字段动态更改
+          data: legendData,
           align: 'left',
           right: 50,
           top: 80,
           textStyle: {
-            color: "rgba(255,255,255,0.9)"
+            color: 'rgba(255,255,255,0.9)'
           },
           itemWidth: 15,
           itemHeight: 15,
@@ -186,21 +210,16 @@ export default {
           type: 'value',
           axisLabel: {
             formatter: '{value}',
-            textStyle: {
-              color: 'rgba(255,255,255,0.8)',
-              fontSize: 14
-            }
+            textStyle: commonTextStyle
           },
           axisTick: { show: false },
-          axisLine: {
-            show: false,
+          axisLine: { show: false },
+          splitLine: {
             lineStyle: {
-              color: "#063374",
-              width: 1,
-              type: "solid"
-            },
-          },
-          splitLine: { lineStyle: { color: "#063374", type: "dashed" } }
+              color: '#063374',
+              type: 'dashed'
+            }
+          }
         }],
         yAxis: [{
           type: 'category',
@@ -208,62 +227,72 @@ export default {
           axisLine: { show: false },
           axisTick: { show: false },
           axisLabel: {
-            textStyle: {
-              color: 'rgba(255,255,255,0.8)',
-              fontSize: 14
-            }
+            textStyle: commonTextStyle
           }
         }],
-        series: [{
-          name: legendData[0],
-          type: 'bar',
-          data: donationData, // 捐赠数据
-          barWidth: 10,
-          barGap: 1,
-          itemStyle: {
-            normal: {
-              color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [{
-                offset: 0,
-                color: '#FEC060'
-              }, {
-                offset: 1,
-                color: 'rgba(254, 192, 96, 0.1)'
-              }]),
-              opacity: 1,
-              barBorderRadius: [0, 30, 30, 0],
-            }
-          }
-        }, {
-          name: legendData[1],
-          type: 'bar',
-          data: todayData, // 今日捐赠数据
-          barWidth: 10,
-          barGap: 1,
-          itemStyle: {
-            normal: {
-              color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [{
-                offset: 0,
-                color: '#0291FF'
-              }, {
-                offset: 1,
-                color: 'rgba(12, 135, 230, 0.1)'
-              }]),
-              opacity: 1,
-              barBorderRadius: [0, 30, 30, 0],
-            }
-          }
-        }]
+        series: [
+          this.createBarSeries(legendData[0], donationData, ['#FEC060', 'rgba(254, 192, 96, 0.1)']),
+          this.createBarSeries(legendData[1], todayData, ['#0291FF', 'rgba(12, 135, 230, 0.1)'])
+        ]
       };
 
       myChart.setOption(option);
+    },
+
+    // 单独抽离创建柱状图的方法
+    createBarSeries(name, data, gradientColors) {
+      return {
+        name,
+        type: 'bar',
+        data,
+        barWidth: 10,
+        barGap: 1,
+        itemStyle: {
+          normal: {
+            color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [
+              { offset: 0, color: gradientColors[0] },
+              { offset: 1, color: gradientColors[1] }
+            ]),
+            opacity: 1,
+            barBorderRadius: [0, 30, 30, 0],
+          }
+        }
+      };
+    },
+
+    calculateUpdateTime(res, field) {
+      const submissionDeadlines = res.map(item => item[field]).filter(Boolean);
+      if (submissionDeadlines.length > 0) {
+        const latest = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
+        return this.formatDate(latest.toISOString().replace('T', ' ').substring(0, 19));
+      }
+      return null;
+    },
+
+    formatDate(date) {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+      const day = d.getDate().toString().padStart(2, '0');
+      const hours = d.getHours().toString().padStart(2, '0');
+      const minutes = d.getMinutes().toString().padStart(2, '0');
+      const seconds = d.getSeconds().toString().padStart(2, '0');
+      return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
     }
   },
 };
 </script>
 
 <style scoped>
+.update-time {
+  padding-left: 5px;
+  background: linear-gradient(to right, rgb(218, 45, 45) 3%, rgba(254, 254, 254, 0) 90%);
+  display: inline-block;
+  color: white;
+}
 .panelChart {
-  width: 400px;
+  left: 45px;
+  width: 430px;
   height: 630px;
 }
 </style>
