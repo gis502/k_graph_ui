@@ -1,17 +1,35 @@
 <template>
-  <el-carousel trigger="click" height="650px" interval="30000" indicator-position="none">
+  <el-carousel trigger="click" height="650px" interval="3000" indicator-position="none">
     <el-carousel-item>
+      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+          更新时间：{{ updateTime1 }}
+      </span>
       <div class="PCChart" ref="PC1Chart"></div>
     </el-carousel-item>
     <el-carousel-item>
+      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+          更新时间：{{ updateTime2 }}
+      </span>
       <div class="panelChart" ref="TR1Chart"></div>
+      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+          更新时间：{{ updateTime3 }}
+      </span>
       <div class="panelChart" ref="EA1Chart"></div>
     </el-carousel-item>
     <el-carousel-item>
+      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+          更新时间：{{ updateTime1 }}
+      </span>
       <div class="PCChart" ref="PC2Chart"></div>
     </el-carousel-item>
     <el-carousel-item>
+      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+          更新时间：{{ updateTime2 }}
+      </span>
       <div class="panelChart" ref="TR2Chart"></div>
+      <span style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
+          更新时间：{{ updateTime3 }}
+      </span>
       <div class="panelChart" ref="EA2Chart"></div>
     </el-carousel-item>
   </el-carousel>
@@ -33,7 +51,9 @@ export default {
   name: "",
   data() {
     return {
-
+      updateTime1: '',
+      updateTime2: '',
+      updateTime3: '',
     }
   },
   mounted() {
@@ -57,6 +77,18 @@ export default {
 
     // 处理人员伤亡数据
     loadPCData(res) {
+      // 更新最新时间
+      // 检查时间字段并安全访问
+      const firstItem = res[0];
+      const submissionDeadlines = res.map(item => item.submissionDeadline).filter(Boolean);
+      if (firstItem && firstItem.submissionDeadline) {
+        const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
+        this.updateTime1 = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
+        this.updateTime1 = this.formatDate(this.updateTime1);
+      } else {
+        this.updateTime1 = this.formatDate( this.updateTime1);  // 使用传入的时间字段
+      }
+
       // 假设 res 是一个包含多个对象的数组，我们从中提取数据
       const affectedData = res.map(item => ({
         areaName: item.affectedAreaName, // 区县名
@@ -125,10 +157,10 @@ export default {
           icon: 'path://M961.3,130.5c-165.8-0.7-315.7,98.6-379.7,251.6c-64,153-29.4,329.4,87.6,447c117,117.5,293.3,152.9,446.6,89.6C1269,855.5,1369,706,1369.1,540.2C1369.3,314.6,1186.9,131.3,961.3,130.5L961.3,130.5zM961.3,740.5c-106.9,0-193.9-89.9-193.9-200.2c0-110.3,87-200.2,193.9-200.2c106.9,0,194,89.8,194,200.2S1068.1,740.5,961.3,740.5L961.3,740.5z M961.3,740.5'
         },
         grid: {
-          top: '30%',
+          top: '20%',
           left: '8%',
           right: '8%',
-          bottom: '13%',
+          bottom: '10%',
           containLabel: true
         },
         xAxis: [{
@@ -579,6 +611,17 @@ export default {
         'background-color': '#ffffff00',
       }
     },
+
+    formatDate(date) {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
+      const day = d.getDate().toString().padStart(2, '0');
+      const hours = d.getHours().toString().padStart(2, '0');
+      const minutes = d.getMinutes().toString().padStart(2, '0');
+      const seconds = d.getSeconds().toString().padStart(2, '0');
+      return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+    }
   },
 };
 </script>

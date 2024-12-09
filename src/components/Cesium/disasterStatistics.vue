@@ -33,6 +33,7 @@ import secondaryDisaster from  "./disasterStatisticsComponents/secondaryDisaster
 import resourceStrength from  "./disasterStatisticsComponents/resourceStrength.vue"
 import materialDonation from  "./disasterStatisticsComponents/materialDonation.vue"
 import publicSentiment from  "./disasterStatisticsComponents/publicSentiment.vue"
+import workGroupLog from "@/components/Cesium/disasterStatisticsComponents/workGroupLog.vue";
 export default {
   components: {
     earthquakeCasualties: markRaw(earthquakeCasualties),
@@ -42,6 +43,7 @@ export default {
     resourceStrength: markRaw(resourceStrength),
     materialDonation: markRaw(materialDonation),
     publicSentiment: markRaw(publicSentiment),
+    workGroupLog: markRaw(workGroupLog),
   },
   props: ["currentTime", "currentTime","eqid"],
   name: "",
@@ -55,7 +57,8 @@ export default {
         {label: '次生灾害信息专题图', value: 'secondaryDisaster'},
         {label: '力量物资信息专题图', value: 'resourceStrength'},
         {label: '资金及物资捐赠专题图', value: 'materialDonation'},
-        {label: '宣传舆情治安专题图', value: 'publicSentiment'}
+        {label: '宣传舆情治安专题图', value: 'publicSentiment'},
+        {label: '工作组每日工作动态可视化', value: 'workGroupLog'}
       ],
       componentMap: {
         earthquakeCasualties,
@@ -64,7 +67,8 @@ export default {
         secondaryDisaster,
         resourceStrength,
         materialDonation,
-        publicSentiment
+        publicSentiment,
+        workGroupLog
       },
     }
   },

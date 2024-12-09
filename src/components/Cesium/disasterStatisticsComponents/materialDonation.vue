@@ -1,5 +1,5 @@
 <template>
-  <el-carousel trigger="click" height="570px" interval="300000" indicator-position="none">
+  <el-carousel trigger="click" height="570px" interval="3000" indicator-position="none">
     <el-carousel-item>
       <div class="panelChart" ref="MaterialDonationChart"></div>
     </el-carousel-item>
@@ -176,10 +176,10 @@ export default {
           icon: 'path://M961.3,130.5c-165.8-0.7-315.7,98.6-379.7,251.6c-64,153-29.4,329.4,87.6,447c117,117.5,293.3,152.9,446.6,89.6C1269,855.5,1369,706,1369.1,540.2C1369.3,314.6,1186.9,131.3,961.3,130.5L961.3,130.5zM961.3,740.5c-106.9,0-193.9-89.9-193.9-200.2c0-110.3,87-200.2,193.9-200.2c106.9,0,194,89.8,194,200.2S1068.1,740.5,961.3,740.5L961.3,740.5z M961.3,740.5'
         },
         grid: {
-          top: '23%',
+          top: '20%',
           left: '8%',
           right: '8%',
-          bottom: '13%',
+          bottom: '10%',
           containLabel: true
         },
         xAxis: [{
@@ -264,6 +264,6 @@ export default {
 <style scoped>
 .panelChart {
   width: 400px;
-  height: 590px;
+  height: 630px;
 }
 </style>
