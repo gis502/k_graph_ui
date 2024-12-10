@@ -210,7 +210,8 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
+<!--    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">-->
+    <div class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
@@ -1335,7 +1336,7 @@ export default {
             break;
           }
         }
-
+        //回退到最开始
         if (i <= 0) {
           flag = 0
           this.currentTimePosition = 0;
@@ -1352,11 +1353,19 @@ export default {
         }
         //更新到下一跳
         if (flag === 1) {
-          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          // 根据是否需要显示标绘层来更新图层
-          this.updatePlotOnce("3")
+          let currentTimeTmp=new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+          //最后5分钟，不满5分钟的，再回退一跳
+          if(currentTimeTmp>=this.eqendTime){
+            this.backward()
+          }
+          else{
+            this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
+            this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+            this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+            // 根据是否需要显示标绘层来更新图层
+            this.updatePlotOnce("3")
+          }
+
         }
       }
 
@@ -1368,8 +1377,6 @@ export default {
      */
     jumpToTime(event) {
       if (this.canOperateTimerLine) {
-
-
         this.isfirst = false
         let currentTimeTmp = this.currentTime
         // 获取时间轴的矩形区域，用于计算点击位置对应的进度
