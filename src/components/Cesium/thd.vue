@@ -982,7 +982,8 @@ export default {
       tableNameOptions: [],
       eqlistName: '',
       canOperateTimerLine: false,
-      wsaddMakers: []
+      wsaddMakers: [],
+      wsdeleteMakers:[]
     };
   },
   created() {
@@ -1208,7 +1209,7 @@ export default {
               let markData = JSON.parse(e.data).data
               if (!that.isTimerRunning && that.currentTimePosition >= 100) {
                 //标绘点
-                that.wsAdd(markType, markData)
+                that.wsAddMakerFunc(markType, markData)
               }
               //播放或播放暂停
               else {
@@ -1218,20 +1219,11 @@ export default {
           }
           else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
-            that.plotisshow[id] = 0
-            if (markType === "point") {
-              cesiumPlot.deletePointById(id);
-            } else if (markType === "polyline") {
-              let polyline = window.viewer.entities.getById(id)
-              let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
-              polylinePosition.pointPosition.forEach((item, index) => {
-                window.viewer.entities.remove(item)
-              })
-              window.viewer.entities.remove(polyline)
-            } else if (markType === "polygon") {
-              window.viewer.entities.removeById(id)
-            } else if (markType === "arrow") {
-              Arrow.clearById(id)
+            if (!that.isTimerRunning && that.currentTimePosition >= 100) {
+              that.wsDeleteMakerFunc(id,markType)
+            }
+            else{
+              that.wsdeleteMakers.push({id: id, markType: markType})
             }
           }
         } catch (err) {
@@ -1239,7 +1231,7 @@ export default {
         }
       };
     },
-    wsAdd(type, data) {
+    wsAddMakerFunc(type, data) {
       // console.log(data.plot,"data.plot wsadd")
       data.plot.longitude = Number(data.plot.geom.coordinates[0])
       data.plot.latitude = Number(data.plot.geom.coordinates[1]),
@@ -1268,6 +1260,26 @@ export default {
         } else if (data.plot.plotType === "直线箭头") {
           arrow.showStraightArrow([data.plot])
         }
+      }
+    },
+    wsDeleteMakerFunc(id,markType){
+      this.plotisshow[id] = 0
+      if (markType === "point") {
+        cesiumPlot.deletePointById(id);
+      }
+      else if (markType === "polyline") {
+        let polyline = window.viewer.entities.getById(id)
+        let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
+        polylinePosition.pointPosition.forEach((item, index) => {
+          window.viewer.entities.remove(item)
+        })
+        window.viewer.entities.remove(polyline)
+      }
+      else if (markType === "polygon") {
+        window.viewer.entities.removeById(id)
+      }
+      else if (markType === "arrow") {
+        Arrow.clearById(id)
       }
     },
     initcesiumPlot() {
@@ -1373,6 +1385,14 @@ export default {
               that.wsAdd(markType, markData)
             })
             this.wsaddMakers = []
+          }
+          if(this.wsdeleteMakers.length>0){
+            this.wsdeleteMakers.forEach((item) => {
+              let id = item.id
+              let markType = item.markType
+              that.wsDeleteMakerFunc(id,markType)
+            })
+            this.wsdeleteMakers = []
           }
         }
       } else {
@@ -3207,13 +3227,9 @@ export default {
       if (this.jumpTimes) {
         this.jumpTimes.forEach(item => {
           var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
-          // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode] = 1
         })
       }
-
-      // console.log(this.jumpNodes,this.plots,"this.jumpNodes111")
-      // console.log(this.plots,"this.plots111")
       // 标记计时器为运行状态
       this.isTimerRunning = true;
       // 初始化
