@@ -13,7 +13,7 @@
         :value="option.value"
     />
   </el-select>
-  <div height="650px" interval="3000">
+  <div>
     <div
         v-for="(component, key) in componentMap"
         :key="key"
@@ -33,15 +33,17 @@ import secondaryDisaster from  "./disasterStatisticsComponents/secondaryDisaster
 import resourceStrength from  "./disasterStatisticsComponents/resourceStrength.vue"
 import materialDonation from  "./disasterStatisticsComponents/materialDonation.vue"
 import publicSentiment from  "./disasterStatisticsComponents/publicSentiment.vue"
+import workGroupLog from "@/components/Cesium/disasterStatisticsComponents/workGroupLog.vue";
 export default {
   components: {
-    earthquakeCasualties,
-    transportationElectricity,
-    buildingDamageInformation,
-    secondaryDisaster,
-    resourceStrength,
-    materialDonation,
-    publicSentiment
+    earthquakeCasualties: markRaw(earthquakeCasualties),
+    transportationElectricity: markRaw(transportationElectricity),
+    buildingDamageInformation: markRaw(buildingDamageInformation),
+    secondaryDisaster: markRaw(secondaryDisaster),
+    resourceStrength: markRaw(resourceStrength),
+    materialDonation: markRaw(materialDonation),
+    publicSentiment: markRaw(publicSentiment),
+    workGroupLog: markRaw(workGroupLog),
   },
   props: ["currentTime", "currentTime","eqid"],
   name: "",
@@ -55,7 +57,8 @@ export default {
         {label: '次生灾害信息专题图', value: 'secondaryDisaster'},
         {label: '力量物资信息专题图', value: 'resourceStrength'},
         {label: '资金及物资捐赠专题图', value: 'materialDonation'},
-        {label: '宣传舆情治安专题图', value: 'publicSentiment'}
+        {label: '宣传舆情治安专题图', value: 'publicSentiment'},
+        {label: '工作组每日工作动态可视化', value: 'workGroupLog'}
       ],
       componentMap: {
         earthquakeCasualties,
@@ -64,7 +67,8 @@ export default {
         secondaryDisaster,
         resourceStrength,
         materialDonation,
-        publicSentiment
+        publicSentiment,
+        workGroupLog
       },
     }
   },
@@ -76,27 +80,6 @@ export default {
     handleComponentChange(value) {
       // You can handle any additional logic here when a component is selected
       console.log(`Selected component: ${this.selectedComponentKey}`);
-      // if (this.selectedComponentKey === 'EarthquakeCasualties') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'TransportationElectricity') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'BuildingDamageInformation') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'SecondaryDisaster') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'ResourceStrength') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'MaterialDonation') {
-      //
-      // }
-      // if (this.selectedComponentKey === 'PublicSentiment') {
-      //
-      // }
     },
   },
 };
