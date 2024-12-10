@@ -88,7 +88,7 @@ const latestTime3 = ref('')
 // echarts配置数据项
 const drilldownData1 = ref('') // 下钻图数据源
 const yCount = ref([])
-const max = ref()
+const max = ref([])
 const maxData = ref()
 
 // 所有echarts的配置以及数据的获取
@@ -141,13 +141,12 @@ const initChart = async () => {
         latestTime1.value = data.reduce((max, item) => {
           return new Date(formatDate(max)) > new Date(formatDate(item.submissionDeadline)) ? max : formatDate(item.submissionDeadline);
         },formatDate(data[0].submissionDeadline)); // 确保初始值
-
-        latestTime1.value = formatDateChina(latestTime1.value)
+        updateTime2.value = formatDateChina(latestTime1.value)
       }
     };
     const res1 = await getEquipment(eqid.value);
     updateEquipment(res1);
-    console.log("111111111111111111",res1);
+
 
     // 救援物资情况的数据
     function updateDisasterreLiefMaterials(data)  {
@@ -165,12 +164,12 @@ const initChart = async () => {
         latestTime2.value = data.reduce((max, item) => {
           return new Date(formatDate(max)) > new Date(formatDate(item.submissionDeadline)) ? max : formatDate(item.submissionDeadline) ;
         },formatDate(data[0].submissionDeadline)); // 确保初始值
-        latestTime2.value = formatDateChina(latestTime2.value)
+        updateTime3.value = formatDateChina(latestTime2.value)
       }
     }
     const res2 = await getDisasterreLiefMaterials(eqid.value);
     updateDisasterreLiefMaterials(res2);
-    console.log("222222222222222222",res2)
+
 
     //  救援力量情况的定义
     function updateRescueForces(data){
@@ -203,6 +202,7 @@ const initChart = async () => {
         latestTime3.value = data.reduce((max,item)=> {
           return formatDate(max) > formatDate(item.submissionDeadline) ? formatDate(max) : formatDate(item.submissionDeadline)
         },formatDate(data[0].submissionDeadline))
+        updateTime1.value = formatDateChina(latestTime3.value)
 
         yCount.value = data.map(item =>{
           const totalCount = item.plaCount + item.armedPoliceCount + item.militiaCount +
@@ -217,10 +217,14 @@ const initChart = async () => {
           }
         })
 
-        const max1 = yCount.value.reduce((maxValue, current) => {
+        let max1 = yCount.value.reduce((maxValue, current) => {
           return current.value > maxValue ? current.value : maxValue;
         }, 0); // 初始值设置为 0
-        max.value = Math.ceil(max1 * 1.2)
+        max1 = Math.ceil(max1 * 1.2)
+        for(let i = 0;i<yCount.value.length;i++){
+          max.value.push(max1)
+        }
+
 
         const maxData1 = Math.max(
             ...data.flatMap(item => [
@@ -266,7 +270,7 @@ const initChart = async () => {
     }
     const res3 = await getRescueForces(eqid.value)
     updateRescueForces(res3)
-    console.log("333333333333333333",res3)
+
   }
   await getData();
   // -----------------------------------------------------------------------------------------------------------
@@ -750,6 +754,23 @@ const initChart = async () => {
       axisPointer: {
         type: 'shadow',
       },
+      formatter: function (params) {
+        // 过滤掉 "背景" 数据，保留 "救援人数" 和 "区域" 数据
+        const filteredParams = params.filter(param => param.seriesName !== '背景');
+        let tooltipContent = '';
+        filteredParams.forEach(param => {
+          // 获取对应的 Y 轴的值 (即区域名称)
+          const areaName = param.name; // 对应柱子所在的区域（Y轴）
+          // 为每个系列显示对应的图标和内容
+          tooltipContent += `
+          <div style="display: flex; align-items: center;">
+            <span style="display: inline-block; width: 10px; height: 10px; margin-right: 8px; background-color: ${param.color};"></span>
+            ${areaName} ${param.seriesName}:${param.value}人
+          </div>
+        `;
+        });
+        return tooltipContent || '无数据';
+      }
     },
     grid: {
       top: '15%',
@@ -787,7 +808,7 @@ const initChart = async () => {
     yAxis: [
       {
         type: 'category', // 改为类目轴
-        data: earthquakeAreaName3,
+        data: earthquakeAreaName3.value,
         axisLabel: {
           color: '#e2e9ff',
         },
@@ -806,6 +827,7 @@ const initChart = async () => {
     ],
     series: [
       {
+        name:'救援人数',
         type: 'bar',
         id: 'sales',
         data: yCount.value,
@@ -834,7 +856,7 @@ const initChart = async () => {
         type: 'bar',
         barWidth: 20,
         barGap: '-100%',
-        data: [max.value,max.value,max.value,max.value,max.value,max.value,max.value,max.value],
+        data: max.value,
         z: -1,
         itemStyle: {
           normal: {
@@ -1021,7 +1043,7 @@ const initChart = async () => {
               verticalAlign: 'middle', // 垂直居中对齐
             },
             onclick: function () {
-              myChart1.setOption(option3); // 点击返回按钮，恢复初始视图
+              myChart4.setOption(option3); // 点击返回按钮，恢复初始视图
             },
           },
         ],
