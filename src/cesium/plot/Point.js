@@ -648,10 +648,10 @@ export default class Point {
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
-        // color: new Cesium.CallbackProperty(() => {
-        //   return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
-        // }, false),
-        color: Cesium.Color.WHITE.withAlpha(1),
+        color: new Cesium.CallbackProperty(() => {
+          return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+        }, false),
+        // color: Cesium.Color.WHITE.withAlpha(1),
         scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
         depthTest: false, // 禁止深度测试
