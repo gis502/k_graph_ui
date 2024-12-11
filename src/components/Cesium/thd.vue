@@ -101,47 +101,87 @@
     <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
       <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
         <div class="pop_header">
-          <span class="pop_title">专题图产出</span>
+          <span class="pop_title">图件产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
-          <el-radio-group v-model="selectthematicMap" @change="updatethematicMap" class="grid-container">
-            <el-radio
-                v-for="item in thematicMapitems"
-                :key="item.id"
-                :label="item.name"
-                style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
-            >
-              {{ item.name }}
-            </el-radio>
-          </el-radio-group>
+
+
           <div @click="toggleExpand"
                style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
           </div>
         </div>
       </div>
     </div>
-    <!--  图件产出  -->
+
+    <!-- 专题图产出 -->
     <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
       <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
         <div class="pop_header">
           <span class="pop_title">图件产出</span>
         </div>
         <div class="list-dialog__content" style="height: calc(100% - 40px);">
-          <el-radio-group v-model="selectReportItem" @change="updateReportItem" class="grid-container">
-            <el-radio
-                v-for="item in reportItems"
-                :key="item.id"
-                :label="item.name"
-                style="margin: 0 0;color:white;background-color: rgba(28,132,198,0)"
+          <!-- 切换按钮 -->
+          <div class="toggle-buttons">
+            <el-button
+                :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
+                @click="activeTab = 'thematicMap'"
             >
-              {{ item.name }}
-            </el-radio>
-          </el-radio-group>
-          <div @click="toggleExpand"
-               style="cursor: pointer; text-align: center; margin-top: 10px; display: flex; justify-content: flex-end;">
+              专题图预览
+            </el-button>
+            <el-button
+                :type="activeTab === 'report' ? 'primary' : 'default'"
+                @click="activeTab = 'report'"
+            >
+              报告产出
+            </el-button>
+          </div>
+          <!-- 专题图 -->
+          <div v-if="activeTab === 'thematicMap'" class="section">
+            <div class="grid-container">
+              <div
+                  v-for="item in thematicMapitems"
+                  :key="item.id"
+                  class="grid-item"
+                  @click="showThematicMapDialog(item)"
+              >
+                <el-card shadow="hover">
+                  <img :src="item.path" :alt="item.name" class="preview-img" />
+                  <div class="item-info">
+                    <p class="item-title">{{ item.name }}</p>
+                  </div>
+                </el-card>
+              </div>
+            </div>
+          </div>
+          <!-- 报告 -->
+          <div v-if="activeTab === 'report'" class="section">
+            <div class="grid-container-report">
+              <div
+                  v-for="item in reportItems"
+                  :key="item.id"
+                  class="grid-item"
+              >
+                <el-card shadow="hover">
+                  <div class="report-preview">
+                    <p class="report-name">{{ item.name }}</p>
+                    <div class="report-bottom" @click="downloadReport(item)">
+                      下载报告
+                    </div>
+                  </div>
+                </el-card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- 专题图预览弹框 -->
+      <thematic-map-preview
+          v-if="ifShowMapPreview"
+          :img-url="imgshowURL"
+          :img-name="imgName"
+          @close="ifShowThematicMapDialog(false)"
+      />
     </div>
 
     <!--    box包裹地图，截图需要-->
@@ -720,6 +760,7 @@ export default {
       regionLayerJump: null,
 
       activeComponent: 'dataStats',// 默认为数据统计
+      activeTab: "thematicMap", // 当前显示的 tab (专题图或报告)
       showSidebarComponents: true,  // 控制两侧组件显示状态
       //-----------------图层要素---------------------
       isExpanded: false,
@@ -752,6 +793,7 @@ export default {
         {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
         {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
       ],
+
       //专题图下载
       thematicMapitems: [],
       selectthematicMap: '',
@@ -3823,6 +3865,23 @@ export default {
       return this.activeComponent === component; // 检查是否为活动组件
     },
 
+    showThematicMapPreview(item) {
+      // item 中包含 name, path
+      this.ifShowMapPreview = true
+      this.imgurlFromDate = item.path
+      this.imgName = item.name
+      this.showTypes = 1
+      this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+    },
+    downloadReport(item) {
+      // 报告下载逻辑
+      const link = document.createElement("a");
+      link.href = item.path;
+      link.download = item.name; // 指定下载的文件名
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
 
     /*
     * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
@@ -5062,11 +5121,17 @@ export default {
       this.positionFlyTo.lat = ''
       this.showPositionFlyTo = false
     },
-
+    showThematicMapDialog(item) {
+      // 显示专题图弹框逻辑
+      this.ifShowMapPreview = true;
+      this.imgName = item.name;
+      this.imgshowURL = item.path;
+    },
     ifShowThematicMapDialog(val) {
-      this.ifShowMapPreview = val // 是否预览专题图 = val
+      this.ifShowMapPreview = val;
       if (!val) {
-        this.selectthematicMap = null
+        this.imgName = "";
+        this.imgshowURL = "";
       }
     },
     //专题图 end
@@ -5304,6 +5369,124 @@ export default {
   height: 5.5rem;
 }
 
+.preview-dialog {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  width: 300px;
+  height: 300px;
+  background: #333;
+  border: 1px solid #fff;
+  z-index: 1000;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  background: #1c84c6;
+  color: #fff;
+  padding: 5px 10px;
+}
+
+.preview-content {
+  padding: 10px;
+  text-align: center;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 35px;
+  margin-bottom: 10px;
+  width: 60%;
+  margin-top: 10px;
+  left: 19%;
+  position: relative;
+}
+.section {
+  margin-bottom: 20px;
+  overflow-y: auto; /* 启用垂直滚动条 */
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.grid-container {
+  flex-wrap: wrap;
+  height: 69vh;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
+  gap: 8px; /* 列间距 */
+  padding: 5px;
+}
+.grid-container-report {
+  height: auto; /* 内容高度根据内容自适应 */
+  display: grid;
+  flex-wrap: wrap;
+  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
+  gap: 8px; /* 列间距 */
+  padding: 5px;
+}
+.report-name {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+.report-bottom {
+  color: #d8cc0e;
+  text-align: right;
+}
+.el-card {
+  background-color: #ffffff47;
+}
+:deep(.el-card__body) {
+  padding: 10px 10px 0px 10px !important;
+}
+.grid-item {
+  width: calc(100% - 7px);
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 确保图片显示完整 */
+  border-radius: 5px;
+}
+
+.item-info {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.item-title {
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 9px;
+  margin-top: 3px;
+}
+
+.el-card__body {
+  padding: 10px 10px 0px 10px !important;
+}
+
+.report-list {
+  list-style: none;
+  padding: 0;
+}
+
+.report-item {
+  margin-bottom: 10px;
+}
+
+.report-item a {
+  color: #1c84c6;
+  text-decoration: underline;
+}
+
 .pop-icon {
   margin-right: 10px;
   margin-left: 6px;
@@ -5376,7 +5559,7 @@ export default {
   width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
-background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   z-index: 100;
 }
 
@@ -5666,7 +5849,7 @@ background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9)
   border-color: #05709d;
   background: rgb(4, 20, 34);
   /*background: rgba(47, 82, 117, 0.3) 88%;*/
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 .pop_header {
@@ -5684,13 +5867,6 @@ background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9)
   top: 15%;
   position: relative;
   left: 7%;
-}
-
-/*弹窗样式*/
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 创建2列，等宽 */
-  gap: 8px; /* 列间距 */
 }
 
 :deep(.search-results) {
@@ -5901,7 +6077,7 @@ background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9)
 }
 
 .el-button {
-  font-size: 12px !important; /* 调整按钮字体大小 */
+  font-size: 1rem !important; /* 调整按钮字体大小 */
   width: 60%; /* 使按钮宽度自适应 */
   height: 3vh;
 }
@@ -6084,7 +6260,7 @@ background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9)
   width: 100%;
   border-color: #05709d;
   background: rgb(4, 20, 34);
-background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 :deep(.eqCard:hover) {
