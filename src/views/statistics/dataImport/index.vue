@@ -610,6 +610,16 @@ export default {
           //     this.percent = Number.parseInt(event.data);
           //   }
           // };
+          if ('WebSocket' in window) {
+            this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name);
+          } else {
+            alert('该浏览器不支持 WebSocket');
+          }
+          this.websocket.socket.onmessage = (event) => {
+            if (Number.parseInt(event.data)) {
+              this.percent = Number.parseInt(event.data);
+            }
+          };
           this.uploadedFile = file;
         }
       };
