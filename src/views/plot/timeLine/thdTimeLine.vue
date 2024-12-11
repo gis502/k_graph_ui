@@ -1188,7 +1188,6 @@ export default {
       if (this.jumpTimes) {
         this.jumpTimes.forEach(item => {
           var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
-          // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode] = 1
         })
       }
