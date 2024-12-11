@@ -21,11 +21,11 @@
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <div class="modelAdj">查询</div>
           <el-input
-              v-model="queryParams"
-              placeholder="请输入搜索信息"
-              clearable
-              style="width: 200px; margin-right: 10px;"
-              @keyup.enter="handleQuery"
+            v-model="queryParams"
+            placeholder="请输入搜索信息"
+            clearable
+            style="width: 200px; margin-right: 10px;"
+            @keyup.enter="handleQuery"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -163,7 +163,7 @@
 
 
       <el-upload
-          ref="upload"
+        ref="upload"
         :action="uploadUrl"
         :multiple="false"
         :show-file-list="false"
@@ -252,7 +252,8 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()" alt="icon" style="width: 20px; height: 20px;"/>
+            <img :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
+                 alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
         <el-table-column prop="plotType" label="类型" width="180"></el-table-column>
@@ -288,18 +289,18 @@
 
     <!--    准提图预览组件    -->
     <thematicMapPreview
-        @ifShowThematicMapDialog="ifShowDialog"
-        :imgshowURL="imgshowURL"
-        :imgurlFromDate="imgurlFromDate"
-        :imgName="imgName"
-        :ifShowMapPreview="ifShowMapPreview"
-        :showTypes="showTypes"
-        :corners="corners"
-        :step="step"
+      @ifShowThematicMapDialog="ifShowDialog"
+      :imgshowURL="imgshowURL"
+      :imgurlFromDate="imgurlFromDate"
+      :imgName="imgName"
+      :ifShowMapPreview="ifShowMapPreview"
+      :showTypes="showTypes"
+      :corners="corners"
+      :step="step"
     ></thematicMapPreview>
     <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
     <plotSearch
-      :eqid ="eqid"
+      :eqid="eqid"
       :plotArray="plotArray"
     ></plotSearch>
 
@@ -314,7 +315,7 @@ import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
-import {initWebSocket,websocketonmessage} from '@/cesium/WS.js'
+import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
 import addPolylineDialog from "@/components/Cesium/addPolylineDialog.vue"
@@ -334,12 +335,13 @@ import {querySituationData} from "@/api/system/model.js";
 import plotSearch from '@/components/Cesium/plotSearch.vue'
 import ThematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {Position} from "@element-plus/icons-vue";
+
 export default {
   components: {
     Position,
     ThematicMapPreview,
     dataSourcePanel,
-    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot,plotSearch
+    addMarkCollectionDialog, commonPanel, addPolygonDialog, addPolylineDialog, layeredShowPlot, plotSearch
   },
   data: function () {
     return {
@@ -523,7 +525,7 @@ export default {
       showTypes: 1,
 
       //下面这两个是经纬度线往子组件穿的数据
-      corners:{},
+      corners: {},
       //下面的是用来解决导出图片边框和经纬度数字展示用的
       step: 0.5,
 
@@ -545,7 +547,7 @@ export default {
       downloadConfirmed: false,
       isShowMessageIcon: false,
       messageIcon: '',
-      queryParams:'',  // 搜索框关键字
+      queryParams: '',  // 搜索框关键字
 
       //--------------搜索框内容更新--
       plotArray: [],
@@ -710,7 +712,7 @@ export default {
         let data = res
 
         that.plotList = data
-        // console.log("数据：", data)
+        console.log("数据：", data)
 
         let pointArr = data.filter(e => e.drawtype === 'point')
         let points = []
@@ -1256,22 +1258,9 @@ export default {
       let assemblyPolygonArray = [];
       let assemblyArrowArray = [];
 
-      const drawtypeMapping = {
-        "面": "polygon",
-        "攻击箭头": "attack",
-        "钳击箭头": "pincer",
-        "直线箭头": "straight",
-      };
-
       for (let i = 0; i < splitData.length; i++) {
-        // 获取对应的 drawtype 转换值
-        const drawtypeKey = splitData[i].plotInfo.plotType;
-        const mappedDrawtype = drawtypeMapping[drawtypeKey] || "unknown"; // 如果类型未匹配，设置为 "unknown"
+        const mappedDrawtype = splitData[i].plotInfo.drawtype || "unknown"; // 如果类型未匹配，设置为 "unknown"
         if (splitData[i].plotInfo.drawtype === "point" || splitData[i].plotInfo.drawtype === "点") {
-          console.log("1111111111111111", splitData[i])
-          console.log("点")
-          console.log(splitData[i].plotInfo.longitude)
-          console.log(splitData[i].plotInfo.latitude)
           const plotData = {
             type: "point",
             operate: "add",
@@ -1358,7 +1347,7 @@ export default {
                   drawtype: mappedDrawtype,
                   geom: {
                     type: "Polygon",
-                    coordinates: coordinates,
+                    coordinates: [coordinates],
                   },
                   elevation: splitData[i].plotInfo.elevation,
                   icon: splitData[i].plotInfo.icon,
@@ -1370,9 +1359,14 @@ export default {
                 plotinfo: {
                   ...splitData[i].plotTypeInfo,
                 },
-              }
-            };
 
+              }
+
+            };
+            // 如果 angle 属性存在，则将其添加到 plot 中
+            if (splitData[i].plotTypeInfo.angle !== undefined) {
+              plotData.data.plot.angle = splitData[i].plotTypeInfo.angle;
+            }
             assemblyPolygonArray.push(plotData); // 存储每个结果
           } else {
             console.log("箭头")
@@ -2229,7 +2223,7 @@ export default {
       let that = this
       getAllEq().then(res => {
         console.log("********************************************************")
-        console.log("res",res)
+        console.log("res", res)
         let resData = res.filter(item => item.magnitude >= 5)
         let data = []
         for (let i = 0; i < resData.length; i++) {
@@ -2610,7 +2604,7 @@ export default {
         cesiumPlot.drawPoint(pointInfo)
       }
     },
-    drawPoints(pointInfo,bool) {
+    drawPoints(pointInfo, bool) {
       cesiumPlot.drawPoints(pointInfo, bool, 5000);
     },
 
@@ -2760,15 +2754,16 @@ export default {
 
     //------------------------------------------------------------------------------
 
-    sendPlot(plotId,plotType){
+    sendPlot(plotId, plotType) {
       // 初始化存储的数组
       if (!this.plotArray) {
         this.plotArray = [];
       }
       // 将 plotId 和 plotInfo 作为对象存储在数组中
-      const plotData = { plotId, plotType };
+      const plotData = {plotId, plotType};
       this.plotArray = plotData;
-      console.log("plotArray",this.plotArray)
+      console.log("plotArray", this.plotArray)
+      this.plotList.push(plotData)
     },
     // cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
     // 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
@@ -2931,47 +2926,47 @@ export default {
 
       // 格式化搜索关键字，转换为后端可以识别的格式（例如：ISO时间字符串）
       const formattedKey = searchKey
-          .replace(/年/g, "-")
-          .replace(/月/g, "-")
-          .replace(/日/g, " ")
-          .replace(/时/g, ":")
-          .replace(/分/g, ":")
-          .replace(/秒/g, "");
+        .replace(/年/g, "-")
+        .replace(/月/g, "-")
+        .replace(/日/g, " ")
+        .replace(/时/g, ":")
+        .replace(/分/g, ":")
+        .replace(/秒/g, "");
 
       // 根据是否有格式化的搜索关键字来调用不同的查询方法
       const queryPromise = formattedKey ? querySituationData(formattedKey) : querySituationData();
 
       queryPromise
-          .then(res => {
-            console.log("获取的数据:", res);
+        .then(res => {
+          console.log("获取的数据:", res);
 
-            // 只筛选震中震级大于等于5的数据
-            let resData = res.data.filter(item => item.magnitude >= 5);
+          // 只筛选震中震级大于等于5的数据
+          let resData = res.data.filter(item => item.magnitude >= 5);
 
-            // 格式化返回的数据
-            this.getEqData = resData.map(item => {
-              // 格式化时间：将ISO时间中的'T'替换为' '
-              item.time = item.occurrenceTime.replace("T", " ");
+          // 格式化返回的数据
+          this.getEqData = resData.map(item => {
+            // 格式化时间：将ISO时间中的'T'替换为' '
+            item.time = item.occurrenceTime.replace("T", " ");
 
-              // 格式化震级、纬度和经度
-              item.magnitude = Number(item.magnitude).toFixed(1); // 震级保留1位小数
-              item.latitude = Number(item.latitude).toFixed(2); // 纬度保留2位小数
-              item.longitude = Number(item.longitude).toFixed(2); // 经度保留2位小数
+            // 格式化震级、纬度和经度
+            item.magnitude = Number(item.magnitude).toFixed(1); // 震级保留1位小数
+            item.latitude = Number(item.latitude).toFixed(2); // 纬度保留2位小数
+            item.longitude = Number(item.longitude).toFixed(2); // 经度保留2位小数
 
-              return item;
-            });
-
-            // 更新总数
-            this.total = this.getEqData.length;
-
-            // 获取分页数据
-            this.tableData = this.getPageArr();
-          })
-          .catch(error => {
-            console.error("查询时出现错误:", error.message || error);
-            const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
-            ElMessage.error(errorMessage);  // 弹出错误提示
+            return item;
           });
+
+          // 更新总数
+          this.total = this.getEqData.length;
+
+          // 获取分页数据
+          this.tableData = this.getPageArr();
+        })
+        .catch(error => {
+          console.error("查询时出现错误:", error.message || error);
+          const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+          ElMessage.error(errorMessage);  // 弹出错误提示
+        });
     },
 
     // 重置功能
@@ -3053,7 +3048,7 @@ export default {
 
 <style scoped>
 
-.eqtitle{
+.eqtitle {
   position: absolute;
   background: url(@/assets/images/EmergencyResourceInformation/导航栏发光样式.png) no-repeat;
   background-color: #283b4d;

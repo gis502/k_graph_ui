@@ -1040,6 +1040,7 @@ export default {
     this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
+    this.getEq()
     this.getPlotwithStartandEndTime(this.eqid)
     this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
@@ -4042,6 +4043,7 @@ export default {
     addHistoryEqPoints() {
       // 先清除historyEq实体
       this.removeEntitiesByType("historyEq")
+      console.log("data:",this.eqtableData)
       addHistoryEqPoints(this.centerPoint, this.eqtableData)
     },
 
