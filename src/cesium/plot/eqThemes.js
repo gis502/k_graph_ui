@@ -132,10 +132,16 @@ export function addFaultZones(centerPoint) {
 }
 
 // 绘制历史地震点
-export function addHistoryEqPoints(centerPoint, eqData) {
+export function addHistoryEqPoints(centerPoint, eqData, radius, filteredEqids) {
+  let entities = window.viewer.entities.values;
+  for (let i = entities.length - 1; i >= 0; i--) {
+    if (entities[i].properties?.type && ['historyEq'].includes(entities[i].properties.type.getValue())) {
+      window.viewer.entities.remove(entities[i]);
+    }
+  }
   // 圆圈的大小
-  const semiMinorAxis = 50000.0;
-  const semiMajorAxis = 50000.0;
+  const semiMinorAxis = radius * 1000 || 50000.0;
+  const semiMajorAxis = radius * 1000 || 50000.0;
   // console.log(eqData)
 
   // 添加圆圈
@@ -159,19 +165,25 @@ export function addHistoryEqPoints(centerPoint, eqData) {
   });
 
   const center = Cesium.Cartesian3.fromDegrees(Number(centerPoint.longitude), Number(centerPoint.latitude));
+  let historyEqData = [];
+
+  const eqids = filteredEqids || eqData.map(eq => eq.eqid);
+
+  console.log("eqids", eqids)
 
   // 渲染在圆圈内的地震点，并存储原始数据
   eqData.forEach((eq) => {
-    if (eq.eqid !== centerPoint.eqid) {
+    // console.log("数据：", eq)
+    if (eq.eqid !== centerPoint.eqid && eqids.includes(eq.eqid)) {
       const position = Cesium.Cartesian3.fromDegrees(Number(eq.longitude), Number(eq.latitude));
 
       // 判断是否在椭圆内
       const distance = Cesium.Cartesian3.distance(position, center);
-      const radius = Math.max(semiMajorAxis, semiMinorAxis);
+      const roundRadius = Math.max(semiMajorAxis, semiMinorAxis);
 
-      if (distance <= radius) {
+      if (distance <= roundRadius) {
         const size = parseFloat(eq.magnitude) >= 6.0 ? 20 : 15; // 震级大于等于6.0为20，其他为15
-
+        historyEqData.push(eq);
         viewer.entities.add({
           position: position,
           billboard: {
@@ -198,13 +210,16 @@ export function addHistoryEqPoints(centerPoint, eqData) {
             lon: eq.longitude,
             lat: eq.latitude,
             magnitude: eq.magnitude,
-            type: "historyEq"
+            type: "historyEq",
           },
+          id: eq.eqid,
           layer: "历史地震"
         });
       }
     }
+
   });
+  return historyEqData;
 }
 
 //计算烈度圈
@@ -693,7 +708,7 @@ export function handleTownData(town) {
 }
 
 /**
- * 灾损接口：4.2.9.获取专题图件getMap
+ * 灾损接口：4.2.9.获取专题图件getMap与灾情报告getReport
  * @param eqid
  * @param eqFullName
  * @param type

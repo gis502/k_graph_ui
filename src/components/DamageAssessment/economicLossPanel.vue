@@ -14,8 +14,7 @@
 
     <div class="panelTable">
       <div class="text" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>统计表格</span>
-        <span style="margin-right: 0">
+        <span style="margin: 0 auto">
           <span>地震造成经济损失共计约</span>
           <span class="emphasis">{{ total.toFixed(2) }}万元</span>
         </span>
@@ -39,7 +38,7 @@
         selectedTabData.magnitude
       }}级地震</span>
     <div style="padding: 1px 20px 10px 20px">
-      <p>发震时刻：{{ selectedTabData.time }}</p>
+      <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
       <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
       <p>地震震级：{{ selectedTabData.magnitude }}</p>
       <p>震源深度：{{ selectedTabData.depth }}千米</p>
@@ -49,6 +48,7 @@
 
 <script>
 import * as echarts from 'echarts';
+import {timestampToTime} from "../../cesium/plot/eqThemes.js";
 
 export default {
   props: {
@@ -67,7 +67,7 @@ export default {
         {color: '(254, 167, 88)', label: '10~20亿'},
         {color: '(250, 148, 64)', label: '20~50亿'},
         {color: '(245, 135, 38)', label: '50~100亿'},
-        {color: '(255, 216, 173)', label: '> 100亿'},
+        {color: '(240, 120, 20)', label: '> 100亿'},
       ],
 
       isNoData: false,
@@ -93,9 +93,12 @@ export default {
   },
 
   methods: {
+    timestampToTime,
 
     settleData() {
       this.copiedeconomicLossData = [...this.economicLossData];
+
+      this.copiedeconomicLossData.sort((a, b) => b.amount - a.amount);
 
       this.total = this.copiedeconomicLossData.reduce((acc, cur) => acc + cur.amount, 0);
 
@@ -123,8 +126,8 @@ export default {
         value: values[index],
       }));
 
-      // 按损失值进行排序，获取前六个最大的
-      const topCounties = countyData.sort((a, b) => b.value - a.value).slice(0, 6);
+      // 按损失值进行排序，获取前八个最大的
+      const topCounties = countyData.sort((a, b) => b.value - a.value).slice(0, 8);
 
       // 提取前六个的区县名和损失值
       const topCountyNames = topCounties.map(item => item.county);
@@ -141,15 +144,15 @@ export default {
         },
         tooltip: {},
         grid: {
-          left: '0%',
-          right: '0%',
+          left: '2%',
+          right: '5%',
           bottom: '10%',
           containLabel: true
         },
         xAxis: {
           type: 'category',
           data: topCountyNames,
-          name: '区县',
+          name: '',
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
           },
@@ -260,7 +263,7 @@ export default {
 
 .panelTable {
   float: left;
-  width: calc(100% - 450px - 150px);
+  width: calc(100% - 500px - 150px);
 }
 
 .panelAssessment {
@@ -271,7 +274,7 @@ export default {
 
 .panelChart {
   float: right;
-  width: 450px;
+  width: 500px;
   height: 100%;
 }
 
