@@ -32,10 +32,21 @@
           />
         </el-select>
       </el-col>
+      <el-col :span="1.5">
+        <el-date-picker
+            v-model="inputValue"
+            type="datetime"
+            placeholder="请选择查询时间"
+            style="width: 240px; height: 40px"
+        />
+      </el-col>
+      <el-col :span="1.5">
+        <el-button type="primary" @click="handleClick">查询</el-button>
+      </el-col>
       <!-- 动态组件显示 -->
     </el-row>
     <div class="container-center">
-      <component :is="selectedComponent" :newEqId="newEqId"/>
+      <component :is="selectedComponent" :newEqId="newEqId" :userInput="userInput"/>
     </div>
   </div>
 </template>
@@ -44,16 +55,39 @@
 import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
 import {reactive} from 'vue';
-import {getField, getData} from "@/api/system/excel.js";
+import {getField} from "@/api/system/excel.js";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
+import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingDamageInformation.vue";
+import SecondaryDisaster from "@/components/DisasterStatistics/SecondaryDisaster.vue";
+import ResourceStrength from "@/components/DisasterStatistics/ResourceStrength.vue";
+import MaterialDonation from "@/components/DisasterStatistics/MaterialDonation.vue"
+import PublicSentiment from "@/components/DisasterStatistics/PublicSentiment.vue"
+import WorkGroupLog from "@/components/DisasterStatistics/WorkGroupLog.vue"
+
+
+// 查询时间功能
+const inputValue = ref('')
+const userInput = ref('')
+
+const handleClick = () => {
+  userInput.value = inputValue.value;
+  inputValue.value = '';
+}
+// -------------------------------------------------------------------------------------------------------
 
 
 // 选项数据
 const options = [
   {label: '震情伤亡信息可视化', value: 'EarthquakeCasualties'},
-  {label: '交通电力通信信息可视化', value: 'TransportationElectricity'}
+  {label: '交通电力通信信息可视化', value: 'TransportationElectricity'},
+  {label: '建筑物受损信息可视化', value: 'BuildingDamageInformation'},
+  {label: '次生灾害信息可视化',value: 'SecondaryDisaster'},
+  {label: '力量物资信息可视化',value: 'ResourceStrength'},
+  {label: '资金及物资捐赠可视化', value: 'MaterialDonation'},
+  {label: '宣传舆情信息可视化',value: 'PublicSentiment'},
+  {label: '工作组每日工作动态可视化',value: 'WorkGroupLog'},
 ]
 
 // 当前选择的组件标识符
@@ -62,12 +96,18 @@ const selectedComponentKey = ref('EarthquakeCasualties')
 // 组件映射表
 const components = {
   EarthquakeCasualties,
-  TransportationElectricity
+  TransportationElectricity,
+  BuildingDamageInformation,
+  SecondaryDisaster,
+  ResourceStrength,
+  MaterialDonation,
+  PublicSentiment,
+  WorkGroupLog
 }
 
 // 动态获取选定的组件
-const selectedComponent = computed(() => {
-  return components[selectedComponentKey.value]
+  const selectedComponent = computed(() => {
+    return components[selectedComponentKey.value]
 })
 
 
@@ -91,7 +131,6 @@ const form = reactive({
   eqId: ''
 });
 
-// const selectedEqid = ref(''); // 新增变量用于保存选中的 eqid
 
 /** 监听 */
 watch(flag, (newFlag) => {
@@ -107,47 +146,21 @@ watch(flag, (newFlag) => {
   clearSelection();
   value.value = [];
   // getYaanCasualtiesList();
-
 });
 
 
-const newEqId = ref('');
-
-watch(eqlistName, (newValue) => {  // 修改为 newValue
-  newEqId.value = newValue
-  console.log("爷爷", newEqId.value)
-  // const selectedOption = tableNameOptions.value?.find(option => option.label === newValue);
-  // if (selectedOption) {
-  //   const part = selectedOption.value.split(" - "); // 根据 " - " 分割字符串
-  //   selectedEqid.value = part[0].trim(); // 获取对应的 eqid
-  //   console.log("Selected eqid:", selectedEqid.value); // 打印 eqid
-  //   // 向后端请求数据
-  // } else {
-  //   console.warn('No matching option found for the selected label:', newValue);
-  // }
+import {useGlobalStore} from "../../../store";
+const newEqId = computed(() => eqlistName.value);
+const store = useGlobalStore();
+watch([() => eqlistName.value,() => selectedComponentKey.value], (newValue) => {
+  store.setGlobalVariable(newValue[0]); // 更新全局的eqid
+  store.setGlobalChange(newValue[1]); // 更新全局的模块变化标识
 });
-
 
 onMounted(() => {
   getTableField()
   getEarthquake()
 })
-
-
-// 请求人员伤亡表数据
-// const getYaanCasualtiesList = async () => {
-//   await getData({
-//     currentPage: currentPage.value,
-//     pageSize: pageSize.value,
-//     requestParams: requestParams.value,
-//     flag: flag.value
-//   }).then(res => {
-//     tableData.value = res.data.records
-//     console.log(res.data.records)
-//     total.value = res.data.total
-//   })
-//
-// }
 
 
 /** 获取字段 */
@@ -165,12 +178,24 @@ const getTableField = () => {
     data.value = generateData();
     // FieldName.value = name.value.filter(item => item === '余震次数累计' || item === '3.0-3.9级' || item === '4.0-4.9级' || item === '5.0-5.9级')
     // 模拟异步请求后赋值给 FieldName
-
-    console.log(FieldName.value)
-
   })
 }
-//获取地震列表
+
+// 时间处理为年 月 日 格式
+const formatDate = (dateStr) => {
+  if(dateStr){
+    const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // 月份是从 0 开始的，所以要加 1
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    const seconds = date.getSeconds().toString().padStart(2, '0'); // 补充 0，确保是 2 位数
+    return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  }
+};
+
+// 获取地震列表
 const getEarthquake = () => {
   getExcelUploadEarthquake().then(res => {
 
@@ -179,26 +204,39 @@ const getEarthquake = () => {
       ElMessage.error("地震列表无数据")
     }
     tableNameOptions.value = eqlists.value.map(file => {
+
           const eqid = file.split(' - ')[0]?.trim();
           const details = file.split(' - ')[1]?.trim();
+
+          // 对时间进行处理：
+          const time = formatDate(details.split(' ')[0] +' ' +details.split(' ')[1]);
+          const newDetails = `${time}`+ ' ' +details.split(' ')[2] + ' ' + details.split(' ')[3] + details.split(' ')[4];
+
           // 提取 `-` 后面的部分
           return {
-            label: details, // 使用提取的部分作为标签
+            label: newDetails, // 使用提取的部分作为标签
             value: eqid// 选择值为 ID
           }
         }
     )
-    // 查找 eqid
-    const defaultOption = tableNameOptions.value.find(option => option.value === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b');
 
-    // 设置默认显示的 eqlistName 值为找到的对象的 label
-    if (defaultOption) {
-      eqlistName.value = defaultOption.value;
+    const earthquakeList = tableNameOptions.value;
+    console.log(earthquakeList);
+
+// 查找最新的地震记录
+    const latestEarthquake = earthquakeList.reduce((latest, current) => {
+      // 提取时间字符串并转换为日期对象
+      const currentDate = new Date(current.label.split(' ')[0] + ' ' + current.label.split(' ')[1]);
+      return (!latest || currentDate > latest.date) ? { ...current, date: currentDate } : latest;
+    }, null);
+
+// 设置默认显示的 eqlistName 值为最新记录的 value
+    if (latestEarthquake) {
+      eqlistName.value = latestEarthquake.value;
     } else {
       ElMessage.error("未找到指定的地震ID");
       // eqlistName.value = tableNameOptions.value[0].label
     }
-
   })
 }
 
@@ -266,5 +304,12 @@ const clearSelection = () => {
   overflow-y: auto;
 }
 
+.el-button{
+  text-align: center;
+  line-height: 40px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 1000;
+}
 </style>
 

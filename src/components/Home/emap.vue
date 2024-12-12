@@ -1,70 +1,102 @@
 <template>
-  <!-- 地图 -->
-  <!--指南针-->
-  <div class="compassContainer"></div>
-  <!--四川地图-->
-  <div ref="eMap" class="eMap" style="width: 768px; height: 770px;"></div>
+  <div class="map">
+    <!--    工具-->
+    <!--    <div class="tool_container">-->
+    <!--      &lt;!&ndash;      <button @click="openTool('paintBrushTool')">画笔</button>&ndash;&gt;-->
+    <!--      &lt;!&ndash;      <button @click="clearTool('paintBrushTool')">清除画笔</button>&ndash;&gt;-->
+    <!--      &lt;!&ndash;      <button class="_btn" type="button" @click="clearMap()">清空所有</button>&ndash;&gt;-->
+    <!--      <button @click="setMapStyle('black')" class="theme">black</button>-->
+    <!--      <button @click="setMapStyle('indigo')" class="theme">indigo</button>-->
+    <!--      <button @click="resetMapStyle" class="theme">恢复默认</button>-->
+    <!--    </div>-->
+    <!--指南针-->
+    <div class="compassContainer"></div>
 
-  <!-- 自制图例 -->
-  <div class="legend">
-
-    <div class="row">
-      <!-- 左列（最新，红色）-->
-      <div class="column">
-        <div
-            class="line latest"
-            v-for="(item, itemIndex) in eqGroups[1].items"
-            :key="'latest-' + itemIndex"
-        >
-
-          {{ item.label }}<span
-            :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
-            @click="toggleSeriesVisibility('latest', item.type)"
-        ></span>
-        </div>
-      </div>
-
-      <!-- 右列（历史，黄色）-->
-      <div class="column">
-        <div
-            class="line history"
-            v-for="(item, itemIndex) in eqGroups[0].items"
-            :key="'history-' + itemIndex"
-        >
-          {{ item.label }}<span
-            :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
-            @click="toggleSeriesVisibility('history', item.type)"
-        ></span>
-        </div>
+    <!-- 指南针容器 -->
+    <div class="compassContainer_1">
+      <div class="compass-outer-ring" style="width: 85px; height:85px;">
+        <svg class="cesium-svgPath-svg" width="80" height="80" viewBox="0 0 145 145">
+          <path
+              d="m 66.5625,0 0,15.15625 3.71875,0 0,-10.40625 5.5,10.40625 4.375,0 0,-15.15625 -3.71875,0 0,10.40625 L 70.9375,0 66.5625,0 z M 72.5,20.21875 c -28.867432,0 -52.28125,23.407738 -52.28125,52.28125 0,28.87351 23.413818,52.3125 52.28125,52.3125 28.86743,0 52.28125,-23.43899 52.28125,-52.3125 0,-28.873512 -23.41382,-52.28125 -52.28125,-52.28125 z m 0,1.75 c 13.842515,0 26.368948,5.558092 35.5,14.5625 l -11.03125,11 0.625,0.625 11.03125,-11 c 8.9199,9.108762 14.4375,21.579143 14.4375,35.34375 0,13.764606 -5.5176,26.22729 -14.4375,35.34375 l -11.03125,-11 -0.625,0.625 11.03125,11 c -9.130866,9.01087 -21.658601,14.59375 -35.5,14.59375 -13.801622,0 -26.321058,-5.53481 -35.4375,-14.5 l 11.125,-11.09375 c 6.277989,6.12179 14.857796,9.90625 24.3125,9.90625 19.241896,0 34.875,-15.629154 34.875,-34.875 0,-19.245847 -15.633104,-34.84375 -34.875,-34.84375 -9.454704,0 -18.034511,3.760884 -24.3125,9.875 L 37.0625,36.4375 C 46.179178,27.478444 58.696991,21.96875 72.5,21.96875 z m -0.875,0.84375 0,13.9375 1.75,0 0,-13.9375 -1.75,0 z M 36.46875,37.0625 47.5625,48.15625 C 41.429794,54.436565 37.65625,63.027539 37.65625,72.5 c 0,9.472461 3.773544,18.055746 9.90625,24.34375 L 36.46875,107.9375 c -8.96721,-9.1247 -14.5,-21.624886 -14.5,-35.4375 0,-13.812615 5.53279,-26.320526 14.5,-35.4375 z M 72.5,39.40625 c 18.297686,0 33.125,14.791695 33.125,33.09375 0,18.302054 -14.827314,33.125 -33.125,33.125 -18.297687,0 -33.09375,-14.822946 -33.09375,-33.125 0,-18.302056 14.796063,-33.09375 33.09375,-33.09375 z M 22.84375,71.625 l 0,1.75 13.96875,0 0,-1.75 -13.96875,0 z m 85.5625,0 0,1.75 14,0 0,-1.75 -14,0 z M 71.75,108.25 l 0,13.9375 1.71875,0 0,-13.9375 -1.71875,0 z"></path>
+        </svg>
       </div>
     </div>
-    <!--    &lt;!&ndash;    遍历分组&ndash;&gt;-->
-    <!--    <div v-for="(group, groupIndex) in eqGroups" :key="'group-' + groupIndex">-->
-    <!--      <div class="row">-->
 
-    <!--        <div-->
-    <!--            class="line"-->
-    <!--            v-for="(item, itemIndex) in group.items"-->
-    <!--            :key="group.type + '-' + itemIndex"-->
-    <!--        >-->
-    <!--          &lt;!&ndash;点&ndash;&gt;-->
-    <!--          <span-->
-    <!--              :class="[group.type, item.type, {'inactive': !seriesVisibility[group.type + '-' + item.type]}]"-->
-    <!--              @click="toggleSeriesVisibility(group.type, item.type)"-->
-    <!--          ></span>{{ item.label }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
+    <div class="map-container">
+      <!--    地图-->
+      <div @contextmenu.prevent id="emap" class="map_container">
+
+
+      </div>
+
+      <!-- 自制图例 -->
+      <div class="legend">
+
+        <div class="row">
+          <!-- 左列（历史，黄色）-->
+          <div class="column_left">
+            <div
+                class="line history"
+                v-for="(item, itemIndex) in eqGroups[0].items"
+                :key="'history-' + itemIndex"
+            >
+              {{ item.label }}<span
+                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
+                @click="toggleSeriesVisibility('history', item.type)"
+            ></span>
+            </div>
+          </div>
+
+          <!-- 右列（最新，红色）-->
+          <div class="column_right">
+            <div
+                class="line latest"
+                v-for="(item, itemIndex) in eqGroups[1].items"
+                :key="'latest-' + itemIndex"
+            >
+
+              {{ item.label }}<span
+                :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
+                @click="toggleSeriesVisibility('latest', item.type)"
+            ></span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Cesium 指南针容器 -->
+      <div id="cesiumCompassContainer" class="cesium-compass-container"></div>
+
+    </div>
+    <!-- 信息窗组件 -->
+    <InfoWindow
+        v-if="showInfoWindow"
+        :infoWindow="mapConfig.infoWindow"
+        :data="mapConfig.infoWindowData"
+        :style="{left: `${infoWindowPosition.x}px`, top: `${infoWindowPosition.y}px` }"
+        @callback="infoWindowCallback"
+    />
   </div>
+
 </template>
 
-<script setup>
-import {onMounted, ref, watch} from 'vue';
-import * as echarts from 'echarts';
-import 'echarts-gl';
-import data from '@/assets/geoJson/data.json';
+<script>
+import red from '@/assets/star2.gif';
+import yellow from '@/assets/yellow3.png';
+import {ref, onMounted, watch, onBeforeUnmount} from 'vue';
+import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
 
-const props = defineProps(['eqData']);
+
+import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
+import yaan from '@/assets/geoJson/yaan.json'
+
+import * as Cesium from 'cesium'
+import CesiumNavigation from "cesium-navigation-es6";
+import {initCesium} from '@/cesium/tool/initCesium.js'
+import {Edit, Delete} from '@element-plus/icons-vue'
+
 
 // 图例分类
 const eqGroups = ref([
@@ -93,544 +125,811 @@ const seriesVisibility = ref({
   'latest-moderate': true,
   'latest-major': true
 });
-// 用于存储原始数据
-const originalSeriesData = ref({});
 
-// 引用，用于存储地图的 DOM 元素或实例
-const eMap = ref(null);
-// 引用，用于存储历史地震数据的数组
-const historyEqData = ref([]);
-// 引用，用于存储最新地震数据的数组
-const latestEqData = ref([]);
-// 引用，用于存储地图的实例对象
-const eMapInstance = ref(null);
-// 引用，用于设置地图上比例尺的初始长度（单位：像素）
-const initialScaleLength = ref(50); // 假设初始长度为 50 像素
-// 引用，用于设置地图上比例尺对应的实际距离（单位：公里）
-const initialDistance = ref(100); // 对应 100 公里
-onMounted(() => {
-  initEmap();
-});
+export default {
+  components: {InfoWindow},
+  props: ['eqData'],
 
-watch([historyEqData, latestEqData], (newData) => {
-  initEmap();
-}, {deep: true});
+  setup(props) {
+    const showInfoWindow = ref(false);  //信息框
+    // const props = defineProps(['eqData']);
+    const latestEqData = ref([]);  //最新数据初始化
+    const historyEqData = ref([]);  //历史数据初始化
 
-watch(() => props.eqData, () => {
-  latestEqData.value = [props.eqData[0]];
-  historyEqData.value = props.eqData;
-});
+    const infoWindowPosition = ref({x: 0, y: 0}); //信息窗的初始位置
+    const weight = ref(210); // 默认weight值
 
-echarts.registerMap('data', data);
-
-// const getMapEq = () => {
-//   getLatestEq().then(res => {
-//     latestEqData.value = res;
-//   })
-//   getAllEq().then(res => {
-//     historyEqData.value = res;
-//   })
-// };
-
-const initEmap = () => {
-  //处理最新地震数据，映射成适合 ECharts 使用的格式
-  const latestData = latestEqData.value.map(item => ({
-    position: item.earthquakeName,
-    magnitude: parseFloat(item.magnitude),
-    longitude: item.longitude,
-    latitude: item.latitude,
-    // 数据库表中time字段院数据为2015-01-03 08:16:20，
-    // 但渲染在前端会出现个'T'，
-    // 也就变成了2015-01-03T08:16:20，
-    // 故以此将其删去
-    time: item.occurrenceTime.replace("T", " "),
-    depth: item.depth,
-  }));
-
-  //将历史地震数据 historyEqData 转换为合适的格式。
-  const historyData = historyEqData.value.map(item => ({
-    position: item.earthquakeName,
-    magnitude: parseFloat(item.magnitude),
-    longitude: item.longitude,
-    latitude: item.latitude,
-    time: item.occurrenceTime.replace("T", " "),
-    depth: item.depth,
-  }));
-
-  // 根据历史与最新、震级分类地震数据
-  const latestSlight = latestData.filter(item => item.magnitude < 4.5);
-  const latestModerate = latestData.filter(item => item.magnitude >= 4.5 && item.magnitude < 6);
-  const latestMajor = latestData.filter(item => item.magnitude >= 6);
-  const historyModerate = historyData.filter(item => item.magnitude >= 4.5 && item.magnitude < 6);
-  const historyMajor = historyData.filter(item => item.magnitude >= 6);
+    const countriesOverlay = ref(null); // 用于存储 overlay 实例
 
 
-  // 一个默认点
-  // ECharts中geo3D数据只有一个时，
-  // 出现tooltip无法渲染的情况(Echarts的bug实锤)，
-  // 所以添加一个点(包含位置数据)确保其渲染，
-  // 还有别的办法吗？
-  const defaultPoint = {
-    magnitude: 0,  //震级，默认值设置为 0。
-    longitude: 140,  //经度，默认值设置为 1。
-    latitude: 140,  //纬度，默认值设置为 1。
-  };
+    // 数据分组
+    const dataGroups = ref({
+      latestSlight: [],
+      latestModerate: [],
+      latestMajor: [],
+      historyModerate: [],
+      historyMajor: []
+    });
 
-  // 为分类后的数据添加默认点
-  const dataGroups = [latestSlight, latestModerate, latestMajor, historyModerate, historyMajor];
-  dataGroups.forEach(group => {
-    group.push(defaultPoint);
-  });
+    const mapConfig = ref({
+      map: null, //地图容器
+      infoWindow: null, //信息窗口
+      infoWindowData: {}, //信息窗口数据
+      showInfoWindow: false, //信息窗口显示
+      paintBrushTool: null, // 画笔工具实例
+      isDrawing: false, // 是否正在绘制中
+    });
 
-  // ECharts 实例初始化
-  const eMapElem = eMap.value;
-  if (eMapElem) {
-    eMapInstance.value = echarts.init(eMapElem);
+    onMounted(() => {
+      if (window.d3) {
+        console.log("D3 is loaded!", window.d3);
+      } else {
+        console.error("D3 is not loaded.");
+      }
 
-    // geo3D与map3D是两张地图，
-    // 是因为series中需同时渲染红色区域与散点，
-    // 为了避免重叠，
-    // 故设置其中一张地图show: false，
-    // 鼠标中键拖动地图时会改变geo3D的center属性
+      if (window.T && window.T.D3Overlay) {
+        console.log("T.D3Overlay is loaded!", window.T.D3Overlay);
+        initMap();
+      } else {
+        console.error("T.D3Overlay is not defined. Make sure D3SvgOverlay.js is loaded.");
+      }
 
-    // 初始比例尺长度（像素）和实际距离（公里）
+    });
 
-    const option = {
+    watch(() => props.eqData, () => {
+      latestEqData.value = [props.eqData[0]]; // 只取最新的一个
+      historyEqData.value = props.eqData.slice(1); // 剩下的为历史数据
 
-      // 点的配置
-      geo3D: { // 3D 地理坐标系统配置
-        map: 'data', // 使用的数据地图（地图名），你需要确保这个名称对应一个有效的地图配置
-        boxHeight: 20, // 设置地图高度（视觉上地图的厚度），单位为像素
-        show: false, // 不显示地图背景，设置为 false 隐藏地图底图（只显示散点或其他内容）
+      console.log("2222222222222222222222222222222", latestEqData.value)
 
-        viewControl: { // 控制视角的参数配置
-          projection: 'orthographic', // 使用正交投影方式，保证地图不会有透视变形效果
-          orthographicSize: 105, // 设置正交投影的大小，值越大地图看起来越小
-          alpha: 44, // 设置视角的俯仰角（上下视角角度），范围为 0 - 90 度
-          beta: 0, // 设置视角的旋转角度（左右视角角度），正值向右，负值向左
-          autoRotate: false, // 禁用自动旋转功能，地图不会自动旋转
-          minAlpha: 44, // 最小的俯仰角，锁定为 44 度
-          maxAlpha: 44, // 最大的俯仰角，锁定为 44 度（alpha 角度固定）
-          minBeta: 0, // 最小的旋转角度，锁定为 0 度
-          maxBeta: 0, // 最大的旋转角度，锁定为 0 度（beta 角度固定）
-          distance: 100 // 设置视角距离（相机距离地图的距离），值越大，地图看起来越远
-        },
+      // 处理数据分组
+      processData();
+      // initMap(); // 初始化地图
+      addMarkers();//标点
+    });
 
-        itemStyle: { // 设置地图区域的样式
-          color: '#0c274b', // 设置地图区域的颜色（深蓝色）
-          borderColor: '#1cccff', // 设置地图边界的颜色（亮蓝色）
-          borderWidth: 1.5, // 设置边界线宽度
-          borderType: 'solid', // 边界线样式，设置为实线
+    const processData = () => {
+      //处理最新地震数据，映射成适合 ECharts 使用的格式
+      const latestData = latestEqData.value.map(item => ({
+        position: item.earthquakeName,  //位置
+        magnitude: parseFloat(item.magnitude),  //震级
+        longitude: item.longitude,  //经度
+        latitude: item.latitude,  //纬度
+        // 数据库表中time字段院数据为2015-01-03 08:16:20，
+        // 但渲染在前端会出现个'T'，
+        // 也就变成了2015-01-03T08:16:20，
+        // 故以此将其删去
+        time: item.occurrenceTime.replace("T", " "),  //时间
+        depth: item.depth,  //深度
+      }));
 
-          label: { // 设置标签样式（地图区域名称）
-            show: true, // 显示标签
-            textStyle: {
-              color: '#fff', // 标签文本颜色设置为白色
-              fontSize: 14, // 标签文本的字号
-              fontWeight: 400, // 标签字体的粗细，400 为正常粗细
-            },
-          },
-        },
+      //将历史地震数据 historyEqData 转换为合适的格式。
+      const historyData = historyEqData.value.map(item => ({
+        position: item.earthquakeName,
+        magnitude: parseFloat(item.magnitude),
+        longitude: item.longitude,
+        latitude: item.latitude,
+        time: item.occurrenceTime.replace("T", " "),
+        depth: item.depth,
+      }));
+      // 根据震级分类
+      dataGroups.value.latestSlight = latestData.filter(item => item.magnitude < 4.5);
+      dataGroups.value.latestModerate = latestData.filter(item => item.magnitude >= 4.5 && item.magnitude < 6);
+      dataGroups.value.latestMajor = latestData.filter(item => item.magnitude >= 6);
+      dataGroups.value.historyModerate = historyData.filter(item => item.magnitude >= 4.5 && item.magnitude < 6);
+      dataGroups.value.historyMajor = historyData.filter(item => item.magnitude >= 6);
 
-        emphasis: { // 鼠标悬停或高亮时的样式
-          itemStyle: {
-            color: '#3099E2', // 悬停时地图区域颜色变为亮蓝色
-          },
-          label: {
-            show: true, // 悬停时显示标签
-            textStyle: {
-              color: '#fff', // 标签文本颜色为白色
-              fontSize: 16, // 悬停时标签文本的字号变为 16
-              fontWeight: 400, // 标签字体的粗细为正常
-            },
-          },
-        },
+      console.log("最新4.5级以下地震:", dataGroups.value.latestSlight);
+      console.log("最新4.5 - 6级地震:", dataGroups.value.latestModerate);
+      console.log("最新6级以上地震:", dataGroups.value.latestMajor);
+      console.log("历史4.5 - 6级地震:", dataGroups.value.historyModerate);
+      console.log("历史6级以上地震:", dataGroups.value.historyMajor);
 
-      },
-
-      series: [
-        // 地图的配置
-        {
-          type: 'map3D', // 指定类型为 3D 地图
-          map: 'data', // 使用的数据地图（地图名），与 geo3D 的 map 名称一致
-
-          viewControl: { // 控制 3D 地图视角的参数配置
-            projection: 'orthographic', // 使用正交投影方式，确保地图不会有透视效果
-            orthographicSize: 105, // 设置正交投影的大小，值越大地图看起来越小
-            alpha: 44, // 设置视角的俯仰角，锁定为 44 度
-            beta: 0, // 设置视角的旋转角度，锁定为 0 度（没有左右旋转）
-            autoRotate: false, // 禁用自动旋转，地图不会自动旋转
-            minAlpha: 44, // 设置俯仰角的最小值，固定为 44 度
-            maxAlpha: 44, // 设置俯仰角的最大值，固定为 44 度
-            minBeta: 0, // 设置视角左右旋转角度的最小值，锁定为 0 度
-            maxBeta: 0, // 设置视角左右旋转角度的最大值，锁定为 0 度
-          },
-
-          itemStyle: { // 地图区域的样式
-            color: '#0c274b', // 地图区域颜色设置为深蓝色
-            borderColor: '#1cccff', // 地图边界颜色为亮蓝色
-            borderWidth: 1.5, // 设置边界线宽度为 1.5 像素
-            borderType: 'solid', // 边界线样式为实线
-
-            label: { // 地图区域标签的样式
-              show: true, // 显示区域标签
-              textStyle: {
-                color: '#fff', // 标签文本颜色设置为白色
-                fontSize: 14, // 标签文本的字体大小为 14
-                fontWeight: 400, // 标签字体的粗细为正常（400）
-              },
-            },
-          },
-
-
-          emphasis: { // 鼠标悬停时的高亮样式
-            itemStyle: {
-              color: '#3099E2', // 高亮时区域的颜色变为亮蓝色
-            },
-            label: {
-              show: true, // 显示高亮状态下的区域标签
-              // 设置文字背景颜色为全透明，
-              // 以免图例筛选数据时Echarts内置自动加上了背景颜色
-              backgroundColor: 'transparent',
-              textStyle: {
-                color: '#fff', // 标签文本颜色为白色
-                fontSize: 16, // 高亮状态下的标签文本字体大小变为 16
-                fontWeight: 400, // 标签字体的粗细保持为正常
-              },
-            },
-          },
-          data: [
-            {name: '雨城区', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '名山区', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '荥经县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '汉源县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '石棉县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '天全县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '芦山县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-            {name: '宝兴县', itemStyle: {color: '#2f88f9'}, emphasis: {itemStyle: {color: '#006cff'}}},
-          ],
-        },
-
-
-        // 根据分类渲染散点的数据配置
-        {
-          name: '历史4.5 - 6级地震',
-          type: 'scatter3D',  // 指定类型为 3D 散点图，用于显示地震点
-          coordinateSystem: 'geo3D',  // 使用的坐标系为 3D 地理坐标系
-          show: true, // 设置系列是否显示，值为 true 表示显示
-          symbol: 'circle',  // 数据点的符号形状，这里设置为圆形
-          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
-          data: historyModerate.map(item => ({
-            name: `Magnitude: ${item.magnitude}`,  //为每个地震事件生成一个名称字符串，格式为 Magnitude: X。X 是该事件的震级（item.magnitude）。
-            value: [item.longitude, item.latitude],  //[经度, 纬度]定位散点的位置
-            itemStyle: {color: '#f0a72e'},  //点颜色
-            symbolSize: 15
-          })),
-          emphasis: {  //悬浮时显示标签
-            label: {
-              show: false,
-            },
-          },
-        },
-        {
-          name: '历史6级以上地震',
-          type: 'scatter3D',
-          coordinateSystem: 'geo3D',
-          show: false,
-          symbol: 'circle',
-          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
-          data: historyMajor.map(item => ({
-            name: `Magnitude: ${item.magnitude}`,
-            value: [item.longitude, item.latitude],
-            itemStyle: {color: '#f0a72e'},
-            symbolSize: 20
-          })),
-          emphasis: {
-            label: {
-              show: false,
-            },
-          },
-        },
-        {
-          name: '最新4.5级以下地震',
-          type: 'scatter3D',   // 指定类型为 3D 散点图，用于显示地震点
-          coordinateSystem: 'geo3D',  // 使用的坐标系为 3D 地理坐标系
-          show: false,  // 设置系列是否显示，值为 true 表示显示
-          symbol: 'circle',  // 数据点的符号形状，这里设置为圆形
-          zlevel: 2,  // 设置该系列图层的层次等级，数值越大，图层越高
-          data: latestSlight.map(item => ({
-            name: `Magnitude: ${item.magnitude}`,  //为每个地震事件生成一个名称字符串，格式为 Magnitude: X。X 是该事件的震级（item.magnitude）。
-            value: [item.longitude, item.latitude],  //[经度, 纬度]定位散点的位置
-            itemStyle: {color: '#ef0909'},  //点颜色
-            symbolSize: 10, //点大小
-          })),
-          emphasis: {
-            label: {
-              show: false,
-            },
-          },
-        },
-        {
-          name: '最新4.5 - 6级地震',
-          type: 'scatter3D',
-          coordinateSystem: 'geo3D',
-          show: true,
-          symbol: 'circle',
-          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
-          data: latestModerate.map(item => ({
-            name: `Magnitude: ${item.magnitude}`,
-            value: [item.longitude, item.latitude],
-            itemStyle: {color: '#ef0909'},
-            symbolSize: 15
-          })),
-          emphasis: {
-            label: {
-              show: false,
-            },
-          },
-        },
-        {
-          name: '最新6级以上地震',
-          type: 'scatter3D',
-          coordinateSystem: 'geo3D',
-          show: true,
-          symbol: 'circle',
-          zlevel: 1,  // 设置该系列图层的层次等级，数值越大，图层越高
-          data: latestMajor.map(item => ({
-            name: `Magnitude: ${item.magnitude}`,
-            value: [item.longitude, item.latitude],
-            itemStyle: {color: '#ef0909'},
-            symbolSize: 20
-          })),
-          emphasis: {
-            label: {
-              show: false,
-            },
-          },
-        },
-      ],
-
-
-      // 设置散点高亮时的提示框，
-      // 用于展示该地震的 位置、发震时间、震级与震源深度
-      tooltip: {
-        trigger: 'item',
-        formatter: function (params) {
-          const value = params.value;   // 获取当前鼠标悬停的项的值（通常是经纬度）
-          if (!value || value.length < 2) {
-            return '';
-          }
-
-          // 查找最新数据或历史数据中与当前经纬度匹配的地震数据项
-          let item = latestData.find(item =>
-              item.longitude === value[0] && item.latitude === value[1]
-          ) || historyData.find(item =>
-              item.longitude === value[0] && item.latitude === value[1]
-          );
-          if (item) {  // 使用模板字符串生成 tooltip 的内容
-            const result = `
-              位置: ${item.position}<br/>
-              发震时间: ${item.time}<br/>
-              震级: ${item.magnitude}<br/>
-              震源深度: ${item.depth}
-              `;
-            return result;
-          }
-        },
-        backgroundColor: 'rgba(0,0,0,0.7)',  // 设置 tooltip 的背景色为半透明黑色
-        borderColor: '#fff',  // 设置边框颜色为白色
-        borderWidth: 1,  // 设置边框宽度为 1
-        padding: [5, 10],  // 设置 tooltip 的内边距，上下为 5 像素，左右为 10 像素
-        textStyle: {
-          color: '#fff',  // 设置文本颜色为白色
-        },
-      },
 
     };
 
 
-    // 加载数据后，让最新的红点持续闪烁
-    // blinkPoints('最新4.5级以下地震'); // 用你的数据对应的系列名称替换
+    // 初始化地图
+    // 将地图挂载到 emap 容器中，并通过 centerAndZoom 设置中心点和缩放级别。
+    const initMap = () => {
+      processData();
+      // 通过 T.Map 创建一个新的天地图实例，并将地图绑定到页面中 ID 为 'emap' 的 DOM 元素上。
+      // mapConfig.value.map 是一个可变的 mapConfig 对象，里面存放了地图的实例。
+
+      mapConfig.value.map = new T.Map('emap');
+      // 设置地图的中心点和缩放级别。
+      mapConfig.value.map.centerAndZoom(new T.LngLat(105.00, 30.00), 6);
 
 
-    //将配置好的选项传递给 ECharts 实例以进行渲染。
-    eMapInstance.value.setOption(option);
-  }
-};
+      // 创建 D3Overlay 实例
+      countriesOverlay.value = new T.D3Overlay(init, redraw);
 
-// 点击图例中的点 在地图上点的展示消失效果
-// ECharts中图例(legend)不支持分别定义图形大小，
-// 故通过该函数与自制的图例div配合实现legend自带的筛选效果
-const toggleSeriesVisibility = (groupType, itemType) => {
+      // 添加 overlay 到地图
+      mapConfig.value.map.addOverLay(countriesOverlay.value);
+      countriesOverlay.value.bringToBack();
 
-  // groupType: 一个字符串，表示数据的组类型，可以是 'history'（历史地震数据）或 'latest'（最新地震数据）。
-  // itemType: 一个字符串，表示数据的具体类型，例如 'slight'（最新4.5级以下地震）、'moderate'（历史或最新4.5 - 6级地震）和 'major'（历史或最新6级以上地震）。
-  const seriesNames = {
-    history: {
-      moderate: '历史4.5 - 6级地震',
-      major: '历史6级以上地震'
-    },
-    latest: {
-      slight: '最新4.5级以下地震',
-      moderate: '最新4.5 - 6级地震',
-      major: '最新6级以上地震'
+
+      // // 添加地图类型控件
+      // const mapTypeControl = new T.Control.MapType();
+      // mapConfig.value.map.addControl(mapTypeControl);
+
+      // 设置地图的初始主题为 indigo
+      setMapStyle('indigo');
+
+      // // **添加指南针控件**
+      // const navigationControl = new T.Control.Navigation();
+      // mapConfig.value.map.addControl(navigationControl);
+
+      // 创建比例尺控件对象
+      const scale = new T.Control.Scale();
+      // 添加比例尺控件
+      mapConfig.value.map.addControl(scale);
+      // 确认比例尺控件是否添加成功
+      // console.log('Scale control added:', scale);
+
+
+      // // 初始化画笔工具
+      // mapConfig.value.paintBrushTool = new T.PolylineTool(mapConfig.value.map, {
+      //   color: 'red', // 线条颜色
+      //   weight: 2,    // 线条宽度
+      //   opacity: 0.8, // 透明度
+      //   keepdrawing: false,
+      // });
+
+      // addMarkers();//标点
+
+//        // 初始化指南针
+//       const cesiumViewer = new Cesium.Viewer('cesiumCompassContainer', {
+//         animation: false,
+//         timeline: false,
+//         homeButton: false,
+//         sceneModePicker: false,
+//         navigationHelpButton: false,
+//       });
+//
+// // 使用导航插件
+//       CesiumNavigation(cesiumViewer, {
+//         enableCompass: true,
+//         enableZoomControls: true,
+//         enableDistanceLegend: true,
+//         enableCompassOuterRing: true,
+//       });
+//
+//       // 设置透明背景以仅显示指南针
+//       cesiumViewer.container.backgroundColor = 'transparent';
+//       // cesiumViewer.scene.screenSpaceCameraController.enableInputs = false; // 禁用地图控制
+//
+//       compass.viewModel.headingChanged.addEventListener(function(heading) {
+//         // 更新UI显示当前方向
+//       });
+
+      initMapAfter();//加载地图后方法
+      // 添加鼠标悬停事件监听
+      // mapConfig.value.map.addEventListener('mousemove', onMapMouseMove);
+    };
+
+    const initMapAfter = () => {
+      // 初始化地图后的操作
+    };
+
+    // onBeforeUnmount(() => {
+    //   // 清理逻辑
+    //   if (countriesOverlay.value) {
+    //     countriesOverlay.value.remove();
+    //   }
+    // });
+
+    // ------------------------行政区划
+
+
+    // 初始化函数
+    function init(sel, transform) {
+      const pathGenerator = d3.geo.path(transform.projection);  // 使用投影函数
+
+      const upd = sel.selectAll('path.geojson').data(sichuan.features); // 使用四川的 GeoJSON 数据
+      // console.log("sichuan.features1111111111111111111111111111111111",sichuan.features);
+      // console.log("Updating paths2222222222222222222222222222222222222:", upd);
+
+      upd.enter()
+          .append('path')
+          .attr("class", "sichuan")
+          .attr('d', pathGenerator) // 设置路径
+          // .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
+          .attr('stroke', '#05CEE5') // 边界线颜色
+          .attr('stroke-width', '1px') // 边界线宽度
+          // .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+          .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          // .attr('fill', (d, i) => d3.hsl(Math.random() * 360, 0.9, 0.5)) // 区域填充颜色,d3.hsl(Math.random() * 360, 0.9, 0.5)。这将会给每个区域随机生成一个颜色，
+          .attr('fill-opacity', 0.3); // 区域填充透明度
+
+      // 添加区域名称
+      const textUpd = sel.selectAll('text.region-label').data(sichuan.features);
+
+      // sichuan.features.forEach(feature => {
+      //   console.log('Feature Name------------------------------:', feature.properties.name);
+      // });
+
+
+      textUpd.enter()
+          .append('text')
+          .attr('class', 'region-label')
+          .attr('x', d => pathGenerator.centroid(d)[0])  // 获取中心位置的 x 坐标
+          .attr('y', d => pathGenerator.centroid(d)[1])  // 获取中心位置的 y 坐标
+          .attr('dy', '.35em')  // 使文本在 y 方向居中
+          .attr('font-size', '13px')  // 文本大小
+          .attr('fill', '#54aade')  // 文本颜色
+          .attr('text-anchor', 'middle')  // 文本水平居中
+          .text(d => d.properties.name);  // 显示区域名称
+
+
+      // 绘制雅安的行政区划
+      const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
+      yaanUpd.enter()
+          .append('path')
+          .attr("class", "yaan")  // 设置类名
+          .attr('d', pathGenerator) // 设置路径
+          // .attr('stroke', '#05CEE5') // 边界线颜色
+          .attr('stroke', 'rgba(255,173,84,0.99)') // 边界线颜色
+          .attr('stroke-width', '2px')
+          // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+          .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+          .attr('fill-opacity', 0.3);  //透明度
+
+      // 添加雅安区域名称
+      const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
+      yaanTextUpd.enter()
+          .append('text')
+          .attr('class', 'yaan-label')
+          .attr('x', d => pathGenerator.centroid(d)[0])
+          .attr('y', d => pathGenerator.centroid(d)[1])
+          .attr('dy', '.35em')
+          .attr('font-size', '13px')
+          .attr('fill', '#cef1f6')  // 雅安区域名称颜色
+          .attr('text-anchor', 'middle')
+          .text(d => d.properties.name); // 显示区域名称
+
+      // 更新文本位置
+      updateTextPositions(sel, transform);
+
+
     }
-  };
 
-  // 获取系列名称:
-  const seriesName = seriesNames[groupType][itemType];
-  const seriesKey = `${groupType}-${itemType}`;
+    function updateTextPositions(sel, transform) {
+      sel.selectAll('text.region-label')
+          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
 
-  // 切换系列的可见性状态
-  seriesVisibility.value[seriesKey] = !seriesVisibility.value[seriesKey];
-
-  if (eMapInstance.value) {
-    const currentOption = eMapInstance.value.getOption();
-
-    // 初始化原始数据存储
-    if (!originalSeriesData.value[seriesName]) {
-      originalSeriesData.value[seriesName] = currentOption.series.find(series => series.name === seriesName)?.data || [];
+      sel.selectAll('text.yaan-label')
+          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
     }
 
-    // 获取当前的 geo3D 视角设置中的 center 属性，以便在更新时保持视角不变。
-    const currentCenter = currentOption.geo3D[0].viewControl.center;
-
-    // 更新系列数据
-    const updatedSeries = currentOption.series.map(series => {
-      if (series.name === seriesName) {
-        series.data = seriesVisibility.value[seriesKey] ? originalSeriesData.value[seriesName] : [];
-      }
-      // 如果是 map3D 类型的系列，更新其 viewControl.center 属性
-      if (series.type === 'map3D') {
-        series.viewControl = {
-          ...series.viewControl,
-          center: currentCenter,
-        };
-      }
-      return series;
-    });
-
-    // 更新配置选项
-    eMapInstance.value.setOption({
-      series: updatedSeries
-    }, false, true); // 第三个参数为 true 表示合并更新
-  }
-
-  // 如果点是可见的，开始闪烁效果
-  // if (seriesVisibility.value[seriesKey]) {
-  //   blinkPoints(seriesName);
-  // }
-};
-
-// 实现闪烁效果的函数
-const blinkPoints = (seriesName) => {
-  let blinkCount = 0; // 计数闪烁次数
-  const maxBlinkCount = seriesName === '最新4.5级以下地震' ? Infinity : 4; // 设置闪烁次数
-  const blinkInterval = setInterval(() => {
-    const currentOption = eMapInstance.value.getOption();
-    const seriesData = currentOption.series.find(series => series.name === seriesName);
-
-    if (seriesData && seriesData.data) {
-      // 切换点的透明度
-      const isVisible = seriesData.data[0]?.itemStyle?.opacity !== 0; // 检查当前点是否可见
-      const newOpacity = isVisible ? 0 : 1;
-
-      // 更新点的透明度
-      seriesData.data.forEach(point => {
-        point.itemStyle = {
-          ...point.itemStyle,
-          opacity: newOpacity // 切换透明度
-        };
+    // 重绘函数
+    function redraw(sel, transform) {
+      // 更新四川路径
+      sel.selectAll('path.sichuan').each(function (d) {
+        console.log("Selected path:", this); // 检查当前选择的路径
+        d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
 
-      // 更新选项
-      eMapInstance.value.setOption({
-        series: currentOption.series
-      }, false, true); // 合并更新
+      // 更新文本位置
+      updateTextPositions(sel, transform);
+
+      // 更新雅安路径
+      sel.selectAll('path.yaan').each(function (d) {
+        console.log("Selected yaan path:", this); // 检查当前选择的雅安路径
+        d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
+      });
     }
 
-    // 继续闪烁
-    // 如果需要设置闪烁的最大次数，可以取消注释以下代码
-    // blinkCount++;
-    // if (blinkCount === 4) { // 每次闪烁时切换两次，总共闪烁三次
-    //   clearInterval(blinkInterval); // 结束闪烁
-    // }
-    // 更新闪烁计数
-    blinkCount++;
-    if (blinkCount === maxBlinkCount) { // 根据条件控制闪烁次数
-      clearInterval(blinkInterval); // 结束闪烁
-    }
-  }, 800); // 每300ms闪烁一次
 
-  // 你可以选择在某个条件下结束闪烁，例如当图例被点击时
-  // clearInterval(blinkInterval) //也可以在 toggleSeriesVisibility 中添加
+    //---------------------------------------------------------------------------------------
+
+
+    // // 启动画笔工具
+    // const openTool = (toolName) => {
+    //   if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
+    //     mapConfig.value.isDrawing = true;
+    //     mapConfig.value.paintBrushTool.open();
+    //
+    //     // 监听鼠标事件
+    //     mapConfig.value.map.addEventListener('mousedown', stopEvent);
+    //     mapConfig.value.map.addEventListener('mouseup', handleMouseUp);
+    //   }
+    // };
+    //
+    // // 停止事件传播
+    // const stopEvent = (event) => {
+    //   event.stopPropagation();
+    // };
+    //
+    //
+    // // 鼠标松开时的处理
+    // const handleMouseUp = () => {
+    //   mapConfig.value.isDrawing = false; // 关闭绘制状态
+    //   mapConfig.value.map.removeEventListener('mousedown', stopEvent);
+    //   mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
+    // };
+    //
+    // // 清除画笔工具绘制的内容
+    // const clearTool = (toolName) => {
+    //   if (toolName === 'paintBrushTool' && mapConfig.value.paintBrushTool) {
+    //     mapConfig.value.paintBrushTool.clear(); // 清除已绘制的线条
+    //     mapConfig.value.isDrawing = false;
+    //
+    //     // 移除鼠标事件监听
+    //     mapConfig.value.map.removeEventListener('mousedown', stopEvent);
+    //     mapConfig.value.map.removeEventListener('mouseup', handleMouseUp);
+    //   }
+    // };
+
+    // 标准图层--black/indigo
+    const setMapStyle = (style) => {
+      if (mapConfig.value.map) {
+        mapConfig.value.map.setStyle(style);
+      } else {
+        console.error("Map instance not initialized.");
+      }
+    };
+
+    // 标准图层--恢复默认
+    const resetMapStyle = () => {
+      if (mapConfig.value.map) {
+        mapConfig.value.map.removeStyle();
+      } else {
+        console.error("Map instance not initialized.");
+      }
+    };
+
+// ----------------------------添加地震点------------------------------------------------
+    // 添加标记
+    const addMarkers = () => {
+      // 清除当前所有标记
+      // clearMarkers();
+      // 先添加历史地震标记（黄色）
+      Object.keys(seriesVisibility.value).forEach(key => {
+        if (key.startsWith('history') && seriesVisibility.value[key]) {
+          const [group, type] = key.split('-');
+          dataGroups.value[`${group}${capitalize(type)}`].forEach(item => {
+            addMarker1(item.longitude, item.latitude, 'yellow', getMarkerSize(type), item);
+          });
+        }
+      });
+
+      // 然后添加最新地震标记（红色）
+      Object.keys(seriesVisibility.value).forEach(key => {
+        if (key.startsWith('latest') && seriesVisibility.value[key]) {
+          const [group, type] = key.split('-');
+          dataGroups.value[`${group}${capitalize(type)}`].forEach(item => {
+            addMarker1(item.longitude, item.latitude, 'red', getMarkerSize(type), item);
+          });
+        }
+      });
+    };
+
+    const clearMarkers = () => {
+      mapConfig.value.map.clearOverLays() // 清除所有覆盖物
+      // 这里应该实现清除当前所有标记的逻辑
+      // 例如，使用 mapConfig.value.map.removeMarker(marker) 来移除标记
+    };
+
+
+    // 点击图例中的点 在地图上点的展示消失效果
+// ECharts中图例(legend)不支持分别定义图形大小，
+// 故通过该函数与自制的图例div配合实现legend自带的筛选效果
+
+    const toggleSeriesVisibility = (groupType, itemType) => {
+      // const key = `${groupType}-${itemType}`;
+      // seriesVisibility.value[key] = !seriesVisibility.value[key]; // 切换可见性
+      // addMarkers(); // 根据新的可见性状态更新标记
+    };
+    const getMarkerSize = type => (type === 'slight' ? 'small' : type === 'moderate' ? 'medium' : 'large');
+    const capitalize = (str) => {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    };
+
+
+    const addMarker1 = (lng, lat, color, size, item) => {
+      let iconUrl;
+      let iconSize;
+
+      // 根据类型和大小选择图标样式
+      if (color === 'red') {
+        iconUrl = red;
+        switch (size) {
+          case 'small':
+            iconSize = new T.Point(26, 26);
+            break;
+          case 'medium':
+            iconSize = new T.Point(36, 36);
+            break;
+          case 'large':
+            iconSize = new T.Point(46, 46);
+            break;
+          default:
+            iconSize = new T.Point(36, 36);
+        }
+      } else {
+        iconUrl = yellow;
+        switch (size) {
+          case 'small':
+            iconSize = new T.Point(10, 10);
+            break;
+          case 'medium':
+            iconSize = new T.Point(20, 20);
+            break;
+          case 'large':
+            iconSize = new T.Point(30, 30);
+            break;
+          default:
+            iconSize = new T.Point(20, 20);
+        }
+      }
+
+
+      // 自定义标记点图标
+      const markerObj = {
+        icon: new T.Icon({
+          iconUrl: iconUrl,
+          iconSize: iconSize,
+          iconAnchor: new T.Point(iconSize.x / 2, iconSize.y), // 图标中心对准位置
+          opacity: 0.1 // 设置透明度
+        }),
+      };
+
+      // 创建标记并添加到地图
+      const marker = new T.Marker(returnLnglat([lng, lat]), markerObj);
+
+
+      // 添加点击事件处理器
+      addClickHandler(marker, {lng, lat});
+
+// 添加悬停事件
+      marker.addEventListener('mouseover', (e) => {
+        console.log(e.originalEvent.relatedTarget.offsetHeight, e.originalEvent.relatedTarget.offsetWidth)
+        console.log(e)
+        showInfoWindow.value = true;
+        mapConfig.value.infoWindowData = item;
+        console.log("weight.value*********", weight.value)
+
+        infoWindowPosition.value.x =  e.containerPoint.x - 130// 获取鼠标位置
+        infoWindowPosition.value.y =  e.containerPoint.y - 190 // 获取鼠标位置
+        console.log("item-----------------", item)
+        // 创建信息窗口对象
+        mapConfig.value.infoWindow = new T.InfoWindow(
+            document.querySelector('#infoWindow'),
+            {offset: new T.Point(0, -20), closeButton: false}
+        );
+        // setTimeout(() => {
+        //   mapConfig.value.map.openInfoWindow(mapConfig.value.infoWindow);  //打开信息窗口
+        // }, 0);
+
+      });
+
+
+// // 添加鼠标移开事件，关闭信息窗
+      marker.addEventListener('mouseout', () => {
+        mapConfig.value.map.closeInfoWindow();
+        showInfoWindow.value = false;
+        // infoWindowPosition.value.x = 0//-  weight.value; // 获取鼠标位置
+        // infoWindowPosition.value.y = -550//- 330; // 获取鼠标位置
+      });
+
+      mapConfig.value.map.addOverLay(marker);
+
+
+    };
+
+
+    // 添加点击事件返回，将中心点变为点击点
+    const addClickHandler = (marker, params) => {
+      marker.addEventListener('click', (e) => {
+        mapConfig.value.map.setZoom(12); // 设置缩放级别
+        mapConfig.value.map.panTo(returnLnglat(e.lnglat)); //将地图的中心点变换到指定的地理坐标
+
+
+      });
+    };
+
+
+    // 信息窗口点击回调
+    const infoWindowCallback = (data) => {
+      console.log('信息窗口点击回调', data);
+      closeInfoWindow();// 关闭信息弹窗
+    };
+
+    // 关闭信息弹窗
+    const closeInfoWindow = () => {
+      if (mapConfig.value.infoWindow) {
+        mapConfig.value.infoWindow.closeInfoWindow();
+      }
+    };
+
+
+    // 清除地图
+    const clearMap = (type) => {
+      switch (type) {
+        case 'marker':
+          if (mapConfig.value.marker) {
+            mapConfig.value.map.removeOverLay(mapConfig.value.marker) // 移除覆盖物到地图上
+            mapConfig.value.marker = null
+          }
+          break
+        default:
+          mapConfig.value.map.clearOverLays() // 清除所有覆盖物
+
+
+          // 清除信息窗口
+          if (mapConfig.value.infoWindow) {
+            mapConfig.value.infoWindow.closeInfoWindow()
+          }
+          break
+      }
+    };
+
+    // 自适应标记覆盖物到合适范围
+    const reset = (drawType) => {
+      let mapData = '';
+      switch (drawType) {
+        case 'marker':
+          mapData = [mapConfig.value.marker.getLngLat()];
+          break;
+        case 'markerCluster':
+          // 获取所有标记点的经度和纬度坐标
+          let allLng = 0;
+          let allLat = 0;
+          const tempMarkerClusterArr = mapConfig.value.map.getOverlays();
+          tempMarkerClusterArr.forEach((element) => {
+            allLng += element.or.lng;
+            allLat += element.or.lat;
+          });
+
+          // 计算中心点的经纬度坐标
+          const centerLng = allLng / tempMarkerClusterArr.length;
+          const centerLat = allLat / tempMarkerClusterArr.length;
+
+          // 模拟计算有误差，固定写某个经纬度和层级
+          mapConfig.value.map.centerAndZoom(returnLnglat([centerLng, centerLat]), 7);
+          break;
+        default:
+          break;
+      }
+
+      mapConfig.value.map.setViewport(mapData); // 适应范围
+    };
+
+    // 返回天地图经纬度对象
+    const returnLnglat = (data) => {
+      let x, y = null;
+      switch (typeof data) {
+        case 'string':
+          const lnglat = data.split(',');
+          x = lnglat[0];
+          y = lnglat[1];
+          break;
+        case 'object':
+          if (data && data.lng) {
+            x = data.lng;
+            y = data.lat;
+          } else {
+            x = data[0];
+            y = data[1];
+          }
+          break;
+        default:
+          break;
+      }
+      return new T.LngLat(x, y);
+    };
+
+
+    return {
+
+      mapConfig,
+      showInfoWindow,  //信息窗
+      // openTool,  //画笔
+      // clearTool,  //清除画笔
+      setMapStyle,
+      reset,
+      returnLnglat,
+      resetMapStyle,
+      clearMap,
+      infoWindowCallback,
+      eqGroups,
+      seriesVisibility,
+      toggleSeriesVisibility,
+      infoWindowPosition,
+      countriesOverlay,//行政
+    };
+  },
 };
-
-
-// 根据地图当前的视图比例动态调整比例尺长度
-const updateScaleBar = () => {
-  console.log(eMapInstance.value)
-  const viewRect = eMapInstance.value.getModel().getComponent('geo3D').coordinateSystem.getViewRect();
-  const scale = viewRect.width / viewRect.height;
-
-  const newDistance = initialDistance.value / scale;
-  console.log(newDistance)
-
-}
-
 </script>
-
-
-<style scoped>
-.eMap {
+<style lang="scss" scoped>
+//cesium指南针
+.map-container {
   width: 100%;
-  height: 100%;
+  height: 500px;
 }
 
-.legend {
+.cesium-compass-container {
   position: absolute;
-  bottom: 0;
-  left: 10px;
-  z-index: 20;
-  background-color: transparent;
-  width: 510px;
-  height: 70px;
+  top: 10px;
+  right: 10px;
+  width: 150px;
+  height: 150px;
+  pointer-events: none; /* 防止遮挡天地图的交互 */
 }
 
-/* 添加“inactive”类用于设置灰色 */
-.inactive {
-  background-color: #888; /* 灰色 */
+
+/* 自定义 比例尺 */
+
+:deep(.tdt-bottom .tdt-control-scale ) {
+  margin-bottom: 5px;
 }
 
+:deep(.tdt-left .tdt-control-scale ){
+  margin-left: 300px;
+}
+
+
+//公里及其对应的白线
+:deep(.tdt-control-scale-line ) {
+  border: 3px solid #f8f4f4;
+  color: #faf8f8;
+  border-top: none;
+  line-height: 2.1;
+  padding: 2px 5px 1px;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+
+//英制单位（英里）及其对应的黑线
+:deep(.tdt-control-scale-linebottom  ) {
+  display: none; /* 隐藏该元素 */
+}
+
+
+////指南针外框
+.compassContainer_1 {
+  position: absolute;
+  margin-right: 31%;
+  top: 18px;
+  right: 24px;
+  z-index: 10;
+  width: 130px !important;
+  height: 130px !important;
+  cursor: pointer;
+}
+
+.cesium-svgPath-svg {
+  fill: #ece6e6; /* 你可以根据需求更改颜色 */
+}
+
+
+//指南针
 .compassContainer {
   position: absolute;
-  top: 4vh;
-  right: 28vw;
-  height: 120px;
-  width: 160px;
-  background: url(../../assets/compass.png) no-repeat 0 0 / cover;
+  margin-right: 31%;
+  top: 40.4px;
+  right: 91.2px;
+  height: 40px;
+  width: 40px;
+  background: url(../../assets/指北针_5.png) no-repeat 0 0 / cover;
   z-index: 20;
+  //transform: rotate(45deg); /* 使图片旋转 45 度 */
+}
+
+//按钮
+.theme {
+  color: white;
+  background-color: #222;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  font-size: 0.5rem;
+  line-height: 2rem;
+  cursor: pointer;
+  text-align: center;
+  margin-right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+}
+
+.theme:hover {
+  background-color: #333;
+}
+
+.theme svg {
+  display: inline;
+  width: 1rem;
+  height: 0.7rem;
+  margin-right: 0.75rem;
+  color: white;
+}
+
+.theme:focus svg {
+  animation: spin_357 0.5s linear;
+}
+
+@keyframes spin_357 {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 
-/*!*改为左边红右边黄*!*/
-.row {
+//图例
+.map-container {
   display: flex;
-  justify-content: space-between; /* 左右分列 */
-  width: 20%;
+  flex-direction: column;
+  align-items: center; /* 可选，用于居中地图和图例 */
+  border-radius: 31px !important; /* 添加圆角 */
 }
+
+
+.breathing-marker {
+  animation: breathe 1.5s infinite; /* 1.5秒循环动画 */
+}
+
+
+.legend {
+  bottom: 0;
+  left: 36.4%;
+  z-index: 35;
+  /* margin-top: 5px; */
+  background-color: transparent;
+  /* width: 100%; */
+  position: fixed;
+  top: 93%;
+}
+
+
+///*!*改为左边红右边黄*!*/
+//.row {
+//  display: flex;
+//  //justify-content: space-between; /* 左右分列 */
+//  width: 20%;
+//}
+
+.row {
+  //display: flex; /* 使用 flexbox 使所有元素在一行中显示 */
+  display: inline-flex; /* 保持在一行内 */
+  flex-wrap: wrap; /* 允许换行 */
+  align-items: center; /* 垂直居中对齐 */
+  //justify-content: space-between; /* 分散排列 */
+  width: 100%; /* 宽度为100% */
+}
+
+.column_left {
+  display: inline-flex; /* 保持在一行内 */
+}
+
+.column_right {
+  display: inline-flex; /* 保持在一行内 */
+
+}
+
 
 .line {
   display: flex;
   align-items: center; /* 圆点与文本垂直居中对齐 */
-  width: 130px;
   color: white;
-  margin-top: 8px; /* 添加间距 */
+  margin-top: 5px; /* 添加间距 */
   font-size: 14px;
+  width: 120px;
 }
 
 .line span {
-  display: flex;
+  //display: flex;
+  display: inline-flex; /* 保持在一行内 */
   align-items: center; /* 圆点在其父容器中垂直居中 */
   /*display: inline-block; !* 确保点是块级元素 *!*/
   border-radius: 50%; /* 确保点是圆形 */
@@ -645,9 +944,10 @@ const updateScaleBar = () => {
   background-color: #f0a72e; /* 黄色 */
 }
 
-.inactive {
-  background-color: #888 !important; /* 灰色 */
-}
+//
+//.inactive {
+//  background-color: #888 !important; /* 灰色 */
+//}
 
 .line span {
   display: inline-flex; /* 使用 inline-flex 使得文本与圆点在一行 */
@@ -666,7 +966,7 @@ const updateScaleBar = () => {
   width: 15px; /* 中等点的宽度 */
   height: 15px; /* 中等点的高度 */
   border-radius: 50%; /* 圆形 */
-  margin-left: 13px;
+  margin-left: 5px;
   margin-right: 10px; /* 圆点和文本之间的间距 */
 }
 
@@ -674,9 +974,72 @@ const updateScaleBar = () => {
   width: 20px; /* 大点的宽度 */
   height: 20px; /* 大点的高度 */
   border-radius: 50%; /* 圆形 */
-  margin-left: 15px;
+  margin-left: 5px;
   margin-right: 1px; /* 圆点和文本之间的间距 */
 }
 
 
+// 工具栏
+.tool_container {
+  padding: 20px;
+
+  ._btn {
+    border: none;
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1;
+    background-color: #1890ff;
+    color: #fff;
+
+    &:not(:first-of-type) {
+      margin-left: 15px;
+    }
+  }
+}
+
+:deep(.map-container[data-v-bdc64a41] ){
+  width: 100%;
+  height: 100% !important;
+}
+
+.map_container {
+  width: 100%;
+  height: 100%;
+  margin-top: 2px;
+  z-index: 0;
+  // 移除默认左下角logo文字  ———— ::v-deep不行的话用/deep/
+  ::v-deep .tdt-control-copyright {
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  //  /deep/ .tdt-control-container {
+  //    display: none !important;
+  //  }
+
+  // 自定义右键菜单
+  ::v-deep #contextMenu {
+    position: absolute;
+    z-index: 4;
+    background: #fff;
+    border-radius: 2px;
+
+    .menu-item {
+      height: 35px;
+      line-height: 35px;
+      word-break: break-all;
+      padding: 0 10px;
+      font-size: 12px;
+      min-width: 60px;
+      text-align: center;
+      white-space: nowrap;
+
+      &:hover {
+        background-color: #f3f3ee;
+      }
+    }
+  }
+}
 </style>
+

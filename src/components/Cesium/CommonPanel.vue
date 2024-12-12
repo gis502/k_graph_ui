@@ -1,244 +1,169 @@
 <template>
-  <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
-    <div v-if="!showStatus">
-      <div class="header-div">
+
+  <div v-if="visiblePanel">
+    <div v-if="!showEqStatus">
+      <div class="eq-videoMonitorWin" :style="styleObject">
+        <div class="earthquake-info-panel">
+          <el-card class="eqbox-card">
+            <div slot="header" class="clearfix">
+                <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25"><path d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z" fill="#fbf102" p-id="2672"></path></svg>
+              <span>震中信息</span>
+            </div>
+            <table class="earthquake-info-table">
+              <tr>
+                <th>震中位置</th>
+                <td>{{ earthquakeInfo.earthquakeName || "无数据" }}</td>
+              </tr>
+              <tr>
+                <th>发生时间</th>
+                <td>{{ earthquakeInfo.historyEqTime }}</td>
+              </tr>
+              <tr>
+                <th>震&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;级</th>
+                <td>
+                  {{ earthquakeInfo.magnitude || "无数据" }} 级
+                </td>
+              </tr>
+              <tr>
+                <th>震中经纬</th>
+                <td>经度: {{ earthquakeInfo.lon || "无数据" }}°E，纬度: {{ earthquakeInfo.lat || "无数据" }}°N</td>
+              </tr>
+            </table>
+          </el-card>
+        </div>
+      </div>
+    </div>
+
+    <div v-else>
+      <div class="videoMonitorWin" :style="styleObject">
+        <div v-if="!showStatus">
+          <div class="header-div">
         <span>
           <span>态势标绘信息</span>
         </span>
-      </div>
-      <el-descriptions :column="2" size="default " border>
-        <!-- 标绘名称 -->
-        <el-descriptions-item>
-          <template #label>
-            <div class="cell-item">标绘名称</div>
-          </template>
-          <div>
-            <el-text size="large">
-              {{ plotInfoNew.plotType || "未命名" }}
-            </el-text>
           </div>
-        </el-descriptions-item>
-        <el-descriptions-item>
-          <template #label>
-            <div class="cell-item">
-              开始时间
+          <div class="Marking-info-panel">
+            <el-descriptions :column="2" size="default " border>
+              <!-- 标绘名称 -->
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">标绘名称</div>
+                </template>
+                <div>
+                  <el-text size="large">
+                    {{ plotInfoNew.plotType || "未命名" }}
+                  </el-text>
+                </div>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    开始时间
+                  </div>
+                </template>
+                <div>
+                  <el-text v-if="plotInfoNew.aditStatus" size="large">{{
+                      ("" + plotInfoNew.starttime).match('-')
+                          ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
+                          : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
+                    }}
+                  </el-text>
+                  <el-date-picker
+                      v-if="!plotInfoNew.aditStatus"
+                      v-model="plotInfoNew.starttime"
+                      type="datetime"
+                      placeholder="选择日期时间"
+                      value-format="x"
+                      size="large">
+                  </el-date-picker>
+                </div>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>
+                  <div class="cell-item">
+                    结束时间
+                  </div>
+                </template>
+                <div>
+                  <el-text v-if="plotInfoNew.aditStatus" size="large">{{
+                      ("" + plotInfoNew.endtime).match('-')
+                          ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
+                          : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
+                    }}
+                  </el-text>
+                  <el-date-picker
+                      v-if="!plotInfoNew.aditStatus"
+                      v-model="plotInfoNew.endtime"
+                      type="datetime"
+                      placeholder="选择日期时间"
+                      value-format="x"
+                      size="large">
+                  </el-date-picker>
+                </div>
+              </el-descriptions-item>
+              <!-- 经纬度显示 -->
+              <el-descriptions-item v-if="plotInfoNew.drawtype === 'point'">
+                <template #label>
+                  <div class="cell-item">经纬度</div>
+                </template>
+                <div>
+                  <el-text size="large">
+                    经度: {{ plotInfoNew.longitude || "无数据" }}°E,
+                    纬度: {{ plotInfoNew.latitude || "无数据" }}°N
+                  </el-text>
+                </div>
+              </el-descriptions-item>
+              <template v-for="(value,key,index) in plotInfoNew.info">
+                <el-descriptions-item v-if="value.type ==='text'">
+                  <template #label>
+                    <div class="cell-item">
+                      {{ value.name }}
+                    </div>
+                  </template>
+                  <el-text v-if="plotInfoNew.aditStatus" size="large">{{ value.value }}</el-text>
+                  <el-input v-if="!plotInfoNew.aditStatus" v-model="value.value" autocomplete="off" size="large"/>
+                </el-descriptions-item>
+                <el-descriptions-item v-if="value.type ==='select'">
+                  <template #label>
+                    <div class="cell-item">
+                      {{ value.name }}
+                    </div>
+                  </template>
+                  <el-text v-if="plotInfoNew.aditStatus" size="large">{{ value.value }}</el-text>
+                  <el-select v-if="!plotInfoNew.aditStatus" v-model="value.value" placeholder="" size="large">
+                    <el-option
+                        v-for="item in value.content"
+                        :label="item.label"
+                        :value="item.label"/>
+                  </el-select>
+                </el-descriptions-item>
+              </template>
+            </el-descriptions>
+            <div class="collapseFooter" v-if="ifedit">
+              <el-button v-if="!plotInfoNew.aditStatus && addStatus" type="success" round
+                         @click="addCommitPlotInfo(plotInfoNew)">新增
+              </el-button>
+              <el-button v-if="plotInfoNew.aditStatus && !addStatus" type="warning" round
+                         @click="beforeUpdataPlotInfo(plotInfoNew)">修改
+              </el-button>
+              <el-button v-if="!plotInfoNew.aditStatus && !addStatus" type="success" round
+                         @click="updataPlotInfo(plotInfoNew)">提交
+              </el-button>
+              <el-button v-if="plotInfoNew.aditStatus && !addStatus" type="danger" round
+                         @click="deletePlot">删除
+              </el-button>
             </div>
-          </template>
-          <div>
-            <el-text v-if="plotInfoNew.aditStatus" size="large">{{
-                ("" + plotInfoNew.starttime).match('-')
-                    ? this.timestampToTime(plotInfoNew.starttime)
-                    : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime) : "")
-              }}
-            </el-text>
-            <el-date-picker
-                v-if="!plotInfoNew.aditStatus"
-                v-model="plotInfoNew.starttime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="x"
-                size="large">
-            </el-date-picker>
           </div>
-        </el-descriptions-item>
-        <el-descriptions-item>
-          <template #label>
-            <div class="cell-item">
-              结束时间
-            </div>
-          </template>
-          <div>
-            <el-text v-if="plotInfoNew.aditStatus" size="large">{{
-                ("" + plotInfoNew.endtime).match('-')
-                    ? this.timestampToTime(plotInfoNew.endtime)
-                    : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime) : "")
-              }}
-            </el-text>
-            <el-date-picker
-                v-if="!plotInfoNew.aditStatus"
-                v-model="plotInfoNew.endtime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="x"
-                size="large">
-            </el-date-picker>
-          </div>
-        </el-descriptions-item>
-        <!-- 经纬度显示 -->
-        <el-descriptions-item v-if="plotInfoNew.drawtype === 'point'">
-          <template #label>
-            <div class="cell-item">经纬度</div>
-          </template>
-          <div>
-            <el-text size="large">
-              经度: {{ plotInfoNew.longitude || "无数据" }},
-              纬度: {{ plotInfoNew.latitude || "无数据" }}
-            </el-text>
-          </div>
-        </el-descriptions-item>
-        <template v-for="(value,key,index) in plotInfoNew.info">
-          <el-descriptions-item v-if="value.type ==='text'">
-            <template #label>
-              <div class="cell-item">
-                {{ value.name }}
-              </div>
-            </template>
-            <el-text v-if="plotInfoNew.aditStatus" size="large">{{ value.value }}</el-text>
-            <el-input v-if="!plotInfoNew.aditStatus" v-model="value.value" autocomplete="off" size="large"/>
-          </el-descriptions-item>
-          <el-descriptions-item v-if="value.type ==='select'">
-            <template #label>
-              <div class="cell-item">
-                {{ value.name }}
-              </div>
-            </template>
-            <el-text v-if="plotInfoNew.aditStatus" size="large">{{ value.value }}</el-text>
-            <el-select v-if="!plotInfoNew.aditStatus" v-model="value.value" placeholder="" size="large">
-              <el-option
-                  v-for="item in value.content"
-                  :label="item.label"
-                  :value="item.label"/>
-            </el-select>
-          </el-descriptions-item>
-        </template>
-      </el-descriptions>
-      <div class="collapseFooter" v-if="ifedit">
-        <el-button v-if="!plotInfoNew.aditStatus && addStatus" type="success" round
-                   @click="addCommitPlotInfo(plotInfoNew)">新增
-        </el-button>
-        <el-button v-if="plotInfoNew.aditStatus && !addStatus" type="warning" round
-                   @click="beforeUpdataPlotInfo(plotInfoNew)">修改
-        </el-button>
-        <el-button v-if="!plotInfoNew.aditStatus && !addStatus" type="success" round
-                   @click="updataPlotInfo(plotInfoNew)">提交
-        </el-button>
-        <el-button v-if="plotInfoNew.aditStatus && !addStatus" type="danger" round
-                   @click="deletePlot">删除
-        </el-button>
+        </div>
       </div>
-      <!--        <el-descriptions :column="2" size="default " border>-->
-
-      <!--        </el-descriptions>-->
-
-
-      <!--      <el-scrollbar height="400px">-->
-      <!--        <el-timeline>-->
-      <!--          <el-timeline-item v-for="(activity, index) in plotInfoActivities" :key="index">-->
-      <!--            <el-collapse v-model="activeNames" @change="">-->
-      <!--              <el-collapse-item :name="index">-->
-      <!--                <template #title>-->
-      <!--                  <div>-->
-      <!--                    &lt;!&ndash;此处首先判断starttime是日期形式还是时间戳形式；前者则直接显示；后者则再判断是否为null，不是null则把时间戳转成日期形式，是null则为空&ndash;&gt;-->
-      <!--                    &lt;!&ndash;用来解决新增时下面的span显示时间戳的问题&ndash;&gt;-->
-      <!--                    <span style="margin-left: 10px;font-size: 16px">-->
-      <!--                      {{("" + activity.starttime).match('-')-->
-      <!--                            ? activity.starttime-->
-      <!--                            : (activity.starttime !== null ? activity.starttime : "") }}-->
-      <!--                    </span>-->
-      <!--                    &lt;!&ndash;                    <span style="margin-left: 20px">自定义内容 </span>&ndash;&gt;-->
-      <!--                  </div>-->
-      <!--                </template>-->
-      <!--                <div>-->
-      <!--                  <el-descriptions :column="2" size="default " border>-->
-      <!--                    <el-descriptions-item>-->
-      <!--                      <template #label>-->
-      <!--                        <div class="cell-item">-->
-      <!--                          开始时间-->
-      <!--                        </div>-->
-      <!--                      </template>-->
-      <!--                      <div>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{-->
-      <!--                            ("" + activity.starttime).match('-')-->
-      <!--                                ? activity.starttime-->
-      <!--                                : (activity.starttime !== null ? activity.starttime : "")-->
-      <!--                          }}</el-text>-->
-      <!--                        <el-date-picker-->
-      <!--                            v-if="!activity.aditStatus"-->
-      <!--                            v-model="activity.starttime"-->
-      <!--                            type="datetime"-->
-      <!--                            placeholder="选择日期时间"-->
-      <!--                            value-format="x"-->
-      <!--                            size="large">-->
-      <!--                        </el-date-picker>-->
-      <!--                      </div>-->
-      <!--                    </el-descriptions-item>-->
-      <!--                    <el-descriptions-item>-->
-      <!--                      <template #label>-->
-      <!--                        <div class="cell-item">-->
-      <!--                          结束时间-->
-      <!--                        </div>-->
-      <!--                      </template>-->
-      <!--                      <div>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{-->
-      <!--                            ("" + activity.endtime).match('-')-->
-      <!--                                ? activity.endtime-->
-      <!--                                : (activity.endtime !== "" ? activity.endtime : "")-->
-      <!--                          }}</el-text>-->
-      <!--                        <el-date-picker-->
-      <!--                            v-if="!activity.aditStatus"-->
-      <!--                            v-model="activity.endtime"-->
-      <!--                            type="datetime"-->
-      <!--                            placeholder="选择日期时间"-->
-      <!--                            value-format="x"-->
-      <!--                            size="large">-->
-      <!--                        </el-date-picker>-->
-      <!--                      </div>-->
-      <!--                    </el-descriptions-item>-->
-      <!--                  </el-descriptions>-->
-
-      <!--                  <el-descriptions :column="2" size="default " border>-->
-      <!--                    <template v-for="(value,key,index) in activity.info">-->
-      <!--                      <el-descriptions-item v-if="value.type ==='text'">-->
-      <!--                        <template #label>-->
-      <!--                          <div class="cell-item">-->
-      <!--                            {{ value.name }}-->
-      <!--                          </div>-->
-      <!--                        </template>-->
-      <!--                          <el-text v-if="activity.aditStatus" size="large" >{{ value.value }}</el-text>-->
-      <!--                          <el-input v-if="!activity.aditStatus" v-model="value.value" autocomplete="off" size="large"/>-->
-      <!--                      </el-descriptions-item>-->
-      <!--                      <el-descriptions-item v-if="value.type ==='select'">-->
-      <!--                        <template #label>-->
-      <!--                          <div class="cell-item">-->
-      <!--                            {{ value.name }}-->
-      <!--                          </div>-->
-      <!--                        </template>-->
-      <!--                        <el-text v-if="activity.aditStatus" size="large">{{ value.value }}</el-text>-->
-      <!--                        <el-select v-if="!activity.aditStatus" v-model="value.value" placeholder="" size="large">-->
-      <!--                          <el-option-->
-      <!--                              v-for="item in value.content"-->
-      <!--                              :label="item.label"-->
-      <!--                              :value="item.label"/>-->
-      <!--                        </el-select>-->
-      <!--                      </el-descriptions-item>-->
-      <!--                    </template>-->
-      <!--                  </el-descriptions>-->
-      <!--                </div>-->
-      <!--                <div class="collapseFooter">-->
-      <!--                  <el-button v-if="!activity.aditStatus && addStatus" type="success" round-->
-      <!--                             @click="addCommitPlotInfo(activity)">新增-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="activity.aditStatus && !addStatus" type="warning" round-->
-      <!--                             @click="beforeUpdataPlotInfo(activity)">修改-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="!activity.aditStatus && !addStatus" type="success" round-->
-      <!--                             @click="updataPlotInfo(activity)">提交-->
-      <!--                  </el-button>-->
-      <!--                  <el-button v-if="activity.aditStatus && !addStatus" type="danger" round-->
-      <!--                             @click="deletePlotInfo(activity)">删除-->
-      <!--                  </el-button>-->
-      <!--                </div>-->
-      <!--              </el-collapse-item>-->
-      <!--            </el-collapse>-->
-      <!--          </el-timeline-item>-->
-      <!--        </el-timeline>-->
-      <!--      </el-scrollbar>-->
     </div>
+
+
   </div>
 </template>
 <script>
 import {Delete, Edit} from '@element-plus/icons-vue'
-import {plotType as plotTypeDialog } from '@/cesium/plot/plotType.js'
+import {plotType as plotTypeDialog} from '@/cesium/plot/plotType.js'
 import {getPlotInfos, addPlotInfo, deletePlotAndInfo, deletePlotInfo, updataPlotInfo} from '@/api/system/plot.js'
 import arrow from "@/cesium/drawArrow/drawPlot.js";
 
@@ -250,6 +175,7 @@ export default {
       popupPanelData: {}, // 存储这当前标绘点在situationplot表中的信息
       //--------------------
       showStatus: false,
+      showEqStatus: false,
       plotInfoActivities: [], // 存储当前标绘点的多有situationplotinfo表信息
       activeNames: [], // 对应每个el-collapse-item标签的name，数组中有谁，谁展开。（我使用的index是整型）
       addStatus: false,
@@ -259,11 +185,12 @@ export default {
         info: null,
         id: null,
         aditStatus: true,
-      }
+      },
+      earthquakeInfo: {}
     }
   },
   props: [
-    'popupData', 'position', 'visible','ifedit'
+    'popupData', 'position', 'visible', 'ifedit'
   ],
   watch: {
     visible() {
@@ -280,18 +207,20 @@ export default {
         // 可能时因为开启深度监听的原因（deep: true）。
         // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
-          console.log(this.popupPanelData)
+          // console.log("1123",this.popupPanelData)
           if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
-            this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
-          } else if (this.popupPanelData.drawtype) {
-            this.getPlotInfo(this.popupPanelData.plotId,this.popupPanelData.plotType)
+            this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
+          } else if (this.popupPanelData.drawtype === 'point') {
+            this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
+          } else if (this.popupPanelData.drawtype === 'center') {
+            this.getEqInfo(this.popupPanelData)
           } else {
             if (this.popupPanelData[0].drawtype === 'polyline') {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
-            }else {
+              this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
+            } else {
               // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotId,this.popupPanelData[0].plotType)
+              this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
             }
           }
         }
@@ -338,8 +267,8 @@ export default {
       let startTime = this.timestampToTime(activity.starttime)
       let endTime = this.timestampToTime(activity.endtime)
 
-      updataPlotInfo({ startTime, endTime ,plotId, plotType }, typeInfoValues).then(res => {
-        that.getPlotInfo(plotId,plotType);
+      updataPlotInfo({startTime, endTime, plotId, plotType}, typeInfoValues).then(res => {
+        that.getPlotInfo(plotId, plotType);
       });
     },
     // 删除标绘信息
@@ -383,22 +312,32 @@ export default {
           data.plotType = this.popupPanelData[0].plotType
         }
       }
-
       deletePlotInfo(data).then(res => {
         // 从 dataSource 中删除点
         window.viewer.entities.removeById(data.plotId)
+        window.viewer.entities.removeById(data.plotId + "_polygon")
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(data.plotId);
+          const entityToRemove_base = window.pointDataSource.entities.getById(data.plotId+"_base");
           console.log("entityToRemove", entityToRemove)
           if (entityToRemove) {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            window.pointDataSource.entities.remove(entityToRemove_base); // 移除点
           }
         }
+        if (window.labeldataSource) {
+          const entitylabel = window.labeldataSource.entities.getById(data.plotId + '_label');
+          if (entitylabel) {
+            window.labeldataSource.entities.remove(entitylabel); // 移除点
+          }
+        }
+        this.deletePoint(arraw, data.plotId)
+        console.log("data.plotId----------------", data.plotId)
         if (arraw) {
           arrow.clearById(data.plotId)
+
           arraw = false
         }
-        this.$emit('closePlotPop')
       })
     },
     // 打开添加标绘信息
@@ -439,12 +378,13 @@ export default {
       })
     },
     // 点击标绘点后获取此标绘点的所有标绘信息
-    getPlotInfo(plotId,plotType) {
+    getPlotInfo(plotId, plotType) {
       // console.log("点击获取",plotId,plotType)
       let that = this;
+      that.showEqStatus = true; // 切换地震和标绘信息的显示状态
       // 1. 请求获取标绘点信息
-      getPlotInfos({ plotId, plotType }).then(res => {
-        console.log("点击获取",res)
+      getPlotInfos({plotId, plotType}).then(res => {
+        console.log("点击获取", res)
         // 2. 初始化 item 对象，存储标绘信息
         let item = {
           starttime: null,
@@ -453,7 +393,7 @@ export default {
           uuid: null,
           aditStatus: true,
           plotId: null,
-          plotType:null,
+          plotType: null,
           drawtype: null,
           longitude: null,
           latitude: null
@@ -465,8 +405,8 @@ export default {
         item.plotId = plotId;
         item.plotType = plotType;
         item.drawtype = res.plotInfo.drawtype;
-        item.longitude=res.plotInfo.geom.coordinates[0] || "无经纬度信息";
-        item.latitude=res.plotInfo.geom.coordinates[1] || "无经纬度信息";
+        item.longitude = res.plotInfo.geom.coordinates[0] || "无经纬度信息";
+        item.latitude = res.plotInfo.geom.coordinates[1] || "无经纬度信息";
         // 4. 初始化类型信息
         let typeInfo = {};
 
@@ -507,13 +447,35 @@ export default {
 
         // 11. 更新 plotInfoNew 为最新的标绘信息
         that.plotInfoNew = that.plotInfoActivities[0];
-        console.log("更新",that.plotInfoNew)
+        console.log("更新", that.plotInfoNew)
       });
     },
+    // 点击震中中心点获取该中心点的标绘信息
+    getEqInfo(eqData) {
+      let that = this
+      that.showEqStatus = false; // 切换地震和标绘信息的显示状态
+      console.log("eqData", eqData)
+      let data = {
+        tableName: `${this.timestampToTimeChinese(eqData.occurrenceTime, 'date')}${eqData.earthquakeName} ${eqData.magnitude}级地震`,
+        historyEqTime: this.timestampToTimeChinese(eqData.occurrenceTime.replace("T", " ")),
+        earthquakeName: eqData.earthquakeName,
+        lat: Number(eqData.latitude).toFixed(2),
+        lon: Number(eqData.longitude).toFixed(2),
+        magnitude: Number(eqData.magnitude).toFixed(1),
+      }
+      that.earthquakeInfo = data
+      console.log("更新", that.earthquakeInfo)
+
+    },
     // 删除标注
-    deletePoint() {
+    deletePoint(bool, id) {
+      // console.log("window.selectedEntity.id-----------------",window.selectedEntity.objId)
       this.$emit('closePlotPop')
-      this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}))
+      if (bool) {
+        this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "delete", id: id}))
+      } else {
+        this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: id}))
+      }
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式，
     // 形参timestamp必须时整型时间戳，字符串类型时间戳得到的时NaN。
@@ -534,6 +496,23 @@ export default {
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day}T${hh}:${mm}:${ss}`
     },
+    timestampToTimeChinese(timestamp) {
+      let DateObj = new Date(timestamp)
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+    },
     // 生成uuid
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -545,19 +524,61 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
   /*width: 43px!important;*/
+}
+
+.eq-videoMonitorWin {
+   position: absolute;
+    width: 270px;
+    padding: 0px;
+    z-index: 80;
+  box-shadow: 0 4px 8px rgb(60, 215, 255), 0 6px 20px rgb(25, 108, 210);
+}
+
+.earthquake-info-panel {
+  padding: 0px;
+  border-radius: 25px;
+  max-width: 100%;
+  margin: 0px 0px;
+}
+
+.eqbox-card {
+
+}
+
+:deep(.el-card__body) {
+  padding: 0px 0px 0px 0px !important;
+}
+
+.earthquake-info-table {
+  width: 100%;
+  background-color: rgb(255, 255, 255);
+  color: #000000;
+  border-collapse: collapse;
+}
+
+.earthquake-info-table th,
+.earthquake-info-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #21c9db;
+  font-size: 0.8rem;
+  font-weight: 550;
 }
 
 .cell-item {
   width: 100%;
   text-align: center;
+  white-space: nowrap; /* 避免换行 */
+  overflow: hidden; /* 隐藏溢出的文本 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
 .collapseFooter {
   float: right;
-  margin: 10px;
+  margin-top: 25px;
 }
 
 .el-input {
@@ -579,28 +600,16 @@ export default {
 
 .box-card {
   margin-bottom: 5px;
+  font-size: 25px;
 }
 
 .videoMonitorWin {
   position: absolute;
   width: 800px;
   padding: 20px;
-  z-index: 10;
+  z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
-}
-
-.ponpTitle {
-  font-size: 23px;
-  text-align: center;
-  color: white;
-  margin-bottom: 10px;
-}
-
-.ponpTable {
-  text-align: center;
-  color: white;
-  margin-bottom: 10px;
 }
 
 .ponpTable td {
@@ -626,4 +635,36 @@ export default {
   margin-bottom: 2px;
 }
 
+
+.Marking-info-panel {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 100%;
+  margin: 10px 10px;
+}
+
+.el-card__header {
+  font-weight: 550;
+}
+
+.el-descriptions__label {
+  font-weight: 550;
+}
+
+.clearfix {
+  font-size: 1.1rem;
+  font-weight: 550;
+  background-color: red;
+  text-align: center;
+  color: #FFFFFF;
+  height: 4vh;
+  display: flex; /* 使用 Flexbox */
+  align-items: center; /* 垂直居中 */
+  justify-content: center; /* 水平居中 */
+}
+svg {
+  vertical-align: middle; /* 保持文本和图标对齐 */
+  margin-right: 0.5rem; /* 图标和文本间距 */
+}
 </style>

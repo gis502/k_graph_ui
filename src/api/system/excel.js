@@ -9,12 +9,21 @@ export function getYaanAftershockStatistics(data) {
 }
 
 export function exportExcel(data) {
-    return request({
-        url: '/excel/exportExcel',
-        method: 'post',
-        responseType: 'blob', // 确保响应类型为blob
-        data
-    })
+  return request({
+    url: '/excel/exportExcel',
+    method: 'post',
+    responseType: 'blob', // 确保响应类型为blob
+    data
+  })
+}
+
+export function downloadPlotExcel(plotBTO) {
+  return request({
+    url: '/excel/downloadPlotExcel',
+    method: 'post',
+    responseType: 'blob',
+    data: plotBTO
+  })
 }
 
 export function getField() {
@@ -31,6 +40,7 @@ export function getData(data) {
         data
     })
 }
+
 export function getExcelUploadByTime(params) {
     return request({
         url: '/excel/getExcelUploadByTime',
@@ -61,5 +71,13 @@ export function getResettlementData() {
     return request({
         url: '/excel/getResettlementData',
         method: 'post',
+    })
+}
+
+export function searchData(data) {
+    return request({
+        url: '/excel/searchData',
+        method: 'post',
+        data
     })
 }

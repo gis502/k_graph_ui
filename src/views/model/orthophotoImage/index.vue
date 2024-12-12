@@ -1,218 +1,619 @@
 <template>
-    <div class="app-container">
-        <el-row :gutter="10" class="mb8">
-            <el-col :span="1.5">
-                <el-button type="primary" plain  size="mini" @click="handleOpen('新增')">新增</el-button>
-            </el-col>
-        </el-row>
-        <el-table :data="tableData" class="table-center" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-            <el-table-column prop="eqid" label="序号" width="60" align="center"></el-table-column>
-            <el-table-column prop="orthophotoName" label="正射影像名称" width="250" align="center"></el-table-column>
-            <el-table-column prop="size" label="正射影像正射影像大小(GB)" width="250" align="center"></el-table-column>
-            <el-table-column prop="addTime" label="添加时间" align="center" width="180"></el-table-column>
-            <el-table-column prop="orthophotoPath" label="正射影像路径" width="300" align="center"></el-table-column>
-            <el-table-column label="操作" align="center">
-                <template v-slot="scope">
-                    <el-button size="mini" type="text" icon="el-icon-edit" @click="handleOpen('修改',scope.row)">修改</el-button>
-                    <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
+  <div class="app-container">
+    <el-form-item label="正射影像管理信息" >
+      <el-input
+          v-model="queryParams"
+          placeholder="请输入正射影像管理信息"
+          clearable
+          style="width: 200px"
+          @keyup.enter="handleQuery"
+      />
+      <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+      <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+      <el-button type="primary" plain icon="Plus" @click="handleEdit('新增')">新增</el-button>
+      <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
+    </el-form-item>
+    <el-table
+        :data="TableData"
+        class="table-center"
+        :stripe="true"
+        :header-cell-style="tableHeaderColor"
+        :cell-style="tableColor"
+        style="table-layout: fixed; width: 100%;"
+    >
+      <!-- 序号列 -->
+      <el-table-column
+          label="序号"
+          align="center"
+          width="100"
+      >
+        <template #default="{ $index }">
+          {{ ($index + 1) + (currentPage - 1) * pageSize }}
+        </template>
+      </el-table-column>
 
-        <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-sizes="pageSizes"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-        </el-pagination>
+      <!-- 正射影像名称列 -->
+      <el-table-column
+          prop="name"
+          label="正射影像名称"
+          :min-width="200"
+          align="center"
+      ></el-table-column>
 
-        <el-dialog :title="dialogTitle" :visible.sync="dialogShow" width="30%" :show-close="false">
-            <el-row :gutter="10">
-                <el-col :span="6">正射影像名称：</el-col>
-                <el-col :span="18">
-                    <el-input v-model="dialogContent.orthophotoName" placeholder="请输入内容"></el-input>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :span="6">添加时间：</el-col>
-                <el-col :span="18">
-                    <el-input v-model="dialogContent.addTime" placeholder="请输入内容"></el-input>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :span="6">正射影像路径：</el-col>
-                <el-col :span="18">
-                    <el-input v-model="dialogContent.orthophotoPath" placeholder="请输入内容"></el-input>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :span="6">正射影像高度：</el-col>
-                <el-col :span="18">
-                    <el-input v-model="dialogContent.orthophotoHeight" placeholder="请输入内容"></el-input>
-                </el-col>
-            </el-row>
-            <el-row :gutter="10">
-                <el-col :span="6">旋转角度：</el-col>
-                <el-col :span="18">
-                    <el-input v-model="dialogContent.rotationAngle" placeholder="请输入内容"></el-input>
-                </el-col>
-            </el-row>
-            <span slot="footer" class="dialog-footer">
-        <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary" @click="commit">确 定</el-button>
-      </span>
-        </el-dialog>
-    </div>
+      <!-- 正射影像路径列 -->
+      <el-table-column
+          prop="path"
+          label="正射影像路径"
+          :min-width="250"
+          align="center"
+      ></el-table-column>
+
+      <!-- 添加时间列 -->
+      <el-table-column
+          prop="createTime"
+          label="添加时间"
+          :min-width="200"
+          align="center"
+      >
+        <template #default="{ row }">
+          <span>{{ row.createTime }}</span>
+        </template>
+      </el-table-column>
+
+      <!-- 操作列 -->
+      <el-table-column
+          label="操作"
+          align="center"
+          :min-width="250"
+      >
+        <template #default="{ row }">
+          <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-view"
+              @click="handleOpen(row)"
+          >
+            浏览
+          </el-button>
+          <el-button
+              size="mini"
+              type="text"
+              @click="handleEdit('修改', row)"
+          >
+            <el-icon><Edit /></el-icon>修改
+          </el-button>
+          <el-button
+              size="mini"
+              type="text"
+              @click="handleDelete(row)"
+          >
+            <el-icon><Delete /></el-icon>删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+
+    <!--分页按钮-->
+    <el-pagination
+        class="pagination"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
+    </el-pagination>
+    <!--新增 or 编辑 弹框-->
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30vw">
+      <el-form ref="form" :model="dialogContent" :rules="rules" label-width="120px">
+        <!-- 正射影像名称 -->
+        <el-form-item label="正射影像名称" prop="name">
+          <el-input
+              v-model="dialogContent.name"
+              placeholder="请输入正射影像名称"
+              style="width: 100%;"
+          ></el-input>
+        </el-form-item>
+
+        <!-- 正射影像路径 -->
+        <el-form-item label="正射影像路径" prop="path">
+          <el-input
+              v-model="dialogContent.path"
+              placeholder="请输入正射影像路径"
+              style="width: 100%;"
+          ></el-input>
+        </el-form-item>
+
+        <!-- 添加时间 -->
+        <el-form-item label="添加时间" prop="createTime">
+          <el-date-picker
+              v-model="dialogContent.createTime"
+              type="datetime"
+              value-format="YYYY-MM-DDTHH:mm:ss"
+              placeholder="选择日期时间"
+              style="width: 100%;"
+              size="large"
+          ></el-date-picker>
+        </el-form-item>
+
+        <!-- 按钮部分 -->
+        <div class="dialog-footer" style="text-align: right; margin-top: 20px;">
+          <el-button @click="cancel">取消</el-button>
+          <el-button type="primary" @click="commit">确定</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
+    <!--    筛选-->
+    <el-dialog
+        v-model="queryFormVisible"
+        title="筛选"
+        width="30vw"
+        style="top:20vh"
+    >
+      <el-form :model="dialogContent" ref="formValue" :rules="rules" label-width="120px">
+        <!-- 正射影像名称 -->
+        <el-form-item label="正射影像名称">
+          <el-input
+              v-model="dialogContent.modelName"
+              style="width: 100%;"
+              placeholder="请输入正射影像名称"
+              clearable
+          />
+        </el-form-item>
+
+        <!-- 添加时间 -->
+        <el-form-item label="添加时间" prop="createTime">
+          <el-date-picker
+              v-model="dialogContent.createTime"
+              type="datetime"
+              value-format="YYYY-MM-DDTHH:mm:ss"
+              placeholder="请选择添加时间"
+              style="width: 100%;"
+              size="large"
+              clearable
+          />
+        </el-form-item>
+
+        <!-- 正射影像路径 -->
+        <el-form-item label="正射影像路径" prop="modelPath">
+          <el-input
+              v-model="dialogContent.modelPath"
+              style="width: 100%;"
+              placeholder="请输入正射影像路径"
+              clearable
+          />
+        </el-form-item>
+
+      </el-form>
+
+      <!-- 按钮部分 -->
+      <div class="dialog-footer" style="text-align: right; margin-top: 20px;">
+        <el-button @click="Cancel">取 消</el-button>
+        <el-button type="primary" @click="onSubmit">筛 选</el-button>
+      </div>
+    </el-dialog>
+
+  </div>
 </template>
 
 <script>
+import {
+  insert,
+  update,
+  removeById,
+  queryOrthophotoData,
+  OrthophotoFilterContent,
+  list
+} from '@/api/system/orthophotoImage.js';
+import { ElMessage, ElMessageBox } from "element-plus";
 export default {
-    name: "index",
-    data() {
-        return {
-            tableData: [
-                { eqid: 1, orthophotoName: '7.37平方公里正射影像',size:"84.0", addTime: '2023-08-19 15:31:19', orthophotoPath: '/geoserver/yaan/wms/1', orthophotoHeight: 15, rotationAngle: 0},
-                { eqid: 2, orthophotoName: '0.4平方公里正射影像', size:"7.8",addTime: '2023-07-23 17:19:09', orthophotoPath: '/geoserver/yaan/wms/2', orthophotoHeight: 9 , rotationAngle: 0},
-                // { eqid: 3, modelName: 'model1', addTime: '2023-08-10 17:02:57', modelPath: '/model1', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 4, modelName: 'model2', addTime: '2023-08-18 09:30:20', modelPath: '/model2', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 5, modelName: 'model3', addTime: '2023-08-13 13:40:11', modelPath: '/model3', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 6, modelName: 'model4', addTime: '2023-08-14 07:12:38', modelPath: '/model4', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 7, modelName: 'model5', addTime: '2023-08-14 07:12:38', modelPath: '/model5', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 8, modelName: 'model6', addTime: '2023-08-14 07:12:38', modelPath: '/model6', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 9, modelName: 'model7', addTime: '2023-08-14 07:12:38', modelPath: '/model7', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 10, modelName: 'model8', addTime: '2023-08-14 07:12:38', modelPath: '/model8', modelHeight: 0, rotationAngle: 0},
-                // { eqid: 11, modelName: 'model9', addTime: '2023-08-14 07:12:38', modelPath: '/model9', modelHeight: 0, rotationAngle: 0},
-                // 继续添加更多静态数据...
-            ],
-            total: 2, // 根据静态数据的数量设置总数
-            pageSize: 10,
-            pageSizes: [10, 20, 40],
-            currentPage: 1,
-            //--------------------------------------
-            dialogShow: false,
-            dialogTitle: null,
-            dialogContent: {
-                orthophotoName: '',
-                addTime: '',
-                orthophotoPath: '',
-                orthophotoHeight: '',
-                rotationAngle: '',
-                depth: '',
-                eqid: ''
-            },
-        }
+  name: "index",
+  data() {
+    return {
+      TableData: [],
+      filterContent: [],  // 筛选内容
+      tableData: [],  //存储 新增 or 编辑 后端返回数据
+      queryParams: '',  // 搜索框关键字
+      queryFormVisible: false,
+      total: 0,
+      pageSize: 10,
+      pageSizes: [10, 20, 40],
+      currentPage: 1,
+      //--------------------------------------
+      dialogShow: false,
+      dialogTitle: null,
+      dialogContent: {
+        name: '',
+        createTime: '',
+        path: '',
+        uuid: ''
+      },
+      rules: {
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ]
+      }
+
+
+    }
+  },
+  created() {
+    this.fetchData();
+  },
+  methods: {
+    fetchData() {
+      list().then(res => {
+        console.log("获取的数据:", res); // 打印获取的数据
+        this.tableData = res.data.map((item) => {
+          let formattedCreateTime = '';
+          // 确保 createTime 存在且有效
+          if (item.hasOwnProperty('createTime') && item.createTime) {
+            const createTime = new Date(item.createTime);
+
+            // 确认解析后的 createTime 是否有效
+            if (!isNaN(createTime)) {
+              // 格式化为 yyyy年MM月dd日 HH:mm:ss
+              const year = createTime.getFullYear();
+              const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+              const day = createTime.getDate().toString().padStart(2, '0');
+              const hours = createTime.getHours().toString().padStart(2, '0');
+              const minutes = createTime.getMinutes().toString().padStart(2, '0');
+              const seconds = createTime.getSeconds().toString().padStart(2, '0');
+
+              // 格式化为需要的格式
+              formattedCreateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+            } else {
+              console.log(`无效的日期: ${item.createTime}`);
+            }
+          } else {
+            console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
+          }
+          // 仅返回修改后的 createTime
+          item.createTime = formattedCreateTime;
+          return item;
+        });
+
+        // 打印处理后的 tableData
+        console.log("处理后的 tableData:", this.tableData);
+        this.total = this.tableData.length;
+        this.updateTableData();
+      }).catch(error => {
+        console.error("获取数据失败:", error);
+      });
     },
-    methods: {
-        handleDelete(row) {
-            this.tableData = this.tableData.filter(item => item.eqid !== row.eqid);
-            this.total = this.tableData.length;
-        },
-        handleOpen(title, row) {
-            this.dialogShow = true
-            if (title === "新增") {
-                this.dialogTitle = title;
-                this.dialogContent = {
-                    orthophotoName: '',
-                    addTime: '',
-                    orthophotoPath: '',
-                    orthophotoHeight: '',
-                    rotationAngle: '',
-                    depth: '',
-                    eqid: ''
-                };
+    // 筛选
+    onSubmit() {
+      this.filterContent = {
+        name: this.dialogContent.modelName || null,
+        createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
+        path: this.dialogContent.modelPath || null,
+        uuid: this.dialogContent.uuid || null,
+      };
+      console.log("filterContent", this.filterContent);
+      // 发送请求
+      OrthophotoFilterContent(this.filterContent).then(res => {
+        console.log("OrthophotoFilterContent", res); // 打印返回的响应
+        // 假设 res.data 包含查询结果
+        const data = res.data || [];
+        this.total = res.total || data.length; // 确保获取总数，使用返回的分页信息（假设是 res.total）
+        // 格式化数据并更新 tableData
+        this.tableData = res.data.map((item) => {
+          let formattedCreateTime = '';
+
+          // 确保 createTime 存在且有效
+          if (item.hasOwnProperty('createTime') && item.createTime) {
+            const createTime = new Date(item.createTime);
+
+            // 确认解析后的 createTime 是否有效
+            if (!isNaN(createTime)) {
+              // 格式化为 yyyy年MM月dd日 HH:mm:ss
+              const year = createTime.getFullYear();
+              const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+              const day = createTime.getDate().toString().padStart(2, '0');
+              const hours = createTime.getHours().toString().padStart(2, '0');
+              const minutes = createTime.getMinutes().toString().padStart(2, '0');
+              const seconds = createTime.getSeconds().toString().padStart(2, '0');
+
+              // 格式化为需要的格式
+              formattedCreateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
             } else {
-                this.dialogTitle = title;
-                this.dialogContent = { ...row };
+              console.log(`无效的日期: ${item.createTime}`);
             }
-            this.dialogShow = !this.dialogShow;
-        },
-        commit() {
-            if (this.dialogTitle === "新增") {
-                this.dialogContent.eqid = Date.now();
-                this.tableData.push({ ...this.dialogContent });
-            } else {
-                const index = this.tableData.findIndex(item => item.eqid === this.dialogContent.eqid);
-                if (index !== -1) {
-                    this.tableData.splice(index, 1, { ...this.dialogContent });
+          } else {
+            console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
+          }
+
+          // 仅返回修改后的 createTime
+          item.createTime = formattedCreateTime;
+
+          return item;
+        });
+        // 如果需要分页，调用分页更新方法（如果分页逻辑依赖当前页面和每页数据）
+        this.updateTableData();
+        // 隐藏筛选表单
+        this.queryFormVisible = false;
+        // 清空表单字段
+        this.clearFormValue();
+      }).catch(error => {
+        console.error("查询失败:", error);
+      });
+    },
+    // 搜索框
+    handleQuery() {
+      const searchKey = this.queryParams.trim();  // 获取搜索关键字
+      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
+
+      // 调用同一个方法进行查询
+      queryOrthophotoData(result)
+          .then(res => {
+            console.log("获取的数据:", res); // 打印获取的数据
+
+            // 假设 res.data.records 是查询的结果数据，res.data.total 是总记录数
+            this.tableData = res.data.map((item) => {
+              let formattedCreateTime = '';
+
+              // 确保 createTime 存在且有效
+              if (item.hasOwnProperty('createTime') && item.createTime) {
+                const createTime = new Date(item.createTime);
+
+                // 确认解析后的 createTime 是否有效
+                if (!isNaN(createTime)) {
+                  // 格式化为 yyyy年MM月dd日 HH:mm:ss
+                  const year = createTime.getFullYear();
+                  const month = (createTime.getMonth() + 1).toString().padStart(2, '0'); // 月份补零
+                  const day = createTime.getDate().toString().padStart(2, '0');
+                  const hours = createTime.getHours().toString().padStart(2, '0');
+                  const minutes = createTime.getMinutes().toString().padStart(2, '0');
+                  const seconds = createTime.getSeconds().toString().padStart(2, '0');
+
+                  // 格式化为需要的格式
+                  formattedCreateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+                } else {
+                  console.log(`无效的日期: ${item.createTime}`);
                 }
-            }
-            this.total = this.tableData.length;
-            this.dialogShow = false;
-            this.clearDialogContent();
-        },
-        cancel() {
-            this.dialogShow = false;
-            this.clearDialogContent();
-        },
-        clearDialogContent() {
-            Object.keys(this.dialogContent).forEach(key => {
-                this.dialogContent[key] = '';
+              } else {
+                console.log('没有 createTime 或其值为空:', item); // 如果没有 createTime 或为空，输出提示
+              }
+
+              // 仅返回修改后的 createTime
+              item.createTime = formattedCreateTime;
+
+              return item;
             });
-        },
-        handleSizeChange(val) {
-            this.pageSize = val;
-            this.tableData = this.getPageArr();
-        },
-        handleCurrentChange(val) {
-            this.currentPage = val;
-            this.tableData = this.getPageArr();
-        },
-        getPageArr() {
-            let start = (this.currentPage - 1) * this.pageSize;
-            let end = this.currentPage * this.pageSize;
-            return this.tableData.slice(start, end);
-        },
-        // 修改table header的背景色
-        tableHeaderColor() {
-            return {
-                // 'padding': '10',
-                'font-size':'16px'
-            }
-        },
-        // 修改table的背景色
-        tableColor({row, column, rowIndex, columnIndex}) {
-            if (rowIndex % 2 === 1) {
-                return {
-                    'padding-top': '10px',
-                    'padding-bottom': '10px',
-                    'text-align': 'center',
-                    'font-size': '16px',
-                }
-            } else {
-                return {
-                    'padding-top': '10px',
-                    'padding-bottom': '10px',
-                    'text-align': 'center',
-                    'font-size': '16px',
-                }
-            }
-        },
+
+            // 更新分页的总数
+            this.total = this.tableData.length;
+            this.updateTableData(); // 初始化第一页数据
+          })
+          .catch(error => {
+            console.error("查询时出现错误:", error.message || error); // 打印详细错误信息到控制台
+
+            // 根据错误内容显示不同的提示信息
+            const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+            ElMessage.error(errorMessage);
+          });
+
+
     },
+    // 重置功能
+    resetQuery() {
+      this.queryParams = '';  // 清空搜索输入框
+      this.fetchData()
+
+    },
+
+    getEmptyDialogContent() {
+      return {
+        name: '',
+        createTime: '',
+        path: '',
+        uuid: ''
+      };
+    },
+
+    handleOpen(row) {
+      console.log(row);
+      window.open('/orthophotographViewer', "_blank");
+    },
+
+
+    handleEdit(title, row = {}) {
+      this.dialogTitle = title;
+
+      if (title === "新增") {
+        this.dialogContent = {
+          name: '',
+          createTime: '',
+          path: '',
+          uuid: ''
+        };
+      } else if (title === "修改") {
+        this.dialogContent = {
+          name: row.name,
+          path: row.path,
+          createTime: this.formatDateToBackend(row.createTime),
+          uuid: row.uuid
+        };
+      }
+
+      this.dialogShow = true;
+    },
+
+
+
+    handleDelete(row) {
+      ElMessageBox.confirm('确定要删除该条记录吗?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+          .then(() => {
+            removeById({ uuid: row.uuid })
+                .then(() => {
+                  this.fetchData();
+                  ElMessage.success('删除成功');
+                })
+                .catch(() => {
+                  ElMessage.error('删除失败，请重试');
+                });
+          })
+          .catch(() => {
+            ElMessage.info('删除操作已取消');
+          });
+    },
+    // 新增 or 编辑 提交按钮
+    commit() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          const modelData = {
+            name: this.dialogContent.name,
+            path: this.dialogContent.path,
+            createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
+            uuid: this.dialogContent.uuid,
+          };
+
+          const action = this.dialogTitle === '新增' ? insert : update;
+          action(modelData).then(() => {
+            this.fetchData();
+            this.dialogShow = false;
+            this.clearDialogContent();
+            ElMessage.success(`${this.dialogTitle}成功`);
+          }).catch(() => {
+            ElMessage.error(`${this.dialogTitle}失败，请重试`);
+          });
+        } else {
+          ElMessage.error('表单验证失败，请检查输入');
+          return false;
+        }
+      });
+    },
+    // 筛选弹框显示
+    openQueryForm() {
+      this.queryFormVisible = true;
+      this.dialogContent = {
+        name: '',
+        createTime: '',
+        path: '',
+        uuid: ''
+      };
+    },
+    // 新增弹框关闭
+    cancel() {
+      this.dialogShow = false;
+      this.clearDialogContent();
+    },
+
+    // 清除formValue中的数据
+    clearFormValue() {
+      Object.keys(this.formValue).forEach(key => {
+        this.formValue[key] = ''
+      });
+    },
+    // 关闭dialog对话框 筛选
+    Cancel() {
+      this.queryFormVisible = false;
+      this.clearFormValue()
+      this.$refs.formValue.resetFields(); // 重置表单
+      this.$refs.formValue.clearValidate(); // 清除验证状态
+    },
+
+    clearDialogContent() {
+      this.dialogContent = this.getEmptyDialogContent();
+    },
+
+
+    /**
+     * 分页
+     */
+    updateTableData() {
+      // 根据分页逻辑获取当前页数据
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = this.currentPage * this.pageSize;
+      this.TableData = this.tableData.slice(start, end);
+    },
+
+    handleSizeChange(val) {
+      // 每页条数变化时，更新数据
+      this.pageSize = val;
+      this.updateTableData();
+    },
+
+    handleCurrentChange(val) {
+      // 当前页变化时，更新数据
+      this.currentPage = val;
+      this.updateTableData();
+    },
+
+
+    tableHeaderColor() {
+      return {
+        'font-size': '16px'
+      };
+    },
+
+    tableColor({ rowIndex }) {
+      return {
+        'padding-top': '10px',
+        'padding-bottom': '10px',
+        'text-align': 'center',
+        'font-size': '16px',
+      };
+    },
+    /**
+     * 将年月日转换成-的形式 （用于格式化传给后端）
+     * @param inputDate
+     * @returns {string}
+     */
+    formatDateToBackend(inputDate) {
+      // 如果输入为空，则直接返回 null
+      if (!inputDate) {
+        return null;
+      }
+
+      // 使用正则表达式提取日期和时间部分
+      const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+      const matches = inputDate.match(regex);
+
+      if (matches) {
+        // 格式化为目标格式 "yyyy-MM-dd HH:mm:ss"
+        return `${matches[1]}-${matches[2]}-${matches[3]} ${matches[4]}:${matches[5]}:${matches[6]}`;
+      } else {
+        throw new Error("Invalid date format");
+      }
+    },
+    /**
+     *
+     * 将ISO格式换成后端想要的格式
+     * @param input
+     * @returns {*|string}
+     */
+    formatISODateTimeToBackend(input) {
+      if (!input) return '';
+      return input.replace('T', ' '); // 替换 'T' 为空格
+    }
+  },
+
+
+
 }
 </script>
 
 <style scoped>
-/* 表格内容居中 */
 .table-center .el-table__cell {
-    text-align: center;
+  text-align: center;
 }
 
-/* 分页框居中 */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
+.pagination {
+  justify-content: center;
+  margin-top: 20px;
 }
-.el-pagination {
-    margin-top: 10px;
-    justify-content: center;
-}
+
 :deep(.el-dialog__body) {
   text-align: end;
 }
+
 :deep(.el-dialog) {
   transform: none;
   left: 0;
@@ -221,4 +622,3 @@ export default {
   margin: 0 auto;
 }
 </style>
-

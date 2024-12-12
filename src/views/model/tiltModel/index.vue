@@ -12,47 +12,39 @@
               显示工具
             </span>
           </el-button>
-          <el-button type="primary" @click="find">找到模型</el-button>
-          <el-button type="primary" @click="showArrow">{{ showArrowText }}</el-button>
+          <el-button type="primary" @click="findModel">找到模型</el-button>
+          <el-button type="primary" @click="showArrowModel">{{ showArrowText }}</el-button>
           <!--        <el-button class="el-button--primary" @click="isTerrainLoaded">地形是否加载</el-button>-->
-          <el-button type="primary" @click="hide">{{ modelStatusContent }}</el-button>
+          <el-button type="primary" @click="hideModel">{{ modelStatusContent }}</el-button>
           <!--        <el-button type="primary" @click="openDialog('新增')">新增模型</el-button>-->
           <el-button type="primary" @click="updataPosition">更新位置</el-button>
         </el-row>
       </el-form>
-      <el-form class="button-container" v-show="showSelectModel">
-        <div class="modelAdj">模型选择</div>
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(1)">0.4平方公里模型</el-button>-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="selectModel(2)">7.37平方公里模型</el-button>-->
-        <!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="home">雅安</el-button>-->
-        <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :header-cell-style="tableHeaderColor"
+      <el-form class="button-container" v-show="showSelectModel" style="display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+          <div class="modelAdj">模型选择</div>
+          <el-input
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              style="width: 200px; margin-right: 10px;"
+              @keyup.enter="handleQuery"
+          />
+          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        </div>
+        <el-table :data="tableData" style="width: 100%; margin-bottom: 5px" :header-cell-style="tableHeaderColor"
                   :cell-style="tableColor" @row-click="">
-          <el-table-column prop="name" label="模型名称" width="140px">
-            <!--          <template #default="scope">-->
-            <!--            <el-input v-if="scope.row.show" v-model="modelInfo.name" class="w-50 m-2" placeholder="Please Input"/>-->
-            <!--          </template>-->
-          </el-table-column>
-          <!--          <el-table-column prop="path" label="模型路径" width="80">-->
-          <!--          <template #default="scope">-->
-          <!--            <el-input v-if="scope.row.show" v-model="modelInfo.path" class="w-50 m-2" placeholder="Please Input"/>-->
-          <!--          </template>-->
-          <!--          </el-table-column>-->
-          <!--        <el-table-column prop="rz" label="旋转角度" width=""></el-table-column>-->
+          <el-table-column prop="name" label="模型名称" width="140px"></el-table-column>
           <el-table-column prop="tz" label="模型中心高度(米)" width="160px"></el-table-column>
-          <!--        <el-table-column prop="rze" label="旋转角度（三维）" width=""></el-table-column>-->
           <el-table-column prop="tze" label="模型中心高度(米)" width="160px"></el-table-column>
           <el-table-column label="操作" width="80" align="center">
-            <!--          <template #default="scope">-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="updataM(scope.row)">修改</el-button>-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Edit" @click="selectModel(scope.row.path)">查看</el-button>-->
-            <!--            <el-button v-if="!scope.row.show" type="text" :icon="Delete" @click="deleteM(scope.row)">删除</el-button>-->
-            <!--            <el-button v-if="scope.row.show" type="text" :icon="Edit" @click="updataMCommit(scope.row)">确认</el-button>-->
-            <!--          </template>-->
             <template #default="scope">
-              <el-button type="text" :icon="Edit" @click="goModel(scope.row)">查看</el-button>
+              <el-button type="text" :icon="Edit" @click="changeModel(scope.row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
+
         <div>
           <el-pagination
               @size-change="handleSizeChange"
@@ -149,18 +141,33 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {Edit, Delete} from '@element-plus/icons-vue'
+
 import {
   addModelApi,
   deleteModel,
   getAllModel,
   updataModel,
   updataModelNoElevation,
-  updataModelElevation
+  updataModelElevation, querytiltModelData,
+
 } from '@/api/system/model.js'
 // import tiltTable from '@/components/Model/tiltModel/tiltTable.vue'
 import {ElMessageBox} from 'element-plus';
 import {ElMessage} from 'element-plus';
 import {CustomShader} from "cesium";
+
+import {
+  goModel,
+  findModel,
+  showArrow,
+  hide,
+  // changeHeight,
+  // changeRotationZ,
+  // changeOpacity,
+  isTerrainLoaded,
+  transferModel,
+  rotationModel
+} from '../../../functionjs/model.js';
 
 let pageStatus = ref(true)
 let tz = ref(0)
@@ -173,9 +180,12 @@ let showArrowText = ref("显示坐标轴")
 let modelStatus = true
 let modelStatusContent = ref("隐藏当前模型")
 let modelName = ''
+let queryParams = ref('');  // 搜索框关键字
+
+
 //----------------------------model table---------------------------------------
 let currentPage = ref(1)
-let pageSize = ref(6)
+let pageSize = ref(5) // 每页最大显示5条
 let total = ref(0)
 let modelList = []
 let tableData = ref([])
@@ -195,18 +205,19 @@ onMounted(() => {
   initModelTable()
 })
 
-onBeforeUnmount(()=>{
-  if (window.viewer !=null ){
-    let viewer=window.viewer
-    let gl=viewer.scene.context._gl
+onBeforeUnmount(() => {
+  if (window.viewer != null) {
+    let viewer = window.viewer
+    let gl = viewer.scene.context._gl
     viewer.entities.removeAll()
     // viewer.scene.primitives.removeAll()
     viewer.destroy()
     gl.getExtension("WEBGL_lose_context").loseContext();
-    gl=null
+    gl = null
     window.viewer = null;
   }
 })
+
 
 // 初始化控件等
 function init() {
@@ -261,385 +272,30 @@ function init() {
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 }
-
-function hide() {
-  if (modelStatus) {
-    window.modelObject.show = false
-    modelStatus = false
-    modelStatusContent.value = '显示当前模型'
-  } else {
-    window.modelObject.show = true
-    modelStatus = true
-    modelStatusContent.value = '隐藏当前模型'
-  }
-}
-
-// cesium自身接口scene.terrainProviderChanged(只读),当地形发生变化时(添加高程)触发
-// 不能用watch来监视scene.terrainProviderChanged,会造成堆栈溢出（内存溢出）
-function isTerrainLoaded() {
-  let terrainProvider = window.viewer.terrainProvider;
-  if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-    // console.log("地形未加载")
-    return false;
-  } else if (Cesium.defined(terrainProvider)) {
-    // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
-    // 则表示已经设置了其他地形提供者
-    // console.log("地形已加载")
-    return true;
-  }
-  // console.log("地形未加载")
-  return false;
-}
-
-function watchTerrainProviderChanged() {
-  window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
-    if (isTerrainLoaded()) {
-      changeHeight(modelInfo.tze)
-      tz.value = modelInfo.tze
-      find()
-    } else {
-      changeHeight(modelInfo.tz)
-      tz.value = modelInfo.tz
-      find()
-    }
-  });
-}
-
-function selectGltfModel() {
-  remove3dData()
-  tz.value = 0
-  originTz = 0
-
-  let cartesian = new Cesium.Cartesian3.fromDegrees(103.00, 29.98, 0.0)
-  let modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(cartesian);
-
-  let model = Cesium.Model.fromGltf({
-    url: './peilou/万达.gltf',
-    modelMatrix: modelMatrix,
-    id: 'wanda',
-    minimumPixelSize: 128,
-    scale: 1,
-  })
-  window.modelObject = model
-  window.viewer.scene.primitives.add(window.modelObject)
-  console.log(window.modelObject)
-  window.modelObject.readyPromise.then(function () {
-
-    let origin = new Cesium.Cartesian3(0, 0, 1000)
-    Cesium.Matrix4.multiplyByPoint(window.modelObject.modelMatrix, origin, origin)
-    window.viewer.camera.zoomTo({
-      destination: origin,
-      orientation: {
-        // 指向
-        heading: 6.283185307179581,
-        // 视角
-        pitch: -1.5688168484696687,
-        roll: 0.0
-      }
-    });
-  })
-
-}
-
-function selectModel(modelName) {
-  remove3dData()
-  initModel(modelName)
-  // window.viewer.zoomTo(
-  //     window.modelObject
-  // )
-  window.viewer.zoomTo(window.modelObject)
-  modelStatus = true
-  modelStatusContent.value = "隐藏当前模型"
-}
-
-/**
- * @Description:初始化加载模型并贴地
- * @author White Mo
- * @date 2024/3/25
- */
-function initModel(modelName) {
-
-  let baseURL = import.meta.env.VITE_APP_API_URL
-
-  const customShader = new CustomShader({
-    lightingModel: 0
-  })
-
-  const tileset = new Cesium.Cesium3DTileset({
-    url: baseURL + "/geoserver/www/" + modelName + "/tileset.json",
-    loadSiblings: true,
-    show: true,
-    maximumScreenSpaceError: 64,//默认16，值越大经度越小
-    maximumMemoryUsage: 3000,//可用于缓存瓦片的最大GPU内存量（以MB为单位）
-    skipLevelOfDetail: true,
-    preferLeaves: true,
-    customShader: customShader
-  });
-
-  //如果遇到url中特殊字符+问题，前往node_modules\cesium\Source\ThirdParty\uri.js修改'%2B': '+'为'%2B': '%2B',禁止将json中的%2B转为+，因为geoserver无法识别+路径
-  window.modelObject = tileset
-  tileset.zIndex = -1;
-  tileset.readyPromise.then(function () {
-    window.viewer.scene.primitives.add(window.modelObject);
-    console.log("模型已加载")
-    if (isTerrainLoaded()) {
-      changeHeight(modelInfo.tze)
-      tz.value = modelInfo.tze
-      find()
-    } else {
-      // tz.value = modelInfo.tz
-      // changeHeight(modelInfo.tz)
-      // find()
-      const cartographic = Cesium.Cartographic.fromCartesian(tileset.boundingSphere.center);//获取模型高度
-      tz.value = 20 - Math.trunc(cartographic.height)//高度取整
-      transferModel(tileset, 0, 0, tz.value, 0, 0, 0, 1, 1)//模型贴地
-      console.log(tz.value, Math.trunc(cartographic.height), 123)
-    }
-  })
-
-}
-
-/**
- * @Description: 调用模型更改函数更改高度
- * @author White Mo
- * @date 2024/3/22
- */
-function changeHeight(_tz) {
-  transferModel(window.modelObject, 0, 0, _tz, opacity.value)
-}
-
-/**
- * @Description: 调用模型更改函数更改透明度
- * @author White Mo
- * @date 2024/3/22
- */
-function changeOpacity(_opacity) {
-  transferModel(window.modelObject, 0, 0, tz.value, _opacity)
-}
-
-/**
- * @Description: 调用模型更改函数绕Z轴旋转
- * @author White Mo
- * @date 2024/3/22
- */
-function changeRotationZ(rz) {
-  rotationModel(window.modelObject, rz)
-}
-
-/**
- * @Description: 使用矩阵更改模型位置，平移模型
- * @author White Mo
- * @date 2024/3/22
- */
-function transferModel(model, _tx, _ty, _tz, _opacity) {
-  if (!checkModelLoad()) {
-    return
-  }
-  console.log("_opacity", _opacity)
-  let tx = _tx ? _tx : 0;
-  let ty = _ty ? _ty : 0;
-  let tz = _tz ? _tz : 0;
-  let opacity = _opacity ? _opacity / 100 : 1
-
-  if (model instanceof Cesium.Cesium3DTileset) {
-    const origin = model.boundingSphere.center;
-    const m = Cesium.Transforms.eastNorthUpToFixedFrame(origin);//获取到以模型中心为原点,Z轴垂直地表的局部坐标系，以矩阵表示
-    //平移
-    const tempTranslation = new Cesium.Cartesian3(tx, ty, tz);//平移向量
-    const offset = Cesium.Matrix4.multiplyByPoint(m, tempTranslation, new Cesium.Cartesian3(0, 0, 0));//将局部坐标中（0，0，0）平移到（tx,ty,tz)后的世界坐标系中终点坐标
-    const translation = Cesium.Cartesian3.subtract(offset, origin, new Cesium.Cartesian3());//终点世界坐标减去原点世界坐标得到世界坐标系下平移向量
-    model.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
-    // 透明度
-    model.style = new Cesium.Cesium3DTileStyle({
-      color: "color('rgba(255,255,255," + opacity + ")')",
-    });
-  } else if (model instanceof Cesium.Model) {
-    let origin = new Cesium.Cartesian3(0, 0, 0)
-    Cesium.Matrix4.multiplyByPoint(model.modelMatrix, origin, origin)
-    console.log(Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(origin).latitude))
-    console.log(Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(origin).longitude))
-    console.log(Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(origin).height))
-    const m = Cesium.Transforms.eastNorthUpToFixedFrame(origin);//获取到以模型中心为原点,Z轴垂直地表的局部坐标系，以矩阵表示
-
-    //平移
-    const tempTranslation = new Cesium.Cartesian3(tx, ty, tz - originTz);//平移向量
-    const offset = Cesium.Matrix4.multiplyByPoint(m, tempTranslation, new Cesium.Cartesian3(0, 0, 0));//将局部坐标中（0，0，0）平移到（tx,ty,tz)后的世界坐标系中终点坐标
-
-    const translation = Cesium.Cartesian3.subtract(offset, origin, new Cesium.Cartesian3());//终点世界坐标减去原点世界坐标得到世界坐标系下平移向量
-    Cesium.Matrix4.multiply(Cesium.Matrix4.fromTranslation(translation), model.modelMatrix, model.modelMatrix)
-    originTz = tz
+function changeModel(row){
+  console.log(row)
+  if (isTerrainLoaded()){
+    tz.value=row.tze
+    rz.value=row.rze
+  }else {
+    tz.value=row.tz
+    rz.value=row.rz
   }
 
+  modelInfo.name = row.name
+  modelInfo.path = row.path
+  modelInfo.tz = row.tz
+  modelInfo.rz = row.rz
+  modelInfo.time = row.time
+  // modelInfo.modelid = row.modelid
+  modelInfo.modelid = row.uuid
+  modelInfo.tze = row.tze
+  modelInfo.rze = row.rze
+  goModel(row)
 }
-
-/**
- * @Description: 模型绕垂直地面的Z轴旋转,先将模型平移到地心，然后将局部坐标Z轴与世界坐标Z轴对齐，进行旋转，再恢复原本Z轴朝向，平移回原位置   矩阵乘法顺序为T2R2RR1T1M0
- * @author White Mo
- * @date 2024/3/26
- */
-function rotationModel(tileset, rz) {
-
-  if (!checkModelLoad()) {
-    return
-  }
-  const origin = tileset.boundingSphere.center;
-  console.log("初始世界坐标", origin)
-  const localToWorldMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin);//获取到以模型中心为原点,Z轴垂直地表的局部坐标系的变换矩阵，左乘此矩阵可以将局部坐标变换为世界坐标
-  const originMatrix = tileset.modelMatrix//贴地变换矩阵或者初始变换矩阵M0
-  console.log("当前坐标变换矩阵", localToWorldMatrix)
-  const backToEarthCenter = new Cesium.Cartesian3(-origin.x, -origin.y, -origin.z)//回到地心位移量
-  let backToEarthCenterMatrix = Cesium.Matrix4.fromTranslation(backToEarthCenter);//回到地心变换矩阵
-  Cesium.Matrix4.multiply(backToEarthCenterMatrix, originMatrix, backToEarthCenterMatrix)//贴地变换矩阵左乘回到地心矩阵 T1M0
-  console.log("回到地心变换矩阵", backToEarthCenterMatrix)
-  // 旋转
-  //旋转模型使得Z轴与世界坐标Z轴重合
-  let arrowX = new Cesium.Cartesian3(1, 0, 0)
-  let arrowY = new Cesium.Cartesian3(0, 1, 0)
-  let arrowZ = new Cesium.Cartesian3(0, 0, 1)
-  let localArrowX = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, new Cesium.Cartesian3(1, 0, 0), new Cesium.Cartesian3)
-  let localArrowY = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, new Cesium.Cartesian3(0, 1, 0), new Cesium.Cartesian3)
-  let localArrowZ = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, new Cesium.Cartesian3(0, 0, 1), new Cesium.Cartesian3)
-  let angleToXZ = Cesium.Cartesian3.angleBetween(arrowX, new Cesium.Cartesian3(localArrowZ.x, localArrowZ.y, 0))//局部Z轴在世界坐标系XY平面上投影到X轴角度，即绕Z顺时针旋转这个角度可以到XZ平面上
-  let angleToZ = Cesium.Cartesian3.angleBetween(localArrowX, arrowZ)//然后绕Y轴顺时针旋转此角度可使得Z轴与世界坐标系Z轴重合
-  const rotationAngleToXZ = Cesium.Matrix3.fromRotationZ(-angleToXZ);//此函数正方向为逆时针
-  const rotationAngleToZ = Cesium.Matrix3.fromRotationY(-angleToZ);
-  let rotationAngleToZMatrix = Cesium.Matrix3.multiply(rotationAngleToZ, rotationAngleToXZ, new Cesium.Matrix3)
-  rotationAngleToZMatrix = Cesium.Matrix4.fromRotationTranslation(rotationAngleToZMatrix)
-  Cesium.Matrix4.multiply(rotationAngleToZMatrix, backToEarthCenterMatrix, rotationAngleToZMatrix)//局部轴校正R1T1M0
-
-
-  // 绕Z轴旋转
-  console.log(rz - originRz)
-  const rotationZ = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(rz - originRz)); // 绕Z轴旋转变换矩阵R
-  let rotationMatrix = Cesium.Matrix4.fromRotationTranslation(rotationZ)
-  Cesium.Matrix4.multiply(rotationMatrix, rotationAngleToZMatrix, rotationMatrix)//RR1T1M0
-
-  // 旋转模型回到原本朝向
-  const rotationAngleLeaveXZ = Cesium.Matrix3.fromRotationZ(angleToXZ);
-  const rotationAngleLeaveZ = Cesium.Matrix3.fromRotationY(angleToZ);
-  let rotationAngleLeaveZMatrix = Cesium.Matrix3.multiply(rotationAngleLeaveXZ, rotationAngleLeaveZ, new Cesium.Matrix3)
-  rotationAngleLeaveZMatrix = Cesium.Matrix4.fromRotationTranslation(rotationAngleLeaveZMatrix)// 局部Z轴回到原本方向
-  Cesium.Matrix4.multiply(rotationAngleLeaveZMatrix, rotationMatrix, rotationAngleLeaveZMatrix)//R2RR1T1M0
-
-  //回到原来位置
-  const backToOriginMatrix = Cesium.Matrix4.fromTranslation(origin);//从地心回归原位T2
-  // 应用变换矩阵
-
-  const lastMatrix = Cesium.Matrix4.multiply(backToOriginMatrix, rotationAngleLeaveZMatrix, new Cesium.Matrix4)//最终矩阵T2R2RR1T1M0
-
-  tileset.modelMatrix = lastMatrix
-  console.log("结束世界坐标", tileset.boundingSphere.center)
-  originRz = rz
-
-}
-
-function remove3dData() {
-  window.viewer.scene.primitives.remove(window.modelObject)
-  window.modelObject = null
-}
-
-function home() {
-  remove3dData()
-  viewer.camera.setView({
-    // Cesium的坐标是以地心为原点，一向指向南美洲，一向指向亚洲，一向指向北极州
-    // fromDegrees()方法，将经纬度和高程转换为世界坐标
-    destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500),
-    orientation: {
-      // 指向
-      heading: 6.283185307179581,
-      // 视角
-      pitch: -1.5688168484696687,
-      roll: 0.0
-    }
-  });
-}
-
-function find() {
-  if (checkModelLoad()) {
-    if (window.modelObject instanceof Cesium.Cesium3DTileset) {
-      window.viewer.zoomTo(window.modelObject)
-    } else if (window.modelObject instanceof Cesium.Model) {
-      let origin = new Cesium.Cartesian3(0, 0, 1000)
-      Cesium.Matrix4.multiplyByPoint(window.modelObject.modelMatrix, origin, origin)
-      window.viewer.camera.zoomTo({
-        destination: origin,
-        orientation: {
-          // 指向
-          heading: 6.283185307179581,
-          // 视角
-          pitch: -1.5688168484696687,
-          roll: 0.0
-        }
-      });
-    }
-  }
-}
-
-function showArrow() {
-  viewer.entities.removeAll()
+function showArrowModel() {
+  showArrow(showArrowValue)
   if (!showArrowValue) {
-    let origin = window.modelObject.boundingSphere.center
-    const localToWorldMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin);
-    let localX = new Cesium.Cartesian3(100, 0, 0)
-    let localY = new Cesium.Cartesian3(0, 100, 0)
-    let localZ = new Cesium.Cartesian3(0, 0, 100)
-    let localToWorldX = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localX, new Cesium.Cartesian3)
-    let localToWorldY = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localY, new Cesium.Cartesian3)
-    let localToWorldZ = Cesium.Matrix4.multiplyByPoint(localToWorldMatrix, localZ, new Cesium.Cartesian3)
-    viewer.entities.add({
-      name: "localX",
-      position: localToWorldX,
-      polyline: {
-        positions: [origin, localToWorldX],
-        width: 25,
-        arcType: Cesium.ArcType.NONE,
-        material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.RED),
-      },
-      label: {
-        text: 'X轴 正东方向',
-        font: '14pt monospace',
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        outlineWidth: 2,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -9)
-      }
-    });
-    viewer.entities.add({
-      name: "localY",
-      position: localToWorldY,
-      polyline: {
-        positions: [origin, localToWorldY],
-        width: 25,
-        arcType: Cesium.ArcType.NONE,
-        material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.BLUE),
-      },
-      label: {
-        text: 'Y轴 正北方向',
-        font: '14pt monospace',
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        outlineWidth: 2,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -9)
-      }
-    });
-    viewer.entities.add({
-      name: "localZ",
-      position: localToWorldZ,
-      polyline: {
-        positions: [origin, localToWorldZ],
-        width: 25,
-        arcType: Cesium.ArcType.NONE,
-        material: new Cesium.PolylineArrowMaterialProperty(Cesium.Color.YELLOW),
-      },
-      label: {
-        text: 'Z轴 垂直地面',
-        font: '14pt monospace',
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        outlineWidth: 2,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        pixelOffset: new Cesium.Cartesian2(0, -9)
-      }
-    });
     showArrowValue = true
     showArrowText.value = "隐藏坐标轴"
   } else {
@@ -647,33 +303,100 @@ function showArrow() {
     showArrowText.value = "显示坐标轴"
   }
 }
-
-function checkModelLoad() {
-  if (window.modelObject)
-    return true
-  else
-      // $confirm('未加载模型', '提示', {
-      //   confirmButtonText: '确定',
-      //   type: 'warning',
-      //   center: true
-      // }).then(function () {
-      //   rz = 0
-      //   originRz = 0
-      //   originTz = 0
-      //   opacity = 100
-      // })
-    return false
+function hideModel() {
+  hide(modelStatus)
+  if (modelStatus) {
+    // window.modelObject.show = false
+    modelStatus = false
+    modelStatusContent.value = '显示当前模型'
+  } else {
+    // window.modelObject.show = true
+    modelStatus = true
+    modelStatusContent.value = '隐藏当前模型'
+  }
 }
 
+// 更新模型位置
+function updataPosition() {
+
+  if (isTerrainLoaded()) {
+    let data = {
+      rze: rz.value,
+      tze: tz.value,
+      uuid: modelInfo.modelid
+    }
+    console.log(data,"update data")
+    updataModelElevation(data).then(res => {
+      ElMessage({
+        showClose: true,
+        message: '加载地形情况下，更新成功',
+        type: 'success',
+        duration: 2000,
+      })
+      initModelTable()
+    })
+  }
+
+  else {
+    let data = {
+      rz: rz.value,
+      tz: tz.value,
+      uuid: modelInfo.modelid
+    }
+    console.log(data,"update data")
+    updataModelNoElevation(data).then(res => {
+      ElMessage({
+        showClose: true,
+        message: '不加载地形情况下，更新成功',
+        type: 'success',
+        duration: 2000,
+      })
+      initModelTable()
+    })
+  }
+}
+
+//监听地形
+function watchTerrainProviderChanged() {
+  window.viewer.scene.terrainProviderChanged.addEventListener(terrainProvider => {
+    if (isTerrainLoaded()) {
+      tz.value = modelInfo.tze
+      rz.value = modelInfo.rze
+      changeHeight(modelInfo.tze)
+      rotationModel(window.modelObject, rz.value)
+      findModel()
+    } else {
+      tz.value = modelInfo.tz
+      rz.value = modelInfo.rz
+      changeHeight(modelInfo.tz)
+      rotationModel(window.modelObject, rz.value)
+      findModel()
+    }
+  });
+}
+function changeHeight(_tz) {
+  tz.value=_tz
+  transferModel(window.modelObject, 0, 0, _tz, opacity.value)
+}
+function changeRotationZ(_rz) {
+  console.log(modelInfo,"modelInfo")
+  rz.value=_rz
+  rotationModel(window.modelObject, _rz)
+}
+function changeOpacity(_opacity) {
+  opacity.value=_opacity
+  transferModel(window.modelObject, 0, 0, tz.value, _opacity)
+}
 //-----------------------模型table----------------------------
 
 // 初始化模型table数据
 function initModelTable() {
   getAllModel().then(res => {
+    console.log(res)
     modelList = res
-    total.value = res.length
+    total.value = modelList.length
     tableData.value = getPageArr(modelList)
-    console.log(modelList, tableData)
+    console.log("modelList, tableData", modelList, tableData)
   })
 }
 
@@ -718,20 +441,42 @@ function tableColor({row, column, rowIndex, columnIndex}) {
   }
 }
 
+/**
+ * 分页
+ * @param data
+ * @returns {*[]}
+ */
 //数组切片
 function getPageArr(data) {
   let arr = []
+
+  // 打印分页的起始和结束位置
   let start = (currentPage.value - 1) * pageSize.value
   let end = currentPage.value * pageSize.value
+  console.log('Start index:', start);  // 打印起始索引
+  console.log('End index:', end);      // 打印结束索引
+
   if (end > total.value) {
     end = total.value
   }
+
+  console.log('Adjusted End index:', end); // 打印调整后的结束索引
+
+  // 遍历数据，打印每个数据项
   for (; start < end; start++) {
-    data[start].show = false
-    arr.push(data[start])
+    // 检查是否存在数据项
+    if (data[start]) {
+      console.log('Data item:', data[start]);  // 打印每个数据项
+      data[start].show = false
+      arr.push(data[start])
+    } else {
+      console.log('No data at index', start);  // 如果没有数据，打印当前索引
+    }
   }
+  console.log('Current page data:', arr);  // 打印当前页的数据
   return arr
 }
+
 
 //`每页 ${val} 条`
 function handleSizeChange(val) {
@@ -747,54 +492,9 @@ function handleCurrentChange(val) {
   // console.log(`当前页: ${val}`);
 }
 
-//-----------------------------------------------------------
 
-function goModel(row) {
-  modelInfo.name = row.name
-  modelInfo.path = row.path
-  modelInfo.tz = row.tz
-  modelInfo.rz = row.rz
-  modelInfo.time = row.time
-  modelInfo.modelid = row.modelid
-  modelInfo.tze = row.tze
-  modelInfo.rze = row.rze
-  selectModel(row.path)
-}
 
-// 更新模型位置
-function updataPosition() {
-  if (isTerrainLoaded()) {
-    let data = {
-      rze: rz.value,
-      tze: tz.value,
-      modelid: modelInfo.modelid
-    }
-    updataModelElevation(data).then(res => {
-      ElMessage({
-        showClose: true,
-        message: '加载地形情况下，更新成功',
-        type: 'success',
-        duration: 2000,
-      })
-      initModelTable()
-    })
-  } else {
-    let data = {
-      rz: rz.value,
-      tz: tz.value,
-      modelid: modelInfo.modelid
-    }
-    updataModelNoElevation(data).then(res => {
-      ElMessage({
-        showClose: true,
-        message: '不加载地形情况下，更新成功',
-        type: 'success',
-        duration: 2000,
-      })
-      initModelTable()
-    })
-  }
-}
+//----------------------无用法-------------------------------------
 
 // 打开对话框
 function openDialog(titleM, row) {
@@ -896,11 +596,85 @@ function updataMCommit() {
     console.log(res, '编辑')
   })
 }
+
+function selectGltfModel() {
+  remove3dData()
+  tz.value = 0
+  originTz = 0
+
+  let cartesian = new Cesium.Cartesian3.fromDegrees(103.00, 29.98, 0.0)
+  let modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(cartesian);
+
+  let model = Cesium.Model.fromGltf({
+    url: './peilou/万达.gltf',
+    modelMatrix: modelMatrix,
+    id: 'wanda',
+    minimumPixelSize: 128,
+    scale: 1,
+  })
+  window.modelObject = model
+  window.viewer.scene.primitives.add(window.modelObject)
+  console.log(window.modelObject)
+  window.modelObject.readyPromise.then(function () {
+
+    let origin = new Cesium.Cartesian3(0, 0, 1000)
+    Cesium.Matrix4.multiplyByPoint(window.modelObject.modelMatrix, origin, origin)
+    window.viewer.camera.zoomTo({
+      destination: origin,
+      orientation: {
+        // 指向
+        heading: 6.283185307179581,
+        // 视角
+        pitch: -1.5688168484696687,
+        roll: 0.0
+      }
+    });
+  })
+
+}
+
+function home() {
+  remove3dData()
+  viewer.camera.setView({
+    // Cesium的坐标是以地心为原点，一向指向南美洲，一向指向亚洲，一向指向北极州
+    // fromDegrees()方法，将经纬度和高程转换为世界坐标
+    destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 1500),
+    orientation: {
+      // 指向
+      heading: 6.283185307179581,
+      // 视角
+      pitch: -1.5688168484696687,
+      roll: 0.0
+    }
+  });
+}
+
+// 搜索按钮
+function handleQuery() {
+  const searchKey = queryParams.value.trim();  // 获取搜索关键字
+
+  querytiltModelData(searchKey || undefined)  // 如果没有搜索关键字，传递 `undefined` 获取所有数据
+      .then(res => {
+        modelList = res.data
+        console.log("获取的数据:", modelList); // 打印获取的数据
+        total.value = modelList.length;  // 更新分页总数
+        tableData.value = getPageArr(modelList);  // 获取分页数据
+      })
+      .catch(error => {
+        console.error("查询时出现错误:", error.message || error);
+      });
+}
+
+function resetQuery() {
+  queryParams.value = '';
+  initModelTable();// 清空搜索输入框
+}
+
 </script>
 
 <style scoped>
 .el-pagination {
-  margin-top: 10px;
+  margin-top: 21px;
   justify-content: center;
 }
 
@@ -995,14 +769,14 @@ function updataMCommit() {
   padding: 10px;
   border-radius: 5px;
   width: 560px;
-  top: 265px;
+  top: 43%;
   left: 10px;
   z-index: 10; /* 更高的层级 */
   background-color: rgba(40, 40, 40, 0.7);
 }
 
 .button-container {
-  height: 195px;
+  height: 36%;
   width: 560px;
   position: absolute;
   padding: 10px;

@@ -80,3 +80,21 @@ export function getEqById(data) {
     })
 
 }
+
+export function getNearbyVillage(position) {
+    return request({
+        url: '/villageCommunity/getNearbyVillage',
+        method: 'post',
+        data: position
+    })
+
+}
+
+export function getGeomById(data) {
+    return request({
+        url: '/system/getGeomById',
+        method: 'get',
+        params:{id:data}
+    })
+
+}

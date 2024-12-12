@@ -2,16 +2,17 @@ import request from '@/utils/request'
 
 
 // 获取 应急响应
-export function getEmergencyResponse() {
+export function getEmergencyResponse(data) {
     return request({
         url: '/timeLine/emergencyResponse',
         method: 'get',
+        params:data
     })
 }
 // 获取 人员伤亡
 export function getRescueActionCasualties(data) {
     return request({
-        url: '/timeLine/rescueActionCasualties',
+        url: '/casualty/getAllRecordInfo',
         method: 'get',
         params:data
     });
@@ -26,9 +27,10 @@ export function getRescueTeam(data) {
     })
 }
 // 获取 新闻
-export function getNews() {
+export function getNews(data) {
     return request({
         url: '/timeLine/news',
         method: 'get',
+        params: data
     })
 }

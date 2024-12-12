@@ -58,6 +58,8 @@ import {plotType} from '@/cesium/plot/plotType.js'
 import {useCesiumStore} from "@/store/modules/cesium.js";
 import {insertPlotAndInfo} from '@/api/system/plot.js'
 import arrow from "@/cesium/drawArrow/drawPlot.js";
+import {getPlot} from "../../api/system/plot.js";
+import cesiumPlot from '@/cesium/plot/cesiumPlot'
 
 export default {
   name: "addPolygonDialog",
@@ -120,6 +122,7 @@ export default {
     },
     //确认添加标注
     commitAddNote() {
+
       let that = this
       // 创建一个新的对象，只保留字段和它们的 value 值
       let typeInfoValues = {};
@@ -138,14 +141,23 @@ export default {
         // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
         //   this.$emit('')
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
+        if(data.plot.plotType !== "攻击箭头" && data.plot.plotType !== "钳击箭头" && data.plot.plotType !== "直线箭头"){
+          this.$emit('wsSendPoint', JSON.stringify({type: "polygon", operate: "add", data}))
+        }else{
+          console.log("klo")
+          this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "add", data}))
+        }
+        this.$emit('sendPlot', data.plot.plotId,data.plot.plotType)
         ElMessage({
           message: '添加成功',
           type: 'success',
         })
+        this.initPolygon(data.plot.earthquakeId)
         // 清空typeInfo信息、starttime、endtime
         this.typeInfo = null
         this.starttime = null
         this.endtime = null
+
         window.document.oncontextmenu = function(){  // 允许默认菜单弹出
           return true;
         }
@@ -167,6 +179,7 @@ export default {
           startTime:null,
           endTime:null,
           severity:null,
+          angle:null,
           isDeleted:null,
         },
         plotinfo:{
@@ -201,6 +214,7 @@ export default {
       assemblyData.plot.geom = data1.situationPlotData[0].geom
       assemblyData.plot.elevation = data1.situationPlotData[0].elevation
       assemblyData.plot.icon = data1.situationPlotData[0].icon
+      assemblyData.plot.angle = data1.situationPlotData[0].angle
       assemblyData.plot.startTime = this.timestampToTime(startTime)
       assemblyData.plot.endTime = this.timestampToTime(endTime)
       // 组装plotinfo)
@@ -211,6 +225,30 @@ export default {
         // console.log("assemblyData.plotinfo",assemblyData.plotinfo)
       }
       return assemblyData
+    },
+    initPolygon(eqid) {
+      let that = this
+      getPlot({eqid}).then(res => {
+        console.log("执行")
+        let data = res
+        let polygonArr = data.filter(e => e.drawtype === 'polygon');
+        // console.log('index.polygonArr', polygonArr)
+        let polygonMap = {};
+
+        polygonArr.forEach(item => {
+          if (!polygonMap[item.plotId]) {
+            polygonMap[item.plotId] = [];
+          }
+          polygonMap[item.plotId].push(item);
+        });
+        Object.keys(polygonMap).forEach(plotId => {
+          let polygonData = polygonMap[plotId];
+          that.getDrawPolygonInfo(polygonData);
+        });
+      })
+    },
+    getDrawPolygonInfo(info) {
+      cesiumPlot.getDrawPolygon(info)
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式
     timestampToTime(timestamp) {

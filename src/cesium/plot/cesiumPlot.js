@@ -2,6 +2,8 @@ import Polyline from "./Polyline";
 import Polygon from "./Polygon";
 import Point from "./Point"
 import * as Cesium from 'cesium'
+import Arrow from "@/cesium/drawArrow/drawPlot.js";
+import {getPlotInfos} from "@/api/system/plot.js";
 
 let cesiumPlot= {
   viewer:null,
@@ -29,13 +31,37 @@ let cesiumPlot= {
     this.point.drawPoint(pointInfo)
   },
 
-  drawPoints(points,bool){
+  drawPoints(points,bool,stoptime){
     console.log("?",points)
-    this.point.drawPoints(points,bool)
+    console.log("?",bool)
+    this.point.drawPoints(points,bool,stoptime)
   },
 
   deletePoint(point){
     this.point.deletePoint(point)
+  },
+  deletePointById(plotId){
+    this.point.deletePointById(plotId)
+  },
+  deleteMakerById(plotId,drawtype,plotType){
+    // console.log()
+    if(drawtype==="point"){
+      this.deletePointById(plotId)
+    }
+    else if(drawtype==="polyline"){
+      getPlotInfos({plotId, plotType}).then(res => {
+        for (let i = 0; i <res.plotInfo.geom.coordinates.length; i++) {
+          viewer.entities.removeById(plotId + 'point' + (i + 1))
+        }
+      })
+      viewer.entities.removeById(plotId)
+    }
+    else if(drawtype==="polygon"){
+      window.viewer.entities.removeById(plotId)
+    }
+    else if (drawtype === "straight"||drawtype === "attack"||drawtype === "pincer") {
+      Arrow.clearById(plotId)
+    }
   },
   //----------------------------------------------------------------
 
@@ -119,8 +145,8 @@ let cesiumPlot= {
   //------------------------------面---------------------------------
   drawActivatePolygon(type,img,eqid,obj) {
     let name = type
-    if(type==="崩塌"||type==="滑坡"||type==="泥石流"||type==="地面塌陷"){
-      type = "区域面"
+    if(type==="崩塌"||type==="滑坡"||type==="泥石流"||type==="地面塌陷"||type === "地面沉降"){
+      type = "标绘面"
     }else if(type==="未搜索区域"||type==="已搜索区域"||type==="未营救区域"||type==="已营救区域"||type==="正在营救区域") {
       type = "区域面"
     }

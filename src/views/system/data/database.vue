@@ -4,6 +4,7 @@
       <el-input style="width: 10vw;margin-right:1vw ; font-size: 15px" v-model="queryParams.queryValue"
                 placeholder="请输入查询的表名或备注"/>
       <el-button type="primary" @click="getList">搜索</el-button>
+      <el-button type="primary" @click="handleAdd">新增</el-button>
       <el-button type="primary" @click="handleBackupAll">一键备份</el-button>
       <span style="float: right;color: red">(系统每天0点自动备份，备份文件保存在云服务器backup文件夹下）</span>
     </div>
@@ -41,13 +42,13 @@
 
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button type="text" disabled @click="handleUpdate(scope.row)">
+          <el-button type="text" @click="handleUpdate()">
             <el-icon>
               <Edit/>
             </el-icon>
             修改
           </el-button>
-          <el-button type="text" disabled @click="handleDelete(scope.row)">
+          <el-button type="text" @click="handleDelete()">
             <el-icon>
               <Delete/>
             </el-icon>
@@ -73,14 +74,29 @@
           class="pagination"
       />
     </div>
-    <el-dialog v-model="isBackupDialogVisible" title="备份中" style="top: 20vh" width="500">
-      <span>正在备份中...</span>
+    <el-dialog v-model="isBackupDialogVisible" title="备份中" style="top: 25vh" width="500">
+      <div style="font-size: 17px">
+        <span>正在备份中...</span>
+      </div>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="isBackupDialogVisible = false">关闭</el-button>
         </div>
       </template>
     </el-dialog>
+    <el-dialog v-model="isNoPermission" title="提示" style="top: 25vh" min-width="500">
+      <div style="font-size: 17px">
+        <span>您没有权限使用此功能，如需操作，请联系管理员进行操作。</span>
+        <br>
+        <span>联系方式：176-222-222-222</span>
+      </div>
+      <template #footer>
+        <div class="dialog-footer" style="text-align: right;">
+          <el-button @click="isNoPermission = false" type="primary">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -94,6 +110,7 @@ const loading = ref(false)
 const total = ref(0)
 const listTable = ref([])
 const isBackupDialogVisible = ref(false)
+const isNoPermission = ref(false)
 const queryParams = ref({
   pageNum: 1,
   pageSize: 10,
@@ -144,9 +161,6 @@ const getList = () => {
   })
 }
 
-const handleDelete = (row) => {
-}
-
 const handleBackup = (tableName) => {
   isBackupDialogVisible.value = true;
   backup(tableName).then(response => {
@@ -182,10 +196,16 @@ const handleBackupAll = () => {
     isBackupDialogVisible.value = false;
   });
 }
-const handleUpdate = (row) => {
+const handleUpdate = () => {
+  isNoPermission.value = true
 }
 
 const handleAdd = () => {
+  isNoPermission.value = true
+}
+
+const handleDelete = () => {
+  isNoPermission.value = true
 }
 </script>
 

@@ -1,19 +1,24 @@
 import * as Cesium from 'cesium'
+import  {StraightArrow, AttackArrow, PincerArrow,} from "@/cesium/drawArrow/arrowClass.js";
+import arrow from "@/cesium/drawArrow/drawPlot.js";
+import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 
 let webSocket
 let ip = "ws://localhost:8080/ws/"
-
+let message=''
+// import cesiumPlot from '@/cesium/plot/cesiumPlot'
 export function initWebSocket(eqid) {
     const wsuri = ip + eqid;
     if (typeof (WebSocket) == "undefined") {
         console.log("您的浏览器不支持WebSocket");
     } else {
         webSocket = new WebSocket(wsuri);
-        webSocket.onmessage = websocketonmessage;
+        // webSocket.onmessage = websocketonmessage;
         webSocket.onopen = websocketonopen;
         webSocket.onerror = websocketonerror;
         webSocket.onclose = websocketclose;
         webSocket.eqid = eqid
+       // webSocket.message=e
     }
     return webSocket
 }
@@ -34,36 +39,53 @@ function websocketclose(e) {
     console.log('断开连接', e);
 }
 
-function websocketonmessage(e) {
+export function websocketonmessage(e) {
+    message=e
+    console.log("e",e)
     try {
+        console.log("socketmessage",JSON.parse(e.data))
         let markType = JSON.parse(e.data).type
         let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
         if (markOperate === "add") {
-            if (this.eqid === JSON.parse(e.data).data.eqid) {
+            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
                 let markData = JSON.parse(e.data).data
                 wsAdd(markType, markData)
             }
         }
         else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id
+            console.log(id, 567)
             if (markType === "point") {
-                window.viewer.entities.removeById(id)
-            }
-            else if (markType === "polyline") {
+                // 其实只有这里有用
+                console.log(5629)
+                let polygonRemoved = window.viewer.entities.removeById(id);
+                let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
+                window.viewer.entities.removeById(id + "_polygon")
+                console.log(polygonRemoved, pointDataRemoved);
+
+            } else if (markType === "polyline") {
                 let polyline = window.viewer.entities.getById(id)
                 let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
                 polylinePosition.pointPosition.forEach((item, index) => {
                     window.viewer.entities.remove(item)
                 })
                 window.viewer.entities.remove(polyline)
-            }
-            else if (markType === "polygon") {
+            } else if (markType === "polygon") {
                 let polygon = window.viewer.entities.getById(id)
+                console.log("1123",polygon)
                 let polygonPosition = polygon.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
                 polygonPosition.linePoint.forEach((item, index) => {
                     window.viewer.entities.remove(item)
                 })
                 window.viewer.entities.remove(polygon)
+                window.viewer.entities.removeById(id + "_polygon")
+            } else if(markType === "arrow"){
+                console.log("arrow------------------")
+                arrow.clearById(id)
+                let polygonRemoved = window.viewer.entities.removeById(id);
+                let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
+
+                console.log(polygonRemoved, pointDataRemoved);
             }
         }
     }
@@ -74,31 +96,35 @@ function websocketonmessage(e) {
 
 function wsAdd(type, data) {
     if (type === "point") {
-        window.viewer.entities.add({
-            id: data.plotid,
-            position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.height)),
-            billboard: {
-                image: data.img,
-                width: 50,//图片宽度,单位px
-                height: 50,//图片高度，单位px // 会影响data大小，离谱
-                eyeOffset: new Cesium.Cartesian3(0, 0, 0),//与坐标位置的偏移距离
-                color: Cesium.Color.WHITE.withAlpha(1),//颜色
-                scale: 0.8,//缩放比例
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-                depthTest: false,//禁止深度测试但是没有下面那句有用
-                disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
-            },
-            properties: {
-                data
-            }
-        })
+        let points = [];
+        let point = {
+            earthquakeId: data.plot.earthquakeId,
+            plotId: data.plot.plotId,
+            time: data.plot.creationTime.replace("T", " "),
+            plotType: data.plot.plotType,
+            drawtype: data.plot.drawtype,
+            latitude: Number(data.plot.geom.coordinates[1]),
+            longitude: Number(data.plot.geom.coordinates[0]),
+            height: Number(data.plot.elevation),
+            icon:  data.plot.icon
+        };
+        points.push(point); // 收集点数据
+        cesiumPlot.drawPoints(points,true,3000);
     } else if (type === "polyline") {
+        // 绘制所需的信息
+        let points = data.plot.geom.coordinates
+        let plotId = data.plot.plotId
+        let elevation = data.plot.elevation
+        let type = data.plot.plotType
+        let img = data.plot.icon
+        let plotType = data.plot.plotType
+        // 构成线的所有实体点
         let pointLinePoints = []
-        for (let i = 0; i < data.positions.length; i++) {
+        for (let i = 0; i < points.length; i++) {
             let p = window.viewer.entities.add({
                 show: false,
-                position: data.positions[i],
-                id: data.id + 'point' + (i + 1),
+                position: new Cesium.Cartesian3(points[i][0], points[i][1], elevation),
+                id: plotId + 'point' + (i + 1),
                 point: {
                     pixelSize: 1,
                     color: Cesium.Color.RED,
@@ -111,11 +137,21 @@ function wsAdd(type, data) {
             });
             pointLinePoints.push(p)
         }
-        let material = getMaterial(data.type, data.img)
+        let material = getMaterial(type, img)
+        let linePostion = []
+        let linedata = [{
+            plotId: plotId,
+            plotType: plotType,
+            drawtype: "polyline",
+        }]
+        points.forEach(e => {
+            // 线的positions需要数组里的点都是Cartesian3类型
+            linePostion.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
+        })
         window.viewer.entities.add({
-            id: data.id, //+ 'polyline',
+            id: plotId, //+ 'polyline',
             polyline: {
-                positions: data.positions,
+                positions: linePostion,
                 width: 5,
                 material: material,
                 // material: Cesium.Color.YELLOW,
@@ -124,38 +160,30 @@ function wsAdd(type, data) {
             },
             properties: {
                 pointPosition: pointLinePoints,
+                data: linedata
             }
         })
     } else if (type === "polygon") {
-        let pointLinePoints = []
-        for (let i = 0; i < data.positions.length; i++) {
-            let p = window.viewer.entities.add({
-                id: data.id + 'Point' + (i + 1),
-                show: false,
-                position: data.positions[i],
-                point: {
-                    color: Cesium.Color.SKYBLUE,
-                    pixelSize: 10,
-                    outlineColor: Cesium.Color.YELLOW,
-                    outlineWidth: 3,
-                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                },
-            });
-            pointLinePoints.push(p)
+        let polygonArr = [data.plot]
+        cesiumPlot.getDrawPolygon(polygonArr);
+    }else if(type === "arrow"){
+        console.log(45678)
+
+        // let positions = []
+        // let arrowData = data.plot
+
+        // for (let i = 0; i < arrowData.geom.coordinates.length; i++) {
+        //     let cart3 = Cesium.Cartesian3.fromDegrees(arrowData.geom.coordinates[i][0], arrowData.geom.coordinates[i][1]);
+        //     positions.push(cart3);
+        // }
+        if(data.plot.plotType==="攻击箭头"){
+            arrow.showAttackArrow([data.plot])
+        }else if(data.plot.plotType==="钳击箭头"){
+            arrow.showPincerArrow([data.plot])
+        }else if(data.plot.plotType==="直线箭头"){
+            arrow.showStraightArrow([data.plot])
         }
-        window.viewer.entities.add({
-            id: data.id,
-            polygon: {
-                hierarchy: data.positions,
-                material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(.2),
-                clampToGround: true,
-            },
-            properties: {
-                pointPosition: data.positions,
-                linePoint: pointLinePoints,
-            }
-        })
+
     }
 }
 
@@ -218,4 +246,15 @@ function getMaterial(type, img) {
         })
         return NORMALLINE
     }
+}
+
+function distinguishPolygonId(polygonArr) {
+    let polygonIdArr = []
+    polygonArr.forEach(element => {
+        if (!polygonIdArr.includes(element.plotId)) {
+            polygonIdArr.push(element.plotId)
+        }
+    })
+    // console.log("数据库",polygonIdArr)
+    return polygonIdArr
 }

@@ -145,7 +145,9 @@ export default {
         geometry: '位置',
 
         // 来自历史地震
+        type: "震中",
         historyEqTime: '发震时间',
+        earthquakeName: '地震名称',
         position: '位置',
         magnitude: '震级',
         depth: '震源深度'
@@ -225,7 +227,7 @@ export default {
   height: 50vh;
   width: 789px;
   padding: 20px;
-  z-index: 10;
+  z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   /*border: 2px solid #18c9dc;*/
   overflow-y: auto;

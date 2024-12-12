@@ -1,0 +1,730 @@
+[
+  {
+    "county": "锦江区",
+    "adCode": 510104
+  },
+  {
+    "county": "青羊区",
+    "adCode": 510105
+  },
+  {
+    "county": "金牛区",
+    "adCode": 510106
+  },
+  {
+    "county": "武侯区",
+    "adCode": 510107
+  },
+  {
+    "county": "成华区",
+    "adCode": 510108
+  },
+  {
+    "county": "龙泉驿区",
+    "adCode": 510112
+  },
+  {
+    "county": "青白江区",
+    "adCode": 510113
+  },
+  {
+    "county": "新都区",
+    "adCode": 510114
+  },
+  {
+    "county": "温江区",
+    "adCode": 510115
+  },
+  {
+    "county": "双流区",
+    "adCode": 510116
+  },
+  {
+    "county": "郫都区",
+    "adCode": 510117
+  },
+  {
+    "county": "新津区",
+    "adCode": 510118
+  },
+  {
+    "county": "金堂县",
+    "adCode": 510121
+  },
+  {
+    "county": "大邑县",
+    "adCode": 510129
+  },
+  {
+    "county": "蒲江县",
+    "adCode": 510131
+  },
+  {
+    "county": "都江堰市",
+    "adCode": 510181
+  },
+  {
+    "county": "彭州市",
+    "adCode": 510182
+  },
+  {
+    "county": "邛崃市",
+    "adCode": 510183
+  },
+  {
+    "county": "崇州市",
+    "adCode": 510184
+  },
+  {
+    "county": "简阳市",
+    "adCode": 510185
+  },
+  {
+    "county": "自流井区",
+    "adCode": 510302
+  },
+  {
+    "county": "贡井区",
+    "adCode": 510303
+  },
+  {
+    "county": "大安区",
+    "adCode": 510304
+  },
+  {
+    "county": "沿滩区",
+    "adCode": 510311
+  },
+  {
+    "county": "荣县",
+    "adCode": 510321
+  },
+  {
+    "county": "富顺县",
+    "adCode": 510322
+  },
+  {
+    "county": "东区",
+    "adCode": 510402
+  },
+  {
+    "county": "西区",
+    "adCode": 510403
+  },
+  {
+    "county": "仁和区",
+    "adCode": 510411
+  },
+  {
+    "county": "米易县",
+    "adCode": 510421
+  },
+  {
+    "county": "盐边县",
+    "adCode": 510422
+  },
+  {
+    "county": "江阳区",
+    "adCode": 510502
+  },
+  {
+    "county": "纳溪区",
+    "adCode": 510503
+  },
+  {
+    "county": "龙马潭区",
+    "adCode": 510504
+  },
+  {
+    "county": "泸县",
+    "adCode": 510521
+  },
+  {
+    "county": "合江县",
+    "adCode": 510522
+  },
+  {
+    "county": "叙永县",
+    "adCode": 510524
+  },
+  {
+    "county": "古蔺县",
+    "adCode": 510525
+  },
+  {
+    "county": "旌阳区",
+    "adCode": 510603
+  },
+  {
+    "county": "罗江区",
+    "adCode": 510604
+  },
+  {
+    "county": "中江县",
+    "adCode": 510623
+  },
+  {
+    "county": "广汉市",
+    "adCode": 510681
+  },
+  {
+    "county": "什邡市",
+    "adCode": 510682
+  },
+  {
+    "county": "绵竹市",
+    "adCode": 510683
+  },
+  {
+    "county": "涪城区",
+    "adCode": 510703
+  },
+  {
+    "county": "游仙区",
+    "adCode": 510704
+  },
+  {
+    "county": "安州区",
+    "adCode": 510705
+  },
+  {
+    "county": "三台县",
+    "adCode": 510722
+  },
+  {
+    "county": "盐亭县",
+    "adCode": 510723
+  },
+  {
+    "county": "梓潼县",
+    "adCode": 510725
+  },
+  {
+    "county": "北川羌族自治县",
+    "adCode": 510726
+  },
+  {
+    "county": "平武县",
+    "adCode": 510727
+  },
+  {
+    "county": "江油市",
+    "adCode": 510781
+  },
+  {
+    "county": "利州区",
+    "adCode": 510802
+  },
+  {
+    "county": "昭化区",
+    "adCode": 510811
+  },
+  {
+    "county": "朝天区",
+    "adCode": 510812
+  },
+  {
+    "county": "旺苍县",
+    "adCode": 510821
+  },
+  {
+    "county": "青川县",
+    "adCode": 510822
+  },
+  {
+    "county": "剑阁县",
+    "adCode": 510823
+  },
+  {
+    "county": "苍溪县",
+    "adCode": 510824
+  },
+  {
+    "county": "船山区",
+    "adCode": 510903
+  },
+  {
+    "county": "安居区",
+    "adCode": 510904
+  },
+  {
+    "county": "蓬溪县",
+    "adCode": 510921
+  },
+  {
+    "county": "大英县",
+    "adCode": 510923
+  },
+  {
+    "county": "射洪市",
+    "adCode": 510981
+  },
+  {
+    "county": "东兴区",
+    "adCode": 511011
+  },
+  {
+    "county": "威远县",
+    "adCode": 511024
+  },
+  {
+    "county": "资中县",
+    "adCode": 511025
+  },
+  {
+    "county": "隆昌市",
+    "adCode": 511083
+  },
+  {
+    "county": "市中区",
+    "adCode": 511102
+  },
+  {
+    "county": "沙湾区",
+    "adCode": 511111
+  },
+  {
+    "county": "五通桥区",
+    "adCode": 511112
+  },
+  {
+    "county": "金口河区",
+    "adCode": 511113
+  },
+  {
+    "county": "犍为县",
+    "adCode": 511123
+  },
+  {
+    "county": "井研县",
+    "adCode": 511124
+  },
+  {
+    "county": "夹江县",
+    "adCode": 511126
+  },
+  {
+    "county": "沐川县",
+    "adCode": 511129
+  },
+  {
+    "county": "峨边彝族自治县",
+    "adCode": 511132
+  },
+  {
+    "county": "马边彝族自治县",
+    "adCode": 511133
+  },
+  {
+    "county": "峨眉山市",
+    "adCode": 511181
+  },
+  {
+    "county": "顺庆区",
+    "adCode": 511302
+  },
+  {
+    "county": "高坪区",
+    "adCode": 511303
+  },
+  {
+    "county": "嘉陵区",
+    "adCode": 511304
+  },
+  {
+    "county": "南部县",
+    "adCode": 511321
+  },
+  {
+    "county": "营山县",
+    "adCode": 511322
+  },
+  {
+    "county": "蓬安县",
+    "adCode": 511323
+  },
+  {
+    "county": "仪陇县",
+    "adCode": 511324
+  },
+  {
+    "county": "西充县",
+    "adCode": 511325
+  },
+  {
+    "county": "阆中市",
+    "adCode": 511381
+  },
+  {
+    "county": "东坡区",
+    "adCode": 511402
+  },
+  {
+    "county": "彭山区",
+    "adCode": 511403
+  },
+  {
+    "county": "仁寿县",
+    "adCode": 511421
+  },
+  {
+    "county": "洪雅县",
+    "adCode": 511423
+  },
+  {
+    "county": "丹棱县",
+    "adCode": 511424
+  },
+  {
+    "county": "青神县",
+    "adCode": 511425
+  },
+  {
+    "county": "翠屏区",
+    "adCode": 511502
+  },
+  {
+    "county": "南溪区",
+    "adCode": 511503
+  },
+  {
+    "county": "叙州区",
+    "adCode": 511504
+  },
+  {
+    "county": "江安县",
+    "adCode": 511523
+  },
+  {
+    "county": "长宁县",
+    "adCode": 511524
+  },
+  {
+    "county": "高县",
+    "adCode": 511525
+  },
+  {
+    "county": "珙县",
+    "adCode": 511526
+  },
+  {
+    "county": "筠连县",
+    "adCode": 511527
+  },
+  {
+    "county": "兴文县",
+    "adCode": 511528
+  },
+  {
+    "county": "屏山县",
+    "adCode": 511529
+  },
+  {
+    "county": "广安区",
+    "adCode": 511602
+  },
+  {
+    "county": "前锋区",
+    "adCode": 511603
+  },
+  {
+    "county": "岳池县",
+    "adCode": 511621
+  },
+  {
+    "county": "武胜县",
+    "adCode": 511622
+  },
+  {
+    "county": "邻水县",
+    "adCode": 511623
+  },
+  {
+    "county": "华蓥市",
+    "adCode": 511681
+  },
+  {
+    "county": "通川区",
+    "adCode": 511702
+  },
+  {
+    "county": "达川区",
+    "adCode": 511703
+  },
+  {
+    "county": "宣汉县",
+    "adCode": 511722
+  },
+  {
+    "county": "开江县",
+    "adCode": 511723
+  },
+  {
+    "county": "大竹县",
+    "adCode": 511724
+  },
+  {
+    "county": "渠县",
+    "adCode": 511725
+  },
+  {
+    "county": "万源市",
+    "adCode": 511781
+  },
+  {
+    "county": "雨城区",
+    "adCode": 511802
+  },
+  {
+    "county": "名山区",
+    "adCode": 511803
+  },
+  {
+    "county": "荥经县",
+    "adCode": 511822
+  },
+  {
+    "county": "汉源县",
+    "adCode": 511823
+  },
+  {
+    "county": "石棉县",
+    "adCode": 511824
+  },
+  {
+    "county": "天全县",
+    "adCode": 511825
+  },
+  {
+    "county": "芦山县",
+    "adCode": 511826
+  },
+  {
+    "county": "宝兴县",
+    "adCode": 511827
+  },
+  {
+    "county": "巴州区",
+    "adCode": 511902
+  },
+  {
+    "county": "恩阳区",
+    "adCode": 511903
+  },
+  {
+    "county": "通江县",
+    "adCode": 511921
+  },
+  {
+    "county": "南江县",
+    "adCode": 511922
+  },
+  {
+    "county": "平昌县",
+    "adCode": 511923
+  },
+  {
+    "county": "雁江区",
+    "adCode": 512002
+  },
+  {
+    "county": "安岳县",
+    "adCode": 512021
+  },
+  {
+    "county": "乐至县",
+    "adCode": 512022
+  },
+  {
+    "county": "马尔康市",
+    "adCode": 513201
+  },
+  {
+    "county": "汶川县",
+    "adCode": 513221
+  },
+  {
+    "county": "理县",
+    "adCode": 513222
+  },
+  {
+    "county": "茂县",
+    "adCode": 513223
+  },
+  {
+    "county": "松潘县",
+    "adCode": 513224
+  },
+  {
+    "county": "九寨沟县",
+    "adCode": 513225
+  },
+  {
+    "county": "金川县",
+    "adCode": 513226
+  },
+  {
+    "county": "小金县",
+    "adCode": 513227
+  },
+  {
+    "county": "黑水县",
+    "adCode": 513228
+  },
+  {
+    "county": "壤塘县",
+    "adCode": 513230
+  },
+  {
+    "county": "阿坝县",
+    "adCode": 513231
+  },
+  {
+    "county": "若尔盖县",
+    "adCode": 513232
+  },
+  {
+    "county": "红原县",
+    "adCode": 513233
+  },
+  {
+    "county": "康定市",
+    "adCode": 513301
+  },
+  {
+    "county": "泸定县",
+    "adCode": 513322
+  },
+  {
+    "county": "丹巴县",
+    "adCode": 513323
+  },
+  {
+    "county": "九龙县",
+    "adCode": 513324
+  },
+  {
+    "county": "雅江县",
+    "adCode": 513325
+  },
+  {
+    "county": "道孚县",
+    "adCode": 513326
+  },
+  {
+    "county": "炉霍县",
+    "adCode": 513327
+  },
+  {
+    "county": "甘孜县",
+    "adCode": 513328
+  },
+  {
+    "county": "新龙县",
+    "adCode": 513329
+  },
+  {
+    "county": "德格县",
+    "adCode": 513330
+  },
+  {
+    "county": "白玉县",
+    "adCode": 513331
+  },
+  {
+    "county": "石渠县",
+    "adCode": 513332
+  },
+  {
+    "county": "色达县",
+    "adCode": 513333
+  },
+  {
+    "county": "理塘县",
+    "adCode": 513334
+  },
+  {
+    "county": "巴塘县",
+    "adCode": 513335
+  },
+  {
+    "county": "乡城县",
+    "adCode": 513336
+  },
+  {
+    "county": "稻城县",
+    "adCode": 513337
+  },
+  {
+    "county": "得荣县",
+    "adCode": 513338
+  },
+  {
+    "county": "西昌市",
+    "adCode": 513401
+  },
+  {
+    "county": "木里藏族自治县",
+    "adCode": 513422
+  },
+  {
+    "county": "盐源县",
+    "adCode": 513423
+  },
+  {
+    "county": "德昌县",
+    "adCode": 513424
+  },
+  {
+    "county": "会理市",
+    "adCode": 513425
+  },
+  {
+    "county": "会东县",
+    "adCode": 513426
+  },
+  {
+    "county": "宁南县",
+    "adCode": 513427
+  },
+  {
+    "county": "普格县",
+    "adCode": 513428
+  },
+  {
+    "county": "布拖县",
+    "adCode": 513429
+  },
+  {
+    "county": "金阳县",
+    "adCode": 513430
+  },
+  {
+    "county": "昭觉县",
+    "adCode": 513431
+  },
+  {
+    "county": "喜德县",
+    "adCode": 513432
+  },
+  {
+    "county": "冕宁县",
+    "adCode": 513433
+  },
+  {
+    "county": "越西县",
+    "adCode": 513434
+  },
+  {
+    "county": "甘洛县",
+    "adCode": 513435
+  },
+  {
+    "county": "美姑县",
+    "adCode": 513436
+  },
+  {
+    "county": "雷波县",
+    "adCode": 513437
+  }
+]

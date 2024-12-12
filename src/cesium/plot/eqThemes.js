@@ -2,7 +2,10 @@ import * as Cesium from 'cesium'
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import {saveIntensityCircle} from "../../api/system/damageassessment.js";
+import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
+import {getDA, saveIntensityCircle} from "../../api/system/damageassessment.js";
+import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json"
+
 
 // 雅安行政区加载
 export function addYaanLayer() {
@@ -203,6 +206,7 @@ export function addHistoryEqPoints(centerPoint, eqData) {
     }
   });
 }
+
 //计算烈度圈
 export function computeOvalCircles(centerPoint) {
 
@@ -231,9 +235,9 @@ export function computeOvalCircles(centerPoint) {
     longintenArray.push(i); //长轴烈度
 
     R =
-        Math.pow(10,
-            (4.0293 + 1.3003 * centerPoint.magnitude - i) / 3.6404
-        ) - 10;
+      Math.pow(10,
+        (4.0293 + 1.3003 * centerPoint.magnitude - i) / 3.6404
+      ) - 10;
     // console.log(R)
     longAxisArray.push(R);
 
@@ -248,9 +252,9 @@ export function computeOvalCircles(centerPoint) {
     }
     shortintenArray.push(j); //短轴烈度
     let R1 =
-        Math.pow(10,
-            (2.3816 + 1.3003 * centerPoint.magnitude - j) / 2.8573
-        ) - 5;
+      Math.pow(10,
+        (2.3816 + 1.3003 * centerPoint.magnitude - j) / 2.8573
+      ) - 5;
     shortAxisArray.push(R1);
   }
 
@@ -295,7 +299,7 @@ export function computeOvalCircles(centerPoint) {
   let savecircles = []  //存库信息
 
   //从内向外
-  for (let i = 0; i < longAndshort.length ; i++) {
+  for (let i = 0; i < longAndshort.length; i++) {
     if (longAndshort[i][1] > longAndshort[i][0]) {
       let temp = longAndshort[i][0];
       longAndshort[i][0] = longAndshort[i][1];
@@ -317,7 +321,7 @@ export function computeOvalCircles(centerPoint) {
 
     // 渲染椭圆
     //计算烈度圈进行存储
-    savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp,centerPoint))
+    savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp, centerPoint))
     //内环
     lastsemiMajorAxis = semiMajorAxis;
     lastsemiMinorAxis = semiMinorAxis;
@@ -326,6 +330,7 @@ export function computeOvalCircles(centerPoint) {
   saveIntensityCircle(savecircles).then(res => {
   })
 }
+
 // 绘制烈度圈
 export function addOvalCircles(centerPoint) {
 
@@ -498,7 +503,7 @@ export function addOvalCircles(centerPoint) {
     });
 
     //计算烈度圈进行存储
-    savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp,centerPoint))
+    savecircles.push(computecircle(semiMajorAxis, semiMinorAxis, angle_num_tmp, longintenArray[i], lastsemiMajorAxis, lastsemiMinorAxis, last_angle_num_tmp, centerPoint))
     //内环
     lastsemiMajorAxis = semiMajorAxis;
     lastsemiMinorAxis = semiMinorAxis;
@@ -507,6 +512,261 @@ export function addOvalCircles(centerPoint) {
   // saveIntensityCircle(savecircles).then(res => {
   // })
 }
+
+export function addOCTest(eqqueueId) {
+  let intensityLevels = ["Ⅵ (六度)", "Ⅶ (七度)", "Ⅷ (八度)", "Ⅸ (九度)", "Ⅹ (十度)", "Ⅺ (十一度)", "Ⅻ (十二度)"];
+  let intensityColors = [
+    "#990000",
+    "#cc0000",
+    "#ff0000",
+    "#ff6600",
+    "#FF9900",
+    "#ffcc00",
+  ];
+
+  /**
+   * 烈度圈部分
+   */
+  // 视情况而定
+  // const batch = eqqueueId.slice(-1);
+  // fetch("http://example.com(文件夹名称)/${this.selectedTabData.eqFullName}/${batch}/${eqqueueId}_intensity.geojson")
+
+  // 以下为示例：
+  fetch("/assessmentTest/2024年11月03日四川省雅安市芦山县7.1级地震/3/geojson/T202411031336225118260003_intensity.geojson")
+    .then((response) => response.json())
+    .then((geojsonData) => {
+      console.log(geojsonData);
+
+      let ovalCirclePromise = Cesium.GeoJsonDataSource.load(geojsonData, {
+        stroke: true,
+        fill: false,
+        strokeWidth: 2,
+        markerSymbol: "?"
+      });
+      ovalCirclePromise.then(OCDataSource => {
+        window.viewer.dataSources.add(OCDataSource);
+        OCDataSource.name = "ovalCircleTest";
+        // 设置每个实体的样式
+        const entities = OCDataSource.entities.values;
+
+        entities.forEach((entity, index) => {
+          // 使用索引对颜色数组进行循环
+          const colorIndex = index % intensityColors.length;
+          const fillColor = Cesium.Color.fromCssColorString(intensityColors[colorIndex]);
+
+          // 设置实体样式
+          if (entity.polygon) {
+            entity.polygon.material = fillColor.withAlpha(0.5); // 设置填充颜色和透明度
+            entity.polygon.outline = false; // 显示边框
+            entity.polygon.outlineWidth = 2.0; // 设置边框宽度
+          }
+
+        });
+
+        // console.log(entities)
+
+      })
+
+    })
+    .catch((error) => {
+      console.error("加载失败:", error);
+    });
+}
+
+
+/**
+ * 灾损接口：4.2.10.获取乡镇级评估结果（v1.1）getResultTown
+ * @param town
+ * @returns {{personalCasualtyData: {county: *, casualty: *, partTotal}[], buildingDamageData: {size: number, county: *}[], economicLossData: {amount: number, county: *}[]}}
+ */
+export function handleTownData(town) {
+  console.log("数据：", town)
+
+  const townData = town.data;
+  /**
+   * 根据pac前6位与countyCodeMap.json中的adcode进行匹配，将乡镇级数据转换成区县级(累加)
+   */
+
+    // 万平方米 万元 人
+  let countyDataArray = [];
+
+  for (let i = 0; i < townData.length; i++) {
+    for (let j = 0; j < countyCodeMap.length; j++) {
+      // 判断是否匹配区县
+      if (Number(townData[i].pac.slice(0, 6)) === countyCodeMap[j].adCode) {
+        const county = countyCodeMap[j].county;
+        const batch = townData[i].batch;
+
+        // 查找是否已有对应的 batch 和 county
+        let existingEntry = countyDataArray.find(
+          (entry) => entry.batch === batch && entry.county === county
+        );
+
+        if (existingEntry) {
+          /**
+           * 累加已有数据
+           */
+
+          // 建筑破坏
+          existingEntry.buildingDamage += townData[i].buildingdamage || 0;
+
+          // 经济损失
+          existingEntry.economicLoss += townData[i].economicloss || 0;
+
+          // 人员伤亡系列
+          // 受灾人数
+          existingEntry.personalCasualty.pops += townData[i]['pop'] || 0;
+          // 死亡人数
+          existingEntry.personalCasualty.death += townData[i].death || 0;
+          // 失踪人数
+          existingEntry.personalCasualty.missing += townData[i].missing || 0;
+          // 受伤人数
+          existingEntry.personalCasualty.injury += townData[i].injury || 0;
+          // 压埋人数
+          existingEntry.personalCasualty.buriedCount += townData[i].buriedcount || 0;
+          // 需转移安置人数
+          existingEntry.personalCasualty.resetNumber += townData[i].resetnumber || 0;
+        } else {
+          /**
+           * 新增数据
+           */
+          countyDataArray.push({
+            batch: batch,
+            county: county,
+            buildingDamage: townData[i].buildingdamage || 0,
+            economicLoss: townData[i].economicloss || 0,
+            personalCasualty: {
+              pops: townData[i]['pop'] || 0,
+              death: townData[i].death || 0,
+              missing: townData[i].missing || 0,
+              injury: townData[i].injury || 0,
+              buriedCount: townData[i].buriedcount || 0,
+              resetNumber: townData[i].resetnumber || 0,
+            },
+          });
+        }
+      }
+    }
+  }
+
+  // console.log(countyDataArray);
+
+  /**
+   * 提取雅安市八区数据
+   */
+
+  const yaanCounties = [
+    '雨城区', '名山区', '荥经县', '汉源县', '石棉县', '天全县', '芦山县', '宝兴县'
+  ];
+  const yaanCountyData = countyDataArray.filter(entry => yaanCounties.includes(entry.county));
+  console.log(yaanCountyData);
+
+  /**
+   * 提取区县级数据中的建筑破坏、经济损失、人员伤亡数据，并转成对应格式
+   */
+
+    // 建筑破坏
+  const buildingDamageData = yaanCountyData.map(entry => ({
+      county: entry.county,
+      size: parseFloat((entry.buildingDamage / 100).toFixed(2)),
+    }));
+
+  // 经济损失
+  const economicLossData = yaanCountyData.map(entry => ({
+    county: entry.county,
+    amount: parseFloat(entry.economicLoss.toFixed(2)),
+  }));
+
+  // 人员伤亡
+  const personalCasualtyData = yaanCountyData.map(entry => ({
+    county: entry.county,
+    casualty: entry.personalCasualty,
+    // 不包括受灾人数和需转移安置人数的伤亡人数
+    partTotal: entry.personalCasualty.death + entry.personalCasualty.missing + entry.personalCasualty.injury + entry.personalCasualty.buriedCount
+  }))
+
+  return {
+    buildingDamageData,
+    economicLossData,
+    personalCasualtyData,
+  }
+}
+
+/**
+ * 灾损接口：4.2.9.获取专题图件getMap
+ * @param eqid
+ * @param eqFullName
+ * @param type
+ */
+export function handleOutputData(eqid, eqFullName, type) {
+  const DTO = {
+    event: eqid,
+    eqqueueId: "",
+  };
+
+  // 初始化返回数据
+  let returnData = {
+    // 标题
+    themeName: "",
+    // 对应数据
+    themeData: []
+  };
+
+  return new Promise((resolve, reject) => {
+    if (type === "thematicMap") {
+      getDA("getMap", DTO).then((res) => {
+        const data = res.data;
+        const themeName = eqFullName + "-" + "专题图";
+        let thematicMapData = [];
+        const url = "/assessmentTest/2024年11月03日四川省雅安市芦山县7.1级地震/3/thematicMap/";
+
+        for (let i = 0; i < res.data.length; i++) {
+          const thematicMapObject = {
+            imgUrl: `${url}${data[i].sourceFile.split('/').pop()}`,
+            theme: data[i].fileName,
+          };
+          thematicMapData.push(thematicMapObject);
+        }
+
+        returnData.themeName = themeName;
+        returnData.themeData = thematicMapData;
+
+        resolve(returnData); // 返回更新后的数据
+      }).catch(err => {
+        reject(err); // 如果请求失败，返回错误
+      });
+    } else if (type === "report") {
+      getDA("getReport", DTO).then((res) => {
+        console.log("灾情报告数据：", res);
+        const data = res.data;
+        const themeName = eqFullName + "-" + "灾情报告";
+        let reportData = [];
+        const url = "/assessmentTest/2024年11月03日四川省雅安市芦山县7.1级地震/3/report/";
+
+        for (let i = 0; i < res.data.length; i++) {
+          const reportObject = {
+            docxUrl: `${url}${data[i].sourceFile.split('/').pop()}`,
+            theme: data[i].fileName,
+          };
+          reportData.push(reportObject);
+        }
+
+        returnData.themeName = themeName;
+        returnData.themeData = reportData;
+        resolve(returnData); // 这里也是异步，所以也需要 resolve
+      }).catch(err => {
+        reject(err);
+      });
+    } else {
+      resolve(returnData); // 如果 type 不是 "thematicMap" 或 "report"，直接返回默认值
+    }
+  });
+}
+
+
+// -----------------------------------------------------------------------------------------------------------------
+// 共用函数
+// -----------------------------------------------------------------------------------------------------------------
 
 function computecircle(majorAxis, minorAxis, rotationAngle, intensity, lastlong, lastshort, lastrotationAngle, centerPoint) {
   let IntensityCircle = {
@@ -583,8 +843,8 @@ function computecircle(majorAxis, minorAxis, rotationAngle, intensity, lastlong,
   return IntensityCircle;
 }
 
-function buildCurvePolygonString(outlinepoints,inlinepoints) {
-  let curvePolygonString=''
+function buildCurvePolygonString(outlinepoints, inlinepoints) {
+  let curvePolygonString = ''
   // 构建CIRCULARSTRING部分
   let outline = 'CIRCULARSTRING(';
   outlinepoints.forEach((point, index) => {
@@ -595,11 +855,10 @@ function buildCurvePolygonString(outlinepoints,inlinepoints) {
   });
   outline += ')';
   //最高烈度没有内环
-  if(inlinepoints.length==0){
+  if (inlinepoints.length == 0) {
     // 组合成最终的CURVEPOLYGON字符串
     curvePolygonString = `CURVEPOLYGON(${outline})`;
-  }
-  else{
+  } else {
     let inline = 'CIRCULARSTRING(';
     inlinepoints.forEach((point, index) => {
       inline += `${point.longitude} ${point.latitude}`;
@@ -615,7 +874,7 @@ function buildCurvePolygonString(outlinepoints,inlinepoints) {
 }
 
 // 时间戳转换
-function timestampToTime(timestamp, format = "full") {
+export function timestampToTime(timestamp, format = "full") {
   let dateObj = new Date(timestamp);
   let year = dateObj.getFullYear();
   let month = dateObj.getMonth() + 1;
@@ -634,8 +893,11 @@ function timestampToTime(timestamp, format = "full") {
   if (format === "date") {
     // 返回仅日期格式
     return `${year}年${month}月${day}日`;
+  } else if (format === "fullDateTime") {
+    return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
   } else {
     // 返回完整的日期时间格式
     return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
   }
 }
+

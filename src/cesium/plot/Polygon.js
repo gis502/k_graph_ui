@@ -32,6 +32,8 @@ export default class Polygon {
     this._drawType = null; //类型
     // 定义全局变量
     window.isDrawingPolygon = false;
+    //=======================小多边形的中心点===============
+    this.center = [];
   }
 
   //激活
@@ -51,7 +53,8 @@ export default class Polygon {
     // this.isEditing = false;
     // this.entityCount = 0;
     this.type = type;
-    this.img = img;
+    this.img = 'http://localhost:8080/uploads/PlotsPic/' + img + '.png';
+    this.plotType = img
     this._dataSource = new Cesium.CustomDataSource("_dataSource");
     this.viewer.dataSources.add(this._dataSource);
     this.deactivate()
@@ -88,69 +91,43 @@ export default class Polygon {
 
   /*注册事件*/
   registerEvents() {
-    switch (this.type){
-      case  "标绘面":{
-        this.handler.setInputAction((click) => this.leftClickEvent(click), Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        this.handler.setInputAction((click) => this.rightClickEvent(click), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-        this.handler.setInputAction(() => this.leftReleaseEvent(), Cesium.ScreenSpaceEventType.LEFT_UP);
-        this.handler.setInputAction((movement) => this.mouseMoveEvent(movement), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-        break;
-      }
-      case "区域面":{
-        this._leftClickEventForPolygon();
-        this._mouseMoveEventForPolygon();
-        this._rightClickEventForPolygon();
-        break;
-      }
-    }
-
+      this._leftClickEventForPolygon();
+      this._mouseMoveEventForPolygon();
+      this._rightClickEventForPolygon();
   }
-
+  /*小矩形注册事件步骤*/
+  smallPolygonRegisterEvents(){
+    this._leftClickEventForSmallPolygon();
+    this._mouseMoveEventForSmallPolygon()
+    this._rightClickEventForSmallPolygon()
+    this._leftUpClickEventForSmallPolygon()
+  }
 //绘制结束 触发结束事件
   drawEnd() {
-    switch (this.type){
-      case "标绘面":{
-        let data = {
-          timestampArr:this.timestampArr,
-          pointPosArr:this._tempPositions,
-          plotId: this.initId,
-          time: this.time,
-          angle: this.angle,
-          icon: this.img,
-          earthquakeId:this.eqid,
-          plotType: this.name
-        }
-        this.resolve(data)
-        this.polygonPointEntity = []
-        this.polygonEntity.remove = () => {
-          this.viewer.entities.remove(this.polygonEntity);
-        }
-        break;
-      }
-      case "区域面":{
-        let data = {
-          timestampArr:this.timestampArr,
-          pointPosArr:this._tempPositions,
-          plotId: this.initId,
-          time: this.time,
-          angle: this.angle,
-          icon: this.img,
-          earthquakeId:this.eqid,
-          plotType: this.name
-        }
-        this.resolve(data)
-        // console.log("绘制结束传得面",data)
-        // 3秒后清除所有 dataSources
-        setTimeout(() => {
-          window.viewer.dataSources.removeAll();
-        }, 2000); // 3000 毫秒 = 3 秒
-        break;
-      }
+    console.log("皆大欢喜")
+    console.log(this.type)
+    let data = {
+      timestampArr:this.timestampArr,
+      pointPosArr:this._tempPositions,
+      plotId: this.initId,
+      time: this.time,
+      angle: this.angle,
+      icon: this.plotType,//先改成plotType,可以看上面的定义的变量
+      earthquakeId:this.eqid,
+      plotType: this.name
     }
+    this.resolve(data)
+    console.log("皆大欢喜",data)
+    this.viewer.entities.remove(this.polygonEntity);
+    window.viewer.dataSources.remove(window.viewer.dataSources.getByName('_dataSource')[0])
+    this.polygonPointEntity = [],
+    this.type = null;
+    this.afterDraggedPoint = null
     this._tempPositions = []
     this.status = 0
     this.timestampArr = []
     this.deactivate();
+    this.center = []
     this.enableCameraControls()
   }
   //-----------------绘制区域面-----------------
@@ -158,14 +135,25 @@ export default class Polygon {
    * 鼠标事件之绘制面的左击事件
    * @private
    */
-
-  _leftClickEventForPolygon() {
+  _leftClickEventForPolygon()   {
     this.handler.setInputAction((e) => {
       window.isDrawingPolygon = true;  // 启用标志位
       let ray = viewer.camera.getPickRay(e.position)
       let p = viewer.scene.globe.pick(ray, viewer.scene)
+      // console.log("p",p)
       if (!p) return;
+      // 检查新点是否与最后一个点重复
+      if (this._tempPositions.length > 0) {
+        let lastPoint = this._tempPositions[this._tempPositions.length - 1];
+        if (Cesium.Cartesian3.equals(p, lastPoint)) {
+          console.log('点重复，忽略此次点击');
+          return;
+        }
+      }
+      // console.log("this._tempPositions",this._tempPositions)
       this._tempPositions.push(p);
+      // 获取大多边形的中心点
+      this.center = this.getPolygonCenter(this._tempPositions);
       this._addPolygon();
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
@@ -204,7 +192,10 @@ export default class Polygon {
       this.unRegisterEvents();
       this._dataSource.entities.removeAll();
       this.imgMaterial = new Cesium.ImageMaterialProperty({
-        image: this.img
+        image:this.img ,
+        repeat: new Cesium.Cartesian2(1, 1), // 控制图片在多边形内的重复次数
+        rotation: Cesium.Math.toRadians(45), // 旋转角度，例如 45 度，根据需要调整方向
+        color: Cesium.Color.WHITE.withAlpha(0.7) // 控制透明度
       });
       this._dataSource.entities.add({
         id: this.initId,
@@ -219,17 +210,117 @@ export default class Polygon {
             color: Cesium.Color.YELLOW,
           }),
         },
-        polygon: {
-          hierarchy: this._tempPositions,
-          extrudedHeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          // material: Cesium.Color.RED.withAlpha(0.4),
-          material: this.imgMaterial,
-          clampToGround: true,
-        },
+        // polygon: {
+        //   hierarchy: this._tempPositions,
+        //   extrudedHeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        //   // material: Cesium.Color.RED.withAlpha(0.4),
+        //   // material: this.imgMaterial,
+        //   clampToGround: true,
+        // },
       });
-      this.drawEnd();
+      switch (this.type) {
+        case  "标绘面": {
+          this.smallPolygonRegisterEvents();
+          break;
+        }
+        case "区域面":{
+          this.drawEnd();
+          break;
+        }
+      }
+
+      // this.unRegisterEvents();
+
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
   }
+
+
+  /**
+   * 鼠标事件之绘制小多边形的左键点击下事件
+   * @private
+   */
+  _leftUpClickEventForSmallPolygon(){
+    if (!this.polygonEntity) {
+      this.drawSquare(this.center);
+    }
+    //取消左键点击事件防止产生新的多边形
+    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    this.handler.setInputAction((e) => {
+        console.log("已经在路上")
+      // 检查是否点击的是多边形点实体
+      if (this.draggedPoint && this.polygonPointEntity.includes(this.draggedPoint)) {
+        this.draggedPointIndex = -1;
+        this.dynamicSmallRotation(this.draggedPoint._id, this.afterDraggedPoint);
+        console.log("旋转");
+      }
+        this.draggedPoint = null;
+        this.selectPoint = null;
+      }, Cesium.ScreenSpaceEventType.LEFT_UP);
+  }
+
+  /**
+   * 鼠标事件之绘制小多边形的左键点击下事件
+   * @private
+   */
+  _mouseMoveEventForSmallPolygon(movement){
+    this.handler.setInputAction((movement) => {
+      console.log("5")
+        let ray = this.viewer.camera.getPickRay(movement.endPosition);
+        let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
+        if (position) {
+          this.positions[this.draggedPointIndex] = position;
+          this.updatePointPosition(this.draggedPointIndex, position);
+
+          if (this.positions.length > 2) {
+            this.drawPolygon();
+          }
+          this.afterDraggedPoint = position;
+        // this.updateEntityCount();
+      }
+    },Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  }
+
+  /**
+   * 鼠标事件之绘制小多边形的左键点击下事件
+   * @private
+   */
+  _rightClickEventForSmallPolygon(){
+    this.handler.setInputAction((e) => {
+      this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+      this.enableVertexDragging();
+      this.handler.setInputAction((e) => this.drawEnd(), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    },Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+  }
+
+  /**
+   * 鼠标事件之绘制小多边形的左键点击下事件
+   * @private
+   */
+  _leftClickEventForSmallPolygon(){
+    this.handler.setInputAction((click) => {
+    console.log("11111")
+    let ray = this.viewer.camera.getPickRay(click.position);
+    let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
+    if (position) {
+      this.centerPoint = null;
+      this.centerPoint = position;
+      this.beforeDraggedPoint = null;
+      this.afterDraggedPoint = null;
+      // 移除现有的正方形和相关点实体
+      this.viewer.entities.remove(this.polygonEntity);
+      this.polygonEntity = null;
+      this.polygonPointEntity.forEach(pointEntity => {
+        this.viewer.entities.remove(pointEntity);
+      });
+      this.polygonPointEntity = [];
+      this.positions = [];
+      // 绘制新的正方形
+      this.drawSquare(position);
+    }
+    },Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }
+
   /**
    * 画面
    * @private
@@ -237,7 +328,10 @@ export default class Polygon {
   _addPolygon() {
     if (this._tempPositions.length == 1) {
       this.imgMaterial = new Cesium.ImageMaterialProperty({
-        image: this.img
+        image: this.img  ,
+        repeat: new Cesium.Cartesian2(1, 1), // 控制图片在多边形内的重复次数
+        rotation: Cesium.Math.toRadians(45), // 旋转角度，例如 45 度，根据需要调整方向
+        color: Cesium.Color.WHITE.withAlpha(0.7) // 控制透明度
       });
       //一个顶点+移动点
       this._dataSource.entities.add({
@@ -262,7 +356,7 @@ export default class Polygon {
     } else {
       this._dataSource.entities.removeAll();
       this.imgMaterial = new Cesium.ImageMaterialProperty({
-        image: this.img
+        image: this.img,
       });
       //两个顶点+移动点
       this._dataSource.entities.add({
@@ -277,6 +371,8 @@ export default class Polygon {
           }, false),
           extrudedHeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
           material:this.imgMaterial,
+          depthTest: false,//禁止深度测试但是没有下面那句有用
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,//不再进行深度测试（真神）
           clampToGround: true,
         },
         polyline: {
@@ -300,7 +396,6 @@ export default class Polygon {
       });
     }
   }
-
 
   // 删除面
   deletePolygon(polygon) {
@@ -328,157 +423,164 @@ export default class Polygon {
     this.viewer.entities.remove(polygon);
   }
 
-
-  leftClickEvent(click) {
-    if (this.isDragging) return; // 如果在拖动，不执行添加点的逻辑
-    let ray = this.viewer.camera.getPickRay(click.position);
-    let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
-    if (position) {
-      this.centerPoint = null;
-      this.centerPoint = position;
-      this.beforeDraggedPoint = null;
-      this.afterDraggedPoint = null;
-      // 移除现有的正方形和相关点实体
-      this.viewer.entities.remove(this.polygonEntity);
-      this.polygonEntity = null;
-      this.polygonPointEntity.forEach(pointEntity => {
-        this.viewer.entities.remove(pointEntity);
-      });
-      this.polygonPointEntity = [];
-      this.positions = [];
-      // 绘制新的正方形
-      this.drawSquare(position);
-    }
-  }
-
-  rightClickEvent(click) {
-    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-    this.enableVertexDragging();
-    if (this.type === "标绘面"){
-      //这里加个这个判定是因为，如果不这样，量算面积，右键完再右键，会调用这个往后端传数据的方法
-      // 右键后显示输入详细信息的弹窗
-      this.handler.setInputAction((event) => this.showDetailInputPopup(event), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-    }
-  }
-
-  showDetailInputPopup(event) {
-    // console.log("点实体",this.polygonPointEntity)
-    // 删除之前生成的点实体
-    this.polygonPointEntity.forEach((pointEntity) => {
-      this.viewer.entities.remove(pointEntity);
-    });
-// 阻止默认的右键菜单
-    window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
-      return false;
-    }
-    this.drawEnd();
-
-  }
-
-  leftReleaseEvent() {
-    if (this.isDragging) {
-      this.isDragging = false;
-      this.draggedPointIndex = -1;
-      if(this.selectPoint){
-        if (this.type === "标绘面"){
-          this.dynamicRotation(this.draggedPoint._id,this.afterDraggedPoint)
-          this.draggedPoint = null;
-          this.selectPoint = null;
-          this.type = null;
-        }else {
-          if (this.positions.length > 2) {
-            this.drawPolygon();
-          }
-        }
-      }
-      // this.enableCameraControls()
-      // 更新实体个数
-      // this.updateEntityCount();
-    }
-  }
-
-  mouseMoveEvent(movement) {
-    if (this.isDragging) {
-      let ray = this.viewer.camera.getPickRay(movement.endPosition);
-      let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
-      if (position) {
-        this.positions[this.draggedPointIndex] = position;
-        this.updatePointPosition(this.draggedPointIndex, position);
-        if (this.positions.length > 2) {
-          this.drawPolygon();
-        }
-        this.afterDraggedPoint = position;
-      }
-      // this.updateEntityCount();
-    }
-  }
-
   //=======================绘制数据库中的面==================
   // 根据数据库中数据绘制面
   getDrawActivatePolygon(polygonArr) {
+
+    // console.log(polygonArr,765645)
     // 1-1 根据面的Plotid记录有多少个面
     let onlyPlotid = this.distinguishPolygonId(polygonArr)
-    // console.log("onlyPlotid",onlyPlotid)
-    // 1-2根据Plotid来画面
-    onlyPlotid.forEach(onlyPlotidItem => {
-      // 1-3 把数据库同一Plotid的点数据放入此数组
-      let polygon = []
-      polygonArr.forEach(polygonElement => {
-        if (polygonElement.plotId === onlyPlotidItem) {
-          polygon.push(polygonElement)
+
+    // console.log("onlyPlotid",polygonArr)
+    if(polygonArr[0].plotType === "未搜索区域"|| polygonArr[0].plotType === "已搜索区域"||polygonArr[0].plotType === "已营救区域"||polygonArr[0].plotType === "正在营救区域"||polygonArr[0].plotType === "未营救区域"){
+      onlyPlotid.forEach(onlyPlotidItem => {
+        // 1-3 把数据库同一Plotid的点数据放入此数组
+        let polygon = []
+        polygonArr.forEach(polygonElement => {
+          if (polygonElement.plotId === onlyPlotidItem) {
+            polygon.push(polygonElement)
+          }
+        })
+        // 1-4 pointLinePoints用来存构成面的点实体
+        let pointLinePoints = []
+        let coords = polygon[0].geom.coordinates[0]
+        // console.log("coords",coords)
+        for (let i = 0; i < coords.length; i++) {
+          let polygonCoords = coords[i]
+
+          // 转换为Cartesian3坐标
+          let cartographic = Cesium.Cartographic.fromDegrees(
+              parseFloat(polygonCoords[0]),
+              parseFloat(polygonCoords[1]),
+              parseFloat(0)
+          );
+          let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
+          pointLinePoints.push(cartesian);
+          // 添加调试输出
+          // this.viewer.entities.add({
+          //   // id: `${onlyPlotidItem}_Point_${i}`,
+          //   //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
+          //   position: cartesian,
+          //   point: {
+          //     // color: Cesium.Color.SKYBLUE,
+          //     // pixelSize: 10,
+          //     // outlineColor: Cesium.Color.YELLOW,
+          //     // outlineWidth: 3,
+          //     // disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          //     // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          //   }
+          // });
+          // === 检查并删除已经存在的多边形实体 ===
+          let polygonId = onlyPlotidItem;
+          if (this.viewer.entities.getById(polygonId)) {
+            this.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
+          }
+          window.viewer.entities.add({
+            id: onlyPlotidItem,
+            layer: "标绘点",
+            polygon: {
+              hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
+              material: 'http://localhost:8080/uploads/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime(),
+              // stRotation: Cesium.Math.toRadians(polygon[0].angle),
+              clampToGround: true,
+            },
+            properties: {
+              pointPosition: this.positions,
+              linePoint: this.polygonPointEntity,
+              data:polygon //弹出框
+            }
+          });
         }
       })
-      // 1-4 pointLinePoints用来存构成面的点实体
-      let pointLinePoints = []
-      let coords = polygon[0].geom.coordinates[0]
-      console.log("coords",coords)
-      for (let i = 0; i < coords.length; i++) {
-        let polygonCoords = coords[i]
-
-        // 转换为Cartesian3坐标
-        let cartographic = Cesium.Cartographic.fromDegrees(
-            parseFloat(polygonCoords[0]),
-            parseFloat(polygonCoords[1]),
-            parseFloat(0)
-        );
-        let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
-        pointLinePoints.push(cartesian);
-        // 添加调试输出
-        this.viewer.entities.add({
-          // id: `${onlyPlotidItem}_Point_${i}`,
-          //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
-          position: cartesian,
-          point: {
-            // color: Cesium.Color.SKYBLUE,
-            // pixelSize: 10,
-            // outlineColor: Cesium.Color.YELLOW,
-            // outlineWidth: 3,
-            // disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            // heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          }
-        });
-        // === 检查并删除已经存在的多边形实体 ===
-        let polygonId = onlyPlotidItem;
-        if (this.viewer.entities.getById(polygonId)) {
-          this.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
+    }else {
+      // 1-2根据Plotid来画面
+      onlyPlotid.forEach(onlyPlotidItem => {
+        const existingEntity = window.viewer.entities.getById(onlyPlotidItem + "_polygon");
+        if (existingEntity) {
+          console.log("存在重复实体")
+          window.viewer.entities.removeById(onlyPlotidItem + "_polygon"); // 先删除现有实体
         }
+        // 1-3 把数据库同一Plotid的点数据放入此数组
+        let polygon = []
+        polygonArr.forEach(polygonElement => {
+          if (polygonElement.plotId === onlyPlotidItem) {
+            polygon.push(polygonElement)
+          }
+        })
+        // 1-4 pointLinePoints用来存构成面的点实体
+        let pointLinePoints = []
+        let coords = polygon[0].geom.coordinates[0]
+        // console.log("coords",coords)
+        for (let i = 0; i < coords.length; i++) {
+          let polygonCoords = coords[i]
+          // 转换为Cartesian3坐标
+          let cartographic = Cesium.Cartographic.fromDegrees(
+              parseFloat(polygonCoords[0]),
+              parseFloat(polygonCoords[1]),
+              parseFloat(0)
+          );
+          let cartesian = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic);
+          pointLinePoints.push(cartesian);
+          // === 检查并删除已经存在的多边形实体 ===
+          let polygonId = onlyPlotidItem;
+          if (this.viewer.entities.getById(polygonId)) {
+            this.viewer.entities.removeById(polygonId);  // 删除已存在的多边形实体
+          }
+        }
+        const width = 9000;  // 矩形宽度
+        const height = 9000; // 矩形高度
+        // 获取大多边形的中心点
+        const center = this.getPolygonCenter(pointLinePoints);
+        // 生成小矩形的四个角点
+        const smallRectanglePositions = this.createContainedRectangle(center, width, height, polygon[0].angle, pointLinePoints);
+        const diameter = Cesium.Cartesian3.distance(smallRectanglePositions[0], smallRectanglePositions[2]);
         window.viewer.entities.add({
           id: onlyPlotidItem,
+          layer: "标绘点",
           polygon: {
-            hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
-            material: polygon[0].icon,
-            // stRotation: Cesium.Math.toRadians(polygon[0].angle),
+            hierarchy: new Cesium.PolygonHierarchy(pointLinePoints),
+            material: new Cesium.ImageMaterialProperty({
+              color: Cesium.Color.WHITE.withAlpha(0.4),
+            }),
             clampToGround: true,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+            depthTest: false,//禁止深度测试但是没有下面那句有用
+            disableDepthTestDistance: Number.POSITIVE_INFINITY//不再进行深度测试（真神）
           },
           properties: {
             pointPosition: this.positions,
             linePoint: this.polygonPointEntity,
-            data:polygon //弹出框
+            data: polygon //弹出框
           }
         });
-      }
-    })
+
+        // 使用对角线作为直径绘制圆形
+        window.viewer.entities.add({
+          id: onlyPlotidItem + "_polygon",
+          position: center, // 圆心为大多边形的中心点
+          ellipse: {
+            semiMajorAxis: diameter / 2, // 对角线的一半作为半径
+            semiMinorAxis: diameter / 2, // 保证是一个正圆
+            material: new Cesium.ImageMaterialProperty({
+              image: 'http://localhost:8080/uploads/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime() ,
+              repeat: new Cesium.Cartesian2(1.02, 1.0684), // 控制图片的缩放
+              color: Cesium.Color.WHITE.withAlpha(1.0),
+              scale: 0.5 // 调整图片缩放比例
+            }),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+            depthTest: false,//禁止深度测试但是没有下面那句有用
+            disableDepthTestDistance: Number.POSITIVE_INFINITY,//不再进行深度测试（真神）
+            stRotation: Cesium.Math.toRadians(polygon[0].angle), // 图片旋转
+            clampToGround: true
+          },
+          properties: {
+            pointPosition: this.positions,
+            linePoint: this.polygonPointEntity,
+            data: polygon //弹出框
+          }
+        });
+      })
+    }
   }
 
   // 在重复的drwaid中获取所有面的唯一drwaid
@@ -493,10 +595,132 @@ export default class Polygon {
     return polygonIdArr
   }
 
+// 获取大多边形的中心点
+  getPolygonCenter(positions) {
+    let x = 0, y = 0, z = 0;
+    positions.forEach(pos => {
+      x += pos.x;
+      y += pos.y;
+      z += pos.z;
+    });
+    const center = new Cesium.Cartesian3(x / positions.length, y / positions.length, z / positions.length);
+    return center;
+  }
+
+
+// 判断点是否在多边形内部
+  isPointInPolygon(polyPoints, point) {
+    let inside = false;
+    for (let i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
+      const xi = polyPoints[i][0], yi = polyPoints[i][1];
+      const xj = polyPoints[j][0], yj = polyPoints[j][1];
+      const px = point.lon, py = point.lat;
+
+      const intersect = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+// 生成小矩形并确保其在大多边形内
+  createContainedRectangle(center, width, height, angle, polygonPositions) {
+    let scaleFactor = 1.0;
+    let maxAttempts = 100;
+    let adjustmentAngle = 0;
+    let isContained = false;
+
+    // 将大多边形点转换为经纬度坐标
+    const polyPoints = polygonPositions.map(pos => {
+      const cartographic = Cesium.Cartographic.fromCartesian(pos);
+      return [cartographic.longitude, cartographic.latitude];
+    });
+
+    let smallRectanglePositions = this.createRotatedRectangle(center, width * scaleFactor, height * scaleFactor, angle);
+
+    // 使用新的 isPointInPolygon 方法检查矩形是否在大多边形内
+    while (maxAttempts > 0 && !isContained) {
+      const rectangleCartographics = smallRectanglePositions.map(pos => {
+        const cartographic = Cesium.Cartographic.fromCartesian(pos);
+        return { lon: cartographic.longitude, lat: cartographic.latitude };
+      });
+
+      isContained = rectangleCartographics.every(pt => this.isPointInPolygon(polyPoints, pt));
+      if (!isContained) {
+        scaleFactor *= 0.9;
+        adjustmentAngle += 2;
+        smallRectanglePositions = this.createRotatedRectangle(center, width * scaleFactor, height * scaleFactor, angle + adjustmentAngle);
+      }
+      maxAttempts--;
+    }
+    return smallRectanglePositions;
+  }
+
+// 动态生成比大多边形稍小的旋转矩形
+  createRotatedRectangle(center, width, height, angle) {
+    // 根据 scaleFactor 缩小宽高
+    const halfWidth = (width / 2) ;
+    const halfHeight = (height / 2);
+    const angleRad = Cesium.Math.toRadians(angle);
+
+    // 计算旋转矩阵
+    const cosAngle = Math.cos(angleRad);
+    const sinAngle = Math.sin(angleRad);
+
+    function rotateOffset(offsetX, offsetY) {
+      const rotatedX = offsetX * cosAngle - offsetY * sinAngle;
+      const rotatedY = offsetX * sinAngle + offsetY * cosAngle;
+
+      return Cesium.Cartesian3.fromRadians(
+          centerCartographic.longitude + rotatedX / (Cesium.Ellipsoid.WGS84.maximumRadius * Math.PI),
+          centerCartographic.latitude + rotatedY / (Cesium.Ellipsoid.WGS84.maximumRadius * Math.PI)
+      );
+    }
+
+    const centerCartographic = Cesium.Cartographic.fromCartesian(center);
+
+    // 生成缩小的小矩形的四个角点
+    const nw = rotateOffset(-halfWidth, halfHeight);
+    const ne = rotateOffset(halfWidth, halfHeight);
+    const se = rotateOffset(halfWidth, -halfHeight);
+    const sw = rotateOffset(-halfWidth, -halfHeight);
+
+    return [nw, ne, se, sw];
+  }
 
   //======================绘制面方法================
-
-
+  //动态旋转正方形函数
+  dynamicSmallRotation(id,afterDraggedPoint){
+    //这里是移动后拖拽的点 ，可以获取到移动后的点
+    //这里要调用那个角度的函数，获取一下要转动的角度
+    //然后调用调用函数 计算另外三个顶点的坐标的函数
+    // console.log("afterDraggedPoint",afterDraggedPoint)
+      let angle = this.calculationAngle(this.center, afterDraggedPoint)
+      this.angle = angle
+      let index = this.polygonPointEntity.findIndex(entity => entity._id === id);
+      let afterAngles = [angle, angle + 90, angle + 180, angle + 270];
+      let rotationAngle = 0;
+      if (index === 0){
+        rotationAngle = angle - 135
+      }else if(index === 1){
+        rotationAngle = angle - 225
+      }else if(index === 2){
+        rotationAngle = angle - 315
+      }else {
+        rotationAngle = angle - 45
+      }
+      let vertices = this.calculateSquareVertices(this.center, id,afterDraggedPoint)
+      // console.log("vertices",vertices[0].position)
+      // 更新顶点位置
+      // 如果数组二当前元素有id
+      if (vertices[0].id !== null) {
+        // 找到数组一中对应id的元素
+        let foundIndex = this.polygonPointEntity.findIndex(item => item._id === vertices[0].id);
+        if (foundIndex !== -1) {
+          //动态更新正方形点的位置
+          this.updateVertexPositions(foundIndex, vertices,rotationAngle);
+      }
+    }
+  }
   //动态旋转正方形函数
   dynamicRotation(id,afterDraggedPoint){
     //这里是移动后拖拽的点 ，可以获取到移动后的点
@@ -555,7 +779,7 @@ export default class Polygon {
   }
   //添加点实体
   drawPoint(position) {
-    return this.viewer.entities.add({
+    return this._dataSource.entities.add({
       //这里的id可能要改一下，有可能会出现id重复的问题，具体还得看看
       // id: this.guid(),
       id: this.timestampToTime(this.initId) + "Point" + this.lastItem,
@@ -594,48 +818,50 @@ export default class Polygon {
         height: cartographicPosition.height
       };
     });
-    let assemblyData = {
-      plots: [],
-    };
-    // 组装 plot 数据
-    posArr.forEach((pos, index) => {
-      assemblyData.plots.push({
-        eqid: this.eqid,
-        plotid: this.initId,  // 整个多边形共用一个UUID
-        time: this.time,
-        plottype: this.name,
-        drawtype: "polygon",
-        latitude: pos.lat,
-        longitude: pos.lon,
-        height: pos.height,
-        img: this.img,
-        angle: this.angle
-      });
-    });
+
+    // let assemblyData = {
+    //   plots: [],
+    // };
+    // // 组装 plot 数据
+    // posArr.forEach((pos, index) => {
+    //   assemblyData.plots.push({
+    //     eqid: this.eqid,
+    //     plotid: this.initId,  // 整个多边形共用一个UUID
+    //     time: this.time,
+    //     plottype: this.name,
+    //     drawtype: "polygon",
+    //     latitude: pos.lat,
+    //     longitude: pos.lon,
+    //     height: pos.height,
+    //     img: this.img,
+    //     angle: this.angle
+    //   });
+    // });
     if (this.polygonEntity) {
       //这里是如果面实体存在，那么就不重新创建实体，只是修改实体，防止浪费资源
       this.polygonEntity.polygon.hierarchy = new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(this.positions), false);
       this.polygonEntity.properties.pointPosition = this.positions;
       this.polygonEntity._polygon._stRotation._value = Cesium.Math.toRadians(this.angle);
     }else {
+
       this.angle = 0;
-      if (this.type === "标绘面"){
-        this.imgMaterial = new Cesium.ImageMaterialProperty({
-          image: this.img
-        });
-      }
+      this.imgMaterial = new Cesium.ImageMaterialProperty({
+        image: this.img
+      });
       this.polygonEntity = this.viewer.entities.add({
         id: this.initId,
         polygon: {
           hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(this.positions), false),
           material: this.imgMaterial,
           stRotation: Cesium.Math.toRadians(this.angle),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
+          depthTest: false,//禁止深度测试但是没有下面那句有用
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,//不再进行深度测试（真神）
           clampToGround: true,
         },
         properties: {
           pointPosition: this.positions,
           linePoint: this.polygonPointEntity,
-          data:assemblyData.plots
         }
 
       });
@@ -664,6 +890,7 @@ export default class Polygon {
     return valueInMeters;
   }
   /*绘制面图层*/
+
   drawSquare(position) {
     // 获取距离图例的长度
     let distanceLegendElement = document.querySelector('.distance-legend-label');
@@ -723,9 +950,6 @@ export default class Polygon {
           this.draggedPointIndex = index;
           this.draggedPoint = pointEntity;
           this.selectPoint = pointEntity;
-          if (this.type !== "量算面积") {
-            this.type = "标绘面";
-          }
           this.beforeDraggedPoint = this.draggedPoint;
           this.disableCameraControls();
         }
@@ -848,7 +1072,6 @@ export default class Polygon {
     this.viewer.scene.screenSpaceCameraController.enableLook = false;
   }
 
-
   timestampToTime(timestamp) {
     let DateObj = new Date(timestamp)
     // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
@@ -873,6 +1096,95 @@ export default class Polygon {
           v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+
+  /*绘制标绘面*/
+  leftClickEvent(click) {
+    if (this.isDragging) return; // 如果在拖动，不执行添加点的逻辑
+    let ray = this.viewer.camera.getPickRay(click.position);
+    let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
+    if (position) {
+      this.centerPoint = null;
+      this.centerPoint = position;
+      this.beforeDraggedPoint = null;
+      this.afterDraggedPoint = null;
+      // 移除现有的正方形和相关点实体
+      this.viewer.entities.remove(this.polygonEntity);
+      this.polygonEntity = null;
+      this.polygonPointEntity.forEach(pointEntity => {
+        this.viewer.entities.remove(pointEntity);
+      });
+      this.polygonPointEntity = [];
+      this.positions = [];
+      // 绘制新的正方形
+      this.drawSquare(position);
+    }
+  }
+
+  rightClickEvent(click) {
+
+    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    this.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    this.enableVertexDragging();
+    if (this.type === "标绘面"){
+      //这里加个这个判定是因为，如果不这样，量算面积，右键完再右键，会调用这个往后端传数据的方法
+      // 右键后显示输入详细信息的弹窗
+      console.log("完成")
+      this.handler.setInputAction((event) => this.showDetailInputPopup(event), Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+    }
+  }
+
+  showDetailInputPopup(event) {
+    // console.log("点实体",this.polygonPointEntity)
+    // 删除之前生成的点实体
+    this.polygonPointEntity.forEach((pointEntity) => {
+      this.viewer.entities.remove(pointEntity);
+    });
+// 阻止默认的右键菜单
+    window.document.oncontextmenu = function(){  // 阻止默认菜单弹出
+      return false;
+    }
+    this.drawEnd();
+
+  }
+
+  leftReleaseEvent() {
+    if (this.isDragging) {
+      this.isDragging = false;s
+      this.draggedPointIndex = -1;
+      if(this.selectPoint){
+        if (this.type === "标绘面"){
+          this.dynamicRotation(this.draggedPoint._id,this.afterDraggedPoint)
+          this.draggedPoint = null;
+          this.selectPoint = null;
+          this.type = null;
+        }else {
+          if (this.positions.length > 2) {
+            this.drawPolygon();
+          }
+        }
+      }
+      // this.enableCameraControls()
+      // 更新实体个数
+      // this.updateEntityCount();
+    }
+  }
+
+  mouseMoveEvent(movement) {
+    if (this.isDragging) {
+      let ray = this.viewer.camera.getPickRay(movement.endPosition);
+      let position = this.viewer.scene.globe.pick(ray, this.viewer.scene);
+      if (position) {
+        this.positions[this.draggedPointIndex] = position;
+        this.updatePointPosition(this.draggedPointIndex, position);
+        if (this.positions.length > 2) {
+          this.drawPolygon();
+        }
+        this.afterDraggedPoint = position;
+      }
+      // this.updateEntityCount();
+    }
   }
 }
 

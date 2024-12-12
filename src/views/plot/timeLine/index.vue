@@ -94,17 +94,29 @@ export default {
         return;
       }
 
+      let finalSearchKey = searchKey;
+
+      // 判断是否是时间格式
+      const timePattern = /^(\d{4})年(\d{1,2})月(\d{1,2})日(\d{1,2})时(\d{1,2})分(\d{1,2})秒$/;
+      const timeMatch = searchKey.match(timePattern);
+
+      if (timeMatch) {
+        // 如果是时间格式，转换为目标格式
+        const [, year, month, day, hh, mm, ss] = timeMatch;
+        finalSearchKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${hh.padStart(2, '0')}:${mm.padStart(2, '0')}:${ss.padStart(2, '0')}`;
+      }
+
       // 发送搜索请求
-      queryEq({queryValue: searchKey}).then(res => {
+      queryEq({queryValue: finalSearchKey}).then(res => {
         console.log("检查返回的数据",res); // 检查返回的数据
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
           ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime),
+          occurrenceTime: this.timestampToTimeData(item.occurrenceTime),
           magnitude: Number(item.magnitude).toFixed(1),
           latitude: Number(item.latitude).toFixed(2),
           longitude: Number(item.longitude).toFixed(2)
-        }));
+        }));  
         // 搜索之后更新数据
         this.getEqData = filteredData;
         this.total = filteredData.length;  // 更新总数
@@ -133,7 +145,7 @@ export default {
         let data = []
         for (let i = 0; i < res.length; i++) {
           let item = res[i]
-          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
+          item.occurrenceTime = that.timestampToTimeData(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
@@ -162,6 +174,27 @@ export default {
       ss = ss > 9 ? ss : '0' + ss
       // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
       return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+    timestampToTimeData(timestamp) {
+      let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     // 对数据库获取到的标绘图片数组切片
@@ -197,7 +230,7 @@ export default {
     // 修改table header的背景色
     tableColor({row, column, rowIndex, columnIndex}) {
       // console.log(row,"row")
-      if (row.magnitude > 5) {
+      if (row.magnitude >= 5) {
         // console.log('>')
         return {
           // 'background-color': 'rgb(65,159,255)',

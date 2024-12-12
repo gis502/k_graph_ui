@@ -207,7 +207,7 @@ StraightArrow.prototype = {
         this.firstPoint.type = "firstPoint";
         this.floatPoint = this.creatPoint(this.positions[2]);
         this.floatPoint.type = "floatPoint";
-        this.arrowEntity = this.showArrowOnMap(this.positions,data);
+        this.arrowEntity = this.showArrowOnMap(this.positions, data);
         this.firstPoint.show = false;
         this.floatPoint.show = false;
         this.arrowEntity.objId = this.objId;
@@ -243,7 +243,8 @@ StraightArrow.prototype = {
         point.attr = "editPoint";
         return point;
     },
-    showArrowOnMap: function (positions,data) {
+    showArrowOnMap: function (positions, data) {
+        console.log(positions, data)
         var $this = this;
         var update = function () {
             if (positions.length < 2) {
@@ -268,7 +269,7 @@ StraightArrow.prototype = {
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
-                material: $this.fillMaterial
+                material: Cesium.Color.BLUE  // 蓝色，透明度0.5
             }),
             properties: {
                 data
@@ -276,7 +277,8 @@ StraightArrow.prototype = {
         });
     },
     cartesianToLatlng: function (cartesian) {
-        var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         var lat = Cesium.Math.toDegrees(latlng.latitude);
         var lng = Cesium.Math.toDegrees(latlng.longitude);
         return [lng, lat];
@@ -304,6 +306,7 @@ var AttackArrow = function (viewer) {
     this.selectPoint = null;
     this.clickStep = 0; //用于控制点的移动结束
     this.modifyHandler = null;
+    this.lastClickedPosition = null;
 }
 AttackArrow.prototype = {
     disable: function () {
@@ -351,6 +354,16 @@ AttackArrow.prototype = {
             var cartesian;
             cartesian = getCatesian3FromPX(evt.position, $this.viewer);
             if (!cartesian) return;
+
+            // 如果上一次的点击位置存在，并且与当前点击的位置相同，则跳过
+            if ($this.lastClickedPosition && Cesium.Cartesian3.equals(cartesian, $this.lastClickedPosition)) {
+                console.warn('Clicked the same position, ignoring.');
+                return;
+            }
+
+            // 更新上一次的点击位置
+            $this.lastClickedPosition = cartesian;
+
             // var ray = viewer.camera.getPickRay(evt.position);
             // if (!ray) return;
             // var cartesian = viewer.scene.globe.pick(ray, $this.viewer.scene);
@@ -379,7 +392,7 @@ AttackArrow.prototype = {
             if ($this.positions.length >= 2) {
                 if (!Cesium.defined($this.arrowEntity)) {
                     $this.positions.push(cartesian);
-                    $this.arrowEntity = $this.showArrowOnMap($this.positions,data.plot);
+                    $this.arrowEntity = $this.showArrowOnMap($this.positions, data.plot);
                     $this.arrowEntity.objId = $this.objId;
                 } else {
                     $this.positions.pop();
@@ -387,7 +400,12 @@ AttackArrow.prototype = {
                 }
             }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+        // 阻止默认的右键菜单
+        window.document.oncontextmenu = function () {  // 阻止默认菜单弹出
+            return false;
+        }
         this.handler.setInputAction(function (evt) { //右击结束绘制
+
 
             if ($this.positions.length < 3) return;
             // var ray = viewer.camera.getPickRay(evt.position);
@@ -526,7 +544,7 @@ AttackArrow.prototype = {
         point.attr = "editPoint";
         return point;
     },
-    showArrowOnMap: function (positions,data) {
+    showArrowOnMap: function (positions, data) {
         var $this = this;
         var update = function () {
             //计算面
@@ -544,12 +562,13 @@ AttackArrow.prototype = {
             if (index == -1) returnData = res.polygonalPoint;
             return new Cesium.PolygonHierarchy(returnData);
         }
-        return this.viewer.entities.add({
+        // return this.viewer.entities.add({
+        return window.viewer.entities.add({
             polygon: new Cesium.PolygonGraphics({
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
-                material: $this.fillMaterial
+                material: Cesium.Color.RED
             }),
             properties: {
                 data
@@ -557,7 +576,8 @@ AttackArrow.prototype = {
         });
     },
     cartesianToLatlng: function (cartesian) {
-        var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         var lat = Cesium.Math.toDegrees(latlng.latitude);
         var lng = Cesium.Math.toDegrees(latlng.longitude);
         return [lng, lat];
@@ -584,6 +604,7 @@ var PincerArrow = function (viewer) {
     this.selectPoint = null;
     this.clickStep = 0; //用于控制点的移动结束
     this.modifyHandler = null;
+    this.lastClickedPosition = null;
 }
 PincerArrow.prototype = {
     disable: function () {
@@ -635,6 +656,15 @@ PincerArrow.prototype = {
             var cartesian;
             cartesian = getCatesian3FromPX(evt.position, $this.viewer);
             if (!cartesian) return;
+
+            // 如果上一次的点击位置存在，并且与当前点击的位置相同，则跳过
+            if ($this.lastClickedPosition && Cesium.Cartesian3.equals(cartesian, $this.lastClickedPosition)) {
+                console.warn('Clicked the same position, ignoring.');
+                return;
+            }
+
+            // 更新上一次的点击位置
+            $this.lastClickedPosition = cartesian;
 
             if ($this.positions.length == 0) {
                 $this.floatPoint = $this.creatPoint(cartesian);
@@ -817,12 +847,13 @@ PincerArrow.prototype = {
             if (index == -1) returnData = res.polygonalPoint;
             return new Cesium.PolygonHierarchy(returnData);
         }
-        return this.viewer.entities.add({
+        // return this.viewer.entities.add({
+        return window.viewer.entities.add({
             polygon: new Cesium.PolygonGraphics({
                 hierarchy: new Cesium.CallbackProperty(update, false),
                 show: true,
                 fill: true,
-                material: $this.fillMaterial
+                material: Cesium.Color.YELLOW
             }),
             properties: {
                 data
@@ -830,7 +861,8 @@ PincerArrow.prototype = {
         });
     },
     cartesianToLatlng: function (cartesian) {
-        var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         var lat = Cesium.Math.toDegrees(latlng.latitude);
         var lng = Cesium.Math.toDegrees(latlng.longitude);
         return [lng, lat];

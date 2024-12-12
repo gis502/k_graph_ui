@@ -1,226 +1,415 @@
-
 <template>
   <div>
-    <div class="emergency_response" v-show="emergency_response_isExpanded">
-      <p class="title">应急响应</p>
-      <div class="emergency_response_expand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头左.png" style="height: 100%;width: 100%">
-      </div>
-      <div class="emergency_response_title-underline"></div>
+    <div class="pop" :class="{ 'tech-glow': showNewPanel }">
+      <div class="pop_header">
+        <h2 class="pop_title">
+          应急响应
+          <span class="time">{{ recordTime }}</span>
+        </h2></div>
+      <div class="sub-main">
+        <ul class="sub-ul">
+          <li :class="[i === 0 || i === 1 ? 'high' : '']"
+              v-for="(item, i) in responseShow"
+          >
+            <div class="pop_content">
+              <p class="pop_txt"><span>{{ item.time }}</span></p>
+              <p class="pop_txt"><span>{{ item.department }}</span></p>
+              <p class="pop_responseName">
+                <span>{{ item.ResponseName }}</span>
+                <span class="pop_txt">{{ item.state }}</span>
+              </p>
+              <el-divider class="eldriver"></el-divider>
 
-      <!--            <p class="emergency_response_state"> {{this.activity.time}}</p>-->
-      <p class="emergency_response_txt"> {{this.activity.time}}</p>
-      <p class="emergency_response_txt"><span>{{this.activity.department}}</span> </p>
-      <p class="emergency_response_responseName"><span>{{this.activity.ResponseName}}</span> <span class="emergency_response_txt">{{this.activity.state}}</span></p>
-
-      <div class="emergency_response_time_div">
-        <div class="emergency_response_title-underline"></div>
-        <p class="time_text"> 数据更新时间</p>
-        <!--        <p class="time"> {{this.activity.time}}</p>-->
-        <p class="time"> {{this.recordTime}}</p>
-      </div>
-    </div>
-
-    <div v-show="!emergency_response_isExpanded">
-      <div class="emergency_response_notexpand_button" @click="emergency_response_toggleExpand">
-        <img src="../../assets/icons/TimeLine/收起展开箭头右.png" style="max-height: 15px;max-width: 15px">
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
-
-
 </template>
 
-
 <script>
-import EmergencyResponse from "@/assets/json/TimeLine/EmergencyResponse";
 import {getEmergencyResponse} from "../../api/system/timeLine.js";
+
 export default {
   data() {
     return {
       EmergencyResponseResponsecontent: [],
-      activity:{
-        ResponseName: '',
-        state: '',
-        department: '',
-        time: '',
-      },
-      // ifShowData: false,
-      emergency_response_isExpanded:'true',
-      recordTime:''
-    }
+      responseHistory: [],
+      responseShow:[],
+      responseNewPanelShow: [],
+      recordTime: '',
+      showNewPanel: false,
+    };
   },
-  props: [
-    'currentTime',
-    'eqid'
-  ],
+  props: ['currentTime', 'eqid', 'isfirst', 'eqstartTime'],
   mounted() {
-    // if(this.eqid === 'be3a5ea48dfda0a2251021845f17960b'){
-    if(this.eqid === 'be3a5ea4-8dfd-a0a2-2510-21845f17960b'){
-      this.ifShowData = true
-      this.init()
-    }
+    this.init();
   },
   watch: {
     currentTime(newVal) {
-      this.updateEmergencyResponse(newVal)
+      this.updateEmergencyResponse(newVal);
+    }
+  },
+  computed: {
+    panelHeight() {
+      // 假设每个项目的高度是100px，加上一些额外的空间（如padding和border）
+      const itemHeight = 21;
+      const itemsCount = this.responseNewPanelShow.length + 2;
+      const totalHeight = itemsCount * itemHeight;
+      return totalHeight + 'px';
     }
   },
   methods: {
     init() {
-      getEmergencyResponse().then(res => {
-        this.EmergencyResponseResponsecontent = res
-        this.updateEmergencyResponse(this.currentTime)
-      })
-    },
-    async updateEmergencyResponse(currentTime){
-      const activities =await this.EmergencyResponseResponsecontent.filter((activity) => {
-        return (
-            new Date(activity.responseTime) <= currentTime
-        );
+      getEmergencyResponse({eqid: this.eqid}).then(res => {
+        this.EmergencyResponseResponsecontent = res;
+        const times = res.map(item => item.responseTime);
+        this.$emit('addJumpNodes', times);
+        this.updateEmergencyResponse(this.currentTime);
       });
-      if(activities.length>0){
+    },
+    async updateEmergencyResponse(currentTime) {
+      const activities = await this.EmergencyResponseResponsecontent.filter(activity => {
+        return new Date(activity.responseTime) <= currentTime;
+      });
+      if (activities.length > 0){
+        activities.sort((a, b) => {
+          if (a.responseTime < b.responseTime) return -1;
+          return 0;
+        });
+      }
+      // console.log(activities,"activities")
+      this.responseShow=[]
+      // console.log("this.responseShow clear",this.responseShow)
+      for(let i =0;i<activities.length;i++){
+        // console.log("activities[i]",i,activities[i],activities[i].responseTime)
+        let tmpact = {
+          ResponseName: activities[i].level,
+          state: activities[i].status,
+          department: activities[i].unit,
+          time: this.timestampToTimeChina(activities[i].responseTime),
+        }
+        this.responseShow.unshift(tmpact)
+      }
+      // console.log("this.responseShow",this.responseShow)
+      // this.responseShow
+      if (currentTime === this.eqstartTime) {
+        this.responseNewPanelShow = []
+        this.responseHistory = []
+      }
+      //结束位置也不显示
+      if (this.isfirst) {
+        this.showNewPanel = false
+      }
+      else {
+
+
+        // console.log(activities,"activities.sort")
+        //没有更新
+        if (this.responseHistory.length == activities.length) {
+          this.showNewPanel = false
+        }
+        //回退
+        else if (this.responseHistory.length > activities.length) {
+          this.responseNewPanelShow = []
+          this.responseHistory = []
+          activities.forEach(item => {
+            let tmpact = {
+              ResponseName: item.level,
+              state: item.status,
+              department: item.unit,
+              time: this.timestampToTimeChina(item.responseTime),
+            }
+            this.responseHistory.push(tmpact)
+          })
+
+          // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {
+          //   // 将时间字符串转换为日期对象
+          //   const dateA = new Date(a.time.replace(/年|月|日/g, '-'));
+          //   const dateB = new Date(b.time.replace(/年|月|日/g, '-'));
+          //
+          //   // 比较日期对象
+          //   return dateA - dateB;
+          // });
+          // console.log( responseHistorytmp," this.responseHistory after")
+       }
+        //前进
+        else {
+          this.showNewPanel = true
+          this.responseNewPanelShow = []
+          // let responseNewPanelShowtmp = []
+          // console.log(activities[0],"activities0")
+          // 到目前为止所有
+          // activities
+          for(let i=activities.length-1;i>=0;i--){
+            if (!this.existsInresponseHistory(activities[i])) {
+              let tmpact = {
+                ResponseName: activities[i].level,
+                state: activities[i].status,
+                department: activities[i].unit,
+                time: this.timestampToTimeChina(activities[i].responseTime),
+              }
+              this.responseHistory.push(tmpact)
+              this.responseNewPanelShow.push(tmpact)
+              // responseNewPanelShowtmp.push(tmpact)
+            }
+          }
+          // console.log( this.responseHistory," this.responseHistory before")
+          // 假设this.responseHistory是一个Proxy包装的数组
+          // let arr=[]
+          // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {
+          //   // 将时间字符串转换为日期对象
+          //   const dateA = new Date(a.time.replace(/年|月|日/g, '-'));
+          //   const dateB = new Date(b.time.replace(/年|月|日/g, '-'));
+          //
+          //   // 比较日期对象
+          //   return dateA - dateB;
+          // });
+          // console.log( responseHistorytmp," this.responseHistory after")
+          // console.log(this.responseNewPanelShow,"this.responseNewPanelShow before")
+          // this.responseNewPanelShow.sort((a, b) => {
+          //     if (a.time < b.time) return -1;
+          //     return 0;
+          //   });
+          // // 假设this.responseHistory是您提供的数组
+          // console.log(this.responseNewPanelShow,"this.responseNewPanelShow after")
+        }
+      }
+
+      //更新时间
+      if (activities.length > 0) {
         activities.sort((a, b) => {
           if (a.responseTime < b.responseTime) return -1;
           if (a.responseTime > b.responseTime) return 1;
           return 0;
         });
-        let tmp=activities[activities.length-1]
-        // console.log(tmp)
-        this.activity.time=this.timestampToTime(tmp.responseTime)
-        this.recordTime=this.timestampToTime(tmp.responseTime)
-        this.activity.department=tmp.unit
-        this.activity.ResponseName=tmp.level
-        this.activity.state=tmp.status
+        //显示的一个
+        let tmp = activities[activities.length - 1];
+        this.recordTime = this.timestampToTimeChina(tmp.responseTime);
+      } else {
+        this.recordTime = this.timestampToTimeChina(currentTime);
       }
-      else{
-        this.recordTime=this.timestampToTime(currentTime)
-      }
+    },
+    existsInresponseHistory(item) {
+      return this.responseHistory.some(existingItem => {
+        return (
+            existingItem.ResponseName === item.level &&
+            existingItem.state === item.status &&
+            existingItem.department === item.unit &&
+            existingItem.time === this.timestampToTimeChina(item.responseTime)
+        );
+      });
     },
     timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      let DateObj = new Date(timestamp);
+      let year = DateObj.getFullYear();
+      let month = DateObj.getMonth() + 1;
+      let day = DateObj.getDate();
+      let hh = DateObj.getHours();
+      let mm = DateObj.getMinutes();
+      let ss = DateObj.getSeconds();
+      month = month > 9 ? month : '0' + month;
+      day = day > 9 ? day : '0' + day;
+      hh = hh > 9 ? hh : '0' + hh;
+      mm = mm > 9 ? mm : '0' + mm;
+      ss = ss > 9 ? ss : '0' + ss;
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
     },
-    emergency_response_toggleExpand() {
-      this.emergency_response_isExpanded = !this.emergency_response_isExpanded
+    timestampToTimeChina(timestamp) {
+      let DateObj = new Date(timestamp);
+      let year = DateObj.getFullYear();
+      let month = DateObj.getMonth() + 1;
+      let day = DateObj.getDate();
+      let hh = DateObj.getHours();
+      let mm = DateObj.getMinutes();
+      let ss = DateObj.getSeconds();
+      month = month > 9 ? month : '0' + month;
+      day = day > 9 ? day : '0' + day;
+      hh = hh > 9 ? hh : '0' + hh;
+      mm = mm > 9 ? mm : '0' + mm;
+      ss = ss > 9 ? ss : '0' + ss;
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
+    },
+    hideDetailedNews() {
+      this.showNewPanel = false
     }
   }
-}
+};
 </script>
 
-<style>
-.emergency_response {
+
+<style scoped>
+.pop {
   position: absolute;
-  width: 25%; /* 调整宽度 */
-  height: 23%;
-  padding: 10px;
-  border-radius: 5px;
-  top:10%;
-  left: 1%;
+  width: 100%; /* 调整宽度 */
+  height: 19%;
   z-index: 20; /* 提高层级 */
-  background-color: rgba(40, 40, 40, 0.7);
+  transition: border 0.3s ease-in-out;
 }
 
-
-.title{
-  margin: 0.9px;
-  font-size: 0.9rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
+.tech-glow {
+  animation: tech-glow-animation 1.5s infinite;
 }
 
-.emergency_response_expand_button{
-  position: absolute;
-  width: 10%; /* 调整宽度 */
-  //height: 25%;
-  padding: 10px;
-  border-radius: 5px;
-  top: 0%;
-  right: 1%;
-  z-index: 22; /* 提高层级 */
-}
-.emergency_response_notexpand_button{
-  position: absolute;
-  width: 2.5%; /* 调整宽度 */
-  //height: 6%;
-  padding: 10px;
-  border-radius: 5px;
-  top: 5%;
-  left: 1%;
-  z-index: 22; /* 提高层级 */
-  //background-color: #C03639;
+@keyframes tech-glow-animation {
+
+  0%, 100% {
+    box-shadow:
+        0 0 5px rgba(0, 123, 255, 0.6), /* 蓝色 */
+        0 0 10px rgba(0, 123, 255, 0.4),
+        0 0 15px rgba(0, 123, 255, 0.4),
+        0 0 20px rgba(255, 255, 0, 0.4), /* 黄色 */
+        0 0 25px rgba(252, 1, 1, 0.4); /* 红色 */
+  }
+  50% {
+    box-shadow:
+        0 0 5px rgba(0, 123, 255, 0.7), /* 蓝色 */
+        0 0 10px rgba(0, 123, 255, 0.5),
+        0 0 15px rgba(255, 255, 0, 0.5), /* 黄色 */
+        0 0 20px rgba(255, 0, 0, 0.5), /* 红色 */
+        0 0 25px rgba(255, 0, 0, 0.6);
+  }
 }
 
-.emergency_response_title-underline {
-  width: 100%;
-  height: 1px;
-  background-color: #FFFFFF;
-  margin-top: 1px;
+.pop_header {
+  top: -10%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
-
-
-.emergency_response_responseName{
+.pop_title {
+  color: #FFFFFF;
   font-size: 1.1rem;
-  line-height: 0.5rem;
-  font-weight: bold;
+  font-weight: 550;
+  top: 26%;
+  position: relative;
+  left: 7%;
+}
+
+.sub-main {
+  margin-top: -6%;
+  max-height: 13vh;
+  left: -2%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding: 0px;
+}
+
+
+.sub-ul {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  overflow-y: hidden; /* 当内容超出时隐藏垂直滚动条 */
+  list-style-type: none; /* 去除列表项默认的项目符号 */
+}
+
+.sub-ul li {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  margin-bottom: -21px; /* Optional: Add some space between items */
+  /*border-bottom: 1px solid #ddd; !* Optional: Add a border for separation *!*/
+  padding: 0; /* Optional: Add padding for better spacing */
+}
+
+.pop_content {
+  left: 7%;
+  top: -2%;
+  position: relative;
+}
+
+.pop_responseName {
+  font-size:0.9rem;
+  line-height: 0.6rem;
+  font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #419fff;
 }
-.emergency_response_txt{
-  font-size: 1.1rem;
-  line-height: 0.5rem;
-  font-weight: bold;
-  font-weight: normal;
-  color: #ffffff;
-}
-.emergency_response_department {
-  font-size: 1rem;
-  line-height: 0rem;
-  font-weight: bold;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffffff;
-}
-.emergency_response_state {
+
+.pop_txt {
+  line-height: 0.6rem;
   font-size: 0.9rem;
-  line-height: 0.3rem;
   font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
-}
-.emergency_response_time_div{
-  position: absolute;
-  width: 94%;
-  height: 10%;
-  bottom:16%;
 }
 
-.time_text{
-  margin: 1px;
+.time {
+  right: 9%;
+  position: absolute;
   font-size: 0.9rem;
   font-weight: normal;
   font-family: 'myFirstFont', sans-serif;
   color: #ffffff;
 }
-.time{
-  margin: 0px;
-  font-size: 0.9rem;
-  font-weight: normal;
-  font-family: 'myFirstFont', sans-serif;
-  color: #ffeb00;
+.new-panel {
+  position: absolute;
+  top: 8%;
+  left: 100%;
+  width: 176%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  z-index: 50;
+}
+
+.data-table {
+  width: 100%; /* 表格宽度 */
+  border-collapse: collapse; /* 合并边框 */
+}
+
+.data-table th, .data-table td {
+  background-color: #1e3b4d !important;
+  border-color: rgba(131, 190, 222, 0.24);
+  padding: 10px; /* 内边距 */
+  text-align: center;
+  color: #fff;
+  font-size: 16px;
+}
+
+.data-table th {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(131, 190, 222, 0.24);
+  background-color: #1e3b4d !important;
+  color: #fff;
+  padding: 0;
+  text-align: center;
+  font-size: 18px;
+}
+
+.close-button {
+  position: absolute; /* Position the button absolutely */
+  top: 0px; /* Distance from the top */
+  right: 10px; /* Distance from the right */
+  cursor: pointer; /* Change cursor to pointer */
+  font-size: 24px; /* Adjust font size */
+  color: #ffffff; /* Optional: Set color */
+}
+
+/* 整个滚动条 */
+::-webkit-scrollbar {
+  width: 6px; /* 滚动条的宽度 */
+  height: 12px; /* 滚动条的高度，对水平滚动条有效 */
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #008aff70; /* 轨道的背景颜色 */
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #1f9dca; /* 滑块的背景颜色 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+}
+.eldriver{
+  width: 250px;
 }
 </style>

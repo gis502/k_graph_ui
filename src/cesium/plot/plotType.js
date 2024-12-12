@@ -574,7 +574,7 @@ const plotType = {
         rescueEquipmentType: {
             type: "selectMultiple",
             name: "救援装备类型",
-            value: [],
+            value: "",
             content: [
                 {
                     value: "rescueEquipmentType",
@@ -619,6 +619,47 @@ const plotType = {
             name: "联系电话",
             value: ""
         },
+    },
+
+    bufferZone: {
+        name: "集结缓冲区",
+        area: {
+            type: "text",
+            name: "缓存区面积 (m²)",
+            value: ""
+        },
+        capacity: {
+            type: "select",
+            name: "容纳人数",
+            value: "",
+            content: [
+                {value: "50人以下", label: "50人以下"},
+                {value: "50—100人", label: "50—100人"},
+                {value: "100—200人", label: "100—200人"},
+                {value: "200人以上", label: "200人以上"}
+            ]
+        },
+        basicSupport: {
+            type: "select",
+            name: "基本保障",
+            value: '',
+            content: [
+                {value: "食宿", label: "食宿"},
+                {value: "通电", label: "通电"},
+                {value: "通水", label: "通水"},
+                {value: "通网", label: "通网"}
+            ]
+        },
+        contactPerson: {
+            type: "text",
+            name: "联系人员",
+            value: ""
+        },
+        contactPhone: {
+            type: "text",
+            name: "联系电话",
+            value: ""
+        }
     },
 
     missingPersons: {
@@ -1167,7 +1208,7 @@ const plotType = {
         threatenedObjects: {
             type: "select",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {
                     value: "threatenedObjects",
@@ -1266,7 +1307,7 @@ const plotType = {
         threatenedObjects: {
             type: "select",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {
                     value: "threatenedObjects",
@@ -1398,7 +1439,7 @@ const plotType = {
         threatenedObjects: {
             type: "selectMultiple",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {value: "threatenedObjects", label: "地表建筑"},
                 {value: "threatenedObjects", label: "交通线路"},
@@ -1478,7 +1519,7 @@ const plotType = {
         threatenedObjects: {
             type: "select",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {value: "threatenedObjects", label: "地表建筑"},
                 {value: "threatenedObjects", label: "交通线路"},
@@ -1627,7 +1668,7 @@ const plotType = {
         threatenedTarget: {
             type: "selectMultiple",
             name: "威胁对象",
-            value: [],
+            value: "",
             content: [
                 {value: "threatenedTarget", label: "地表建筑"},
                 {value: "threatenedTarget", label: "交通线路"},

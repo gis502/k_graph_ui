@@ -12,7 +12,6 @@ import CesiumWorldTerrain from '@/assets/CesiumWorldTerrain.png'
 export function initCesium(Cesium,container) {
     // 使用Cesium官方示例中的Token
     Cesium.Ion.defaultAccessToken = CesiumIonDefaultAccessToken || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YmRiNjM4MC1kMDZkLTQ2NDQtYjQ3My0xZDI4MDU0MGJhZDciLCJpZCI6MzIxMzAsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1OTY1MjM4NzZ9.A3FBZ6HjKkTsOGnjwWWeO9L10HQ9c-wcF4c3dtTc4gQ'
-    // console.log("container----------",container)
     if(container === undefined){
         container = 'cesiumContainer'
     }
@@ -87,11 +86,22 @@ export function initCesium(Cesium,container) {
             roll: 0.0
         }
     });
+    // 默认添加 GeoServer 提供的 WMS 图层
+    viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
+        layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
+        parameters: {
+            service: 'WMS',
+            format: 'image/png',
+            transparent: true,
+        }
+    }));
     return viewer
 }
 
 //图层
 function getImageryProviderArr() {
+    let baseURL = import.meta.env.VITE_APP_API_URL
     return [
         new Cesium.ProviderViewModel({
             //图层的名称。
@@ -105,6 +115,7 @@ function getImageryProviderArr() {
                 return new Cesium.WebMapTileServiceImageryProvider({
                     // url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
                     url: `/tdtproxy/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+                    // url:`http://59.255.48.160:81/DataServer?tk=96c30e9410386f41137b8314ab34d088&T=img_w&x={x}&y={y}&l={z}`,
                     format: 'tiles',
                     tileMatrixSetID: 'c',
                     tilingScheme: new Cesium.GeographicTilingScheme(),
@@ -119,9 +130,9 @@ function getImageryProviderArr() {
         }),
         new Cesium.ProviderViewModel({
             //图层的名称。
-            name: 'Bing底图',
+            name: '第三方底图',
             //显示项目被隐藏的工具提示
-            tooltip: '默认Bing底图',
+            tooltip: '第三方底图',
             //代表图层的图标
             iconUrl: bingAerial,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
@@ -141,15 +152,15 @@ function getImageryProviderArr() {
             iconUrl: bingAerial,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
             creationFunction: function () {
-                return new Cesium.WebMapServiceImageryProvider({
-                    url: 'http://10.16.7.69:9080/geoserver/yaan/wms',
-                    layers: 'yaan:yaan',
-                    parameters: {
-                        service: 'WMS',
-                        format: 'image/png',
-                        transparent: true
-                    }
-                })
+                // return new Cesium.WebMapServiceImageryProvider({
+                //     url: baseURL+'/geoserver/yaan/wms',
+                //     layers: 'yaan:yaan',
+                //     parameters: {
+                //         service: 'WMS',
+                //         format: 'image/png',
+                //         transparent: true
+                //     }
+                // })
 
 
                 // return new Cesium.WebMapTileServiceImageryProvider({
@@ -161,9 +172,15 @@ function getImageryProviderArr() {
                 //         maximumLevel: 20
                 //     })
 
-                // return new Cesium.UrlTemplateImageryProvider({
-                //     url: 'http://localhost:9003/image/wmts/6CGzXm2G/{z}/{x}/{y}',
-                // })
+                return [
+                    new Cesium.UrlTemplateImageryProvider({
+                        url: 'http://localhost:9003/image/wmts/xIVBqDcT/{z}/{x}/{y}',
+                    }),
+                    new Cesium.UrlTemplateImageryProvider({
+                    url: 'http://localhost:9003/image/wmts/SjbIL6SP/{z}/{x}/{y}',
+                }),
+
+                ]
             }
         }),
 
@@ -171,7 +188,7 @@ function getImageryProviderArr() {
 }
 
 //地形
-function getTerrainProviderViewModelsArr() {
+export function getTerrainProviderViewModelsArr() {
     let baseURL = import.meta.env.VITE_APP_API_URL
     return [
         new Cesium.ProviderViewModel({
@@ -185,6 +202,23 @@ function getTerrainProviderViewModelsArr() {
             creationFunction: function () {
                 return new Cesium.EllipsoidTerrainProvider({
                     ellipsoid: Cesium.Ellipsoid.WGS84
+                })
+            }
+        }),
+        new Cesium.ProviderViewModel({
+            //图层的名称
+            name: '第三方地形',
+            //显示项目被隐藏的工具提示
+            tooltip: '第三方地形',
+            //代表图层的图标
+            iconUrl: CesiumWorldTerrain,
+            //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
+            creationFunction: function () {
+                return new Cesium.CesiumTerrainProvider({
+                    url: Cesium.IonResource.fromAssetId(1),
+                    requestWaterMask: !0,
+                    requestVertexNormals: !0,
+                    // isSct : false //是否为iServer发布的TIN地形服务,stk地形设置为false。
                 })
             }
         }),
@@ -205,23 +239,10 @@ function getTerrainProviderViewModelsArr() {
                 })
             }
         }),
-        new Cesium.ProviderViewModel({
-            //图层的名称
-            name: 'Cesium地形',
-            //显示项目被隐藏的工具提示
-            tooltip: 'Cesium地形',
-            //代表图层的图标
-            iconUrl: CesiumWorldTerrain,
-            //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
-            creationFunction: function () {
-                return new Cesium.CesiumTerrainProvider({
-                    url: Cesium.IonResource.fromAssetId(1),
-                    requestWaterMask: !0,
-                    requestVertexNormals: !0,
-                    // isSct : false //是否为iServer发布的TIN地形服务,stk地形设置为false。
-                })
-            }
-        }),
+
+
+
+
     ]
 }
 

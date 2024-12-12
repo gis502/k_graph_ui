@@ -2,47 +2,54 @@
   <div class="style-container">
     <div class="container-center">
       <dv-border-box-12 class="model1">当前累计中断情况<br>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
-        <CumulativeInterruption/>
+        <CumulativeInterruption :eqid="eqid"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model1">电力设施损毁及抢修情况<br>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
-        <PowerSupply/>
+        <PowerSupply :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">道路交通损毁及抢修情况与交通管控情况<br/>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
-        <RoadDamage/>
+        <RoadDamage :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
       <dv-border-box-12 class="model2">通信设施损毁及抢修情况<br/>
-        <p style="margin: 0;font-size: 16px;color: orangered">最新上传时间：{{ time }}</p>
-        <TrafficSituation/>
+        <TrafficSituation :eqid="eqid" :userInput="userInputTime"/>
       </dv-border-box-12>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import PowerSupply from "@/components/DisasterStatistics/PowerSupply.vue";
 import CumulativeInterruption from "@/components/DisasterStatistics/CumulativeInterruption.vue"
 import RoadDamage from "@/components/DisasterStatistics/RoadDamage.vue";
 import TrafficSituation from "@/components/DisasterStatistics/TrafficSituation.vue";
-import {ref} from "vue";
+import {defineProps, ref, watch} from "vue";
 
-export default {
-  name: "TransportationElectricity",
-  data() {
-    return {
-      time: '2024-09-05 15:30:00'
-    }
+// 响应式变量
+const eqid = ref('');
+const userInputTime = ref('')
+// 获取父组件的 eqid
+const props = defineProps({
+  newEqId:{
+    type: String,
+    required: true
   },
-  methods: {
-    toggleTable() {
-      this.showTable = !this.showTable;
-      // 这里可以添加切换表格的逻辑
-    }
-  },
-  components: { PowerSupply, CumulativeInterruption, RoadDamage, TrafficSituation }
-}
+  userInput:{
+    type:[String, Date],
+    required: true
+  }
+});
+
+
+watch(()=>props.userInput,(newValue) => {
+  userInputTime.value = newValue;
+})
+
+
+// 监听 props 的变化
+watch(() => props.newEqId, (newValue) => {
+  eqid.value = newValue;
+  console.log("交通模块中的 eqId:", eqid.value); // 确认更新后的值
+});
 </script>
 
 <style scoped>
@@ -53,7 +60,6 @@ export default {
   background-size: 100% 100%;
   position: absolute;
   padding-right:4px;
-
 }
 .model1 {
   width: 48%;
@@ -81,5 +87,4 @@ export default {
   width: 100%;
   height: calc(100vh - 90px);
 }
-
 </style>

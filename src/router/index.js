@@ -43,11 +43,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/thd',
-    component: () => import('@/components/Cesium/thd.vue'),
-    hidden: true
-  },
-  {
     path: '/register',
     component: () => import('@/views/register'),
     hidden: true
@@ -104,6 +99,11 @@ export const constantRoutes = [
   {
     path:'/thd',
     component: () =>import('@/components/Cesium/thd'),
+    hidden: true
+  },
+  {
+    path:'/orthophotographViewer',
+    component: () =>import('@/components/Cesium/orthophotographViewer'),
     hidden: true
   },
 

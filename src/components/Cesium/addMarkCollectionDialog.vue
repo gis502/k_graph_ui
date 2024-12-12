@@ -141,10 +141,13 @@ export default {
       insertPlotAndInfo(data).then(res=>{
         let bool = true
         this.$emit('ifPointAnimate',bool)
-        this.$emit('drawPoint', data.plot)
+        this.$emit('drawPoints', data.plot)
+        this.$emit('sendPlot', data.plot.plotId,data.plot.plotType)
+
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
         // let form = {...this.form}
-        // this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data: form}))
+        console.log("完成",data)
+        this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "add", data}))
         this.$emit('clearMarkDialogForm') // 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
         console.log("添加成功")
         ElMessage({

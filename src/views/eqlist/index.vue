@@ -14,22 +14,49 @@
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
     </el-form-item>
 
-    <el-table :data="tableData" :stripe="true" :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+    <el-table
+        :data="tableData"
+        :stripe="true"
+        :header-cell-style="tableHeaderColor"
+        :cell-style="tableColor"
+    >
       <el-table-column label="序号" width="60">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="occurrenceTime" label="发震时间" width="200"></el-table-column>
-      <el-table-column prop="earthquakeName" label="位置" width="300"></el-table-column>
+
+      <el-table-column
+          prop="occurrenceTime"
+          label="发震时间"
+          width="250"
+          show-overflow-tooltip
+      ></el-table-column>
+
+      <el-table-column
+          prop="earthquakeName"
+          label="位置"
+          width="300"
+          show-overflow-tooltip
+      ></el-table-column>
+
       <el-table-column prop="magnitude" label="震级(级)"></el-table-column>
       <el-table-column prop="longitude" label="经度(度分)"></el-table-column>
       <el-table-column prop="latitude" label="纬度(度分)"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)"></el-table-column>
+
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-button type="text" icon="Edit" @click="handleOpen('修改',scope.row)">修改</el-button>
-          <el-button type="text" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button
+              type="text"
+              icon="Edit"
+              @click="handleOpen('修改', scope.row)"
+          >修改</el-button>
+          <el-button
+              type="text"
+              icon="Delete"
+              @click="handleDelete(scope.row)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -60,7 +87,7 @@
                   v-model="dialogContent.occurrenceTime"
                   type="datetime"
                   placeholder="选择日期时间"
-                  value-format="x"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
                   size="large">
               </el-date-picker>
             </el-form-item>
@@ -120,8 +147,7 @@
               end-placeholder="结束时间"
               :shortcuts="shortcuts"
               style="width: 23vw;"
-              value-format="x"
-          />
+              value-format="YYYY-MM-DDTHH:mm:ss"          />
         </el-form-item>
         <el-form-item label="地震震级"  prop="magnitude" class="formValue">
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;"  placeholder="起始震级"/>
@@ -294,7 +320,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         earthquakeName: '',
-        occurrenceTime: Date.now(), // 初始化为当前时间的时间戳
+        occurrenceTime: '', // 初始化为当前时间的时间戳
         magnitude: '',
         longitude: '',
         latitude: '',
@@ -365,8 +391,8 @@ export default {
       let startTime = null;
       let endTime = null;
       if (occurrenceTime && occurrenceTime.length === 2) {
-        startTime = new Date(occurrenceTime[0]).toISOString();  // 转换为 ISO 格式
-        endTime = new Date(occurrenceTime[1]).toISOString();    // 转换为 ISO 格式
+        startTime = this.formatISODateTimeToBackend(occurrenceTime[0])
+        endTime = this.formatISODateTimeToBackend(occurrenceTime[1])
 
         // console.log("转换后的开始时间:", startTime);
         // console.log("转换后的结束时间:", endTime);
@@ -437,6 +463,7 @@ export default {
           item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
+        console.log("返回的数据：",res)
         that.tableData = this.getPageArr()
       })
     },
@@ -467,9 +494,18 @@ export default {
       if (title === "新增") {
         this.dialogTitle = title
         console.log(this.dialogTitle)
-      } else {
+      }
+      else if (title === "修改") {
         this.dialogTitle = title
-        this.dialogContent = {...row}
+        this.dialogContent = {
+          earthquakeName: row.earthquakeName,
+          occurrenceTime: this.formatDateToBackend(row.occurrenceTime), // 初始化为当前时间的时间戳
+          magnitude: row.magnitude,
+          longitude: row.longitude,
+          latitude: row.latitude,
+          depth: row.depth,
+          eqid: row.eqid,
+        }
       }
       this.dialogShow = !this.dialogShow
     },
@@ -477,7 +513,7 @@ export default {
     handleQuery() {
       // 获取搜索关键字
       const searchKey = this.queryParams.trim();
-
+      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
       // 如果搜索关键字为空，恢复为原始数据
       if (searchKey === "") {
         this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
@@ -485,7 +521,7 @@ export default {
       }
 
       // 发送搜索请求
-      queryEq({queryValue: searchKey}).then(res => {
+      queryEq({queryValue: result}).then(res => {
         console.log("检查返回的数据", res); // 检查返回的数据
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
@@ -524,34 +560,26 @@ export default {
         }
       });
 
-// 检查发震时间是否已选择，如果未选择，则设置为当前时间
-      if (!this.dialogContent.occurrenceTime) {
-        this.dialogContent.occurrenceTime = new Date().toISOString();
-      } else {
-        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
-      }
+      // this.dialogContent.occurrenceTime = this.formatDateToBackend(this.dialogContent.occurrenceTime); // 调用方法格式化时间
+      console.log("formatDateToBackend格式化时间commit：", this.dialogContent.occurrenceTime);
+      this.dialogContent.occurrenceTime = this.formatISODateTimeToBackend(this.dialogContent.occurrenceTime); // 调用方法格式化时间
+      console.log("formatDateToBackend“T”->' 'commit：", this.dialogContent.occurrenceTime);
 
-      let that = this;
+
       if (this.dialogTitle === "新增") {
-        this.dialogContent.eqid = this.guid();
-        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
-
-        // console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
+        console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
         addEq(this.dialogContent).then(res => {
-          that.getEq();
-          that.dialogShow = false;
+          this.getEq();
+          this.dialogShow = false;
           this.clearDialogContent();
         });
       } else {
-        // 将 occurrenceTime 转换为 ISO 8601 格式的字符串
-        this.dialogContent.occurrenceTime = new Date(this.dialogContent.occurrenceTime).toISOString();
 
-        // console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
+
+        console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
         updataEq(this.dialogContent).then(res => {
-          that.getEq();
-          that.dialogShow = false;
+          this.getEq();
+          this.dialogShow = false;
           this.clearDialogContent();
         });
       }
@@ -673,9 +701,36 @@ export default {
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
 
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
     },
+
+    /**
+     * 将年月日转换成-的形式 （用于格式化传给后端）
+     * @param inputDate
+     * @returns {string}
+     */
+    formatDateToBackend(inputDate) {
+      // 使用正则表达式提取日期和时间部分
+      const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+      const matches = inputDate.match(regex);
+
+      if (matches) {
+        // 格式化为目标格式 "yyyy-MM-dd HH:mm:ss"
+        return `${matches[1]}-${matches[2]}-${matches[3]} ${matches[4]}:${matches[5]}:${matches[6]}`;
+      } else {
+        throw new Error("Invalid date format");
+      }
+    },
+    /**
+     * 将ISO格式换成后端想要的格式
+     * @param input
+     * @returns {*|string}
+     */
+    formatISODateTimeToBackend(input) {
+      if (!input) return '';
+      return input.replace('T', ' '); // 替换 'T' 为空格
+    }
+
   },
 }
 

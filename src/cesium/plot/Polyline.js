@@ -85,10 +85,10 @@ export default class Polyline {
       if (that.positions.length === 1) {
         that.generatePolyline();
       }
-      let distance = that.getSpaceDistance(that.positions)
-      if(this.typeName ==="量算"){
-        document.getElementById("distanceLine").innerHTML = distance.toFixed(2)
-      }
+      // let distance = that.getSpaceDistance(that.positions)
+      // if(this.typeName ==="量算"){
+      //   document.getElementById("distanceLine").innerHTML = distance.toFixed(2)
+      // }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 
@@ -187,7 +187,6 @@ export default class Polyline {
   }
 
   noNo(data){
-    // console.log("data",data)
     let situationPlotData = []// situationplot表中的线数据
     let plotItem = {
       // eqid: that.eqid,
@@ -333,6 +332,7 @@ export default class Polyline {
       // 5.每段距离求和
       lengthAll += s
     }
+    console.log("量算-----结果2：",lengthAll)
     return lengthAll
   }
 
@@ -391,7 +391,8 @@ export default class Polyline {
           // 线的positions需要数组里的点都是Cartesian3类型
           positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
         })
-        let material = getmaterial(line[0].plotType,line[0].icon)
+        let material = getmaterial(line[0].plotType,'http://localhost:8080/uploads/PlotsPic/' + line[0].icon+ '.png?t=' + new Date().getTime())
+
         // 1-6 画线
         window.viewer.entities.add({
           id: onlyDrawIdItem,
