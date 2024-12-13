@@ -697,10 +697,7 @@ export default {
       console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
       this.websock.onmessage = websocketonmessage;//涉及功能导入功能
-      // this.websock.eqid = this.eqid
-      // 为什么这样写不生效????
-      // this.websock.onmessage = this.wsOnmessage()
-      // this.websock.wsAdd = this.wsAdd()c0a80428-c790-43e4-ac9d-ba682b716900
+
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {

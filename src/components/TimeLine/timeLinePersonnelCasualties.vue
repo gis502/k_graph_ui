@@ -44,7 +44,7 @@ import {initWebSocket} from "@/cesium/WS.js"; // 引入 ECharts
 export default {
   data() {
     return {
-      Responsecontent: [],
+      ResponseContent: [],
       casualtiesHistory:[],
       activity: {
         time: "",
@@ -53,6 +53,7 @@ export default {
         injure: "0",
       },
       chartInstance: null, // 保存 ECharts 实例
+      websocketToTimeLine:null,
     };
   },
   props: ["currentTime", "eqid","eqstartTime"],
@@ -69,22 +70,32 @@ export default {
   },
   methods: {
     async init() {
-      // this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/');
-      // this.websock = initWebSocket(this.eqid)
-      // this.websock.eqid = this.eqid
-      // this.websock.onmessage = (event) => {
-        // console.log('收到消息：event', event);
-        // console.log('收到消息：enevt data', event.data);
-        // 处理接收到的数据
-        // this.handleMessage(event.data);
-      // };
-      this.Responsecontent = await getRescueActionCasualties({eqid: this.eqid});
+      this.ResponseContent = await getRescueActionCasualties({eqid: this.eqid});
       this.personnel_casualties_update(this.currentTime);
       this.updateChart(); // 更新图表数据
+      this.initWebSocket()
+    },
+    initWebSocket(){
+      let that=this
+      let eqid=this.eqid+"CasualtyExcelUpdate"
+      this.websocketToTimeLine=initWebSocket(eqid)
+      this.websocketToTimeLine.onmessage = function (e) {
+        // console.log("e this.websock.onmessage", e)
+        try {
+          console.log("从服务器接收到的消息thdtimelinePersonnelCasualties", JSON.parse(e.data))
+          JSON.parse(e.data).response.data.forEach(item => {
+            // console.log(item,"item")
+            that.ResponseContent.push(item)
+          })
+          // console.log("that.ResponseContent",that.ResponseContent)
+        } catch (err) {
+          console.log(err, 'ws中catch到错误');
+        }
+      };
     },
     async personnel_casualties_update(currentTime) {
-      // console.log(this.Responsecontent,"this.Responsecontent personnel_casualties_update")
-      this.casualtiesHistory = this.Responsecontent.filter((activity) => {
+      // console.log(this.ResponseContent,"this.ResponseContent personnel_casualties_update")
+      this.casualtiesHistory = this.ResponseContent.filter((activity) => {
         return new Date(activity.submissionDeadline) <= currentTime;
       });
       if (this.casualtiesHistory.length >= 1) {

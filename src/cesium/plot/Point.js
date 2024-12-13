@@ -410,7 +410,7 @@ export default class Point {
 
                     // 设置字体和布局
                     const titleFontSize = 18; // 标题字体大小
-                    const contentFontSize = 15; // 内容字体大小
+                    const contentFontSize = 18; // 内容字体大小
                     const rowHeight = 30; // 每行高度调整为 30
                     const padding = 40; // 内边距
                     const margin = 10; // 外边距
