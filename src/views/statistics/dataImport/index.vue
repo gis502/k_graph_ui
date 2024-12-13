@@ -347,10 +347,6 @@ export default {
     }
   },
   methods: {
-    // initWebsocket() {
-    //   // this.websock = initWebSocket("be3a5ea4-8dfd-a0a2-2510-21845f17960b")
-    //   // this.websock.eqid = "be3a5ea4-8dfd-a0a2-2510-21845f17960b"
-    // },
     // 打开上传文件弹窗
     openUpload() {
       //上传表成功后放到上传成功的位置
@@ -668,7 +664,7 @@ export default {
             this.websocketToTimeLine.send(JSON.stringify(file))
             setTimeout(() => {
               this.websocketToTimeLine.close();//关闭这个websocket连接
-            })
+            },500)
           }
         }, 500)
 
