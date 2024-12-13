@@ -641,6 +641,7 @@ export default {
         });
       } else {
         console.log("excel upload res",res,file,fileList)
+        //如果上传成功的是人员伤亡统计表，建立websocket
         if(file.name==="震情伤亡-人员伤亡统计表.xlsx"){
           let eqid=file.response.data[0].earthquakeIdentifier+"CasualtyExcelUpdate"
           console.log(eqid,"eqid")
@@ -661,11 +662,16 @@ export default {
         setTimeout(() => {
           this.percent = 0
           this.websocket.close(); // 关闭WebSocket连接
+          //要在建立websocket后延迟一点发送消息
           if(this.websocketToTimeLine){
-            file.operateType="excel"
+            //发送消息
             this.websocketToTimeLine.send(JSON.stringify(file))
+            setTimeout(() => {
+              this.websocketToTimeLine.close();//关闭这个websocket连接
+            })
           }
         }, 500)
+
       }
     },
 

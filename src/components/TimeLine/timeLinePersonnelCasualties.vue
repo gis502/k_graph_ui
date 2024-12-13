@@ -73,12 +73,14 @@ export default {
       this.ResponseContent = await getRescueActionCasualties({eqid: this.eqid});
       this.personnel_casualties_update(this.currentTime);
       this.updateChart(); // 更新图表数据
-      this.initWebSocket()
+      this.initWebSocket() //接收人员伤亡websocket消息，初始化
     },
     initWebSocket(){
       let that=this
       let eqid=this.eqid+"CasualtyExcelUpdate"
       this.websocketToTimeLine=initWebSocket(eqid)
+      //接收到消息后，把数据添加到第一期请求到的数组里，便于后续数据处理
+      //因为要操作数据，所以没有定义在ws.js文件里，onmessage函数定义在vue文件里
       this.websocketToTimeLine.onmessage = function (e) {
         // console.log("e this.websock.onmessage", e)
         try {
