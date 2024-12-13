@@ -54,12 +54,27 @@ export default {
       this.addOrthophotographViewer()
     },
     addOrthophotographViewer(){
+
       window.viewer.imageryLayers.addImageryProvider(
           new Cesium.UrlTemplateImageryProvider({
-            url: 'http://localhost:9003/image/wmts/ji9N8PBo/{z}/{x}/{y}',
+            url: 'http://localhost:9003/image/wmts/KDeS0ioU/{z}/{x}/{y}',
           }),
+          // new Cesium.WebMapServiceImageryProvider({
+          //   url: 'http://localhost:9080/geoserver/gwc/service/wms',
+          //   layers: 'yaan:DOM',
+          //   parameters: {
+          //     service: 'WMS',
+          //     transparent: true,//背景透明
+          //     format: 'image/png',
+          //   },
+          // })
       );
-    }
+
+
+      window.viewer.camera.flyTo({
+        destination : Cesium.Cartesian3.fromDegrees(102.711, 30.02, 1000.0)
+      });
+    },
 
   }
 }
