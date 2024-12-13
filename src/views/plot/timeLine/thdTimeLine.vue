@@ -210,7 +210,8 @@
         :ifShowMapPreview="ifShowMapPreview"
     ></thematicMapPreview>
 
-    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
+<!--    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">-->
+    <div class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
   </div>
@@ -450,7 +451,8 @@ export default {
       },//视角中心坐标
 
       canOperateTimerLine: false,
-      wsaddMakers: []
+      wsaddMakers: [],
+      wsdeleteMakers:[]
     };
   },
   created() {
@@ -666,30 +668,21 @@ export default {
               let markData = JSON.parse(e.data).data
               if (!that.isTimerRunning && that.currentTimePosition >= 100) {
                 //标绘点
-                that.wsAdd(markType, markData)
+                that.wsAddMakerFunc(markType, markData)
               }
               //播放或播放暂停
               else {
-                // console.log(markType,markData,"markType,markData")
                 that.wsaddMakers.push({markType: markType, markData: markData})
               }
             }
-          } else if (markOperate === "delete") {
+          }
+          else if (markOperate === "delete") {
             let id = JSON.parse(e.data).id.toString()
-            that.plotisshow[id] = 0
-            if (markType === "point") {
-              cesiumPlot.deletePointById(id);
-            } else if (markType === "polyline") {
-              let polyline = window.viewer.entities.getById(id)
-              let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
-              polylinePosition.pointPosition.forEach((item, index) => {
-                window.viewer.entities.remove(item)
-              })
-              window.viewer.entities.remove(polyline)
-            } else if (markType === "polygon") {
-              window.viewer.entities.removeById(id)
-            } else if (markType === "arrow") {
-              Arrow.clearById(id)
+            if (!that.isTimerRunning && that.currentTimePosition >= 100) {
+              that.wsDeleteMakerFunc(id,markType)
+            }
+            else{
+              that.wsdeleteMakers.push({id: id, markType: markType})
             }
           }
         } catch (err) {
@@ -697,7 +690,7 @@ export default {
         }
       };
     },
-    wsAdd(type, data) {
+    wsAddMakerFunc(type, data) {
       data.plot.longitude = Number(data.plot.geom.coordinates[0])
       data.plot.latitude = Number(data.plot.geom.coordinates[1])
       this.plots.push(data.plot)
@@ -720,6 +713,26 @@ export default {
         } else if (data.plot.plotType === "直线箭头") {
           arrow.showStraightArrow([data.plot])
         }
+      }
+    },
+    wsDeleteMakerFunc(id,markType){
+      this.plotisshow[id] = 0
+      if (markType === "point") {
+        cesiumPlot.deletePointById(id);
+      }
+      else if (markType === "polyline") {
+        let polyline = window.viewer.entities.getById(id)
+        let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
+        polylinePosition.pointPosition.forEach((item, index) => {
+          window.viewer.entities.remove(item)
+        })
+        window.viewer.entities.remove(polyline)
+      }
+      else if (markType === "polygon") {
+        window.viewer.entities.removeById(id)
+      }
+      else if (markType === "arrow") {
+        Arrow.clearById(id)
       }
     },
     initcesiumPlot() {
@@ -806,7 +819,6 @@ export default {
           }
           let that = this
           //处理websocket的标绘
-          // console.log(this.wsaddMakers,"this.wsaddMakers")
           if (this.wsaddMakers.length > 0) {
             this.wsaddMakers.forEach((item) => {
               let markType = item.markType
@@ -814,6 +826,14 @@ export default {
               that.wsAdd(markType, markData)
             })
             this.wsaddMakers = []
+          }
+          if(this.wsdeleteMakers.length>0){
+            this.wsdeleteMakers.forEach((item) => {
+              let id = item.id
+              let markType = item.markType
+              that.wsDeleteMakerFunc(id,markType)
+            })
+            this.wsdeleteMakers = []
           }
         }
       } else {
@@ -1168,7 +1188,6 @@ export default {
       if (this.jumpTimes) {
         this.jumpTimes.forEach(item => {
           var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
-          // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode] = 1
         })
       }
@@ -1316,7 +1335,7 @@ export default {
             break;
           }
         }
-
+        //回退到最开始
         if (i <= 0) {
           flag = 0
           this.currentTimePosition = 0;
@@ -1333,11 +1352,19 @@ export default {
         }
         //更新到下一跳
         if (flag === 1) {
-          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          // 根据是否需要显示标绘层来更新图层
-          this.updatePlotOnce("3")
+          let currentTimeTmp=new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+          //最后5分钟，不满5分钟的，再回退一跳
+          if(currentTimeTmp>=this.eqendTime){
+            this.backward()
+          }
+          else{
+            this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
+            this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+            this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+            // 根据是否需要显示标绘层来更新图层
+            this.updatePlotOnce("3")
+          }
+
         }
       }
 
@@ -1349,8 +1376,6 @@ export default {
      */
     jumpToTime(event) {
       if (this.canOperateTimerLine) {
-
-
         this.isfirst = false
         let currentTimeTmp = this.currentTime
         // 获取时间轴的矩形区域，用于计算点击位置对应的进度

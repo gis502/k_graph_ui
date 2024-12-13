@@ -485,7 +485,8 @@
         :showTypes="showTypes"
         style="width: 40%"
     ></thematicMapPreview>
-    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">
+<!--    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">-->
+    <div class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
 
@@ -828,7 +829,7 @@ export default {
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
 
-      stopTimeforAddEntityOneIndex: 5000,
+      stopTimeforAddEntityOneIndex: 6000,
 
 
       timelinePopupShowCenterStrart: true,
@@ -1021,7 +1022,8 @@ export default {
       tableNameOptions: [],
       eqlistName: '',
       canOperateTimerLine: false,
-      wsaddMakers: []
+      wsaddMakers: [],
+      wsdeleteMakers:[]
     };
   },
   created() {
@@ -1035,6 +1037,7 @@ export default {
     this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
+    this.getEq()
     this.getPlotwithStartandEndTime(this.eqid)
     this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
@@ -1237,48 +1240,47 @@ export default {
       this.websock.eqid = this.eqid
 
       this.websock.onmessage = function (e) {
-        console.log("e", e)
+        console.log("e this.websock.onmessage", e)
         try {
           console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
-          let markType = JSON.parse(e.data).type
-          let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
-          if (markOperate === "add") {
-            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
-              let markData = JSON.parse(e.data).data
+          //上传表（）
+          // if(JSON.parse(e.data).operateType==="excel"){
+          //   let
+          // }
+          // // 标绘点
+          // else{
+            let markType = JSON.parse(e.data).type
+            let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
+            if (markOperate === "add") {
+              if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
+                let markData = JSON.parse(e.data).data
+                if (!that.isTimerRunning && that.currentTimePosition >= 100) {
+                  //标绘点
+                  that.wsAddMakerFunc(markType, markData)
+                }
+                //播放或播放暂停
+                else {
+                  that.wsaddMakers.push({markType: markType, markData: markData})
+                }
+              }
+            }
+            else if (markOperate === "delete") {
+              let id = JSON.parse(e.data).id.toString()
               if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-                //标绘点
-                that.wsAdd(markType, markData)
+                that.wsDeleteMakerFunc(id,markType)
               }
-              //播放或播放暂停
-              else {
-                that.wsaddMakers.push({markType: markType, markData: markData})
+              else{
+                that.wsdeleteMakers.push({id: id, markType: markType})
               }
             }
-          }
-          else if (markOperate === "delete") {
-            let id = JSON.parse(e.data).id.toString()
-            that.plotisshow[id] = 0
-            if (markType === "point") {
-              cesiumPlot.deletePointById(id);
-            } else if (markType === "polyline") {
-              let polyline = window.viewer.entities.getById(id)
-              let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
-              polylinePosition.pointPosition.forEach((item, index) => {
-                window.viewer.entities.remove(item)
-              })
-              window.viewer.entities.remove(polyline)
-            } else if (markType === "polygon") {
-              window.viewer.entities.removeById(id)
-            } else if (markType === "arrow") {
-              Arrow.clearById(id)
-            }
-          }
+          // }
+
         } catch (err) {
           console.log(err, 'ws中catch到错误');
         }
       };
     },
-    wsAdd(type, data) {
+    wsAddMakerFunc(type, data) {
       // console.log(data.plot,"data.plot wsadd")
       data.plot.longitude = Number(data.plot.geom.coordinates[0])
       data.plot.latitude = Number(data.plot.geom.coordinates[1]),
@@ -1307,6 +1309,26 @@ export default {
         } else if (data.plot.plotType === "直线箭头") {
           arrow.showStraightArrow([data.plot])
         }
+      }
+    },
+    wsDeleteMakerFunc(id,markType){
+      this.plotisshow[id] = 0
+      if (markType === "point") {
+        cesiumPlot.deletePointById(id);
+      }
+      else if (markType === "polyline") {
+        let polyline = window.viewer.entities.getById(id)
+        let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
+        polylinePosition.pointPosition.forEach((item, index) => {
+          window.viewer.entities.remove(item)
+        })
+        window.viewer.entities.remove(polyline)
+      }
+      else if (markType === "polygon") {
+        window.viewer.entities.removeById(id)
+      }
+      else if (markType === "arrow") {
+        Arrow.clearById(id)
       }
     },
     initcesiumPlot() {
@@ -1412,6 +1434,14 @@ export default {
               that.wsAdd(markType, markData)
             })
             this.wsaddMakers = []
+          }
+          if(this.wsdeleteMakers.length>0){
+            this.wsdeleteMakers.forEach((item) => {
+              let id = item.id
+              let markType = item.markType
+              that.wsDeleteMakerFunc(id,markType)
+            })
+            this.wsdeleteMakers = []
           }
         }
       } else {
@@ -1559,14 +1589,14 @@ export default {
 
         if (type == false) {
           // //console.log("false update")
-          this.stopTimeforAddEntityOneIndex = 3000
-          cesiumPlot.drawPoints(points, false, 3000);
+          this.stopTimeforAddEntityOneIndex = 5000
+          cesiumPlot.drawPoints(points, false, 5000);
         } else if (type == "3") {
           // //console.log("333 update")
-          this.stopTimeforAddEntityOneIndex = 3000
-          cesiumPlot.drawPoints(points, true, 3000);
+          this.stopTimeforAddEntityOneIndex = 5000
+          cesiumPlot.drawPoints(points, true, 5000);
         } else {
-          this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
+          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
           cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
           this.flyPointsForOneIndex(points, 0)
         }
@@ -1600,7 +1630,25 @@ export default {
         }
 
       })
-      cesiumPlot.getDrawPolyline(filteredPolylineArr)
+      if(filteredPolylineArr.length>0){
+        cesiumPlot.getDrawPolyline(filteredPolylineArr)
+        console.log(filteredPolylineArr,"filteredPolylineArr")
+        viewer.scene.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(
+              parseFloat(filteredPolylineArr[0].geom.coordinates[0][0]),
+              parseFloat(filteredPolylineArr[0].geom.coordinates[0][1]),
+              30000),
+          orientation: {
+            // 指向
+            heading: 6.283185307179581,
+            // 视角
+            pitch: -1.5688168484696687,
+            roll: 0.0
+          },
+          duration: 3 // 飞行动画持续时间（秒）
+        });
+      }
+
 
       //--------------------------面绘制------------------------------
       // 过滤出绘制类型为多边形的数据
@@ -1928,7 +1976,7 @@ export default {
               });
         });
 
-      }, 5000)
+      }, 6000)
 
     },
     // 添加坡面实体
@@ -3246,13 +3294,9 @@ export default {
       if (this.jumpTimes) {
         this.jumpTimes.forEach(item => {
           var jumpnode = Math.ceil((new Date(item) - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))//5分钟一个节点
-          // console.log("jumpnode",jumpnode)
           this.jumpNodes[jumpnode] = 1
         })
       }
-
-      // console.log(this.jumpNodes,this.plots,"this.jumpNodes111")
-      // console.log(this.plots,"this.plots111")
       // 标记计时器为运行状态
       this.isTimerRunning = true;
       // 初始化
@@ -3339,7 +3383,7 @@ export default {
       this.updatePlotOnce(false)
       setTimeout(() => {
         this.stopTimer()
-        this.flyToCenter()
+        this.flyToCenterhigh()
       }, 3000);
     },
 
@@ -3388,12 +3432,12 @@ export default {
         for (; i >= 0; i--) {
           // console.log()
           if (this.jumpNodes[i] === 1) {
-            // console.log(i,"i")
+            console.log(i,"i")
             flag = 1;
             break;
           }
         }
-
+        //回退到最开始
         if (i <= 0) {
           flag = 0
           this.currentTimePosition = 0;
@@ -3410,13 +3454,22 @@ export default {
         }
         //更新到下一跳
         if (flag === 1) {
-          this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
-          this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
-          this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
-          // 根据是否需要显示标绘层来更新图层
-          this.updatePlotOnce("3")
+          let currentTimeTmp=new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+          //最后5分钟，不满5分钟的，再回退一跳
+          if(currentTimeTmp>=this.eqendTime){
+            this.backward()
+          }
+          else{
+            this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
+            this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
+            this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
+            // 根据是否需要显示标绘层来更新图层
+            this.updatePlotOnce("3")
+          }
+
         }
       }
+
     },
 
     /**
@@ -3575,7 +3628,29 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
-            60000),
+            30000),
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        },
+        duration: 3 // 飞行动画持续时间（秒）
+      });
+    },
+    flyToCenterhigh(){
+      if (this.selectedEntity && (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible)) {
+        window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+          this.updatePopupPosition();
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+      }
+      // 飞行动画持续时间（秒）
+      viewer.scene.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
+            200000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -4013,6 +4088,7 @@ export default {
     addHistoryEqPoints() {
       // 先清除historyEq实体
       this.removeEntitiesByType("historyEq")
+      console.log("data:",this.eqtableData)
       addHistoryEqPoints(this.centerPoint, this.eqtableData)
     },
 
@@ -5816,7 +5892,7 @@ export default {
 .pop {
   position: absolute;
   width: 100%;
-  z-index: 20;
+  z-index: 0;
   border-color: #05709d;
   background: rgb(4, 20, 34);
   /*background: rgba(47, 82, 117, 0.3) 88%;*/
@@ -5865,7 +5941,7 @@ export default {
 }
 
 :deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 600 !important;
+  z-index: 600000 !important;
   background-color: #2b323a;
 }
 

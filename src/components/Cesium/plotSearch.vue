@@ -185,7 +185,6 @@ export default {
     },
     plotArray: {
       handler(newData) {
-
           this.getPlot({ plotArray: newData });
       },
       deep: true, // 深度监听
@@ -263,9 +262,9 @@ export default {
         document.body.removeChild(link);
       }
     },
-    getAssetsFile() {
-      this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
-    },
+    // getAssetsFile() {
+    //   this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+    // },
      async getReverseGeocode(lon, lat) {
        try {
          const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
@@ -286,12 +285,13 @@ export default {
       try {
         // 判断是通过 eqid 还是 plotArray 调用
         if (params.eqid) {
-          console.log("通过 eqid 获取数据", params.eqid);
+          // console.log("通过 eqid 获取数据", params.eqid);
           this.selectPlotData = [];
           this.filteredEqData = [];
 
           // 获取 plot 数据
-          const res = await getPlot({ eqid: params.eqid });
+          let res = await getPlot({ eqid: params.eqid });
+          console.log("通过 eqid 获取数据",res)
           if (!res || res.length === 0) {
             this.pagedEqData = [];
             this.filteredEqData = [];
@@ -314,8 +314,8 @@ export default {
           const plotTypes = plotArray.map((plot) => plot.plotType);
 
           const updatedRes = [];
-          const batchData = await getExcelPlotInfo(plotIds, plotTypes);
-          console.log("batchData",batchData)
+          let batchData= await getExcelPlotInfo(plotIds, plotTypes);
+          // console.log("batchData",batchData)
           // 立即处理和展示当前批次数据
           const processedBatchData = await Promise.all(
               batchData.map(async (plot) => {
@@ -344,6 +344,7 @@ export default {
     },
 
     async processPlotData(res) {
+      console.log(res,"processPlotData")
       const plotIds = res.map((plot) => plot.plotId);
       const plotTypes = res.map((plot) => plot.plotType);
 
@@ -385,7 +386,16 @@ export default {
     updatePagedEqData() {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = this.currentPage * this.pageSize;
-      this.pagedEqData = this.filteredEqData.slice(start, end);
+      // this.pagedEqData = this.filteredEqData.slice(start, end);
+      let pagedEqDatatmp = this.filteredEqData.slice(start, end);
+      let pagedEqDatatmpArr=[]
+      pagedEqDatatmp.forEach(item=>{
+        if(item.plotInfo.plotType==="直线箭头"||item.plotInfo.plotType==="攻击箭头"||item.plotInfo.plotType==="钳击箭头"){
+          item.plotInfo.icon=item.plotInfo.plotType
+        }
+        pagedEqDatatmpArr.push(item)
+      })
+      this.pagedEqData=pagedEqDatatmpArr
       console.log("pagedEqData:", this.pagedEqData)
 
       // 清除之前的点并重新添加
