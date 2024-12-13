@@ -7,9 +7,7 @@
 import {ref, onMounted, onBeforeUnmount, defineProps, watch} from 'vue';
 import * as echarts from 'echarts';
 import {useGlobalStore} from "../../store";
-import {getBarrierlakeSituation} from "../../api/system/barrierlakeSituation";
 import {fromRedCrossDonations, getRedCrossDonations} from "../../api/system/redCrossDonation";
-import {fromMaterialDonation} from "../../api/system/materialDonation";
 const props = defineProps({
   eqid:{
     type: String,

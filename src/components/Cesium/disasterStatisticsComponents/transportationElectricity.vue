@@ -8,28 +8,30 @@
         <div ref="echart1" style="height: 350px;width:490px"></div>
       </el-carousel-item>
       <!-- 第二个页面，放三个 ECharts -->
-      <el-carousel-item>
-        <div ref="echart2" style="width: 150px; height: 350px; float: left;"></div>
-        <div ref="echart3" style="width: 150px; height: 350px; float: left;"></div>
-        <div ref="echart4" style="width: 150px; height: 350px; float: left;"></div>
+      <el-carousel-item style="height: 350px;width:490px;">
+        <div style="text-align: center;width: 350px ;color: #fff;font-size: 18px;font-weight: 4000;margin-top: 10px">电力设施损毁及抢修情况</div>
+        <div ref="echart2" style="width: 130px; height: 350px; float: left;"></div>
+        <div ref="echart3" style="width: 130px; height: 350px; float: left;"></div>
+        <div ref="echart4" style="width: 130px; height: 350px; float: left;"></div>
       </el-carousel-item>
 <!--    第三个页面，放一个 ECharts -->
       <el-carousel-item>
         <div ref="echart5" style="height: 350px;width:490px"></div>
       </el-carousel-item>
       <!-- 第四个页面，放三个 ECharts -->
-      <el-carousel-item style="height: 350px;width:490px">
-        <div ref="echart6" style="width: 150px; height: 350px; float: left;"></div>
-        <div ref="echart7" style="width: 150px; height: 350px; float: left;"></div>
-        <div ref="echart8" style="width: 150px; height: 350px; float: left;"></div>
+      <el-carousel-item style="height: 350px;width:490px;">
+        <div style="text-align: center;width: 350px ;color: #fff;font-size: 18px;font-weight: 4000;margin-top: 10px">电力设施损毁及抢修情况</div>
+        <div ref="echart6" style="width: 130px; height: 350px; float: left;"></div>
+        <div ref="echart7" style="width: 130px; height: 350px; float: left;"></div>
+        <div ref="echart8" style="width: 130px; height: 350px; float: left;"></div>
       </el-carousel-item>
     </el-carousel>
 <!--    下面echarts-->
     <span>更新时间：{{ updateTime2 }}</span>
-    <div ref="chart1" class="chart1" style="height: 350px;width:490px">
-      <el-carousel height="350px"  indicator-position="none" :interval="4000">
+    <div ref="chart1" class="chart1" style="height: 330px;width:490px">
+      <el-carousel height="330px"  indicator-position="none" :interval="4000">
         <el-carousel-item v-for="(option, index) in chartOptions1" :key="index">
-          <div :ref="`chartContainer${index}`" class="chart" :style="{ width: '100%', height: '100%' }"></div>
+          <div :ref="`chartContainer${index}`" class="chart" style="width:490px ;height: 350px }"></div>
         </el-carousel-item>
       </el-carousel>
     </div>
@@ -348,18 +350,18 @@ const initChart = async () => {
           }
         },
       }],
-      series: [{
+      series: [
+        {
         name: "已经抢修",
         type: "line",
         smooth: true, // 平滑曲线显示
         showAllSymbol: true, // 显示所有图形
         symbol: "circle", // 标记的图形为实心圆
-        symbolSize: 10, // 标记的大小
         itemStyle: {
           color: "#058cff" // 曲线颜色
         },
         lineStyle: {
-          color: "#058cff" // 曲线颜色
+          color: "#058cff",// 曲线颜色
         },
         areaStyle: {
           color: "rgba(5,140,255, 0.2)"
@@ -797,7 +799,7 @@ const initChart = async () => {
     legend: {
       orient: 'horizontal',  // 水平排列图例
       show: true,
-      bottom: 100,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
+      bottom: 140,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
       left: 'center',         // 将图例居中
       itemWidth: 10,          // 图例项的宽度
       itemHeight: 10,         // 图例项的高度
@@ -831,7 +833,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['50%', '60%'],  // 缩小图表的半径
-        center: ['50%', '40%'],  // 将图表的中心设置为容器的中心
+        center: ['50%', '30%'],  // 将图表的中心设置为容器的中心
         hoverAnimation: false,
         z: 10,
         label: {
@@ -872,7 +874,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['42%', '52%'],
-        center: ['50%', '40%'],
+        center: ['50%', '30%'],
         hoverAnimation: false,
         label: {
           show: false,
@@ -902,7 +904,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['35%', '45%'],
-        center: ['50%', '40%'],
+        center: ['50%', '30%'],
         hoverAnimation: false,
         label: {
           show: false,
@@ -935,7 +937,7 @@ const initChart = async () => {
     legend: {
       orient: 'horizontal',  // 水平排列图例
       show: true,
-      bottom: 100,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
+      bottom: 140,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
       left: 'center',         // 将图例居中
       itemWidth: 10,          // 图例项的宽度
       itemHeight: 10,         // 图例项的高度
@@ -969,7 +971,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['50%', '60%'],  // 缩小图表的半径
-        center: ['50%', '40%'],  // 将图表的中心设置为容器的中心
+        center: ['50%', '30%'],  // 将图表的中心设置为容器的中心
         hoverAnimation: false,
         z: 10,
         label: {
@@ -1010,7 +1012,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['42%', '52%'],
-        center: ['50%', '40%'],
+        center: ['50%', '30%'],
         hoverAnimation: false,
         label: {
           show: false,
@@ -1040,7 +1042,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['35%', '45%'],
-        center: ['50%', '40%'],
+        center: ['50%', '30%'],
         hoverAnimation: false,
         label: {
           show: false,
@@ -1073,7 +1075,7 @@ const initChart = async () => {
     legend: {
       orient: 'horizontal',  // 水平排列图例
       show: true,
-      bottom: 100,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
+      bottom: 140,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
       left: 'center',         // 将图例居中
       itemWidth: 10,          // 图例项的宽度
       itemHeight: 10,         // 图例项的高度
@@ -1093,8 +1095,8 @@ const initChart = async () => {
         switch (name) {
           case '停电用户总数':
             return '停电用户总数 ' + ' ' + totalBlackoutUsers.value + '户';
-          case '已恢复供电用户数':
-            return '已恢复供电用户数 ' + ' ' + totalRestoredPowerUsers.value + '户';
+          case '已恢复用户数':
+            return '已恢复用户数 ' + ' ' + totalRestoredPowerUsers.value + '户';
           default:
             break;
         }
@@ -1107,7 +1109,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['50%', '60%'],  // 缩小图表的半径
-        center: ['50%', '40%'],  // 将图表的中心设置为容器的中心
+        center: ['50%', '30%'],  // 将图表的中心设置为容器的中心
         hoverAnimation: false,
         z: 10,
         label: {
@@ -1135,7 +1137,7 @@ const initChart = async () => {
           },
           {
             value: totalRestoredPowerUsers.value,
-            name: '已恢复供电用户数',
+            name: '已恢复用户数',
             itemStyle: {
               color: '#ffd302',
             },
@@ -1148,7 +1150,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['42%', '52%'],
-        center: ['50%', '40%'],
+        center: ['50%', '30%'],
         hoverAnimation: false,
         label: {
           show: false,
@@ -1164,7 +1166,7 @@ const initChart = async () => {
           },
           {
             value: totalRestoredPowerUsers.value,
-            name: '已恢复供电用户数',
+            name: '已恢复用户数',
             itemStyle: {
               color: '#ffd302',
               opacity: 0.4,
@@ -1178,7 +1180,7 @@ const initChart = async () => {
       {
         type: 'pie',
         radius: ['35%', '45%'],
-        center: ['50%', '40%'],
+        center: ['50%', '30%'],
         hoverAnimation: false,
         label: {
           show: false,
@@ -1194,7 +1196,7 @@ const initChart = async () => {
           },
           {
             value: totalRestoredPowerUsers.value,
-            name: '已恢复供电用户数',
+            name: '已恢复用户数',
             itemStyle: {
               color: '#ffd302',
               opacity: 0.1,

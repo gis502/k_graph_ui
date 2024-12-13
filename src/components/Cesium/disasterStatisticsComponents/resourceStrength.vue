@@ -2,28 +2,28 @@
   <div class="container" style="height: 780px;width:490px">
     <el-carousel :interval="4000" indicator-position="none" style="height: 780px;width:490px">
       <!--    第一个走马灯-->
-      <el-carousel-item style="height: 780px;width:490px">
+      <el-carousel-item style="height: 650px;width:430px">
         <span>更新时间：{{ updateTime1 }}</span>
-        <div ref="echart1"  class="chart1" style="height: 780px;width:490px"></div>
+        <div ref="echart1"  class="chart1" style="height: 650px;width:430px"></div>
       </el-carousel-item>
       <!--    第二个走马灯-->
-      <el-carousel-item style="height: 780px;width:490px">
+      <el-carousel-item style="height: 650px;width:460px">
         <span>更新时间：{{ updateTime2 }}</span>
-        <div ref="echart2"  class="chart2" style="height: 390px;width:490px"></div>
+        <div ref="echart2"  class="chart2" style="height: 300px;width:460px"></div>
         <span>更新时间：{{ updateTime3 }}</span>
-        <div ref="echart3"  class="chart3" style="height: 390px;width:490px"></div>
+        <div ref="echart3"  class="chart3" style="height: 300px;width:460px"></div>
       </el-carousel-item>
       <!--    第三个走马灯-->
-      <el-carousel-item style="height: 780px;width:490px">
+      <el-carousel-item style="height: 650px;width:430px">
         <span>更新时间：{{ updateTime1 }}</span>
-        <div ref="echart4" class="chart1" style="height: 780px;width:490px"></div>
+        <div ref="echart4" class="chart1"  style="height: 650px;width:430px"></div>
       </el-carousel-item>
       <!--    第四个走马灯-->
-      <el-carousel-item style="height: 780px;width:490px">
+      <el-carousel-item style="height: 650px;width:430px">
         <span>更新时间：{{ updateTime2 }}</span>
-        <div ref="echart5"  class="chart2" style="height: 390px;width:490px"></div>
+        <div ref="echart5"  class="chart2" style="height: 300px;width:430px"></div>
         <span>更新时间：{{ updateTime3 }}</span>
-        <div ref="echart6"  class="chart3" style="height: 390px;width:490px"></div>
+        <div ref="echart6"  class="chart3" style="height: 300px;width:430px"></div>
       </el-carousel-item>
     </el-carousel>
   </div>
@@ -775,7 +775,7 @@ const initChart = async () => {
     grid: {
       top: '15%',
       right: '3%',
-      left: '5%',
+      left: '19%',
       bottom: '12%',
     },
     xAxis: [
