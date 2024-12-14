@@ -259,7 +259,7 @@ import {ElMessage} from "element-plus";
 import {ref} from "vue";
 import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
-import {initWebSocket} from '@/cesium/WS.js'
+import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
 
 export default {
   name: "index",
@@ -329,13 +329,14 @@ export default {
       currentPage: 1,
 
       websock: null,
+      websocketToTimeLine:null,
     }
   },
   mounted() {
     this.getTableName()
     this.getExcelUploadByTimeButton()
     this.getEarthquake()
-    this.initWebsocket()
+    // this.initWebsocket()
   },
   computed: {
     // 计算当前页的数据
@@ -346,10 +347,6 @@ export default {
     }
   },
   methods: {
-    initWebsocket() {
-      // this.websock = initWebSocket("be3a5ea4-8dfd-a0a2-2510-21845f17960b")
-      // this.websock.eqid = "be3a5ea4-8dfd-a0a2-2510-21845f17960b"
-    },
     // 打开上传文件弹窗
     openUpload() {
       //上传表成功后放到上传成功的位置
@@ -592,7 +589,8 @@ export default {
           setTimeout(() => {
             this.importDialogVisible = false
           }, 2000)
-        } else {
+        }
+        else {
           // 执行上传操作或其他逻辑
           this.isLoading = true;
           // if ('WebSocket' in window) {
@@ -638,6 +636,15 @@ export default {
           }
         });
       } else {
+        console.log("excel upload res",res,file,fileList)
+        //如果上传成功的是人员伤亡统计表，建立websocket
+        if(file.name==="震情伤亡-人员伤亡统计表.xlsx"){
+          let eqid=file.response.data[0].earthquakeIdentifier+"CasualtyExcelUpdate"
+          console.log(eqid,"eqid")
+          this.websocketToTimeLine=initWebSocket(eqid)
+        }
+
+
         const account = res.data.length
         // 获取Excel导入结果信息
         this.$alert("导入总数：" + account + " 成功数量：" + res.data.length, {
@@ -651,10 +658,17 @@ export default {
         setTimeout(() => {
           this.percent = 0
           this.websocket.close(); // 关闭WebSocket连接
-          // 关闭websocket连接
+          //要在建立websocket后延迟一点发送消息
+          if(this.websocketToTimeLine){
+            //发送消息
+            this.websocketToTimeLine.send(JSON.stringify(file))
+            setTimeout(() => {
+              this.websocketToTimeLine.close();//关闭这个websocket连接
+            },500)
+          }
         }, 500)
-      }
 
+      }
     },
 
 
