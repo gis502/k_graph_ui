@@ -314,9 +314,9 @@ export default class Point {
           function customStyle() {
             if (Cesium.defined(removeListener)) {
               removeListener && removeListener();
-              let removeListener = undefined;
+              removeListener = undefined;
             } else {
-              let removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
+              removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
                   function (clusteredEntities, cluster) {
                     // if (clusteredEntities.length < 10) {
                     //   // 禁用 Billboard 显示
@@ -588,7 +588,6 @@ export default class Point {
       }
       return labeldataSource
     }
-
   }
 
 
