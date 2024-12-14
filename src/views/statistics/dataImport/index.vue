@@ -467,8 +467,8 @@ export default {
     //获取地震列表
     getEarthquake() {
       // getExcelUploadEarthquake().then(res => {
-      getExcelUploadEqList().then(res => {
-        this.eqlists = res.data
+      getExcelUploadEarthquake().then(res => {
+        this.eqlists = res
 
         if (res.data === null) {
           ElMessage.error("地震列表无数据")

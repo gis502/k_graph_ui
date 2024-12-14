@@ -197,9 +197,9 @@ const formatDate = (dateStr) => {
 
 // 获取地震列表
 const getEarthquake = () => {
-  getExcelUploadEqList().then(res => {
+  getExcelUploadEarthquake().then(res => {
 
-    eqlists.value = res.data
+    eqlists.value = res
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
     }

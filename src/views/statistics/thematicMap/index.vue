@@ -802,8 +802,8 @@ export default {
 
     //获取地震列表数据
     getEarthquake() {
-     getExcelUploadEqList().then(res => {
-        this.eqlists = res.data;
+      getExcelUploadEarthquake().then(res => {
+        this.eqlists = res
         if (res.data === null) {
           this.$message.error("地震列表无数据");
         } else {
@@ -831,7 +831,7 @@ export default {
 
     //获取震源中心
     getEarthQuakeCenter(eqid) {
-      getGeomByEqListId(eqid).then(res => {
+      getGeomById(eqid).then(res => {
         this.updateEarthQuakeCenter(res[0])
       })
     },
