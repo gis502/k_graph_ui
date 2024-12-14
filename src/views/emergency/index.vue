@@ -248,17 +248,29 @@
         <h2 class="panelName">行政区划匹配</h2>
       </div>
 
-      <div class="panelContent" style="padding-right: 5px">
-        <div class="district-buttons">
-          <div v-for="district in districts" :key="district.adcode"
-               class="district-button">
-            <el-button @click="selectRegions(district)" class="district-button"
-                       :class="{ 'selected': selectedRegions.includes(district) }">
-              {{ district.name }}
-            </el-button>
-          </div>
+        <div class="panelContent" style="padding-right: 5px" v-if="marchRegion">
+            <div class="district-buttons">
+                <div v-for="district in districts" :key="district.adcode" class="district-button">
+                    <el-button
+                            @click="selectRegions(district)"
+                            class="district-button"
+                            :class="{ 'selected': selectedRegions.includes(district) }">
+                        {{ district.name }}
+                    </el-button>
+                </div>
+            </div>
+<!--            <el-button type="primary" @click="confirmSelection">确认选择</el-button>-->
         </div>
-      </div>
+
+        <!-- marchRegionSupplies 供应详情 -->
+<!--        <div class="panelContent" style="padding-right: 5px" v-if="marchRegionSupplies">-->
+<!--            <div>-->
+<!--&lt;!&ndash;                <p>当前选择的区域：{{ selectedRegions.map(r => r.name).join(', ') }}</p>&ndash;&gt;-->
+<!--                <h1>11111111111111111111111</h1>-->
+<!--                <el-button type="primary" @click="goBackToRegionSelection">返回重新选择</el-button>-->
+<!--            </div>-->
+<!--        </div>-->
+
       <div style="width: 100%;display: flex;justify-content: center;align-items: center">
         <div class="panelButtons">
           <el-button @click="panels.marchRegionsDialog = false">取消</el-button>
@@ -490,6 +502,8 @@ export default {
         searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
         marchRegionsDialog: false,  //行政区划匹配dialog是否显示
       },
+        marchRegion: true, // 选定匹配区域
+        marchRegionSupplies: false, // 选定行政区后填写要匹配的物资
 
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
 
@@ -1187,7 +1201,15 @@ export default {
       } else {
         this.selectedRegions.splice(index, 1); // 取消选中
       }
+      // this.marchRegion = false
+      //   this.marchRegionSupplies = true
     },
+      // 返回重新选择区域
+      goBackToRegionSelection() {
+          this.selectedRegions = []
+          this.marchRegion = true
+          this.marchRegionSupplies = false
+      },
 
       // 行政区域匹配
     handleDistrictClick() {
@@ -1613,6 +1635,10 @@ export default {
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
       this.ifDrawEllipse = true
+        // 移除现有的点
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
       let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
       // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
         this.selectedDataByRadius = {
