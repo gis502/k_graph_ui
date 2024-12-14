@@ -336,6 +336,13 @@
           </div>
         </div>
 
+        <!-- speedButton 和 chooseSpeed 放在一起 -->
+        <!--        <span class="speedButton">{{ speedOption }}</span>-->
+        <!--        <div class="chooseSpeed">-->
+        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
+        <!--            {{ option }}-->
+        <!--          </option>-->
+        <!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -513,23 +520,49 @@
       </div>
     </div>
 
-    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-      <el-button @click="drawN">量算</el-button>
-    </div>
+<!--    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--      <el-button @click="drawN">量算</el-button>-->
+<!--    </div>-->
 
-    <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-      <el-button @click="route">路径规划</el-button>
-    </div>
-    <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-      <el-button @click="addArea">添加障碍区域</el-button>
-    </div>
-    <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;
-      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">
-      <el-button @click="removeAll">清空所有实体</el-button>
-    </div>
+<!--    <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--      <el-button @click="route">路径规划</el-button>-->
+<!--    </div>-->
+<!--    <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--      <el-button @click="addArea">添加障碍区域</el-button>-->
+<!--    </div>-->
+<!--    <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;-->
+<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--      <el-button @click="removeAll">清空所有实体</el-button>-->
+<!--    </div>-->
+
+      <!--    路径规划    -->
+      <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
+      <!--          <div class="panelTop">-->
+      <!--              <h2 class="panelName">路径规划</h2>-->
+      <!--          </div>-->
+
+      <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
+      <!--              <el-row style="margin: 20px;">-->
+      <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
+      <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
+      <!--              </el-row>-->
+      <!--              <div slot="header" class="clearfix"-->
+      <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
+      <!--                  <div>-->
+      <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
+      <!--                  </div>-->
+      <!--                  <div v-if="visibleGuilde">-->
+      <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
+      <!--                          {{ instruction }}-->
+      <!--                      </div>-->
+      <!--                      <div v-if="loading" class="loading">加载中...</div>-->
+      <!--                  </div>-->
+      <!--              </div>-->
+      <!--          </div>-->
+      <!--      </div>-->
   </div>
 </template>
 
@@ -832,7 +865,7 @@ export default {
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
 
-      stopTimeforAddEntityOneIndex: 5000,
+      stopTimeforAddEntityOneIndex: 6000,
 
 
       timelinePopupShowCenterStrart: true,
@@ -1113,6 +1146,31 @@ export default {
         }
       });
 
+      let token = "34d101b55f6166c49c42aed5a7ed345c";
+      viewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url:
+                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                token,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+          })
+      );
+      //影像注记
+      viewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            url:
+                "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                token,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+            show: false,
+          })
+      );
 
       let that = this;
       let canvas = viewer.scene.canvas;
@@ -1131,18 +1189,18 @@ export default {
           // 将地图坐标（弧度）转为十进制的度数
           let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(6);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(6);
-          if (that.ifSlopeAnalyze) {
+          if(that.ifSlopeAnalyze){
             let geom = this.cartographicToGeoJSON(cartographic)
-            console.log("geom----", geom)
+            console.log("geom----",geom)
             // 获取地形的海拔高度（米）
             let height = cartographic.height.toFixed(2);
             if (!this.firstClickPosition) {
-              this.firstClickPosition = {longitude, latitude}
-              console.log("第一个点：", this.firstClickPosition)
+              this.firstClickPosition = { longitude, latitude }
+              console.log("第一个点：",this.firstClickPosition)
               this.drawSite(position)
             } else if (!this.secondClickPosition) {
-              this.secondClickPosition = {longitude, latitude}
-              console.log("第二个点：", this.secondClickPosition)
+              this.secondClickPosition = { longitude, latitude }
+              console.log("第二个点：",this.secondClickPosition)
               this.drawSite(position)
               // 计算矩形的两个角点并打印
               this.printRectangleCoordinates(this.firstClickPosition, this.secondClickPosition);
@@ -1243,33 +1301,41 @@ export default {
       this.websock.eqid = this.eqid
 
       this.websock.onmessage = function (e) {
-        console.log("e", e)
+        console.log("e this.websock.onmessage", e)
         try {
           console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
-          let markType = JSON.parse(e.data).type
-          let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
-          if (markOperate === "add") {
-            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
-              let markData = JSON.parse(e.data).data
+          //上传表（）
+          // if(JSON.parse(e.data).operateType==="excel"){
+          //   let
+          // }
+          // // 标绘点
+          // else{
+            let markType = JSON.parse(e.data).type
+            let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
+            if (markOperate === "add") {
+              if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
+                let markData = JSON.parse(e.data).data
+                if (!that.isTimerRunning && that.currentTimePosition >= 100) {
+                  //标绘点
+                  that.wsAddMakerFunc(markType, markData)
+                }
+                //播放或播放暂停
+                else {
+                  that.wsaddMakers.push({markType: markType, markData: markData})
+                }
+              }
+            }
+            else if (markOperate === "delete") {
+              let id = JSON.parse(e.data).id.toString()
               if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-                //标绘点
-                that.wsAddMakerFunc(markType, markData)
+                that.wsDeleteMakerFunc(id,markType)
               }
-              //播放或播放暂停
-              else {
-                that.wsaddMakers.push({markType: markType, markData: markData})
+              else{
+                that.wsdeleteMakers.push({id: id, markType: markType})
               }
             }
-          }
-          else if (markOperate === "delete") {
-            let id = JSON.parse(e.data).id.toString()
-            if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-              that.wsDeleteMakerFunc(id,markType)
-            }
-            else{
-              that.wsdeleteMakers.push({id: id, markType: markType})
-            }
-          }
+          // }
+
         } catch (err) {
           console.log(err, 'ws中catch到错误');
         }
@@ -1401,7 +1467,7 @@ export default {
      */
     ifUpdateEndTime(eqid) {
       if (this.realTime < this.tmpeqendTime) {
-        console.log("还在更新的地震")
+        //console.log("还在更新的地震")
         // 当实时时间位置为100%且没有定时器运行时，启动定时器
         if (!this.isTimerRunning && this.currentTimePosition === 100) {
           // 当没有结束时间定时器运行时，启动定时器
@@ -1440,7 +1506,7 @@ export default {
           }
         }
       } else {
-        console.log("过去的地震")
+        //console.log("过去的地震")
       }
     },
     getPlotwithStartandEndTime(eqid) {
@@ -1492,7 +1558,7 @@ export default {
         // 更新绘图
         let pointArr = this.plots.filter(e => e.drawtype === 'point')
         this.pointsLayer = [...pointArr]
-        console.log("获取 pointsLayer", this.pointsLayer)
+        //console.log("获取 pointsLayer", this.pointsLayer)
       })
     },
     //控制视角跳转的递归函数
@@ -1584,14 +1650,14 @@ export default {
 
         if (type == false) {
           // //console.log("false update")
-          this.stopTimeforAddEntityOneIndex = 3000
-          cesiumPlot.drawPoints(points, false, 3000);
+          this.stopTimeforAddEntityOneIndex = 5000
+          cesiumPlot.drawPoints(points, false, 5000);
         } else if (type == "3") {
           // //console.log("333 update")
-          this.stopTimeforAddEntityOneIndex = 3000
-          cesiumPlot.drawPoints(points, true, 3000);
+          this.stopTimeforAddEntityOneIndex = 5000
+          cesiumPlot.drawPoints(points, true, 5000);
         } else {
-          this.stopTimeforAddEntityOneIndex = (3000 * points.length) / this.currentSpeed
+          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
           cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
           this.flyPointsForOneIndex(points, 0)
         }
@@ -1625,7 +1691,25 @@ export default {
         }
 
       })
-      cesiumPlot.getDrawPolyline(filteredPolylineArr)
+      if(filteredPolylineArr.length>0){
+        cesiumPlot.getDrawPolyline(filteredPolylineArr)
+        console.log(filteredPolylineArr,"filteredPolylineArr")
+        viewer.scene.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(
+              parseFloat(filteredPolylineArr[0].geom.coordinates[0][0]),
+              parseFloat(filteredPolylineArr[0].geom.coordinates[0][1]),
+              30000),
+          orientation: {
+            // 指向
+            heading: 6.283185307179581,
+            // 视角
+            pitch: -1.5688168484696687,
+            roll: 0.0
+          },
+          duration: 3 // 飞行动画持续时间（秒）
+        });
+      }
+
 
       //--------------------------面绘制------------------------------
       // 过滤出绘制类型为多边形的数据
@@ -1766,12 +1850,12 @@ export default {
     },
     // 坡面分析
     // addSlopeCanvas(){
-    addSlopeCanvas(minLon, maxLon, minLat, maxLat) {
-      // addSlopeCanvas() {
+    addSlopeCanvas(minLon,maxLon,minLat,maxLat) {
       // 测试区域
       // const extent = turf.square([100.64, 28.22, 100.69, 28.27]);
       // const extent = turf.square([minLon, minLat, maxLon, maxLat]);
       const extent = [minLon, minLat, maxLon, maxLat]
+      // const extent = [102.94, 30.37, 102.99, 30.42]
       // 获取包围盒坐标
       const polygonPos = turf.getCoord(extent);
       // const polygonPos = [minLon, minLat, maxLon, maxLat];
@@ -1848,7 +1932,7 @@ export default {
       }
 
       // //console.log(window.viewer.terrainProvider)
-      setTimeout(() => {
+      setTimeout(()=>{
         // //console.log(viewer._cesiumWidget.terrainProvider,viewer.terrainProvider)
         // sampleTerrainMostDetailed(viewer._cesiumWidget.terrainProvider, positions).then((updatedPositions) => {
 
@@ -1901,7 +1985,7 @@ export default {
           this.createMaterial();
 
           // 创建 pointGrid 并计算等高线
-          let pointGrid = turf.pointGrid(extent, 0.001, {units: "degrees"});
+          let pointGrid = turf.pointGrid(extent, 0.001, { units: "degrees" });
           for (let i = positions.length; i < updatedPositions.length; i++) {
             heightArr.push(updatedPositions[i]); // 收集剩余位置的高度数据
           }
@@ -1922,7 +2006,7 @@ export default {
           }
 
           // 使用 turf.js 生成等高线
-          let lines = turf.isolines(pointGrid, breaks, {zProperty: "height"});
+          let lines = turf.isolines(pointGrid, breaks, { zProperty: "height" });
 
           // 平滑等高线
           lines.features.forEach((feature) => {
@@ -1953,7 +2037,7 @@ export default {
               });
         });
 
-      }, 5000)
+      },5000)
 
     },
     // 添加坡面实体
@@ -2047,7 +2131,7 @@ export default {
           const arrowLength = cellSize / 2; // 调整箭头长度
           let norm = Math.sqrt(fx ** 2 + fy ** 2) || 1; // 防止除以 0
 
-          if (fx * fy > 0) {
+          if(fx * fy > 0){
             norm = -norm
           }
 
@@ -2107,7 +2191,7 @@ export default {
     // 画线
     drawN() {
       this.ifDistanceMeasure = true
-      if (this.ifDistanceMeasure) {
+      if(this.ifDistanceMeasure){
         let result = cesiumPlot.drawActivatePolyline("量算")
         //console.log("量算-----结果1：",result)
         this.ifDistanceMeasure = false
@@ -2332,6 +2416,267 @@ export default {
       this.routeValue = this.showTips ? "隐藏路径规划" : "显示路径规划";
     },
 
+    // init() {
+    //     let that = this;
+    //     let viewer = initCesium(Cesium);
+    //     viewer._cesiumWidget._creditContainer.style.display = "none"; // 隐藏版权信息
+    //     window.viewer = viewer;
+    //     let options = {};
+    //     options.defaultResetView = Cesium.Cartographic.fromDegrees(
+    //         103.0,
+    //         29.98,
+    //         1500,
+    //         new Cesium.Cartographic()
+    //     );
+    //     options.enableCompass = true;
+    //     options.enableZoomControls = true;
+    //     options.enableDistanceLegend = true;
+    //     options.enableCompassOuterRing = true;
+    //     options.resetTooltip = "重置视图";
+    //     options.zoomInTooltip = "放大";
+    //     options.zoomOutTooltip = "缩小";
+    //     window.navigation = new CesiumNavigation(viewer, options);
+    //     document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
+    //         "请输入地名进行搜索";
+    //     document.getElementsByClassName(
+    //         "cesium-baseLayerPicker-sectionTitle"
+    //     )[0].innerHTML = "影像服务";
+    //     document.getElementsByClassName(
+    //         "cesium-baseLayerPicker-sectionTitle"
+    //     )[1].innerHTML = "地形服务";
+    //
+    //     this.clickCount += 1;
+    //
+    //     const ellipsoid = viewer.scene.globe.ellipsoid;
+    //     const canvas = viewer.scene.canvas;
+    //     const handler = new Cesium.ScreenSpaceEventHandler(canvas);
+    //
+    //     let token = "34d101b55f6166c49c42aed5a7ed345c";
+    //     viewer.imageryLayers.addImageryProvider(
+    //         new Cesium.WebMapTileServiceImageryProvider({
+    //             url:
+    //                 "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+    //                 token,
+    //             layer: "tdtAnnoLayer",
+    //             style: "default",
+    //             format: "image/jpeg",
+    //             tileMatrixSetID: "GoogleMapsCompatible",
+    //         })
+    //     );
+    //     //影像注记
+    //     viewer.imageryLayers.addImageryProvider(
+    //         new Cesium.WebMapTileServiceImageryProvider({
+    //             url:
+    //                 "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+    //                 token,
+    //             layer: "tdtAnnoLayer",
+    //             style: "default",
+    //             format: "image/jpeg",
+    //             tileMatrixSetID: "GoogleMapsCompatible",
+    //             show: false,
+    //         })
+    //     );
+    //
+    //     handler.setInputAction((movement) => {
+    //         const cartesian = viewer.camera.pickEllipsoid(
+    //             movement.position,
+    //             ellipsoid
+    //         );
+    //         if (cartesian) {
+    //             const cartographic = ellipsoid.cartesianToCartographic(cartesian);
+    //             this.addSupplyPointCurrently.lat = Cesium.Math.toDegrees(
+    //                 cartographic.latitude
+    //             ).toFixed(5);
+    //             this.addSupplyPointCurrently.lng = Cesium.Math.toDegrees(
+    //                 cartographic.longitude
+    //             ).toFixed(5);
+    //
+    //             if (this.canMarkPoint) {
+    //                 this.DialogFormVisible = true;
+    //                 this.drawSite(
+    //                     this.addSupplyPointCurrently.lat,
+    //                     this.addSupplyPointCurrently.lng,
+    //                     this.clickCount,
+    //                     Cesium.Color.RED
+    //                 );
+    //                 // console.log("已添加标注点");
+    //                 this.canMarkPoint = false;
+    //             }
+    //         }
+    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    // },
+
+    // initPlot() {
+    //
+    //     getEmergency().then(res => {
+    //         let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
+    //         console.log('获取到的res', res);
+    //
+    //         this.supplyList = disasterReliefSupplies
+    //         this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
+    //         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
+    //
+    //         // 调用 `processPoints` 并传递不同的 `tableName`
+    //         this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+    //         this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+    //         this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+    //
+    //         // this.fetSupplyPoints();
+    //         this.listField = 'supplies'
+    //         this.selectedSuppliesList = this.suppliesList[0]
+    //         this.showIcon = this.selectedSuppliesList;
+    //         this.total = this.selectedSuppliesList.length;
+    //         this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    //     });
+    // },
+
+    // processPoints(pointArr, type, icon, tableName) {
+    //     if (!Array.isArray(pointArr)) {
+    //         console.error(`${tableName} 数据格式不正确`, pointArr);
+    //         return;
+    //     }
+    //
+    //     pointArr = pointArr.filter(e => e.longitude !== null);
+    //
+    //     pointArr.forEach(element => {
+    //         // 检查是否已存在具有相同ID的实体
+    //         let existingEntity = window.viewer.entities.getById(element.uuid);
+    //         if (existingEntity) {
+    //             console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
+    //             return;
+    //         }
+    //         // 检查经度、纬度和高度是否为有效数值
+    //         if (isNaN(element.longitude) || isNaN(element.latitude)
+    //             || element.longitude < -180 || element.longitude > 180
+    //             || element.latitude < -90 || element.latitude > 90) {
+    //             console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
+    //             return;
+    //         }
+    //         let longitude = Number(element.longitude);
+    //         let latitude = Number(element.latitude);
+    //
+    //         element.type = type;
+    //         element.icon = icon
+    //
+    //         let bool = type === 'supplies' ? true : false
+    //
+    //         // 添加实体
+    //         this.addEntity(element, icon, tableName, longitude, latitude, bool);
+    //     });
+    // },
+
+    // addEntity(element, icon, tableName, longitude, latitude, bool) {
+    //     window.viewer.entities.add({
+    //         uuid: element.uuid,
+    //         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+    //         billboard: {
+    //             image: icon,
+    //             width: 40,
+    //             height: 40,
+    //             eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+    //             color: Cesium.Color.WHITE.withAlpha(1),
+    //             scale: 0.8,
+    //             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 禁用，导致图标在高度计算或与地形交互时出现闪烁。 原作用：绑定到地形高度,让billboard贴地
+    //             depthTest: bool ? true : false, // 让 Cesium 正确处理图标的遮挡关系
+    //             disableDepthTestDistance: Number.POSITIVE_INFINITY
+    //         },
+    //         properties: {
+    //             tableName: tableName, // 动态传入的表名称
+    //             ...element, // 将element对象展开，自动填充所有属性
+    //             longitude: element.longitude,
+    //             latitude: element.latitude
+    //         }
+    //     });
+    // },
+
+    // isTerrainLoaded() {
+    //     let terrainProvider = window.viewer.terrainProvider;
+    //     if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
+    //         // console.log("地形未加载")
+    //         return false;
+    //     } else if (Cesium.defined(terrainProvider)) {
+    //         // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
+    //         // 则表示已经设置了其他地形提供者
+    //         // console.log("地形已加载")
+    //         return true;
+    //     }
+    //     // console.log("地形未加载")
+    //     return false;
+    // },
+
+    // entitiesClickPonpHandler() {
+    //     let that = this;
+    //     // 处理点击事件
+    //     window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
+    //         // 获取点击位置的实体
+    //         let pickedEntity = window.viewer.scene.pick(click.position);
+    //         window.selectedEntity = pickedEntity?.id;
+    //
+    //         if (Cesium.defined(pickedEntity)) {
+    //             let entity = window.selectedEntity;
+    //
+    //             // 判断实体类型并处理
+    //             if (entity._billboard) {
+    //                 // 获取点击点的经纬度
+    //                 let ray = viewer.camera.getPickRay(click.position);
+    //                 let position = viewer.scene.globe.pick(ray, viewer.scene);
+    //                 let cartographic = Cesium.Cartographic.fromCartesian(position);
+    //                 let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+    //                 let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+    //
+    //                 // 如果有地形加载，更新高度
+    //                 let height = 0;
+    //                 if (this.isTerrainLoaded()) {
+    //                     height = viewer.scene.globe.getHeight(cartographic);
+    //                 }
+    //
+    //                 // 更新弹窗位置
+    //                 that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
+    //
+    //                 // that.popupData = entity.properties;
+    //
+    //                 // 解析 properties 以获取实际的数据
+    //                 let properties = {};
+    //                 entity.properties.propertyNames.forEach(name => {
+    //                     properties[name] = entity.properties[name].getValue();
+    //                 });
+    //                 that.popupData = properties;
+    //                 console.log("entity.properties作为弹窗数据:", that.popupData);
+    //
+    //                 this.popupVisible = true;
+    //                 this.updatePopupPosition();
+    //             } else {
+    //                 this.popupVisible = false;
+    //             }
+    //
+    //             // 处理面实体
+    //             if (entity._polygon) {
+    //                 that.showPolygon = true;
+    //             } else {
+    //                 that.showPolygon = false;
+    //             }
+    //
+    //             // 处理线实体
+    //             if (entity._polyline) {
+    //                 let status = cesiumPlot.drawPolylineStatus();
+    //                 that.showPolyline = (status === 0);
+    //             } else {
+    //                 that.showPolyline = false;
+    //             }
+    //         } else {
+    //             this.popupVisible = false;
+    //         }
+    //
+    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    //
+    //     // 确保在地图拖动时弹窗位置更新
+    //     window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+    //         if (that.popupVisible && window.selectedEntity) {
+    //             that.updatePopupPosition();
+    //         }
+    //     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    // },
+
     //--------------------弹窗----------------------
     // 判断是否有高程
     // 更新弹窗的位置
@@ -2363,6 +2708,66 @@ export default {
       }
     },
 
+      // removethdRegions() {
+      //     // 检查是否存在名为regionLayerJump的图层
+      //     if (window.regionLayerJump) {
+      //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+      //         window.viewer.dataSources.remove(window.regionLayerJump, true);
+      //         // 清空regionLayerJump的引用，以便垃圾回收
+      //         window.regionLayerJump = null;
+      //
+      //
+      //         // console.log("图层已移除");
+      //     }
+      //     // this.isShowYaanRegionLegend = false;
+      //     // 获取图例容器，准备清空其内容
+      //     // const legend = document.getElementById('legend');
+      //     // 循环移除图例容器中的所有子元素
+      //     // while (legend.firstChild) {
+      //     //     legend.removeChild(legend.firstChild);
+      //     // }
+      //     // 遍历标签数组，移除每个标签实体
+      //     this.labels.forEach(label => {
+      //         window.viewer.entities.remove(label);
+      //     });
+      //     // 清空标签引用数组，以便垃圾回收
+      //     this.labels = [];
+      // },
+
+      // removethdRegions() {
+      //     // 检查是否存在名为regionLayerJump的图层
+      //     if (window.regionLayerJump) {
+      //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+      //         window.viewer.dataSources.remove(window.regionLayerJump, true);
+      //         // 清空regionLayerJump的引用，以便垃圾回收
+      //         window.regionLayerJump = null;
+      //
+      //
+      //         // console.log("图层已移除");
+      //     }
+      //     // this.isShowYaanRegionLegend = false;
+      //     // 获取图例容器，准备清空其内容
+      //     // const legend = document.getElementById('legend');
+      //     // 循环移除图例容器中的所有子元素
+      //     // while (legend.firstChild) {
+      //     //     legend.removeChild(legend.firstChild);
+      //     // }
+      //     // 遍历标签数组，移除每个标签实体
+      //     this.labels.forEach(label => {
+      //         window.viewer.entities.remove(label);
+      //     });
+      //     // 清空标签引用数组，以便垃圾回收
+      //     this.labels = [];
+      // },
+
+      // removeDataSourcesLayer(layerName) {
+      //     // 通过图层名称获取数据源对象如果存在，则执行移除操作
+      //     const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+      //     if (dataSource) {
+      //         window.viewer.dataSources.remove(dataSource);
+      //     }
+      // },
+
     // 切换数据列表
     changeDataList(param) {
       this.selectedSuppliesList = []
@@ -2382,133 +2787,209 @@ export default {
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
     },
+           // changeDataList(param) {
+      //     console.log("11111111111111111")
+      //     this.selectedSuppliesList = []
+      //     let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+      //     let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
+      //     let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
+      //     let array
+      //
+      //     if(flag1){
+      //         array = 'selectedDataByRegions'
+      //     }else if(flag2){
+      //         array = 'selectedDataByRadius'
+      //     }else if(flag3){
+      //         array = 'selectedDataBySupplies'
+      //     }
+      //     if (param === 'supplies') {
+      //         this.listField = 'supplies'
+      //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+      //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
+      //         // this.selectedSuppliesList = this[array].suppliesArr
+      //     } else if (param === 'emergencyTeam') {
+      //         this.listField = 'emergencyTeam'
+      //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+      //         //   this.selectedSuppliesList = this[array].emergencyTeamArr
+      //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
+      //     } else {
+      //         this.listField = 'reserves'
+      //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+      //         //   this.selectedSuppliesList = this[array].reservesArr
+      //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
+      //     }
+      //     this.showIcon = this.selectedSuppliesList;
+      //     this.total = this.selectedSuppliesList.length;
+      //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      //
+      //     //   console.log("111")
+      //     //   this.selectedSuppliesList = []
+      //     //   let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+      //     //
+      //     //   console.log("flag:",flag)
+      //     //   if (param === 'supplies') {
+      //     //       this.listField = 'supplies'
+      //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+      //     //   } else if (param === 'emergencyTeam') {
+      //     //       this.listField = 'emergencyTeam'
+      //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+      //     //   } else {
+      //     //       this.listField = 'reserves'
+      //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+      //     //   }
+      //     //   console.log("this.listField:",this.listField)
+      //     //   this.showIcon = this.selectedSuppliesList;
+      //     //   this.total = this.selectedSuppliesList.length;
+      //     //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      // },
+
+    // 绘制点
+    // drawSite(lat, lng, id, color) {
+    //     let point = {
+    //         id: id,
+    //         position: Cesium.Cartesian3.fromDegrees(
+    //             parseFloat(lng),
+    //             parseFloat(lat)
+    //         ),
+    //     };
+    //     this.affectedPoints.push(point);
+    //     if (viewer) {
+    //         viewer.entities.add({
+    //             position: point.position,
+    //             point: {
+    //                 pixelSize: 10,
+    //                 color: color,
+    //             },
+    //         });
+    //     }
+    // },
 
     // 点击列表某行显示对应标绘点
-    showSupplyPoint(row) {
-      console.log("点击了：", row);
-      this.showIcon = [];
-      this.showIcon.push(row);
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
-      if (this.showIcon[0].type === "supplies") {
-        this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-      } else if (this.showIcon[0].type === "reserves") {
-        this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-      } else {
-        this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-      }
-    },
+      showSupplyPoint(row) {
+          console.log("点击了：", row);
+          this.showIcon = [];
+          this.showIcon.push(row);
+          this.removePoints(this.suppliesList[0]);
+          this.removePoints(this.suppliesList[1]);
+          this.removePoints(this.suppliesList[2]);
+          if (this.showIcon[0].type === "supplies") {
+              this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+          } else if (this.showIcon[0].type === "reserves") {
+              this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+          } else {
+              this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+          }
+      },
 
     // 移除地图上的标绘点
-    removePoints(entityArr) {
-      entityArr.forEach((entity) => {
-        // console.log("-----", entity);
-        let uuid = entity.uuid;
-        window.viewer.entities.values.forEach((existingEntity) => {
-          if (existingEntity.uuid === uuid) {
-            window.viewer.entities.remove(existingEntity);
-          }
-        });
-      });
-    },
+      removePoints(entityArr) {
+          entityArr.forEach((entity) => {
+              // console.log("-----", entity);
+              let uuid = entity.uuid;
+              window.viewer.entities.values.forEach((existingEntity) => {
+                  if (existingEntity.uuid === uuid) {
+                      window.viewer.entities.remove(existingEntity);
+                  }
+              });
+          });
+      },
 
     // 显示所有标绘点
-    showAllSupplyPoints() {
-      let that = this;
-      viewer.entities.values.forEach((entity) => {
-        if (entity.ellipse) {
-          viewer.entities.remove(entity);
-        }
-      });
-      this.removePoints(that.showIcon);
-      this.removePoints(that.selectedSuppliesList);
-      this.removethdRegions()
-      this.removeDataSourcesLayer('YaanRegionLayer');
-      this.initPlot()
-    },
+      showAllSupplyPoints() {
+          let that = this;
+          viewer.entities.values.forEach((entity) => {
+              if (entity.ellipse) {
+                  viewer.entities.remove(entity);
+              }
+          });
+          this.removePoints(that.showIcon);
+          this.removePoints(that.selectedSuppliesList);
+          this.removethdRegions()
+          this.removeDataSourcesLayer('YaanRegionLayer');
+          this.initPlot()
+      },
 
     // 物资查询
-    async searchSupply() {
-      let that = this;
-      this.activeMenuIndex = '2'
-      viewer.entities.values.forEach((entity) => {
-        if (entity.ellipse) {
-          viewer.entities.remove(entity);
-        }
-      });
-      this.removePoints(that.showIcon);
-      this.removePoints(that.selectedSuppliesList);
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
-      let result = []
-      this.ifDrawEllipse = false
-      this.selectedSuppliesList = []
-      // 字符串部分到后端查询
-      let obj = {
-        county: this.searchSupplyForm.county,
-        address: this.searchSupplyForm.address,
-        contactPerson: this.searchSupplyForm.contactPerson,
-        contactPhone: this.searchSupplyForm.contactPhone,
-      }
-      await searchMaterialData(obj).then(res => {
-        // console.log("search----------",res)
-        result = res
-        this.selectedSuppliesList = result
-      })
-      this.drawSupplyPoint('searchSupplies')
-      this.listField = 'supplies'
-      this.activeMenuIndex = '3'
-      this.panels.searchSupplyDialog = false
-      this.searchSupplyForm = {
-        county: "",
-        address: "",
-        contactPerson: "",
-        contactPhone: "",
-        tents: 0,
-        raincoats: 0,
-        rainBoots: 0,
-        flashlights: 0,
-        radius: 0.0,
-      }
-      // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
-    },
+      async searchSupply() {
+          let that = this;
+          this.activeMenuIndex = '2'
+          viewer.entities.values.forEach((entity) => {
+              if (entity.ellipse) {
+                  viewer.entities.remove(entity);
+              }
+          });
+          this.removePoints(that.showIcon);
+          this.removePoints(that.selectedSuppliesList);
+          this.removePoints(this.suppliesList[0]);
+          this.removePoints(this.suppliesList[1]);
+          this.removePoints(this.suppliesList[2]);
+          let result = []
+          this.ifDrawEllipse = false
+          this.selectedSuppliesList = []
+          // 字符串部分到后端查询
+          let obj = {
+              county: this.searchSupplyForm.county,
+              address: this.searchSupplyForm.address,
+              contactPerson: this.searchSupplyForm.contactPerson,
+              contactPhone: this.searchSupplyForm.contactPhone,
+          }
+          await searchMaterialData(obj).then(res => {
+              // console.log("search----------",res)
+              result = res
+              this.selectedSuppliesList = result
+          })
+          this.drawSupplyPoint('searchSupplies')
+          this.listField = 'supplies'
+          this.activeMenuIndex = '3'
+          this.panels.searchSupplyDialog = false
+          this.searchSupplyForm = {
+              county: "",
+              address: "",
+              contactPerson: "",
+              contactPhone: "",
+              tents: 0,
+              raincoats: 0,
+              rainBoots: 0,
+              flashlights: 0,
+              radius: 0.0,
+          }
+          // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
+      },
 
     // 救援力量查询
-    async searchEmergencyTeam() {
-      let that = this;
-      this.activeMenuIndex = '2'
-      viewer.entities.values.forEach((entity) => {
-        if (entity.ellipse) {
-          viewer.entities.remove(entity);
-        }
-      });
-      this.removePoints(that.showIcon);
-      this.removePoints(that.selectedSuppliesList);
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
-      this.ifDrawEllipse = false
-      this.selectedSuppliesList = []
-      await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
-        this.selectedSuppliesList = res
-        console.log("-------------------", this.selectedSuppliesList)
+      async searchEmergencyTeam() {
+          let that = this;
+          this.activeMenuIndex = '2'
+          viewer.entities.values.forEach((entity) => {
+              if (entity.ellipse) {
+                  viewer.entities.remove(entity);
+              }
+          });
+          this.removePoints(that.showIcon);
+          this.removePoints(that.selectedSuppliesList);
+          this.removePoints(this.suppliesList[0]);
+          this.removePoints(this.suppliesList[1]);
+          this.removePoints(this.suppliesList[2]);
+          this.ifDrawEllipse = false
+          this.selectedSuppliesList = []
+          await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
+              this.selectedSuppliesList = res
+              console.log("-------------------", this.selectedSuppliesList)
 
-      })
-      this.drawSupplyPoint('searchEmergencyTeam')
-      this.listField = 'emergencyTeam'
-      this.activeMenuIndex = '4'
-      this.panels.searchEmergencyTeamDialog = false
-      this.searchEmergencyTeamForm = {
-        levelName: '',
-        teamTypeName: '',
-        totalMembers: 0,
-        address: '',
-        personInCharge: '',
-        chargePhone: ''
-      }
-    },
+          })
+          this.drawSupplyPoint('searchEmergencyTeam')
+          this.listField = 'emergencyTeam'
+          this.activeMenuIndex = '4'
+          this.panels.searchEmergencyTeamDialog = false
+          this.searchEmergencyTeamForm = {
+              levelName: '',
+              teamTypeName: '',
+              totalMembers: 0,
+              address: '',
+              personInCharge: '',
+              chargePhone: ''
+          }
+      },
 
     // 物资匹配dialog能打开
     async marchSupply() {
@@ -2519,6 +3000,9 @@ export default {
       } else {
         this.panels.marchSupplyDialog = true
       }
+        // this.addDisasterPoint()
+        // this.isShowMessage = true
+        // this.searchSupplyBy = 'marchSupplyDialog'
     },
     // 物资匹配
     async marchSupplies() {
@@ -2556,6 +3040,11 @@ export default {
           confirmButtonText: '确认',
         });
       }
+        // this.selectedDataBySupplies.supplies = countResult
+        // this.selectedDataBySupplies.emergencyTeam = []
+        // this.selectedDataBySupplies.reserves = []
+        // this.listField = 'supplies'
+        // this.changeDataList('supplies')
       this.panels.marchSupplyDialog = false
     },
 
@@ -2568,6 +3057,9 @@ export default {
       } else {
         this.panels.searchSupplyByRadiusDialog = true
       }
+        // this.addDisasterPoint()
+        // this.isShowMessage = true
+        // this.searchSupplyBy = 'RadiusDialog'
     },
 
     // 通过半径匹配物资
@@ -2576,6 +3068,26 @@ export default {
       this.selectedSuppliesList = await this.marchSupplyByRadius(this.supplyList, this.searchSupplyForm.radius)
       this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
       this.panels.searchSupplyByRadiusDialog = false
+
+          // this.ifDrawEllipse = true
+        // // 移除现有的点
+        // this.removePoints(this.suppliesList[0]);
+        // this.removePoints(this.suppliesList[1]);
+        // this.removePoints(this.suppliesList[2]);
+        // let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
+        // // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
+        // this.selectedDataByRadius = {
+        //     supplies: result[0],
+        //     reserves: result[1],
+        //     emergencyTeam: result[2]
+        // };
+        // this.selectPoints(this.searchSupplyForm.radius)
+        // this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        // this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        // this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+        // this.listField = 'supplies'
+        // this.changeDataList('supplies')
+        // this.panels.searchSupplyByRadiusDialog = false
     },
     // 半径匹配
     async marchSupplyByRadius(array, radius) {
@@ -2602,142 +3114,197 @@ export default {
       });
       return result
     },
+// async marchSupplyByRadius(array, radius) {
+      //     // 移除现有的点
+      //     this.removePoints(this.suppliesList[0]);
+      //     this.removePoints(this.suppliesList[1]);
+      //     this.removePoints(this.suppliesList[2]);
+      //     let result = []
+      //     let suppliesArr = []
+      //     let reservesArr = []
+      //     let emergencyTeamArr = []
+      //     let longitude = parseFloat(this.addSupplyPointCurrently.lng);
+      //     let latitude = parseFloat(this.addSupplyPointCurrently.lat);
+      //     const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
+      //     if(Array.isArray(array[0])){
+      //         array.forEach((arr,index) => {
+      //             arr.forEach((point) => {
+      //                 const pointLongitude = parseFloat(point.longitude);
+      //                 const pointLatitude = parseFloat(point.latitude);
+      //                 const initialPoint = Cesium.Cartesian3.fromDegrees(
+      //                     pointLongitude,
+      //                     pointLatitude
+      //                 );
+      //                 // 距离以公里为单位
+      //                 const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+      //                 if (distance < radius) {
+      //                     if(index === 0){
+      //                         suppliesArr.push(point);
+      //                     }else if(index === 1){
+      //                         reservesArr.push(point);
+      //                     }else{
+      //                         emergencyTeamArr.push(point);
+      //                     }
+      //                 }
+      //             });
+      //         })
+      //         result.push(suppliesArr)
+      //         result.push(reservesArr)
+      //         result.push(emergencyTeamArr)
+      //         // }else if(typeof array === 'string'){
+      //     }else{
+      //         array.forEach((point) => {
+      //             const pointLongitude = parseFloat(point.longitude);
+      //             const pointLatitude = parseFloat(point.latitude);
+      //             const initialPoint = Cesium.Cartesian3.fromDegrees(
+      //                 pointLongitude,
+      //                 pointLatitude
+      //             );
+      //             // 距离以公里为单位
+      //             const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+      //             if (distance < radius) {
+      //                 result.push(point);
+      //             }
+      //         });
+      //     }
+      //     return result
+      // },
     // 通过目标数量匹配物资
-    marchSupplyByCount(array) {
-      let tents = 0
-      let raincoats = 0
-      let rainBoots = 0
-      let flashlights = 0
-      let flag = false
-      let bool1 = this.searchSupplyForm.tents > 0 ? false : true
-      let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
-      let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
-      let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
-      let resultArray = []
-      array.forEach((ele) => {
-        if (ele.tents === 0) {
-          bool1 = true
-        }
-        if (ele.raincoats === 0) {
-          bool2 = true
-        }
-        if (ele.rainBoots === 0) {
-          bool3 = true
-        }
-        if (ele.flashlights === 0) {
-          bool4 = true
-        }
-        if (!bool1 || !bool2 || !bool3 || !bool4) {
-          tents += ele.tents;
-          raincoats += ele.raincoats;
-          rainBoots += ele.rainBoots;
-          flashlights += ele.flashlights;
-          // console.log("rainBoots=====-----",rainBoots)
-          if (tents >= this.searchSupplyForm.tents
-              && raincoats >= this.searchSupplyForm.raincoats
-              && rainBoots >= this.searchSupplyForm.rainBoots
-              && flashlights >= this.searchSupplyForm.flashlights) {
-            flag = true;
+      marchSupplyByCount(array) {
+          let tents = 0
+          let raincoats = 0
+          let rainBoots = 0
+          let flashlights = 0
+          let flag = false
+          let bool1 = this.searchSupplyForm.tents > 0 ? false : true
+          let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
+          let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
+          let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
+          let resultArray = []
+          array.forEach((ele) => {
+              if (ele.tents === 0) {
+                  bool1 = true
+              }
+              if (ele.raincoats === 0) {
+                  bool2 = true
+              }
+              if (ele.rainBoots === 0) {
+                  bool3 = true
+              }
+              if (ele.flashlights === 0) {
+                  bool4 = true
+              }
+              if (!bool1 || !bool2 || !bool3 || !bool4) {
+                  tents += ele.tents;
+                  raincoats += ele.raincoats;
+                  rainBoots += ele.rainBoots;
+                  flashlights += ele.flashlights;
+                  // console.log("rainBoots=====-----",rainBoots)
+                  if (tents >= this.searchSupplyForm.tents
+                      && raincoats >= this.searchSupplyForm.raincoats
+                      && rainBoots >= this.searchSupplyForm.rainBoots
+                      && flashlights >= this.searchSupplyForm.flashlights) {
+                      flag = true;
+                  }
+                  resultArray.push(ele)
+              }
+          });
+          // console.log("flag-----------------",flag)
+          if (flag) {
+              return resultArray
+          } else {
+              return []
           }
-          resultArray.push(ele)
-        }
-      });
-      // console.log("flag-----------------",flag)
-      if (flag) {
-        return resultArray
-      } else {
-        return []
-      }
-    },
+      },
 
-    drawSupplyPoint(param, radius) {
-      this.total = this.selectedSuppliesList.length;
-      this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-      this.removePoints(this.showIcon);
-      viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.addSupplyPointCurrently.lng),
-            parseFloat(this.addSupplyPointCurrently.lat)
-        ),
-        point: {
-          pixelSize: 10,
-          color: Cesium.Color.RED,
-        },
-      });
-      this.showIcon = [];
-      this.showIcon = this.selectedSuppliesList;
-      // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
-      let reservesArr = []  // 抢险救灾装备
-      let suppliesArr = []  // 救灾物资储备
-      let emergencyTeamArr = []  // 救援力量
-      if (param === 'searchSupplies') {
-        this.showIcon.forEach((item) => {
-          suppliesArr.push(item)
-        })
-      } else if (param === 'searchEmergencyTeam') {
-        this.showIcon.forEach((item) => {
-          emergencyTeamArr.push(item)
-        })
-      } else if (param === 'searchReserves') {
-        this.showIcon.forEach((item) => {
-          reservesArr.push(item)
-        })
-      } else {
-        this.showIcon.forEach((item) => {
-          if (item.type === "reserves") {
-            reservesArr.push(item);
-          } else if (item.type === "supplies") {
-            suppliesArr.push(item);
-          } else if (item.type === "emergency") {
-            emergencyTeamArr.push(item);
+      drawSupplyPoint(param, radius) {
+          this.total = this.selectedSuppliesList.length;
+          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+          this.removePoints(this.showIcon);
+          viewer.entities.add({
+              position: Cesium.Cartesian3.fromDegrees(
+                  parseFloat(this.addSupplyPointCurrently.lng),
+                  parseFloat(this.addSupplyPointCurrently.lat)
+              ),
+              point: {
+                  pixelSize: 10,
+                  color: Cesium.Color.RED,
+              },
+          });
+          this.showIcon = [];
+          this.showIcon = this.selectedSuppliesList;
+          // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
+          let reservesArr = []  // 抢险救灾装备
+          let suppliesArr = []  // 救灾物资储备
+          let emergencyTeamArr = []  // 救援力量
+          if (param === 'searchSupplies') {
+              this.showIcon.forEach((item) => {
+                  suppliesArr.push(item)
+              })
+          } else if (param === 'searchEmergencyTeam') {
+              this.showIcon.forEach((item) => {
+                  emergencyTeamArr.push(item)
+              })
+          } else if (param === 'searchReserves') {
+              this.showIcon.forEach((item) => {
+                  reservesArr.push(item)
+              })
+          } else {
+              this.showIcon.forEach((item) => {
+                  if (item.type === "reserves") {
+                      reservesArr.push(item);
+                  } else if (item.type === "supplies") {
+                      suppliesArr.push(item);
+                  } else if (item.type === "emergency") {
+                      emergencyTeamArr.push(item);
+                  }
+              });
           }
-        });
-      }
-      this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-      this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-      this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-      if (this.ifDrawEllipse) {
-        this.selectPoints(radius);
-      }
-      // }
+          this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+          this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+          this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+          if (this.ifDrawEllipse) {
+              this.selectPoints(radius);
+          }
+          // }
 
-    },
+      },
     // 查询指定范围内的物资点
 
-    selectPoints(radius) {
-      if (!isNaN(parseFloat(radius))) {
-        radius = parseFloat(radius) * 1000;
+      selectPoints(radius) {
+          if (!isNaN(parseFloat(radius))) {
+              radius = parseFloat(radius) * 1000;
 
-        // 将经纬度转换为 Cartesian3 类型
-        const position = Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.addSupplyPointCurrently.lng),
-            parseFloat(this.addSupplyPointCurrently.lat)
-        );
-        viewer.entities.values.forEach((entity) => {
-          if (entity.ellipse) {
-            viewer.entities.remove(entity);
+              // 将经纬度转换为 Cartesian3 类型
+              const position = Cesium.Cartesian3.fromDegrees(
+                  parseFloat(this.addSupplyPointCurrently.lng),
+                  parseFloat(this.addSupplyPointCurrently.lat)
+              );
+              viewer.entities.values.forEach((entity) => {
+                  if (entity.ellipse) {
+                      viewer.entities.remove(entity);
+                  }
+              });
+              viewer.entities.add({
+                  position: position,
+                  ellipse: {
+                      semiMajorAxis: radius,
+                      semiMinorAxis: radius,
+                      material: Cesium.Color.GREEN.withAlpha(0.5),
+                  },
+              });
           }
-        });
-        viewer.entities.add({
-          position: position,
-          ellipse: {
-            semiMajorAxis: radius,
-            semiMinorAxis: radius,
-            material: Cesium.Color.GREEN.withAlpha(0.5),
-          },
-        });
-      }
-    },
+      },
     // 添加物资点
-    addDisasterPoint() {
-      if (this.isRouting) {
-        this.isRouting = false;
-      }
-      if (this.isAddingArea) {
-        this.isAddingArea = false;
-      }
-      this.canMarkPoint = true;
-    },
+      addDisasterPoint() {
+          if (this.isRouting) {
+              this.isRouting = false;
+          }
+          if (this.isAddingArea) {
+              this.isAddingArea = false;
+          }
+          this.canMarkPoint = true;
+      },
     // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
     handleDisasterTentsInput(value) {
       this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
@@ -2758,6 +3325,68 @@ export default {
       this.searchEmergencyTeamForm.totalMembers = value
     },
     // ---------------------------------------------------------------------
+
+    // getPageArr(arr) {
+    //     let newArr = [];
+    //     let start = (this.currentPage - 1) * this.pageSize;
+    //     let end = this.currentPage * this.pageSize;
+    //     if (end > this.total) {
+    //         end = this.total;
+    //     }
+    //     for (; start < end; start++) {
+    //         newArr.push(arr[start]);
+    //     }
+    //     return newArr;
+    // },
+
+    // handleSizeChange(val) {
+    //     this.pageSize = val;
+    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    // },
+
+    // handleCurrentChange(val) {
+    //     this.currentPage = val;
+    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    // },
+
+    // tableHeaderColor() {
+    //     return {
+    //         "border-width": "1px",
+    //         "border-style": "solid",
+    //         "border-color": "#555555",
+    //         "background-color": "#293038 !important", // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+    //         color: "#fff",
+    //         padding: "0",
+    //         "text-align": "center",
+    //     };
+    // },
+
+    // 修改table header的背景色
+
+    // tableColor({row, column, rowIndex, columnIndex}) {
+    //     if (rowIndex % 2 == 1) {
+    //         return {
+    //             "border-width": "1px",
+    //             "border-style": "solid",
+    //             "border-color": "#555555",
+    //             "background-color": "#313a44",
+    //             color: "#fff",
+    //             padding: "0",
+    //             "text-align": "center",
+    //         };
+    //     } else {
+    //         return {
+    //             "border-width": "1px",
+    //             "border-style": "solid",
+    //             "border-color": "#555555",
+    //             "background-color": "#304156",
+    //             color: "#fff",
+    //             padding: "0",
+    //             "text-align": "center",
+    //         };
+    //     }
+    // },
+
     //- ---------------------
     /** 以坐标点为中心，简单粗略的创建一个指定半径的圆，半径单位米，pointCount为构建圆的坐标点数（比如24个点，点越多越圆，最少3个点），返回构成圆的坐标点数组 **/
     CreateSimpleCircle(lng, lat, radius, pointCount) {
@@ -3166,7 +3795,52 @@ export default {
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
+    //绑定点击事件
+    //    bubbleTips(position) {
+    //     if (!viewer) {
+    //         console.error("Viewer is not initialized.");
+    //         return;
+    //     }
+    //     // 文字内容
+    //     var text = "Citizens Bank Park";
+    //     // 添加背景面板
+    //     var backgroundPanel = viewer.entities.add({
+    //         position: position,
+    //         billboard: {
+    //             // 使用 CSS 样式的背景图像或在下面的代码中可以选择不同的背景图
+    //             image: bubbleImg,
+    //             pixelOffset: new Cesium.Cartesian2(0, -80), // 需要根据实际需要调整偏移
+    //             width: 200, // 固定宽度或根据内容计算
+    //             height: 100, // 固定高度或根据内容计算
+    //         },
+    //     });
 
+    //     // 添加标签
+    //     var label = viewer.entities.add({
+    //         position: position,
+    //         label: {
+    //             text: text,
+    //             font: "16pt Arial",
+    //             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+    //             fillColor: Cesium.Color.WHITE,
+    //             outlineColor: Cesium.Color.GRAY,
+    //             outlineWidth: 2,
+    //             verticalOrigin: Cesium.VerticalOrigin.CENTER,
+    //             pixelOffset: new Cesium.Cartesian2(0, -30), // 根据背景面板的高度调整标签的位置
+    //             showBackground: true,
+    //             backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
+    //             backgroundPadding: new Cesium.Cartesian2(10, 6)
+    //         }
+    //     });
+
+    //     // 添加点击事件处理（可选）
+    //     viewer.screenSpaceEventHandler.setInputAction(function (click) {
+    //         var pick = viewer.scene.pick(click.position);
+    //         if (Cesium.defined(pick) && (pick.id === backgroundPanel || pick.id === label)) {
+    //             console.log("Label or background panel clicked");
+    //         }
+    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    // }
 
     initTool(frameDiv) {
       if (this.isInit) {
@@ -3299,7 +3973,6 @@ export default {
         return;
       } else {
         let flag = this.updateCurrentTimeOnce();
-        console.log(flag, "flag")
         if (flag) {
           if (this.isMarkingLayer) {
 
@@ -3360,7 +4033,7 @@ export default {
       this.updatePlotOnce(false)
       setTimeout(() => {
         this.stopTimer()
-        this.flyToCenter()
+        this.flyToCenterhigh()
       }, 3000);
     },
 
@@ -3605,7 +4278,29 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(
             parseFloat(this.centerPoint.geom.coordinates[0]),
             parseFloat(this.centerPoint.geom.coordinates[1]),
-            60000),
+            30000),
+        orientation: {
+          // 指向
+          heading: 6.283185307179581,
+          // 视角
+          pitch: -1.5688168484696687,
+          roll: 0.0
+        },
+        duration: 3 // 飞行动画持续时间（秒）
+      });
+    },
+    flyToCenterhigh(){
+      if (this.selectedEntity && (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible)) {
+        window.viewer.screenSpaceEventHandler.setInputAction(movement => {
+          this.updatePopupPosition();
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+      }
+      // 飞行动画持续时间（秒）
+      viewer.scene.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.centerPoint.geom.coordinates[0]),
+            parseFloat(this.centerPoint.geom.coordinates[1]),
+            200000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -5847,7 +6542,7 @@ export default {
 .pop {
   position: absolute;
   width: 100%;
-  z-index: 20;
+  z-index: 0;
   border-color: #05709d;
   background: rgb(4, 20, 34);
   /*background: rgba(47, 82, 117, 0.3) 88%;*/
@@ -5896,7 +6591,7 @@ export default {
 }
 
 :deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 600 !important;
+  z-index: 600000 !important;
   background-color: #2b323a;
 }
 

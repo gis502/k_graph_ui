@@ -410,6 +410,7 @@ export default class Polyline {
             data: line,
           }
         })
+
       }
     )
   }

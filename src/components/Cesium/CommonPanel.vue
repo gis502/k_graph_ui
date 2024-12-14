@@ -531,7 +531,7 @@ export default {
 
 .eq-videoMonitorWin {
    position: absolute;
-    width: 270px;
+    width: 315px;
     padding: 0px;
     z-index: 80;
   box-shadow: 0 4px 8px rgb(60, 215, 255), 0 6px 20px rgb(25, 108, 210);
