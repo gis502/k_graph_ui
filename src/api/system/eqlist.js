@@ -62,6 +62,12 @@ export function getExcelUploadEarthquake() {
         method: 'get',
     })
 }
+export function getExcelUploadEqList() {
+    return request({
+        url: '/tp/api/open/getExcelUploadEqList',
+        method: 'get',
+    })
+}
 
 // 改
 export function updataEq(data) {
@@ -94,7 +100,15 @@ export function getGeomById(data) {
     return request({
         url: '/system/getGeomById',
         method: 'get',
-        params:{id:data}
+        params: {id: data}
     })
+}
+export function getGeomByEqListId(data) {
+    return request({
+        url: '/tp/api/open/getGeomByEqListId',
+        method: 'get',
+        params: {id: data}
+    })
+
 
 }

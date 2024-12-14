@@ -257,7 +257,7 @@ import useUserStore from "@/store/modules/user.js";
 import {getExcelUploadByTime, getField} from "@/api/system/excel.js";
 import {ElMessage} from "element-plus";
 import {ref} from "vue";
-import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
 import {initWebSocket} from '@/cesium/WS.js'
 
@@ -469,8 +469,9 @@ export default {
     },
     //获取地震列表
     getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
-        this.eqlists = res
+      // getExcelUploadEarthquake().then(res => {
+      getExcelUploadEqList().then(res => {
+        this.eqlists = res.data
 
         if (res.data === null) {
           ElMessage.error("地震列表无数据")

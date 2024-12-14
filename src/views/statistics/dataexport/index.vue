@@ -140,7 +140,7 @@ import {ref, onMounted} from 'vue'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {exportExcel, getField, getData, deleteData, searchData} from "@/api/system/excel.js";
 import {Search} from "@element-plus/icons-vue";
-import {getExcelUploadEarthquake, queryEq} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList, queryEq} from "@/api/system/eqlist.js";
 
 const dialogVisible = ref(false)
 const flag = ref()
@@ -356,8 +356,8 @@ const handleDeleteAll = () => {
 }
 //获取地震列表
 const getEarthquake = () => {
-  getExcelUploadEarthquake().then(res => {
-    eqlists.value = res
+  getExcelUploadEqList().then(res => {
+    eqlists.value = res.data
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
     }

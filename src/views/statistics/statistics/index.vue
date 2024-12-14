@@ -56,7 +56,7 @@ import {ref, onMounted} from 'vue'
 import {ElMessage} from "element-plus";
 import {reactive} from 'vue';
 import {getField} from "@/api/system/excel.js";
-import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import EarthquakeCasualties from "@/components/DisasterStatistics/EarthquakeCasualties.vue";
 import TransportationElectricity from "@/components/DisasterStatistics/TransportationElectricity.vue" ;
 import BuildingDamageInformation from "@/components/DisasterStatistics/BuildingDamageInformation.vue";
@@ -197,9 +197,9 @@ const formatDate = (dateStr) => {
 
 // 获取地震列表
 const getEarthquake = () => {
-  getExcelUploadEarthquake().then(res => {
+  getExcelUploadEqList().then(res => {
 
-    eqlists.value = res
+    eqlists.value = res.data
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
     }
