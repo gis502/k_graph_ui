@@ -405,6 +405,7 @@ export default {
         minMagnitude: "",
         maxMagnitude: "",
       }
+      this.eqids = []
       this.settleData(this.radius, this.eqData)
     },
 

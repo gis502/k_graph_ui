@@ -85,10 +85,16 @@
 
             <div class="eqTheme">
               <div class="button themes"
+                   style="width: 35%"
                    :class="{ active: isPanelShow.thematicMap }"
                    @click="handlePanel(`thematicMap`)">专题图
               </div>
 
+              <div class="button themes"
+                   style="width: 35%"
+                   :class="{ active: isPanelShow.report }"
+                   @click="handlePanel(`report`); isPreviewShow = false;">灾情报告
+              </div>
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -96,10 +102,10 @@
             <div class="eqTheme">
               <div class="button themes"
                    :class="{ active: isPanelShow.report }"
-                   @click="handlePanel(`report`)">灾情报告
+                   @click="handlePanel(`report`); isPreviewShow = false;">灾情报告
               </div>
-
             </div>
+
             <div style="height: 10px;background-color: #054576"></div>
             <el-divider content-position="left">大屏展示</el-divider>
 
@@ -155,7 +161,7 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "../../cesium/tool/initCesium.js";
-import {getAllEq} from "../../api/system/eqlist";
+import {getEqList} from "../../api/system/damageassessment.js";
 import yaan from "../../assets/geoJson/yaan.json";
 import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 import eqMark from "@/assets/images/DamageAssessment/eqMark.png";
@@ -174,6 +180,10 @@ export default {
       eqData: [],
       filteredEqData: [],
       pagedEqData: [],
+
+      eqid: "",
+      eqqueueId: "",
+      earthquakeFullName: "",
 
       selectedEntityPosition: '',
       selectedTabData: null,
@@ -258,8 +268,12 @@ export default {
 
     // 获取地震列表并渲染
     getEq() {
-      getAllEq().then((res) => {
-        let resData = res.filter((item) => item.magnitude >= 4.0);
+      const eqListDTO = {
+        pageNum: 1,
+        pageSize: 10,
+      }
+      getEqList(eqListDTO).then((res) => {
+        let resData = res.data.filter((item) => item.magnitude >= 4.0);
         let data = resData.map((item) => ({
           ...item,
           occurrenceTime: timestampToTime(item.occurrenceTime, "full"),
@@ -510,6 +524,10 @@ export default {
     // 切换到对应面板
     toTab(eq) {
       this.thisTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
+      this.eqid = eq.eqid
+      this.eqqueueId = eq.eqqueueId
+      this.earthquakeFullName = eq.earthquakeFullName
+
       /**
        *  下面的
        *  "T2024110313362251182600"
@@ -605,10 +623,13 @@ export default {
       }
       this.isPanelShow[type] = !this.isPanelShow[type];
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
-        handleOutputData('T2024110313362251182600', "2024年11月03日四川省雅安市芦山县7.1级地震", type).then((res) => {
+        handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
+
+          console.log("你好",res)
+
+
           this.outputData = res;
           this.outputData.type = type;
-          console.log("111", res)
         });
       } else {
 
@@ -675,6 +696,7 @@ export default {
           }
         }
       }
+      this.isPreviewShow = false;
       this.thisTab = '震害事件';
       this.selectedTabData = null;
 
@@ -689,7 +711,7 @@ export default {
 
     // 跳转至指挥大屏
     navigateToVisualization(thisEq) {
-      const path = `/thd?eqid=${thisEq.eqid}`;
+      const path = `/thd?eqid=${thisEq.eqid}&eqqueueId=${thisEq.eqqueueId}`;
       window.open(path, '_blank');
     },
 
@@ -761,13 +783,14 @@ export default {
   width: 333px;
   height: calc(100% - 50px);
   z-index: 3;
-  background-color: #2d3d51;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 // 搜索框
 .query {
-  width: calc(100% - 20px);
-  margin: 10px;
+  width: calc(100% - 40px);
+  margin: 10px 10px 10px 30px;
 }
 
 // 地震列表
@@ -785,7 +808,7 @@ export default {
 }
 
 .eqCard:hover {
-  background-color: #202933;
+  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
   transition: all 0.3s;
 }
 
@@ -857,7 +880,7 @@ export default {
   position: absolute;
   bottom: 0;
   width: 333px;
-  background-color: #2d3d51;
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
@@ -1040,6 +1063,7 @@ export default {
 }
 
 ::v-deep .el-divider__text.is-left {
+  box-shadow: 0 0 10px #007fde, inset 0 0 15px #06b7ff;
   background-color: #2d3d51;
   color: #fff;
   font-size: 20px;

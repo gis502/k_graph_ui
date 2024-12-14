@@ -201,7 +201,6 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import HistoryEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
 import PersonalCasualtyPanel from "../../../components/DamageAssessment/personalCasualtyPanel.vue";
@@ -216,12 +215,8 @@ import {
 } from "../../../cesium/plot/eqThemes.js";
 import BuildingDamagePanel from "../../../components/DamageAssessment/buildingDamagePanel.vue";
 import {
-  getPersonDes,
-  getBuildingDamage,
-  saveBuildingDamageData,
-  getEconomicLoss,
-  saveEconomicLossData,
-  getDA
+  getEqList,
+  getEqTownResult
 } from "../../../api/system/damageassessment.js";
 import EconomicLossPanel from "../../../components/DamageAssessment/economicLossPanel.vue";
 import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
@@ -443,8 +438,13 @@ export default {
 
     // 获取地震列表并渲染
     getEq() {
-      getAllEq().then((res) => {
-        let resData = res.filter((item) => item.magnitude >= 4.0);
+      const eqListDTO = {
+        pageNum: 1,
+        pageSize: 10,
+      }
+      getEqList(eqListDTO).then((res) => {
+        console.log(res)
+        let resData = res.data.filter((item) => item.magnitude >= 4.0);
         let data = resData.map((item) => ({
           ...item,
           occurrenceTime: timestampToTime(item.occurrenceTime, "full"),
@@ -455,7 +455,7 @@ export default {
         this.eqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
-        // console.log("data:", data)
+        console.log("data:", data)
       });
     },
 
@@ -804,15 +804,15 @@ export default {
        *  并且需要改后端调用的接口
        */
 
-      const EqEventGetResultTownDTO = {
-        // event: eq.eqid,
-        event: "T2024110313362251182600",
-        eqqueueId: "",
+      const eqTownResultDTO = {
+        eqid: eq.eqid,
+        eqqueueId: eq.eqqueueId
       }
 
+      console.log(eqTownResultDTO)
 
-      getDA("getTownResult", EqEventGetResultTownDTO).then((res) => {
-        const countyData = handleTownData(res)
+      getEqTownResult(eqTownResultDTO).then((res) => {
+        const countyData = handleTownData(res.data)
         console.log(countyData)
         // 提取对应专题数据
         this.panelData.buildingDamageData = countyData.buildingDamageData
@@ -1043,7 +1043,7 @@ export default {
 
     // 跳转至指挥大屏
     navigateToVisualization(thisEq) {
-      const path = `/thd?eqid=${thisEq.eqid}`;
+      const path = `/thd?eqid=${thisEq.eqid}&eqqueueId=${thisEq.eqqueueId}`;
       window.open(path, '_blank');
     },
 
@@ -1106,7 +1106,7 @@ export default {
     showOvalCircle() {
       this.eqThemes.show.isshowOvalCircle = !this.eqThemes.show.isshowOvalCircle;
       if (this.eqThemes.show.isshowOvalCircle) {
-        addOCTest(this.selectedTabData.eqid)
+        addOCTest(this.selectedTabData.eqid, this.selectedTabData.eqqueueId)
       } else {
         this.removeLayers(["ovalCircleTest"])
       }
