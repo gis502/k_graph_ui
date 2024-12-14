@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import {getDA} from "../../api/system/damageassessment.js";
+import {getDA, getEqTownResult} from "../../api/system/damageassessment.js";
 import {handleTownData} from "../../cesium/plot/eqThemes.js";
 import * as echarts from 'echarts';
 
@@ -106,6 +106,10 @@ export default {
       type: String,
       default: null,
     },
+    eqqueueId: {
+      type: String,
+      default: null,
+    }
   },
   name: "",
   data() {
@@ -128,6 +132,7 @@ export default {
   },
   mounted() {
     console.log("这里：", this.eqid)
+    console.log("这里：", this.eqqueueId)
     this.getData()
   },
   methods: {
@@ -139,14 +144,13 @@ export default {
        * 获取数据
        * @type {{eqqueueId: string, event: string}}
        */
-      const EqEventGetResultTownDTO = {
-        // event: this.eqid,
-        event: "T2024110313362251182600",
-        eqqueueId: "",
+      const eqTownResultDTO = {
+        eqid: this.eqid,
+        eqqueueId: this.eqqueueId,
       }
 
-      getDA("getTownResult", EqEventGetResultTownDTO).then((res) => {
-        const countyData = handleTownData(res)
+      getEqTownResult(eqTownResultDTO).then((res) => {
+        const countyData = handleTownData(res.data)
         console.log(countyData)
         // 提取对应专题数据
         this.panelData.buildingDamageData = countyData.buildingDamageData

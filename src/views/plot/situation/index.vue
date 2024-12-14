@@ -287,7 +287,7 @@
     </div>
 
 
-    <!--    准提图预览组件    -->
+    <!--    专题图预览组件    -->
     <thematicMapPreview
       @ifShowThematicMapDialog="ifShowDialog"
       :imgshowURL="imgshowURL"
