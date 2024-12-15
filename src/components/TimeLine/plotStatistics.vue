@@ -4,13 +4,13 @@
       <div class="pop_header">
         <h2 class="pop_title">
           标绘统计
-          <span class="time">{{this.timestampToTimeChina(this.currentTime) }}</span>
+          <span class="time">{{ this.timestampToTimeChina(this.currentTime) }}</span>
         </h2></div>
       <div class="pop_content"
            @mouseenter="handleMouseEnter"
            @mouseleave="handleMouseLeave">
-        <div class="range">统计范围：{{this.centerPosionName}}</div>
-        <div class="num">总计：{{this.dataInTimeAndZoom.length}}个</div>
+        <div class="range">统计范围：{{ this.centerPosionName }}</div>
+        <div class="num">总计：{{ this.dataInTimeAndZoom.length }}个</div>
         <div id="plotsStatisticChart"></div>
       </div>
     </div>
@@ -24,66 +24,63 @@ import * as echarts from "echarts";
 // 原因： Echarts 管理的状态和数据与 Vue 的响应式产生冲突，导致Echarts 无法正常更新而报错。
 // 解决：markRaw，取消 VUE 的响应式系统观测 Echarts 的变化更新，让Echarts 自动更新。
 import {markRaw} from 'vue'
-import {getPlotInfos} from "@/api/system/plot.js";
-import axios from "axios";
+import {getPlotBelongCounty} from '@/api/system/plot'
+
 
 export default {
   data() {
     return {
       chart: null, // 保存 ECharts 实例
       myChart1Data: [],
-      filtdata:[],
-      resInfo:[],
-      isDataReady:false,
-      dataInTimeAndZoom:[],
-      centerPosionName:'',
-      option:null,
-      scrollInterval:null,
-
+      filtdata: [],
+      resInfo: [],
+      isDataReady: false,
+      dataInTimeAndZoom: [],
+      centerPosionName: '',
+      option: null,
+      scrollInterval: null,
+      isWatching: false, // 添加标志位，'plots', 'currentTime','zoomLevel',三个变量触发，应该三选一
+      countyCenterNew:''
     };
   },
-  props: ['plots', 'currentTime','zoomLevel','viewCenterCoordinate','isTimerRunning'],
+  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning'],
   watch: {
     plots(newVal) {
+
       this.getRescueActionCasualtiesPlotAndInfo();
+
     },
     currentTime(newVal) {
-      console.log("currentTime watch",newVal)
-      if(!this.isDataReady){
-        this.getRescueActionCasualtiesPlotAndInfo(newVal);
-      }
       this.updateTimeStatistic();
     },
     zoomLevel(newVal) {
-      // console.log("zoomLevel watch",newVal)
-      // if(!this.isDataReady){
-      //   this.getRescueActionCasualtiesPlotAndInfo(newVal);
-      // }
-      // this.showZoomStatistic()
+      this.showZoomStatistic()
     },
-    viewCenterCoordinate(newVal){
-      console.log("viewCenterCoordinate watch",newVal)
-      // if(!this.isDataReady){
-      //   this.getRescueActionCasualtiesPlotAndInfo(newVal);
-      // }
-      // this.showZoomStatistic()
-    },
-    isTimerRunning(newVal){
-      if(newVal===false){
-        this.scroll()
+
+    //中心点位置
+    async viewCenterCoordinate(newVal) {
+      console.log("viewCenterCoordinate watch", newVal)
+      let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
+      console.log(countyCenterTmp,"countyCenterTmp")
+      if(countyCenterTmp!= this.countyCenterNew){
+        this.countyCenterNew=countyCenterTmp
+        console.log(this.countyCenterNew,"this.countyCenterNew")
+        this.showZoomStatistic()
       }
-      else{
+    },
+    //时间轴停止，标绘统计上下滚动
+    isTimerRunning(newVal) {
+      if (newVal === false) {
+        this.scroll()
+      } else {
         this.scrollToStart()
       }
     }
   },
   mounted() {
     this.initEcharts() //初始化
-    // this.updateStatistic()
   },
   methods: {
-
-
     //图表操作
     //根据键取值，把值存到数组中 （一个工具函数）
     getArrByKey(data, k) {
@@ -283,14 +280,23 @@ export default {
     },
     //取位置
     async getRescueActionCasualtiesPlotAndInfo() {
-      console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
+      // console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
       if (!this.plots) {
         return;
       }
       const locationDataArray = await Promise.all(this.plots.map(async data => {
         const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
         try {
-          const locationInfo = await this.getReverseGeocode(longitude, latitude);
+          let county = await this.getPlotBelongCounty(longitude, latitude)
+          console.log(county,"county")
+          let city=null
+          if(county&&county!="不在雅安市"){
+            city="雅安市"
+          }
+          let locationInfo={
+            city:city,
+            county:county
+          }
           return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
         } catch (error) {
           console.error(`Failed to get location info for plotId ${plotId}:`, error);
@@ -313,20 +319,9 @@ export default {
       // console.log("resInfo.value111", this.resInfo)
       this.updateTimeStatistic()
     },
-    async getReverseGeocode(lon, lat) {
-      try {
-        const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
-          params: {
-            postStr: JSON.stringify({lon, lat, ver: 1}),
-            type: 'geocode',
-            tk: '80eb284748e84ca6c70468c906f0c889'
-          }
-        });
-        return response.data.result.addressComponent;
-      } catch (error) {
-        console.error("逆地理编码失败:", error);
-        return null;
-      }
+
+    async getPlotBelongCounty(lon, lat) {
+      return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
     },
 
     updateTimeStatistic() {
@@ -342,7 +337,6 @@ export default {
           this.dataIntime.push(item)
         }
       })
-      // console.log("dataIntime",dataIntime)
       this.showZoomStatistic()
     },
     async showZoomStatistic() {
@@ -353,47 +347,26 @@ export default {
       console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
 
-      // console.log(this.viewCenterCoordinate,originalArray,"originalArray")
-      // if(!this.viewCenterCoordinate.lon){
-      //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
-      //   this.centerPosionName='雅安市'
-      //   console.log(this.centerPosionName,"this.centerPosionName")
-      // }
-      // else{
-      //   let viewCenterLocation=await this.getReverseGeocode(this.viewCenterCoordinate.lon,this.viewCenterCoordinate.lat)
-
-      // switch (this.zoomLevel) {
-      //   case '市':
-      //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.city === '雅安市');
-      //     this.centerPosionName='雅安市'
-      //     console.log(this.centerPosionName,"this.centerPosionName")
-      //     break;
-      //   case '区/县':
-      //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.county ===viewCenterLocation.county);
-      //     this.centerPosionName=viewCenterLocation.county
-      //     console.log(this.centerPosionName,"this.centerPosionName")
-      //     break;
-      //   case '乡/镇':
-      //     this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.town === viewCenterLocation.town);
-      //     this.centerPosionName=viewCenterLocation.town
-      //     console.log(this.centerPosionName,"this.centerPosionName")
-      //     break;
-      //     // case '村':
-      //     //   this.dataInTimeAndZoom=originalArray.filter(data => data.locationInfo.address === viewCenterLocation.address);
-      //     //   this.centerPosionName=viewCenterLocation.address
-      //     //   break;
-      //   default:
-      this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
-      this.centerPosionName = '雅安市'
-      console.log(this.centerPosionName, "this.centerPosionName")
-      // break;
-      // }
-      // arr=originalArray.filter(data => data.locationInfo.city === '雅安市');
-      // break;
-      console.log(this.dataInTimeAndZoom, "arrinZoom")
-
-      // }
-
+      let city=null
+      if(this.countyCenterNew&&this.countyCenterNew!="不在雅安市"){
+        city="雅安市"
+      }
+      let viewCenterLocation={
+        city:city,
+        county:this.countyCenterNew
+      }
+      console.log(viewCenterLocation,"viewCenterLocation")
+      console.log(this.zoomLevel,"showZoomStatistic")
+      if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
+      // if ("区/县".equals(this.zoomLevel)) {
+        this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
+        this.centerPosionName = viewCenterLocation.county
+        console.log(this.centerPosionName, "this.centerPosionName")
+      } else {
+        this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
+        this.centerPosionName = '雅安市'
+        console.log(this.centerPosionName, "this.centerPosionName")
+      }
 
       let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
         console.log(acc, obj, "occ,obj")
@@ -482,6 +455,8 @@ export default {
         ]
       });
     },
+
+
     scrollToStart() {
       if (this.scrollInterval) {
         clearInterval(this.scrollInterval);
@@ -527,7 +502,6 @@ export default {
         }
       }, 3000);
     },
-
     handleMouseEnter() {
       // 鼠标悬停时，清除自动滚动的 interval
       if (this.scrollInterval) {

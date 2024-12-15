@@ -537,7 +537,7 @@
 import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
-import {getPlotwithStartandEndTime} from '@/api/system/plot'
+import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
@@ -1026,7 +1026,8 @@ export default {
       eqlistName: '',
       canOperateTimerLine: false,
       wsaddMakers: [],
-      wsdeleteMakers:[]
+      wsdeleteMakers:[],
+      viewCenterCoordinate:null,
     };
   },
   created() {
@@ -1060,8 +1061,23 @@ export default {
     }
   },
   methods: {
+    // async getPlotBelongCounty(lon, lat) {
+    //   return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
+    // },
+    // async onCameraChanged() {
+    //   const positionCartographic = viewer.camera.positionCartographic;
+    //   var height = positionCartographic.height;
+    //   this.updateZoomLevel(height);
+    //   var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+    //   var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+    //   this.viewCenterCoordinate = {
+    //     lon: longitude,
+    //     lat: latitude
+    //   }
+    // },
     // 初始化控件等
-    init() {
+    async init() {
+
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
@@ -1076,6 +1092,9 @@ export default {
           lon: longitude,
           lat: latitude
         }
+        // this.viewCenterCoordinate=await this.getPlotBelongCounty(longitude,latitude)
+
+        console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
       })
 
       window.viewer = viewer
@@ -3800,21 +3819,14 @@ export default {
       })
     },
     updateZoomLevel(cameraHeight) {
-      //console.log("层级", cameraHeight)
-      // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
+      if (cameraHeight < 50000) {
         this.zoomLevel = '区/县'
       }
-          // else if (cameraHeight > 8000) {
-          //   this.zoomLevel = '乡/镇'
-      // }
-      else {
-        // this.zoomLevel = '村'
-        this.zoomLevel = '乡/镇'
+      else{
+        this.zoomLevel = '市'
       }
     },
+
     //----------------------时间轴end
     clearResource(viewer) {
       this.isTimerRunning = false;
