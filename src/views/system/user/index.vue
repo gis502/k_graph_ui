@@ -221,7 +221,7 @@
     </el-row>
 
     <!-- 添加或修改用户配置对话框 -->
-    <el-dialog :title="title" v-model="open" width="700px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="900px" append-to-body>
       <el-form :model="form" :rules="rules" ref="userRef" label-width="100px">
         <el-row>
           <el-col :span="11">
@@ -231,8 +231,7 @@
           </el-col>
           <el-col :span="11">
             <el-form-item label="用户密码" prop="password">
-              <el-input v-model="form.password" placeholder="请输入用户密码" type="password" maxlength="20"
-                        show-password/>
+              <el-input v-model="form.password" placeholder="请输入用户密码" type="password" show-password/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -412,7 +411,7 @@ const postOptions = ref([]);
 const excelOptions = ref([]);
 const roleOptions = ref([]);
 const firstLevelKeys = ref([])
-
+const oldPassword = ref([])
 const indexMethod = (index) => {
   return index + 1 + (queryParams.value.pageNum - 1) * queryParams.value.pageSize;
 }
@@ -462,12 +461,27 @@ const data = reactive({
     deptId: [{required: true, message: "隶属工作组不能为空", trigger: "blur"}],
     nickName: [{required: true, message: "用户昵称不能为空", trigger: "blur"}],
     roleIds: [{required: true, message: "角色不能为空", trigger: "blur"}],
-    password: [{required: true, message: "用户密码不能为空", trigger: "blur"}, {
-      min: 5,
-      max: 60,
-      message: "用户密码长度必须介于 5 和 60 之间",
-      trigger: "blur"
-    }, {pattern: /^[^<>"'|\\]+$/, message: "不能包含非法字符：< > \" ' \\\ |", trigger: "blur"}],
+    password: [
+      {required: true, message: '密码不能为空', trigger: 'blur'},
+      {
+        validator: (rule, value, callback) => {
+          if (value === oldPassword.value) {
+            callback(); // 如果密码与之前的一样，校验通过
+          } else if (
+              !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/.test(value))
+          {
+            callback(
+                new Error(
+                    '密码需包含大小写字母、数字和特殊字符，长度8-25位'
+                )
+            );
+          } else {
+            callback(); // 其他符合规则的情况，校验通过
+          }
+        },
+        trigger: ['blur','change'],
+      },
+    ],
     email: [{type: "email", message: "请输入正确的邮箱地址", trigger: ["blur", "change"]}],
     phonenumber: [{pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur"}]
   }
@@ -588,20 +602,20 @@ function handleResetPwd(row) {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     closeOnClickModal: false,
-    inputPattern: /^.{5,20}$/,
-    inputErrorMessage: "用户密码长度必须介于 5 和 20 之间",
+    inputPattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,25}$/,
+    inputErrorMessage: "密码需包含大小写字母、数字和特殊字符，长度8-25位",
     inputValidator: (value) => {
       if (/<|>|"|'|\||\\/.test(value)) {
-        return "不能包含非法字符：< > \" ' \\\ |"
+        return "不能包含非法字符：< > \" ' \\ |";
       }
     },
-  }).then(({value}) => {
+  }).then(({ value }) => {
     resetUserPwd(row.userId, value).then(response => {
       proxy.$modal.msgSuccess("修改成功，新密码是：" + value);
     });
-  }).catch(() => {
-  });
+  }).catch(() => {});
 }
+
 
 /** 选择条数  */
 function handleSelectionChange(selection) {
@@ -654,7 +668,7 @@ function reset() {
     status: "0",
     remark: undefined,
     postIds: [],
-    roleIds: [],
+    roleIds: undefined,
     fileIds: []
   };
   proxy.resetForm("userRef");
@@ -670,10 +684,10 @@ function cancel() {
 function handleAdd() {
   reset();
   getUser().then(response => {
-    console.log(response)
     postOptions.value = response.posts;
     roleOptions.value = response.roles;
     excelOptions.value = response.fileIds;
+    console.log(roleOptions)
     open.value = true;
     title.value = "添加用户";
     form.value.password = initPassword.value;
@@ -695,13 +709,14 @@ function handleUpdate(row) {
     open.value = true;
     title.value = "修改用户";
     form.password = "";
+    oldPassword.value = form.value.password;
   });
 }
 
 /** 提交按钮 */
 function submitForm() {
   // 若依框架存储为数组格式
-  if (!Array.isArray(form.value.roleIds)){
+  if (!Array.isArray(form.value.roleIds)) {
     form.value.roleIds = [form.value.roleIds]
   }
   proxy.$refs["userRef"].validate(valid => {
