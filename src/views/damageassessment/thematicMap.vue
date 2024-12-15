@@ -120,8 +120,11 @@
 
       <div class="eqPanel" v-if="isPanelShow.thematicMap || isPanelShow.report">
         <h2>{{ this.outputData.themeName }}</h2>
-
+        <div style="width: 100%;height: calc(100% - 120px);text-align: center;color: #fff;font-size: 16px" v-if="isNoData">
+          该地震暂无评估图件产出
+        </div>
         <div class="mapItem" v-if="this.outputData.type === `thematicMap`">
+
           <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
                @mouseenter="handleOpen(index)" @mouseleave="handleClose()">
             <div class="panelButtons" v-if="showPanelButtonsIndex === index">
@@ -205,6 +208,8 @@ export default {
       outputData: {},
       imgName: '',
       imgUrl: '',
+
+      isNoData: false,
     };
   },
 
@@ -522,6 +527,8 @@ export default {
 
     // 切换到对应面板
     toTab(eq) {
+      // console.log(eq)
+      this.isNoData = false
       this.thisTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
       this.eqid = eq.eqid
       this.eqqueueId = eq.eqqueueId
@@ -543,7 +550,7 @@ export default {
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
           this.selectEqPoint();
-          console.log(this.selectedTabData)
+          // console.log(this.selectedTabData)
         }
       }
     },
@@ -624,11 +631,17 @@ export default {
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
-          console.log("你好",res)
+          if (res.themeName.includes("null")) {
+            this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
+          } else {
+            this.outputData = res;
+            this.outputData.type = type;
 
+          }
+          if (res.themeData.length === 0) {
+            this.isNoData = true
+          }
 
-          this.outputData = res;
-          this.outputData.type = type;
         });
       } else {
 
@@ -702,6 +715,7 @@ export default {
       this.isPreviewShow = false;
       this.thisTab = '震害事件';
       this.selectedTabData = null;
+      this.outputData = {}
 
       //视角回雅安
       const position = Cesium.Cartesian3.fromDegrees(
