@@ -144,7 +144,8 @@ function initModel(modelName) {
         lightingModel:0
     })
     const tileset = new Cesium.Cesium3DTileset({
-        url: baseURL + "/geoserver/www/" + modelName + "/tileset.json",
+        // url: baseURL + "/geoserver/www/" + modelName + "/tileset.json",
+        url:modelName + "/tileset.json",
         loadSiblings: true,
         show: true,
         maximumScreenSpaceError: 64,//默认16，值越大经度越小

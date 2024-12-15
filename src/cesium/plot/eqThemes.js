@@ -3,7 +3,7 @@ import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
-import {getDA, saveIntensityCircle} from "../../api/system/damageassessment.js";
+import {getDA, getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json"
 
 
@@ -132,7 +132,7 @@ export function addFaultZones(centerPoint) {
 }
 
 // 绘制历史地震点
-export function addHistoryEqPoints(centerPoint, eqData, radius, filteredEqids) {
+export function addHistoryEqPoints(centerPoint, eqData, radius, filteredeqids) {
   let entities = window.viewer.entities.values;
   for (let i = entities.length - 1; i >= 0; i--) {
     if (entities[i].properties?.type && ['historyEq'].includes(entities[i].properties.type.getValue())) {
@@ -167,7 +167,7 @@ export function addHistoryEqPoints(centerPoint, eqData, radius, filteredEqids) {
   const center = Cesium.Cartesian3.fromDegrees(Number(centerPoint.longitude), Number(centerPoint.latitude));
   let historyEqData = [];
 
-  const eqids = filteredEqids || eqData.map(eq => eq.eqid);
+  const eqids = filteredeqids || eqData.map(eq => eq.eqid);
 
   console.log("eqids", eqids)
 
@@ -528,7 +528,7 @@ export function addOvalCircles(centerPoint) {
   // })
 }
 
-export function addOCTest(eqqueueId) {
+export function addOCTest(eqid, eqqueueId) {
   let intensityLevels = ["Ⅵ (六度)", "Ⅶ (七度)", "Ⅷ (八度)", "Ⅸ (九度)", "Ⅹ (十度)", "Ⅺ (十一度)", "Ⅻ (十二度)"];
   let intensityColors = [
     "#990000",
@@ -542,12 +542,9 @@ export function addOCTest(eqqueueId) {
   /**
    * 烈度圈部分
    */
-  // 视情况而定
-  // const batch = eqqueueId.slice(-1);
-  // fetch("http://example.com(文件夹名称)/${this.selectedTabData.eqFullName}/${batch}/${eqqueueId}_intensity.geojson")
-
-  // 以下为示例：
-  fetch("/assessmentTest/2024年11月03日四川省雅安市芦山县7.1级地震/3/geojson/T202411031336225118260003_intensity.geojson")
+  // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
+  fetch(`http://172.26.86.82/data/image/profile/upload/yxcdown/${eqid}/${eqqueueId}_intensity.geojson`)
+    // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
       console.log(geojsonData);
@@ -578,7 +575,7 @@ export function addOCTest(eqqueueId) {
 
         });
 
-        // console.log(entities)
+        console.log(entities)
 
       })
 
@@ -597,7 +594,7 @@ export function addOCTest(eqqueueId) {
 export function handleTownData(town) {
   console.log("数据：", town)
 
-  const townData = town.data;
+  const townData = town;
   /**
    * 根据pac前6位与countyCodeMap.json中的adcode进行匹配，将乡镇级数据转换成区县级(累加)
    */
@@ -623,10 +620,10 @@ export function handleTownData(town) {
            */
 
           // 建筑破坏
-          existingEntry.buildingDamage += townData[i].buildingdamage || 0;
+          existingEntry.buildingDamage += townData[i].buildingDamage || 0;
 
           // 经济损失
-          existingEntry.economicLoss += townData[i].economicloss || 0;
+          existingEntry.economicLoss += townData[i].economicLoss || 0;
 
           // 人员伤亡系列
           // 受灾人数
@@ -638,9 +635,9 @@ export function handleTownData(town) {
           // 受伤人数
           existingEntry.personalCasualty.injury += townData[i].injury || 0;
           // 压埋人数
-          existingEntry.personalCasualty.buriedCount += townData[i].buriedcount || 0;
+          existingEntry.personalCasualty.buriedCount += townData[i].buriedCount || 0;
           // 需转移安置人数
-          existingEntry.personalCasualty.resetNumber += townData[i].resetnumber || 0;
+          existingEntry.personalCasualty.resetNumber += townData[i].resetNumber || 0;
         } else {
           /**
            * 新增数据
@@ -648,15 +645,15 @@ export function handleTownData(town) {
           countyDataArray.push({
             batch: batch,
             county: county,
-            buildingDamage: townData[i].buildingdamage || 0,
-            economicLoss: townData[i].economicloss || 0,
+            buildingDamage: townData[i].buildingDamage || 0,
+            economicLoss: townData[i].economicLoss || 0,
             personalCasualty: {
-              pops: townData[i]['pop'] || 0,
-              death: townData[i].death || 0,
-              missing: townData[i].missing || 0,
-              injury: townData[i].injury || 0,
-              buriedCount: townData[i].buriedcount || 0,
-              resetNumber: townData[i].resetnumber || 0,
+              pops: Number(townData[i]['pop']) || 0,
+              death: Number(townData[i].death) || 0,
+              missing: Number(townData[i].missing) || 0,
+              injury: Number(townData[i].injury) || 0,
+              buriedCount: Number(townData[i].buriedCount) || 0,
+              resetNumber: Number(townData[i].resetNumber) || 0,
             },
           });
         }
@@ -689,7 +686,7 @@ export function handleTownData(town) {
   // 经济损失
   const economicLossData = yaanCountyData.map(entry => ({
     county: entry.county,
-    amount: parseFloat(entry.economicLoss.toFixed(2)),
+    amount: parseFloat(entry.economicLoss),
   }));
 
   // 人员伤亡
@@ -710,14 +707,17 @@ export function handleTownData(town) {
 /**
  * 灾损接口：4.2.9.获取专题图件getMap与灾情报告getReport
  * @param eqid
+ * @param eqqueueId
  * @param eqFullName
  * @param type
  */
-export function handleOutputData(eqid, eqFullName, type) {
+export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
   const DTO = {
-    event: eqid,
-    eqqueueId: "",
+    eqid: eqid,
+    eqqueueId: eqqueueId,
   };
+
+  const batch = eqqueueId.slice(-1);
 
   // 初始化返回数据
   let returnData = {
@@ -729,15 +729,15 @@ export function handleOutputData(eqid, eqFullName, type) {
 
   return new Promise((resolve, reject) => {
     if (type === "thematicMap") {
-      getDA("getMap", DTO).then((res) => {
+      getEqOutputMap(DTO).then((res) => {
         const data = res.data;
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
-        const url = "/assessmentTest/2024年11月03日四川省雅安市芦山县7.1级地震/3/thematicMap/";
+        const url = `http://172.26.86.82/data/image/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
 
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
-            imgUrl: `${url}${data[i].sourceFile.split('/').pop()}`,
+            imgUrl: `${url}${data[i].localSourceFile}`,
             theme: data[i].fileName,
           };
           thematicMapData.push(thematicMapObject);
@@ -751,16 +751,16 @@ export function handleOutputData(eqid, eqFullName, type) {
         reject(err); // 如果请求失败，返回错误
       });
     } else if (type === "report") {
-      getDA("getReport", DTO).then((res) => {
+      getEqOutputReport(DTO).then((res) => {
         console.log("灾情报告数据：", res);
         const data = res.data;
         const themeName = eqFullName + "-" + "灾情报告";
         let reportData = [];
-        const url = "/assessmentTest/2024年11月03日四川省雅安市芦山县7.1级地震/3/report/";
+        const url = `http://172.26.86.82/data/image/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
 
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
-            docxUrl: `${url}${data[i].sourceFile.split('/').pop()}`,
+            docxUrl: `${url}${data[i].localSourceFile}`,
             theme: data[i].fileName,
           };
           reportData.push(reportObject);
