@@ -10,7 +10,7 @@
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
+<!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
 
@@ -247,7 +247,7 @@
 </template>
 
 <script>
-import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq} from '@/api/system/eqlist'
+import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq, eqEventTrigger} from '@/api/system/eqlist'
 
 export default {
   name: "index",
@@ -500,7 +500,11 @@ export default {
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
-      console.log("你好：", this.addOrUpdateDTO)
+      eqEventTrigger(this.addOrUpdateDTO)
+          .then(res => {
+        console.log(res)
+      })
+      // console.log("你好：", this.addOrUpdateDTO)
     },
 
     cancelPanel() {
@@ -604,7 +608,7 @@ export default {
 
     handleAddOrUpdate(operation) {
       if (operation === 'add') {
-        this.isPanelShow = true
+        this.isPanelShow = !this.isPanelShow
       }
     },
 
