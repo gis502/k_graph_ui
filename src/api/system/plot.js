@@ -138,3 +138,12 @@ export function getPlotwithStartandEndTime(data){
     params:data
   })
 }
+
+
+export function getPlotBelongCounty(data){
+  return request({
+    url: '/system/ploy/getPlotBelongCounty' ,
+    method: 'post',
+    params:data
+  })
+}

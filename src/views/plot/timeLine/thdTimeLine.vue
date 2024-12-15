@@ -35,9 +35,9 @@
       </div>
     </div>
     <!--    title end-->
-    <div class="button-container">
-      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
-    </div>
+<!--    <div class="button-container">-->
+<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
+<!--    </div>-->
 
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
@@ -1721,18 +1721,19 @@ export default {
     updateZoomLevel(cameraHeight) {
       console.log("层级", cameraHeight)
       // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
+      if (cameraHeight < 50000) {
         this.zoomLevel = '区/县'
+      }
+      else{
+        this.zoomLevel = '市'
       }
           // else if (cameraHeight > 8000) {
           //   this.zoomLevel = '乡/镇'
       // }
-      else {
-        // this.zoomLevel = '村'
-        this.zoomLevel = '乡/镇'
-      }
+      // else {
+      //   // this.zoomLevel = '村'
+      //   this.zoomLevel = '乡/镇'
+      // }
     },
     /**
      * 处理实体点击事件的弹窗显示逻辑

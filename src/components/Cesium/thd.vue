@@ -539,6 +539,32 @@
 <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
 <!--      <el-button @click="removeAll">清空所有实体</el-button>-->
 <!--    </div>-->
+
+      <!--    路径规划    -->
+      <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
+      <!--          <div class="panelTop">-->
+      <!--              <h2 class="panelName">路径规划</h2>-->
+      <!--          </div>-->
+
+      <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
+      <!--              <el-row style="margin: 20px;">-->
+      <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
+      <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
+      <!--              </el-row>-->
+      <!--              <div slot="header" class="clearfix"-->
+      <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
+      <!--                  <div>-->
+      <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
+      <!--                  </div>-->
+      <!--                  <div v-if="visibleGuilde">-->
+      <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
+      <!--                          {{ instruction }}-->
+      <!--                      </div>-->
+      <!--                      <div v-if="loading" class="loading">加载中...</div>-->
+      <!--                  </div>-->
+      <!--              </div>-->
+      <!--          </div>-->
+      <!--      </div>-->
   </div>
 </template>
 
@@ -546,7 +572,7 @@
 import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
-import {getPlotwithStartandEndTime} from '@/api/system/plot'
+import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getEqById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
@@ -842,7 +868,7 @@ export default {
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
 
-      stopTimeforAddEntityOneIndex: 5000,
+      stopTimeforAddEntityOneIndex: 6000,
 
 
       timelinePopupShowCenterStrart: true,
@@ -1036,7 +1062,8 @@ export default {
       eqlistName: '',
       canOperateTimerLine: false,
       wsaddMakers: [],
-      wsdeleteMakers:[]
+      wsdeleteMakers:[],
+      viewCenterCoordinate:null,
     };
   },
   created() {
@@ -1087,8 +1114,23 @@ export default {
 
 
 
+    // async getPlotBelongCounty(lon, lat) {
+    //   return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
+    // },
+    // async onCameraChanged() {
+    //   const positionCartographic = viewer.camera.positionCartographic;
+    //   var height = positionCartographic.height;
+    //   this.updateZoomLevel(height);
+    //   var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+    //   var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+    //   this.viewCenterCoordinate = {
+    //     lon: longitude,
+    //     lat: latitude
+    //   }
+    // },
     // 初始化控件等
-    init() {
+    async init() {
+
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
@@ -1103,6 +1145,9 @@ export default {
           lon: longitude,
           lat: latitude
         }
+        // this.viewCenterCoordinate=await this.getPlotBelongCounty(longitude,latitude)
+
+        console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
       })
 
       window.viewer = viewer
@@ -4441,21 +4486,14 @@ export default {
       })
     },
     updateZoomLevel(cameraHeight) {
-      //console.log("层级", cameraHeight)
-      // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
+      if (cameraHeight < 50000) {
         this.zoomLevel = '区/县'
       }
-          // else if (cameraHeight > 8000) {
-          //   this.zoomLevel = '乡/镇'
-      // }
-      else {
-        // this.zoomLevel = '村'
-        this.zoomLevel = '乡/镇'
+      else{
+        this.zoomLevel = '市'
       }
     },
+
     //----------------------时间轴end
     clearResource(viewer) {
       this.isTimerRunning = false;
@@ -4566,9 +4604,11 @@ export default {
     downloadReport(item) {
       // 报告下载逻辑
       const link = document.createElement("a");
-      link.href = item.docxUrl;
-      link.download = item.docxUrl.split('/').pop(); // 指定下载的文件名
+      link.href = item.path;
+      link.download = item.name; // 指定下载的文件名
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     },
 
     /*
@@ -5783,7 +5823,7 @@ export default {
         this.showTypes = 1
         // //console.log("11111",this.imgurlFromDate, this.imgName)
         this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
-        //console.log(this.imgshowURL)
+        // //console.log(this.imgshowURL)
       } else {
         this.ifShowMapPreview = false
       }
@@ -5813,9 +5853,8 @@ export default {
     showThematicMapDialog(item) {
       // 显示专题图弹框逻辑
       this.ifShowMapPreview = true;
-      // this.imgName = item.theme;
-      // this.imgshowURL = item.imgUrl;
-      this.imgurlFromDate = item.imgUrl
+      this.imgName = item.name;
+      this.imgshowURL = item.path;
     },
     ifShowThematicMapDialog(val) {
       this.ifShowMapPreview = val;
