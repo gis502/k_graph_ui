@@ -14,19 +14,21 @@
 
     <div class="panelTable">
       <div class="text" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>统计表格</span>
-        <span style="margin-right: 0">
-          <span>本次地震预估伤亡总数：</span>
-          <span class="emphasis">{{ personalCasualtyData.PersonalCasualtyNum }}</span> 人<br/>
+        <span style="margin: 0 auto">
           <span>雅安地区预估伤亡总数：</span>
-          <span class="emphasis">{{ totalCasualtyNum }}</span> 人
+          <span class="emphasis">{{ totalCasualtyNum }} 人</span>
         </span>
       </div>
       <div class="table">
         <el-table :data="tableData" :height="180" :max-height="180" stripe
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor" :row-style="{ height: '46px' }">
-          <el-table-column prop="name" label="雅安市地区" align="center"></el-table-column>
-          <el-table-column prop="num" label="伤亡人数" align="center"></el-table-column>
+          <el-table-column prop="county" label="雅安市地区" align="center" width="100"></el-table-column>
+          <el-table-column prop="casualty.death" label="死亡人数" align="center" width="90"></el-table-column>
+          <el-table-column prop="casualty.injury" label="受伤人数" align="center" width="90"></el-table-column>
+          <el-table-column prop="casualty.pops" label="受灾人数" align="center" width="90"></el-table-column>
+          <el-table-column prop="casualty.buriedCount" label="压埋人数" align="center"></el-table-column>
+          <el-table-column prop="casualty.missing" label="失踪人数" align="center"></el-table-column>
+          <el-table-column prop="casualty.buriedCount" label="需转移安置人数" align="center" width="120"></el-table-column>
         </el-table>
       </div>
     </div>
@@ -40,7 +42,7 @@
         selectedTabData.magnitude
       }}级地震</span>
     <div style="padding: 1px 20px 10px 20px">
-      <p>发震时刻：{{ selectedTabData.time }}</p>
+      <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
       <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
       <p>地震震级：{{ selectedTabData.magnitude }}</p>
       <p>震源深度：{{ selectedTabData.depth }}千米</p>
@@ -50,6 +52,7 @@
 
 <script>
 import * as echarts from "echarts";
+import {timestampToTime} from "../../cesium/plot/eqThemes.js";
 
 export default {
   props: {
@@ -94,9 +97,10 @@ export default {
     },
   },
   methods: {
+    timestampToTime,
     initChart() {
       // 检查是否有数据和chart DOM
-      if (!this.personalCasualtyData || !this.personalCasualtyData.yaanitemcasual || !this.$refs.chart) {
+      if (!this.personalCasualtyData || !this.$refs.chart) {
         return;
       }
 
@@ -105,9 +109,14 @@ export default {
       const myChart = echarts.init(chartDom);
 
       // 准备数据
-      const tableData = this.personalCasualtyData.yaanitemcasual;
-      const counties = tableData.map(item => item.name);
-      const values = tableData.map(item => item.num);
+      const tableData = this.personalCasualtyData.sort((a, b) => b.partTotal - a.partTotal);
+      const counties = tableData.map(item => item.county);
+
+      // 提取堆叠数据
+      const deaths = tableData.map(item => item.casualty.death || 0);
+      const injuries = tableData.map(item => item.casualty.injury || 0);
+      const missings = tableData.map(item => item.casualty.missing || 0);
+      const buriedCounts = tableData.map(item => item.casualty.buriedCount || 0);
 
       // 设置图表配置项
       const option = {
@@ -118,17 +127,29 @@ export default {
             color: '#fff', // 设置标题颜色为白色
           },
         },
-        tooltip: {},
+        legend: {
+          data: ['死亡人数', '受伤人数', '失踪人数', '压埋人数'],
+          top: '8%',
+          textStyle: {
+            color: '#fff', // 图例文字颜色
+          },
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow', // 鼠标悬停显示为阴影指示
+          },
+        },
         grid: {
-          left: '0%',
-          right: '0%',
+          left: '5%',
+          right: '5%',
           bottom: '10%',
-          containLabel: true
+          containLabel: true,
         },
         xAxis: {
           type: 'category',
           data: counties,
-          name: '地区',
+          name: '',
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
           },
@@ -149,19 +170,39 @@ export default {
         },
         series: [
           {
-            name: '雅安市伤亡人数',
+            name: '压埋人数',
             type: 'bar',
-            data: values,
+            stack: '总数',
+            data: buriedCounts,
+            itemStyle: {
+              color: '#f67d69',
+            },
+          },
+          {
+            name: '失踪人数',
+            type: 'bar',
+            stack: '总数',
+            data: missings,
+            itemStyle: {
+              color: '#f1634b',
+            },
+          },
+          {
+            name: '受伤人数',
+            type: 'bar',
+            stack: '总数',
+            data: injuries,
             itemStyle: {
               color: '#f04e35',
             },
-            barWidth: 30,
-            barGap: 10,
-            label: {
-              show: true,
-              position: 'top',
-              color: '#fff',  // 设置数字的颜色
-              fontSize: 12,   // 设置字体大小
+          },
+          {
+            name: '死亡人数',
+            type: 'bar',
+            stack: '总数',
+            data: deaths,
+            itemStyle: {
+              color: '#e7321f',
             },
           },
         ],
@@ -172,14 +213,9 @@ export default {
     },
 
     loadTableData() {
-      if (this.personalCasualtyData && this.personalCasualtyData.yaanitemcasual) {
-        const yaanitemcasual = this.personalCasualtyData.yaanitemcasual;
-        this.tableData = yaanitemcasual.length
-          ? yaanitemcasual.sort((a, b) => b.num - a.num)
-          : [{name: '暂无数据', num: '0'}];
-
-        // 计算伤亡人数之和
-        this.totalCasualtyNum = yaanitemcasual.reduce((sum, item) => sum + item.num, 0);
+      if (this.personalCasualtyData) {
+        this.tableData = this.personalCasualtyData;
+        this.totalCasualtyNum = this.personalCasualtyData.reduce((sum, item) => sum + (item.partTotal || 0), 0);
       } else {
         this.tableData = [{name: '暂无数据', num: '0'}];
         this.totalCasualtyNum = 0;
@@ -246,7 +282,7 @@ export default {
 
 .panelTable {
   float: left;
-  width: calc(100% - 450px - 150px);
+  width: calc(100% - 600px - 150px);
 }
 
 .panelLegend {
@@ -258,7 +294,7 @@ export default {
 
 .panelChart {
   float: right;
-  width: 450px;
+  width: 600px;
   height: 100%;
 }
 

@@ -90,7 +90,7 @@ watch(() => props.eqData, () => {
 });
 
 const go = (row) => {
-  const route = router.resolve({path: '/thd', query: {eqid: row.eqid}}).href;
+  const route = router.resolve({path: '/thd', query: {eqid: row.eqid, eqqueueId: row.eqqueueId}}).href;
     console.log("row.eqid----------------",row.eqid)
   window.open(route, '_blank');
 };

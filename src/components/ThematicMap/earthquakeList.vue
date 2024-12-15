@@ -426,20 +426,22 @@ export default {
   bottom: 0;
   width: 333px;
   height: calc(100% - 50px);
-  z-index: 100;
-  background-color: #2d3d51;
+  z-index: 3;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 .query {
-  width: calc(100% - 20px);
-  margin: 10px;
+  width: calc(100% - 40px);
+  margin: 10px 10px 10px 30px;
 }
 
 .eqList {
   position: relative;
-  height: calc(85vh - 88px);
+  height: calc(85vh - 90px);
   overflow-y: auto;
 }
+
 
 .eqCard {
   display: flex;
@@ -449,7 +451,7 @@ export default {
 }
 
 .eqCard:hover {
-  background-color: #202933;
+  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
   transition: all 0.3s;
 }
 
@@ -517,7 +519,7 @@ export default {
   position: absolute;
   bottom: 0;
   width: 333px;
-  background-color: #2d3d51;
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   border: 2px solid #FFFFFF; /* 白色边框 */
 }
 
@@ -581,6 +583,13 @@ export default {
 .themes.active {
   background-color: #409eff;
   border: none;
+}
+
+::v-deep .el-divider__text.is-left {
+  box-shadow: 0 0 10px #007fde, inset 0 0 15px #06b7ff;
+  background-color: #2d3d51;
+  color: #fff;
+  font-size: 20px;
 }
 
 ::-webkit-scrollbar-thumb {

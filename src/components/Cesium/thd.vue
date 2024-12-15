@@ -4,7 +4,9 @@
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <damageThemeAssessment
-            :eqid="eqid">
+            :eqid="eqid"
+            :eqqueueId="eqqueueId"
+        >
         </damageThemeAssessment>
       </div>
     </div>
@@ -139,15 +141,15 @@
           <div v-if="activeTab === 'thematicMap'" class="section">
             <div class="grid-container">
               <div
-                  v-for="item in thematicMapitems"
-                  :key="item.id"
+                  v-for="(item, index) in thematicMapitems"
+                  :key="index"
                   class="grid-item"
                   @click="showThematicMapDialog(item)"
               >
                 <el-card shadow="hover">
-                  <img :src="item.path" :alt="item.name" class="preview-img" />
+                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img" />
                   <div class="item-info">
-                    <p class="item-title">{{ item.name }}</p>
+                    <p class="item-title">{{ item.theme }}</p>
                   </div>
                 </el-card>
               </div>
@@ -157,13 +159,13 @@
           <div v-if="activeTab === 'report'" class="section">
             <div class="grid-container-report">
               <div
-                  v-for="item in reportItems"
-                  :key="item.id"
+                  v-for="(item, index) in reportItems"
+                  :key="index"
                   class="grid-item"
               >
                 <el-card shadow="hover">
                   <div class="report-preview">
-                    <p class="report-name">{{ item.name }}</p>
+                    <p class="report-name">{{ item.theme }}</p>
                     <div class="report-bottom" @click="downloadReport(item)">
                       下载报告
                     </div>
@@ -502,23 +504,23 @@
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
 
-    <div id="legend" v-show="true"
-         style="position: absolute;
-           right: 500px;
-         z-index:20; bottom: 100px;
-         right: 450px; color: #FFFFFF;
-         background-color: rgba(0, 0, 0, 0.5);
-         padding: 10px; border-radius: 5px;text-align: center;">
-      <div v-for="(item, index) in slopeStatistics" :key="index">
-        <div style="display: flex; align-items: center; margin-bottom: 5px;">
-          <div
-              :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">
-          </div>
-          <span style="width: 80px;text-align: left">{{ item.degree }}</span>
-          <span style="text-align: left">{{ item.proportion }}</span>
-        </div>
-      </div>
-    </div>
+<!--    <div id="legend" v-show="true"-->
+<!--         style="position: absolute;-->
+<!--           right: 500px;-->
+<!--         z-index:20; bottom: 100px;-->
+<!--         right: 450px; color: #FFFFFF;-->
+<!--         background-color: rgba(0, 0, 0, 0.5);-->
+<!--         padding: 10px; border-radius: 5px;text-align: center;">-->
+<!--      <div v-for="(item, index) in slopeStatistics" :key="index">-->
+<!--        <div style="display: flex; align-items: center; margin-bottom: 5px;">-->
+<!--          <div-->
+<!--              :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">-->
+<!--          </div>-->
+<!--          <span style="width: 80px;text-align: left">{{ item.degree }}</span>-->
+<!--          <span style="text-align: left">{{ item.proportion }}</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
 
 <!--    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;-->
 <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
@@ -598,7 +600,7 @@ import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/re
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
-import {addFaultZones, addHistoryEqPoints, addOvalCircles} from "../../cesium/plot/eqThemes.js";
+import {addFaultZones, addHistoryEqPoints, addOvalCircles, handleOutputData} from "../../cesium/plot/eqThemes.js";
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
@@ -687,6 +689,7 @@ export default {
       dataSourcePopupData: [], // TimeLinePanel弹窗的数据
       //----------------------------------
       eqid: '',
+      eqqueueId: '',
       // viewer: '',
       store: '',
       //地震时间年月日
@@ -1065,8 +1068,10 @@ export default {
   },
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
-    this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-    this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
+    this.eqqueueId = new URLSearchParams(window.location.search).get('eqqueueId')
+    // this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
+    // console.log(this.thematicMapitems)
+    // this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
   },
   mounted() {
     this.init()
@@ -1078,6 +1083,7 @@ export default {
     this.getPlotwithStartandEndTime(this.eqid)
     this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
+    this.outputData()
     // // 生成实体点击事件的handler
     this.entitiesClickPonpHandler()
     this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
@@ -1094,6 +1100,20 @@ export default {
     }
   },
   methods: {
+
+    outputData() {
+      handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
+        this.thematicMapitems = res.themeData
+        console.log("专题图：",this.thematicMapitems)
+      })
+      handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
+        this.reportItems = res.themeData
+        console.log("报告：",this.reportItems)
+      })
+    },
+
+
+
     // async getPlotBelongCounty(lon, lat) {
     //   return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
     // },
