@@ -96,5 +96,13 @@ export function getGeomById(data) {
         method: 'get',
         params:{id:data}
     })
+}
+
+export function eqEventTrigger(data) {
+    return request({
+        url: '/tp/api/open/trigger',
+        method: 'post',
+        data
+    })
 
 }
