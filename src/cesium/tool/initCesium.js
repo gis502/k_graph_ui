@@ -114,7 +114,7 @@ function getImageryProviderArr() {
             creationFunction: function () {
                 return new Cesium.WebMapTileServiceImageryProvider({
                     // url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
-                    url: `/tdtproxy/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+                    url: `http://59.255.48.160:81/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
                     // url:`http://59.255.48.160:81/DataServer?tk=96c30e9410386f41137b8314ab34d088&T=img_w&x={x}&y={y}&l={z}`,
                     format: 'tiles',
                     tileMatrixSetID: 'c',
@@ -174,10 +174,10 @@ function getImageryProviderArr() {
 
                 return [
                     new Cesium.UrlTemplateImageryProvider({
-                        url: 'http://localhost:9003/image/wmts/xIVBqDcT/{z}/{x}/{y}',
+                        url: 'http://172.26.86.82:9003/image/wmts/xIVBqDcT/{z}/{x}/{y}',
                     }),
                     new Cesium.UrlTemplateImageryProvider({
-                    url: 'http://localhost:9003/image/wmts/SjbIL6SP/{z}/{x}/{y}',
+                    url: 'http://172.26.86.82:9003/image/wmts/SjbIL6SP/{z}/{x}/{y}',
                 }),
 
                 ]
