@@ -2,10 +2,9 @@ import * as Cesium from 'cesium'
 import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
-import {getDA, getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
+import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json"
-
+import {domainName} from "../../utils/server.js";
 
 // 雅安行政区加载
 export function addYaanLayer() {
@@ -543,7 +542,7 @@ export function addOCTest(eqid, eqqueueId) {
    * 烈度圈部分
    */
   // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
-  fetch(`http://172.26.86.82/data/image/profile/upload/yxcdown/${eqid}/${eqqueueId}_intensity.geojson`)
+  fetch(`${domainName}/image/profile/upload/yxcdown/${eqid}/${eqqueueId}_intensity.geojson`)
     // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
@@ -733,7 +732,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const data = res.data;
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
-        const url = `http://172.26.86.82/data/image/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
+        const url = `${domainName}/image/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
 
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
@@ -756,7 +755,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const data = res.data;
         const themeName = eqFullName + "-" + "灾情报告";
         let reportData = [];
-        const url = `http://172.26.86.82/data/image/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
+        const url = `${domainName}/image/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
 
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {

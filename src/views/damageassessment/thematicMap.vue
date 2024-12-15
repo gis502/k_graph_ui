@@ -100,10 +100,9 @@
             <div style="height: 10px;background-color: #054576"></div>
 
             <div class="eqTheme">
-              <div class="button themes"
-                   :class="{ active: isPanelShow.report }"
-                   @click="handlePanel(`report`); isPreviewShow = false;">灾情报告
-              </div>
+              <a class="button themes" href="http://172.26.86.31:18100" target="_blank">
+                产出图件管理
+              </a>
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -680,6 +679,10 @@ export default {
       a.download = docxUrl.split('/').pop();
       a.click();
       document.body.removeChild(a);
+    },
+
+    toManagement() {
+
     },
 
 
