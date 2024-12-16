@@ -542,7 +542,7 @@ export function addOCTest(eqid, eqqueueId) {
    * 烈度圈部分
    */
   // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
-  fetch(`${domainName}/image/profile/upload/yxcdown/${eqid}/${eqqueueId}_intensity.geojson`)
+  fetch(`${domainName}/image/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
     // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
