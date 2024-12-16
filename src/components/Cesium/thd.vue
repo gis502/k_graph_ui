@@ -492,6 +492,7 @@
         <h2 class="panelName">图层管理</h2>
       </div>
       <el-tree
+          default-expand-all="true"
           ref="tree"
           node-key="id"
           :props="props"
