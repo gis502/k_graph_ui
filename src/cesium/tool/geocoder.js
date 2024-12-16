@@ -39,7 +39,7 @@ function AMapNominatimGeocoder() {
 
 AMapNominatimGeocoder.prototype.geocode = function (input) {
     const query = `key=****&keywords=${input}`;
-    const requestString = "https://restapi.amap.com/v3/place/text?" + query;
+    const requestString = "http://59.213.183.7/restapi/v3/place/text?" + query;
     return Cesium.Resource.fetchJson(requestString) //请求url获取json数据
         .then(function (results) {
             return results.pois.map(function (bboxDegrees) {
