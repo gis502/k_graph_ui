@@ -558,7 +558,7 @@ export default {
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
       this.filename = fileNameWithoutExtension;
-      this.uploadUrl = `http://172.26.86.82:8080/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
+      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +'/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
       const isExcel = (type === "xlsx") || (type === 'xls');
       if (!isExcel) {
         this.$message({

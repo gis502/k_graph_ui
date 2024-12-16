@@ -4,9 +4,6 @@ import {AMapNominatimGeocoder, OpenStreetMapNominatimGeocoder, TianDiTuGeocoder}
 import bingAerial from '@/assets/bingAerial.png'
 import Ellipsoid from '@/assets/Ellipsoid.png'
 import CesiumWorldTerrain from '@/assets/CesiumWorldTerrain.png'
-// import bingAerial from '@/assets/bingAerial.png'
-// import bingAerial from '@/assets/bingAerial.png'
-// import bingAerial from '@/assets/bingAerial.png'
 
 
 export function initCesium(Cesium,container) {
@@ -115,7 +112,6 @@ function getImageryProviderArr() {
                 return new Cesium.WebMapTileServiceImageryProvider({
                     // url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
                     url: `http://59.255.48.160:81/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
-                    // url:`http://59.255.48.160:81/DataServer?tk=96c30e9410386f41137b8314ab34d088&T=img_w&x={x}&y={y}&l={z}`,
                     format: 'tiles',
                     tileMatrixSetID: 'c',
                     tilingScheme: new Cesium.GeographicTilingScheme(),
@@ -128,20 +124,20 @@ function getImageryProviderArr() {
                 })
             }
         }),
-        new Cesium.ProviderViewModel({
-            //图层的名称。
-            name: '第三方底图',
-            //显示项目被隐藏的工具提示
-            tooltip: '第三方底图',
-            //代表图层的图标
-            iconUrl: bingAerial,
-            //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
-            creationFunction: function () {
-                return Cesium.createWorldImagery({
-                    style: Cesium.IonWorldImageryStyle.AERIAL
-                })
-            }
-        }),
+        // new Cesium.ProviderViewModel({
+        //     //图层的名称。
+        //     name: '第三方底图',
+        //     //显示项目被隐藏的工具提示
+        //     tooltip: '第三方底图',
+        //     //代表图层的图标
+        //     iconUrl: bingAerial,
+        //     //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
+        //     creationFunction: function () {
+        //         return Cesium.createWorldImagery({
+        //             style: Cesium.IonWorldImageryStyle.AERIAL
+        //         })
+        //     }
+        // }),
         // 本地geoserver影像
         new Cesium.ProviderViewModel({
             //图层的名称。
@@ -152,15 +148,15 @@ function getImageryProviderArr() {
             iconUrl: bingAerial,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
             creationFunction: function () {
-                // return new Cesium.WebMapServiceImageryProvider({
-                //     url: baseURL+'/geoserver/yaan/wms',
-                //     layers: 'yaan:yaan',
-                //     parameters: {
-                //         service: 'WMS',
-                //         format: 'image/png',
-                //         transparent: true
-                //     }
-                // })
+                return new Cesium.WebMapServiceImageryProvider({
+                    url: baseURL+'/geoserver/yaan/wms',
+                    layers: 'yaan:yaan',
+                    parameters: {
+                        service: 'WMS',
+                        format: 'image/png',
+                        transparent: true
+                    }
+                })
 
 
                 // return new Cesium.WebMapTileServiceImageryProvider({
@@ -171,16 +167,6 @@ function getImageryProviderArr() {
                 //         tileMatrixSetID : 'EPSG:4326',
                 //         maximumLevel: 20
                 //     })
-
-                return [
-                    new Cesium.UrlTemplateImageryProvider({
-                        url: 'http://172.26.86.82:9003/image/wmts/xIVBqDcT/{z}/{x}/{y}',
-                    }),
-                    new Cesium.UrlTemplateImageryProvider({
-                    url: 'http://172.26.86.82:9003/image/wmts/SjbIL6SP/{z}/{x}/{y}',
-                }),
-
-                ]
             }
         }),
 
@@ -205,23 +191,23 @@ export function getTerrainProviderViewModelsArr() {
                 })
             }
         }),
-        new Cesium.ProviderViewModel({
-            //图层的名称
-            name: '第三方地形',
-            //显示项目被隐藏的工具提示
-            tooltip: '第三方地形',
-            //代表图层的图标
-            iconUrl: CesiumWorldTerrain,
-            //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
-            creationFunction: function () {
-                return new Cesium.CesiumTerrainProvider({
-                    url: Cesium.IonResource.fromAssetId(1),
-                    requestWaterMask: !0,
-                    requestVertexNormals: !0,
-                    // isSct : false //是否为iServer发布的TIN地形服务,stk地形设置为false。
-                })
-            }
-        }),
+        // new Cesium.ProviderViewModel({
+        //     //图层的名称
+        //     name: '第三方地形',
+        //     //显示项目被隐藏的工具提示
+        //     tooltip: '第三方地形',
+        //     //代表图层的图标
+        //     iconUrl: CesiumWorldTerrain,
+        //     //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
+        //     creationFunction: function () {
+        //         return new Cesium.CesiumTerrainProvider({
+        //             url: Cesium.IonResource.fromAssetId(1),
+        //             requestWaterMask: !0,
+        //             requestVertexNormals: !0,
+        //             // isSct : false //是否为iServer发布的TIN地形服务,stk地形设置为false。
+        //         })
+        //     }
+        // }),
         new Cesium.ProviderViewModel({
             //图层的名称
             name: '本地DEM地形',
