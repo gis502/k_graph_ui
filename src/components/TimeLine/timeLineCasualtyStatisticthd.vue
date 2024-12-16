@@ -334,7 +334,7 @@ export default {
 
     async function getReverseGeocode(lon, lat) {
       try {
-        const response = await axios.get('http://59.255.48.160:82/geocoder', {
+        const response = await axios.get('http://59.213.183.7/tiandituapi/geocoder', {
           params: {
             postStr: JSON.stringify({lon, lat, ver: 1}),
             type: 'geocode',
