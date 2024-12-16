@@ -937,8 +937,6 @@ export default {
       if (!input) return '';
       return input.replace('T', ' '); // 替换 'T' 为空格
     }
-
-}
 ,
 }
 
