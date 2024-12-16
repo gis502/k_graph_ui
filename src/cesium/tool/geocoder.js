@@ -67,7 +67,7 @@ TianDiTuGeocoder.prototype.geocode = function (input) {
 
     // const query = '{"keyWord":"' + input + '","level":12,"mapBound":"-180,-90,180,90","queryType":"12","start":0,"count":1}&type=query&tk=' + TianDiTuToken;
     const query = '{"keyWord":"' + input + '"}&tk=' + TianDiTuToken;
-    const requestString = "http://api.tianditu.gov.cn/geocoder?ds=" + query;
+    const requestString = "http://59.255.48.160:82/geocoder?ds=" + query;
     return Cesium.Resource.fetchJson(requestString) //请求url获取json数据
         .then(function (results) {
                 // let resultType = results.resultType

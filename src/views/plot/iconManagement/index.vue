@@ -29,7 +29,7 @@
         <template #default="scope">
           <div v-if="scope.row.img && scope.row.img !== ''">
             <img width="30px" height="30px"
-                 :src="import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"
+                 :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"
                  alt="暂无符号">
           </div>
           <div v-else>
@@ -145,7 +145,7 @@
                     :src="
           file.url.startsWith('blob:')
         ? file.url
-        : import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
+        : '59.213.183.7/prod-api' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
       "
                 >
                 <span class="el-upload-list__item-actions">

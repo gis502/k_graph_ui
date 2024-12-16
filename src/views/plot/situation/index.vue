@@ -90,7 +90,7 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
+              <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
                    width="17%" height="43.3px">
             </el-tooltip>
           </span>
@@ -252,7 +252,7 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
+            <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
                  alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
@@ -1144,7 +1144,7 @@ export default {
       };
 
       reader.readAsArrayBuffer(file);
-      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +'/excel/importPlotExcel/${filename}&${this.eqid}`;
+      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +'/excel/importPlotExcel/${filename}&${this.eqid}';
       // this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}&${this.fieldMapping}`;
       return true;
     },
