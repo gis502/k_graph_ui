@@ -567,7 +567,7 @@ export default {
     this.initTree()
   },
   beforeUnmount() {
-    console.log("111", window.viewer)
+    // console.log("111", window.viewer)
     if (window.viewer) {
       Arrow.disable();
       let viewer = window.viewer
@@ -696,10 +696,9 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
-      console.log("this.eqid---------------------", this.eqid)
+      // console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
       this.websock.onmessage = websocketonmessage;//涉及功能导入功能
-
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {

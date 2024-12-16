@@ -321,7 +321,6 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-          <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
 
         <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
@@ -337,14 +336,6 @@
             </option>
           </div>
         </div>
-
-        <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <!--        <span class="speedButton">{{ speedOption }}</span>-->
-        <!--        <div class="chooseSpeed">-->
-        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
-        <!--            {{ option }}-->
-        <!--          </option>-->
-        <!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -499,7 +490,6 @@
         :showTypes="showTypes"
         style="width: 40%"
     ></thematicMapPreview>
-<!--    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">-->
     <div class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
@@ -864,13 +854,9 @@ export default {
         time: null,
         modelid: null
       },
-
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
-
       stopTimeforAddEntityOneIndex: 6000,
-
-
       timelinePopupShowCenterStrart: true,
       intervalIdcolor: null,
       isfirst: false,
@@ -1112,25 +1098,8 @@ export default {
       })
     },
 
-
-
-    // async getPlotBelongCounty(lon, lat) {
-    //   return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
-    // },
-    // async onCameraChanged() {
-    //   const positionCartographic = viewer.camera.positionCartographic;
-    //   var height = positionCartographic.height;
-    //   this.updateZoomLevel(height);
-    //   var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
-    //   var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
-    //   this.viewCenterCoordinate = {
-    //     lon: longitude,
-    //     lat: latitude
-    //   }
-    // },
     // 初始化控件等
     async init() {
-
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
@@ -1145,11 +1114,8 @@ export default {
           lon: longitude,
           lat: latitude
         }
-        // this.viewCenterCoordinate=await this.getPlotBelongCounty(longitude,latitude)
-
-        console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
+        // console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
       })
-
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
