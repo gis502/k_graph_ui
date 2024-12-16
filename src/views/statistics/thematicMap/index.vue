@@ -261,7 +261,7 @@ import * as Cesium from 'cesium';
 import CesiumNavigation from 'cesium-navigation-es6';
 import * as echarts from 'echarts';
 import {initCesium} from '@/cesium/tool/initCesium.js';
-import {getExcelUploadEarthquake, getGeomById} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList, getGeomByEqListId, getGeomById} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
@@ -803,7 +803,7 @@ export default {
     //获取地震列表数据
     getEarthquake() {
       getExcelUploadEarthquake().then(res => {
-        this.eqlists = res;
+        this.eqlists = res
         if (res.data === null) {
           this.$message.error("地震列表无数据");
         } else {

@@ -90,7 +90,7 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
+              <img :src="'http://172.26.86.82:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
                    width="17%" height="43.3px">
             </el-tooltip>
           </span>
@@ -252,7 +252,7 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
+            <img :src="'http://172.26.86.82:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
                  alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
@@ -567,7 +567,7 @@ export default {
     this.initTree()
   },
   beforeUnmount() {
-    console.log("111", window.viewer)
+    // console.log("111", window.viewer)
     if (window.viewer) {
       Arrow.disable();
       let viewer = window.viewer
@@ -696,10 +696,9 @@ export default {
     },
     // 初始化ws
     initWebsocket() {
-      console.log("this.eqid---------------------", this.eqid)
+      // console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
       this.websock.onmessage = websocketonmessage;//涉及功能导入功能
-
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {
@@ -1145,7 +1144,7 @@ export default {
       };
 
       reader.readAsArrayBuffer(file);
-      this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}`;
+      this.uploadUrl = `http://172.26.86.82:8080/excel/importPlotExcel/${filename}&${this.eqid}`;
       // this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}&${this.fieldMapping}`;
       return true;
     },
@@ -2484,7 +2483,7 @@ export default {
       // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
       window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
       this.isShowMessageIcon = true
-      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' + item.img + '.png?t=' + new Date().getTime()
+      this.messageIcon = 'http://172.26.86.82:8080/uploads/PlotsPic/' + item.img + '.png?t=' + new Date().getTime()
 
       if (item.plottype === '点图层') {
         console.log("点图层")

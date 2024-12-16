@@ -321,7 +321,6 @@
         <div class="time-ruler-line" @click="jumpToTime">
           <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
           <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
-          <!--          <div class="time-slider" :style="{ left: `${currentTimePosition}%` }"></div>-->
         </div>
 
         <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
@@ -337,14 +336,6 @@
             </option>
           </div>
         </div>
-
-        <!-- speedButton 和 chooseSpeed 放在一起 -->
-        <!--        <span class="speedButton">{{ speedOption }}</span>-->
-        <!--        <div class="chooseSpeed">-->
-        <!--          <option v-for="option in speedOptions" :key="option" @click="selectSpeed(option)">-->
-        <!--            {{ option }}-->
-        <!--          </option>-->
-        <!--        </div>-->
       </div>
 
       <!--      时间点-->
@@ -460,16 +451,22 @@
          style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
     </div>
 
-    <div class="positionFlyToButton">
-      <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
-           @click="showPositionFlyTo=!showPositionFlyTo" style="width: 31px;height: 31px;">
+    <!--经纬度跳转-->
+    <div style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
+      <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
+        <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
+             style="width: 31px; height: 31px;">
+      </div>
     </div>
-
+    <!--   经纬度跳转弹框 -->
     <div class="universalPanel" v-if="showPositionFlyTo">
       <div class="panelTop">
         <h2 class="panelName">经纬度跳转</h2>
       </div>
-
       <div class="panelContent">
         <div>经度：
           <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
@@ -489,6 +486,65 @@
         </el-button>
       </div>
     </div>
+    <!--    图层管理弹框-->
+    <div class="universalPanel" v-if="showLayerFeatures">
+      <div class="panelTop">
+        <h2 class="panelName">图层管理</h2>
+      </div>
+      <el-tree
+          default-expand-all="true"
+          ref="tree"
+          node-key="id"
+          :props="props"
+          :load="loadNode"
+          :default-checked-keys="selectedlayersLocal"
+          lazy
+          @check="handleCheckChange"
+      >
+        <template #default="{ node, data }">
+          <!-- 根节点，显示图标和文字 -->
+          <div class="tree-node-content">
+          <span v-if="data.name === '图层要素'" class="node-icon">
+            <!-- 图层要素的 SVG 图标 -->
+            <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                 xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
+                    <path
+                        d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                        p-id="6182" fill="#ffffff"></path>
+                  </svg>
+            <span class="node-text">{{ data.name }}</span>
+          </span>
+            <span v-else-if="data.name === '视角跳转'" class="node-icon">
+            <!-- 视角跳转的 SVG 图标 -->
+            <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                 xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
+                    <path
+                        d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                        fill="#ffffff" p-id="2696"></path>
+                  </svg>
+            <span class="node-text">{{ data.name }}</span>
+          </span>
+            <!-- 子节点逻辑保持原有 -->
+            <el-checkbox
+                v-if="layeritems.some(item => item.name === data.name)"
+                v-model="selectedlayersLocal"
+                :label="data.name"
+                @change="updateMapLayers"
+            >
+              <span>{{ data.name }}</span>
+            </el-checkbox>
+            <el-radio-group
+                v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
+                v-model="selectedDistrict"
+            >
+              <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
+                <span>{{ data.name }}</span>
+              </el-radio>
+            </el-radio-group>
+          </div>
+        </template>
+      </el-tree>
+    </div>
 
     <thematicMapPreview
         @ifShowThematicMapDialog="ifShowThematicMapDialog"
@@ -499,7 +555,6 @@
         :showTypes="showTypes"
         style="width: 40%"
     ></thematicMapPreview>
-<!--    <div v-if="isTimerRunning || currentTimePosition !== 100" class="timelineRunningTimeLabel">-->
     <div class="timelineRunningTimeLabel">
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
@@ -864,13 +919,9 @@ export default {
         time: null,
         modelid: null
       },
-
       zoomLevel: '市', // 初始化缩放层级
       pointsLayer: [], //传到子组件
-
       stopTimeforAddEntityOneIndex: 6000,
-
-
       timelinePopupShowCenterStrart: true,
       intervalIdcolor: null,
       isfirst: false,
@@ -1064,6 +1115,15 @@ export default {
       wsaddMakers: [],
       wsdeleteMakers:[],
       viewCenterCoordinate:null,
+      showLayerFeatures: false,
+      props: {
+        label: 'name',
+        children: 'children',
+        disabled: (data, node) => {
+          // 只有当节点名为"视角跳转"且是根节点时禁用
+          return data.name === '视角跳转' && node.level === 0;
+        }
+      },
     };
   },
   created() {
@@ -1112,25 +1172,8 @@ export default {
       })
     },
 
-
-
-    // async getPlotBelongCounty(lon, lat) {
-    //   return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
-    // },
-    // async onCameraChanged() {
-    //   const positionCartographic = viewer.camera.positionCartographic;
-    //   var height = positionCartographic.height;
-    //   this.updateZoomLevel(height);
-    //   var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
-    //   var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
-    //   this.viewCenterCoordinate = {
-    //     lon: longitude,
-    //     lat: latitude
-    //   }
-    // },
     // 初始化控件等
     async init() {
-
       this.isfirst = true
       let viewer = initCesium(Cesium)
       viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
@@ -1145,11 +1188,8 @@ export default {
           lon: longitude,
           lat: latitude
         }
-        // this.viewCenterCoordinate=await this.getPlotBelongCounty(longitude,latitude)
-
-        console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
+        // console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
       })
-
       window.viewer = viewer
       Arrow.disable();
       Arrow.init(viewer);
@@ -1158,7 +1198,7 @@ export default {
       // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
       // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
       // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
-      options.enableCompass = true
+      options.enableCompass = false
       // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
       options.enableZoomControls = false
       // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
@@ -1189,7 +1229,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -6006,6 +6046,74 @@ export default {
 
       updateTime();
       setInterval(updateTime, 1000);
+    },
+
+    // ------------------------------图层要素---------------------------------------------------
+    handleCheckChange(data, checked, indeterminate) {
+      console.log('handleCheckChange triggered', {data, checked, indeterminate});
+
+      // 获取当前所有选中的具体图层节点
+      const selectedLayers = this.$refs.tree.getCheckedNodes(false)
+          .filter(node => this.layeritems.some(item => item.name === node.name))
+          .map(node => node.name);
+
+      console.log("selectedLayers:", selectedLayers);
+
+      // 只有当选中的是 layeritems 中的图层节点时,才更新选中的图层列表和地图图层
+      if (selectedLayers.length > 0) {
+        this.selectedlayersLocal = selectedLayers;
+        this.updateMapLayers(); // 更新地图图层
+      }
+
+    },
+    handleNodeClick(data) {
+      console.log('hhhhhhhhhhhhhh', data);
+    },
+    loadNode(node, resolve) {
+      // 根节点层
+      if (node.level === 0) {
+        return resolve([
+          {name: '图层要素'},
+          {name: '视角跳转'}
+        ]);
+      }
+
+      // 第一层子节点
+      let data = [];
+      if (node.data.name === '图层要素') {
+        // 返回所有图层项目
+        data = this.layeritems.map(item => ({
+          name: item.name
+        }));
+      } else if (node.data.name === '视角跳转') {
+        // 返回视角跳转的选项
+        data = [
+          {name: '回到震中'},
+          {name: '雅安市'},
+          ...this.districts.map(district => ({
+            name: district.name
+          }))
+        ];
+      }
+
+      resolve(data);
+    },
+    // 弹框不同使出现
+    togglePositionFlyTo() {
+      console.log('1.------------------------------')
+      console.log(this.showPositionFlyTo)
+      this.showPositionFlyTo = !this.showPositionFlyTo;
+      if (this.showPositionFlyTo) {
+        this.showLayerFeatures = false; // 关闭其他弹框
+      }
+    },
+    toggleLayerFeatures() {
+      console.log('2.------------------------------')
+      console.log(this.showLayerFeatures)
+      this.showLayerFeatures = !this.showLayerFeatures;
+      if (this.showLayerFeatures) {
+        this.showPositionFlyTo = false; // 关闭其他弹框
+      }
     }
   }
 }
@@ -6661,7 +6769,7 @@ export default {
   display: block;
   position: absolute;
   top: 94.5%;
-  left: 3%;
+  left: 6%;
   z-index: 10;
 }
 
@@ -6856,14 +6964,19 @@ export default {
 }
 
 .positionFlyToButton {
-  position: absolute;
-  top: 94.75%;
-  left: 1%;
   width: 32px;
   height: 32px;
   background-color: #303336;
   border: #444444 solid 1px;
-  z-index: 500;
+}
+
+.positionFlyToButton:first-child {
+  top: 90%;
+  left: 1%;
+}
+.positionFlyToButton:nth-child(2) {
+  top: 94%;
+  left: 1%;
 }
 
 .universalPanel {
@@ -6872,50 +6985,27 @@ export default {
   bottom: 6%;
   width: 450px;
   border-radius: 5px;
-  background-color: rgba(53, 59, 67, 0.9);
+  background: rgb(0,195,255);
+  background: linear-gradient(90deg, rgb(22 105 179 / 9%) 25%, rgb(10 33 75 / 76%) 88%);
   color: #fff;
   z-index: 100;
 }
 
 .panelTop {
-  width: 100%;
-  padding: 10px;
-  height: 50px;
-  border-radius: 5px;
-  background-color: rgba(40, 59, 77, 0.8);
+  top: 0.5%;
+  height: 3.8vh;
+  position: relative;
+  background-image: url("@/assets/images/CommandScreen/标题底图.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
-
 .panelName {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
   position: relative;
-  margin: 0;
-}
-
-.panelName:before {
-  content: "";
-  width: 11px;
-  height: 23px;
-  position: relative;
-  top: 7px;
-  margin: 0 10px;
-  display: inline-block;
-  background-image: url("@/assets/images/CommandScreen/弹框标题图标.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-.panelName:after {
-  content: "";
-  width: 95%;
-  height: 6px;
-  position: absolute;
-  bottom: -15px;
-  left: 9px;
-  background-image: url("@/assets/images/CommandScreen/弹框标题分割线.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  top: 26%;
+  left: 7%;
 }
 
 .panelContent {
@@ -6996,5 +7086,72 @@ export default {
   box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
   background: transparent;
   transition: all 0.3s;
+}
+
+/* 左下角视角按钮样式 */
+.el-tree {
+  margin-top: 8px;
+  font-size: 20px;
+  --el-tree-node-content-height: 30px;
+  --el-tree-text-color: #f6f7f9;
+  --el-tree-node-hover-bg-color: rgb(24, 39, 70); /* 修改为透明的绿色 */
+  background-color: transparent; /* 背景设置为透明 */
+}
+/deep/ [data-v-6c1071c6] .el-checkbox__label {
+  background: transparent;
+  color: white;
+  font-size: 15px;
+  padding: 10px;
+}
+/deep/ [data-v-6c1071c6] [data-v-6c1071c6] .el-radio {
+  background-color: rgba(22, 53, 77, 0);
+  color: #f6f7f9;
+  font-size: 19px;
+}
+.el-radio__label {
+  font-size: 15px;
+  padding-left: 8px;
+}
+.el-radio[data-v-6c1071c6] {
+  --el-radio-font-size: 15px;
+}
+.el-tree-node__content:hover {
+  background-color: transparent;
+}
+.tree-node-content {
+  display: flex;
+  align-items: center;
+}
+.node-icon {
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.tree-node-content {
+  display: flex;
+  align-items: center;
+}
+.icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 4px;
+  fill: currentColor;
+}
+.node-text {
+  display: inline-block;
+  vertical-align: middle;
+  color: #ffffff;
+}
+.el-tree-node {
+  outline: none;
+  white-space: nowrap;
+  margin-top: 5px;
+}
+/deep/ [data-v-6c1071c6] [data-v-6c1071c6] .el-checkbox__label {
+  background: transparent;
+  color: white;
+  font-size: 15px;
+  padding: 12px;
 }
 </style>
