@@ -465,7 +465,7 @@ export default class Point {
 
                     // 加载背景图片
                     const backgroundImage = new Image();
-                    backgroundImage.src = '/images/背景边框.png'; // 确保路径正确
+                    backgroundImage.src = '/image/背景边框.png'; // 确保路径正确
                     backgroundImage.onload = function () {
                       // 背景图片放大比例（例如 1.2 表示放大 20%）
                       const scaleFactor = 1.6;
