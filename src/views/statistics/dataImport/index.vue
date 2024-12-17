@@ -149,6 +149,13 @@
                 label='单位'
             >
             </el-table-column>
+<!--            <el-table-column-->
+<!--                align='center'-->
+<!--                prop='operParam'-->
+<!--                label='地震名称'-->
+<!--                :formatter='formatMessageOperParam'-->
+<!--            >-->
+<!--            </el-table-column>-->
             <el-table-column
                 align='center'
                 prop='operTime'
@@ -401,6 +408,30 @@ export default {
       // 返回第二个匹配项，即表名
       return matches && matches.length >= 2 ? matches[1].replace(/"/g, '') : ''; // 去掉双引号
     },
+    formatMessageOperParam(row, column, cellValue) {
+      try {
+        // 假设cellValue的格式是： "操作员 震情灾情统计表 2024-08-02 00:18:02 四川泸州市泸县 震级：3"
+
+        // 使用正则表达式提取出 timestamp, location 和 magnitude
+        const regex = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ([\u4e00-\u9fa5]+) 震级：(\d+)/;
+        const match = cellValue.match(regex);
+
+        if (match) {
+          const timestamp = match[1]; // 获取时间戳部分
+          const location = match[2];   // 获取地点部分
+          const magnitude = match[3];  // 获取震级部分
+
+          // 返回拼接后的结果
+          return `${timestamp} ${location} 震级：${magnitude}`;
+        } else {
+          return ''; // 如果格式不符合预期，返回空字符串
+        }
+      } catch (error) {
+        console.error("处理失败:", error);
+        return ''; // 如果发生错误，返回空字符串
+      }
+    },
+
 
     //添加数据数量
     formatMessageAdd(row, column, cellValue) {
