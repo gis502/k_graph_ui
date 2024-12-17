@@ -2,14 +2,14 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 98%; margin-bottom: 2px;height: 18vw"
+        style="width: 98%; margin-bottom: 2px;height: 100%"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         :row-style="{ height: '37.5px', fontSize: '13px'}"
         @row-click="go">
       <el-table-column label=" " min-width="20px" show-overflow-tooltip>
         <template #default="scope">
-          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;"  class="arrow-container">
             <img :src="arrowImage" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
           </div>
         </template>
@@ -74,7 +74,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(6);
+const pageSize = ref(15);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
@@ -111,6 +111,7 @@ const tableColor = ({rowIndex}) => {
     // 'border-style':'solid',
     // 'border-color': '#555555',
     'background-color': '#ffffff00',
+    // 'color': '#ffffff00',
     'padding': '0',
     'margin': '1'
   };
@@ -150,7 +151,7 @@ const formatTime = (time) => {
 
 <style scoped>
 .list-dialog .list-dialog__header {
-  height: 41px;
+  height: 100%;
   width: 100%;
   line-height: 41px;
   color: #ffffff;
@@ -241,6 +242,7 @@ const formatTime = (time) => {
   background-clip: text;
   color: transparent;
   box-shadow: 0 0 8px 2px rgba(48, 140, 255, 1); /* 使用渐变阴影 */
+
 }
 
 /* 添加样式来控制箭头图标显示与隐藏 */
