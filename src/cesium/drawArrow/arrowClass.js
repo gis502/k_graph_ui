@@ -34,7 +34,7 @@ var StraightArrow = function (viewer) {
     this.objId = guid()
     this.viewer = viewer;
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-    this.pointImageUrl = "/images/point.png";
+    this.pointImageUrl = "/image/point.png";
     this.fillMaterial = Cesium.Color.fromCssColorString('#0000FF').withAlpha(0.8);
     this.outlineMaterial = new Cesium.PolylineDashMaterialProperty({
         dashLength: 16,
@@ -291,7 +291,7 @@ var AttackArrow = function (viewer) {
     this.type = "AttackArrow";
     this.objId = guid()
     this.viewer = viewer;
-    this.pointImageUrl = "/images/point.png";
+    this.pointImageUrl = "/image/point.png";
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
     this.fillMaterial = Cesium.Color.RED.withAlpha(0.8);
     this.outlineMaterial = new Cesium.PolylineDashMaterialProperty({
@@ -591,7 +591,7 @@ var PincerArrow = function (viewer) {
     this.objId = guid()
     this.viewer = viewer;
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-    this.pointImageUrl = "/images/point.png";
+    this.pointImageUrl = "/image/point.png";
     this.fillMaterial = Cesium.Color.YELLOW.withAlpha(0.8);
     this.outlineMaterial = new Cesium.PolylineDashMaterialProperty({
         dashLength: 16,
