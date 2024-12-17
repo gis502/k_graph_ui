@@ -53,7 +53,7 @@ export default class Polygon {
     // this.isEditing = false;
     // this.entityCount = 0;
     this.type = type;
-    this.img = 'http://localhost:8080/uploads/PlotsPic/' + img + '.png';
+    this.img = 'http://172.26.86.82:8080/uploads/PlotsPic/' + img + '.png';
     this.plotType = img
     this._dataSource = new Cesium.CustomDataSource("_dataSource");
     this.viewer.dataSources.add(this._dataSource);
@@ -480,7 +480,7 @@ export default class Polygon {
             layer: "标绘点",
             polygon: {
               hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(pointLinePoints), false),
-              material: 'http://localhost:8080/uploads/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime(),
+              material: 'http://172.26.86.82:8080/uploads/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime(),
               // stRotation: Cesium.Math.toRadians(polygon[0].angle),
               clampToGround: true,
             },
@@ -562,7 +562,7 @@ export default class Polygon {
             semiMajorAxis: diameter / 2, // 对角线的一半作为半径
             semiMinorAxis: diameter / 2, // 保证是一个正圆
             material: new Cesium.ImageMaterialProperty({
-              image: 'http://localhost:8080/uploads/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime() ,
+              image: 'http://172.26.86.82:8080/uploads/PlotsPic/' + polygon[0].icon + '.png?t=' + new Date().getTime() ,
               repeat: new Cesium.Cartesian2(1.02, 1.0684), // 控制图片的缩放
               color: Cesium.Color.WHITE.withAlpha(1.0),
               scale: 0.5 // 调整图片缩放比例

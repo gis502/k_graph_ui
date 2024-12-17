@@ -257,7 +257,7 @@ import useUserStore from "@/store/modules/user.js";
 import {getExcelUploadByTime, getField} from "@/api/system/excel.js";
 import {ElMessage} from "element-plus";
 import {ref} from "vue";
-import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
 import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
 
@@ -466,6 +466,7 @@ export default {
     },
     //获取地震列表
     getEarthquake() {
+      // getExcelUploadEarthquake().then(res => {
       getExcelUploadEarthquake().then(res => {
         this.eqlists = res
 
@@ -557,7 +558,7 @@ export default {
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
       this.filename = fileNameWithoutExtension;
-      this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
+      this.uploadUrl = `http://172.26.86.82:8080/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
       const isExcel = (type === "xlsx") || (type === 'xls');
       if (!isExcel) {
         this.$message({

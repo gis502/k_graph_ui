@@ -496,16 +496,24 @@ export default {
   },
   methods: {
 
-    commitPanel() {
-      this.addOrUpdateDTO.event = this.createTid()
-      this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
-      this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
-      eqEventTrigger(this.addOrUpdateDTO)
-          .then(res => {
-        console.log(res)
-      })
-      // console.log("你好：", this.addOrUpdateDTO)
-    },
+  commitPanel() {
+
+    this.$notify({
+      title: '地震触发成功',
+      message: "正在进行评估中,请等待",
+      duration: 600000
+    });
+
+    this.isPanelShow = !this.isPanelShow
+    this.addOrUpdateDTO.event = this.createTid()
+    this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
+    this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
+    eqEventTrigger(this.addOrUpdateDTO)
+        .then(res => {
+          console.log(res)
+        })
+    // console.log("你好：", this.addOrUpdateDTO)
+  },
 
     cancelPanel() {
       this.addOrUpdateDTO = {
@@ -839,29 +847,46 @@ export default {
     createTid() {
 
       // 构造当前时间的部分
-      const now = new Date();
-      const year = now.getFullYear(); // 4位年份
-      const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份，补齐两位
-      const day = String(now.getDate()).padStart(2, '0'); // 日期，补齐两位
-      const hours = String(now.getHours()).padStart(2, '0'); // 小时，补齐两位
-      const minutes = String(now.getMinutes()).padStart(2, '0'); // 分钟，补齐两位
-      const seconds = String(now.getSeconds()).padStart(2, '0'); // 秒钟，补齐两位
-      const randomId = this.guid(8); // 提取 GUID 的最后8位
-
-      // 拼接成完整的 event 值
-      const Tid = `T${year}${month}${day}${hours}${minutes}${seconds}${randomId}`;
-      return Tid;
+      // const now = new Date();
+      // const year = now.getFullYear(); // 4位年份
+      // const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份，补齐两位
+      // const day = String(now.getDate()).padStart(2, '0'); // 日期，补齐两位
+      // const hours = String(now.getHours()).padStart(2, '0'); // 小时，补齐两位
+      // const minutes = String(now.getMinutes()).padStart(2, '0'); // 分钟，补齐两位
+      // const seconds = String(now.getSeconds()).padStart(2, '0'); // 秒钟，补齐两位
+      // const randomId = this.guid(8); // 提取 GUID 的最后8位
+      //
+      // // 拼接成完整的 event 值
+      // const Tid = `T${year}${month}${day}${hours}${minutes}${seconds}${randomId}`;
+      // return Tid;
+      return this.guid()
     },
+    // 构造当前时间的部分
+    // const now = new Date();
+    // const year = now.getFullYear(); // 4位年份
+    // const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份，补齐两位
+    // const day = String(now.getDate()).padStart(2, '0'); // 日期，补齐两位
+    // const hours = String(now.getHours()).padStart(2, '0'); // 小时，补齐两位
+    // const minutes = String(now.getMinutes()).padStart(2, '0'); // 分钟，补齐两位
+    // const seconds = String(now.getSeconds()).padStart(2, '0'); // 秒钟，补齐两位
+    // const randomId = this.guid(8); // 提取 GUID 的最后8位
+    //
+    // // 拼接成完整的 event 值
+    // const Tid = `T${year}${month}${day}${hours}${minutes}${seconds}${randomId}`;
+    // return Tid;
+    return this.guid();
+  },
 
-    guid(num) {
-      return num ?
-        Array.from({ length: num }, () => Math.floor(Math.random() * 10)).join('') :
+  guid(num) {
+    return num ?
+        Array.from({length: num}, () => Math.floor(Math.random() * 10)).join('') :
         'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
           let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
+              v = c == 'x' ? r : (r & 0x3 | 0x8);
           return v.toString(16);
         });
-    },
+  },
+
 
     timestampToTime(timestamp) {
       // console.log("转换前的时间戳:", timestamp);
@@ -912,8 +937,7 @@ export default {
       if (!input) return '';
       return input.replace('T', ' '); // 替换 'T' 为空格
     }
-
-  },
+,
 }
 
 </script>

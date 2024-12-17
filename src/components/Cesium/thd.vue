@@ -1229,7 +1229,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",

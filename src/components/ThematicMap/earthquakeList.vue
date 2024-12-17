@@ -100,6 +100,11 @@
         </div>
       </div>
     </div>
+    <div class="eqTheme">
+      <a class="button themes" href="http://172.26.86.31:18100" target="_blank">
+        产出图件管理
+      </a>
+    </div>
 
   </div>
 </template>
