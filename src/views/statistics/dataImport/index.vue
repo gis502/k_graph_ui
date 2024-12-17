@@ -558,7 +558,7 @@ export default {
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
       this.filename = fileNameWithoutExtension;
-      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +'/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}';
+      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +`/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
       const isExcel = (type === "xlsx") || (type === 'xls');
       if (!isExcel) {
         this.$message({
@@ -610,7 +610,7 @@ export default {
           //   }
           // };
           if ('WebSocket' in window) {
-            this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name);
+            this.websocket = new WebSocketReconnect('ws://59.213.183.7/websocket' + '/WebSocketServerExcel/' + this.name);
           } else {
             alert('该浏览器不支持 WebSocket');
           }

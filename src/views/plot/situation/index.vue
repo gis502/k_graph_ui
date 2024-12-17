@@ -1144,7 +1144,7 @@ export default {
       };
 
       reader.readAsArrayBuffer(file);
-      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +'/excel/importPlotExcel/${filename}&${this.eqid}';
+      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +`/excel/importPlotExcel/${filename}&${this.eqid}`;
       // this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}&${this.fieldMapping}`;
       return true;
     },
