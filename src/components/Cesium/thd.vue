@@ -377,7 +377,7 @@
           />
         </div>
 
-        <!--   救援出队-左下   -->
+        <!--   基础信息-左下   -->
         <timeLineRescueTeam
             v-if="eqyear"
             :eqid="eqid"
@@ -459,6 +459,14 @@
       </div>
       <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
         <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
              style="width: 31px; height: 31px;">
       </div>
     </div>
@@ -6769,7 +6777,7 @@ export default {
   display: block;
   position: absolute;
   top: 94.5%;
-  left: 6%;
+  left: 9.5%;
   z-index: 10;
 }
 

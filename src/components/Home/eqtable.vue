@@ -187,8 +187,6 @@ const formatTime = (time) => {
   margin-left: 4%;
 }
 
-
-
 /*表格页面样式*/
 :deep(.el-table__inner-wrapper::before) {
   width: 0
@@ -227,8 +225,6 @@ const formatTime = (time) => {
 :deep(.el-table){
   --el-table-border: 0px solid;
 }
-
-
 
  /*默认状态*/
 :deep(.el-table tr) {
