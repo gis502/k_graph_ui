@@ -947,7 +947,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -959,7 +959,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -2055,7 +2055,7 @@ export default {
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
             console.log("555")
-          axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+          axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
               .then(res => {
                 pathM += parseInt(res.data.route.paths[0].distance);
                 res.data.route.paths[0].steps.forEach(step => {
@@ -2237,7 +2237,7 @@ export default {
       let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
 
       // 请求路径规划
-      axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+      axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
           .then(res => {
             // 处理路径返回的数据，更新路径
             let pathM = parseInt(res.data.route.paths[0].distance);

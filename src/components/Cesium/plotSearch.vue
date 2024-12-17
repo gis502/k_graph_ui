@@ -20,7 +20,7 @@
           <!-- 圆圈震级 -->
           <div style="width: 55px">
             <div class="eqMagnitude">
-              <img width="30px" height="30px" :src="'http://172.26.86.82:8080/uploads/PlotsPic/' +plot.plotInfo.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+              <img width="30px" height="30px" :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +plot.plotInfo.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">
             </div>
           </div>
 
@@ -267,7 +267,7 @@ export default {
     // },
      async getReverseGeocode(lon, lat) {
        try {
-         const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+         const response = await axios.get('http://59.213.183.7/tiandituapi/geocoder', {
            params: {
              postStr: JSON.stringify({lon, lat, ver: 1}),
              type: 'geocode',
