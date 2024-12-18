@@ -874,7 +874,6 @@ export default {
     // // 拼接成完整的 event 值
     // const Tid = `T${year}${month}${day}${hours}${minutes}${seconds}${randomId}`;
     // return Tid;
-    return this.guid();
   },
 
   guid(num) {
