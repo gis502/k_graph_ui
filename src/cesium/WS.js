@@ -4,7 +4,8 @@ import arrow from "@/cesium/drawArrow/drawPlot.js";
 import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 
 let webSocket
-let ip = "ws://172.26.86.82:8080/ws/"
+let ip = "ws://59.213.183.7/websocket/ws/"
+// let ip = "ws://172.26.86.82:8080/ws/"
 let message=''
 // import cesiumPlot from '@/cesium/plot/cesiumPlot'
 export function initWebSocket(eqid) {
