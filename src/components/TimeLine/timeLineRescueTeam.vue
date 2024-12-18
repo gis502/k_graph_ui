@@ -1,8 +1,8 @@
 <template>
-  <div class="pop">
+  <div class="pop-new">
     <div class="pop_header">
       <h2 class="pop_title">基础信息
-        <span class="time">{{timestampToTimeChina(props.currentTime) }}</span>
+        <span class="time">{{ timestampToTimeChina(props.currentTime) }}</span>
       </h2>
 
     </div>
@@ -10,7 +10,8 @@
       <el-carousel :interval="0" arrow="always" :initial-index="initialIndex" indicator-position="none">
 
         <el-carousel-item>
- <span style=" position: absolute;    font-weight: bold;padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
+ <span
+     style=" position: absolute;    font-weight: bold;padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
             2023年各区县人口情况
           </span>
 
@@ -23,7 +24,8 @@
 
           <!-- 卡片布局 -->
           <div class="card-layout">
-            <span style="position: fixed; padding-left: 0px;margin-top: 2%; font-size: 17px; color: #fff;  font-weight: bold;">
+            <span
+                style="position: fixed; padding-left: 0px;margin-top: 2%; font-size: 17px; color: #fff;  font-weight: bold;">
             地形地貌
           </span>
             <div class="card-list">
@@ -59,7 +61,8 @@
 
 
         <el-carousel-item>
-    <span style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
+    <span
+        style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
             {{ eqyear }}年各区县经济情况
           </span>
 
@@ -90,7 +93,7 @@ let lineChartInstance = null;
 let pieChartInstance = null;
 
 // 接收父组件的 eqid
-const props = defineProps(['eqid', 'eqyear', 'earthquakeName','currentTime']); // 接收 eqid 和 eqyear
+const props = defineProps(['eqid', 'eqyear', 'earthquakeName', 'currentTime']); // 接收 eqid 和 eqyear
 
 
 // 计算earthquakeName的最后三个字符
@@ -263,7 +266,8 @@ function formatDate(date) {
   const seconds = d.getSeconds().toString().padStart(2, '0');
   return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 }
-function  timestampToTimeChina(timestamp) {
+
+function timestampToTimeChina(timestamp) {
   let DateObj = new Date(timestamp);
   let year = DateObj.getFullYear();
   let month = DateObj.getMonth() + 1;
@@ -278,6 +282,7 @@ function  timestampToTimeChina(timestamp) {
   ss = ss > 9 ? ss : '0' + ss;
   return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
 }
+
 const colors = ['rgba(113, 226, 135, 1)', 'rgba(119, 247, 253, 1)', 'rgba(44, 104, 231, 1)', 'rgba(93, 202, 250, 1)'];
 
 
@@ -427,8 +432,8 @@ const initCharts = () => {
         itemStyle: {
           // 使用渐变色
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#12B9DB' },  // 渐变起始颜色
-            { offset: 1, color: '#6F8EF2' }   // 渐变结束颜色
+            {offset: 0, color: '#12B9DB'},  // 渐变起始颜色
+            {offset: 1, color: '#6F8EF2'}   // 渐变结束颜色
           ]),
         },
         // areaStyle: {
@@ -608,11 +613,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.pop {
+.pop-new {
   position: absolute;
   top: 54.4%;
-
-
   height: 28%;
   width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
