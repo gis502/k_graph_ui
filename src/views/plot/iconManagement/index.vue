@@ -29,7 +29,7 @@
         <template #default="scope">
           <div v-if="scope.row.img && scope.row.img !== ''">
             <img width="30px" height="30px"
-                 :src="'http://172.26.86.82:8080/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"
+                 :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"
                  alt="暂无符号">
           </div>
           <div v-else>
@@ -145,7 +145,7 @@
                     :src="
           file.url.startsWith('blob:')
         ? file.url
-        : 'http://172.26.86.82:8080/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
+        : '59.213.183.7/prod-api' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
       "
                 >
                 <span class="el-upload-list__item-actions">

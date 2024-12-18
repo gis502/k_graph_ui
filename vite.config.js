@@ -36,7 +36,7 @@ export default defineConfig(({ mode, command }) => {
           rewrite: (p) => p.replace(/^\/dev-api/, '')
         },
         '/tdtproxy':{
-          target: 'http://t0.tianditu.com/',
+          target: 'http://59.255.48.160:81/',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/tdtproxy/, ''),
         }

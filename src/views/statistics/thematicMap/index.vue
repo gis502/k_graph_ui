@@ -1112,7 +1112,7 @@ export default {
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
               url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -1131,7 +1131,7 @@ export default {
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
               url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -1280,7 +1280,7 @@ export default {
 
     async fetchLocation(village, key) {
       const encodedVillage = encodeURIComponent(village);
-      const requestString = `https://restapi.amap.com/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
+      const requestString = `http://59.213.183.7/restapi/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
 
       console.log(`请求 URL: ${requestString}`); // 打印请求的 URL 以便调试
 

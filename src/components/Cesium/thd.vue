@@ -1229,7 +1229,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -1241,7 +1241,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -1325,7 +1325,7 @@ export default {
 
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+            url: "http://59.255.48.160:81/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 TianDiTuToken,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -1335,7 +1335,7 @@ export default {
       );
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+            url: "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 TianDiTuToken,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -2534,7 +2534,7 @@ export default {
     //     viewer.imageryLayers.addImageryProvider(
     //         new Cesium.WebMapTileServiceImageryProvider({
     //             url:
-    //                 "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+    //                 "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
     //                 token,
     //             layer: "tdtAnnoLayer",
     //             style: "default",
@@ -2546,7 +2546,7 @@ export default {
     //     viewer.imageryLayers.addImageryProvider(
     //         new Cesium.WebMapTileServiceImageryProvider({
     //             url:
-    //                 "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+    //                 "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
     //                 token,
     //             layer: "tdtAnnoLayer",
     //             style: "default",
@@ -3601,7 +3601,7 @@ export default {
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
           console.log("555")
-          axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+          axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
               .then(res => {
                 console.log("666")
                 pathM += parseInt(res.data.route.paths[0].distance);
@@ -3790,7 +3790,7 @@ export default {
       console.log("33")
 
       // 请求路径规划
-      axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+      axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
           .then(res => {
             // 处理路径返回的数据，更新路径
             let pathM = parseInt(res.data.route.paths[0].distance);
@@ -5675,13 +5675,12 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                  token,
+              url: "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
               layer: "tdtAnnoLayer",
               style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
+              format: "image/jpeg", // 根据实际返回的图像格式调整
+              // tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
+              show: true
             })
         );
         trafficLayer.name = "TrafficLayer"; // 设置名称
@@ -5694,14 +5693,12 @@ export default {
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
-              url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                  token,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-              show: false, // 初始状态下不显示注记
+              url: "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              layer: "tdtAnnoLayer", // 自定义图层名称，用于在Cesium中引用此图层
+              style: "default", // 通常用于指定服务的样式，但在这个URL中可能不需要.jpg
+              format: "image/jpeg", // 指定返回图像的数据格式
+              // tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，并且Cesium能够正确解析，则此参数可能不是必需的
+              show: false // 初始状态下不显示图层
             })
         )
         traffictxtLayer.name = "TrafficTxtLayer"
