@@ -610,7 +610,7 @@ export default {
           //   }
           // };
           if ('WebSocket' in window) {
-            this.websocket = new WebSocketReconnect('ws://59.213.183.7/websocket' + '/WebSocketServerExcel/' + this.name);
+            this.websocket = new WebSocketReconnect('ws://localhost/websocket' + '/WebSocketServerExcel/' + this.name);
           } else {
             alert('该浏览器不支持 WebSocket');
           }
