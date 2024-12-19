@@ -1750,6 +1750,8 @@ export default {
         position: Cesium.Cartesian3.fromDegrees(data.longitude, data.latitude),
         billboard: {
           image: earthQuakeCenterImg, // 图标
+          width:40,
+          height:40,
           eyeOffset: new Cesium.Cartesian3(0.0, 0.0, -10000.0) // 设置图标偏移，让其显示在最上层
         }
       });
