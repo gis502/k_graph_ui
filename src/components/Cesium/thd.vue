@@ -4700,12 +4700,15 @@ export default {
     },
     downloadReport(item) {
       // 报告下载逻辑
+      console.log("报告下载逻辑")
+      console.log(item)
       const link = document.createElement("a");
       // const urlBase = 'http://59.213.183.7/jcpt'; // 设置新的基础 URL
-      link.href = item.path;
+      console.log(link)
+      link.href = item.docxUrl;
       console.log(link.href)
       // link.href = `${urlBase}${item.path}`;
-      link.download = item.name; // 指定下载的文件名
+      link.download = item.theme; // 指定下载的文件名
       console.log(link.download)
       document.body.appendChild(link);
       link.click();
