@@ -655,7 +655,8 @@ export default {
           if (res.themeName.includes("null")) {
             this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
           } else {
-            this.outputData.themeData = res;
+            this.outputData.themeData = res.themeData;
+            console.log(this.outputData.themeData)
             this.outputData.type = type;
           }
           if (res.themeData.length === 0) {
