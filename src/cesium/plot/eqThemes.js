@@ -737,7 +737,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
             // imgUrl: `${url}${data[i].localSourceFile}`,
-            imgUrl: `${data[i].localSourceFile}`,
+            imgUrl: `${domainName}/jcpt/${data[i].localSourceFile}`,
             theme: data[i].fileName,
           };
           thematicMapData.push(thematicMapObject);
@@ -761,7 +761,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
             // docxUrl: `${url}${data[i].localSourceFile}`,
-            docxUrl: `${data[i].localSourceFile}`,
+            docxUrl: `${domainName}/jcpt/${data[i].localSourceFile}`,
             theme: data[i].fileName,
           };
           reportData.push(reportObject);
