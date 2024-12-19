@@ -72,7 +72,7 @@
             </el-divider>
             <div style="padding: 1px 20px 10px 20px">
               <!-- 显示选项卡内容 -->
-              <h4>地震名称：{{ selectedTabData.earthquakeName }} {{ selectedTabData.magnitude }}级地震</h4>
+              <h4>地震名称：{{ selectedTabData.earthquakeName }}</h4>
               <p>发震时刻：{{ timestampToTime(selectedTabData.occurrenceTime, "fullDateTime") }}</p>
               <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
               <p>地震震级：{{ selectedTabData.magnitude }}</p>

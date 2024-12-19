@@ -57,7 +57,7 @@ watch(() => props.lastEq, () => {
 });
 
 const initNewEq = () => {
-  eqName.value = props.lastEq.earthquakeName +  Number(props.lastEq.magnitude).toFixed(1) + '级地震';
+  eqName.value = props.lastEq.earthquakeName;
   // 转换并格式化发震时间
   const date = new Date(props.lastEq.occurrenceTime);
   const year = date.getFullYear();

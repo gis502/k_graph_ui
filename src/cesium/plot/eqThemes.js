@@ -542,7 +542,7 @@ export function addOCTest(eqid, eqqueueId) {
    * 烈度圈部分
    */
   // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
-  fetch(`${domainName}/image/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
+  fetch(`${domainName}/jcpt/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
     // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
@@ -732,11 +732,12 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const data = res.data;
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
-        const url = `${domainName}/image/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
+        const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
 
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
-            imgUrl: `${url}${data[i].localSourceFile}`,
+            // imgUrl: `${url}${data[i].localSourceFile}`,
+            imgUrl: `${data[i].localSourceFile}`,
             theme: data[i].fileName,
           };
           thematicMapData.push(thematicMapObject);
@@ -755,11 +756,12 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const data = res.data;
         const themeName = eqFullName + "-" + "灾情报告";
         let reportData = [];
-        const url = `${domainName}/image/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
+        const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
 
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
-            docxUrl: `${url}${data[i].localSourceFile}`,
+            // docxUrl: `${url}${data[i].localSourceFile}`,
+            docxUrl: `${data[i].localSourceFile}`,
             theme: data[i].fileName,
           };
           reportData.push(reportObject);
