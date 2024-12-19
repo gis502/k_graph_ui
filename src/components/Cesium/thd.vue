@@ -3659,7 +3659,7 @@ export default {
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
           console.log("555")
-          axios.get(`http://localhost/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+          axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
               .then(res => {
                 console.log("666")
                 pathM += parseInt(res.data.route.paths[0].distance);
@@ -3848,7 +3848,7 @@ export default {
       console.log("33")
 
       // 请求路径规划
-      axios.get(`http://localhost/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+      axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
           .then(res => {
             // 处理路径返回的数据，更新路径
             let pathM = parseInt(res.data.route.paths[0].distance);

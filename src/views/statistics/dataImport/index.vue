@@ -45,7 +45,7 @@
                 :headers="this.headers">
               <!-- 隐藏的文件选择按钮 -->
 
-              <el-button type="primary" plain>选择文件</el-button>
+              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
             </el-upload>
             <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
@@ -148,13 +148,6 @@
                 label='单位'
             >
             </el-table-column>
-<!--            <el-table-column-->
-<!--                align='center'-->
-<!--                prop='operParam'-->
-<!--                label='地震名称'-->
-<!--                :formatter='formatMessageOperParam'-->
-<!--            >-->
-<!--            </el-table-column>-->
             <el-table-column
                 align='center'
                 prop='operTime'
@@ -644,7 +637,7 @@ export default {
           //   }
           // };
           if ('WebSocket' in window) {
-            this.websocket = new WebSocketReconnect('ws://localhost/websocket' + '/WebSocketServerExcel/' + this.name);
+            this.websocket = new WebSocketReconnect('ws://59.213.183.7/websocket' + '/WebSocketServerExcel/' + this.name);
           } else {
             alert('该浏览器不支持 WebSocket');
           }

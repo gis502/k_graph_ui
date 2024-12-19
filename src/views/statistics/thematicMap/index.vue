@@ -1280,7 +1280,7 @@ export default {
 
     async fetchLocation(village, key) {
       const encodedVillage = encodeURIComponent(village);
-      const requestString = `http://localhost/restapi/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
+      const requestString = `http://59.213.183.7/restapi/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
 
       console.log(`请求 URL: ${requestString}`); // 打印请求的 URL 以便调试
 
