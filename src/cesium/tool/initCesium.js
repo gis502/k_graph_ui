@@ -6,10 +6,10 @@ import Ellipsoid from '@/assets/Ellipsoid.png'
 import CesiumWorldTerrain from '@/assets/CesiumWorldTerrain.png'
 
 
-export function initCesium(Cesium,container) {
+export function initCesium(Cesium, container) {
     // 使用Cesium官方示例中的Token
     Cesium.Ion.defaultAccessToken = CesiumIonDefaultAccessToken || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YmRiNjM4MC1kMDZkLTQ2NDQtYjQ3My0xZDI4MDU0MGJhZDciLCJpZCI6MzIxMzAsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1OTY1MjM4NzZ9.A3FBZ6HjKkTsOGnjwWWeO9L10HQ9c-wcF4c3dtTc4gQ'
-    if(container === undefined){
+    if (container === undefined) {
         container = 'cesiumContainer'
     }
     let viewer = new Cesium.Viewer(container, {
@@ -28,14 +28,14 @@ export function initCesium(Cesium,container) {
         //截图和渲染相关的一些配置
         contextOptions: {
             webgl: {
-              alpha: true,
-              depth: false,
-              stencil: true,
-              antialias: true,
-              premultipliedAlpha: true,
+                alpha: true,
+                depth: false,
+                stencil: true,
+                antialias: true,
+                premultipliedAlpha: true,
                 //cesium状态下允许canvas转图片convertToImage
-              preserveDrawingBuffer: true,
-              failIfMajorPerformanceCaveat: true
+                preserveDrawingBuffer: true,
+                failIfMajorPerformanceCaveat: true
             },
             allowTextureFilterAnisotropic: true
         },
@@ -83,26 +83,16 @@ export function initCesium(Cesium,container) {
             roll: 0.0
         }
     });
-    // 默认添加 GeoServer 提供的 WMS 图层
-    viewer.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
-        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
-        layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
-        parameters: {
-            service: 'WMS',
-            format: 'image/png',
-            transparent: true,
-        }
-    }));
-    viewer.imageryLayers.addImageryProvider(
-        new Cesium.WebMapTileServiceImageryProvider({
-            url:`http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-            show: false,
-        })
-    );
+    // viewer.imageryLayers.addImageryProvider(
+    //     new Cesium.WebMapTileServiceImageryProvider({
+    //         url: `http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
+    //         layer: "tdtAnnoLayer",
+    //         style: "default",
+    //         format: "image/jpeg",
+    //         tileMatrixSetID: "GoogleMapsCompatible",
+    //         show: false,
+    //     })
+    // );
     return viewer
 }
 
@@ -158,25 +148,31 @@ function getImageryProviderArr() {
             iconUrl: bingAerial,
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中。
             creationFunction: function () {
-                return new Cesium.WebMapServiceImageryProvider({
-                    url: baseURL+'/geoserver/yaan/wms',
-                    layers: 'yaan:yaan',
-                    parameters: {
-                        service: 'WMS',
-                        format: 'image/png',
-                        transparent: true
-                    }
-                })
-
-
-                // return new Cesium.WebMapTileServiceImageryProvider({
-                //         url : 'http://10.16.7.69/geoserver/gwc/service/wmts/rest/yaan:yaan/{style}/{TileMatrixSet}/{TileMatrixSet}:{TileMatrix}/{TileRow}/{TileCol}?format=image/png',
-                //         layer : 'yaan:yaan',
-                //         style : 'default',
-                //         format : 'image/png',
-                //         tileMatrixSetID : 'EPSG:4326',
-                //         maximumLevel: 20
-                //     })
+                return [
+                    new Cesium.WebMapTileServiceImageryProvider({
+                        // url:`http://59.255.48.160:81/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+                        url: `http://59.255.48.160:81/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+                        format: 'tiles',
+                        tileMatrixSetID: 'c',
+                        tilingScheme: new Cesium.GeographicTilingScheme(),
+                        tileMatrixLabels: ['1', '2', '3', '4',
+                            '5', '6', '7', '8', '9', '10', '11',
+                            '12', '13', '14', '15', '16', '17', '18'],
+                        layer: "tdtImgAnnoLayer",
+                        style: "default",
+                        show: false
+                    }),
+                    // 默认添加 GeoServer 提供的 WMS 图层
+                    new Cesium.WebMapServiceImageryProvider({
+                        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
+                        layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
+                        parameters: {
+                            service: 'WMS',
+                            format: 'image/png',
+                            transparent: true,
+                        }
+                    })
+                ]
             }
         }),
 
@@ -201,6 +197,7 @@ export function getTerrainProviderViewModelsArr() {
                 })
             }
         }),
+
         // new Cesium.ProviderViewModel({
         //     //图层的名称
         //     name: '第三方地形',
@@ -228,15 +225,13 @@ export function getTerrainProviderViewModelsArr() {
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
             creationFunction: function () {
                 return new Cesium.CesiumTerrainProvider({
-                    url: baseURL+'/geoserver/www/dem',
+                    url: baseURL + '/geoserver/www/dem',
                     requestWaterMask: !0,
                     requestVertexNormals: !0,
                     // isSct : false //是否为iServer发布的TIN地形服务,stk地形设置为false。
                 })
             }
         }),
-
-
 
 
     ]

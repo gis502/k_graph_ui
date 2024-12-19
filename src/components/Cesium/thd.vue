@@ -1308,32 +1308,6 @@ export default {
         }
       });
 
-      let token = "34d101b55f6166c49c42aed5a7ed345c";
-      viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url:
-                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-          })
-      );
-      //影像注记
-      viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url:
-                "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-            show: false,
-          })
-      );
-
       let that = this;
       let canvas = viewer.scene.canvas;
       // 具体事件的实现
@@ -1472,28 +1446,30 @@ export default {
           // }
           // // 标绘点
           // else{
-          let markType = JSON.parse(e.data).type
-          let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
-          if (markOperate === "add") {
-            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
-              let markData = JSON.parse(e.data).data
+            let markType = JSON.parse(e.data).type
+            let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
+            if (markOperate === "add") {
+              if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
+                let markData = JSON.parse(e.data).data
+                if (!that.isTimerRunning && that.currentTimePosition >= 100) {
+                  //标绘点
+                  that.wsAddMakerFunc(markType, markData)
+                }
+                //播放或播放暂停
+                else {
+                  that.wsaddMakers.push({markType: markType, markData: markData})
+                }
+              }
+            }
+            else if (markOperate === "delete") {
+              let id = JSON.parse(e.data).id.toString()
               if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-                //标绘点
-                that.wsAddMakerFunc(markType, markData)
+                that.wsDeleteMakerFunc(id,markType)
               }
-              //播放或播放暂停
-              else {
-                that.wsaddMakers.push({markType: markType, markData: markData})
+              else{
+                that.wsdeleteMakers.push({id: id, markType: markType})
               }
             }
-          } else if (markOperate === "delete") {
-            let id = JSON.parse(e.data).id.toString()
-            if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-              that.wsDeleteMakerFunc(id, markType)
-            } else {
-              that.wsdeleteMakers.push({id: id, markType: markType})
-            }
-          }
           // }
 
         } catch (err) {
@@ -1515,11 +1491,14 @@ export default {
       this.currentNodeIndex = this.timelineAdvancesNumber
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      } else if (type === "polyline") {
+      }
+      else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      } else if (type === "polygon") {
+      }
+      else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      } else if (type === "arrow") {
+      }
+      else if (type === "arrow") {
         if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
         } else if (data.plot.plotType === "钳击箭头") {
@@ -1529,20 +1508,23 @@ export default {
         }
       }
     },
-    wsDeleteMakerFunc(id, markType) {
+    wsDeleteMakerFunc(id,markType){
       this.plotisshow[id] = 0
       if (markType === "point") {
         cesiumPlot.deletePointById(id);
-      } else if (markType === "polyline") {
+      }
+      else if (markType === "polyline") {
         let polyline = window.viewer.entities.getById(id)
         let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
         polylinePosition.pointPosition.forEach((item, index) => {
           window.viewer.entities.remove(item)
         })
         window.viewer.entities.remove(polyline)
-      } else if (markType === "polygon") {
+      }
+      else if (markType === "polygon") {
         window.viewer.entities.removeById(id)
-      } else if (markType === "arrow") {
+      }
+      else if (markType === "arrow") {
         Arrow.clearById(id)
       }
     },
@@ -1587,7 +1569,8 @@ export default {
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
           this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-        } else {
+        }
+        else {
           this.eqendTime = this.tmpeqendTime
         }
         this.currentTime = this.eqstartTime
@@ -1649,11 +1632,11 @@ export default {
             })
             this.wsaddMakers = []
           }
-          if (this.wsdeleteMakers.length > 0) {
+          if(this.wsdeleteMakers.length>0){
             this.wsdeleteMakers.forEach((item) => {
               let id = item.id
               let markType = item.markType
-              that.wsDeleteMakerFunc(id, markType)
+              that.wsDeleteMakerFunc(id,markType)
             })
             this.wsdeleteMakers = []
           }
