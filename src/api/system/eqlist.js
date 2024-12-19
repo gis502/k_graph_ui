@@ -18,6 +18,14 @@ export function deleteeq(query) {
     })
 }
 
+export function deletedEq(query){
+    return request({
+        url: '/tp/api/open/eq/delete',
+        method: 'post',
+        data: query
+    })
+}
+
 // 查
 export function getAllEq(query) {
     return request({

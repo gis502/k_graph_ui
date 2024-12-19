@@ -510,28 +510,8 @@ export default {
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
   methods: {
-    // 进度条
-    setInterval() {
-      this.interval = setInterval(() => {
-        this.updateProgress(event)
-      }, 9000)
-    },
-    updateProgress(event) {
-      eqProgress(event).then(res => {
-        this.isProgressShow = true
-        this.percentage = res.data.percentage
-      })
-    },
 
     commitPanel() {
-      this.isPanelShow = !this.isPanelShow
-      this.setInterval()
-      this.$notify({
-        title: '地震触发成功',
-        message: '正在进行灾损评估中',
-        duration: 600000
-      });
-
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
