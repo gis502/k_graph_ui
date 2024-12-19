@@ -250,7 +250,7 @@
 </template>
 
 <script>
-import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq, eqEventTrigger} from '@/api/system/eqlist'
+import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq, eqEventTrigger,deletedEq} from '@/api/system/eqlist'
 
 export default {
   name: "index",
@@ -635,7 +635,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteeq({eqid: row.eqid}).then(res => {
+        deletedEq({eqid: row.eqid}).then(res => {
           that.getEq();
           that.$message({
             type: 'success',
