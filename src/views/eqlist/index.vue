@@ -534,6 +534,7 @@ export default {
       //   console.log(res)
       // })
       // // console.log("你好：", this.addOrUpdateDTO)
+      this.getEq()
     },
     // 进度条
     setInterval() {
