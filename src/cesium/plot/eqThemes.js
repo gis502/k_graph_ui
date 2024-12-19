@@ -737,7 +737,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
             // imgUrl: `${url}${data[i].localSourceFile}`,
-            imgUrl: `${urlBase}${data[i].sourceFile}s`,
+            imgUrl: `${urlBase}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
           thematicMapData.push(thematicMapObject);
