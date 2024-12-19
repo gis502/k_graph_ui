@@ -733,12 +733,11 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
         const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
-         const urlBase = 'http://59.213.183.7/jcpt/';  // 设置新的基础 URL
 
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
             // imgUrl: `${url}${data[i].localSourceFile}`,
-            imgUrl: `${urlBase}${data[i].localSourceFile}`,
+            imgUrl: `${data[i].SourceFile}`,
             theme: data[i].fileName,
           };
           thematicMapData.push(thematicMapObject);
@@ -758,13 +757,11 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const themeName = eqFullName + "-" + "灾情报告";
         let reportData = [];
         const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
-        const urlBase = 'http://59.213.183.7/jcpt/';  // 设置新的基础 URL
 
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
             // docxUrl: `${url}${data[i].localSourceFile}`,
-            // docxUrl: `${data[i].localSourceFile}`,
-              docxUrl: `${urlBase}${data[i].localSourceFile}`,  // 拼接新的基础路径和文件路径
+            docxUrl: `${data[i].SourceFile}`,
             theme: data[i].fileName,
           };
           reportData.push(reportObject);
