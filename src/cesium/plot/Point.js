@@ -224,7 +224,7 @@ export default class Point {
       if (entityToRemove) {
         window.pointDataSource.entities.remove(entityToRemove); // 移除点
       }
-      let entityToRemoveBase = window.pointDataSource.entities.getById(data.plotId+ '_base');
+      let entityToRemoveBase = window.pointDataSource.entities.getById(plotId+ '_base');
       if (entityToRemoveBase) {
         window.pointDataSource.entities.remove(entityToRemoveBase); // 移除点
       }
@@ -234,7 +234,7 @@ export default class Point {
     if (entityDonghua) {
       window.viewer.entities.remove(entityDonghua); // 移除点
     }
-    let entityDonghuaBase = window.viewer.entities.getById(data.plotId+ '_base');
+    let entityDonghuaBase = window.viewer.entities.getById(plotId+ '_base');
     if (entityDonghuaBase) {
       window.viewer.entities.remove(entityDonghuaBase); // 移除点下面一个
     }

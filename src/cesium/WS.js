@@ -61,8 +61,18 @@ export function websocketonmessage(e) {
                 console.log(5629)
                 let polygonRemoved = window.viewer.entities.removeById(id);
                 let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
-                window.viewer.entities.removeById(id + "_polygon")
+
+                const entityToRemove = window.pointDataSource.entities.getById(id);
+                const entityToRemove_base = window.pointDataSource.entities.getById(id +"_base");
                 console.log(polygonRemoved, pointDataRemoved);
+                const entitylabel = window.labeldataSource.entities.getById(id + '_label');
+                if (entitylabel) {
+                    window.labeldataSource.entities.remove(entitylabel); // 移除点
+                }
+                window.viewer.entities.removeById(id)
+                window.pointDataSource.entities.remove(entityToRemove); // 移除点
+                window.viewer.entities.removeById(id + "_base")
+                window.pointDataSource.entities.remove(entityToRemove_base); // 移除点
 
             } else if (markType === "polyline") {
                 let polyline = window.viewer.entities.getById(id)

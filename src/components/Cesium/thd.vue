@@ -1511,6 +1511,7 @@ export default {
     wsDeleteMakerFunc(id,markType){
       this.plotisshow[id] = 0
       if (markType === "point") {
+        console.log('1111111111111111111111111111123123')
         cesiumPlot.deletePointById(id);
       }
       else if (markType === "polyline") {
