@@ -21,7 +21,7 @@
           <div class="eqText">
                         <span
                             class="eqTitle">
-                          {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{ eq.magnitude }}级地震
+                          {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}
                         </span>
             <br/>
             <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
