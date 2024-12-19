@@ -512,14 +512,29 @@ export default {
   methods: {
 
     commitPanel() {
+      this.isPanelShow = !this.isPanelShow
+      this.setInterval()
+      this.$notify({
+        title: '地震触发成功',
+        message: '正在进行灾损评估中',
+        duration: 600000
+      });
+
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
       eqEventTrigger(this.addOrUpdateDTO)
           .then(res => {
-        console.log(res)
-      })
-      // console.log("你好：", this.addOrUpdateDTO)
+            console.log(res)
+          })
+      // this.addOrUpdateDTO.event = this.createTid()
+      // this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
+      // this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
+      // eqEventTrigger(this.addOrUpdateDTO)
+      //     .then(res => {
+      //   console.log(res)
+      // })
+      // // console.log("你好：", this.addOrUpdateDTO)
     },
 
     cancelPanel() {
