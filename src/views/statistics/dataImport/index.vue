@@ -45,11 +45,10 @@
                 :headers="this.headers">
               <!-- 隐藏的文件选择按钮 -->
 
-              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+              <el-button type="primary" plain>选择文件</el-button>
             </el-upload>
             <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
-
         </el-dialog>
         <!-- 下载模板弹框-->
         <el-dialog title="请选择表名"
@@ -360,16 +359,20 @@ export default {
       // this.websock.send(JSON.stringify("uploade"))
       this.importDialogVisible = true;
     },
-    triggerFileInput() {
 
-      this.$refs.fileInput.click();
-
-    },
     handleFileChange(event) {
       const file = event.raw;
       if (file) {
         this.selectedFile = file;
       }
+    },
+    triggerFileInput() {
+      this.$notify({
+        title: '灾情上传',
+        message: '数据正在解析中...',
+        duration: 2000,
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
     },
     confirmUpload() {
       this.importDialogVisible = false;
@@ -654,6 +657,7 @@ export default {
         }
       };
       reader.readAsBinaryString(file); //开始读取文件内容
+      this.triggerFileInput();
       return isExcel;
     },
     // 上传成功弹窗展示上传结果

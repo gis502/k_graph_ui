@@ -660,6 +660,7 @@ export default {
         }
       }
       this.dialogShow = !this.dialogShow
+      this.getEq();
     },
     // 搜索功能
     handleQuery() {
