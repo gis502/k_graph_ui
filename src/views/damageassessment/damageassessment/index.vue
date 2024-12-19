@@ -108,12 +108,12 @@
               <div class="button themes economicLoss" :class="{ active: eqThemes.show.isshowEconomicLoss }"
                    @click="showEconomicLoss()"> 经济损失
               </div>
-              <div class="button themes hospital" :class="{  }"
-                   @click=""> 医院
-              </div>
-              <div class="button themes school" :class="{  }"
-                   @click=""> 学校
-              </div>
+<!--              <div class="button themes hospital" :class="{  }"-->
+<!--                   @click=""> 医院-->
+<!--              </div>-->
+<!--              <div class="button themes school" :class="{  }"-->
+<!--                   @click=""> 学校-->
+<!--              </div>-->
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
