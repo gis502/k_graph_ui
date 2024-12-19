@@ -85,15 +85,21 @@
 
             <div class="eqTheme">
               <div class="button themes"
-                   style="width: 35%"
+                   style="width: 30%"
                    :class="{ active: isPanelShow.thematicMap }"
                    @click="handlePanel(`thematicMap`)">专题图
               </div>
 
               <div class="button themes"
-                   style="width: 35%"
+                   style="width: 30%"
                    :class="{ active: isPanelShow.report }"
                    @click="handlePanel(`report`); isPreviewShow = false;">灾情报告
+              </div>
+
+              <div class="button themes"
+                   style="width: 30%"
+                   :class="{ active: isPanelShow.instrument }"
+                   @click="handlePanel(`instrument`);">台网数据
               </div>
             </div>
 
@@ -118,13 +124,12 @@
 
       </div>
 
-      <div class="eqPanel" v-if="isPanelShow.thematicMap || isPanelShow.report">
+      <div class="eqPanel" v-if="isPanelShow.thematicMap || isPanelShow.report || isPanelShow.instrument">
         <h2>{{ this.outputData.themeName }}</h2>
         <div style="width: 100%;height: calc(100% - 120px);text-align: center;color: #fff;font-size: 16px" v-if="isNoData">
           该地震暂无评估图件产出
         </div>
         <div class="mapItem" v-if="this.outputData.type === `thematicMap`">
-
           <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
                @mouseenter="handleOpen(index)" @mouseleave="handleClose()">
             <div class="panelButtons" v-if="showPanelButtonsIndex === index">
@@ -140,6 +145,18 @@
           <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleDownloadReport(item.docxUrl)">
             <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 50px">
             {{ item.theme }}
+          </div>
+        </div>
+
+        <div class="mapItem" v-if="this.outputData.type === `instrument`">
+          <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
+               @mouseenter="handleOpen(index)" @mouseleave="handleClose()">
+            <div class="panelButtons" v-if="showPanelButtonsIndex === index">
+              <div class="panelButton download" @click="handleDownloadMap(item.imgUrl)">下载</div>
+              <div class="panelButton preview" @click="handleOpenPreview(item.theme, item.imgUrl)">预览</div>
+            </div>
+            <img :src="item.imgUrl" style="width: 95%; height: 80%;"/>
+            <p style="margin: 10px; ">{{ item.theme }}</p>
           </div>
         </div>
       </div>
@@ -195,6 +212,7 @@ export default {
       isPanelShow: {
         thematicMap: false,
         report: false,
+        instrument: false
       },
       isPreviewShow: false,
       // 记录当前显示的 panelButtons 索引，默认为 null
@@ -636,14 +654,49 @@ export default {
           } else {
             this.outputData = res;
             this.outputData.type = type;
-
           }
           if (res.themeData.length === 0) {
             this.isNoData = true
           }
-
         });
-      } else {
+      } else if(this.isPanelShow.instrument) {
+        this.outputData.themeData = [
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/仪器地震烈度分布图.jpeg",
+            theme:"仪器地震烈度分布图"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/台站峰值加速度分布图.jpeg",
+            theme:"台站峰值加速度分布图"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/台站峰值速度分布图.jpeg",
+            theme:"台站峰值速度分布图"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/台站仪器地震烈度分布图.jpeg",
+            theme:"台站仪器地震烈度分布图"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/3.0秒加速度反应谱(gal).jpeg",
+            theme:"3.0秒加速度反应谱(gal)"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/1.0秒加速度反应谱(gal).jpeg",
+            theme:"1.0秒加速度反应谱(gal)"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/0.3秒加速度反应谱(gal).jpeg",
+            theme:"0.3秒加速度反应谱(gal)"
+          },
+          {
+            imgUrl:"http://59.213.183.7/image/instrument/乡镇仪器地震烈度分布.jpeg",
+            theme:"乡镇仪器地震烈度分布"
+          },
+        ]
+        this.outputData.type = 'instrument';
+        this.outputData.themeName = '2022年06月01日四川雅安市芦山县6.1级地震-台网数据';
+      }else{
 
       }
     },
@@ -785,7 +838,7 @@ export default {
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 84px) !important;
+  height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;

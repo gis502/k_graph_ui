@@ -412,7 +412,6 @@ export default {
     },
 
     handleOpen(row) {
-      console.log(row);
       let url = row.path
       let layers = row.name
       // 后续优化
