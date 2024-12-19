@@ -1450,7 +1450,7 @@ export default {
 
 <style scoped lang="less">
 .situation_cesiumContainer {
-  height: calc(100vh - 84px) !important;
+  height: calc(100vh - 50px) !important;
   width: 100%;
   margin: 0;
   padding: 0;
