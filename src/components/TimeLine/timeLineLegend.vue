@@ -94,7 +94,7 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
   box-sizing: border-box;
   color: white;
-  z-index: 100;
+  z-index: 99;
   transition: width 0.3s ease-in-out, height 0.3s ease-in-out, bottom 0.3s ease-in-out;
   background-color: rgb(22, 53, 77,0.9);
   backdrop-filter: none!important;
