@@ -4698,9 +4698,11 @@ export default {
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
     downloadReport(item) {
+      const urlBase = 'http://59.213.183.7/jcpt'; // 设置新的基础 URL
+      link.href = `${urlBase}${item.path}`;
       // 报告下载逻辑
       const link = document.createElement("a");
-      link.href = item.path;
+      // link.href = item.path;
       link.download = item.name; // 指定下载的文件名
       document.body.appendChild(link);
       link.click();

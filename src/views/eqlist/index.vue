@@ -519,7 +519,6 @@ export default {
         message: '正在进行灾损评估中',
         duration: 600000
       });
-
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
@@ -536,7 +535,18 @@ export default {
       // })
       // // console.log("你好：", this.addOrUpdateDTO)
     },
-
+    // 进度条
+    setInterval() {
+      this.interval = setInterval(() => {
+        this.updateProgress(event)
+      }, 9000)
+    },
+    // updateProgress(event) {
+    //   eqProgress(event).then(res => {
+    //     this.isProgressShow = true
+    //     this.percentage = res.data.percentage
+    //   })
+    // },
     cancelPanel() {
       this.addOrUpdateDTO = {
         event: '',
