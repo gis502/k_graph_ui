@@ -465,7 +465,7 @@ export default class Point {
 
                     // 加载背景图片
                     const backgroundImage = new Image();
-                    backgroundImage.src = '/images/背景边框.png'; // 确保路径正确
+                    backgroundImage.src = '/image/背景边框.png'; // 确保路径正确
                     backgroundImage.onload = function () {
                       // 背景图片放大比例（例如 1.2 表示放大 20%）
                       const scaleFactor = 1.6;
@@ -691,7 +691,7 @@ export default class Point {
       layer: "标绘点_base",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       billboard: {
-        image: '/images/图标外框.png', // 圆形底座图片
+        image: '/image/图标外框.png', // 圆形底座图片
         width: 110, // 底座宽度
         height: 110, // 底座高度
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -738,7 +738,7 @@ export default class Point {
       layer: "标绘点_base",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       billboard: {
-        image: '/images/图标外框.png', // 圆形底座图片
+        image: '/image/图标外框.png', // 圆形底座图片
         width: 110, // 底座宽度
         height: 110, // 底座高度
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
