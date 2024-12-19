@@ -45,11 +45,10 @@
                 :headers="this.headers">
               <!-- 隐藏的文件选择按钮 -->
 
-              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+              <el-button type="primary" plain>选择文件</el-button>
             </el-upload>
             <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
-
         </el-dialog>
         <!-- 下载模板弹框-->
         <el-dialog title="请选择表名"
@@ -149,6 +148,13 @@
                 label='单位'
             >
             </el-table-column>
+<!--            <el-table-column-->
+<!--                align='center'-->
+<!--                prop='operParam'-->
+<!--                label='地震名称'-->
+<!--                :formatter='formatMessageOperParam'-->
+<!--            >-->
+<!--            </el-table-column>-->
             <el-table-column
                 align='center'
                 prop='operTime'
@@ -353,16 +359,20 @@ export default {
       // this.websock.send(JSON.stringify("uploade"))
       this.importDialogVisible = true;
     },
-    triggerFileInput() {
 
-      this.$refs.fileInput.click();
-
-    },
     handleFileChange(event) {
       const file = event.raw;
       if (file) {
         this.selectedFile = file;
       }
+    },
+    triggerFileInput() {
+      this.$notify({
+        title: '灾情上传',
+        message: '数据正在解析中...',
+        duration: 2000,
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
     },
     confirmUpload() {
       this.importDialogVisible = false;
@@ -401,6 +411,30 @@ export default {
       // 返回第二个匹配项，即表名
       return matches && matches.length >= 2 ? matches[1].replace(/"/g, '') : ''; // 去掉双引号
     },
+    formatMessageOperParam(row, column, cellValue) {
+      try {
+        // 假设cellValue的格式是： "操作员 震情灾情统计表 2024-08-02 00:18:02 四川泸州市泸县 震级：3"
+
+        // 使用正则表达式提取出 timestamp, location 和 magnitude
+        const regex = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ([\u4e00-\u9fa5]+) 震级：(\d+)/;
+        const match = cellValue.match(regex);
+
+        if (match) {
+          const timestamp = match[1]; // 获取时间戳部分
+          const location = match[2];   // 获取地点部分
+          const magnitude = match[3];  // 获取震级部分
+
+          // 返回拼接后的结果
+          return `${timestamp} ${location} 震级：${magnitude}`;
+        } else {
+          return ''; // 如果格式不符合预期，返回空字符串
+        }
+      } catch (error) {
+        console.error("处理失败:", error);
+        return ''; // 如果发生错误，返回空字符串
+      }
+    },
+
 
     //添加数据数量
     formatMessageAdd(row, column, cellValue) {
@@ -623,6 +657,7 @@ export default {
         }
       };
       reader.readAsBinaryString(file); //开始读取文件内容
+      this.triggerFileInput();
       return isExcel;
     },
     // 上传成功弹窗展示上传结果

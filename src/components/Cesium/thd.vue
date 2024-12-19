@@ -147,7 +147,7 @@
                   @click="showThematicMapDialog(item)"
               >
                 <el-card shadow="hover">
-                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img" />
+                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
                   <div class="item-info">
                     <p class="item-title">{{ item.theme }}</p>
                   </div>
@@ -377,7 +377,7 @@
           />
         </div>
 
-        <!--   救援出队-左下   -->
+        <!--   基础信息-左下   -->
         <timeLineRescueTeam
             v-if="eqyear"
             :eqid="eqid"
@@ -452,13 +452,22 @@
     </div>
 
     <!--经纬度跳转-->
-    <div style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
+    <div
+        style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
       <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
         <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
              style="width: 31px; height: 31px;">
       </div>
       <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
         <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
              style="width: 31px; height: 31px;">
       </div>
     </div>
@@ -486,6 +495,7 @@
         </el-button>
       </div>
     </div>
+
     <!--    图层管理弹框-->
     <div class="universalPanel" v-if="showLayerFeatures">
       <div class="panelTop">
@@ -546,6 +556,74 @@
       </el-tree>
     </div>
 
+    <!--    地震列表切换-->
+    <div class="universalPanel" v-if="showEqListPanel">
+      <!-- 顶部标题栏 -->
+      <div class="panelTop">
+        <h2 class="panelName">地震列表</h2>
+      </div>
+      <!-- 内容区域 -->
+      <div class="panelContent">
+        <div class="thd-Table">
+          <eqlistTable :eqData="eqTable"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- 三维模型弹框 -->
+    <div class="universalPanel" v-if="showModelPanel">
+      <!-- 顶部标题栏 -->
+      <div class="panelTop">
+        <h2 class="panelName">三维模型</h2>
+      </div>
+      <!-- 表格内容 -->
+      <div class="model-dialog__content">
+        <el-table
+            :data="modelTableData"
+            class="custom-table"
+            style="width: 100%; height: 90%;"
+            :header-cell-style="tableHeaderColor"
+            :cell-style="tableColor"
+            :row-style="{ height: '37.5px', fontSize: '13px'}"
+        >
+          <!-- 模型名称列 -->
+          <el-table-column label=" " min-width="20px" show-overflow-tooltip>
+            <template #default="scope">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%;"  class="arrow-container">
+                <div class="arrow-icon"></div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+              prop="name"
+              label="模型名称"
+              width="auto"
+              min-width="130px"
+              show-overflow-tooltip
+          ></el-table-column>
+          <!-- 操作列 -->
+          <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
+            <template #default="scope">
+              <el-button type="text" :icon="Edit" @click="goModel(scope.row)" class="checkBotton">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页 -->
+        <div>
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="modelCurrentPage"
+              :page-size="modelPageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="ModelTotal"
+              class="custom-pagination"
+          >
+          </el-pagination>
+        </div>
+      </div>
+    </div>
+
     <thematicMapPreview
         @ifShowThematicMapDialog="ifShowThematicMapDialog"
         :imgshowURL="imgshowURL"
@@ -559,67 +637,67 @@
       {{ this.timestampToTimeChinese(this.currentTime) }}
     </div>
 
-<!--    <div id="legend" v-show="true"-->
-<!--         style="position: absolute;-->
-<!--           right: 500px;-->
-<!--         z-index:20; bottom: 100px;-->
-<!--         right: 450px; color: #FFFFFF;-->
-<!--         background-color: rgba(0, 0, 0, 0.5);-->
-<!--         padding: 10px; border-radius: 5px;text-align: center;">-->
-<!--      <div v-for="(item, index) in slopeStatistics" :key="index">-->
-<!--        <div style="display: flex; align-items: center; margin-bottom: 5px;">-->
-<!--          <div-->
-<!--              :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">-->
-<!--          </div>-->
-<!--          <span style="width: 80px;text-align: left">{{ item.degree }}</span>-->
-<!--          <span style="text-align: left">{{ item.proportion }}</span>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
+    <!--    <div id="legend" v-show="true"-->
+    <!--         style="position: absolute;-->
+    <!--           right: 500px;-->
+    <!--         z-index:20; bottom: 100px;-->
+    <!--         right: 450px; color: #FFFFFF;-->
+    <!--         background-color: rgba(0, 0, 0, 0.5);-->
+    <!--         padding: 10px; border-radius: 5px;text-align: center;">-->
+    <!--      <div v-for="(item, index) in slopeStatistics" :key="index">-->
+    <!--        <div style="display: flex; align-items: center; margin-bottom: 5px;">-->
+    <!--          <div-->
+    <!--              :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">-->
+    <!--          </div>-->
+    <!--          <span style="width: 80px;text-align: left">{{ item.degree }}</span>-->
+    <!--          <span style="text-align: left">{{ item.proportion }}</span>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
-<!--    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;-->
-<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-<!--      <el-button @click="drawN">量算</el-button>-->
-<!--    </div>-->
+    <!--    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;-->
+    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+    <!--      <el-button @click="drawN">量算</el-button>-->
+    <!--    </div>-->
 
-<!--    <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;-->
-<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-<!--      <el-button @click="route">路径规划</el-button>-->
-<!--    </div>-->
-<!--    <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;-->
-<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-<!--      <el-button @click="addArea">添加障碍区域</el-button>-->
-<!--    </div>-->
-<!--    <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;-->
-<!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-<!--      <el-button @click="removeAll">清空所有实体</el-button>-->
-<!--    </div>-->
+    <!--    <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;-->
+    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+    <!--      <el-button @click="route">路径规划</el-button>-->
+    <!--    </div>-->
+    <!--    <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;-->
+    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+    <!--      <el-button @click="addArea">添加障碍区域</el-button>-->
+    <!--    </div>-->
+    <!--    <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;-->
+    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
+    <!--      <el-button @click="removeAll">清空所有实体</el-button>-->
+    <!--    </div>-->
 
-      <!--    路径规划    -->
-      <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
-      <!--          <div class="panelTop">-->
-      <!--              <h2 class="panelName">路径规划</h2>-->
-      <!--          </div>-->
+    <!--    路径规划    -->
+    <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
+    <!--          <div class="panelTop">-->
+    <!--              <h2 class="panelName">路径规划</h2>-->
+    <!--          </div>-->
 
-      <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
-      <!--              <el-row style="margin: 20px;">-->
-      <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
-      <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
-      <!--              </el-row>-->
-      <!--              <div slot="header" class="clearfix"-->
-      <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
-      <!--                  <div>-->
-      <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
-      <!--                  </div>-->
-      <!--                  <div v-if="visibleGuilde">-->
-      <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
-      <!--                          {{ instruction }}-->
-      <!--                      </div>-->
-      <!--                      <div v-if="loading" class="loading">加载中...</div>-->
-      <!--                  </div>-->
-      <!--              </div>-->
-      <!--          </div>-->
-      <!--      </div>-->
+    <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
+    <!--              <el-row style="margin: 20px;">-->
+    <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
+    <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
+    <!--              </el-row>-->
+    <!--              <div slot="header" class="clearfix"-->
+    <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
+    <!--                  <div>-->
+    <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
+    <!--                  </div>-->
+    <!--                  <div v-if="visibleGuilde">-->
+    <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
+    <!--                          {{ instruction }}-->
+    <!--                      </div>-->
+    <!--                      <div v-if="loading" class="loading">加载中...</div>-->
+    <!--                  </div>-->
+    <!--              </div>-->
+    <!--          </div>-->
+    <!--      </div>-->
   </div>
 </template>
 
@@ -645,6 +723,7 @@ import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县
 import commonPanel from "@/components/Cesium/CommonPanel";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import eqTable from '@/components/Home/eqtable.vue'
+import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
 import modelTable from '@/components/Home/modelTable.vue'
 import yaan from '@/assets/geoJson/yaan.json'
@@ -659,6 +738,8 @@ import {addFaultZones, addHistoryEqPoints, addOvalCircles, handleOutputData} fro
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
+import arrowImage from "@/assets/images/arrow.png";
+
 import {Edit, Delete} from '@element-plus/icons-vue'
 import {
   addModelApi,
@@ -724,6 +805,7 @@ export default {
     layeredShowPlot,
     earthquakeTable,
     modelTable,
+    eqlistTable
   },
   data: function () {
     return {
@@ -904,11 +986,10 @@ export default {
 
       //----------------------------model table---------------------------------------
       modelCurrentPage: 1,
-      modelPageSize: 6,
+      modelPageSize: 15,
       ModelTotal: 0,
       modelTableData: [],
       modelList: [],
-
       modelInfo: {
         name: null,
         path: null,
@@ -1113,9 +1194,11 @@ export default {
       eqlistName: '',
       canOperateTimerLine: false,
       wsaddMakers: [],
-      wsdeleteMakers:[],
-      viewCenterCoordinate:null,
-      showLayerFeatures: false,
+      wsdeleteMakers: [],
+      viewCenterCoordinate: null,
+      showLayerFeatures: false,// 图层要素弹框状态
+      showEqListPanel: false,// 地震列表弹框状态
+      showModelPanel: false,// 三维模型弹框状态
       props: {
         label: 'name',
         children: 'children',
@@ -1164,11 +1247,11 @@ export default {
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         this.thematicMapitems = res.themeData
-        console.log("专题图：",this.thematicMapitems)
+        console.log("专题图：", this.thematicMapitems)
       })
       handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
         this.reportItems = res.themeData
-        console.log("报告：",this.reportItems)
+        console.log("报告：", this.reportItems)
       })
     },
 
@@ -1225,32 +1308,6 @@ export default {
         }
       });
 
-      let token = "34d101b55f6166c49c42aed5a7ed345c";
-      viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url:
-                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-          })
-      );
-      //影像注记
-      viewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url:
-                "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                token,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible",
-            show: false,
-          })
-      );
-
       let that = this;
       let canvas = viewer.scene.canvas;
       // 具体事件的实现
@@ -1268,18 +1325,18 @@ export default {
           // 将地图坐标（弧度）转为十进制的度数
           let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(6);
           let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(6);
-          if(that.ifSlopeAnalyze){
+          if (that.ifSlopeAnalyze) {
             let geom = this.cartographicToGeoJSON(cartographic)
-            console.log("geom----",geom)
+            console.log("geom----", geom)
             // 获取地形的海拔高度（米）
             let height = cartographic.height.toFixed(2);
             if (!this.firstClickPosition) {
-              this.firstClickPosition = { longitude, latitude }
-              console.log("第一个点：",this.firstClickPosition)
+              this.firstClickPosition = {longitude, latitude}
+              console.log("第一个点：", this.firstClickPosition)
               this.drawSite(position)
             } else if (!this.secondClickPosition) {
-              this.secondClickPosition = { longitude, latitude }
-              console.log("第二个点：",this.secondClickPosition)
+              this.secondClickPosition = {longitude, latitude}
+              console.log("第二个点：", this.secondClickPosition)
               this.drawSite(position)
               // 计算矩形的两个角点并打印
               this.printRectangleCoordinates(this.firstClickPosition, this.secondClickPosition);
@@ -1770,9 +1827,9 @@ export default {
         }
 
       })
-      if(filteredPolylineArr.length>0){
+      if (filteredPolylineArr.length > 0) {
         cesiumPlot.getDrawPolyline(filteredPolylineArr)
-        console.log(filteredPolylineArr,"filteredPolylineArr")
+        console.log(filteredPolylineArr, "filteredPolylineArr")
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
               parseFloat(filteredPolylineArr[0].geom.coordinates[0][0]),
@@ -1929,7 +1986,7 @@ export default {
     },
     // 坡面分析
     // addSlopeCanvas(){
-    addSlopeCanvas(minLon,maxLon,minLat,maxLat) {
+    addSlopeCanvas(minLon, maxLon, minLat, maxLat) {
       // 测试区域
       // const extent = turf.square([100.64, 28.22, 100.69, 28.27]);
       // const extent = turf.square([minLon, minLat, maxLon, maxLat]);
@@ -2011,7 +2068,7 @@ export default {
       }
 
       // //console.log(window.viewer.terrainProvider)
-      setTimeout(()=>{
+      setTimeout(() => {
         // //console.log(viewer._cesiumWidget.terrainProvider,viewer.terrainProvider)
         // sampleTerrainMostDetailed(viewer._cesiumWidget.terrainProvider, positions).then((updatedPositions) => {
 
@@ -2064,7 +2121,7 @@ export default {
           this.createMaterial();
 
           // 创建 pointGrid 并计算等高线
-          let pointGrid = turf.pointGrid(extent, 0.001, { units: "degrees" });
+          let pointGrid = turf.pointGrid(extent, 0.001, {units: "degrees"});
           for (let i = positions.length; i < updatedPositions.length; i++) {
             heightArr.push(updatedPositions[i]); // 收集剩余位置的高度数据
           }
@@ -2085,7 +2142,7 @@ export default {
           }
 
           // 使用 turf.js 生成等高线
-          let lines = turf.isolines(pointGrid, breaks, { zProperty: "height" });
+          let lines = turf.isolines(pointGrid, breaks, {zProperty: "height"});
 
           // 平滑等高线
           lines.features.forEach((feature) => {
@@ -2116,7 +2173,7 @@ export default {
               });
         });
 
-      },5000)
+      }, 5000)
 
     },
     // 添加坡面实体
@@ -2210,7 +2267,7 @@ export default {
           const arrowLength = cellSize / 2; // 调整箭头长度
           let norm = Math.sqrt(fx ** 2 + fy ** 2) || 1; // 防止除以 0
 
-          if(fx * fy > 0){
+          if (fx * fy > 0) {
             norm = -norm
           }
 
@@ -2270,7 +2327,7 @@ export default {
     // 画线
     drawN() {
       this.ifDistanceMeasure = true
-      if(this.ifDistanceMeasure){
+      if (this.ifDistanceMeasure) {
         let result = cesiumPlot.drawActivatePolyline("量算")
         //console.log("量算-----结果1：",result)
         this.ifDistanceMeasure = false
@@ -2494,6 +2551,7 @@ export default {
       this.showTips = !this.showTips;
       this.routeValue = this.showTips ? "隐藏路径规划" : "显示路径规划";
     },
+
 
     // init() {
     //     let that = this;
@@ -2787,65 +2845,65 @@ export default {
       }
     },
 
-      // removethdRegions() {
-      //     // 检查是否存在名为regionLayerJump的图层
-      //     if (window.regionLayerJump) {
-      //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-      //         window.viewer.dataSources.remove(window.regionLayerJump, true);
-      //         // 清空regionLayerJump的引用，以便垃圾回收
-      //         window.regionLayerJump = null;
-      //
-      //
-      //         // console.log("图层已移除");
-      //     }
-      //     // this.isShowYaanRegionLegend = false;
-      //     // 获取图例容器，准备清空其内容
-      //     // const legend = document.getElementById('legend');
-      //     // 循环移除图例容器中的所有子元素
-      //     // while (legend.firstChild) {
-      //     //     legend.removeChild(legend.firstChild);
-      //     // }
-      //     // 遍历标签数组，移除每个标签实体
-      //     this.labels.forEach(label => {
-      //         window.viewer.entities.remove(label);
-      //     });
-      //     // 清空标签引用数组，以便垃圾回收
-      //     this.labels = [];
-      // },
+    // removethdRegions() {
+    //     // 检查是否存在名为regionLayerJump的图层
+    //     if (window.regionLayerJump) {
+    //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+    //         window.viewer.dataSources.remove(window.regionLayerJump, true);
+    //         // 清空regionLayerJump的引用，以便垃圾回收
+    //         window.regionLayerJump = null;
+    //
+    //
+    //         // console.log("图层已移除");
+    //     }
+    //     // this.isShowYaanRegionLegend = false;
+    //     // 获取图例容器，准备清空其内容
+    //     // const legend = document.getElementById('legend');
+    //     // 循环移除图例容器中的所有子元素
+    //     // while (legend.firstChild) {
+    //     //     legend.removeChild(legend.firstChild);
+    //     // }
+    //     // 遍历标签数组，移除每个标签实体
+    //     this.labels.forEach(label => {
+    //         window.viewer.entities.remove(label);
+    //     });
+    //     // 清空标签引用数组，以便垃圾回收
+    //     this.labels = [];
+    // },
 
-      // removethdRegions() {
-      //     // 检查是否存在名为regionLayerJump的图层
-      //     if (window.regionLayerJump) {
-      //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-      //         window.viewer.dataSources.remove(window.regionLayerJump, true);
-      //         // 清空regionLayerJump的引用，以便垃圾回收
-      //         window.regionLayerJump = null;
-      //
-      //
-      //         // console.log("图层已移除");
-      //     }
-      //     // this.isShowYaanRegionLegend = false;
-      //     // 获取图例容器，准备清空其内容
-      //     // const legend = document.getElementById('legend');
-      //     // 循环移除图例容器中的所有子元素
-      //     // while (legend.firstChild) {
-      //     //     legend.removeChild(legend.firstChild);
-      //     // }
-      //     // 遍历标签数组，移除每个标签实体
-      //     this.labels.forEach(label => {
-      //         window.viewer.entities.remove(label);
-      //     });
-      //     // 清空标签引用数组，以便垃圾回收
-      //     this.labels = [];
-      // },
+    // removethdRegions() {
+    //     // 检查是否存在名为regionLayerJump的图层
+    //     if (window.regionLayerJump) {
+    //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+    //         window.viewer.dataSources.remove(window.regionLayerJump, true);
+    //         // 清空regionLayerJump的引用，以便垃圾回收
+    //         window.regionLayerJump = null;
+    //
+    //
+    //         // console.log("图层已移除");
+    //     }
+    //     // this.isShowYaanRegionLegend = false;
+    //     // 获取图例容器，准备清空其内容
+    //     // const legend = document.getElementById('legend');
+    //     // 循环移除图例容器中的所有子元素
+    //     // while (legend.firstChild) {
+    //     //     legend.removeChild(legend.firstChild);
+    //     // }
+    //     // 遍历标签数组，移除每个标签实体
+    //     this.labels.forEach(label => {
+    //         window.viewer.entities.remove(label);
+    //     });
+    //     // 清空标签引用数组，以便垃圾回收
+    //     this.labels = [];
+    // },
 
-      // removeDataSourcesLayer(layerName) {
-      //     // 通过图层名称获取数据源对象如果存在，则执行移除操作
-      //     const dataSource = window.viewer.dataSources.getByName(layerName)[0];
-      //     if (dataSource) {
-      //         window.viewer.dataSources.remove(dataSource);
-      //     }
-      // },
+    // removeDataSourcesLayer(layerName) {
+    //     // 通过图层名称获取数据源对象如果存在，则执行移除操作
+    //     const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+    //     if (dataSource) {
+    //         window.viewer.dataSources.remove(dataSource);
+    //     }
+    // },
 
     // 切换数据列表
     changeDataList(param) {
@@ -2866,61 +2924,61 @@ export default {
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
     },
-           // changeDataList(param) {
-      //     console.log("11111111111111111")
-      //     this.selectedSuppliesList = []
-      //     let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
-      //     let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
-      //     let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
-      //     let array
-      //
-      //     if(flag1){
-      //         array = 'selectedDataByRegions'
-      //     }else if(flag2){
-      //         array = 'selectedDataByRadius'
-      //     }else if(flag3){
-      //         array = 'selectedDataBySupplies'
-      //     }
-      //     if (param === 'supplies') {
-      //         this.listField = 'supplies'
-      //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-      //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
-      //         // this.selectedSuppliesList = this[array].suppliesArr
-      //     } else if (param === 'emergencyTeam') {
-      //         this.listField = 'emergencyTeam'
-      //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-      //         //   this.selectedSuppliesList = this[array].emergencyTeamArr
-      //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
-      //     } else {
-      //         this.listField = 'reserves'
-      //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
-      //         //   this.selectedSuppliesList = this[array].reservesArr
-      //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
-      //     }
-      //     this.showIcon = this.selectedSuppliesList;
-      //     this.total = this.selectedSuppliesList.length;
-      //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-      //
-      //     //   console.log("111")
-      //     //   this.selectedSuppliesList = []
-      //     //   let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
-      //     //
-      //     //   console.log("flag:",flag)
-      //     //   if (param === 'supplies') {
-      //     //       this.listField = 'supplies'
-      //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-      //     //   } else if (param === 'emergencyTeam') {
-      //     //       this.listField = 'emergencyTeam'
-      //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-      //     //   } else {
-      //     //       this.listField = 'reserves'
-      //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
-      //     //   }
-      //     //   console.log("this.listField:",this.listField)
-      //     //   this.showIcon = this.selectedSuppliesList;
-      //     //   this.total = this.selectedSuppliesList.length;
-      //     //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-      // },
+    // changeDataList(param) {
+    //     console.log("11111111111111111")
+    //     this.selectedSuppliesList = []
+    //     let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+    //     let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
+    //     let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
+    //     let array
+    //
+    //     if(flag1){
+    //         array = 'selectedDataByRegions'
+    //     }else if(flag2){
+    //         array = 'selectedDataByRadius'
+    //     }else if(flag3){
+    //         array = 'selectedDataBySupplies'
+    //     }
+    //     if (param === 'supplies') {
+    //         this.listField = 'supplies'
+    //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+    //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
+    //         // this.selectedSuppliesList = this[array].suppliesArr
+    //     } else if (param === 'emergencyTeam') {
+    //         this.listField = 'emergencyTeam'
+    //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+    //         //   this.selectedSuppliesList = this[array].emergencyTeamArr
+    //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
+    //     } else {
+    //         this.listField = 'reserves'
+    //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+    //         //   this.selectedSuppliesList = this[array].reservesArr
+    //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
+    //     }
+    //     this.showIcon = this.selectedSuppliesList;
+    //     this.total = this.selectedSuppliesList.length;
+    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    //
+    //     //   console.log("111")
+    //     //   this.selectedSuppliesList = []
+    //     //   let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
+    //     //
+    //     //   console.log("flag:",flag)
+    //     //   if (param === 'supplies') {
+    //     //       this.listField = 'supplies'
+    //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
+    //     //   } else if (param === 'emergencyTeam') {
+    //     //       this.listField = 'emergencyTeam'
+    //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
+    //     //   } else {
+    //     //       this.listField = 'reserves'
+    //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
+    //     //   }
+    //     //   console.log("this.listField:",this.listField)
+    //     //   this.showIcon = this.selectedSuppliesList;
+    //     //   this.total = this.selectedSuppliesList.length;
+    //     //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+    // },
 
     // 绘制点
     // drawSite(lat, lng, id, color) {
@@ -2944,131 +3002,131 @@ export default {
     // },
 
     // 点击列表某行显示对应标绘点
-      showSupplyPoint(row) {
-          console.log("点击了：", row);
-          this.showIcon = [];
-          this.showIcon.push(row);
-          this.removePoints(this.suppliesList[0]);
-          this.removePoints(this.suppliesList[1]);
-          this.removePoints(this.suppliesList[2]);
-          if (this.showIcon[0].type === "supplies") {
-              this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-          } else if (this.showIcon[0].type === "reserves") {
-              this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-          } else {
-              this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-          }
-      },
+    showSupplyPoint(row) {
+      console.log("点击了：", row);
+      this.showIcon = [];
+      this.showIcon.push(row);
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      if (this.showIcon[0].type === "supplies") {
+        this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+      } else if (this.showIcon[0].type === "reserves") {
+        this.processPoints(this.showIcon, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+      } else {
+        this.processPoints(this.showIcon, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+      }
+    },
 
     // 移除地图上的标绘点
-      removePoints(entityArr) {
-          entityArr.forEach((entity) => {
-              // console.log("-----", entity);
-              let uuid = entity.uuid;
-              window.viewer.entities.values.forEach((existingEntity) => {
-                  if (existingEntity.uuid === uuid) {
-                      window.viewer.entities.remove(existingEntity);
-                  }
-              });
-          });
-      },
+    removePoints(entityArr) {
+      entityArr.forEach((entity) => {
+        // console.log("-----", entity);
+        let uuid = entity.uuid;
+        window.viewer.entities.values.forEach((existingEntity) => {
+          if (existingEntity.uuid === uuid) {
+            window.viewer.entities.remove(existingEntity);
+          }
+        });
+      });
+    },
 
     // 显示所有标绘点
-      showAllSupplyPoints() {
-          let that = this;
-          viewer.entities.values.forEach((entity) => {
-              if (entity.ellipse) {
-                  viewer.entities.remove(entity);
-              }
-          });
-          this.removePoints(that.showIcon);
-          this.removePoints(that.selectedSuppliesList);
-          this.removethdRegions()
-          this.removeDataSourcesLayer('YaanRegionLayer');
-          this.initPlot()
-      },
+    showAllSupplyPoints() {
+      let that = this;
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
+        }
+      });
+      this.removePoints(that.showIcon);
+      this.removePoints(that.selectedSuppliesList);
+      this.removethdRegions()
+      this.removeDataSourcesLayer('YaanRegionLayer');
+      this.initPlot()
+    },
 
     // 物资查询
-      async searchSupply() {
-          let that = this;
-          this.activeMenuIndex = '2'
-          viewer.entities.values.forEach((entity) => {
-              if (entity.ellipse) {
-                  viewer.entities.remove(entity);
-              }
-          });
-          this.removePoints(that.showIcon);
-          this.removePoints(that.selectedSuppliesList);
-          this.removePoints(this.suppliesList[0]);
-          this.removePoints(this.suppliesList[1]);
-          this.removePoints(this.suppliesList[2]);
-          let result = []
-          this.ifDrawEllipse = false
-          this.selectedSuppliesList = []
-          // 字符串部分到后端查询
-          let obj = {
-              county: this.searchSupplyForm.county,
-              address: this.searchSupplyForm.address,
-              contactPerson: this.searchSupplyForm.contactPerson,
-              contactPhone: this.searchSupplyForm.contactPhone,
-          }
-          await searchMaterialData(obj).then(res => {
-              // console.log("search----------",res)
-              result = res
-              this.selectedSuppliesList = result
-          })
-          this.drawSupplyPoint('searchSupplies')
-          this.listField = 'supplies'
-          this.activeMenuIndex = '3'
-          this.panels.searchSupplyDialog = false
-          this.searchSupplyForm = {
-              county: "",
-              address: "",
-              contactPerson: "",
-              contactPhone: "",
-              tents: 0,
-              raincoats: 0,
-              rainBoots: 0,
-              flashlights: 0,
-              radius: 0.0,
-          }
-          // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
-      },
+    async searchSupply() {
+      let that = this;
+      this.activeMenuIndex = '2'
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
+        }
+      });
+      this.removePoints(that.showIcon);
+      this.removePoints(that.selectedSuppliesList);
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      let result = []
+      this.ifDrawEllipse = false
+      this.selectedSuppliesList = []
+      // 字符串部分到后端查询
+      let obj = {
+        county: this.searchSupplyForm.county,
+        address: this.searchSupplyForm.address,
+        contactPerson: this.searchSupplyForm.contactPerson,
+        contactPhone: this.searchSupplyForm.contactPhone,
+      }
+      await searchMaterialData(obj).then(res => {
+        // console.log("search----------",res)
+        result = res
+        this.selectedSuppliesList = result
+      })
+      this.drawSupplyPoint('searchSupplies')
+      this.listField = 'supplies'
+      this.activeMenuIndex = '3'
+      this.panels.searchSupplyDialog = false
+      this.searchSupplyForm = {
+        county: "",
+        address: "",
+        contactPerson: "",
+        contactPhone: "",
+        tents: 0,
+        raincoats: 0,
+        rainBoots: 0,
+        flashlights: 0,
+        radius: 0.0,
+      }
+      // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
+    },
 
     // 救援力量查询
-      async searchEmergencyTeam() {
-          let that = this;
-          this.activeMenuIndex = '2'
-          viewer.entities.values.forEach((entity) => {
-              if (entity.ellipse) {
-                  viewer.entities.remove(entity);
-              }
-          });
-          this.removePoints(that.showIcon);
-          this.removePoints(that.selectedSuppliesList);
-          this.removePoints(this.suppliesList[0]);
-          this.removePoints(this.suppliesList[1]);
-          this.removePoints(this.suppliesList[2]);
-          this.ifDrawEllipse = false
-          this.selectedSuppliesList = []
-          await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
-              this.selectedSuppliesList = res
-              console.log("-------------------", this.selectedSuppliesList)
+    async searchEmergencyTeam() {
+      let that = this;
+      this.activeMenuIndex = '2'
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
+        }
+      });
+      this.removePoints(that.showIcon);
+      this.removePoints(that.selectedSuppliesList);
+      this.removePoints(this.suppliesList[0]);
+      this.removePoints(this.suppliesList[1]);
+      this.removePoints(this.suppliesList[2]);
+      this.ifDrawEllipse = false
+      this.selectedSuppliesList = []
+      await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
+        this.selectedSuppliesList = res
+        console.log("-------------------", this.selectedSuppliesList)
 
-          })
-          this.drawSupplyPoint('searchEmergencyTeam')
-          this.listField = 'emergencyTeam'
-          this.activeMenuIndex = '4'
-          this.panels.searchEmergencyTeamDialog = false
-          this.searchEmergencyTeamForm = {
-              levelName: '',
-              teamTypeName: '',
-              totalMembers: 0,
-              address: '',
-              personInCharge: '',
-              chargePhone: ''
-          }
-      },
+      })
+      this.drawSupplyPoint('searchEmergencyTeam')
+      this.listField = 'emergencyTeam'
+      this.activeMenuIndex = '4'
+      this.panels.searchEmergencyTeamDialog = false
+      this.searchEmergencyTeamForm = {
+        levelName: '',
+        teamTypeName: '',
+        totalMembers: 0,
+        address: '',
+        personInCharge: '',
+        chargePhone: ''
+      }
+    },
 
     // 物资匹配dialog能打开
     async marchSupply() {
@@ -3079,9 +3137,9 @@ export default {
       } else {
         this.panels.marchSupplyDialog = true
       }
-        // this.addDisasterPoint()
-        // this.isShowMessage = true
-        // this.searchSupplyBy = 'marchSupplyDialog'
+      // this.addDisasterPoint()
+      // this.isShowMessage = true
+      // this.searchSupplyBy = 'marchSupplyDialog'
     },
     // 物资匹配
     async marchSupplies() {
@@ -3119,11 +3177,11 @@ export default {
           confirmButtonText: '确认',
         });
       }
-        // this.selectedDataBySupplies.supplies = countResult
-        // this.selectedDataBySupplies.emergencyTeam = []
-        // this.selectedDataBySupplies.reserves = []
-        // this.listField = 'supplies'
-        // this.changeDataList('supplies')
+      // this.selectedDataBySupplies.supplies = countResult
+      // this.selectedDataBySupplies.emergencyTeam = []
+      // this.selectedDataBySupplies.reserves = []
+      // this.listField = 'supplies'
+      // this.changeDataList('supplies')
       this.panels.marchSupplyDialog = false
     },
 
@@ -3136,9 +3194,9 @@ export default {
       } else {
         this.panels.searchSupplyByRadiusDialog = true
       }
-        // this.addDisasterPoint()
-        // this.isShowMessage = true
-        // this.searchSupplyBy = 'RadiusDialog'
+      // this.addDisasterPoint()
+      // this.isShowMessage = true
+      // this.searchSupplyBy = 'RadiusDialog'
     },
 
     // 通过半径匹配物资
@@ -3148,25 +3206,25 @@ export default {
       this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
       this.panels.searchSupplyByRadiusDialog = false
 
-          // this.ifDrawEllipse = true
-        // // 移除现有的点
-        // this.removePoints(this.suppliesList[0]);
-        // this.removePoints(this.suppliesList[1]);
-        // this.removePoints(this.suppliesList[2]);
-        // let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
-        // // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
-        // this.selectedDataByRadius = {
-        //     supplies: result[0],
-        //     reserves: result[1],
-        //     emergencyTeam: result[2]
-        // };
-        // this.selectPoints(this.searchSupplyForm.radius)
-        // this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        // this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-        // this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-        // this.listField = 'supplies'
-        // this.changeDataList('supplies')
-        // this.panels.searchSupplyByRadiusDialog = false
+      // this.ifDrawEllipse = true
+      // // 移除现有的点
+      // this.removePoints(this.suppliesList[0]);
+      // this.removePoints(this.suppliesList[1]);
+      // this.removePoints(this.suppliesList[2]);
+      // let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
+      // // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
+      // this.selectedDataByRadius = {
+      //     supplies: result[0],
+      //     reserves: result[1],
+      //     emergencyTeam: result[2]
+      // };
+      // this.selectPoints(this.searchSupplyForm.radius)
+      // this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+      // this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+      // this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+      // this.listField = 'supplies'
+      // this.changeDataList('supplies')
+      // this.panels.searchSupplyByRadiusDialog = false
     },
     // 半径匹配
     async marchSupplyByRadius(array, radius) {
@@ -3194,196 +3252,196 @@ export default {
       return result
     },
 // async marchSupplyByRadius(array, radius) {
-      //     // 移除现有的点
-      //     this.removePoints(this.suppliesList[0]);
-      //     this.removePoints(this.suppliesList[1]);
-      //     this.removePoints(this.suppliesList[2]);
-      //     let result = []
-      //     let suppliesArr = []
-      //     let reservesArr = []
-      //     let emergencyTeamArr = []
-      //     let longitude = parseFloat(this.addSupplyPointCurrently.lng);
-      //     let latitude = parseFloat(this.addSupplyPointCurrently.lat);
-      //     const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-      //     if(Array.isArray(array[0])){
-      //         array.forEach((arr,index) => {
-      //             arr.forEach((point) => {
-      //                 const pointLongitude = parseFloat(point.longitude);
-      //                 const pointLatitude = parseFloat(point.latitude);
-      //                 const initialPoint = Cesium.Cartesian3.fromDegrees(
-      //                     pointLongitude,
-      //                     pointLatitude
-      //                 );
-      //                 // 距离以公里为单位
-      //                 const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-      //                 if (distance < radius) {
-      //                     if(index === 0){
-      //                         suppliesArr.push(point);
-      //                     }else if(index === 1){
-      //                         reservesArr.push(point);
-      //                     }else{
-      //                         emergencyTeamArr.push(point);
-      //                     }
-      //                 }
-      //             });
-      //         })
-      //         result.push(suppliesArr)
-      //         result.push(reservesArr)
-      //         result.push(emergencyTeamArr)
-      //         // }else if(typeof array === 'string'){
-      //     }else{
-      //         array.forEach((point) => {
-      //             const pointLongitude = parseFloat(point.longitude);
-      //             const pointLatitude = parseFloat(point.latitude);
-      //             const initialPoint = Cesium.Cartesian3.fromDegrees(
-      //                 pointLongitude,
-      //                 pointLatitude
-      //             );
-      //             // 距离以公里为单位
-      //             const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-      //             if (distance < radius) {
-      //                 result.push(point);
-      //             }
-      //         });
-      //     }
-      //     return result
-      // },
+    //     // 移除现有的点
+    //     this.removePoints(this.suppliesList[0]);
+    //     this.removePoints(this.suppliesList[1]);
+    //     this.removePoints(this.suppliesList[2]);
+    //     let result = []
+    //     let suppliesArr = []
+    //     let reservesArr = []
+    //     let emergencyTeamArr = []
+    //     let longitude = parseFloat(this.addSupplyPointCurrently.lng);
+    //     let latitude = parseFloat(this.addSupplyPointCurrently.lat);
+    //     const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
+    //     if(Array.isArray(array[0])){
+    //         array.forEach((arr,index) => {
+    //             arr.forEach((point) => {
+    //                 const pointLongitude = parseFloat(point.longitude);
+    //                 const pointLatitude = parseFloat(point.latitude);
+    //                 const initialPoint = Cesium.Cartesian3.fromDegrees(
+    //                     pointLongitude,
+    //                     pointLatitude
+    //                 );
+    //                 // 距离以公里为单位
+    //                 const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+    //                 if (distance < radius) {
+    //                     if(index === 0){
+    //                         suppliesArr.push(point);
+    //                     }else if(index === 1){
+    //                         reservesArr.push(point);
+    //                     }else{
+    //                         emergencyTeamArr.push(point);
+    //                     }
+    //                 }
+    //             });
+    //         })
+    //         result.push(suppliesArr)
+    //         result.push(reservesArr)
+    //         result.push(emergencyTeamArr)
+    //         // }else if(typeof array === 'string'){
+    //     }else{
+    //         array.forEach((point) => {
+    //             const pointLongitude = parseFloat(point.longitude);
+    //             const pointLatitude = parseFloat(point.latitude);
+    //             const initialPoint = Cesium.Cartesian3.fromDegrees(
+    //                 pointLongitude,
+    //                 pointLatitude
+    //             );
+    //             // 距离以公里为单位
+    //             const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+    //             if (distance < radius) {
+    //                 result.push(point);
+    //             }
+    //         });
+    //     }
+    //     return result
+    // },
     // 通过目标数量匹配物资
-      marchSupplyByCount(array) {
-          let tents = 0
-          let raincoats = 0
-          let rainBoots = 0
-          let flashlights = 0
-          let flag = false
-          let bool1 = this.searchSupplyForm.tents > 0 ? false : true
-          let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
-          let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
-          let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
-          let resultArray = []
-          array.forEach((ele) => {
-              if (ele.tents === 0) {
-                  bool1 = true
-              }
-              if (ele.raincoats === 0) {
-                  bool2 = true
-              }
-              if (ele.rainBoots === 0) {
-                  bool3 = true
-              }
-              if (ele.flashlights === 0) {
-                  bool4 = true
-              }
-              if (!bool1 || !bool2 || !bool3 || !bool4) {
-                  tents += ele.tents;
-                  raincoats += ele.raincoats;
-                  rainBoots += ele.rainBoots;
-                  flashlights += ele.flashlights;
-                  // console.log("rainBoots=====-----",rainBoots)
-                  if (tents >= this.searchSupplyForm.tents
-                      && raincoats >= this.searchSupplyForm.raincoats
-                      && rainBoots >= this.searchSupplyForm.rainBoots
-                      && flashlights >= this.searchSupplyForm.flashlights) {
-                      flag = true;
-                  }
-                  resultArray.push(ele)
-              }
-          });
-          // console.log("flag-----------------",flag)
-          if (flag) {
-              return resultArray
-          } else {
-              return []
+    marchSupplyByCount(array) {
+      let tents = 0
+      let raincoats = 0
+      let rainBoots = 0
+      let flashlights = 0
+      let flag = false
+      let bool1 = this.searchSupplyForm.tents > 0 ? false : true
+      let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
+      let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
+      let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
+      let resultArray = []
+      array.forEach((ele) => {
+        if (ele.tents === 0) {
+          bool1 = true
+        }
+        if (ele.raincoats === 0) {
+          bool2 = true
+        }
+        if (ele.rainBoots === 0) {
+          bool3 = true
+        }
+        if (ele.flashlights === 0) {
+          bool4 = true
+        }
+        if (!bool1 || !bool2 || !bool3 || !bool4) {
+          tents += ele.tents;
+          raincoats += ele.raincoats;
+          rainBoots += ele.rainBoots;
+          flashlights += ele.flashlights;
+          // console.log("rainBoots=====-----",rainBoots)
+          if (tents >= this.searchSupplyForm.tents
+              && raincoats >= this.searchSupplyForm.raincoats
+              && rainBoots >= this.searchSupplyForm.rainBoots
+              && flashlights >= this.searchSupplyForm.flashlights) {
+            flag = true;
           }
-      },
+          resultArray.push(ele)
+        }
+      });
+      // console.log("flag-----------------",flag)
+      if (flag) {
+        return resultArray
+      } else {
+        return []
+      }
+    },
 
-      drawSupplyPoint(param, radius) {
-          this.total = this.selectedSuppliesList.length;
-          this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-          this.removePoints(this.showIcon);
-          viewer.entities.add({
-              position: Cesium.Cartesian3.fromDegrees(
-                  parseFloat(this.addSupplyPointCurrently.lng),
-                  parseFloat(this.addSupplyPointCurrently.lat)
-              ),
-              point: {
-                  pixelSize: 10,
-                  color: Cesium.Color.RED,
-              },
-          });
-          this.showIcon = [];
-          this.showIcon = this.selectedSuppliesList;
-          // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
-          let reservesArr = []  // 抢险救灾装备
-          let suppliesArr = []  // 救灾物资储备
-          let emergencyTeamArr = []  // 救援力量
-          if (param === 'searchSupplies') {
-              this.showIcon.forEach((item) => {
-                  suppliesArr.push(item)
-              })
-          } else if (param === 'searchEmergencyTeam') {
-              this.showIcon.forEach((item) => {
-                  emergencyTeamArr.push(item)
-              })
-          } else if (param === 'searchReserves') {
-              this.showIcon.forEach((item) => {
-                  reservesArr.push(item)
-              })
-          } else {
-              this.showIcon.forEach((item) => {
-                  if (item.type === "reserves") {
-                      reservesArr.push(item);
-                  } else if (item.type === "supplies") {
-                      suppliesArr.push(item);
-                  } else if (item.type === "emergency") {
-                      emergencyTeamArr.push(item);
-                  }
-              });
+    drawSupplyPoint(param, radius) {
+      this.total = this.selectedSuppliesList.length;
+      this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      this.removePoints(this.showIcon);
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.addSupplyPointCurrently.lng),
+            parseFloat(this.addSupplyPointCurrently.lat)
+        ),
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.RED,
+        },
+      });
+      this.showIcon = [];
+      this.showIcon = this.selectedSuppliesList;
+      // console.log("this.selectedSuppliesList---------",this.selectedSuppliesList)
+      let reservesArr = []  // 抢险救灾装备
+      let suppliesArr = []  // 救灾物资储备
+      let emergencyTeamArr = []  // 救援力量
+      if (param === 'searchSupplies') {
+        this.showIcon.forEach((item) => {
+          suppliesArr.push(item)
+        })
+      } else if (param === 'searchEmergencyTeam') {
+        this.showIcon.forEach((item) => {
+          emergencyTeamArr.push(item)
+        })
+      } else if (param === 'searchReserves') {
+        this.showIcon.forEach((item) => {
+          reservesArr.push(item)
+        })
+      } else {
+        this.showIcon.forEach((item) => {
+          if (item.type === "reserves") {
+            reservesArr.push(item);
+          } else if (item.type === "supplies") {
+            suppliesArr.push(item);
+          } else if (item.type === "emergency") {
+            emergencyTeamArr.push(item);
           }
-          this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-          this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-          this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-          if (this.ifDrawEllipse) {
-              this.selectPoints(radius);
-          }
-          // }
+        });
+      }
+      this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+      this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+      this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+      if (this.ifDrawEllipse) {
+        this.selectPoints(radius);
+      }
+      // }
 
-      },
+    },
     // 查询指定范围内的物资点
 
-      selectPoints(radius) {
-          if (!isNaN(parseFloat(radius))) {
-              radius = parseFloat(radius) * 1000;
+    selectPoints(radius) {
+      if (!isNaN(parseFloat(radius))) {
+        radius = parseFloat(radius) * 1000;
 
-              // 将经纬度转换为 Cartesian3 类型
-              const position = Cesium.Cartesian3.fromDegrees(
-                  parseFloat(this.addSupplyPointCurrently.lng),
-                  parseFloat(this.addSupplyPointCurrently.lat)
-              );
-              viewer.entities.values.forEach((entity) => {
-                  if (entity.ellipse) {
-                      viewer.entities.remove(entity);
-                  }
-              });
-              viewer.entities.add({
-                  position: position,
-                  ellipse: {
-                      semiMajorAxis: radius,
-                      semiMinorAxis: radius,
-                      material: Cesium.Color.GREEN.withAlpha(0.5),
-                  },
-              });
+        // 将经纬度转换为 Cartesian3 类型
+        const position = Cesium.Cartesian3.fromDegrees(
+            parseFloat(this.addSupplyPointCurrently.lng),
+            parseFloat(this.addSupplyPointCurrently.lat)
+        );
+        viewer.entities.values.forEach((entity) => {
+          if (entity.ellipse) {
+            viewer.entities.remove(entity);
           }
-      },
+        });
+        viewer.entities.add({
+          position: position,
+          ellipse: {
+            semiMajorAxis: radius,
+            semiMinorAxis: radius,
+            material: Cesium.Color.GREEN.withAlpha(0.5),
+          },
+        });
+      }
+    },
     // 添加物资点
-      addDisasterPoint() {
-          if (this.isRouting) {
-              this.isRouting = false;
-          }
-          if (this.isAddingArea) {
-              this.isAddingArea = false;
-          }
-          this.canMarkPoint = true;
-      },
+    addDisasterPoint() {
+      if (this.isRouting) {
+        this.isRouting = false;
+      }
+      if (this.isAddingArea) {
+        this.isAddingArea = false;
+      }
+      this.canMarkPoint = true;
+    },
     // 以下方法确保表单字段数据为0时不显示，且初始化时数据不为null，不会报错
     handleDisasterTentsInput(value) {
       this.searchSupplyForm.tents = value === '' ? 0 : Number(value);
@@ -4161,7 +4219,7 @@ export default {
         for (; i >= 0; i--) {
           // console.log()
           if (this.jumpNodes[i] === 1) {
-            console.log(i,"i")
+            console.log(i, "i")
             flag = 1;
             break;
           }
@@ -4183,12 +4241,11 @@ export default {
         }
         //更新到下一跳
         if (flag === 1) {
-          let currentTimeTmp=new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+          let currentTimeTmp = new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
           //最后5分钟，不满5分钟的，再回退一跳
-          if(currentTimeTmp>=this.eqendTime){
+          if (currentTimeTmp >= this.eqendTime) {
             this.backward()
-          }
-          else{
+          } else {
             this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
             this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
             this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
@@ -4368,7 +4425,7 @@ export default {
         duration: 3 // 飞行动画持续时间（秒）
       });
     },
-    flyToCenterhigh(){
+    flyToCenterhigh() {
       if (this.selectedEntity && (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible)) {
         window.viewer.screenSpaceEventHandler.setInputAction(movement => {
           this.updatePopupPosition();
@@ -4528,8 +4585,7 @@ export default {
     updateZoomLevel(cameraHeight) {
       if (cameraHeight < 50000) {
         this.zoomLevel = '区/县'
-      }
-      else{
+      } else {
         this.zoomLevel = '市'
       }
     },
@@ -4810,7 +4866,7 @@ export default {
     addHistoryEqPoints() {
       // 先清除historyEq实体
       this.removeEntitiesByType("historyEq")
-      console.log("data:",this.eqtableData)
+      console.log("data:", this.eqtableData)
       addHistoryEqPoints(this.centerPoint, this.eqtableData)
     },
 
@@ -5957,39 +6013,27 @@ export default {
     // 修改table的header的样式
     tableHeaderColor() {
       return {
-        'border-width': '1px',
-        'border-style': 'solid',
-        'border-color': '#555555',
-        'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
+        'background': 'linear-gradient(180deg, rgba(27,60,108,0.09) 0%, rgba(20,83,174,1) 100%)',
         'color': '#fff',
-        'padding': '0',
         'text-align': 'center',
-        'font-size': '14px'
+        'font-size': '13px',
+        'padding': '0',
+        'margin': '0'
       }
     },
     // 修改table 中每行的样式
     tableColor({row, column, rowIndex, columnIndex}) {
       if (rowIndex % 2 == 1) {
         return {
-          'border-width': '1px',
-          'border-style': 'solid',
-          'border-color': '#555555',
-          'background-color': '#313a44',
-          'color': '#fff',
+          'background-color': '#ffffff00',
           'padding': '0',
-          'text-align': 'center',
-          'font-size': '14px'
+          'margin': '1'
         }
       } else {
         return {
-          'border-width': '1px',
-          'border-style': 'solid',
-          'border-color': '#555555',
-          'background-color': '#304156',
-          'color': '#fff',
+          'background-color': '#ffffff00',
           'padding': '0',
-          'text-align': 'center',
-          'font-size': '14px'
+          'margin': '1'
         }
       }
     },
@@ -6095,23 +6139,44 @@ export default {
 
       resolve(data);
     },
-    // 弹框不同使出现
+    // 弹框不同时出现
     togglePositionFlyTo() {
-      console.log('1.------------------------------')
-      console.log(this.showPositionFlyTo)
+      // console.log('1.------------------------------')
+      // console.log(this.showPositionFlyTo)
       this.showPositionFlyTo = !this.showPositionFlyTo;
       if (this.showPositionFlyTo) {
         this.showLayerFeatures = false; // 关闭其他弹框
+        this.showEqListPanel = false; // 关闭其他弹框
+        this.showModelPanel = false; // 关闭其他弹框
       }
     },
     toggleLayerFeatures() {
-      console.log('2.------------------------------')
-      console.log(this.showLayerFeatures)
+      // console.log('2.------------------------------')
+      // console.log(this.showLayerFeatures)
       this.showLayerFeatures = !this.showLayerFeatures;
       if (this.showLayerFeatures) {
         this.showPositionFlyTo = false; // 关闭其他弹框
+        this.showEqListPanel = false; // 关闭其他弹框
+        this.showModelPanel = false; // 关闭其他弹框
       }
-    }
+    },
+    // 控制地震列表显隐
+    toggleEqListPanel() {
+      this.showEqListPanel = !this.showEqListPanel;
+      if (this.showEqListPanel) {
+        this.showLayerFeatures = false; // 关闭其他弹框
+        this.showPositionFlyTo = false; // 关闭其他弹框
+        this.showModelPanel = false; // 关闭其他弹框
+      }
+    },
+    toggleModelPanel() {
+      this.showModelPanel = !this.showModelPanel;
+      if (this.showModelPanel) {
+        this.showLayerFeatures = false; // 关闭其他弹框
+        this.showPositionFlyTo = false; // 关闭其他弹框
+        this.showEqListPanel = false; // 关闭其他弹框
+      }
+    },
   }
 }
 </script>
@@ -6236,6 +6301,7 @@ export default {
   left: 19%;
   position: relative;
 }
+
 .section {
   margin-bottom: 20px;
   overflow-y: auto; /* 启用垂直滚动条 */
@@ -6256,6 +6322,7 @@ export default {
   gap: 8px; /* 列间距 */
   padding: 5px;
 }
+
 .grid-container-report {
   height: auto; /* 内容高度根据内容自适应 */
   display: grid;
@@ -6264,22 +6331,27 @@ export default {
   gap: 8px; /* 列间距 */
   padding: 5px;
 }
+
 .report-name {
   text-align: center;
   font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
 }
+
 .report-bottom {
   color: #d8cc0e;
   text-align: right;
 }
+
 .el-card {
   background-color: #ffffff47;
 }
+
 :deep(.el-card__body) {
   padding: 10px 10px 0px 10px !important;
 }
+
 .grid-item {
   width: calc(100% - 7px);
 }
@@ -6630,6 +6702,15 @@ export default {
   position: absolute;
 }
 
+:deep(.thd-Table ) {
+  top: 8%;
+  z-index: 30;
+  width: 100%;
+  height: 85% !important;
+  left: -3%;
+  position: absolute;
+}
+
 .thd-listTable-cesium {
   width: 22.5%;
   top: 13%;
@@ -6766,8 +6847,22 @@ export default {
   display: block;
   position: absolute;
   top: 94.5%;
-  left: 6%;
-  z-index: 10;
+  left: 9.5%;
+  z-index: 100;
+}
+.cesium-viewer-geocoderContainer .cesium-geocoder-input {
+  border: solid 1px #444;
+  background-color: rgba(40, 40, 40, 0.7);
+  color: white;
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 32px;
+  margin: 0;
+  padding: 0 32px 0 0;
+  box-sizing: border-box;
+  transition: width ease-in-out 0.25s, background-color 0.2s ease-in-out;
+  border-radius: 14%;
 }
 
 :deep(.cesium-viewer-geocoderContainer .search-results) {
@@ -6965,12 +7060,22 @@ export default {
   height: 32px;
   background-color: #303336;
   border: #444444 solid 1px;
+  border-radius: 14%;
+  transition: all 0.3s ease; /* 添加过渡效果 */
+}
+.positionFlyToButton:hover {
+  color: #fff;
+  fill: #fff;
+  background: #48b;
+  border-color: #aef;
+  box-shadow: 0 0 8px 3px #48b; /* 添加发光特效 */
 }
 
 .positionFlyToButton:first-child {
   top: 90%;
   left: 1%;
 }
+
 .positionFlyToButton:nth-child(2) {
   top: 94%;
   left: 1%;
@@ -6982,9 +7087,12 @@ export default {
   bottom: 6%;
   width: 450px;
   border-radius: 5px;
-  background: rgb(0,195,255);
+  background: rgb(0, 195, 255);
   background: linear-gradient(90deg, rgb(22 105 179 / 9%) 25%, rgb(10 33 75 / 76%) 88%);
   color: #fff;
+  z-index: 100;
+  top: 110px;
+  right: 0;
   z-index: 100;
 }
 
@@ -6996,6 +7104,7 @@ export default {
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
 .panelName {
   color: #FFFFFF;
   font-size: 1.1rem;
@@ -7011,6 +7120,7 @@ export default {
   justify-content: center;
   padding: 30px 15px;
   width: 100%;
+  margin-top: 30px;
 }
 
 .panelButton {
@@ -7050,14 +7160,62 @@ export default {
   position: relative;
   margin: 0;
 }
+/* 表格内容样式 */
+.model-dialog__content {
+  height: calc(100% - 41px);
+  padding: 11px;
+  overflow: auto;
+  line-height: 41px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+}
+:deep(.checkBotton) {
+  font-size: .8rem !important;
+}
+:deep(.el-table) {
+  --el-table-border: 0;
+  background-color: transparent; /* 表格背景透明 */
+}
 
-.panelContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-right: 30px;
-  width: 100%;
-  margin-top: 30px;
+:deep(.el-table--default .cell) {
+  padding: 0 4px;
+}
+
+:deep(.el-table tr) {
+  background: #ffffff00;
+  color: #ffffff;
+  font-weight: 1000;
+  position: relative;
+  transition: box-shadow 0.3s ease; /* 添加过渡效果 */
+}
+/* 初始隐藏箭头图标 */
+.arrow-icon {
+  display: none; /* 默认隐藏 */
+  width: 18px;
+  height: 20px;
+  background: url("@/assets/images/arrow.png") no-repeat center;
+  background-size: contain;
+}
+/* 鼠标悬浮在行时显示箭头图标 */
+:deep(.el-table tr:hover) .arrow-icon {
+  display: block; /* 行 hover 时显示箭头图标 */
+}
+:deep(.el-table tr:hover) {
+  background: linear-gradient(0deg, rgba(38, 166, 221, 0.9) 30%, rgba(230, 247, 255, 1) 100%);
+  font-weight: 1000;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  box-shadow: 0 0 8px 2px rgba(48, 140, 255, 1);
+}
+/* 表格自定义样式 */
+.custom-table {
+  text-align: center;
+}
+
+:deep(.el-table__inner-wrapper::before) {
+  width: 0;
 }
 
 :deep(.eqTable) {
@@ -7094,57 +7252,69 @@ export default {
   --el-tree-node-hover-bg-color: rgb(24, 39, 70); /* 修改为透明的绿色 */
   background-color: transparent; /* 背景设置为透明 */
 }
+
 /deep/ [data-v-6c1071c6] .el-checkbox__label {
   background: transparent;
   color: white;
   font-size: 15px;
   padding: 10px;
 }
+
 /deep/ [data-v-6c1071c6] [data-v-6c1071c6] .el-radio {
   background-color: rgba(22, 53, 77, 0);
   color: #f6f7f9;
   font-size: 19px;
 }
+
 .el-radio__label {
   font-size: 15px;
   padding-left: 8px;
 }
+
 .el-radio[data-v-6c1071c6] {
   --el-radio-font-size: 15px;
 }
+
 .el-tree-node__content:hover {
   background-color: transparent;
 }
+
 .tree-node-content {
   display: flex;
   align-items: center;
 }
+
 .node-icon {
   margin-right: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
+
 .tree-node-content {
   display: flex;
   align-items: center;
 }
+
 .icon {
   width: 30px;
   height: 30px;
   margin-right: 4px;
   fill: currentColor;
 }
+
 .node-text {
   display: inline-block;
   vertical-align: middle;
   color: #ffffff;
 }
+
 .el-tree-node {
   outline: none;
   white-space: nowrap;
   margin-top: 5px;
 }
+
 /deep/ [data-v-6c1071c6] [data-v-6c1071c6] .el-checkbox__label {
   background: transparent;
   color: white;

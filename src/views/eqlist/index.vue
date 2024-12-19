@@ -2,25 +2,25 @@
   <div class="app-container">
     <el-form-item label="地震信息">
       <el-input
-        v-model="queryParams"
-        placeholder="请输入地震信息"
-        clearable
-        style="width: 200px"
-        @keyup.enter="handleQuery"
+          v-model="queryParams"
+          placeholder="请输入地震信息"
+          clearable
+          style="width: 200px"
+          @keyup.enter="handleQuery"
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-<!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+      <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
 
     </el-form-item>
 
     <el-table
-      :data="tableData"
-      :stripe="true"
-      :header-cell-style="tableHeaderColor"
-      :cell-style="tableColor"
+        :data="tableData"
+        :stripe="true"
+        :header-cell-style="tableHeaderColor"
+        :cell-style="tableColor"
     >
       <el-table-column label="序号" width="60">
         <template #default="{ row, column, $index }">
@@ -29,17 +29,17 @@
       </el-table-column>
 
       <el-table-column
-        prop="occurrenceTime"
-        label="发震时间"
-        width="250"
-        show-overflow-tooltip
+          prop="occurrenceTime"
+          label="发震时间"
+          width="250"
+          show-overflow-tooltip
       ></el-table-column>
 
       <el-table-column
-        prop="earthquakeName"
-        label="位置"
-        width="300"
-        show-overflow-tooltip
+          prop="earthquakeName"
+          label="位置"
+          width="300"
+          show-overflow-tooltip
       ></el-table-column>
 
       <el-table-column prop="magnitude" label="震级(级)"></el-table-column>
@@ -50,15 +50,15 @@
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button
-            type="text"
-            icon="Edit"
-            @click="handleOpen('修改', scope.row)"
+              type="text"
+              icon="Edit"
+              @click="handleOpen('修改', scope.row)"
           >修改
           </el-button>
           <el-button
-            type="text"
-            icon="Delete"
-            @click="handleDelete(scope.row)"
+              type="text"
+              icon="Delete"
+              @click="handleDelete(scope.row)"
           >删除
           </el-button>
         </template>
@@ -66,13 +66,13 @@
     </el-table>
 
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="pageSizes"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%">
@@ -88,11 +88,11 @@
           <el-col :span="18">
             <el-form-item label="发震时间：" prop="occurrenceTime">
               <el-date-picker
-                v-model="dialogContent.occurrenceTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                size="large">
+                  v-model="dialogContent.occurrenceTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
+                  size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -132,10 +132,10 @@
     </el-dialog>
 
     <el-dialog
-      v-model="queryFormVisible"
-      title="筛选"
-      width="30vw"
-      style="top:20vh"
+        v-model="queryFormVisible"
+        title="筛选"
+        width="30vw"
+        style="top:20vh"
     >
       <el-form :inline="true" :model="formValue" ref="formValue" :rules="formValuerules" :show-close="false">
         <el-form-item label="地震位置">
@@ -143,15 +143,15 @@
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-            v-model="formValue.occurrenceTime"
-            type="daterange"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            :shortcuts="shortcuts"
-            style="width: 23vw;"
-            value-format="YYYY-MM-DDTHH:mm:ss"/>
+              v-model="formValue.occurrenceTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              :shortcuts="shortcuts"
+              style="width: 23vw;"
+              value-format="YYYY-MM-DDTHH:mm:ss"/>
         </el-form-item>
         <el-form-item label="地震震级" prop="magnitude" class="formValue">
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;" placeholder="起始震级"/>
@@ -186,11 +186,11 @@
           <el-col :span="18">
             <el-form-item label="发震时间：" prop="eqTime">
               <el-date-picker
-                v-model="addOrUpdateDTO.eqTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                size="large">
+                  v-model="addOrUpdateDTO.eqTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
+                  size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -226,10 +226,10 @@
           <el-form-item label="地震类型：" prop="eqType">
             <el-select v-model="addOrUpdateDTO.eqType" placeholder="请选择地震类型" style="width: 200px" clearable>
               <el-option
-                v-for="item in eqType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                  v-for="item in eqType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
               >
               </el-option>
             </el-select>
@@ -490,7 +490,7 @@ export default {
   mounted() {
     setInterval(this.updateTime, 500)
     this.getEq()
-    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇" ,5))
+    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇", 5))
     console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
@@ -660,6 +660,7 @@ export default {
         }
       }
       this.dialogShow = !this.dialogShow
+      this.getEq();
     },
     // 搜索功能
     handleQuery() {
