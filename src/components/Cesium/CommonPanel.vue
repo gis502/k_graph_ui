@@ -319,9 +319,10 @@ export default {
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(data.plotId);
           const entityToRemove_base = window.pointDataSource.entities.getById(data.plotId+"_base");
-          console.log("entityToRemove", entityToRemove)
           if (entityToRemove) {
+            window.viewer.entities.removeById(data.plotId)
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
+            window.viewer.entities.removeById(data.plotId+"_base")
             window.pointDataSource.entities.remove(entityToRemove_base); // 移除点
           }
         }
@@ -335,7 +336,6 @@ export default {
         console.log("data.plotId----------------", data.plotId)
         if (arraw) {
           arrow.clearById(data.plotId)
-
           arraw = false
         }
       })

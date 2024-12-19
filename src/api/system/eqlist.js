@@ -22,7 +22,7 @@ export function deletedEq(query){
     return request({
         url: '/tp/api/open/eq/delete',
         method: 'post',
-        data: query
+        params: query
     })
 }
 
