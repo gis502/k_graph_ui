@@ -117,6 +117,12 @@ export function eqEventTrigger(data) {
         method: 'post',
         data
     })
+}
 
-
+export function eqProgress(event){
+    return request({
+        url: '/tp/api/open/eq/progress',
+        method: 'get',
+        params: {id: event}
+    })
 }
