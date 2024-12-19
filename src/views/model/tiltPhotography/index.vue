@@ -39,7 +39,7 @@
 
       <el-table-column
           prop="modelSize"
-          label="模型大小(GB)"
+          label="模型大小(平方公里)"
           min-width="120"
           align="center"
       ></el-table-column>
