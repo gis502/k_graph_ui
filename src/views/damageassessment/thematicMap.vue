@@ -647,12 +647,15 @@ export default {
       }
       this.isPanelShow[type] = !this.isPanelShow[type];
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
+
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
+
+          console.log(res)
 
           if (res.themeName.includes("null")) {
             this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
           } else {
-            this.outputData = res;
+            this.outputData.themeData = res;
             this.outputData.type = type;
           }
           if (res.themeData.length === 0) {
@@ -660,6 +663,7 @@ export default {
           }
         });
       } else if(this.isPanelShow.instrument) {
+
         this.outputData.themeData = [
           {
             imgUrl:"http://59.213.183.7/image/instrument/仪器地震烈度分布图.jpeg",
@@ -697,7 +701,7 @@ export default {
         this.outputData.type = 'instrument';
         this.outputData.themeName = '2022年06月01日四川雅安市芦山县6.1级地震-台网数据';
       }else{
-
+        console.log("无图片数据")
       }
     },
 
