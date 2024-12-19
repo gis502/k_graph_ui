@@ -813,7 +813,7 @@ export default {
 
       getEqTownResult(eqTownResultDTO).then((res) => {
         const countyData = handleTownData(res.data)
-        console.log(countyData)
+        console.log(countyData)//数据拿到了
         // 提取对应专题数据
         this.panelData.buildingDamageData = countyData.buildingDamageData
         this.panelData.economicLossData = countyData.economicLossData

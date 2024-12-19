@@ -101,6 +101,8 @@ export default {
 
     settleData() {
       this.copiedbuildingDamageData = [...this.buildingDamageData];
+      console.log("11111")
+      console.log(this.copiedbuildingDamageData)
 
       // 按 size 从大到小排序
       this.copiedbuildingDamageData.sort((a, b) => b.size - a.size);
