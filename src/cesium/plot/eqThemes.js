@@ -619,24 +619,24 @@ export function handleTownData(town) {
            */
 
           // 建筑破坏
-          existingEntry.buildingDamage += townData[i].buildingDamage || 0;
+          existingEntry.buildingDamage += Number(townData[i].buildingDamage) || 0;
 
           // 经济损失
-          existingEntry.economicLoss += townData[i].economicLoss || 0;
+          existingEntry.economicLoss += Number(townData[i].economicLoss) || 0;
 
           // 人员伤亡系列
           // 受灾人数
-          existingEntry.personalCasualty.pops += townData[i]['pop'] || 0;
+          existingEntry.personalCasualty.pops += Number(townData[i]['pop']) || 0;
           // 死亡人数
-          existingEntry.personalCasualty.death += townData[i].death || 0;
+          existingEntry.personalCasualty.death += Number(townData[i].death) || 0;
           // 失踪人数
-          existingEntry.personalCasualty.missing += townData[i].missing || 0;
+          existingEntry.personalCasualty.missing += Number(townData[i].missing) || 0;
           // 受伤人数
-          existingEntry.personalCasualty.injury += townData[i].injury || 0;
+          existingEntry.personalCasualty.injury += Number(townData[i].injury) || 0;
           // 压埋人数
-          existingEntry.personalCasualty.buriedCount += townData[i].buriedCount || 0;
+          existingEntry.personalCasualty.buriedCount += Number(townData[i].buriedCount) || 0;
           // 需转移安置人数
-          existingEntry.personalCasualty.resetNumber += townData[i].resetNumber || 0;
+          existingEntry.personalCasualty.resetNumber += Number(townData[i].resetNumber) || 0;
         } else {
           /**
            * 新增数据
@@ -644,8 +644,8 @@ export function handleTownData(town) {
           countyDataArray.push({
             batch: batch,
             county: county,
-            buildingDamage: townData[i].buildingDamage || 0,
-            economicLoss: townData[i].economicLoss || 0,
+            buildingDamage: Number(townData[i].buildingDamage) || 0,
+            economicLoss: Number(townData[i].economicLoss) || 0,
             personalCasualty: {
               pops: Number(townData[i]['pop']) || 0,
               death: Number(townData[i].death) || 0,
