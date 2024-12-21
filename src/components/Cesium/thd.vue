@@ -7187,7 +7187,7 @@ export default {
 
 :deep(.el-table tr) {
   background: #ffffff00;
-  color: #ffffff;
+  //color: #ffffff;
   font-weight: 1000;
   position: relative;
   transition: box-shadow 0.3s ease; /* 添加过渡效果 */
