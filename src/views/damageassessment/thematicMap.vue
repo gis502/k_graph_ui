@@ -667,35 +667,35 @@ export default {
 
         this.outputData.themeData = [
           {
-            imgUrl:"http://59.213.183.7/image/instrument/仪器地震烈度分布图.jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/仪器地震烈度分布图.jpeg",
             theme:"仪器地震烈度分布图"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/台站峰值加速度分布图.jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/台站峰值加速度分布图.jpeg",
             theme:"台站峰值加速度分布图"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/台站峰值速度分布图.jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/台站峰值速度分布图.jpeg",
             theme:"台站峰值速度分布图"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/台站仪器地震烈度分布图.jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/台站仪器地震烈度分布图.jpeg",
             theme:"台站仪器地震烈度分布图"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/3.0秒加速度反应谱(gal).jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/3.0秒加速度反应谱(gal).jpeg",
             theme:"3.0秒加速度反应谱(gal)"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/1.0秒加速度反应谱(gal).jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/1.0秒加速度反应谱(gal).jpeg",
             theme:"1.0秒加速度反应谱(gal)"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/0.3秒加速度反应谱(gal).jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/0.3秒加速度反应谱(gal).jpeg",
             theme:"0.3秒加速度反应谱(gal)"
           },
           {
-            imgUrl:"http://59.213.183.7/image/instrument/乡镇仪器地震烈度分布.jpeg",
+            imgUrl:"http://10.16.7.69/image/instrument/乡镇仪器地震烈度分布.jpeg",
             theme:"乡镇仪器地震烈度分布"
           },
         ]

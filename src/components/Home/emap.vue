@@ -532,10 +532,12 @@ export default {
     const addMarker1 = (lng, lat, color, size, item) => {
       let iconUrl;
       let iconSize;
+      let zIndexOffset;
 
       // 根据类型和大小选择图标样式
       if (color === 'red') {
         iconUrl = red;
+        zIndexOffset = 99;
         switch (size) {
           case 'small':
             iconSize = new T.Point(26, 26);
@@ -551,6 +553,7 @@ export default {
         }
       } else {
         iconUrl = yellow;
+        zIndexOffset = 0;
         switch (size) {
           case 'small':
             iconSize = new T.Point(10, 10);
@@ -573,8 +576,10 @@ export default {
           iconUrl: iconUrl,
           iconSize: iconSize,
           iconAnchor: new T.Point(iconSize.x / 2, iconSize.y), // 图标中心对准位置
-          opacity: 0.1 // 设置透明度
+          opacity: 0.1, // 设置透明度
+
         }),
+        zIndexOffset:zIndexOffset
       };
 
       // 创建标记并添加到地图

@@ -41,7 +41,7 @@ export function initCesium(Cesium, container) {
         },
         // 天地图影像
         // imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
-        //   url: `http://59.255.48.160:81/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+        //   url: `http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
         //   layer: 'tdtBasicLayer',
         //   style: 'default',
         //   format: 'image/jpeg',

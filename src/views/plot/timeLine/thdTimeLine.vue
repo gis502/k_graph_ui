@@ -603,7 +603,7 @@ export default {
 
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://59.255.48.160:81/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 TianDiTuToken,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -613,7 +613,7 @@ export default {
       );
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 TianDiTuToken,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -2320,7 +2320,7 @@ export default {
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
               url:
-                  "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -2339,7 +2339,7 @@ export default {
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
               url:
-                  "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",

@@ -7,6 +7,8 @@ import * as Cesium from "cesium";
 import { getPlotInfos } from "@/api/system/plot.js";
 import axios from "axios";
 import { ref, watch, onMounted } from "vue";
+import {TianDiTuToken} from "@/cesium/tool/config.js";
+import {tianDitulocalApi} from "@/utils/server.js";
 
 export default {
   name: "layeredShowPlot",
@@ -277,7 +279,7 @@ export default {
           params: {
             postStr: JSON.stringify({ lon, lat, ver: 1 }),
             type: 'geocode',
-            tk: '80eb284748e84ca6c70468c906f0c889'
+            tk: `${TianDiTuToken}`
           }
         });
         return response.data.result.addressComponent;

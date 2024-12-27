@@ -27,6 +27,7 @@ import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
 import axios from "axios";
 import {ref, watch, onMounted} from "vue";
+import {tianDitulocalApi} from "@/utils/server.js";
 
 
 export default {

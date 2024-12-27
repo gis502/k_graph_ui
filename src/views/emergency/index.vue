@@ -410,6 +410,7 @@ import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import {getEqById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import centerstar from "@/assets/icons/TimeLine/震中.png";
+import {AmapApiLocal} from "@/utils/server.js";
 
 export default {
   components: {
@@ -947,7 +948,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -958,8 +959,7 @@ export default {
       //影像注记
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url:
-                "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
