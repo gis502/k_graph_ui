@@ -640,20 +640,19 @@ export default {
     getEq() {
       let that = this
       getAllEqList().then(res => {
-        let resData = res.filter(item => item.magnitude >= 3)
+        console.log("返回的数据",res.data)
+        let resData = res.data.filter(item => item.magnitude >= 3)
         that.getEqData = resData
-        console.log("返回的数据",that.getEqData)
         that.total = resData.length
         let data = []
-        for (let i = 0; i < res.length; i++) {
-          let item = res[i]
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
           item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
-        console.log("返回的数据：", res)
         that.tableData = this.getPageArr()
       })
     },
@@ -712,7 +711,7 @@ export default {
       let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
       // 如果搜索关键字为空，恢复为原始数据
       if (searchKey === "") {
-        this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
+        this.tableData = this.getEq();  // 恢复所有数据并重新进行分页
         return;
       }
 
