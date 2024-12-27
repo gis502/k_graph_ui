@@ -356,7 +356,7 @@ const handleDeleteAll = () => {
 }
 //获取地震列表
 const getEarthquake = () => {
-  getExcelUploadEarthquake().then(res => {
+  getExcelUploadEqList().then(res => {
     eqlists.value = res
     if (res.data === null) {
       ElMessage.error("地震列表无数据")

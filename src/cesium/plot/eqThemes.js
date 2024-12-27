@@ -4,7 +4,7 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json"
-import {domainName} from "../../utils/server.js";
+import {domainName, zaisunimageipLocal, zaisunipLocal} from "../../utils/server.js";
 
 // 雅安行政区加载
 export function addYaanLayer() {
@@ -542,7 +542,7 @@ export function addOCTest(eqid, eqqueueId) {
    * 烈度圈部分
    */
   // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
-  fetch(`${domainName}/jcpt/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
+  fetch(`${zaisunimageipLocal}/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
     // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
@@ -738,7 +738,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
             // imgUrl: `${url}${data[i].localSourceFile}`,
-            imgUrl: `${urlBase}${data[i].sourceFile}`,
+            imgUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
           console.log(thematicMapObject)
@@ -764,7 +764,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
             // docxUrl: `${url}${data[i].localSourceFile}`,
-            docxUrl: `${urlBase}${data[i].sourceFile}`,
+            docxUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
           console.log(reportObject)

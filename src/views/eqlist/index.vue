@@ -250,7 +250,17 @@
 </template>
 
 <script>
-import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq, eqEventTrigger,deletedEq} from '@/api/system/eqlist'
+import {
+  addEq,
+  getAllEq,
+  deleteeq,
+  updataEq,
+  queryEq,
+  fromEq,
+  eqEventTrigger,
+  deletedEq,
+  getAllEqList
+} from '@/api/system/eqlist'
 
 export default {
   name: "index",
@@ -629,9 +639,10 @@ export default {
     },
     getEq() {
       let that = this
-      getAllEq().then(res => {
+      getAllEqList().then(res => {
         let resData = res.filter(item => item.magnitude >= 3)
         that.getEqData = resData
+        console.log("返回的数据",that.getEqData)
         that.total = resData.length
         let data = []
         for (let i = 0; i < res.length; i++) {

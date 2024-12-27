@@ -259,6 +259,7 @@ import {ref} from "vue";
 import {getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
 import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
+import {webSocketLocal} from "@/utils/server.js";
 
 export default {
   name: "index",
@@ -494,7 +495,7 @@ export default {
     //获取地震列表
     getEarthquake() {
       // getExcelUploadEarthquake().then(res => {
-      getExcelUploadEarthquake().then(res => {
+      getExcelUploadEqList().then(res => {
         this.eqlists = res
 
         if (res.data === null) {
@@ -637,7 +638,7 @@ export default {
           //   }
           // };
           if ('WebSocket' in window) {
-            this.websocket = new WebSocketReconnect('ws://59.213.183.7/websocket' + '/WebSocketServerExcel/' + this.name);
+            this.websocket = new WebSocketReconnect(`ws://${webSocketLocal}` + '/WebSocketServerExcel/' + this.name);
           } else {
             alert('该浏览器不支持 WebSocket');
           }

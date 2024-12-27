@@ -33,6 +33,12 @@ export function getAllEq(query) {
         method: 'get',
     })
 }
+export function getAllEqList(query) {
+    return request({
+        url: '/tp/api/open/eq/list',
+        method: 'get',
+    })
+}
 
 export function queryEq(queryValue) {
     return request({
@@ -41,6 +47,16 @@ export function queryEq(queryValue) {
         params: queryValue
     })
 }
+//eqlist表
+export function queryEqList(queryValue) {
+    return request({
+        url: '/system/queryEqList',
+        method: 'get',
+        params: queryValue
+    })
+}
+
+
 
 export function fromEq(form) {
     return request({

@@ -408,7 +408,7 @@ import axios from "axios"
 import yaan from "@/assets/geoJson/yaan.json";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
-import {getEqById, getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getEqById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 
 export default {
@@ -794,7 +794,7 @@ export default {
       }
     },
     getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
+      getExcelUploadEqList().then(res => {
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }
@@ -2055,7 +2055,7 @@ export default {
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
             console.log("555")
-          axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+          axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
               .then(res => {
                 pathM += parseInt(res.data.route.paths[0].distance);
                 res.data.route.paths[0].steps.forEach(step => {
@@ -2237,7 +2237,7 @@ export default {
       let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
 
       // 请求路径规划
-      axios.get(`http://59.213.183.7/restapi/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+      axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
           .then(res => {
             // 处理路径返回的数据，更新路径
             let pathM = parseInt(res.data.route.paths[0].distance);

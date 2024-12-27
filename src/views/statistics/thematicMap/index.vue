@@ -295,6 +295,7 @@ import {getMaterialDonation} from "@/api/system/materialDonation.js";
 import {getPublicOpinion} from "@/api/system/publicOpinion.js";
 import {getSocialOrder} from "@/api/system/socialOrder.js";
 import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.js";
+import {AmapApiLocal} from "@/utils/server.js";
 
 export default {
   components: {dataSourcePanel},
@@ -802,7 +803,7 @@ export default {
 
     //获取地震列表数据
     getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
+      getExcelUploadEqList().then(res => {
         this.eqlists = res
         if (res.data === null) {
           this.$message.error("地震列表无数据");
@@ -1280,7 +1281,7 @@ export default {
 
     async fetchLocation(village, key) {
       const encodedVillage = encodeURIComponent(village);
-      const requestString = `http://59.213.183.7/restapi/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
+      const requestString = `${AmapApiLocal}/geocode/geo?address=${encodedVillage}&key=${key}`;
 
       console.log(`请求 URL: ${requestString}`); // 打印请求的 URL 以便调试
 

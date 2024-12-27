@@ -134,7 +134,7 @@ import NewInfo from '@/components/Home/newInfo.vue';
 import Chart1 from '@/components/Home/chart1.vue';
 import Chart2 from '@/components/Home/chart2.vue';
 import Chart3 from '@/components/Home/chart3.vue';
-import { fromEq, getAllEq, queryEq } from '@/api/system/eqlist';
+import {fromEq, getAllEq, queryEq, queryEqList} from '@/api/system/eqlist';
 
 const nowTime = ref(null);
 const tableData = ref([]);
@@ -252,7 +252,8 @@ const query = () => {
     tableData.value = EqAll.value;
     return;
   }
-  queryEq({ queryValue: requestParams.value }).then((res) => {
+  // queryEq({ queryValue: requestParams.value }).then((res) => {
+  queryEqList({ queryValue: requestParams.value }).then((res) => {
     tableData.value = res;
   });
 };
