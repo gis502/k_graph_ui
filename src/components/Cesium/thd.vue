@@ -309,9 +309,9 @@
       <!--      播放暂停按钮-->
       <div class="play">
         <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
+        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-show="!isTimerRunning"
              @click="toggleTimer"/>
-        <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
+        <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-show="isTimerRunning"
              @click="toggleTimer"/>
         <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
       </div>
