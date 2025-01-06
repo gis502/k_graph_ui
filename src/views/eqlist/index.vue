@@ -523,9 +523,9 @@ export default {
 
     commitPanel() {
       this.isPanelShow = !this.isPanelShow
-      this.setInterval()
+      // this.setInterval()
       this.$notify({
-        title: '地震触发成功',
+        title: '地震模拟成功',
         message: '正在进行灾损评估中',
         duration: 600000
       });
@@ -547,11 +547,11 @@ export default {
       this.getEq()
     },
     // 进度条
-    setInterval() {
-      this.interval = setInterval(() => {
-        this.updateProgress(event)
-      }, 9000)
-    },
+    // setInterval() {
+    //   this.interval = setInterval(() => {
+    //     this.updateProgress(event)
+    //   }, 9000)
+    // },
     // updateProgress(event) {
     //   eqProgress(event).then(res => {
     //     this.isProgressShow = true
