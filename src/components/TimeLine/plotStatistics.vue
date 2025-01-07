@@ -25,8 +25,7 @@ import * as echarts from "echarts";
 // 解决：markRaw，取消 VUE 的响应式系统观测 Echarts 的变化更新，让Echarts 自动更新。
 import {markRaw} from 'vue'
 import {getPlotBelongCounty} from '@/api/system/plot'
-
-
+import axios from "axios";
 export default {
   data() {
     return {
@@ -40,15 +39,14 @@ export default {
       option: null,
       scrollInterval: null,
       isWatching: false, // 添加标志位，'plots', 'currentTime','zoomLevel',三个变量触发，应该三选一
-      countyCenterNew:''
+      countyCenterNew:'',
+      countyCenterNewCounty:''
     };
   },
   props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning'],
   watch: {
     plots(newVal) {
-
       this.getRescueActionCasualtiesPlotAndInfo();
-
     },
     currentTime(newVal) {
       this.updateTimeStatistic();
@@ -56,15 +54,23 @@ export default {
     zoomLevel(newVal) {
       this.showZoomStatistic()
     },
-
     //中心点位置
     async viewCenterCoordinate(newVal) {
-      console.log("viewCenterCoordinate watch", newVal)
-      let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
-      console.log(countyCenterTmp,"countyCenterTmp")
-      if(countyCenterTmp!= this.countyCenterNew){
-        this.countyCenterNew=countyCenterTmp
-        console.log(this.countyCenterNew,"this.countyCenterNew")
+      // console.log("viewCenterCoordinate watch", newVal)
+      // let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
+
+      // console.log(countyCenterTmp,"countyCenterTmp")
+      // if(countyCenterTmp!= this.countyCenterNew){
+      //   this.countyCenterNew=countyCenterTmp
+      //   // console.log(this.countyCenterNew,"this.countyCenterNew")
+      //   this.showZoomStatistic()
+      // }
+
+      const countyCenterTmp = await this.getReverseGeocode(newVal.lon,newVal.lat);
+      if(countyCenterTmp.county!= this.countyCenterNew){
+        this.countyCenterNew=countyCenterTmp.county
+        this.countyCenterNewCity=countyCenterTmp.city
+        // console.log(this.countyCenterNew,"this.countyCenterNew")
         this.showZoomStatistic()
       }
     },
@@ -278,6 +284,7 @@ export default {
       //配置
       this.chart.setOption(this.option);
     },
+
     //取位置
     async getRescueActionCasualtiesPlotAndInfo() {
       // console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
@@ -287,18 +294,28 @@ export default {
       const locationDataArray = await Promise.all(this.plots.map(async data => {
         const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
         try {
-          let county = await this.getPlotBelongCounty(longitude, latitude)
-          console.log(county,"county")
-          let city=null
-          if(county&&county!="不在雅安市"){
-            city="雅安市"
-          }
+          //逆地址 接口
+          const locationInfotmp = await this.getReverseGeocode(longitude, latitude);
+          console.log("locationInfotmp plots",locationInfotmp)
           let locationInfo={
-            city:city,
-            county:county
+            city:locationInfotmp.city,
+            county:locationInfotmp.county
           }
+
+          //走数据库json
+          // let county = await this.getPlotBelongCounty(longitude, latitude)
+          // return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
+          //
+          // let county = await this.getPlotBelongCounty(longitude, latitude)
+          // console.log(county,"county")
+          // let city=null
+          // if(county&&county!="不在雅安市"){
+          //   city="雅安市"
+          // }
+
           return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
-        } catch (error) {
+        }
+        catch (error) {
           console.error(`Failed to get location info for plotId ${plotId}:`, error);
           return null;
         }
@@ -346,25 +363,38 @@ export default {
       this.dataInTimeAndZoom = []
       console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
+      //雅安市，走json
+      // let city=null
+      // if(this.countyCenterNew&&this.countyCenterNew!="不在雅安市"){
+      //   city="雅安市"
+      // }
+      // let viewCenterLocation={
+      //   city:city,
+      //   county:county
+      // }
+      // console.log(viewCenterLocation,"viewCenterLocation")
+      // console.log(this.zoomLevel,"showZoomStatistic")
+      // if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
+      //   this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
+      //   this.centerPosionName = viewCenterLocation.county
+      //   console.log(this.centerPosionName, "this.centerPosionName")
+      // } else {
+      //   this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
+      //   this.centerPosionName = '雅安市'
+      //   console.log(this.centerPosionName, "this.centerPosionName")
+      // }
 
-      let city=null
-      if(this.countyCenterNew&&this.countyCenterNew!="不在雅安市"){
-        city="雅安市"
-      }
       let viewCenterLocation={
-        city:city,
+        city:this.countyCenterNewCity,
         county:this.countyCenterNew
       }
-      console.log(viewCenterLocation,"viewCenterLocation")
-      console.log(this.zoomLevel,"showZoomStatistic")
-      if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
-      // if ("区/县".equals(this.zoomLevel)) {
+      if (this.zoomLevel === "区/县") {
         this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
         this.centerPosionName = viewCenterLocation.county
         console.log(this.centerPosionName, "this.centerPosionName")
       } else {
-        this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
-        this.centerPosionName = '雅安市'
+        this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
+        this.centerPosionName = viewCenterLocation.city
         console.log(this.centerPosionName, "this.centerPosionName")
       }
 
@@ -456,6 +486,23 @@ export default {
       });
     },
 
+
+    async getReverseGeocode(lon, lat) {
+      try {
+        const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+          params: {
+            postStr: JSON.stringify({lon, lat, ver: 1}),
+            type: 'geocode',
+            tk: '80eb284748e84ca6c70468c906f0c889'
+          }
+        });
+        console.log(response,"response")
+        return response.data.result.addressComponent;
+      } catch (error) {
+        console.error("逆地理编码失败:", error);
+        return null;
+      }
+    },
 
     scrollToStart() {
       if (this.scrollInterval) {
