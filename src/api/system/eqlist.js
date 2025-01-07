@@ -65,6 +65,13 @@ export function fromEq(form) {
         data: form
     })
 }
+export function fromEqList(form) {
+    return request({
+        url: '/system/fromEqList',
+        method: 'post',
+        data: form
+    })
+}
 
 export function getKeyEq(query) {
     return request({

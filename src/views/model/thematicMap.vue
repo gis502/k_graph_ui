@@ -2,7 +2,7 @@
   <div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
 
-      <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
+      <!--      地震列表组件-点击列表“详情”显示专题图列表，二三维一体化——分析研判产出      -->
       <EarthquakeList
           @imag-selected="onImagSelected"
           @selectEq="selectEq"
