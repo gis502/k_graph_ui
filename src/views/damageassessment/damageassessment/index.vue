@@ -445,6 +445,7 @@ export default {
       getEqList(eqListDTO).then((res) => {
         console.log(res)
         let resData = res.data.filter((item) => item.magnitude >= 4.0);
+        console.log("灾损过滤后4.0", resData)
         let data = resData.map((item) => ({
           ...item,
           occurrenceTime: timestampToTime(item.occurrenceTime, "full"),

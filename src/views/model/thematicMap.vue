@@ -43,7 +43,7 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {getAllEq} from "@/api/system/eqlist";
+import {getAllEq, getAllEqList} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import EarthquakeList from "../../components/ThematicMap/earthquakeList.vue";
@@ -52,6 +52,7 @@ import html2canvas from "html2canvas";
 
 import * as turf from '@turf/turf';
 import {sampleTerrainMostDetailed} from "cesium";
+import {getEqList} from "@/api/system/damageassessment.js";
 
 
 export default {
@@ -137,15 +138,21 @@ export default {
   methods: {
     // 获取地震列表并渲染
     getEq() {
-      getAllEq().then((res) => {
-        let resData = res.filter((item) => item.magnitude >= 4.5);
-        let data = resData.map((item) => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
-        }));
+      let that = this
+      getEqList().then(res => {
+        console.log("返回的数据1",res.data)
+        let resData = res.data.filter(item => item.magnitude >= 4.0)
+        that.getEqData = resData
+        that.total = resData.length
+        let data = []
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
+        }
 
         this.getEqData = data;
         this.filteredEqData = data;
@@ -695,7 +702,7 @@ export default {
     },
 
     selectEq(eq) {
-      console.log("asdrgergdvbrtbhdf",eq)
+      console.log("选择的数据",eq)
       this.locateEq(eq)
       this.selectedEqData = eq
     },

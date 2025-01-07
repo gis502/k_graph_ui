@@ -25,7 +25,6 @@
             placeholder="请输入搜索信息"
             clearable
             style="width: 200px; margin-right: 10px;"
-            @keyup.enter="handleQuery"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -316,7 +315,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
-import {getAllEq, getEqById} from '@/api/system/eqlist'
+import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
 import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
@@ -2185,8 +2184,7 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       this.eqInfo = row
-
-      console.log("剩余1：", window.pointDataSource.entities)
+      // console.log("剩余1：", window.pointDataSource.entities)
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {
@@ -2219,10 +2217,10 @@ export default {
     // 获取地震列表、以及最新地震的eqid、并渲染已有的标绘
     getEq() {
       let that = this
-      getAllEq().then(res => {
+      getAllEqList().then(res => {
         console.log("********************************************************")
         console.log("res", res)
-        let resData = res.filter(item => item.magnitude >= 5)
+        let resData = res.data.filter(item => item.magnitude >= 5)
         let data = []
         for (let i = 0; i < resData.length; i++) {
           let item = resData[i]
@@ -2261,7 +2259,7 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqById({id: eqid}).then(res => {
+      getEqListById({id: eqid}).then(res => {
         //震中标绘点
         console.log("res", res)
         this.centerPoint = res

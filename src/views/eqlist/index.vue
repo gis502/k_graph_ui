@@ -262,6 +262,7 @@ import {
   deletedEq,
   getAllEqList, queryEqList, fromEqList
 } from '@/api/system/eqlist'
+import {getEqList} from "@/api/system/damageassessment.js";
 
 export default {
   name: "index",
@@ -656,10 +657,11 @@ export default {
     },
     getEq() {
       let that = this
-      getAllEqList().then(res => {
+      getEqList().then(res => {
         console.log("返回的数据",res.data)
-        let resData = res.data.filter(item => item.magnitude >= 3)
+        let resData = res.data.filter(item =>  Number(item.magnitude)  >= 3)
         that.getEqData = resData
+        console.log("过滤后",resData)
         that.total = resData.length
         let data = []
         for (let i = 0; i < res.data.length; i++) {

@@ -146,7 +146,7 @@ export default {
       let that = this
       getAllEqList().then(res => {
         console.log("返回的数据",res.data)
-        let resData = res.data.filter(item => item.magnitude >= 3)
+        let resData = res.data.filter(item => Number(item.magnitude) >= 3)
         that.getEqData = resData
         that.total = resData.length
         let data = []

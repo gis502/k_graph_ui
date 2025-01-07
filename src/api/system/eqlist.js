@@ -117,6 +117,14 @@ export function getEqById(data) {
     })
 
 }
+export function getEqListById(data) {
+    return request({
+        url: '/system/getEqListById',
+        method: 'post',
+        params:data
+    })
+
+}
 
 export function getNearbyVillage(position) {
     return request({
