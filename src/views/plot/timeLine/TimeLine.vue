@@ -11,22 +11,30 @@
       <span class="timelabel">{{ this.timestampToTime(this.currentTime) }}</span>
     </div>
 
-          <div class="speed-label">
-            <span class="timelabel">当前播放速度：</span>
-          </div>
+    <div class="speed-label">
+      <span class="timelabel">当前播放速度：</span>
+    </div>
 
-          <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
-            <div v-if="showSpeedOptions">
-              <option class="timelabel"
-                      v-for="option in speedOptions"
-                      :key="option"
-                      @click.stop="selectSpeed(option)"
-              >
-                {{ option }}
-              </option>
-            </div>
-            <span class="timelabel">{{ speedOption }}</span>
-          </div>
+    <div class="speed-label">
+      <el-button
+      type="primary"
+      @click="pause">
+        暂停
+      </el-button>
+    </div>
+
+    <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
+      <div v-if="showSpeedOptions">
+        <option class="timelabel"
+                v-for="option in speedOptions"
+                :key="option"
+                @click.stop="selectSpeed(option)"
+        >
+          {{ option }}
+        </option>
+      </div>
+      <span class="timelabel">{{ speedOption }}</span>
+    </div>
 
 
     <div class="end-time-info">
@@ -67,7 +75,7 @@ export default {
       currentSpeed: 1,
       showSpeedOptions: false,
       speedOption: '1X',
-      speedOptions: ['1X', '2X', '4X', '60X','3600X'],
+      speedOptions: ['1X', '2X', '4X', '60X', '3600X'],
     }
   },
   created() {
@@ -248,6 +256,9 @@ export default {
       window.viewer.clock.multiplier = this.currentSpeed
       this.showSpeedOptions = false
     },
+    pause(){
+      viewer.clock.shouldAnimate = !viewer.clock.shouldAnimate;
+    }
   }
 
 }
@@ -297,6 +308,7 @@ export default {
   bottom: 3%;
   left: 60%;
 }
+
 .speed-selector {
   position: absolute;
   bottom: 3%;
