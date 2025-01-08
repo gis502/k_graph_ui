@@ -408,7 +408,7 @@ import axios from "axios"
 import yaan from "@/assets/geoJson/yaan.json";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
-import {getEqById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
+import {getEqById, getEqListById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import {AmapApiLocal} from "@/utils/server.js";
 
@@ -690,7 +690,7 @@ export default {
   methods: {
     handleEqListChange() {
       if (this.eqlistName) {
-        getEqById({'id': this.eqlistName}).then(async res => {
+        getEqListById({'id': this.eqlistName}).then(async res => {
           window.viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(parseFloat(res.longitude), parseFloat(res.latitude), 40000),
             orientation: {

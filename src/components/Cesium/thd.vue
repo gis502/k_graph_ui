@@ -231,10 +231,10 @@
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('eqList') }"
-          title="灾损评估"
+          title="灾损预估"
           @click="toggleComponent('eqList')"
       >
-        <p>灾损评估</p>
+        <p>灾损预估</p>
       </div>
       <div
           class="logo-menu-tittle"
@@ -707,7 +707,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getEqById} from '@/api/system/eqlist'
+import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
@@ -1553,8 +1553,7 @@ export default {
      * @param {string} eqid - 地震ID
      */
     getEqInfo(eqid) {
-      getEqById({id: eqid}).then(res => {
-        console.log("getEqInfo",res)
+      getEqListById({id: eqid}).then(res => {
         //震中标绘点
         this.centerPoint = res
         // 设置中心点的标识和时间信息
@@ -2340,7 +2339,7 @@ export default {
     // ------------------------------路径规划+物资匹配---------------------------
     handleEqListChange() {
       if (this.eqlistName) {
-        getEqById({'id': this.eqlistName}).then(async res => {
+        getEqListById({'id': this.eqlistName}).then(async res => {
           window.viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(parseFloat(res.longitude), parseFloat(res.latitude), 40000),
             orientation: {
@@ -4416,8 +4415,10 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
             30000),
         orientation: {
           // 指向
@@ -4438,8 +4439,10 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
             200000),
         orientation: {
           // 指向
@@ -4471,8 +4474,10 @@ export default {
             data
           },
           position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
+              // parseFloat(this.centerPoint.geom.coordinates[0]),
+              // parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.longitude),
+              parseFloat(this.centerPoint.latitude),
               parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
@@ -4516,8 +4521,10 @@ export default {
       if (!smallcenterMark) {
         smallcenterMark = smallViewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
+              // parseFloat(this.centerPoint.geom.coordinates[0]),
+              // parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.longitude),
+              parseFloat(this.centerPoint.latitude),
               parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
@@ -4563,8 +4570,10 @@ export default {
       this.timelinePopupData = data
       this.selectedEntity = centerMark
       this.selectedEntityPosition = {
-        x: this.centerPoint.geom.coordinates[0], // 经度
-        y: this.centerPoint.geom.coordinates[1],  // 纬度
+        // x: this.centerPoint.geom.coordinates[0], // 经度
+        // y: this.centerPoint.geom.coordinates[1],  // 纬度
+        x: this.centerPoint.longitude, // 经度
+        y: this.centerPoint.latitude,  // 纬度
         z: 0     // 高度
       };
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
@@ -5126,7 +5135,7 @@ export default {
      */
     getEq() {
       let that = this
-      getAllEq().then(res => {
+      getAllEqList().then(res => {
         that.eqtableData = res
         // 建立WS
 

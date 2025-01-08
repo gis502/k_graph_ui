@@ -24,9 +24,9 @@
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
         </template>
       </el-table-column>
-      <el-table-column prop="occurrenceTime" label="发震时间" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="occurrenceTime" label="发震时间" header-align="center" align="center" width="230" ></el-table-column>
       <el-table-column prop="earthquakeName" label="位置" width="300" align="center"></el-table-column>
-      <el-table-column prop="magnitude" label="震级(级)" header-align="center" align="center"></el-table-column>
+      <el-table-column prop="magnitude" label="震级(级)" header-align="center" align="center" width="100"></el-table-column>
       <el-table-column prop="longitude" label="经度(度分" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度(度分)" header-align="center" align="center"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)" header-align="center" align="center"></el-table-column>
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import {getAllEq, deleteeq,queryEq,updataEq,fromEq,addEq} from '@/api/system/eqlist'
+import {getAllEq, deleteeq, queryEq, updataEq, fromEq, addEq, queryEqList, getAllEqList} from '@/api/system/eqlist'
 import {searchEmergencyShelters} from "../../../api/system/emergency.js";
 
 export default {
@@ -90,7 +90,7 @@ export default {
 
       // 如果搜索关键字为空，恢复为原始数据
       if (searchKey === "") {
-        this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
+        this.tableData = this.getEq();  // 恢复所有数据并重新进行分页
         return;
       }
 
@@ -107,16 +107,22 @@ export default {
       }
 
       // 发送搜索请求
-      queryEq({queryValue: finalSearchKey}).then(res => {
+      queryEqList({queryValue: finalSearchKey}).then(res => {
         console.log("检查返回的数据",res); // 检查返回的数据
         // 处理并格式化返回的数据
-        const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
-          ...item,
-          occurrenceTime: this.timestampToTimeData(item.occurrenceTime),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2)
-        }));  
+        const filteredData = res.filter(item => item.magnitude >= 3).map(item => {
+          // 提取 geom 中的坐标信息，默认值 [0, 0] 防止数据缺失
+          const [longitude, latitude] = item.geom?.coordinates || [0, 0];
+
+          // 直接修改 item 对象的属性
+          item.occurrenceTime = this.timestampToTimeData(item.occurrenceTime); // 格式化时间
+          item.magnitude = Number(item.magnitude).toFixed(1); // 格式化震级
+          item.latitude = Number(latitude).toFixed(2); // 格式化纬度
+          item.longitude = Number(longitude).toFixed(2); // 格式化经度
+
+          // 返回修改后的 item
+          return item;
+        });
         // 搜索之后更新数据
         this.getEqData = filteredData;
         this.total = filteredData.length;  // 更新总数
@@ -138,14 +144,15 @@ export default {
     },
     getEq() {
       let that = this
-      getAllEq().then(res => {
-        let resData = res.filter(item => item.magnitude >= 3)
+      getAllEqList().then(res => {
+        console.log("返回的数据",res.data)
+        let resData = res.data.filter(item => Number(item.magnitude) >= 3)
         that.getEqData = resData
         that.total = resData.length
         let data = []
-        for (let i = 0; i < res.length; i++) {
-          let item = res[i]
-          item.occurrenceTime = that.timestampToTimeData(item.occurrenceTime)
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)

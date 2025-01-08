@@ -65,6 +65,13 @@ export function fromEq(form) {
         data: form
     })
 }
+export function fromEqList(form) {
+    return request({
+        url: '/system/fromEqList',
+        method: 'post',
+        data: form
+    })
+}
 
 export function getKeyEq(query) {
     return request({
@@ -110,6 +117,14 @@ export function getEqById(data) {
     })
 
 }
+export function getEqListById(data) {
+    return request({
+        url: '/system/getEqListById',
+        method: 'post',
+        params:data
+    })
+
+}
 
 export function getNearbyVillage(position) {
     return request({
@@ -129,7 +144,7 @@ export function getGeomById(data) {
 }
 export function getGeomByEqListId(data) {
     return request({
-        url: '/tp/api/open/getGeomByEqListId',
+        url: '/system/getGeomByEqListId',
         method: 'get',
         params: {id: data}
     })

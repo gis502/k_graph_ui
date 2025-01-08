@@ -832,7 +832,9 @@ export default {
 
     //获取震源中心
     getEarthQuakeCenter(eqid) {
-      getGeomById(eqid).then(res => {
+      // getGeomById(eqid).then(res => {
+      getGeomByEqListId(eqid).then(res => {
+        console.log(res)
         this.updateEarthQuakeCenter(res[0])
       })
     },
@@ -1748,7 +1750,7 @@ export default {
     updateEarthQuakeCenter(data) {
       // 添加到 Cesium 实体
       this.viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(data.longitude, data.latitude),
+        position: Cesium.Cartesian3.fromDegrees(data.geom.coordinates[0], data.geom.coordinates[1]),
         billboard: {
           image: earthQuakeCenterImg, // 图标
           width:40,

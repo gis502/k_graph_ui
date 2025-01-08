@@ -102,7 +102,6 @@
       </div>
     </div>
 
-
   </div>
 </template>
 
@@ -111,11 +110,12 @@ import DisasterDamageAssessmentImageData
   from "../../assets/images/ThematicMap/DisasterDamageAssessment/LuShan/DisasterDamageAssessmentImageData.json"
 import TwoAndThreeDIntegrationImageData
   from "../../assets/images/ThematicMap/TwoAndThreeDIntegration/LuShan/TwoAndThreeDIntegrationImageData.json"
-import {getAllEq} from "../../api/system/eqlist.js";
+import {getAllEq, getAllEqList} from "../../api/system/eqlist.js";
 import * as Cesium from "cesium";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {handleOutputData} from "../../cesium/plot/eqThemes.js";
+import {getEqList} from "@/api/system/damageassessment.js";
 
 export default {
   name: "earthquakeList",
@@ -124,9 +124,6 @@ export default {
   ],
   data() {
     return {
-      // outputDataimgs: {},
-      // outputDatareports: {},
-
       isLeftShow: true,
       isHistoryEqPointsShow: false,
       currentTab: '震害事件', // 默认选项卡设置为『震害事件』
@@ -139,25 +136,6 @@ export default {
       title: "",
       thematicMapData: [],
       reportData: [],
-      // disasterDamageAssessmentReport: [
-      //   {
-      //     name: '地震灾害预评估与处置工作报告',
-      //     path: '/ThematicMap/DisasterDamageAssessment/LuShan/workReport.pdf'
-      //   }],
-      // twoAndThreeDIntegrationReport: [
-      //   {
-      //     name: '灾情简报',
-      //     path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/DisasterBriefing.pdf'
-      //   },
-      //   {
-      //     name: '震区基本情况报告',
-      //     path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'
-      //   },
-      //     // 没写，先注释掉
-      //     // {
-      //     //     name: '分析研判组件'
-      //     // }
-      // ],
       filteredEqData: [],
       pagedEqData: [],
       getEqData: [],
@@ -170,7 +148,6 @@ export default {
     }
   },
   mounted() {
-    // this.fetch()
     this.getEq()
   },
   methods: {
@@ -246,16 +223,22 @@ export default {
     },
     // 获取地震列表并渲染
     getEq() {
-      getAllEq().then((res) => {
-        let resData = res.filter((item) => item.magnitude >= 4.5);
-        let data = resData.map((item) => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
-        }));
-
+      let that = this
+      getEqList().then(res => {
+        console.log("返回的数据1",res.data)
+        let resData = res.data.filter(item =>  item.magnitude  >= 4.0)
+        console.log("过滤后",resData)
+        that.getEqData = resData
+        that.total = resData.length
+        let data = []
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
+        }
         this.getEqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
@@ -380,7 +363,6 @@ export default {
     },
 
     toTab(eq) {
-
       this.currentTab = `${eq.earthquakeName} ${eq.magnitude}级地震`;
       if (this.currentTab !== '震害事件') {
 
@@ -390,15 +372,11 @@ export default {
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
-          // console.log(this.selectedEqData)
           this.selectEqPoint();
           this.$emit('selectEq', eq); // 发送eq数据到父组件
 
-
           this.handlePanel('thematicMap')
           this.handlePanel('report')
-
-
         }
       }
     },

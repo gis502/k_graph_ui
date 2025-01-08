@@ -164,7 +164,7 @@ function getImageryProviderArr() {
                     }),
                     // 默认添加 GeoServer 提供的 WMS 图层
                     new Cesium.WebMapServiceImageryProvider({
-                        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
+                        url: 'http://59.213.183.56/localmap/geoserver/yaan/wms',
                         layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
                         parameters: {
                             service: 'WMS',

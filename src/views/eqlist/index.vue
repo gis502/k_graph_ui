@@ -10,6 +10,7 @@
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+<!--      二三维一体化——地震信息管理-->
 <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
@@ -259,8 +260,9 @@ import {
   fromEq,
   eqEventTrigger,
   deletedEq,
-  getAllEqList
+  getAllEqList, queryEqList, fromEqList
 } from '@/api/system/eqlist'
+import {getEqList} from "@/api/system/damageassessment.js";
 
 export default {
   name: "index",
@@ -523,9 +525,9 @@ export default {
 
     commitPanel() {
       this.isPanelShow = !this.isPanelShow
-      this.setInterval()
+      // this.setInterval()
       this.$notify({
-        title: '地震触发成功',
+        title: '地震模拟成功',
         message: '正在进行灾损评估中',
         duration: 600000
       });
@@ -547,11 +549,11 @@ export default {
       this.getEq()
     },
     // 进度条
-    setInterval() {
-      this.interval = setInterval(() => {
-        this.updateProgress(event)
-      }, 9000)
-    },
+    // setInterval() {
+    //   this.interval = setInterval(() => {
+    //     this.updateProgress(event)
+    //   }, 9000)
+    // },
     // updateProgress(event) {
     //   eqProgress(event).then(res => {
     //     this.isProgressShow = true
@@ -599,20 +601,36 @@ export default {
       };
 
       // 发送请求
-      fromEq(queryParams).then(res => {
+      fromEqList(queryParams).then(res => {
         // 处理返回的数据
-        this.getEqData = res.map(item => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2)
-        }));
+        this.getEqData = res.map(item => {
+          // 提取 geom 中的坐标信息，默认值 [0, 0] 防止数据缺失
+          const [longitude, latitude] = item.geom?.coordinates || [0, 0];
+
+          return {
+            ...item,
+            occurrenceTime: this.timestampToTime(item.occurrenceTime),  // 转换时间
+            magnitude: Number(item.magnitude).toFixed(1),  // 格式化震级为一位小数
+            latitude: Number(latitude).toFixed(2),  // 格式化纬度为两位小数
+            longitude: Number(longitude).toFixed(2),  // 格式化经度为两位小数
+          };
+        });
+
+        // 更新总数据量
         this.total = this.getEqData.length;
+
+        // 获取当前页的数据
         this.tableData = this.getPageArr();
+
         // 隐藏筛选表单
         this.queryFormVisible = false;
+
+        // 清除表单的值
         this.clearFormValue();
+      }).catch(error => {
+        // 处理请求错误
+        console.error("请求数据失败:", error);
+        // 可以加上错误提示或处理逻辑
       });
 
     },
@@ -639,10 +657,11 @@ export default {
     },
     getEq() {
       let that = this
-      getAllEqList().then(res => {
+      getEqList().then(res => {
         console.log("返回的数据",res.data)
-        let resData = res.data.filter(item => item.magnitude >= 3)
+        let resData = res.data.filter(item =>  Number(item.magnitude)  >= 3)
         that.getEqData = resData
+        console.log("过滤后",resData)
         that.total = resData.length
         let data = []
         for (let i = 0; i < res.data.length; i++) {
@@ -708,24 +727,42 @@ export default {
     handleQuery() {
       // 获取搜索关键字
       const searchKey = this.queryParams.trim();
-      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
+
       // 如果搜索关键字为空，恢复为原始数据
       if (searchKey === "") {
         this.tableData = this.getEq();  // 恢复所有数据并重新进行分页
         return;
       }
 
+      let finalSearchKey = searchKey;
+
+      // 判断是否是时间格式
+      const timePattern = /^(\d{4})年(\d{1,2})月(\d{1,2})日(\d{1,2})时(\d{1,2})分(\d{1,2})秒$/;
+      const timeMatch = searchKey.match(timePattern);
+
+      if (timeMatch) {
+        // 如果是时间格式，转换为目标格式
+        const [, year, month, day, hh, mm, ss] = timeMatch;
+        finalSearchKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${hh.padStart(2, '0')}:${mm.padStart(2, '0')}:${ss.padStart(2, '0')}`;
+      }
+
       // 发送搜索请求
-      queryEq({queryValue: result}).then(res => {
-        console.log("检查返回的数据", res); // 检查返回的数据
+      queryEqList({queryValue: finalSearchKey}).then(res => {
+        console.log("检查返回的数据",res); // 检查返回的数据
         // 处理并格式化返回的数据
-        const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
-        }));
+        const filteredData = res.filter(item => item.magnitude >= 3).map(item => {
+          // 提取 geom 中的坐标信息，默认值 [0, 0] 防止数据缺失
+          const [longitude, latitude] = item.geom?.coordinates || [0, 0];
+
+          // 直接修改 item 对象的属性
+          item.occurrenceTime = this.timestampToTimeData(item.occurrenceTime); // 格式化时间
+          item.magnitude = Number(item.magnitude).toFixed(1); // 格式化震级
+          item.latitude = Number(latitude).toFixed(2); // 格式化纬度
+          item.longitude = Number(longitude).toFixed(2); // 格式化经度
+
+          // 返回修改后的 item
+          return item;
+        });
         // 搜索之后更新数据
         this.getEqData = filteredData;
         this.total = filteredData.length;  // 更新总数
@@ -734,6 +771,48 @@ export default {
       }).catch(error => {
         console.error("搜索时出现错误:", error);
       });
+    },
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+    timestampToTimeData(timestamp) {
+      let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     // 重置功能
