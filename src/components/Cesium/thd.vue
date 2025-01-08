@@ -414,6 +414,7 @@
               :zoomLevel="zoomLevel"
               :isTimerRunning="isTimerRunning"
               :viewCenterCoordinate="viewCenterCoordinate"
+              :earthquakeName="centerPoint.earthquakeName"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
