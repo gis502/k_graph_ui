@@ -134,7 +134,8 @@ import NewInfo from '@/components/Home/newInfo.vue';
 import Chart1 from '@/components/Home/chart1.vue';
 import Chart2 from '@/components/Home/chart2.vue';
 import Chart3 from '@/components/Home/chart3.vue';
-import {fromEq, getAllEq, queryEq, queryEqList} from '@/api/system/eqlist';
+import {fromEq, fromEqList, getAllEq, queryEq, queryEqList} from '@/api/system/eqlist';
+import {getEqList} from "@/api/system/damageassessment.js";
 
 const nowTime = ref(null);
 const tableData = ref([]);
@@ -237,7 +238,7 @@ const onSubmit = () => {
 
   console.log("5555555555555555555555555555",queryParams)
 
-  fromEq(queryParams).then((res) => {
+  fromEqList(queryParams).then((res) => {
     tableData.value = res;
   });
   queryFormVisible.value = false;
@@ -293,12 +294,12 @@ const fillZero = (str) => {
 };
 
 const getEq = () => {
-  getAllEq().then((res) => {
-    console.log("地震数据",res)
-    EqAll.value = res;
-    tableData.value = res;
+  getEqList().then((res) => {
+    console.log("地震数据",res.data)
+    EqAll.value = res.data;
+    tableData.value =res.data;
     // 之后要换回来     lastEqData.value = res[0];
-    lastEqData.value = res[0];
+    lastEqData.value = res.data[0];
     // 打印最新的 eqid
     if (lastEqData.value) {
       console.log('最新地震的 eqid:', lastEqData.value.eqid);

@@ -144,7 +144,7 @@ export function getGeomById(data) {
 }
 export function getGeomByEqListId(data) {
     return request({
-        url: '/tp/api/open/getGeomByEqListId',
+        url: '/system/getGeomByEqListId',
         method: 'get',
         params: {id: data}
     })
