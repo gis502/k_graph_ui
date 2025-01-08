@@ -29,6 +29,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      typeIsYaan:true, //是否是雅安市
       chart: null, // 保存 ECharts 实例
       myChart1Data: [],
       filtdata: [],
@@ -43,7 +44,7 @@ export default {
       countyCenterNewCounty:''
     };
   },
-  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning'],
+  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName'],
   watch: {
     plots(newVal) {
       this.getRescueActionCasualtiesPlotAndInfo();
@@ -56,22 +57,24 @@ export default {
     },
     //中心点位置
     async viewCenterCoordinate(newVal) {
-      // console.log("viewCenterCoordinate watch", newVal)
-      // let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
-
-      // console.log(countyCenterTmp,"countyCenterTmp")
-      // if(countyCenterTmp!= this.countyCenterNew){
-      //   this.countyCenterNew=countyCenterTmp
-      //   // console.log(this.countyCenterNew,"this.countyCenterNew")
-      //   this.showZoomStatistic()
-      // }
-
-      const countyCenterTmp = await this.getReverseGeocode(newVal.lon,newVal.lat);
-      if(countyCenterTmp.county!= this.countyCenterNew){
-        this.countyCenterNew=countyCenterTmp.county
-        this.countyCenterNewCity=countyCenterTmp.city
-        // console.log(this.countyCenterNew,"this.countyCenterNew")
-        this.showZoomStatistic()
+      console.log("viewCenterCoordinate watch", newVal)
+      if(this.typeIsYaan){
+        let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
+        console.log(countyCenterTmp,"countyCenterTmp")
+        if(countyCenterTmp!= this.countyCenterNew){
+          this.countyCenterNew=countyCenterTmp
+          // console.log(this.countyCenterNew,"this.countyCenterNew")
+          this.showZoomStatistic()
+        }
+      }
+      else{
+        const countyCenterTmp = await this.getReverseGeocode(newVal.lon,newVal.lat);
+        if(countyCenterTmp.county!= this.countyCenterNew){
+          this.countyCenterNew=countyCenterTmp.county
+          this.countyCenterNewCity=countyCenterTmp.city
+          // console.log(this.countyCenterNew,"this.countyCenterNew")
+          this.showZoomStatistic()
+        }
       }
     },
     //时间轴停止，标绘统计上下滚动
@@ -85,8 +88,17 @@ export default {
   },
   mounted() {
     this.initEcharts() //初始化
+    // this.isInYaan()
   },
   methods: {
+    isInYaan(){
+      if (this.earthquakeName && this.earthquakeName.includes('雅安市')) {
+        this.typeIsYaan=true
+      }
+      else{
+        this.typeIsYaan=false
+      }
+    },
     //图表操作
     //根据键取值，把值存到数组中 （一个工具函数）
     getArrByKey(data, k) {
@@ -280,7 +292,6 @@ export default {
         ],
         // 视觉映射配置
       };
-
       //配置
       this.chart.setOption(this.option);
     },
@@ -294,25 +305,29 @@ export default {
       const locationDataArray = await Promise.all(this.plots.map(async data => {
         const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
         try {
-          //逆地址 接口
-          const locationInfotmp = await this.getReverseGeocode(longitude, latitude);
-          console.log("locationInfotmp plots",locationInfotmp)
-          let locationInfo={
-            city:locationInfotmp.city,
-            county:locationInfotmp.county
+          let locationInfo={}
+          if(this.typeIsYaan){
+            //走数据库json
+            let county = await this.getPlotBelongCounty(longitude, latitude)
+            console.log(county,"county")
+            let city=null
+            if(county&&county!="不在雅安市"){
+              city="雅安市"
+            }
+            locationInfo={
+              city:city,
+              county:county
+            }
           }
-
-          //走数据库json
-          // let county = await this.getPlotBelongCounty(longitude, latitude)
-          // return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
-          //
-          // let county = await this.getPlotBelongCounty(longitude, latitude)
-          // console.log(county,"county")
-          // let city=null
-          // if(county&&county!="不在雅安市"){
-          //   city="雅安市"
-          // }
-
+          else{
+            // 逆地址 接口
+            const locationInfotmp = await this.getReverseGeocode(longitude, latitude);
+            console.log("locationInfotmp plots",locationInfotmp)
+            locationInfo={
+              city:locationInfotmp.city,
+              county:locationInfotmp.county
+            }
+          }
           return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
         }
         catch (error) {
@@ -363,40 +378,48 @@ export default {
       this.dataInTimeAndZoom = []
       console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
-      //雅安市，走json
-      // let city=null
-      // if(this.countyCenterNew&&this.countyCenterNew!="不在雅安市"){
-      //   city="雅安市"
-      // }
-      // let viewCenterLocation={
-      //   city:city,
-      //   county:county
-      // }
-      // console.log(viewCenterLocation,"viewCenterLocation")
-      // console.log(this.zoomLevel,"showZoomStatistic")
-      // if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
-      //   this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
-      //   this.centerPosionName = viewCenterLocation.county
-      //   console.log(this.centerPosionName, "this.centerPosionName")
-      // } else {
-      //   this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
-      //   this.centerPosionName = '雅安市'
-      //   console.log(this.centerPosionName, "this.centerPosionName")
-      // }
 
-      let viewCenterLocation={
-        city:this.countyCenterNewCity,
-        county:this.countyCenterNew
+      let viewCenterLocation={}
+      if(this.typeIsYaan){
+        //雅安市，走json
+        let city=null
+        if(this.countyCenterNew&&this.countyCenterNew!="不在雅安市"){
+          city="雅安市"
+        }
+        viewCenterLocation={
+          city:city,
+          county:this.countyCenterNew
+        }
+        console.log(viewCenterLocation,"viewCenterLocation")
+        console.log(this.zoomLevel,"showZoomStatistic")
+        if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
+          this.centerPosionName = viewCenterLocation.county
+          console.log(this.centerPosionName, "this.centerPosionName")
+        }
+        else {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
+          this.centerPosionName = '雅安市'
+          console.log(this.centerPosionName, "this.centerPosionName")
+        }
       }
-      if (this.zoomLevel === "区/县") {
-        this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
-        this.centerPosionName = viewCenterLocation.county
-        console.log(this.centerPosionName, "this.centerPosionName")
-      } else {
-        this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
-        this.centerPosionName = viewCenterLocation.city
-        console.log(this.centerPosionName, "this.centerPosionName")
+      else{
+        viewCenterLocation={
+          city:this.countyCenterNewCity,
+          county:this.countyCenterNew
+        }
+        if (this.zoomLevel === "区/县") {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
+          this.centerPosionName = viewCenterLocation.county
+          console.log(this.centerPosionName, "this.centerPosionName")
+        } else {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
+          this.centerPosionName = viewCenterLocation.city
+          console.log(this.centerPosionName, "this.centerPosionName")
+        }
       }
+
+
 
       let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
         console.log(acc, obj, "occ,obj")

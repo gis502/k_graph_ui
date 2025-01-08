@@ -174,6 +174,7 @@
               :zoomLevel="zoomLevel"
               :isTimerRunning="isTimerRunning"
               :viewCenterCoordinate="viewCenterCoordinate"
+              :earthquakeName="centerPoint.earthquakeName"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
@@ -746,6 +747,7 @@ export default {
      */
     getEqInfo(eqid) {
       getEqById({id: eqid}).then(res => {
+        // console.log("getEqById",res)
         //震中标绘点
         this.centerPoint = res
         // 设置中心点的标识和时间信息
