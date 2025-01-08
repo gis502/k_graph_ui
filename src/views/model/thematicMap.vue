@@ -6,9 +6,11 @@
       <EarthquakeList
           @imag-selected="onImagSelected"
           @selectEq="selectEq"
-          :thematicMapClass="thematicMapClass"
-      ></EarthquakeList>
 
+      ></EarthquakeList>
+<!--      @outputDataimgs="outputDataimgs"-->
+<!--      @outputDatareports="outputDatareports"-->
+<!--      :thematicMapClass="thematicMapClass"-->
       <!--            <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"-->
       <!--                 @mouseleave="isFoldUnfolding = false" v-show="isFoldShow" @click="isLeftShow = false,isFoldShow = false">-->
       <!--                <img src="../../assets/icons/TimeLine/收起展开箭头右.png" v-if="isFoldUnfolding"-->
@@ -34,7 +36,10 @@
         :corners="corners"
         :step="step"
         style="width: 70%"
+
     ></thematicMapPreview>
+<!--    :outputDataimgs="outputDataimgs"-->
+<!--    :outputDatareports="outputDatareports"-->
 
   </div>
 </template>
@@ -52,6 +57,7 @@ import html2canvas from "html2canvas";
 
 import * as turf from '@turf/turf';
 import {sampleTerrainMostDetailed} from "cesium";
+import {handleOutputData} from "../../cesium/plot/eqThemes.js";
 
 
 export default {
@@ -62,6 +68,9 @@ export default {
   },
   data() {
     return {
+      // outputDataimgs: {},
+      // outputDatareports: {},
+
       total: 0,
       pageSize: 10,
       currentPage: 1,
@@ -132,9 +141,11 @@ export default {
   mounted() {
     this.init();
     this.getEq();
+
   },
 
   methods: {
+
     // 获取地震列表并渲染
     getEq() {
       getAllEq().then((res) => {
@@ -451,15 +462,18 @@ export default {
 
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
-      if (!imagData.path) {
-        if (imagData.name === "遥感影像图") {
+
+
+      console.log("imagData",imagData)
+      if (!imagData.imgUrl) {
+        if (imagData.theme === "遥感影像图") {
           //   调用截图方法
           this.remoteSensingImagePerspectiveJump(() => {
             // this.captureRemoteSensingImage();
             this.exportCesiumScene(imagData.name)
           });
         }
-        if (imagData.name === "三维模型图") {
+        if (imagData.theme === "三维模型图") {
           // 显示加载中的提示
           this.loading = true;
 
@@ -537,9 +551,10 @@ export default {
             });
           }
         }
-      } else {
-        this.imgurlFromDate = imagData.path
-        this.imgName = imagData.name
+      }
+      else {
+        this.imgurlFromDate = imagData.imgUrl
+        this.imgName = imagData.theme
         this.ifShowMapPreview = true
         this.showTypes = 1
         this.getAssetsFile()
@@ -698,7 +713,14 @@ export default {
       console.log("asdrgergdvbrtbhdf",eq)
       this.locateEq(eq)
       this.selectedEqData = eq
+
     },
+    // outputDatareports(item){
+    //   this.outputDatareports=item
+    // },
+    // outputDataimgs(item){
+    //   this.outputDataimgs=item
+    // },
 
     removeData() {
       this.historyEqPoints = [];
