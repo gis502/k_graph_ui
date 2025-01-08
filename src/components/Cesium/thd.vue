@@ -231,10 +231,10 @@
       <div
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive('eqList') }"
-          title="灾损评估"
+          title="灾损预估"
           @click="toggleComponent('eqList')"
       >
-        <p>灾损评估</p>
+        <p>灾损预估</p>
       </div>
       <div
           class="logo-menu-tittle"

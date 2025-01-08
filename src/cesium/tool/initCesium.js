@@ -4,17 +4,22 @@ import {AMapNominatimGeocoder, OpenStreetMapNominatimGeocoder, TianDiTuGeocoder}
 import bingAerial from '@/assets/bingAerial.png'
 import Ellipsoid from '@/assets/Ellipsoid.png'
 import CesiumWorldTerrain from '@/assets/CesiumWorldTerrain.png'
+import {ClockViewModel} from "cesium";
 
 
-export function initCesium(Cesium, container) {
+export function initCesium(Cesium, container , clock) {
     // 使用Cesium官方示例中的Token
     Cesium.Ion.defaultAccessToken = CesiumIonDefaultAccessToken || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2YmRiNjM4MC1kMDZkLTQ2NDQtYjQ3My0xZDI4MDU0MGJhZDciLCJpZCI6MzIxMzAsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1OTY1MjM4NzZ9.A3FBZ6HjKkTsOGnjwWWeO9L10HQ9c-wcF4c3dtTc4gQ'
     if (container === undefined) {
         container = 'cesiumContainer'
     }
+    let timeline=false
+    if (clock !== undefined) {
+        timeline = true
+    }
     let viewer = new Cesium.Viewer(container, {
         shouldAnimate: true,
-        animation: false, // 是否创建动画小器件，左下角仪表
+        animation: timeline, // 是否创建动画小器件，左下角仪表
         baseLayerPicker: true, // 是否显示图层选择器，前往cesium源码./cesium/Source/Widgets/BaseLayerPicker.js中修改terrainTitle.innerHTML为中文
         fullscreenButton: false, // 是否显示全屏按钮
         geocoder: new TianDiTuGeocoder(), // 是否显示geocoder小器件，右上角查询按钮,此处使用自定义
@@ -22,8 +27,9 @@ export function initCesium(Cesium, container) {
         infoBox: false, // 是否显示信息框
         sceneModePicker: false, // 是否显示3D/2D选择器
         selectionIndicator: true, // 是否显示选取指示器组件
-        timeline: false, // 是否显示时间轴
+        timeline: timeline, // 是否显示时间轴
         navigationHelpButton: false, // 是否显示右上角的帮助按钮
+        clockViewModel:new ClockViewModel(clock),
         scene3DOnly: false, // 如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源
         //截图和渲染相关的一些配置
         contextOptions: {
@@ -164,7 +170,7 @@ function getImageryProviderArr() {
                     }),
                     // 默认添加 GeoServer 提供的 WMS 图层
                     new Cesium.WebMapServiceImageryProvider({
-                        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
+                        url: 'http://59.213.183.56/localmap/geoserver/yaan/wms',
                         layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
                         parameters: {
                             service: 'WMS',
