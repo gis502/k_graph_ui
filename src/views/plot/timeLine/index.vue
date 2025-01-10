@@ -27,6 +27,18 @@
       <el-table-column prop="occurrenceTime" label="发震时间" header-align="center" align="center" width="230" ></el-table-column>
       <el-table-column prop="earthquakeName" label="位置" width="300" align="center"></el-table-column>
       <el-table-column prop="magnitude" label="震级(级)" header-align="center" align="center" width="100"></el-table-column>
+      <el-table-column label="地震类型" width="100" show-overflow-tooltip>
+        <template #default="{ row }">
+          <el-button
+              :type="row.eqType === 'Z' ? 'success' : (row.eqType === 'Y' ? 'danger':'primary')"
+              plain
+              size="mini"
+              style="margin: 0; padding: 2px 8px; border-radius: 4px;"
+          >
+            {{ row.eqType === 'Z' ? '正式地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
+          </el-button>
+        </template>
+      </el-table-column>
       <el-table-column prop="longitude" label="经度(度分" header-align="center" align="center"></el-table-column>
       <el-table-column prop="latitude" label="纬度(度分)" header-align="center" align="center"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)" header-align="center" align="center"></el-table-column>

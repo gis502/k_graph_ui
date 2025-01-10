@@ -500,7 +500,6 @@ export default {
       // getExcelUploadEarthquake().then(res => {
       getExcelUploadEqList().then(res => {
         this.eqlists = res
-
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }

@@ -36,12 +36,12 @@
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
             </template>
           </el-table-column>
-          <el-table-column prop="time" label="发震时间" width="240">
+          <el-table-column prop="time" label="发震时间" width="220">
             <template #default="scope">
               {{ timestampToTimeChina(scope.row.time) }}
             </template>
           </el-table-column>
-          <el-table-column prop="earthquakeName" label="位置" width="150">
+          <el-table-column prop="earthquakeName" label="位置" width="170">
             <template #default="scope">
               <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
                 <div>{{ scope.row.earthquakeName }}</div>
@@ -56,7 +56,18 @@
             </template>
           </el-table-column>
           <el-table-column prop="magnitude" label="震级" width="55"/>
-          <!--        <el-table-column prop="longitude" label="经度" width="70"></el-table-column>-->
+          <el-table-column label="地震类型" width="100" show-overflow-tooltip>
+            <template #default="{ row }">
+              <el-button
+                  :type="row.eqType === 'Z' ? 'success' : (row.eqType === 'Y' ? 'danger':'primary')"
+                  plain
+                  size="mini"
+                  style="margin: 0; padding: 2px 8px; border-radius: 4px;"
+              >
+                {{ row.eqType === 'Z' ? '正式地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
+              </el-button>
+            </template>
+          </el-table-column>
           <!--        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>-->
           <!--        <el-table-column prop="depth" label="深度" width="50"></el-table-column>-->
           <el-table-column label="操作" width="75">
@@ -3115,7 +3126,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 590px;
+  width: 680px;
   height: 372px;
   position: absolute;
   padding: 10px;

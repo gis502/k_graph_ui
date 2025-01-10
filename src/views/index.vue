@@ -51,7 +51,7 @@
 
                 <!-- 输入框和按钮 -->
                 <div
-                    style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1;"
+                    style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; gap: 5px; z-index: 1;"
                 >
                   <el-input
                       size="small"
@@ -69,9 +69,17 @@
                       style="font-size: 16px;"
                       @click="openQueryFrom()"
                   >筛选</el-button>
+                  <el-button
+                      size="small"
+                      :type="activeMode === 'Z' ? 'primary' : 'default'"
+                      style="font-size: 16px;"
+                      @click="toggleMode"
+                  >
+                    {{ activeMode === 'Z' ? '正式' : '测试' }}
+                  </el-button>
                 </div>
               </div>
-              <eq-table :eq-data="tableData"/>
+              <eq-table :eq-data="CeShiTableData"/>
             </div>
 
             <div class="right-bottom public-bg" ref="rightBottom">
@@ -142,6 +150,18 @@ const tableData = ref([]);
 const EqAll = ref([]);
 const lastEqData = ref();
 const requestParams = ref('');
+// 当前模式，初始为正式
+const activeMode = ref('Z');
+
+// 切换模式
+const toggleMode = () => {
+  activeMode.value = activeMode.value === 'Z' ? 'T' : 'Z';
+};
+
+// 根据模式过滤表格数据
+const CeShiTableData = computed(() =>
+    tableData.value.filter((item) => item.eqType === activeMode.value)
+);
 
 const queryFormVisible = ref(false);
 
