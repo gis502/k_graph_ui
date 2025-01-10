@@ -56,6 +56,7 @@
 <script>
 import {jsPDF} from 'jspdf';
 import html2canvas from "html2canvas";
+import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 
   export default {
     data() {
@@ -65,6 +66,8 @@ import html2canvas from "html2canvas";
         imgNameLocal: '',
         ifShow: false,
         pictureCreateTime: '',
+
+
       }
     },
     props: [
@@ -95,9 +98,11 @@ import html2canvas from "html2canvas";
   mounted() {
     this.imgshowURLLocal = this.getAssetsFile(this.imgshowURLLocal)
     this.imgurlFromDateLocal = this.imgurlFromDate
+
     // this.setImgNameLocal = this.imgName
   },
   methods: {
+
     // 标题名称
     formattedImgName() {
       if (!this.selectedEq) {
