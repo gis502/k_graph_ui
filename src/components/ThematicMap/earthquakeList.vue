@@ -77,33 +77,29 @@
 
         <el-divider content-position="left"> 专题图</el-divider>
 
-        <div style="height: 500px">
+        <div :style="{height: ((thematicMapData.length+1)/2 * 80) + 'px' }">
           <div class="eqTheme">
             <div class="button themes history"
                  style="width: 120px;"
                  v-for="item in thematicMapData"
-                 :key="item.name"
-                 @click="previewMap(item)"> {{ item.name }}
+                 :key="item.theme"
+                 @click="previewMap(item)"> {{ item.theme }}
             </div>
           </div>
         </div>
 
-        <div style="height: 10px;background-color: #054576"></div>
-        <el-divider content-position="left"> 灾情报告</el-divider>
-        <div class="eqTheme">
-          <div class="button themes history"
-               v-for="(item,index) in reportData"
-               style="width: 120px;"
-               @click="exportCesiumScene(item,index)"
-          >{{ item.name }}
+          <div style="height: 10px;background-color: #054576"></div>
+          <el-divider content-position="left"> 灾情报告</el-divider>
+          <div class="eqTheme">
+            <div class="button themes history"
+                 v-for="(item,index) in reportData"
+                 style="width: 120px;"
+                 @click="handleDownloadReport(item.docxUrl)"
+            >{{ item.theme }}
+            </div>
           </div>
-        </div>
+<!--        </div>-->
       </div>
-    </div>
-    <div class="eqTheme">
-      <a class="button themes" href="http://172.26.86.31:18100" target="_blank">
-        产出图件管理
-      </a>
     </div>
 
   </div>
@@ -114,10 +110,12 @@ import DisasterDamageAssessmentImageData
   from "../../assets/images/ThematicMap/DisasterDamageAssessment/LuShan/DisasterDamageAssessmentImageData.json"
 import TwoAndThreeDIntegrationImageData
   from "../../assets/images/ThematicMap/TwoAndThreeDIntegration/LuShan/TwoAndThreeDIntegrationImageData.json"
-import {getAllEq} from "../../api/system/eqlist.js";
+import {getAllEq, getAllEqList} from "../../api/system/eqlist.js";
 import * as Cesium from "cesium";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
+import {handleOutputData} from "../../cesium/plot/eqThemes.js";
+import {getEqList} from "@/api/system/damageassessment.js";
 
 export default {
   name: "earthquakeList",
@@ -138,25 +136,6 @@ export default {
       title: "",
       thematicMapData: [],
       reportData: [],
-      disasterDamageAssessmentReport: [
-        {
-          name: '地震灾害预评估与处置工作报告',
-          path: '/ThematicMap/DisasterDamageAssessment/LuShan/workReport.pdf'
-        }],
-      twoAndThreeDIntegrationReport: [
-        {
-          name: '灾情简报',
-          path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/DisasterBriefing.pdf'
-        },
-        {
-          name: '震区基本情况报告',
-          path: '/ThematicMap/TwoAndThreeDIntegration/LuShan/BasicSituationReport.pdf'
-        },
-          // 没写，先注释掉
-          // {
-          //     name: '分析研判组件'
-          // }
-      ],
       filteredEqData: [],
       pagedEqData: [],
       getEqData: [],
@@ -169,48 +148,97 @@ export default {
     }
   },
   mounted() {
-    this.fetch()
     this.getEq()
   },
   methods: {
+    handlePanel(type){
+      console.log(this.selectedTabData,"this.selectedEqData")
+      if(type=='thematicMap'){
+
+        handleOutputData(this.selectedTabData.eqid, this.selectedTabData.eqqueueId, this.selectedTabData.earthquakeFullName, type).then((res) => {
+          console.log("res.themeData",res.themeData)
+          this.thematicMapData = res.themeData
+          this.$emit('outputDataimgs', res.themeData);
+          if(this.selectedTabData.eqid=="be3a5ea4-8dfd-a0a2-2510-21845f17960b"){
+            this.thematicMapData.push({theme:"坡面分析图",imgUrl:"/ThematicMap/TwoAndThreeDIntegration/LuShan/GradeAnalysis.jpg"})
+          }
+          this.thematicMapData.push({theme:"遥感影像图",imgUrl:""})
+          this.thematicMapData.push({theme:"三维模型图",imgUrl:""})
+
+
+
+          // console.log(res)
+          // this.outputDataimgs.themeData = res.themeData;
+          // console.log(this.outputDataimgs.themeData)
+        });
+
+      }
+      if(type=='report'){
+        handleOutputData(this.selectedTabData.eqid, this.selectedTabData.eqqueueId, this.selectedTabData.earthquakeFullName, type).then((res) => {
+          this.reportData = res.themeData
+          console.log(this.reportData,"this.reportData")
+          // this.outputDatareports = res.themeData;
+          // console.log(this.outputDatareports.themeData)
+          this.$emit('outputDatareports', res.themeData); // 发送eq数据到父组件
+        });
+
+      }
+    },
+
+
     // 根据父组件传值来判断调用哪些专题图
-    fetch() {
-      if (this.thematicMapClass === 'DisasterDamageAssessment') {
-        this.thematicMapData = DisasterDamageAssessmentImageData
-        this.reportData = this.disasterDamageAssessmentReport
-      } else {
-        this.thematicMapData = TwoAndThreeDIntegrationImageData
-        this.reportData = this.twoAndThreeDIntegrationReport
-      }
+    // fetch() {
+    //   // if (this.thematicMapClass === 'DisasterDamageAssessment') {
+    //   //   this.thematicMapData = DisasterDamageAssessmentImageData
+    //   //   this.reportData = this.disasterDamageAssessmentReport
+    //   // }
+    //   // else {
+    //   //   this.thematicMapData = TwoAndThreeDIntegrationImageData
+    //   //   this.reportData = this.twoAndThreeDIntegrationReport
+    //   // }
+    // },
+    handleDownloadReport(docxUrl) {
+      const a = document.createElement('a');
+      a.href = docxUrl;
+      a.download = docxUrl.split('/').pop();
+      a.click();
+      document.body.removeChild(a);
     },
-    exportCesiumScene(item,index) {
-        if(index === 2){
-            this.$emit('generateReport', this.selectedTabData)
-        }
-      if (item.path) {
-        const link = document.createElement('a');
-        link.href = item.path;
-        link.download = item.name; // 指定下载的文件名
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    },
+
+    // exportCesiumScene(item,index) {
+    //     if(index === 2){
+    //         this.$emit('generateReport', this.selectedTabData)
+    //     }
+    //   if (item.path) {
+    //     const link = document.createElement('a');
+    //     link.href = item.docxUrl;
+    //     link.download = item.theme; // 指定下载的文件名
+    //     document.body.appendChild(link);
+    //     link.click();
+    //     document.body.removeChild(link);
+    //   }
+    // },
     getAssetsFile() {
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
     // 获取地震列表并渲染
     getEq() {
-      getAllEq().then((res) => {
-        let resData = res.filter((item) => item.magnitude >= 4.5);
-        let data = resData.map((item) => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
-        }));
-
+      let that = this
+      getEqList().then(res => {
+        console.log("返回的数据1",res.data)
+        let resData = res.data.filter(item =>  item.magnitude  >= 4.0)
+        console.log("过滤后",resData)
+        that.getEqData = resData
+        that.total = resData.length
+        let data = []
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
+        }
         this.getEqData = data;
         this.filteredEqData = data;
         this.updatePagedEqData();
@@ -315,8 +343,8 @@ export default {
 
     // 将选中的专题图信息传给父组件
     previewMap(item) {
-      console.log("111111111111")
-      console.log(item)
+      // console.log("111111111111")
+      // console.log(item)
       this.$emit('imag-selected', item);
     },
 
@@ -346,6 +374,9 @@ export default {
         if (this.selectedTabData) {
           this.selectEqPoint();
           this.$emit('selectEq', eq); // 发送eq数据到父组件
+
+          this.handlePanel('thematicMap')
+          this.handlePanel('report')
         }
       }
     },
@@ -574,7 +605,7 @@ export default {
   position: relative;
   margin: 5px 15px 15px 0;
   font-size: 15px;
-  height: 30%;
+  height: 35%;
   width: 28%;
   border: #fff 1px solid;
   cursor: pointer;

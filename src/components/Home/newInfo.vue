@@ -2,7 +2,7 @@
   <div class="newIn">
     <el-col>
       <div class="eqName">
-        {{ eqName }}
+        {{ eqName }}{{ Number(magnitude).toFixed(1) }} 级地震
       </div>
     </el-col>
     <el-col>

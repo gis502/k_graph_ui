@@ -308,6 +308,7 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
+        <img class="play-icon" src="../../assets/icons/TimeLine/回到开始.png" @click="returnStart"/>
         <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
         <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-show="!isTimerRunning"
              @click="toggleTimer"/>
@@ -414,6 +415,7 @@
               :zoomLevel="zoomLevel"
               :isTimerRunning="isTimerRunning"
               :viewCenterCoordinate="viewCenterCoordinate"
+              :earthquakeName="centerPoint.earthquakeName"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
@@ -706,7 +708,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getEqById} from '@/api/system/eqlist'
+import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
@@ -1552,7 +1554,7 @@ export default {
      * @param {string} eqid - 地震ID
      */
     getEqInfo(eqid) {
-      getEqById({id: eqid}).then(res => {
+      getEqListById({id: eqid}).then(res => {
         //震中标绘点
         this.centerPoint = res
         // 设置中心点的标识和时间信息
@@ -2338,7 +2340,7 @@ export default {
     // ------------------------------路径规划+物资匹配---------------------------
     handleEqListChange() {
       if (this.eqlistName) {
-        getEqById({'id': this.eqlistName}).then(async res => {
+        getEqListById({'id': this.eqlistName}).then(async res => {
           window.viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(parseFloat(res.longitude), parseFloat(res.latitude), 40000),
             orientation: {
@@ -4074,6 +4076,24 @@ export default {
         }
       }
     },
+    returnStart(){
+      this.isTimerRunning = false;
+      // 初始化
+      this.currentTimePosition = 0;
+      this.currentTime = this.eqstartTime;
+      this.currentNodeIndex = 0;
+      // 从 dataSource 中删除点
+      this.plots.forEach(item => {
+        if (this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          cesiumPlot.deleteMakerById(item.plotId, item.drawtype, item.plotType);
+        }
+      })
+      this.flyToCenter()
+      // setTimeout(() => {
+        this.flashingCenter()
+      // }, 3000);
+    },
     /**
      * 初始化计时线
      * 启动计时器，每隔一段时间更新当前时间位置
@@ -4175,7 +4195,6 @@ export default {
         this.flyToCenterhigh()
       }, 3000);
     },
-
     /**
      * 前进一步函数，用于模拟时间线前进
      * 该函数通过增加当前节点索引来实现时间线的前进，并更新当前的时间位置和时间
@@ -4199,6 +4218,7 @@ export default {
         if (flag) {
           if (this.isMarkingLayer) {
             this.updatePlotOnce("3")
+            this.isTimerRunning = false;
           } else {
             this.MarkingLayerRemove()
           }
@@ -4221,7 +4241,7 @@ export default {
         for (; i >= 0; i--) {
           // console.log()
           if (this.jumpNodes[i] === 1) {
-            console.log(i, "i")
+            console.log(i,"i")
             flag = 1;
             break;
           }
@@ -4243,18 +4263,19 @@ export default {
         }
         //更新到下一跳
         if (flag === 1) {
-          let currentTimeTmp = new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+          let currentTimeTmp=new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
           //最后5分钟，不满5分钟的，再回退一跳
-          if (currentTimeTmp >= this.eqendTime) {
+          if(currentTimeTmp>=this.eqendTime){
             this.backward()
-          } else {
+          }
+          else{
             this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
             this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
             this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
             // 根据是否需要显示标绘层来更新图层
             this.updatePlotOnce("3")
           }
-
+          this.isTimerRunning = false;
         }
       }
 
@@ -4278,6 +4299,7 @@ export default {
         this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
         // 根据当前时间进度百分比和总步骤数计算当前步骤索引
         this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
+        // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
         // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
         // console.log("this.currentTime jumpToTime",this.currentTime)
@@ -4293,13 +4315,15 @@ export default {
           // 调用 intimexuanran 方法，传入地震ID
           // this.intimexuanran(this.eqid)
 
-        } else {
+        }
+        else {
           if (currentTimeTmp > this.currentTime) {
             this.updatePlotOnce("3")
           } else {
             this.updatePlotOnce("3")
           }
         }
+        this.isTimerRunning = false;
       }
     },
 
@@ -4312,6 +4336,7 @@ export default {
      */
     startDrag(event) {
       if (this.canOperateTimerLine) {
+
         this.isfirst = false
         this.isDragging = true; // 标记当前开始进入拖拽状态
         this.dragStartX = event.clientX; // 记录拖拽开始时的鼠标 X 坐标
@@ -4331,6 +4356,7 @@ export default {
      */
     drag(event) {
       if (this.canOperateTimerLine) {
+
         // 如果没有拖动，则不执行后续操作
         if (!this.isDragging) return;
         // 获取时间尺的矩形信息
@@ -4356,6 +4382,7 @@ export default {
      */
     stopDrag(time) {
       if (this.canOperateTimerLine) {
+
         this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber);
         // 根据开始时间和当前节点索引计算当前时间
         // 注意：此处将时间增量从15分钟调整为5分钟
@@ -4386,6 +4413,7 @@ export default {
         document.body.style.WebkitUserSelect = 'auto';
         document.body.style.MozUserSelect = 'auto';
         document.body.style.msUserSelect = 'auto';
+        this.isTimerRunning = false;
       }
     },
 
@@ -4414,8 +4442,10 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
             30000),
         orientation: {
           // 指向
@@ -4436,8 +4466,10 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
             200000),
         orientation: {
           // 指向
@@ -4469,8 +4501,10 @@ export default {
             data
           },
           position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
+              // parseFloat(this.centerPoint.geom.coordinates[0]),
+              // parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.longitude),
+              parseFloat(this.centerPoint.latitude),
               parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
@@ -4514,8 +4548,10 @@ export default {
       if (!smallcenterMark) {
         smallcenterMark = smallViewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
+              // parseFloat(this.centerPoint.geom.coordinates[0]),
+              // parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.longitude),
+              parseFloat(this.centerPoint.latitude),
               parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
@@ -4561,8 +4597,10 @@ export default {
       this.timelinePopupData = data
       this.selectedEntity = centerMark
       this.selectedEntityPosition = {
-        x: this.centerPoint.geom.coordinates[0], // 经度
-        y: this.centerPoint.geom.coordinates[1],  // 纬度
+        // x: this.centerPoint.geom.coordinates[0], // 经度
+        // y: this.centerPoint.geom.coordinates[1],  // 纬度
+        x: this.centerPoint.longitude, // 经度
+        y: this.centerPoint.latitude,  // 纬度
         z: 0     // 高度
       };
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
@@ -5124,7 +5162,7 @@ export default {
      */
     getEq() {
       let that = this
-      getAllEq().then(res => {
+      getAllEqList().then(res => {
         that.eqtableData = res
         // 建立WS
 
@@ -6534,7 +6572,7 @@ export default {
 .play {
   width: 4%;
   height: 100%;
-  margin-left: -1%;
+  margin-left: -4%;
   display: flex;
   align-items: center;
 }

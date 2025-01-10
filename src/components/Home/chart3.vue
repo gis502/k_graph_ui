@@ -81,7 +81,7 @@ watch(() => props.lastEq, () => {
           console.log("Injury count for this item:", item.injuryCount);
           console.log("Missing count for this item:", item.missingCount);
           console.log("Death count for this item:", item.deathCount);
-          console.log("resssssssssssssssssssssssssssssssssssssss",res)
+          console.log("最新地震人员伤亡和余震",res)
           // 确保 item 中的字段存在，并进行累加
           totalInjury += item.totalInjured || 0;  // 使用 || 以防 item.injuryCount 为 null 或 undefined
           totalMissing += item.totalMissing || 0;
@@ -97,12 +97,14 @@ watch(() => props.lastEq, () => {
         // 使用可选链和默认值，防止latestInsertTime为undefined时报错
         // 检查时间字段并安全访问
         const firstItem = res[0];
+        console.log("firstItem",firstItem)
         const submissionDeadlines = res.map(item => item.submissionDeadline).filter(Boolean);
+        console.log("提交时间",submissionDeadlines)
         if (firstItem && firstItem.submissionDeadline) {
-          const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
-          updateTime.value = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
-          updateTime.value = formatDate(updateTime.value);
-          console.log(updateTime)
+          // const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
+          // updateTime.value = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
+          updateTime.value = formatDate(firstItem.submissionDeadline);
+          console.log("最新时间",updateTime)
         } else {
           updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');
           updateTime.value = formatDate( updateTime.value);  // 使用传入的时间字段

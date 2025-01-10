@@ -30,17 +30,17 @@
               <div class="eqText">
           <span
             class="eqTitle">
-            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{eq.magnitude}}级地震
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
             发震时刻：{{ timestampToTime(eq.occurrenceTime, "fullDateTime") }}<br/>
             参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
-            震源深度：{{ eq.depth }}千米
+            震源深度：{{ eq.depth }}千米<br/>
+                  地震类型：{{ eq.eqType === 'Z' ? '正式地震' : (eq.eqType === 'Y' ? '演练地震' : '测试地震') }}
           </span>
               </div>
-
               <!-- 详情按钮 -->
               <div class="eqTapToInfo" @click="toTab(eq)">详情</div>
             </div>
@@ -445,6 +445,7 @@ export default {
       getEqList(eqListDTO).then((res) => {
         console.log(res)
         let resData = res.data.filter((item) => item.magnitude >= 4.0);
+        console.log("灾损过滤后4.0", resData)
         let data = resData.map((item) => ({
           ...item,
           occurrenceTime: timestampToTime(item.occurrenceTime, "full"),
@@ -1527,7 +1528,7 @@ export default {
 
 .eqCard {
   display: flex;
-  height: 110px;
+  height: 125px;
   border-bottom: #0d325f 2px solid;
   cursor: pointer;
 }

@@ -45,7 +45,7 @@
                 :headers="this.headers">
               <!-- 隐藏的文件选择按钮 -->
 
-              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+              <el-button type="primary" plain @click="triggerFileInput" >选择文件</el-button>
             </el-upload>
             <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
@@ -364,10 +364,13 @@ export default {
       this.$notify({
         title: '灾情上传',
         message: '数据正在解析中...',
-        duration: 2000,
+        duration: 2000, // 设置持续时间
         zIndex: 9999  // 设置 zIndex 来确保通知在最上层
       });
     },
+
+
+
     confirmUpload() {
       this.importDialogVisible = false;
       if (this.selectedFile) {
@@ -497,7 +500,6 @@ export default {
       // getExcelUploadEarthquake().then(res => {
       getExcelUploadEqList().then(res => {
         this.eqlists = res
-
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }

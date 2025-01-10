@@ -77,7 +77,7 @@ export const constantRoutes = [
     children: [
       {
         path: '/thdTimeLine/:eqid',
-        component: () => import('@/views/plot/timeLine/TimeLine.vue'),
+        component: () => import('@/views/plot/timeLine/thdTimeLine.vue'),
         name: 'thdTimeLine',
         props: true,
       }]
