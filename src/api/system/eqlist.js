@@ -143,6 +143,14 @@ export function eqEventTrigger(data) {
     })
 }
 
+export function eqEventReassessment(data) {
+    return request({
+        url: '/tp/api/open/reassessment',
+        method: 'post',
+        data
+    })
+}
+
 export function eqProgress(event){
     return request({
         url: '/tp/api/open/eq/progress',

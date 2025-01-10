@@ -2,15 +2,15 @@
   <div class="app-container">
     <el-form-item label="地震信息">
       <el-input
-        v-model="queryParams"
-        placeholder="请输入地震信息"
-        clearable
-        style="width: 200px"
-        @keyup.enter="handleQuery"
+          v-model="queryParams"
+          placeholder="请输入地震信息"
+          clearable
+          style="width: 200px"
+          @keyup.enter="handleQuery"
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-<!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+      <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
 
@@ -32,17 +32,17 @@
       </el-table-column>
 
       <el-table-column
-        prop="occurrenceTime"
-        label="发震时间"
-        width="250"
-        show-overflow-tooltip
+          prop="occurrenceTime"
+          label="发震时间"
+          width="250"
+          show-overflow-tooltip
       ></el-table-column>
 
       <el-table-column
-        prop="earthquakeName"
-        label="位置"
-        width="300"
-        show-overflow-tooltip
+          prop="earthquakeName"
+          label="位置"
+          width="300"
+          show-overflow-tooltip
       ></el-table-column>
 
       <el-table-column prop="magnitude" label="震级(级)"></el-table-column>
@@ -53,15 +53,15 @@
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button
-            type="text"
-            icon="Edit"
-            @click="handleOpen('修改', scope.row)"
+              type="text"
+              icon="Edit"
+              @click="handleOpen('修改', scope.row)"
           >修改
           </el-button>
           <el-button
-            type="text"
-            icon="Delete"
-            @click="handleDelete(scope.row)"
+              type="text"
+              icon="Delete"
+              @click="handleDelete(scope.row)"
           >删除
           </el-button>
         </template>
@@ -69,13 +69,13 @@
     </el-table>
 
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="pageSizes"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%">
@@ -91,11 +91,11 @@
           <el-col :span="18">
             <el-form-item label="发震时间：" prop="occurrenceTime">
               <el-date-picker
-                v-model="dialogContent.occurrenceTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                size="large">
+                  v-model="dialogContent.occurrenceTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
+                  size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -135,26 +135,25 @@
     </el-dialog>
 
     <el-dialog
-      v-model="queryFormVisible"
-      title="筛选"
-      width="30vw"
-      style="top:20vh"
-    >
+        v-model="queryFormVisible"
+        title="筛选"
+        width="30vw"
+        style="top:20vh">
       <el-form :inline="true" :model="formValue" ref="formValue" :rules="formValuerules" :show-close="false">
         <el-form-item label="地震位置">
           <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-            v-model="formValue.occurrenceTime"
-            type="daterange"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            :shortcuts="shortcuts"
-            style="width: 23vw;"
-            value-format="YYYY-MM-DDTHH:mm:ss"/>
+              v-model="formValue.occurrenceTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              :shortcuts="shortcuts"
+              style="width: 23vw;"
+              value-format="YYYY-MM-DDTHH:mm:ss"/>
         </el-form-item>
         <el-form-item label="地震震级" prop="magnitude" class="formValue">
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;" placeholder="起始震级"/>
@@ -181,7 +180,11 @@
         <el-row>
           <el-col :span="13">
             <el-form-item label="震发位置：" prop="eqName">
-              <el-input v-model="addOrUpdateDTO.eqAddr" placeholder="请输入内容"></el-input>
+              <el-cascader
+                  v-model="addOrUpdateDTO.eqAddr"
+                  placeholder="请输入内容"
+                  :options="options"
+                  filterable></el-cascader>
             </el-form-item>
           </el-col>
         </el-row>
@@ -189,11 +192,11 @@
           <el-col :span="18">
             <el-form-item label="发震时间：" prop="eqTime">
               <el-date-picker
-                v-model="addOrUpdateDTO.eqTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                size="large">
+                  v-model="addOrUpdateDTO.eqTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
+                  size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -229,10 +232,10 @@
           <el-form-item label="地震类型：" prop="eqType">
             <el-select v-model="addOrUpdateDTO.eqType" placeholder="请选择地震类型" style="width: 200px" clearable>
               <el-option
-                v-for="item in eqType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                  v-for="item in eqType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
               >
               </el-option>
             </el-select>
@@ -258,6 +261,7 @@ import {
   queryEq,
   fromEq,
   eqEventTrigger,
+  eqEventReassessment,
   deletedEq,
   getAllEqList
 } from '@/api/system/eqlist'
@@ -267,6 +271,123 @@ export default {
   data() {
 
     return {
+
+      options: [{
+        value: 'sichuan',
+        label: '四川省',
+        children: [
+          {
+            value: 'yucheng',
+            label: '雨城区',
+            children: [
+              {
+                value: 'bixingxia',
+                label: '碧峰峡镇'
+              },
+              {
+                value: 'babu',
+                label: '八步镇'
+              },
+              {
+                value: 'zhougongshan',
+                label: '周公山镇'
+              },
+              {
+                value: 'duoying',
+                label: '多营镇'
+              },
+              {
+                value: 'caoba',
+                label: '草坝镇'
+              },
+              {
+                value: 'wangyu',
+                label: '望鱼镇'
+              },
+              {
+                value: 'yanchang',
+                label: '晏场镇'
+              },
+              {
+                value: 'shangli',
+                label: '上里镇'
+              },
+            ]
+          },
+
+          {
+            value: 'mingshan',
+            label: '名山区',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+          {
+            value: 'hanyuan',
+            label: '汉源县',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+          {
+            value: 'yingjing',
+            label: '荥经县',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+          {
+            value: 'shimian',
+            label: '石棉县',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+          {
+            value: 'tianquan',
+            label: '天全县',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+          {
+            value: 'lusjan',
+            label: '芦山县',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+          {
+            value: 'baoxing',
+            label: '宝兴县',
+            children: [
+              {
+                value: 'cexiangdaohang',
+                label: '侧向导航'
+              },
+            ]
+          },
+        ]
+      }],
+
       rules: {
         earthquakeName: [
           {required: true, message: '请输入震发位置', trigger: 'blur'},
@@ -515,7 +636,7 @@ export default {
   mounted() {
     setInterval(this.updateTime, 500)
     this.getEq()
-    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇" ,5))
+    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇", 5))
     console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
@@ -640,7 +761,7 @@ export default {
     getEq() {
       let that = this
       getAllEqList().then(res => {
-        console.log("返回的数据",res.data)
+        console.log("返回的数据", res.data)
         let resData = res.data.filter(item => item.magnitude >= 3)
         that.getEqData = resData
         that.total = resData.length
@@ -747,8 +868,11 @@ export default {
       this.$refs.from.validate((valid) => {
         if (valid) {
           // 发送请求
-          // 提交表单逻辑
-          console.log("表单验证通过，提交数据");
+          eqEventReassessment(this.dialogContent)
+              .then(res => {
+                console.log(res)
+              });
+          this.getEq();
         } else {
           console.log("表单验证失败，请检查输入！");
           // this.$message.error('表单验证失败，请检查输入！');
@@ -759,7 +883,6 @@ export default {
       console.log("formatDateToBackend格式化时间commit：", this.dialogContent.occurrenceTime);
       this.dialogContent.occurrenceTime = this.formatISODateTimeToBackend(this.dialogContent.occurrenceTime); // 调用方法格式化时间
       console.log("formatDateToBackend“T”->' 'commit：", this.dialogContent.occurrenceTime);
-
 
       if (this.dialogTitle === "新增") {
         console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
@@ -907,12 +1030,12 @@ export default {
 
     guid(num) {
       return num ?
-        Array.from({ length: num }, () => Math.floor(Math.random() * 10)).join('') :
-        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-          let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
+          Array.from({length: num}, () => Math.floor(Math.random() * 10)).join('') :
+          'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            let r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
     },
 
 
