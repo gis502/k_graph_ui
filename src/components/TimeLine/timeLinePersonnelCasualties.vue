@@ -60,7 +60,6 @@ export default {
   mounted() {
     this.init();
     this.initChart(); // 初始化图表
-
   },
   watch: {
     currentTime(newVal) {
@@ -85,7 +84,7 @@ export default {
         // console.log("e this.websock.onmessage", e)
         try {
           console.log("从服务器接收到的消息thdtimelinePersonnelCasualties", JSON.parse(e.data))
-          JSON.parse(e.data).response.data.forEach(item => {
+          JSON.parse(e.data).response.data.forEach(item =>  {
             // console.log(item,"item")
             that.ResponseContent.push(item)
           })

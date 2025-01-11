@@ -2,7 +2,7 @@
   <div class="content-body">
     <div class="header">
       <div class="header-center">
-        <span>雅安市地震应急信息服务技术支撑平台</span>
+        <span>地震应急信息服务技术支撑平台</span>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>
@@ -51,7 +51,7 @@
 
                 <!-- 输入框和按钮 -->
                 <div
-                    style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 1;"
+                    style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; gap: 5px; z-index: 1;"
                 >
                   <el-input
                       size="small"
@@ -69,9 +69,17 @@
                       style="font-size: 16px;"
                       @click="openQueryFrom()"
                   >筛选</el-button>
+                  <el-button
+                      size="small"
+                      :type="activeMode === 'Z' ? 'primary' : 'default'"
+                      style="font-size: 16px;"
+                      @click="toggleMode"
+                  >
+                    {{ activeMode === 'Z' ? '正式' : '测试' }}
+                  </el-button>
                 </div>
               </div>
-              <eq-table :eq-data="tableData"/>
+              <eq-table :eq-data="CeShiTableData"/>
             </div>
 
             <div class="right-bottom public-bg" ref="rightBottom">
@@ -134,13 +142,26 @@ import NewInfo from '@/components/Home/newInfo.vue';
 import Chart1 from '@/components/Home/chart1.vue';
 import Chart2 from '@/components/Home/chart2.vue';
 import Chart3 from '@/components/Home/chart3.vue';
-import { fromEq, getAllEq, queryEq } from '@/api/system/eqlist';
+import {fromEq, fromEqList, getAllEq, queryEq, queryEqList} from '@/api/system/eqlist';
+import {getEqList} from "@/api/system/damageassessment.js";
 
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([]);
 const lastEqData = ref();
 const requestParams = ref('');
+// 当前模式，初始为正式
+const activeMode = ref('Z');
+
+// 切换模式
+const toggleMode = () => {
+  activeMode.value = activeMode.value === 'Z' ? 'T' : 'Z';
+};
+
+// 根据模式过滤表格数据
+const CeShiTableData = computed(() =>
+    tableData.value.filter((item) => item.eqType === activeMode.value)
+);
 
 const queryFormVisible = ref(false);
 
@@ -237,7 +258,7 @@ const onSubmit = () => {
 
   console.log("5555555555555555555555555555",queryParams)
 
-  fromEq(queryParams).then((res) => {
+  fromEqList(queryParams).then((res) => {
     tableData.value = res;
   });
   queryFormVisible.value = false;
@@ -252,7 +273,8 @@ const query = () => {
     tableData.value = EqAll.value;
     return;
   }
-  queryEq({ queryValue: requestParams.value }).then((res) => {
+  // queryEq({ queryValue: requestParams.value }).then((res) => {
+  queryEqList({ queryValue: requestParams.value }).then((res) => {
     tableData.value = res;
   });
 };
@@ -292,12 +314,12 @@ const fillZero = (str) => {
 };
 
 const getEq = () => {
-  getAllEq().then((res) => {
-    console.log("地震数据",res)
-    EqAll.value = res;
-    tableData.value = res;
+  getEqList().then((res) => {
+    console.log("地震数据",res.data)
+    EqAll.value = res.data;
+    tableData.value =res.data;
     // 之后要换回来     lastEqData.value = res[0];
-    lastEqData.value = res[0];
+    lastEqData.value = res.data[0];
     // 打印最新的 eqid
     if (lastEqData.value) {
       console.log('最新地震的 eqid:', lastEqData.value.eqid);

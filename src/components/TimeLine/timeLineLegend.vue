@@ -13,7 +13,8 @@
 
       <div v-for="item in getPicData" :key="item.label" class="legend-item">
         <div v-if="item.img && item.img !== ''">
-          <img  class="legend-img" :src="'http://localhost:8080/uploads/PlotsPic/' + item.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+<!--          <img  class="legend-img" :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' + item.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">-->
+          <img  class="legend-img" :src="'http://localhost:8080'+'/uploads/PlotsPic/' + item.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
 
         </div>
         <span class="legend-label">{{ item.name }}</span>
@@ -94,7 +95,7 @@ export default {
   background-color: rgba(40, 40, 40, 0.7);
   box-sizing: border-box;
   color: white;
-  z-index: 100;
+  z-index: 99;
   transition: width 0.3s ease-in-out, height 0.3s ease-in-out, bottom 0.3s ease-in-out;
   background-color: rgb(22, 53, 77,0.9);
   backdrop-filter: none!important;

@@ -7,6 +7,7 @@ export default {
   name: "orthophotographViewer",
   mounted() {
     this.init();
+
   },
   beforeUnmount() {
     if (window.viewer){
@@ -54,11 +55,23 @@ export default {
       this.addOrthophotographViewer()
     },
     addOrthophotographViewer(){
+      let url = this.$route.query.url
+      let layers = this.$route.query.layers
+      // console.log(url,layers)
       window.viewer.imageryLayers.addImageryProvider(
-          new Cesium.UrlTemplateImageryProvider({
-            url: 'http://localhost:9003/image/wmts/ji9N8PBo/{z}/{x}/{y}',
-          }),
+          new Cesium.WebMapServiceImageryProvider({
+            url,
+            layers,
+            parameters: {
+              service: 'WMS', // 指定服务类型为WMS
+              format: 'image/png', // 指定返回的图像格式为PNG
+              transparent: true // 启用透明背景
+            }
+          })
       );
+
+
+
     }
 
   }

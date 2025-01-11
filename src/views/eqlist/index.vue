@@ -1,18 +1,24 @@
 <template>
   <div class="app-container">
-    <el-form-item label="地震信息" >
+    <el-form-item label="地震信息">
       <el-input
-          v-model="queryParams"
-          placeholder="请输入地震信息"
-          clearable
-          style="width: 200px"
-          @keyup.enter="handleQuery"
+        v-model="queryParams"
+        placeholder="请输入地震信息"
+        clearable
+        style="width: 200px"
+        @keyup.enter="handleQuery"
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>
+<!--      二三维一体化——地震信息管理-->
+<!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
+      <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
+
     </el-form-item>
+
+    <el-progress v-if="isProgressShow" :text-inside="true" :stroke-width="26" :percentage="percentage"
+                 :color="colors"></el-progress>
 
     <el-table
         :data="tableData"
@@ -20,6 +26,7 @@
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
     >
+
       <el-table-column label="序号" width="60">
         <template #default="{ row, column, $index }">
           {{ ($index + 1) + (currentPage - 1) * pageSize }}
@@ -27,20 +34,34 @@
       </el-table-column>
 
       <el-table-column
-          prop="occurrenceTime"
-          label="发震时间"
-          width="250"
-          show-overflow-tooltip
+        prop="occurrenceTime"
+        label="发震时间"
+        width="250"
+        show-overflow-tooltip
       ></el-table-column>
 
       <el-table-column
-          prop="earthquakeName"
-          label="位置"
-          width="300"
-          show-overflow-tooltip
+        prop="earthquakeName"
+        label="位置"
+        width="200"
+        show-overflow-tooltip
       ></el-table-column>
 
+
       <el-table-column prop="magnitude" label="震级(级)"></el-table-column>
+      <el-table-column label="地震类型" width="100" show-overflow-tooltip>
+        <template #default="{ row }">
+          <el-button
+              :type="row.eqType === 'Z' ? 'success' : (row.eqType === 'Y' ? 'danger':'primary')"
+              plain
+              size="mini"
+              style="margin: 0; padding: 2px 8px; border-radius: 4px;"
+          >
+            {{ row.eqType === 'Z' ? '正式地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
+          </el-button>
+        </template>
+      </el-table-column>
+
       <el-table-column prop="longitude" label="经度(度分)"></el-table-column>
       <el-table-column prop="latitude" label="纬度(度分)"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)"></el-table-column>
@@ -48,32 +69,34 @@
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button
-              type="text"
-              icon="Edit"
-              @click="handleOpen('修改', scope.row)"
-          >修改</el-button>
+            type="text"
+            icon="Edit"
+            @click="handleOpen('修改', scope.row)"
+          >修改
+          </el-button>
           <el-button
-              type="text"
-              icon="Delete"
-              @click="handleDelete(scope.row)"
-          >删除</el-button>
+            type="text"
+            icon="Delete"
+            @click="handleDelete(scope.row)"
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="pageSizes"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total">
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-sizes="pageSizes"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
     </el-pagination>
 
-    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%" >
-      <el-form  ref="from" :model="dialogContent"  :rules="rules"  >
-        <el-row >
+    <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%">
+      <el-form ref="from" :model="dialogContent" :rules="rules">
+        <el-row>
           <el-col :span="13">
             <el-form-item label="震发位置：" prop="earthquakeName">
               <el-input v-model="dialogContent.earthquakeName" placeholder="请输入内容"></el-input>
@@ -82,13 +105,13 @@
         </el-row>
         <el-row>
           <el-col :span="18">
-            <el-form-item label="发震时间："  prop="occurrenceTime">
+            <el-form-item label="发震时间：" prop="occurrenceTime">
               <el-date-picker
-                  v-model="dialogContent.occurrenceTime"
-                  type="datetime"
-                  placeholder="选择日期时间"
-                  value-format="YYYY-MM-DDTHH:mm:ss"
-                  size="large">
+                v-model="dialogContent.occurrenceTime"
+                type="datetime"
+                placeholder="选择日期时间"
+                value-format="YYYY-MM-DDTHH:mm:ss"
+                size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -124,41 +147,41 @@
         <el-button @click="cancel">取 消</el-button>
         <el-button type="primary" @click="commit">确 定</el-button>
       </span>
-        </el-form >
+      </el-form>
     </el-dialog>
 
     <el-dialog
-        v-model="queryFormVisible"
-        title="筛选"
-        width="30vw"
-        style="top:20vh"
+      v-model="queryFormVisible"
+      title="筛选"
+      width="30vw"
+      style="top:20vh"
     >
-      <el-form :inline="true" :model="formValue"  ref="formValue"  :rules="formValuerules"  :show-close="false">
+      <el-form :inline="true" :model="formValue" ref="formValue" :rules="formValuerules" :show-close="false">
         <el-form-item label="地震位置">
           <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-              v-model="formValue.occurrenceTime"
-              type="daterange"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              :shortcuts="shortcuts"
-              style="width: 23vw;"
-              value-format="YYYY-MM-DDTHH:mm:ss"          />
+            v-model="formValue.occurrenceTime"
+            type="daterange"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            :shortcuts="shortcuts"
+            style="width: 23vw;"
+            value-format="YYYY-MM-DDTHH:mm:ss"/>
         </el-form-item>
-        <el-form-item label="地震震级"  prop="magnitude" class="formValue">
-          <el-input v-model="formValue.startMagnitude" style="width: 5vw;"  placeholder="起始震级"/>
+        <el-form-item label="地震震级" prop="magnitude" class="formValue">
+          <el-input v-model="formValue.startMagnitude" style="width: 5vw;" placeholder="起始震级"/>
           <span style="margin: 0 10px"> 至 </span>
           <el-input v-model="formValue.endMagnitude" style="width: 5vw;" placeholder="结束震级"/>
           <span style="margin: 0 10px">(级)</span>
         </el-form-item>
-        <el-form-item label="地震深度"  prop="depth" class="formValue">
-          <el-input v-model="formValue.startDepth" style="width: 5vw"  placeholder="起始深度"/>
+        <el-form-item label="地震深度" prop="depth" class="formValue">
+          <el-input v-model="formValue.startDepth" style="width: 5vw" placeholder="起始深度"/>
           <span style="margin: 0 10px"> 至 </span>
-          <el-input v-model="formValue.endDepth" style="width: 5vw"   placeholder="结束深度"/>
+          <el-input v-model="formValue.endDepth" style="width: 5vw" placeholder="结束深度"/>
           <span style="margin: 0 10px">(千米)</span>
         </el-form-item>
       </el-form>
@@ -168,11 +191,93 @@
         <el-button type="primary" @click="onSubmit">筛 选</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog :title="panelTitle" v-model="isPanelShow" width="30%">
+      <el-form ref="panel" :model="addOrUpdateDTO" :rules="panelRules">
+        <el-row>
+          <el-col :span="13">
+            <el-form-item label="震发位置：" prop="eqName">
+              <el-input v-model="addOrUpdateDTO.eqAddr" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18">
+            <el-form-item label="发震时间：" prop="eqTime">
+              <el-date-picker
+                v-model="addOrUpdateDTO.eqTime"
+                type="datetime"
+                placeholder="选择日期时间"
+                value-format="YYYY-MM-DDTHH:mm:ss"
+                size="large">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="震级(级)：" prop="eqMagnitude">
+              <el-input v-model="addOrUpdateDTO.eqMagnitude" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="深度(千米)：" prop="eqDepth">
+              <el-input v-model="addOrUpdateDTO.eqDepth" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="经度(度分)：" prop="longitude">
+              <el-input v-model="addOrUpdateDTO.longitude" placeholder="请输入内容" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="纬度(度分)：" prop="latitude">
+              <el-input v-model="addOrUpdateDTO.latitude" placeholder="请输入内容" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-form-item label="地震类型：" prop="eqType">
+            <el-select v-model="addOrUpdateDTO.eqType" placeholder="请选择地震类型" style="width: 200px" clearable>
+              <el-option
+                v-for="item in eqType"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="cancelPanel">取 消</el-button>
+          <el-button type="primary" @click="commitPanel">确 定</el-button>
+        </span>
+      </el-form>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-import {addEq, getAllEq, deleteeq, updataEq, queryEq, fromEq} from '@/api/system/eqlist'
+import {
+  addEq,
+  getAllEq,
+  deleteeq,
+  updataEq,
+  queryEq,
+  fromEq,
+  eqEventTrigger,
+  deletedEq,
+  getAllEqList, queryEqList, fromEqList
+} from '@/api/system/eqlist'
+import {getEqList} from "@/api/system/damageassessment.js";
 
 export default {
   name: "index",
@@ -184,11 +289,12 @@ export default {
           {required: true, message: '请输入震发位置', trigger: 'blur'},
         ],
         occurrenceTime: [
-          {required: true, message: '请选择发震时间',trigger: ['blur', 'change']},
+          {required: true, message: '请选择发震时间', trigger: ['blur', 'change']},
         ],
         magnitude: [
           {required: true, message: '请输入震级(级)', trigger: 'blur'},
-          { validator: (rule, value, callback) => {
+          {
+            validator: (rule, value, callback) => {
               if (!value) {
                 return callback(new Error('震级不能为空'));
               }
@@ -267,7 +373,7 @@ export default {
         magnitude: [
           {
             validator: (rule, value, callback) => {
-              const { startMagnitude, endMagnitude } = this.formValue;
+              const {startMagnitude, endMagnitude} = this.formValue;
 
               // 检查两个值是否都存在
               if (!startMagnitude || !endMagnitude) {
@@ -288,7 +394,7 @@ export default {
         depth: [
           {
             validator: (rule, value, callback) => {
-              const { startDepth, endDepth } = this.formValue;
+              const {startDepth, endDepth} = this.formValue;
 
               // 检查两个值是否都存在
               if (!startDepth || !endDepth) {
@@ -307,7 +413,19 @@ export default {
           }
         ]
       },
-
+      // 进度条
+      isProgressShow: false,
+      percentage: 0,
+      colors: [
+        {color: '#e3e8f5', percentage: 10},
+        {color: '#acd2f8', percentage: 30},
+        {color: '#7cbdfa', percentage: 40},
+        {color: '#7ea3f8', percentage: 50},
+        {color: '#6293f6', percentage: 60},
+        {color: '#4f80ff', percentage: 70},
+        {color: '#4b6bfa', percentage: 80},
+        {color: '#445ede', percentage: 100}
+      ],
       formValid: false, // 表单验证状态
       getEqData: [],
       tableData: [],
@@ -376,14 +494,102 @@ export default {
             return [start, end]
           }
         }
+      ],
+
+      addOrUpdateDTO: {
+        event: '',
+        eqName: '',
+        eqTime: '',
+        eqAddr: '',
+        longitude: '',
+        latitude: '',
+        eqMagnitude: '',
+        eqDepth: '',
+        eqType: '',
+      },
+
+      panelTitle: '',
+      isPanelShow: false,
+      panelRules: '',
+
+      eqType: [
+        {
+          label: "正式",
+          value: "Z",
+        },
+        {
+          label: "演练",
+          value: "Y",
+        },
+        {
+          label: "测试",
+          value: "T",
+        }
       ]
+
     }
   },
   mounted() {
     setInterval(this.updateTime, 500)
     this.getEq()
+    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇" ,5))
+    console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
+    console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
   methods: {
+
+    commitPanel() {
+      this.isPanelShow = !this.isPanelShow
+      // this.setInterval()
+      this.$notify({
+        title: '地震模拟成功',
+        message: '正在进行灾损评估中',
+        duration: 600000
+      });
+      this.addOrUpdateDTO.event = this.createTid()
+      this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
+      this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
+      eqEventTrigger(this.addOrUpdateDTO)
+          .then(res => {
+            console.log(res)
+          })
+      // this.addOrUpdateDTO.event = this.createTid()
+      // this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
+      // this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
+      // eqEventTrigger(this.addOrUpdateDTO)
+      //     .then(res => {
+      //   console.log(res)
+      // })
+      // // console.log("你好：", this.addOrUpdateDTO)
+      this.getEq()
+    },
+    // 进度条
+    // setInterval() {
+    //   this.interval = setInterval(() => {
+    //     this.updateProgress(event)
+    //   }, 9000)
+    // },
+    // updateProgress(event) {
+    //   eqProgress(event).then(res => {
+    //     this.isProgressShow = true
+    //     this.percentage = res.data.percentage
+    //   })
+    // },
+    cancelPanel() {
+      this.addOrUpdateDTO = {
+        event: '',
+        eqName: '',
+        eqTime: '',
+        eqAddr: '',
+        longitude: '',
+        latitude: '',
+        eqMagnitude: '',
+        eqDepth: '',
+        eqType: '',
+      }
+    },
+
+
     onSubmit() {
       const {earthquakeName, occurrenceTime, startMagnitude, endMagnitude, startDepth, endDepth} = this.formValue;
 
@@ -410,20 +616,36 @@ export default {
       };
 
       // 发送请求
-      fromEq(queryParams).then(res => {
+      fromEqList(queryParams).then(res => {
         // 处理返回的数据
-        this.getEqData = res.map(item => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2)
-        }));
+        this.getEqData = res.map(item => {
+          // 提取 geom 中的坐标信息，默认值 [0, 0] 防止数据缺失
+          const [longitude, latitude] = item.geom?.coordinates || [0, 0];
+
+          return {
+            ...item,
+            occurrenceTime: this.timestampToTime(item.occurrenceTime),  // 转换时间
+            magnitude: Number(item.magnitude).toFixed(1),  // 格式化震级为一位小数
+            latitude: Number(latitude).toFixed(2),  // 格式化纬度为两位小数
+            longitude: Number(longitude).toFixed(2),  // 格式化经度为两位小数
+          };
+        });
+
+        // 更新总数据量
         this.total = this.getEqData.length;
+
+        // 获取当前页的数据
         this.tableData = this.getPageArr();
+
         // 隐藏筛选表单
         this.queryFormVisible = false;
+
+        // 清除表单的值
         this.clearFormValue();
+      }).catch(error => {
+        // 处理请求错误
+        console.error("请求数据失败:", error);
+        // 可以加上错误提示或处理逻辑
       });
 
     },
@@ -450,23 +672,31 @@ export default {
     },
     getEq() {
       let that = this
-      getAllEq().then(res => {
-        let resData = res.filter(item => item.magnitude >= 3)
+      getEqList().then(res => {
+        console.log("返回的数据",res.data)
+        let resData = res.data.filter(item =>  Number(item.magnitude)  >= 3)
         that.getEqData = resData
+        console.log("过滤后",resData)
         that.total = resData.length
         let data = []
-        for (let i = 0; i < res.length; i++) {
-          let item = res[i]
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
           item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
           item.magnitude = Number(item.magnitude).toFixed(1)
           item.latitude = Number(item.latitude).toFixed(2)
           item.longitude = Number(item.longitude).toFixed(2)
           data.push(item)
         }
-        console.log("返回的数据：",res)
         that.tableData = this.getPageArr()
       })
     },
+
+    handleAddOrUpdate(operation) {
+      if (operation === 'add') {
+        this.isPanelShow = !this.isPanelShow
+      }
+    },
+
     // 删除单条地震
     handleDelete(row) {
       let that = this;
@@ -475,7 +705,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        deleteeq({eqid: row.eqid}).then(res => {
+        deletedEq({eqid: row.eqid}).then(res => {
           that.getEq();
           that.$message({
             type: 'success',
@@ -494,8 +724,7 @@ export default {
       if (title === "新增") {
         this.dialogTitle = title
         console.log(this.dialogTitle)
-      }
-      else if (title === "修改") {
+      } else if (title === "修改") {
         this.dialogTitle = title
         this.dialogContent = {
           earthquakeName: row.earthquakeName,
@@ -513,24 +742,42 @@ export default {
     handleQuery() {
       // 获取搜索关键字
       const searchKey = this.queryParams.trim();
-      let result = searchKey.replace(/年|月/g, "-").replace(/日/g, "");
+
       // 如果搜索关键字为空，恢复为原始数据
       if (searchKey === "") {
-        this.tableData = this.getPageArr();  // 恢复所有数据并重新进行分页
+        this.tableData = this.getEq();  // 恢复所有数据并重新进行分页
         return;
       }
 
+      let finalSearchKey = searchKey;
+
+      // 判断是否是时间格式
+      const timePattern = /^(\d{4})年(\d{1,2})月(\d{1,2})日(\d{1,2})时(\d{1,2})分(\d{1,2})秒$/;
+      const timeMatch = searchKey.match(timePattern);
+
+      if (timeMatch) {
+        // 如果是时间格式，转换为目标格式
+        const [, year, month, day, hh, mm, ss] = timeMatch;
+        finalSearchKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${hh.padStart(2, '0')}:${mm.padStart(2, '0')}:${ss.padStart(2, '0')}`;
+      }
+
       // 发送搜索请求
-      queryEq({queryValue: result}).then(res => {
-        console.log("检查返回的数据", res); // 检查返回的数据
+      queryEqList({queryValue: finalSearchKey}).then(res => {
+        console.log("检查返回的数据",res); // 检查返回的数据
         // 处理并格式化返回的数据
-        const filteredData = res.filter(item => item.magnitude >= 3).map(item => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
-        }));
+        const filteredData = res.filter(item => item.magnitude >= 3).map(item => {
+          // 提取 geom 中的坐标信息，默认值 [0, 0] 防止数据缺失
+          const [longitude, latitude] = item.geom?.coordinates || [0, 0];
+
+          // 直接修改 item 对象的属性
+          item.occurrenceTime = this.timestampToTimeData(item.occurrenceTime); // 格式化时间
+          item.magnitude = Number(item.magnitude).toFixed(1); // 格式化震级
+          item.latitude = Number(latitude).toFixed(2); // 格式化纬度
+          item.longitude = Number(longitude).toFixed(2); // 格式化经度
+
+          // 返回修改后的 item
+          return item;
+        });
         // 搜索之后更新数据
         this.getEqData = filteredData;
         this.total = filteredData.length;  // 更新总数
@@ -539,6 +786,48 @@ export default {
       }).catch(error => {
         console.error("搜索时出现错误:", error);
       });
+    },
+    timestampToTime(timestamp) {
+      let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+    },
+    timestampToTimeData(timestamp) {
+      let DateObj = new Date(timestamp)
+      if (isNaN(DateObj.getTime())) {
+        console.error("无效的时间戳:", timestamp);
+        return "";
+      }
+      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
+      let year = DateObj.getFullYear()
+      let month = DateObj.getMonth() + 1
+      let day = DateObj.getDate()
+      let hh = DateObj.getHours()
+      let mm = DateObj.getMinutes()
+      let ss = DateObj.getSeconds()
+      month = month > 9 ? month : '0' + month
+      day = day > 9 ? day : '0' + day
+      hh = hh > 9 ? hh : '0' + hh
+      mm = mm > 9 ? mm : '0' + mm
+      ss = ss > 9 ? ss : '0' + ss
+      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     // 重置功能
@@ -574,7 +863,6 @@ export default {
           this.clearDialogContent();
         });
       } else {
-
 
         console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
         updataEq(this.dialogContent).then(res => {
@@ -674,13 +962,54 @@ export default {
         }
       }
     },
-    guid() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+
+    simplifyLocation(eqAddr, eqMagnitude) {
+      const match = eqAddr.match(/^(\S*省)?(\S*市|\S*州)?(\S*区|\S*县)/);
+      if (!match) return eqAddr; // 无法匹配返回原始地名
+
+      // 提取省、市/州、区/县
+      const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
+      const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
+
+      // 如果市/州与区/县之间只有一个字，连带区/县返回
+      if (county.length === 1) {
+        return `${province}${match[3]}${eqMagnitude}级地震`;
+      }
+
+      // 正常返回省、市/州简化结果
+      return `${province}${county}${eqMagnitude}级地震`;
     },
+
+
+    createTid() {
+
+      // 构造当前时间的部分
+      // const now = new Date();
+      // const year = now.getFullYear(); // 4位年份
+      // const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份，补齐两位
+      // const day = String(now.getDate()).padStart(2, '0'); // 日期，补齐两位
+      // const hours = String(now.getHours()).padStart(2, '0'); // 小时，补齐两位
+      // const minutes = String(now.getMinutes()).padStart(2, '0'); // 分钟，补齐两位
+      // const seconds = String(now.getSeconds()).padStart(2, '0'); // 秒钟，补齐两位
+      // const randomId = this.guid(8); // 提取 GUID 的最后8位
+      //
+      // // 拼接成完整的 event 值
+      // const Tid = `T${year}${month}${day}${hours}${minutes}${seconds}${randomId}`;
+      // return Tid;
+      return this.guid()
+    },
+
+    guid(num) {
+      return num ?
+        Array.from({ length: num }, () => Math.floor(Math.random() * 10)).join('') :
+        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+          let r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+    },
+
+
     timestampToTime(timestamp) {
       // console.log("转换前的时间戳:", timestamp);
       let DateObj = new Date(timestamp)
@@ -757,11 +1086,13 @@ export default {
   position: relative;
   margin: 0 auto;
 }
+
 :deep(.el-dialog__headerbtn .el-dialog__close) {
   color: #262259;
   font-size: inherit;
   /*display: none;*/
 }
+
 :deep(.formValue) {
   padding-bottom: 13px;
 }
@@ -777,7 +1108,7 @@ export default {
   padding-top: 5px !important;
 }
 
-:deep(.el-form--inline .el-form-item ){
+:deep(.el-form--inline .el-form-item ) {
   padding-bottom: 8px;
 }
 

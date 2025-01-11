@@ -1,5 +1,5 @@
 <template>
-  <el-carousel trigger="click" height="650px" interval="3000" indicator-position="none">
+  <el-carousel trigger="click" height="600px" interval="3000" indicator-position="none">
     <el-carousel-item>
       <span class="update-time1">
           更新时间：{{ updateTime1 }}
@@ -477,8 +477,8 @@ export default {
             z: 3,
             style: {
               image: img,  // 替换为你想展示的图像
-              width: 132,  // 缩小图片宽度
-              height: 132  // 缩小图片高度
+              width: 117,  // 缩小图片宽度
+              height: 117  // 缩小图片高度
             },
             left: 'center',
             top: 'center',
@@ -538,10 +538,8 @@ export default {
                   for (let i = 0; i < trafficWay.length; i++) {
                     total += trafficWay[i].value;
                   }
-                  let percent = ((params.value / total) * 100).toFixed(0);
                   if (params.name !== '') {
-                    return params.name + ': ' + params.value + '次' + '\n' +
-                        '占百分比：' + percent + '%';
+                    return params.name + ': ' + params.value + '次';
                   } else {
                     return '';
                   }
@@ -645,12 +643,12 @@ export default {
 .PCChart {
   margin: 0 auto;  /* 水平居中 */
   width: 440px;
-  height: 630px;
+  height: 600px;
 }
 
 .panelChart {
   margin: 0 auto;  /* 水平居中 */
   width: 440px;
-  height: 300px;
+  height: 270px;
 }
 </style>

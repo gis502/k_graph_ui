@@ -45,11 +45,10 @@
                 :headers="this.headers">
               <!-- 隐藏的文件选择按钮 -->
 
-              <el-button type="primary" plain @click="triggerFileInput">选择文件</el-button>
+              <el-button type="primary" plain @click="triggerFileInput" >选择文件</el-button>
             </el-upload>
             <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
-
         </el-dialog>
         <!-- 下载模板弹框-->
         <el-dialog title="请选择表名"
@@ -257,9 +256,10 @@ import useUserStore from "@/store/modules/user.js";
 import {getExcelUploadByTime, getField} from "@/api/system/excel.js";
 import {ElMessage} from "element-plus";
 import {ref} from "vue";
-import {getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
 import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
+import {webSocketLocal} from "@/utils/server.js";
 
 export default {
   name: "index",
@@ -353,17 +353,24 @@ export default {
       // this.websock.send(JSON.stringify("uploade"))
       this.importDialogVisible = true;
     },
-    triggerFileInput() {
 
-      this.$refs.fileInput.click();
-
-    },
     handleFileChange(event) {
       const file = event.raw;
       if (file) {
         this.selectedFile = file;
       }
     },
+    triggerFileInput() {
+      this.$notify({
+        title: '灾情上传',
+        message: '数据正在解析中...',
+        duration: 2000, // 设置持续时间
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
+    },
+
+
+
     confirmUpload() {
       this.importDialogVisible = false;
       if (this.selectedFile) {
@@ -401,6 +408,30 @@ export default {
       // 返回第二个匹配项，即表名
       return matches && matches.length >= 2 ? matches[1].replace(/"/g, '') : ''; // 去掉双引号
     },
+    formatMessageOperParam(row, column, cellValue) {
+      try {
+        // 假设cellValue的格式是： "操作员 震情灾情统计表 2024-08-02 00:18:02 四川泸州市泸县 震级：3"
+
+        // 使用正则表达式提取出 timestamp, location 和 magnitude
+        const regex = /(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) ([\u4e00-\u9fa5]+) 震级：(\d+)/;
+        const match = cellValue.match(regex);
+
+        if (match) {
+          const timestamp = match[1]; // 获取时间戳部分
+          const location = match[2];   // 获取地点部分
+          const magnitude = match[3];  // 获取震级部分
+
+          // 返回拼接后的结果
+          return `${timestamp} ${location} 震级：${magnitude}`;
+        } else {
+          return ''; // 如果格式不符合预期，返回空字符串
+        }
+      } catch (error) {
+        console.error("处理失败:", error);
+        return ''; // 如果发生错误，返回空字符串
+      }
+    },
+
 
     //添加数据数量
     formatMessageAdd(row, column, cellValue) {
@@ -466,9 +497,9 @@ export default {
     },
     //获取地震列表
     getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
+      // getExcelUploadEarthquake().then(res => {
+      getExcelUploadEqList().then(res => {
         this.eqlists = res
-
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }
@@ -557,7 +588,7 @@ export default {
       // 获取不带扩展名的文件名
       const fileNameWithoutExtension = file.name.slice(0, -(type.length + 1));
       this.filename = fileNameWithoutExtension;
-      this.uploadUrl = `http://localhost:8080/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
+      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +`/excel/importExcel/${this.name}&${this.filename}&${this.form1.tableName1}`;
       const isExcel = (type === "xlsx") || (type === 'xls');
       if (!isExcel) {
         this.$message({
@@ -609,7 +640,7 @@ export default {
           //   }
           // };
           if ('WebSocket' in window) {
-            this.websocket = new WebSocketReconnect('ws://localhost:8080' + '/WebSocketServerExcel/' + this.name);
+            this.websocket = new WebSocketReconnect(`ws://${webSocketLocal}` + '/WebSocketServerExcel/' + this.name);
           } else {
             alert('该浏览器不支持 WebSocket');
           }
@@ -622,6 +653,7 @@ export default {
         }
       };
       reader.readAsBinaryString(file); //开始读取文件内容
+      this.triggerFileInput();
       return isExcel;
     },
     // 上传成功弹窗展示上传结果

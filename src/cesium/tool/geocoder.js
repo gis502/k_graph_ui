@@ -1,5 +1,6 @@
 import * as Cesium from "cesium";
 import {TianDiTuToken} from "./config";
+import {AmapApiLocal, tianDitulocalApi} from "@/utils/server.js";
 
 /**
  * 自定义geocoders服务
@@ -39,7 +40,7 @@ function AMapNominatimGeocoder() {
 
 AMapNominatimGeocoder.prototype.geocode = function (input) {
     const query = `key=****&keywords=${input}`;
-    const requestString = "https://restapi.amap.com/v3/place/text?" + query;
+    const requestString = `${AmapApiLocal}/place/text?` + query;
     return Cesium.Resource.fetchJson(requestString) //请求url获取json数据
         .then(function (results) {
             return results.pois.map(function (bboxDegrees) {
@@ -67,7 +68,7 @@ TianDiTuGeocoder.prototype.geocode = function (input) {
 
     // const query = '{"keyWord":"' + input + '","level":12,"mapBound":"-180,-90,180,90","queryType":"12","start":0,"count":1}&type=query&tk=' + TianDiTuToken;
     const query = '{"keyWord":"' + input + '"}&tk=' + TianDiTuToken;
-    const requestString = "http://api.tianditu.gov.cn/geocoder?ds=" + query;
+    const requestString = `${tianDitulocalApi}/geocoder?ds=` + query;
     return Cesium.Resource.fetchJson(requestString) //请求url获取json数据
         .then(function (results) {
                 // let resultType = results.resultType

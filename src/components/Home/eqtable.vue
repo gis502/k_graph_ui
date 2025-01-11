@@ -9,7 +9,7 @@
         @row-click="go">
       <el-table-column label=" " min-width="20px" show-overflow-tooltip>
         <template #default="scope">
-          <div style="display: flex; align-items: center; justify-content: center; height: 100%;"  class="arrow-container">
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
             <img :src="arrowImage" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
           </div>
         </template>
@@ -90,8 +90,8 @@ watch(() => props.eqData, () => {
 });
 
 const go = (row) => {
-  const route = router.resolve({path: '/thd', query: {eqid: row.eqid}}).href;
-    console.log("row.eqid----------------",row.eqid)
+  const route = router.resolve({path: '/thd', query: {eqid: row.eqid, eqqueueId: row.eqqueueId}}).href;
+  console.log("row.eqid----------------",row.eqid)
   window.open(route, '_blank');
 };
 
@@ -111,7 +111,6 @@ const tableColor = ({rowIndex}) => {
     // 'border-style':'solid',
     // 'border-color': '#555555',
     'background-color': '#ffffff00',
-    // 'color': '#ffffff00',
     'padding': '0',
     'margin': '1'
   };
@@ -187,8 +186,6 @@ const formatTime = (time) => {
   margin-left: 4%;
 }
 
-
-
 /*表格页面样式*/
 :deep(.el-table__inner-wrapper::before) {
   width: 0
@@ -228,8 +225,6 @@ const formatTime = (time) => {
   --el-table-border: 0px solid;
 }
 
-
-
  /*默认状态*/
 :deep(.el-table tr) {
   background: #ffffff00;
@@ -246,7 +241,6 @@ const formatTime = (time) => {
   background-clip: text;
   color: transparent;
   box-shadow: 0 0 8px 2px rgba(48, 140, 255, 1); /* 使用渐变阴影 */
-
 }
 
 /* 添加样式来控制箭头图标显示与隐藏 */

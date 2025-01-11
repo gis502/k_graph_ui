@@ -14,8 +14,7 @@
 
     <div class="panelTable">
       <div class="text" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>统计表格</span>
-        <span style="margin-right: 0">
+        <span style="margin: 0 auto">
           <span>地震造成建筑破坏共计约</span>
           <span class="emphasis">{{ total }}平方公里</span>
         </span>
@@ -39,7 +38,7 @@
         selectedTabData.magnitude
       }}级地震</span>
     <div style="padding: 1px 20px 10px 20px">
-      <p>发震时刻：{{ selectedTabData.time }}</p>
+      <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
       <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
       <p>地震震级：{{ selectedTabData.magnitude }}</p>
       <p>震源深度：{{ selectedTabData.depth }}千米</p>
@@ -49,6 +48,7 @@
 
 <script>
 import * as echarts from 'echarts';
+import {timestampToTime} from "../../cesium/plot/eqThemes.js";
 
 export default {
   props: {
@@ -61,13 +61,13 @@ export default {
       copiedbuildingDamageData: [],
       total: 0,
       legendItems: [
-        {color: '(232, 236, 248)', label: '< 1km²'},
-        {color: '(188, 197, 228)', label: '1~5km²'},
-        {color: '(114, 143, 199)', label: '5~10km²'},
-        {color: '(84, 127, 195)', label: '10~20km²'},
-        {color: '(55, 109, 185)', label: '20~50km²'},
-        {color: '(28, 96, 174)', label: '50~100km²'},
-        {color: '(0, 84, 165)', label: '> 100km²'},
+        {color: '(232, 236, 248)', label: '< 0.1km²'},
+        {color: '(188, 197, 228)', label: '0.1~0.5km²'},
+        {color: '(114, 143, 199)', label: '0.5~1km²'},
+        {color: '(84, 127, 195)', label: '1~2km²'},
+        {color: '(55, 109, 185)', label: '2~5km²'},
+        {color: '(28, 96, 174)', label: '5~10km²'},
+        {color: '(0, 84, 165)', label: '> 10km²'},
       ],
 
       isNoData: false,
@@ -76,6 +76,7 @@ export default {
 
   mounted() {
     this.settleData()
+    console.log("data:",this.selectedTabData)
   },
 
   watch: {
@@ -89,23 +90,31 @@ export default {
     selectedTabData: {
       handler() {
         this.settleData();
+
       },
       deep: true,
     },
   },
 
   methods: {
+    timestampToTime,
 
     settleData() {
       this.copiedbuildingDamageData = [...this.buildingDamageData];
+      console.log("11111")
+      console.log(this.copiedbuildingDamageData)
+
+      // 按 size 从大到小排序
+      this.copiedbuildingDamageData.sort((a, b) => b.size - a.size);
 
       this.total = parseFloat(this.copiedbuildingDamageData.reduce((acc, cur) => acc + cur.size, 0).toFixed(2));
 
-      // 提取county:Size对象
+      // 提取 county: size 对象
       const countySizeMap = this.copiedbuildingDamageData.reduce((acc, cur) => {
         acc[cur.county] = cur.size;
         return acc;
       }, {});
+
 
       this.initChart(countySizeMap)
     },
@@ -122,8 +131,8 @@ export default {
       // 将县和对应的值组合为数组，方便排序和筛选
       const countyData = counties.map((county, index) => ({ name: county, value: values[index] }));
 
-      // 按值降序排序，并取前六个
-      const topCounties = countyData.sort((a, b) => b.value - a.value).slice(0, 6);
+      // 按值降序排序，并取前八个
+      const topCounties = countyData.sort((a, b) => b.value - a.value).slice(0, 8);
 
       // 提取前六个的县名和对应值
       const topCountyNames = topCounties.map(item => item.name);
@@ -140,15 +149,15 @@ export default {
         },
         tooltip: {},
         grid: {
-          left: '0%',
-          right: '0%',
+          left: '2%',
+          right: '5%',
           bottom: '10%',
           containLabel: true,
         },
         xAxis: {
           type: 'category',
           data: topCountyNames,
-          name: '区县',
+          name: '',
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
           },
@@ -160,8 +169,8 @@ export default {
           type: 'value',
           name: '损坏/km²',
           min: 0,
-          max: 100,
-          interval: 20,
+          max: 10,
+          interval: 2,
           axisLabel: {
             color: '#fff', // 设置Y轴标签颜色为白色
           },
@@ -260,7 +269,7 @@ export default {
 
 .panelTable {
   float: left;
-  width: calc(100% - 450px - 150px);
+  width: calc(100% - 500px - 150px);
 }
 
 .panelAssessment {
@@ -271,7 +280,7 @@ export default {
 
 .panelChart {
   float: right;
-  width: 450px;
+  width: 500px;
   height: 100%;
 }
 

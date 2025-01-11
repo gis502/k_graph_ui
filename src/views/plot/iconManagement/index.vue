@@ -28,8 +28,9 @@
       <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
           <div v-if="scope.row.img && scope.row.img !== ''">
-            <img width="30px" height="30px" :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
-
+            <img width="30px" height="30px"
+                 :src="'http://localhost:8080'+'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"
+                 alt="暂无符号">
           </div>
           <div v-else>
             <span> </span>
@@ -77,7 +78,7 @@
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="40%" :show-close="false" :before-close="handleClose">
-      <el-row >
+      <el-row>
         <el-col :span="12">
           <el-form-item label="类型：">
             <el-select v-model="dialogContent.type" placeholder="请选择">
@@ -119,7 +120,8 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="说明：">
-            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe" placeholder="请输入内容"></el-input>
+            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dialogContent.describe"
+                      placeholder="请输入内容"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -143,7 +145,7 @@
                     :src="
           file.url.startsWith('blob:')
         ? file.url
-        : 'http://localhost:8080/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
+        : '59.213.183.7/prod-api' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
       "
                 >
                 <span class="el-upload-list__item-actions">
@@ -380,7 +382,7 @@ export default {
     },
     // 确认提交修改或新增的图片
     commit() {
-      console.log("进入判断新增与修改：",this.dialogContent)
+      console.log("进入判断新增与修改：", this.dialogContent)
       let that = this
       if (this.dialogTitle === "新增") {
         this.dialogContent.id = Date.now()
@@ -389,7 +391,8 @@ export default {
           that.dialogShow = false
         })
       } else {
-        console.log("进入修改：",this.dialogContent)
+        console.log("进入修改：", this.dialogContent)
+        console.log(this.dialogContent)
         updataPlotIcon(this.dialogContent).then(res => {
           that.getPlotPicture()
           that.dialogShow = false
@@ -446,7 +449,7 @@ export default {
     // 修改table header的背景色
     tableHeaderColor() {
       return {
-        'font-size':'16px',
+        'font-size': '16px',
         // 'border-color': '#293038',
         // 'background-color': '#293038 !important', // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
         // 'color': '#fff',
@@ -464,7 +467,7 @@ export default {
     tableColor({row, column, rowIndex, columnIndex}) {
       if (rowIndex % 2 === 1) {
         return {
-          'font-size':'16px',
+          'font-size': '16px',
           // 'border-color': '#313a44',
           // 'background-color': '#313a44',
           // 'color': '#fff',
@@ -479,7 +482,7 @@ export default {
         }
       } else {
         return {
-          'font-size':'16px',
+          'font-size': '16px',
           // 'border-color': '#304156',
           // 'background-color': '#304156',
           // 'color': '#fff',
@@ -500,7 +503,7 @@ export default {
 
       searchploticon(this.queryParams.menuName).then(res => {
         that.menuList = res;
-        that.getPicData=[]
+        that.getPicData = []
         that.getPicData = that.menuList
         // console.log("3",that.tableData)
         that.total = res.length
@@ -537,10 +540,12 @@ export default {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
+
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
 }
+
 .el-input {
   --el-input-width: 270px !important;
 }
@@ -549,9 +554,11 @@ export default {
   /* 此版本下的select下拉框跟inline属性有bug，当设置inline时，select的宽度会丢失，因此需要手动设置 */
   --el-select-width: 270px !important;
 }
+
 :deep(.el-dialog__body) {
   text-align: end;
 }
+
 :deep(.el-dialog) {
   transform: none;
   left: 0;

@@ -1,32 +1,30 @@
 <template>
-  <div class="container" style="height: 780px;width:490px">
-    <el-carousel :interval="4000" indicator-position="none" style="height: 780px;width:490px">
+    <el-carousel :interval="4000" indicator-position="none" style="height: 550px;width:440px">
       <!--    第一个走马灯-->
-      <el-carousel-item style="height: 650px;width:430px">
+      <el-carousel-item style="height: 550px;width:400px">
         <span>更新时间：{{ updateTime1 }}</span>
-        <div ref="echart1"  class="chart1" style="height: 650px;width:430px"></div>
+        <div ref="echart1"  class="chart1" style="height: 550px;width:400px"></div>
       </el-carousel-item>
       <!--    第二个走马灯-->
-      <el-carousel-item style="height: 650px;width:460px">
+      <el-carousel-item style="height: 550px;width:400px">
         <span>更新时间：{{ updateTime2 }}</span>
-        <div ref="echart2"  class="chart2" style="height: 300px;width:460px"></div>
+        <div ref="echart2"  class="chart2" style="height: 245px;width:400px"></div>
         <span>更新时间：{{ updateTime3 }}</span>
-        <div ref="echart3"  class="chart3" style="height: 300px;width:460px"></div>
+        <div ref="echart3"  class="chart3" style="height: 245px;width:400px"></div>
       </el-carousel-item>
       <!--    第三个走马灯-->
-      <el-carousel-item style="height: 650px;width:430px">
+      <el-carousel-item style="height: 550px;width:400px">
         <span>更新时间：{{ updateTime1 }}</span>
-        <div ref="echart4" class="chart1"  style="height: 650px;width:430px"></div>
+        <div ref="echart4" class="chart1"  style="height: 550px;width:400px"></div>
       </el-carousel-item>
       <!--    第四个走马灯-->
-      <el-carousel-item style="height: 650px;width:430px">
+      <el-carousel-item style="height: 550px;width:400px">
         <span>更新时间：{{ updateTime2 }}</span>
-        <div ref="echart5"  class="chart2" style="height: 300px;width:430px"></div>
+        <div ref="echart5"  class="chart2" style="height: 245px;width:400px"></div>
         <span>更新时间：{{ updateTime3 }}</span>
-        <div ref="echart6"  class="chart3" style="height: 300px;width:430px"></div>
+        <div ref="echart6"  class="chart3" style="height: 245px;width:400px"></div>
       </el-carousel-item>
     </el-carousel>
-  </div>
 </template>
 
 <script setup>
@@ -1073,6 +1071,7 @@ onMounted(async () => {
 span{
   display: block;
   padding-left: 5px;
+  color: white;
   background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%);
 }
 </style>

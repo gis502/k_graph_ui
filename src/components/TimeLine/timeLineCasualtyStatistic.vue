@@ -27,6 +27,7 @@ import * as Cesium from "cesium";
 import {getPlotInfos} from "@/api/system/plot.js";
 import axios from "axios";
 import {ref, watch, onMounted} from "vue";
+import {tianDitulocalApi} from "@/utils/server.js";
 
 
 export default {
@@ -304,7 +305,7 @@ export default {
 
     async function getReverseGeocode(lon, lat) {
       try {
-        const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+        const response = await axios.get(`${tianDitulocalApi}/geocoder`, {
           params: {
             postStr: JSON.stringify({lon, lat, ver: 1}),
             type: 'geocode',

@@ -261,7 +261,7 @@ import * as Cesium from 'cesium';
 import CesiumNavigation from 'cesium-navigation-es6';
 import * as echarts from 'echarts';
 import {initCesium} from '@/cesium/tool/initCesium.js';
-import {getExcelUploadEarthquake, getGeomById} from "@/api/system/eqlist.js";
+import {getExcelUploadEarthquake, getExcelUploadEqList, getGeomByEqListId, getGeomById} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
@@ -295,6 +295,7 @@ import {getMaterialDonation} from "@/api/system/materialDonation.js";
 import {getPublicOpinion} from "@/api/system/publicOpinion.js";
 import {getSocialOrder} from "@/api/system/socialOrder.js";
 import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.js";
+import {AmapApiLocal} from "@/utils/server.js";
 
 export default {
   components: {dataSourcePanel},
@@ -802,8 +803,8 @@ export default {
 
     //获取地震列表数据
     getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
-        this.eqlists = res;
+      getExcelUploadEqList().then(res => {
+        this.eqlists = res
         if (res.data === null) {
           this.$message.error("地震列表无数据");
         } else {
@@ -831,7 +832,9 @@ export default {
 
     //获取震源中心
     getEarthQuakeCenter(eqid) {
-      getGeomById(eqid).then(res => {
+      // getGeomById(eqid).then(res => {
+      getGeomByEqListId(eqid).then(res => {
+        console.log(res)
         this.updateEarthQuakeCenter(res[0])
       })
     },
@@ -1112,7 +1115,7 @@ export default {
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
               url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -1131,7 +1134,7 @@ export default {
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
               url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -1280,7 +1283,7 @@ export default {
 
     async fetchLocation(village, key) {
       const encodedVillage = encodeURIComponent(village);
-      const requestString = `https://restapi.amap.com/v3/geocode/geo?address=${encodedVillage}&key=${key}`;
+      const requestString = `${AmapApiLocal}/geocode/geo?address=${encodedVillage}&key=${key}`;
 
       console.log(`请求 URL: ${requestString}`); // 打印请求的 URL 以便调试
 
@@ -1747,9 +1750,11 @@ export default {
     updateEarthQuakeCenter(data) {
       // 添加到 Cesium 实体
       this.viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(data.longitude, data.latitude),
+        position: Cesium.Cartesian3.fromDegrees(data.geom.coordinates[0], data.geom.coordinates[1]),
         billboard: {
           image: earthQuakeCenterImg, // 图标
+          width:40,
+          height:40,
           eyeOffset: new Cesium.Cartesian3(0.0, 0.0, -10000.0) // 设置图标偏移，让其显示在最上层
         }
       });

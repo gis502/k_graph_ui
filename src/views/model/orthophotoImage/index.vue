@@ -235,8 +235,6 @@ export default {
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ]
       }
-
-
     }
   },
   created() {
@@ -414,8 +412,10 @@ export default {
     },
 
     handleOpen(row) {
-      console.log(row);
-      window.open('/orthophotographViewer', "_blank");
+      let url = row.path
+      let layers = row.name
+      // 后续优化
+      window.open('/orthophotographViewer?url='+url+'&layers='+layers, "_blank");
     },
 
 
@@ -440,7 +440,6 @@ export default {
 
       this.dialogShow = true;
     },
-
 
 
     handleDelete(row) {

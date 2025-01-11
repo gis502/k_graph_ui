@@ -2,9 +2,11 @@ import * as Cesium from 'cesium'
 import  {StraightArrow, AttackArrow, PincerArrow,} from "@/cesium/drawArrow/arrowClass.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
 import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
+import {webSocketLocal} from "@/utils/server.js";
 
 let webSocket
-let ip = "ws://localhost:8080/ws/"
+let ip = `ws://${webSocketLocal}/ws/`
+// let ip = "ws://172.26.86.82:8080/ws/"
 let message=''
 // import cesiumPlot from '@/cesium/plot/cesiumPlot'
 export function initWebSocket(eqid) {
@@ -60,8 +62,18 @@ export function websocketonmessage(e) {
                 console.log(5629)
                 let polygonRemoved = window.viewer.entities.removeById(id);
                 let pointDataRemoved = window.viewer.dataSources.getByName('pointData')[0].entities.removeById(id);
-                window.viewer.entities.removeById(id + "_polygon")
+
+                const entityToRemove = window.pointDataSource.entities.getById(id);
+                const entityToRemove_base = window.pointDataSource.entities.getById(id +"_base");
                 console.log(polygonRemoved, pointDataRemoved);
+                const entitylabel = window.labeldataSource.entities.getById(id + '_label');
+                if (entitylabel) {
+                    window.labeldataSource.entities.remove(entitylabel); // 移除点
+                }
+                window.viewer.entities.removeById(id)
+                window.pointDataSource.entities.remove(entityToRemove); // 移除点
+                window.viewer.entities.removeById(id + "_base")
+                window.pointDataSource.entities.remove(entityToRemove_base); // 移除点
 
             } else if (markType === "polyline") {
                 let polyline = window.viewer.entities.getById(id)

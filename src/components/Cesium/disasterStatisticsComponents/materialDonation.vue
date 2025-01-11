@@ -1,5 +1,5 @@
 <template>
-  <el-carousel trigger="click" height="570px" interval="3000" indicator-position="none">
+  <el-carousel trigger="click" height="580px" interval="3000" indicator-position="none">
     <el-carousel-item>
       <span class="update-time">
           更新时间：{{ updateTime1 }}
@@ -159,12 +159,6 @@ export default {
 
       const myChart = echarts.init(chartDom);
 
-      // 公共样式配置
-      const commonTextStyle = {
-        color: 'rgba(255,255,255,0.8)',
-        fontSize: 14
-      };
-
       const option = {
         backgroundColor: 'transparent',
         title: {
@@ -210,55 +204,90 @@ export default {
           type: 'value',
           axisLabel: {
             formatter: '{value}',
-            textStyle: commonTextStyle
+            textStyle: {
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: 14
+            }
           },
-          axisTick: { show: false },
-          axisLine: { show: false },
+          axisTick: {
+            show: false,
+          },
+          axisLine: {
+            show: false,
+            lineStyle: {
+              color: "#063374",
+              width: 1,
+              type: "solid"
+            },
+          },
           splitLine: {
             lineStyle: {
-              color: '#063374',
-              type: 'dashed'
+              color: "#063374",
+              type: "dashed"
             }
           }
         }],
         yAxis: [{
           type: 'category',
           data: areaNames,
-          axisLine: { show: false },
+          axisLine: {
+            show: false,
+            lineStyle: {
+              color: "#063374",
+              width: 1,
+              type: "solid"
+            }
+          },
           axisTick: { show: false },
           axisLabel: {
-            textStyle: commonTextStyle
+            show: true,
+            textStyle: {
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: 14
+            }
           }
         }],
         series: [
-          this.createBarSeries(legendData[0], donationData, ['#FEC060', 'rgba(254, 192, 96, 0.1)']),
-          this.createBarSeries(legendData[1], todayData, ['#0291FF', 'rgba(12, 135, 230, 0.1)'])
+          {
+            name: legendData[0],
+            type: 'bar',
+            data: donationData,
+            barWidth: 10,
+            barGap: 1,
+            itemStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [
+                  { offset: 0, color: '#FEC060' },
+                  { offset: 1, color: 'rgba(254, 192, 96, 0.1)' }
+                ]),
+                opacity: 1,
+                barBorderRadius: [0, 30, 30, 0],
+              }
+            }
+          },
+          {
+            name: legendData[1],
+            type: 'bar',
+            data: todayData,
+            barWidth: 10,
+            barGap: 1,
+            itemStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [
+                  { offset: 0, color: '#0291FF' },
+                  { offset: 1, color: 'rgba(12, 135, 230, 0.1)' }
+                ]),
+                opacity: 1,
+                barBorderRadius: [0, 30, 30, 0],
+              }
+            }
+          }
         ]
       };
 
       myChart.setOption(option);
     },
 
-    // 单独抽离创建柱状图的方法
-    createBarSeries(name, data, gradientColors) {
-      return {
-        name,
-        type: 'bar',
-        data,
-        barWidth: 10,
-        barGap: 1,
-        itemStyle: {
-          normal: {
-            color: new echarts.graphic.LinearGradient(1, 0, 0, 1, [
-              { offset: 0, color: gradientColors[0] },
-              { offset: 1, color: gradientColors[1] }
-            ]),
-            opacity: 1,
-            barBorderRadius: [0, 30, 30, 0],
-          }
-        }
-      };
-    },
 
     calculateUpdateTime(res, field) {
       const submissionDeadlines = res.map(item => item[field]).filter(Boolean);
@@ -291,8 +320,8 @@ export default {
   color: white;
 }
 .panelChart {
-  left: 45px;
+  margin: 0 auto;  /* 水平居中 */
   width: 430px;
-  height: 630px;
+  height: 600px;
 }
 </style>

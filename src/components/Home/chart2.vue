@@ -575,7 +575,7 @@ const slideRiskPoints = () => {
 };
 
 function getEqInfo(eqid) {
-  getEqById({id: eqid}).then(res => {
+  getEqListById({id: eqid}).then(res => {
     eqoccurrenceTime.value=res.occurrenceTime
   })
 }
@@ -634,7 +634,7 @@ const resizeChart = () => {
 
 // 组件挂载后执行初始化
 import { nextTick } from 'vue';
-import {getEqById} from "@/api/system/eqlist.js";
+import {getEqById, getEqListById} from "@/api/system/eqlist.js";
 
 onMounted(async () => {
   await nextTick(); // 等待 DOM 更新

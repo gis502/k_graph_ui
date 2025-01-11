@@ -1,5 +1,36 @@
 import request from '@/utils/request'
 
+export function getEqList(eqListDTO) {
+    return request({
+        url: '/tp/api/open/eq/list',
+        method: 'get',
+        params: eqListDTO
+    })
+}
+
+export function getEqTownResult(eqTownResultDTO) {
+    return request({
+        url: '/tp/api/open/eq/assessment',
+        method: 'get',
+        params: eqTownResultDTO
+    })
+}
+
+export function getEqOutputMap(eqOutputMapDTO) {
+  return request({
+        url: '/tp/api/open/eq/output/map',
+        method: 'get',
+        params: eqOutputMapDTO
+    })
+}
+
+export function getEqOutputReport(eqOutputReportDTO) {
+  return request({
+    url: '/tp/api/open/eq/output/report',
+    method: 'get',
+    params: eqOutputReportDTO
+  })
+}
 
 export function getPersonDes(eqid) {
     return request({
@@ -48,14 +79,6 @@ export function saveEconomicLossData(saveEconomicLoss){
     data: saveEconomicLoss
   })
 }
-
-// export function dataTest(data){
-//   return request({
-//     url: '/test/post/resp',
-//     method: 'post',
-//     data: data
-//   })
-// }
 
 export function getDA(type, EqEventGetResultTownDTO){
   return request({

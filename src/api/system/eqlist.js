@@ -18,10 +18,24 @@ export function deleteeq(query) {
     })
 }
 
+export function deletedEq(query){
+    return request({
+        url: '/tp/api/open/eq/delete',
+        method: 'post',
+        params: query
+    })
+}
+
 // 查
 export function getAllEq(query) {
     return request({
         url: '/system/geteq',
+        method: 'get',
+    })
+}
+export function getAllEqList(query) {
+    return request({
+        url: '/tp/api/open/eq/list',
         method: 'get',
     })
 }
@@ -33,10 +47,27 @@ export function queryEq(queryValue) {
         params: queryValue
     })
 }
+//eqlist表
+export function queryEqList(queryValue) {
+    return request({
+        url: '/system/queryEqList',
+        method: 'get',
+        params: queryValue
+    })
+}
+
+
 
 export function fromEq(form) {
     return request({
         url: '/system/fromEq',
+        method: 'post',
+        data: form
+    })
+}
+export function fromEqList(form) {
+    return request({
+        url: '/system/fromEqList',
         method: 'post',
         data: form
     })
@@ -62,6 +93,12 @@ export function getExcelUploadEarthquake() {
         method: 'get',
     })
 }
+export function getExcelUploadEqList() {
+    return request({
+        url: '/tp/api/open/getExcelUploadEqList',
+        method: 'get',
+    })
+}
 
 // 改
 export function updataEq(data) {
@@ -75,6 +112,14 @@ export function updataEq(data) {
 export function getEqById(data) {
     return request({
         url: '/system/queryEqById',
+        method: 'post',
+        params:data
+    })
+
+}
+export function getEqListById(data) {
+    return request({
+        url: '/system/getEqListById',
         method: 'post',
         params:data
     })
@@ -94,7 +139,29 @@ export function getGeomById(data) {
     return request({
         url: '/system/getGeomById',
         method: 'get',
-        params:{id:data}
+        params: {id: data}
     })
+}
+export function getGeomByEqListId(data) {
+    return request({
+        url: '/system/getGeomByEqListId',
+        method: 'get',
+        params: {id: data}
+    })
+}
 
+export function eqEventTrigger(data) {
+    return request({
+        url: '/tp/api/open/trigger',
+        method: 'post',
+        data
+    })
+}
+
+export function eqProgress(event){
+    return request({
+        url: '/tp/api/open/eq/progress',
+        method: 'get',
+        params: {id: event}
+    })
 }

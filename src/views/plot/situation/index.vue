@@ -25,7 +25,6 @@
             placeholder="请输入搜索信息"
             clearable
             style="width: 200px; margin-right: 10px;"
-            @keyup.enter="handleQuery"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -37,12 +36,12 @@
               {{ ($index + 1) + (currentPage - 1) * pageSize }}
             </template>
           </el-table-column>
-          <el-table-column prop="time" label="发震时间" width="240">
+          <el-table-column prop="time" label="发震时间" width="220">
             <template #default="scope">
               {{ timestampToTimeChina(scope.row.time) }}
             </template>
           </el-table-column>
-          <el-table-column prop="earthquakeName" label="位置" width="150">
+          <el-table-column prop="earthquakeName" label="位置" width="170">
             <template #default="scope">
               <el-popover placement="top" :width="300" trigger="hover" v-if="scope.row.earthquakeName.length>=10">
                 <div>{{ scope.row.earthquakeName }}</div>
@@ -57,7 +56,18 @@
             </template>
           </el-table-column>
           <el-table-column prop="magnitude" label="震级" width="55"/>
-          <!--        <el-table-column prop="longitude" label="经度" width="70"></el-table-column>-->
+          <el-table-column label="地震类型" width="100" show-overflow-tooltip>
+            <template #default="{ row }">
+              <el-button
+                  :type="row.eqType === 'Z' ? 'success' : (row.eqType === 'Y' ? 'danger':'primary')"
+                  plain
+                  size="mini"
+                  style="margin: 0; padding: 2px 8px; border-radius: 4px;"
+              >
+                {{ row.eqType === 'Z' ? '正式地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
+              </el-button>
+            </template>
+          </el-table-column>
           <!--        <el-table-column prop="latitude" label="纬度" width="65"></el-table-column>-->
           <!--        <el-table-column prop="depth" label="深度" width="50"></el-table-column>-->
           <el-table-column label="操作" width="75">
@@ -90,7 +100,8 @@
           <el-col :span="11">
           <span class="plotTreeItem" v-for="(item,index) in plotTreeClassification" @click="treeItemClick(item)">
             <el-tooltip class="plottreetooltip" effect="dark" :content="item.name" placement="top-start">
-              <img :src="'http://localhost:8080/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
+<!--              <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"-->
+              <img :src="'http://localhost:8080'+'/uploads/PlotsPic/' +item.img+ '.png?t=' + new Date().getTime()"
                    width="17%" height="43.3px">
             </el-tooltip>
           </span>
@@ -252,7 +263,8 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-            <img :src="'http://localhost:8080/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
+<!--            <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"-->
+            <img :src="'http://localhost:8080'+'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
                  alt="icon" style="width: 20px; height: 20px;"/>
           </template>
         </el-table-column>
@@ -287,7 +299,7 @@
     </div>
 
 
-    <!--    准提图预览组件    -->
+    <!--    专题图预览组件    -->
     <thematicMapPreview
       @ifShowThematicMapDialog="ifShowDialog"
       :imgshowURL="imgshowURL"
@@ -314,7 +326,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {ElMessage} from 'element-plus'
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
-import {getAllEq, getEqById} from '@/api/system/eqlist'
+import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
 import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import addMarkCollectionDialog from "@/components/Cesium/addMarkCollectionDialog"
@@ -335,6 +347,7 @@ import {querySituationData} from "@/api/system/model.js";
 import plotSearch from '@/components/Cesium/plotSearch.vue'
 import ThematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {Position} from "@element-plus/icons-vue";
+import {TianDiTuToken} from "@/cesium/tool/config.js";
 
 export default {
   components: {
@@ -554,6 +567,7 @@ export default {
 
     };
   },
+
   mounted() {
     // 初始化地图
     this.init()
@@ -566,8 +580,9 @@ export default {
     this.getPlotPicture()
     this.initTree()
   },
+
   beforeUnmount() {
-    console.log("111", window.viewer)
+    // console.log("111", window.viewer)
     if (window.viewer) {
       Arrow.disable();
       let viewer = window.viewer
@@ -595,6 +610,46 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
+
+    /**
+     * 添加交通图层到地图
+     * 该方法首先检查是否已经存在名为'TrafficLayer'的图层，如果不存在，则从天地图服务添加交通图层
+     * 同样，如果不存在名为'TrafficTxtLayer'的图层，则添加交通注记图层
+     */
+    addTrafficLayer() {
+      // 获取天地图API令牌
+      let token = TianDiTuToken;
+
+      // 检查是否存在'TrafficLayer'图层
+        // 创建并添加交通图层
+        let trafficLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通图层的URL模板
+              url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg", // 根据实际返回的图像格式调整
+              tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
+              show: true
+            })
+        );
+
+      // 检查是否存在'TrafficTxtLayer'图层
+        // 创建并添加交通注记图层
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通注记图层的URL模板
+              url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+                  TianDiTuToken,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false // 初始状态下不显示图层
+            })
+        )
+    },
 
 
     initTree() {
@@ -692,14 +747,13 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-
+this.addTrafficLayer()
     },
     // 初始化ws
     initWebsocket() {
-      console.log("this.eqid---------------------", this.eqid)
+      // console.log("this.eqid---------------------", this.eqid)
       this.websock = initWebSocket(this.eqid)
       this.websock.onmessage = websocketonmessage;//涉及功能导入功能
-
     },
     // 获取本次地震数据库中的数据渲染到地图上
     initPlot(eqid) {
@@ -1145,7 +1199,7 @@ export default {
       };
 
       reader.readAsArrayBuffer(file);
-      this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}`;
+      this.uploadUrl = import.meta.env.VITE_APP_BASE_API +`/excel/importPlotExcel/${filename}&${this.eqid}`;
       // this.uploadUrl = `http://localhost:8080/excel/importPlotExcel/${filename}&${this.eqid}&${this.fieldMapping}`;
       return true;
     },
@@ -2187,8 +2241,7 @@ export default {
     // 切换地震，渲染切换地震的标绘
     plotAdj(row) {
       this.eqInfo = row
-
-      console.log("剩余1：", window.pointDataSource.entities)
+      // console.log("剩余1：", window.pointDataSource.entities)
       window.viewer.entities.removeAll();
       // 从 dataSource 中删除点
       if (window.pointDataSource) {
@@ -2221,10 +2274,10 @@ export default {
     // 获取地震列表、以及最新地震的eqid、并渲染已有的标绘
     getEq() {
       let that = this
-      getAllEq().then(res => {
+      getAllEqList().then(res => {
         console.log("********************************************************")
         console.log("res", res)
-        let resData = res.filter(item => item.magnitude >= 5)
+        let resData = res.data.filter(item => item.magnitude >= 5)
         let data = []
         for (let i = 0; i < resData.length; i++) {
           let item = resData[i]
@@ -2263,7 +2316,7 @@ export default {
     },
     // /取地震信息+开始结束当前时间初始化
     getEqInfo(eqid) {
-      getEqById({id: eqid}).then(res => {
+      getEqListById({id: eqid}).then(res => {
         //震中标绘点
         console.log("res", res)
         this.centerPoint = res
@@ -2487,7 +2540,7 @@ export default {
       // 删除全局视角锁定（解决箭头标绘绘制时双击会聚焦在点上）
       window.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
       this.isShowMessageIcon = true
-      this.messageIcon = 'http://localhost:8080/uploads/PlotsPic/' + item.img + '.png?t=' + new Date().getTime()
+      this.messageIcon = import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + item.img + '.png?t=' + new Date().getTime()
 
       if (item.plottype === '点图层') {
         console.log("点图层")
@@ -3119,7 +3172,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 590px;
+  width: 690px;
   height: 372px;
   position: absolute;
   padding: 10px;

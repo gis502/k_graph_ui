@@ -66,7 +66,7 @@ export default class Point {
         id: data.plotId,
         position: Cesium.Cartesian3.fromDegrees(Number(coords[0]), Number(coords[1]), Number(data.elevation)),
         billboard: {
-          image: 'http://localhost:8080/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
+          image: import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
           width: 50,
           height: 50,
           color: new Cesium.CallbackProperty(() => {
@@ -85,7 +85,7 @@ export default class Point {
       let longitude = Number(data.geom.coordinates[0])
       let latitude = Number(data.geom.coordinates[1])
       let height = Number(data.elevation)
-      let img = 'http://localhost:8080/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime();
+      let img = import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime();
       window.viewer.dataSources.getByName('pointData')[0].entities.add({
         id: id,
         layer: "标绘点",
@@ -153,7 +153,7 @@ export default class Point {
     this.addDataSourceLayer("pointData")
     this.addDataSourceLayer("label")
 
-    console.log(points,"points 1234")
+    // console.log(points,"points 1234")
     points.forEach(data => {
       console.log(points,"points data")
       let plotId = data.plotId
@@ -174,22 +174,24 @@ export default class Point {
           if (!viewer.entities.getById(data.plotId)) {
             console.log("this.addMakerPointActive")
             this.addMakerPointActive(data, stoptime)
-
             this.addPointToLabel(data, labeltext)
-            // this.flyTo(data)
-
             // 结束但隔断闪烁动效后：
             // 1.移除挂在在viewer下的单个点，
             // 2、将点放入pointData聚合图层下
             // 3、除人员伤亡和救援出队，移除标签文字
             setTimeout(() => {
-              let entityDonghua = window.viewer.entities.getById(data.plotId);
 
               if (!window.pointDataSource.entities.getById(data.plotId)) {
-                window.pointDataSource.entities.add(entityDonghua)//加到点聚合图层
+                this.addPointToPointData(data)
+                // window.pointDataSource.entities.add(entityDonghua)//加到点聚合图层
               }
+              let entityDonghua = window.viewer.entities.getById(data.plotId);
+              let entityDonghuaBase = window.viewer.entities.getById(data.plotId+ '_base');
               if (entityDonghua) {
                 window.viewer.entities.remove(entityDonghua); // 移除点
+              }
+              if (entityDonghuaBase) {
+                window.viewer.entities.remove(entityDonghuaBase); // 移除点下面一个
               }
               if (plotType === "失踪人员" || plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员" || plotType === "已出发队伍" || plotType === "正在参与队伍" || plotType === "待命队伍") {
               } else {
@@ -211,21 +213,32 @@ export default class Point {
   }
 
 
-  deletePoint(point) {
-    viewer.entities.remove(point)
-  }
+  // deletePoint(point) {
+  //   viewer.entities.remove(point)
+  // }
 
   deletePointById(plotId) {
+    //集合图层 图表和底层蓝色圈
     if (window.pointDataSource) {
       let entityToRemove = window.pointDataSource.entities.getById(plotId);
       if (entityToRemove) {
         window.pointDataSource.entities.remove(entityToRemove); // 移除点
       }
+      let entityToRemoveBase = window.pointDataSource.entities.getById(plotId+ '_base');
+      if (entityToRemoveBase) {
+        window.pointDataSource.entities.remove(entityToRemoveBase); // 移除点
+      }
     }
+    //非聚合的点
     let entityDonghua = window.viewer.entities.getById(plotId);
     if (entityDonghua) {
       window.viewer.entities.remove(entityDonghua); // 移除点
     }
+    let entityDonghuaBase = window.viewer.entities.getById(plotId+ '_base');
+    if (entityDonghuaBase) {
+      window.viewer.entities.remove(entityDonghuaBase); // 移除点下面一个
+    }
+    //信息框
     if (window.labeldataSource) {
       let entitylabel = window.labeldataSource.entities.getById(plotId + '_label');
       if (entitylabel) {
@@ -273,7 +286,7 @@ export default class Point {
         let dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
         dataSourcePromise.then(function (pointDataSource) {
           let pixelRange = 10;
-          let minimumClusterSize = 3;
+          let minimumClusterSize = 6;
           let enabled = true;
           pointDataSource.clustering.enabled = enabled; //是否聚合
           pointDataSource.clustering.pixelRange = pixelRange;
@@ -303,10 +316,12 @@ export default class Point {
           let pin10 = pinBuilder
               .fromText("10+", Cesium.Color.BLUE, 48)
               .toDataURL();
-          let singleDigitPins = new Array(8);
+          // let singleDigitPins = new Array(8);
+          let singleDigitPins = new Array(20);
           for (let i = 0; i < singleDigitPins.length; ++i) {
             singleDigitPins[i] = pinBuilder
-                .fromText(`${i + 2}`, Cesium.Color.VIOLET, 48)
+                // .fromText(`${Math.floor((i + 2)/2)}`, Cesium.Color.VIOLET, 48)
+                .fromText(`${Math.floor(i /2)}`, Cesium.Color.VIOLET, 48)
                 .toDataURL();
           }
           let removeListener
@@ -314,9 +329,9 @@ export default class Point {
           function customStyle() {
             if (Cesium.defined(removeListener)) {
               removeListener && removeListener();
-              let removeListener = undefined;
+              removeListener = undefined;
             } else {
-              let removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
+              removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
                   function (clusteredEntities, cluster) {
                     // if (clusteredEntities.length < 10) {
                     //   // 禁用 Billboard 显示
@@ -335,25 +350,34 @@ export default class Point {
                       // 禁用深度测试，使 Billboard 不会被地形遮挡
                       cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
-                      if (clusteredEntities.length >= 1000) {
+                      if (clusteredEntities.length >= 2000) {
                         cluster.billboard.image = pin1000;
-                      } else if (clusteredEntities.length >= 500) {
+                      }
+                      else if (clusteredEntities.length >= 1000) {
                         cluster.billboard.image = pin500;
-                      } else if (clusteredEntities.length >= 100) {
+                      }
+                      else if (clusteredEntities.length >= 200) {
                         cluster.billboard.image = pin100;
-                      } else if (clusteredEntities.length >= 50) {
+                      }
+                      else if (clusteredEntities.length >= 100) {
                         cluster.billboard.image = pin50;
-                      } else if (clusteredEntities.length >= 40) {
+                      }
+                      else if (clusteredEntities.length >= 80) {
                         cluster.billboard.image = pin40;
-                      } else if (clusteredEntities.length >= 30) {
+                      }
+                      else if (clusteredEntities.length >= 60) {
                         cluster.billboard.image = pin30;
-                      } else if (clusteredEntities.length >= 20) {
+                      }
+                      else if (clusteredEntities.length >= 40) {
                         cluster.billboard.image = pin20;
-                      } else if (clusteredEntities.length >= 10) {
+                      }
+                      else if (clusteredEntities.length >= 20) {
                         cluster.billboard.image = pin10;
-                      } else {
+                      }
+                      else {
                         cluster.billboard.image =
-                            singleDigitPins[clusteredEntities.length - 2];
+                            // singleDigitPins[clusteredEntities.length - 2];
+                            singleDigitPins[clusteredEntities.length];
                       }
                     }
                   // }
@@ -409,8 +433,8 @@ export default class Point {
                     const context = canvas.getContext('2d');
 
                     // 设置字体和布局
-                    const titleFontSize = 18; // 标题字体大小
-                    const contentFontSize = 18; // 内容字体大小
+                    const titleFontSize = 19; // 标题字体大小
+                    const contentFontSize = 19; // 内容字体大小
                     const rowHeight = 30; // 每行高度调整为 30
                     const padding = 40; // 内边距
                     const margin = 10; // 外边距
@@ -588,7 +612,6 @@ export default class Point {
       }
       return labeldataSource
     }
-
   }
 
 
@@ -644,7 +667,7 @@ export default class Point {
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       // labeltext: labeltext,
       billboard: {
-        image: 'http://localhost:8080/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
+        image: import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -663,6 +686,24 @@ export default class Point {
         data
       }
     });
+    viewer.entities.add({
+      id: data.plotId + '_base',
+      layer: "标绘点_base",
+      position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
+      billboard: {
+        image: '/images/图标外框.png', // 圆形底座图片
+        width: 110, // 底座宽度
+        height: 110, // 底座高度
+        eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
+        color: new Cesium.CallbackProperty(() => {
+          return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
+        }, false),
+        scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
+        depthTest: false, // 禁止深度测试
+        disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
+      },
+    });
     setTimeout(() => {
       clearInterval(intervalId1);
       colorFactor = 1.0;
@@ -671,7 +712,6 @@ export default class Point {
 
 //pointData聚合图层
   addPointToPointData(data) {
-
     window.pointDataSource.entities.add({
       id: data.plotId,
       plottype: data.plotType,
@@ -679,7 +719,7 @@ export default class Point {
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       // labeltext: labeltext,
       billboard: {
-        image: 'http://localhost:8080/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
+        image: import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
@@ -695,6 +735,7 @@ export default class Point {
     })
     window.pointDataSource.entities.add({
       id: data.plotId + '_base',
+      layer: "标绘点_base",
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       billboard: {
         image: '/images/图标外框.png', // 圆形底座图片
@@ -706,9 +747,6 @@ export default class Point {
         depthTest: false, // 禁止深度测试
         disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
       },
-      properties: {
-        data
-      }
     });
   }
 
@@ -722,7 +760,7 @@ export default class Point {
       position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
       labeltext: labeltext,
       billboard: {
-        image: 'http://localhost:8080/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
+        image: import.meta.env.VITE_APP_BASE_API +'/uploads/PlotsPic/' + data.icon+ '.png?t=' + new Date().getTime(),
         width: 50, // 图片宽度,单位px
         height: 50, // 图片高度，单位px
         eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离

@@ -532,10 +532,12 @@ export default {
     const addMarker1 = (lng, lat, color, size, item) => {
       let iconUrl;
       let iconSize;
+      let zIndexOffset;
 
       // 根据类型和大小选择图标样式
       if (color === 'red') {
         iconUrl = red;
+        zIndexOffset = 99;
         switch (size) {
           case 'small':
             iconSize = new T.Point(26, 26);
@@ -551,6 +553,7 @@ export default {
         }
       } else {
         iconUrl = yellow;
+        zIndexOffset = 0;
         switch (size) {
           case 'small':
             iconSize = new T.Point(10, 10);
@@ -573,8 +576,10 @@ export default {
           iconUrl: iconUrl,
           iconSize: iconSize,
           iconAnchor: new T.Point(iconSize.x / 2, iconSize.y), // 图标中心对准位置
-          opacity: 0.1 // 设置透明度
+          opacity: 0.1, // 设置透明度
+
         }),
+        zIndexOffset:zIndexOffset
       };
 
       // 创建标记并添加到地图
@@ -748,7 +753,11 @@ export default {
 //cesium指南针
 .map-container {
   width: 100%;
-  height: 500px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 可选，用于居中地图和图例 */
+  border-radius: 31px !important; /* 添加圆角 */
 }
 
 .cesium-compass-container {
@@ -866,13 +875,8 @@ export default {
 }
 
 
-//图例
-.map-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 可选，用于居中地图和图例 */
-  border-radius: 31px !important; /* 添加圆角 */
-}
+
+
 
 
 .breathing-marker {
@@ -998,10 +1002,6 @@ export default {
   }
 }
 
-:deep(.map-container[data-v-bdc64a41] ){
-  width: 100%;
-  height: 100% !important;
-}
 
 .map_container {
   width: 100%;

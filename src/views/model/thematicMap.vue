@@ -2,11 +2,11 @@
   <div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
 
-      <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
+      <!--      地震列表组件-点击列表“详情”显示专题图列表，二三维一体化——分析研判产出      -->
       <EarthquakeList
           @imag-selected="onImagSelected"
           @selectEq="selectEq"
-          :thematicMapClass="thematicMapClass"
+
       ></EarthquakeList>
 
       <!--            <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"-->
@@ -22,7 +22,7 @@
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
-    <!--    准提图预览组件    -->
+    <!--    专题图预览组件    -->
     <thematicMapPreview
         @ifShowThematicMapDialog="ifShowDialog"
         :imgshowURL="imgshowURL"
@@ -43,7 +43,7 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import {getAllEq} from "@/api/system/eqlist";
+import {getAllEq, getAllEqList} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import EarthquakeList from "../../components/ThematicMap/earthquakeList.vue";
@@ -52,6 +52,8 @@ import html2canvas from "html2canvas";
 
 import * as turf from '@turf/turf';
 import {sampleTerrainMostDetailed} from "cesium";
+import {getEqList} from "@/api/system/damageassessment.js";
+import {handleOutputData} from "../../cesium/plot/eqThemes.js";
 
 
 export default {
@@ -137,15 +139,21 @@ export default {
   methods: {
     // 获取地震列表并渲染
     getEq() {
-      getAllEq().then((res) => {
-        let resData = res.filter((item) => item.magnitude >= 4.5);
-        let data = resData.map((item) => ({
-          ...item,
-          occurrenceTime: this.timestampToTime(item.occurrenceTime, "full"),
-          magnitude: Number(item.magnitude).toFixed(1),
-          latitude: Number(item.latitude).toFixed(2),
-          longitude: Number(item.longitude).toFixed(2),
-        }));
+      let that = this
+      getEqList().then(res => {
+        console.log("返回的数据1",res.data)
+        let resData = res.data.filter(item => item.magnitude >= 4.0)
+        that.getEqData = resData
+        that.total = resData.length
+        let data = []
+        for (let i = 0; i < res.data.length; i++) {
+          let item = res.data[i]
+          item.occurrenceTime = that.timestampToTime(item.occurrenceTime)
+          item.magnitude = Number(item.magnitude).toFixed(1)
+          item.latitude = Number(item.latitude).toFixed(2)
+          item.longitude = Number(item.longitude).toFixed(2)
+          data.push(item)
+        }
 
         this.getEqData = data;
         this.filteredEqData = data;
@@ -451,15 +459,18 @@ export default {
 
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
-      if (!imagData.path) {
-        if (imagData.name === "遥感影像图") {
+
+
+      console.log("imagData",imagData)
+      if (!imagData.imgUrl) {
+        if (imagData.theme === "遥感影像图") {
           //   调用截图方法
           this.remoteSensingImagePerspectiveJump(() => {
             // this.captureRemoteSensingImage();
             this.exportCesiumScene(imagData.name)
           });
         }
-        if (imagData.name === "三维模型图") {
+        if (imagData.theme === "三维模型图") {
           // 显示加载中的提示
           this.loading = true;
 
@@ -537,9 +548,10 @@ export default {
             });
           }
         }
-      } else {
-        this.imgurlFromDate = imagData.path
-        this.imgName = imagData.name
+      }
+      else {
+        this.imgurlFromDate = imagData.imgUrl
+        this.imgName = imagData.theme
         this.ifShowMapPreview = true
         this.showTypes = 1
         this.getAssetsFile()
@@ -695,7 +707,7 @@ export default {
     },
 
     selectEq(eq) {
-      console.log("asdrgergdvbrtbhdf",eq)
+      console.log("选择的数据",eq)
       this.locateEq(eq)
       this.selectedEqData = eq
     },
@@ -1005,269 +1017,6 @@ export default {
   border-radius: 10px;
   z-index: 1000;
 }
-
-// 左侧地震面板
-.eqTable {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 333px;
-  height: calc(100% - 50px);
-  z-index: 3;
-  background-color: #2d3d51;
-}
-
-// 选项卡
-.tab {
-  display: flex;
-  width: calc(100% - 30px);
-  height: 40px;
-  background-color: #2d3d51;
-  color: #fff;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-}
-
-.tabItem {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background-color: #0d325f;
-  height: 40px;
-  padding: 0 10px;
-  white-space: nowrap;
-}
-
-.tabItem.active {
-  background-color: #409eff;
-}
-
-.closeIcon {
-  margin-left: 10px;
-  cursor: pointer;
-}
-
-// 开关
-.fold {
-  position: absolute;
-  top: 50px;
-  right: 323px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 10px;
-  height: 50px;
-  background-color: #2d3d51;
-  -webkit-border-top-left-radius: 10px;
-  -webkit-border-bottom-left-radius: 10px;
-  cursor: pointer;
-  z-index: 4;
-  transition: width 0.3s ease; /* 宽度过渡动画 */
-}
-
-.unfold {
-  position: absolute;
-  top: 50px;
-  right: 0;
-  width: 30px;
-  height: 40px;
-  background-color: rgba(48, 65, 86, 0.5);
-  cursor: pointer;
-  z-index: 2;
-  margin: 0;
-}
-
-// 搜索框
-.query {
-  width: calc(100% - 20px);
-  margin: 10px;
-}
-
-// 地震列表
-.eqList {
-  position: relative;
-  height: 85vh;
-  overflow-y: auto;
-}
-
-.eqCard {
-  display: flex;
-  height: 110px;
-  border-bottom: #0d325f 2px solid;
-  cursor: pointer;
-}
-
-.eqCard:hover {
-  background-color: #202933;
-  transition: all 0.3s;
-}
-
-// 圆圈震级
-.eqMagnitude {
-  display: flex;
-  height: 35px;
-  width: 35px;
-  margin: 10px;
-  border-radius: 50%;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  font-size: 18px;
-}
-
-// 地震简要文本信息
-.eqText {
-  padding-top: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  position: relative;
-}
-
-.eqTitle {
-  display: inline-block;
-  max-width: 260px;
-  position: relative;
-  transform: translateX(0);
-  will-change: transform;
-  color: #409eff;
-  font-size: 15px;
-}
-
-.eqText .eqTitle:hover {
-  transform: translateX(-50%);
-  transition: transform 5.0s ease;
-}
-
-.eqText .eqTitle {
-  transition: none;
-}
-
-// 详情按钮
-.eqTapToInfo {
-  position: absolute;
-  right: 10px;
-  margin-top: 70px;
-  width: 60px;
-  height: 30px;
-  border: #0d325f 1.5px solid;
-  border-radius: 5px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.eqTapToInfo:hover {
-  border: #2aa4f1 1.5px solid;
-  color: #2aa4f1;
-  transition: all 0.3s;
-}
-
-// 分页容器
-.pagination {
-  position: absolute;
-  bottom: 0;
-  width: 327px;
-  background-color: #2d3d51;
-  border: 2px solid #FFFFFF; /* 白色边框 */
-}
-
-::v-deep .pagination .el-pagination__total {
-  color: white;
-}
-
-// 指定地震面板
-.thisEq {
-  height: 100%;
-  overflow: auto;
-}
-
-.eqInfo {
-
-}
-
-.return {
-  width: 40px;
-  height: 25px;
-  border: #fff 1px solid;
-  border-radius: 8px;
-  font-size: 12px;
-  margin-left: auto; /* 使按钮靠右 */
-}
-
-.return:hover {
-  border-color: #409eff;
-  color: #409eff;
-  transition: all 0.3s;
-}
-
-
-.themes:hover {
-  background-color: #409eff;
-  border: none;
-}
-
-.themes.active {
-  background-color: #409eff;
-  border: none;
-}
-
-// 大屏展示
-.eqVisible {
-  display: flex;
-  height: 80px;
-  width: 100%;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-}
-
-.toVisible {
-  margin-bottom: 0;
-  width: 200px;
-  height: 50px;
-  border: #fff 1px solid;
-  border-radius: 25px;
-  font-size: 18px;
-}
-
-.toVisible:hover {
-  color: #409eff;
-  border-color: #409eff;
-  transition: all 0.3s;
-}
-
-// 底部面板
-.panel {
-  position: absolute;
-  width: 100%;
-  height: 250px;
-  bottom: 0;
-  z-index: 2;
-}
-
-.showPanel {
-  position: absolute;
-  left: 10px;
-  bottom: 0;
-  width: 120px;
-  height: 40px;
-  background-color: #2d3d51;
-  -webkit-border-top-left-radius: 10px;
-  -webkit-border-top-right-radius: 10px;
-  z-index: 2;
-}
-
-.showPanel:hover {
-  color: #2aa4f1;
-  transition: all 0.3s;
-}
-
 
 ::v-deep .el-divider__text.is-left {
   background-color: #2d3d51;

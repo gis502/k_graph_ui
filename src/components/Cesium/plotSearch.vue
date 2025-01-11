@@ -20,7 +20,8 @@
           <!-- 圆圈震级 -->
           <div style="width: 55px">
             <div class="eqMagnitude">
-              <img width="30px" height="30px" :src="'http://localhost:8080/uploads/PlotsPic/' +plot.plotInfo.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+<!--              <img width="30px" height="30px" :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +plot.plotInfo.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">-->
+              <img width="30px" height="30px" :src="'http://localhost:8080'+'/uploads/PlotsPic/' +plot.plotInfo.icon+ '.png?t=' + new Date().getTime()" alt="暂无符号">
             </div>
           </div>
 
@@ -103,7 +104,7 @@
         </el-divider>
         <div style="padding: 1px 20px 10px 20px;color: white">
           <!-- 显示选项卡内容 -->
-          <h4>地震名称：{{ selectedTabData.earthquakeName }} {{ selectedTabData.magnitude }}级地震</h4>
+          <h4>地震名称：{{ selectedTabData.earthquakeName }}</h4>
           <p>发震时刻：{{ selectedTabData.occurrenceTime }}</p>
           <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
           <p>地震震级：{{ selectedTabData.magnitude }}</p>
@@ -160,6 +161,7 @@ import * as Cesium from "cesium";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import axios from "axios";
+import {tianDitulocalApi} from "@/utils/server.js";
 
 export default {
   name: "plotSearch",
@@ -267,7 +269,7 @@ export default {
     // },
      async getReverseGeocode(lon, lat) {
        try {
-         const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+         const response = await axios.get(`${tianDitulocalApi}/geocoder`, {
            params: {
              postStr: JSON.stringify({lon, lat, ver: 1}),
              type: 'geocode',

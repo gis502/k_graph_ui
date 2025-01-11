@@ -32,14 +32,14 @@ let cesiumPlot= {
   },
 
   drawPoints(points,bool,stoptime){
-    console.log("?",points)
-    console.log("?",bool)
+    // console.log("?",points)
+    // console.log("?",bool)
     this.point.drawPoints(points,bool,stoptime)
   },
 
-  deletePoint(point){
-    this.point.deletePoint(point)
-  },
+  // deletePoint(point){
+  //   this.point.deletePoint(point)
+  // },
   deletePointById(plotId){
     this.point.deletePointById(plotId)
   },

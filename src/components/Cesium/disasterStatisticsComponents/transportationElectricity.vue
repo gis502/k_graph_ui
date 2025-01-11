@@ -1,41 +1,39 @@
 <template>
-  <div class="container">
 <!--    上面echarts-->
     <span>更新时间：{{ updateTime1 }}</span>
-    <el-carousel :interval="4000" indicator-position="none">
+    <el-carousel :interval="4200" indicator-position="none" height="250px">
       <!-- 第一个页面，放一个 ECharts -->
       <el-carousel-item>
-        <div ref="echart1" style="height: 350px;width:490px"></div>
+        <div ref="echart1" style="height: 250px;width:420px"></div>
       </el-carousel-item>
       <!-- 第二个页面，放三个 ECharts -->
-      <el-carousel-item style="height: 350px;width:490px;">
-        <div style="text-align: center;width: 350px ;color: #fff;font-size: 18px;font-weight: 4000;margin-top: 10px">电力设施损毁及抢修情况</div>
-        <div ref="echart2" style="width: 130px; height: 350px; float: left;"></div>
-        <div ref="echart3" style="width: 130px; height: 350px; float: left;"></div>
-        <div ref="echart4" style="width: 130px; height: 350px; float: left;"></div>
+      <el-carousel-item style="height: 250px;width:420px;">
+        <div style="text-align: center;width: 350px ;color: #fff;font-size: 18px;font-weight: 4200;margin-top: 10px">电力设施损毁及抢修情况</div>
+        <div ref="echart2" style="width: 130px; height: 308px; float: left;"></div>
+        <div ref="echart3" style="width: 130px; height: 308px; float: left;"></div>
+        <div ref="echart4" style="width: 130px; height: 308px; float: left;"></div>
       </el-carousel-item>
 <!--    第三个页面，放一个 ECharts -->
       <el-carousel-item>
-        <div ref="echart5" style="height: 350px;width:490px"></div>
+        <div ref="echart5" style="height: 250px;width:420px"></div>
       </el-carousel-item>
       <!-- 第四个页面，放三个 ECharts -->
-      <el-carousel-item style="height: 350px;width:490px;">
-        <div style="text-align: center;width: 350px ;color: #fff;font-size: 18px;font-weight: 4000;margin-top: 10px">电力设施损毁及抢修情况</div>
-        <div ref="echart6" style="width: 130px; height: 350px; float: left;"></div>
-        <div ref="echart7" style="width: 130px; height: 350px; float: left;"></div>
-        <div ref="echart8" style="width: 130px; height: 350px; float: left;"></div>
+      <el-carousel-item style="height: 250px;width:420px;">
+        <div style="text-align: center;width: 350px ;color: #fff;font-size: 18px;font-weight: 4200;margin-top: 10px">电力设施损毁及抢修情况</div>
+        <div ref="echart6" style="width: 130px; height: 308px; float: left;"></div>
+        <div ref="echart7" style="width: 130px; height: 308px; float: left;"></div>
+        <div ref="echart8" style="width: 130px; height: 308px; float: left;"></div>
       </el-carousel-item>
     </el-carousel>
 <!--    下面echarts-->
     <span>更新时间：{{ updateTime2 }}</span>
-    <div ref="chart1" class="chart1" style="height: 330px;width:490px">
-      <el-carousel height="330px"  indicator-position="none" :interval="4000">
+    <div ref="chart1" class="chart1" style="height: 248px;width:420px">
+      <el-carousel height="248px"  indicator-position="none" :interval="4200">
         <el-carousel-item v-for="(option, index) in chartOptions1" :key="index">
-          <div :ref="`chartContainer${index}`" class="chart" style="width:490px ;height: 350px }"></div>
+          <div :ref="`chartContainer${index}`" class="chart" style="width:420px ;height: 248px }"></div>
         </el-carousel-item>
       </el-carousel>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -280,7 +278,7 @@ const initChart = async () => {
       title: {
         text: '道路交通损毁及抢修情况与交通管控情况',
         textStyle: {
-          align: 'center',
+          align: 'left',
           color: '#fff',
           fontSize: 20,
         },
@@ -755,17 +753,17 @@ const initChart = async () => {
       textStyle: {
         color: '#fff',
         fontSize: 18,  // 缩小字体
-        fontWeight: '400'
+        fontWeight: '420'
       },
     },
     graphic: {
       elements: [{
         type: "image",
         z: 3,
-        style: {
+       style: {
           image: img,
-          width: 120,  // 缩小图片宽度
-          height: 120  // 缩小图片高度
+          width: 85,
+          height: 85
         },
         left: 'center',
         top: 'center',
@@ -780,7 +778,7 @@ const initChart = async () => {
       orient: 'horizontal',
       data: ['通信', '主网供电', '道路'],
       right: 120,  // 更靠右
-      bottom: 60,  // 提高图例位置
+      bottom: 40,  // 提高图例位置
       align: 'right',
       itemWidth: 10,  // 图例项的宽度，默认是25
       itemHeight: 10,  // 图例项的高度，默认是14
@@ -799,7 +797,7 @@ const initChart = async () => {
     legend: {
       orient: 'horizontal',  // 水平排列图例
       show: true,
-      bottom: 140,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
+      bottom: 120,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
       left: 'center',         // 将图例居中
       itemWidth: 10,          // 图例项的宽度
       itemHeight: 10,         // 图例项的高度
@@ -937,7 +935,7 @@ const initChart = async () => {
     legend: {
       orient: 'horizontal',  // 水平排列图例
       show: true,
-      bottom: 140,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
+      bottom: 120,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
       left: 'center',         // 将图例居中
       itemWidth: 10,          // 图例项的宽度
       itemHeight: 10,         // 图例项的高度
@@ -1075,7 +1073,7 @@ const initChart = async () => {
     legend: {
       orient: 'horizontal',  // 水平排列图例
       show: true,
-      bottom: 140,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
+      bottom: 120,          // 将图例放到图表底部并调整位置（可根据需要调整百分比）
       left: 'center',         // 将图例居中
       itemWidth: 10,          // 图例项的宽度
       itemHeight: 10,         // 图例项的高度
@@ -1221,7 +1219,7 @@ const initChart = async () => {
   myChart5.setOption(option1)
   const myChart6 = echarts.init(echart6.value)
   myChart6.setOption(option2)
-  const myChart7 = echarts.init(echart7.value)  
+  const myChart7 = echarts.init(echart7.value)
   myChart7.setOption(option3)
   const myChart8 = echarts.init(echart8.value)
   myChart8.setOption(option4)
@@ -1236,17 +1234,14 @@ onMounted(async () => {
 <style scoped>
 span{
   display: block;
+  color: white;
   padding-left: 5px;
   background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%);
 }
 
-.container{
-  display: flex;
-  flex-direction: column;
-}
 
 .chart {
-  width: 100%;
-  height: 300px;
+  width: 420px;
+  height: 250px;
 }
 </style>

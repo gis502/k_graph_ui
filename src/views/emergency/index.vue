@@ -248,17 +248,29 @@
         <h2 class="panelName">行政区划匹配</h2>
       </div>
 
-      <div class="panelContent" style="padding-right: 5px">
-        <div class="district-buttons">
-          <div v-for="district in districts" :key="district.adcode"
-               class="district-button">
-            <el-button @click="selectRegions(district)" class="district-button"
-                       :class="{ 'selected': selectedRegions.includes(district) }">
-              {{ district.name }}
-            </el-button>
-          </div>
+        <div class="panelContent" style="padding-right: 5px" v-if="marchRegion">
+            <div class="district-buttons">
+                <div v-for="district in districts" :key="district.adcode" class="district-button">
+                    <el-button
+                            @click="selectRegions(district)"
+                            class="district-button"
+                            :class="{ 'selected': selectedRegions.includes(district) }">
+                        {{ district.name }}
+                    </el-button>
+                </div>
+            </div>
+<!--            <el-button type="primary" @click="confirmSelection">确认选择</el-button>-->
         </div>
-      </div>
+
+        <!-- marchRegionSupplies 供应详情 -->
+<!--        <div class="panelContent" style="padding-right: 5px" v-if="marchRegionSupplies">-->
+<!--            <div>-->
+<!--&lt;!&ndash;                <p>当前选择的区域：{{ selectedRegions.map(r => r.name).join(', ') }}</p>&ndash;&gt;-->
+<!--                <h1>11111111111111111111111</h1>-->
+<!--                <el-button type="primary" @click="goBackToRegionSelection">返回重新选择</el-button>-->
+<!--            </div>-->
+<!--        </div>-->
+
       <div style="width: 100%;display: flex;justify-content: center;align-items: center">
         <div class="panelButtons">
           <el-button @click="panels.marchRegionsDialog = false">取消</el-button>
@@ -396,8 +408,9 @@ import axios from "axios"
 import yaan from "@/assets/geoJson/yaan.json";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
-import {getEqById, getExcelUploadEarthquake} from "@/api/system/eqlist.js";
+import {getEqById, getEqListById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import centerstar from "@/assets/icons/TimeLine/震中.png";
+import {AmapApiLocal} from "@/utils/server.js";
 
 export default {
   components: {
@@ -490,6 +503,8 @@ export default {
         searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
         marchRegionsDialog: false,  //行政区划匹配dialog是否显示
       },
+        marchRegion: true, // 选定匹配区域
+        marchRegionSupplies: false, // 选定行政区后填写要匹配的物资
 
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
 
@@ -675,7 +690,7 @@ export default {
   methods: {
     handleEqListChange() {
       if (this.eqlistName) {
-        getEqById({'id': this.eqlistName}).then(async res => {
+        getEqListById({'id': this.eqlistName}).then(async res => {
           window.viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(parseFloat(res.longitude), parseFloat(res.latitude), 40000),
             orientation: {
@@ -780,7 +795,7 @@ export default {
       }
     },
     getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
+      getExcelUploadEqList().then(res => {
         if (res.data === null) {
           ElMessage.error("地震列表无数据")
         }
@@ -933,7 +948,7 @@ export default {
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -944,8 +959,7 @@ export default {
       //影像注记
       viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url:
-                "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 token,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -1187,7 +1201,15 @@ export default {
       } else {
         this.selectedRegions.splice(index, 1); // 取消选中
       }
+      // this.marchRegion = false
+      //   this.marchRegionSupplies = true
     },
+      // 返回重新选择区域
+      goBackToRegionSelection() {
+          this.selectedRegions = []
+          this.marchRegion = true
+          this.marchRegionSupplies = false
+      },
 
       // 行政区域匹配
     handleDistrictClick() {
@@ -1613,6 +1635,10 @@ export default {
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
       this.ifDrawEllipse = true
+        // 移除现有的点
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
       let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
       // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
         this.selectedDataByRadius = {
@@ -2029,7 +2055,7 @@ export default {
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
             console.log("555")
-          axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+          axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
               .then(res => {
                 pathM += parseInt(res.data.route.paths[0].distance);
                 res.data.route.paths[0].steps.forEach(step => {
@@ -2211,7 +2237,7 @@ export default {
       let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
 
       // 请求路径规划
-      axios.get(`https://restapi.amap.com/v3/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
+      axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
           .then(res => {
             // 处理路径返回的数据，更新路径
             let pathM = parseInt(res.data.route.paths[0].distance);

@@ -35,9 +35,9 @@
       </div>
     </div>
     <!--    title end-->
-    <div class="button-container">
-      <el-button class="el-button--primary" size="small" @click="takeScreenshot">报告产出</el-button>
-    </div>
+<!--    <div class="button-container">-->
+<!--      <el-button class="el-button&#45;&#45;primary" size="small" @click="takeScreenshot">报告产出</el-button>-->
+<!--    </div>-->
 
     <!--    box包裹地图，截图需要-->
     <div id="box" ref="box">
@@ -69,10 +69,11 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
+        <img class="play-icon" src="../../../assets/icons/TimeLine/回到开始.png" @click="returnStart"/>
         <img class="play-icon" src="../../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
-        <img class="play-icon" src="../../../assets/icons/TimeLine/播放.png" v-if="!isTimerRunning"
+        <img class="play-icon" src="../../../assets/icons/TimeLine/播放.png" v-show="!isTimerRunning"
              @click="toggleTimer"/>
-        <img class="pause-icon" src="../../../assets/icons/TimeLine/暂停.png" v-if="isTimerRunning"
+        <img class="pause-icon" src="../../../assets/icons/TimeLine/暂停.png" v-show="isTimerRunning"
              @click="toggleTimer"/>
         <img class="play-icon" src="../../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
       </div>
@@ -174,6 +175,7 @@
               :zoomLevel="zoomLevel"
               :isTimerRunning="isTimerRunning"
               :viewCenterCoordinate="viewCenterCoordinate"
+              :earthquakeName="centerPoint.earthquakeName"
           ></plotStatistics>
         </div>
         <!--      缩略图-->
@@ -222,7 +224,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 import {getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getEqById} from '@/api/system/eqlist'
+import {getAllEq, getEqById, getEqListById} from '@/api/system/eqlist'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import {useCesiumStore} from '@/store/modules/cesium.js'
@@ -603,7 +605,8 @@ export default {
 
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+            // url: "http://59.255.48.160:81/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 TianDiTuToken,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -613,7 +616,8 @@ export default {
       );
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+            // url: "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                 TianDiTuToken,
             layer: "tdtAnnoLayer",
             style: "default",
@@ -745,7 +749,7 @@ export default {
      * @param {string} eqid - 地震ID
      */
     getEqInfo(eqid) {
-      getEqById({id: eqid}).then(res => {
+      getEqListById({id: eqid}).then(res => {
         //震中标绘点
         this.centerPoint = res
         // 设置中心点的标识和时间信息
@@ -1175,8 +1179,24 @@ export default {
           this.centerMarkOpacityTo1()
         }
       }
-
-
+    },
+    returnStart(){
+      this.isTimerRunning = false;
+      // 初始化
+      this.currentTimePosition = 0;
+      this.currentTime = this.eqstartTime;
+      this.currentNodeIndex = 0;
+      // 从 dataSource 中删除点
+      this.plots.forEach(item => {
+        if (this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          cesiumPlot.deleteMakerById(item.plotId, item.drawtype, item.plotType);
+        }
+      })
+      this.flyToCenter()
+      // setTimeout(() => {
+        this.flashingCenter()
+      // }, 3000);
     },
     /**
      * 初始化计时线
@@ -1308,6 +1328,7 @@ export default {
         if (flag) {
           if (this.isMarkingLayer) {
             this.updatePlotOnce("3")
+            this.isTimerRunning = false;
           } else {
             this.MarkingLayerRemove()
           }
@@ -1364,7 +1385,7 @@ export default {
             // 根据是否需要显示标绘层来更新图层
             this.updatePlotOnce("3")
           }
-
+          this.isTimerRunning = false;
         }
       }
 
@@ -1404,13 +1425,16 @@ export default {
           // 调用 intimexuanran 方法，传入地震ID
           // this.intimexuanran(this.eqid)
 
-        } else {
+        }
+        else {
           if (currentTimeTmp > this.currentTime) {
             this.updatePlotOnce("3")
           } else {
             this.updatePlotOnce("3")
           }
         }
+
+        this.isTimerRunning = false;
       }
     },
 
@@ -1500,6 +1524,7 @@ export default {
         document.body.style.WebkitUserSelect = 'auto';
         document.body.style.MozUserSelect = 'auto';
         document.body.style.msUserSelect = 'auto';
+        this.isTimerRunning = false;
       }
     },
 
@@ -1533,8 +1558,10 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.geom.coordinates[0]),
-            parseFloat(this.centerPoint.geom.coordinates[1]),
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
             60000),
         orientation: {
           // 指向
@@ -1567,8 +1594,10 @@ export default {
             data
           },
           position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
+              // parseFloat(this.centerPoint.geom.coordinates[0]),
+              // parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.longitude),
+              parseFloat(this.centerPoint.latitude),
               parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
@@ -1612,8 +1641,10 @@ export default {
       if (!smallcenterMark) {
         smallcenterMark = smallViewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-              parseFloat(this.centerPoint.geom.coordinates[0]),
-              parseFloat(this.centerPoint.geom.coordinates[1]),
+              // parseFloat(this.centerPoint.geom.coordinates[0]),
+              // parseFloat(this.centerPoint.geom.coordinates[1]),
+              parseFloat(this.centerPoint.longitude),
+              parseFloat(this.centerPoint.latitude),
               parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
@@ -1659,8 +1690,10 @@ export default {
       this.timelinePopupData = data
       this.selectedEntity = centerMark
       this.selectedEntityPosition = {
-        x: this.centerPoint.geom.coordinates[0], // 经度
-        y: this.centerPoint.geom.coordinates[1],  // 纬度
+        // x: this.centerPoint.geom.coordinates[0], // 经度
+        // y: this.centerPoint.geom.coordinates[1],  // 纬度
+        x: this.centerPoint.longitude, // 经度
+        y: this.centerPoint.latitude,  // 纬度
         z: 0     // 高度
       };
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
@@ -1721,18 +1754,19 @@ export default {
     updateZoomLevel(cameraHeight) {
       console.log("层级", cameraHeight)
       // 根据相机高度设置 zoomLevel
-      if (cameraHeight > 200000) {
-        this.zoomLevel = '市'
-      } else if (cameraHeight > 70000) {
+      if (cameraHeight < 50000) {
         this.zoomLevel = '区/县'
+      }
+      else{
+        this.zoomLevel = '市'
       }
           // else if (cameraHeight > 8000) {
           //   this.zoomLevel = '乡/镇'
       // }
-      else {
-        // this.zoomLevel = '村'
-        this.zoomLevel = '乡/镇'
-      }
+      // else {
+      //   // this.zoomLevel = '村'
+      //   this.zoomLevel = '乡/镇'
+      // }
     },
     /**
      * 处理实体点击事件的弹窗显示逻辑
@@ -2318,8 +2352,11 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
+              // url:
+              //     "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+              //     token,
               url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -2337,8 +2374,11 @@ export default {
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
+              // url:
+              //     "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+              //     token,
               url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
                   token,
               layer: "tdtAnnoLayer",
               style: "default",
@@ -2651,7 +2691,7 @@ export default {
 .play {
   width: 4%;
   height: 100%;
-  margin-left: -2%;
+  margin-left: -8%;
   display: flex;
   align-items: center;
 }

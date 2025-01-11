@@ -39,7 +39,7 @@
 
       <el-table-column
           prop="modelSize"
-          label="模型大小(GB)"
+          label="模型大小(平方公里)"
           min-width="120"
           align="center"
       ></el-table-column>
@@ -59,8 +59,8 @@
       ></el-table-column>
 
       <el-table-column
-          prop="rotationAngle"
-          label="旋转角度(度)"
+          prop="modelHeightE"
+          label="地形模型中心高度(米)"
           min-width="150"
           align="center"
       ></el-table-column>
@@ -273,6 +273,7 @@ export default {
         addTime: '',
         modelPath: '',
         modelHeight: '',
+        modelHeightE: '',
         rotationAngle: '',
         modelid: ''
       },
@@ -346,8 +347,9 @@ export default {
             modelPath: item.path,
             addTime: formattedCreateTime, // 使用处理后的 addTime
             modelSize: item.modelSize,
-            modelHeight: item.rze,
-            rotationAngle: item.tze
+            modelHeight: item.tz,
+            modelHeightE: item.tze,
+            rotationAngle: item.rze
           };
         });
         // 设置总条数
@@ -368,7 +370,8 @@ export default {
         //  和后端字段对应
         name: this.dialogContent.modelName || null,
         time: this.formatISODateTimeToBackend(this.dialogContent.addTime), // 调用方法格式化时间
-        tze: this.dialogContent.modelHeight || null,
+        tze: this.dialogContent.modelHeightE || null,
+        tz: this.dialogContent.modelHeight || null,
         rze: this.dialogContent.rotationAngle || null,
         path: this.dialogContent.modelPath || null,
         modelSize: this.dialogContent.modelSize || null
@@ -396,8 +399,9 @@ export default {
             modelPath: item.path,
             addTime: formattedAddTime,  // 使用格式化后的时间
             modelSize: item.modelSize,  // 确保使用正确的字段名
-            modelHeight: item.rze,
-            rotationAngle: item.tze,
+            modelHeight: item.tz,
+            modelHeightE: item.tze,
+            rotationAngle: item.rze,
           };
         });
 
@@ -465,8 +469,9 @@ export default {
               modelPath: item.path,
               addTime: formatDate(item.time), // 使用独立的日期格式化函数
               modelSize: item.modelSize,
-              modelHeight: item.rze,
-              rotationAngle: item.tze
+              modelHeight: item.tz,
+              modelHeightE: item.tze,
+              rotationAngle: item.rze
             }));
 
             // 更新总数并刷新表格
@@ -515,6 +520,7 @@ export default {
           addTime: '',
           modelPath: '',
           modelHeight: '',
+          modelHeightE: '',
           rotationAngle: '',
           modelid: ''
         };
@@ -525,6 +531,7 @@ export default {
           addTime: this.formatDateToBackend(row.addTime), // 格式化时间
           modelPath: row.modelPath,
           modelHeight: row.modelHeight,
+          modelHeightE: row.modelHeightE,
           rotationAngle: row.rotationAngle,
           modelid: row.modelid
         };
@@ -549,7 +556,7 @@ export default {
             rz: 0, // 假设这里是0
             tz: -557, // 假设这里是-557
             rze: this.dialogContent.rotationAngle,
-            tze: this.dialogContent.modelHeight,
+            tze: this.dialogContent.modelHeightE,
             time: this.formatISODateTimeToBackend(this.dialogContent.addTime), // 调用方法格式化时间
             uuid: this.dialogContent.modelid,
           };
@@ -593,6 +600,7 @@ export default {
         addTime: '',  // 确保时间为空
         modelPath: '',
         modelHeight: '',
+        modelHeightE: '',
         rotationAngle: '',
         modelid: ''
       };
@@ -604,6 +612,7 @@ export default {
         addTime: '',
         modelPath: '',
         modelHeight: '',
+        modelHeightE: '',
         rotationAngle: '',
         modelid: ''
       };
