@@ -37,7 +37,7 @@
             参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米<br/>
-                                    地震类型：{{ eq.eqType === 'Z' ? '正式地震' : (eq.eqType === 'Y' ? '演练地震' : '测试地震') }}
+            地震类型：{{ eq.eqType === 'Z' ? '正式地震' : (eq.eqType === 'Y' ? '演练地震' : '测试地震') }}
 
           </span>
               </div>
@@ -652,7 +652,7 @@ export default {
 
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
-          console.log(res)
+          console.log("灾情报告",res)
 
           if (res.themeName.includes("null")) {
             this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
