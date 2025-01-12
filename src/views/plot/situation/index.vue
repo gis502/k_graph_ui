@@ -17,13 +17,14 @@
       </div>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
-      <el-form class="situation_eqTable">
+      <el-form class="situation_eqTable" @submit.prevent>
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <div class="modelAdj">查询</div>
           <el-input
             v-model="queryParams"
             placeholder="请输入搜索信息"
             clearable
+            @keydown.enter="handleQuery"
             style="width: 200px; margin-right: 10px;"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>

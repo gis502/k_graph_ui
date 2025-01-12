@@ -1247,7 +1247,7 @@ export default {
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         this.thematicMapitems = res.themeData
-        console.log("专题图：", this.thematicMapitems)
+        console.log("专题图：", this.thematicMapitems,"diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
       })
       handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
         this.reportItems = res.themeData
