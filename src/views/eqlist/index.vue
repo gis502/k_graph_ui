@@ -17,8 +17,16 @@
 
     </el-form-item>
 
-    <el-progress v-if="isProgressShow" :text-inside="true" :stroke-width="26" :percentage="percentage"
-                 :color="colors"></el-progress>
+    <el-progress
+        v-if="isProgressShow"
+        :text-inside="true"
+        :stroke-width="16"
+        :percentage="percentage"
+        :color="getGradientColors()"
+        :show-text="true"
+        style="border-radius: 15px; background: linear-gradient(90deg, #f5f7fa, #eaf0ff); padding: 3px; box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);"
+    />
+
 
     <el-table
         :data="tableData"
@@ -195,9 +203,16 @@
     <el-dialog :title="panelTitle" v-model="isPanelShow" width="30%">
       <el-form ref="panel" :model="addOrUpdateDTO" :rules="panelRules">
         <el-row>
-          <el-col :span="13">
-            <el-form-item label="震发位置：" prop="eqName">
-              <el-input v-model="addOrUpdateDTO.eqAddr" placeholder="请输入内容"></el-input>
+          <el-col :span="15">
+            <el-form-item label="震发位置：" prop="eqAddr">
+              <el-cascader
+                  :options="locationOptions"
+                  v-model="selectedPath"
+                  placeholder="请选择震发位置"
+                  @change="onLocationChange"
+                  filterable
+                  separator=""
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -231,12 +246,12 @@
         <el-row :gutter="10">
           <el-col :span="12">
             <el-form-item label="经度(度分)：" prop="longitude">
-              <el-input v-model="addOrUpdateDTO.longitude" placeholder="请输入内容" type="number"></el-input>
+              <el-input v-model="addOrUpdateDTO.longitude" placeholder="请输入内容" type="number" @change="updateLocationByCoordinates"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="纬度(度分)：" prop="latitude">
-              <el-input v-model="addOrUpdateDTO.latitude" placeholder="请输入内容" type="number"></el-input>
+              <el-input v-model="addOrUpdateDTO.latitude" placeholder="请输入内容" type="number" @change="updateLocationByCoordinates"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -417,14 +432,12 @@ export default {
       isProgressShow: false,
       percentage: 0,
       colors: [
-        {color: '#e3e8f5', percentage: 10},
-        {color: '#acd2f8', percentage: 30},
-        {color: '#7cbdfa', percentage: 40},
-        {color: '#7ea3f8', percentage: 50},
-        {color: '#6293f6', percentage: 60},
-        {color: '#4f80ff', percentage: 70},
-        {color: '#4b6bfa', percentage: 80},
-        {color: '#445ede', percentage: 100}
+        { color: '#d3e0fa', percentage: 10 },
+        { color: '#a4c7fc', percentage: 30 },
+        { color: '#7aaef8', percentage: 50 },
+        { color: '#5795f4', percentage: 70 },
+        { color: '#3c7ef0', percentage: 90 },
+        { color: '#2369e8', percentage: 100 }
       ],
       formValid: false, // 表单验证状态
       getEqData: [],
@@ -507,7 +520,115 @@ export default {
         eqDepth: '',
         eqType: '',
       },
+      selectedPath: [],  // 用于绑定 el-cascader 的路径
 
+      locationOptions: [
+        {
+          label: '雨城区',
+          value: '雨城区',
+          children: [
+            { label: '碧峰峡镇', value: '碧峰峡镇', longitude: 102.99056, latitude: 30.063067 },
+            { label: '八步镇', value: '八步镇', longitude: 102.92682, latitude: 29.934629 },
+            { label: '周公山镇', value: '周公山镇', longitude: 103.033124, latitude: 29.902028 },
+            { label: '多营镇', value: '多营镇', longitude: 103.033124, latitude: 29.902028 },
+            { label: '草坝镇', value: '草坝镇', longitude: 103.10992, latitude: 29.957198 },
+            { label: '望鱼镇', value: '望鱼镇', longitude: 103.052413, latitude: 29.726062 },
+            { label: '晏望镇', value: '晏望镇', longitude: 103.118803, latitude: 29.738917 },
+            { label: '上里镇', value: '上里镇', longitude: 103.0714, latitude: 30.17536 }
+          ]
+        },
+        {
+          label: '名山区',
+          value: '名山区',
+          children: [
+            { label: '蒙顶山镇', value: '蒙顶山镇', longitude: 103.093726, latitude: 30.069222 },
+            { label: '前进镇', value: '前进镇', longitude: 103.196886, latitude: 30.042079 },
+            { label: '车岭镇', value: '车岭镇', longitude: 103.23763, latitude: 30.079663 },
+            { label: '百丈镇', value: '百丈镇', longitude: 103.233624, latitude: 30.181041 },
+            { label: '黑竹镇', value: '黑竹镇', longitude: 103.304835, latitude: 30.213347 },
+            { label: '红星镇', value: '红星镇', longitude: 103.28407, latitude: 30.149696 },
+            { label: '茅河镇', value: '茅河镇', longitude: 103.345555, latitude: 30.222476 },
+            { label: '马岭镇', value: '马岭镇', longitude: 103.344431, latitude: 30.123473 },
+            { label: '新店镇', value: '新店镇', longitude: 103.190007, latitude: 30.142374 },
+            { label: '万古镇', value: '万古镇', longitude: 103.141866, latitude: 30.161016 },
+            { label: '中锋镇', value: '中锋镇', longitude: 103.18031, latitude: 30.186421 }
+          ]
+        },
+        {
+          label: '天全县',
+          value: '天全县',
+          children: [
+            { label: '城厢镇', value: '城厢镇', longitude: 102.766425, latitude: 30.058379 },
+            { label: '始阳镇', value: '始阳镇', longitude: 102.826894, latitude: 30.023615 },
+            { label: '新场镇', value: '新场镇', longitude: 102.836767, latitude: 29.962885 },
+            { label: '思经镇', value: '思经镇', longitude: 102.73138, latitude: 30.0241 },
+            { label: '小河镇', value: '小河镇', longitude: 102.740645, latitude: 30.108484 },
+            { label: '喇叭河镇', value: '喇叭河镇', longitude: 102.60136, latitude: 30.04476 },
+            { label: '仁义镇', value: '仁义镇', longitude: 102.808328, latitude: 30.113779 }
+          ]
+        },
+        {
+          label: '芦山县',
+          value: '芦山县',
+          children: [
+            { label: '大川镇', value: '大川镇', longitude: 102.933909, latitude: 30.144731 },
+            { label: '太平镇', value: '太平镇', longitude: 102.994017, latitude: 30.337753 },
+            { label: '龙门镇', value: '龙门镇', longitude: 103.01868, latitude: 30.254455 },
+            { label: '双石镇', value: '双石镇', longitude: 102.923769, latitude: 30.251806 },
+            { label: '思延镇', value: '思延镇', longitude: 102.908916, latitude: 30.129881 },
+            { label: '飞仙关镇', value: '飞仙关镇', longitude: 102.889253, latitude: 30.035583 }
+          ]
+        },
+        {
+          label: '宝兴县',
+          value: '宝兴县',
+          children: [
+            { label: '穆坪镇', value: '穆坪镇', longitude: 102.812943, latitude: 30.384328 },
+            { label: '灵关镇', value: '灵关镇', longitude: 102.825763, latitude: 30.253686 },
+            { label: '陇东镇', value: '陇东镇', longitude: 102.706202, latitude: 30.474709 }
+          ]
+        },
+        {
+          label: '荥经县',
+          value: '荥经县',
+          children: [
+            { label: '花滩镇', value: '花滩镇', longitude: 102.773924, latitude: 29.775987 },
+            { label: '龙苍沟镇', value: '龙苍沟镇', longitude: 102.848165, latitude: 29.702244 },
+            { label: '牛背山镇', value: '牛背山镇', longitude: 102.53441, latitude: 29.773783 },
+            { label: '新添镇', value: '新添镇', longitude: 102.840836, latitude: 29.838178 },
+            { label: '青龙镇', value: '青龙镇', longitude: 102.879879, latitude: 29.790731 },
+            { label: '荥河镇', value: '荥河镇', longitude: 102.709169, latitude: 29.831493 },
+            { label: '五宪镇', value: '五宪镇', longitude: 102.83941, latitude: 29.76713 }
+          ]
+        },
+        {
+          label: '汉源县',
+          value: '汉源县',
+          children: [
+            { label: '富林镇', value: '富林镇', longitude: 102.631154, latitude: 29.363905 },
+            { label: '九襄镇', value: '九襄镇', longitude: 102.616859, latitude: 29.499284 },
+            { label: '皇木镇', value: '皇木镇', longitude: 102.903039, latitude: 29.35339 },
+            { label: '宜东镇', value: '宜东镇', longitude: 102.456896, latitude: 29.643801 },
+            { label: '富庄镇', value: '富庄镇', longitude: 102.54458, latitude: 29.545554 },
+            { label: '清溪镇', value: '清溪镇', longitude: 102.624098, latitude: 29.577989 },
+            { label: '大树镇', value: '大树镇', longitude: 102.685774, latitude: 29.312334 },
+            { label: '乌斯河镇', value: '乌斯河镇', longitude: 102.903597, latitude: 29.222495 },
+            { label: '唐家镇', value: '唐家镇', longitude: 102.634746, latitude: 29.450875 },
+            { label: '富泉镇', value: '富泉镇', longitude: 29.377084, latitude: 29.377084 },
+            { label: '前域镇', value: '前域镇', longitude: 102.592629, latitude: 29.499921 },
+            { label: '安乐镇', value: '安乐镇', longitude: 102.718812, latitude: 29.362771 }
+          ]
+        },
+        {
+          label: '石棉县',
+          value: '石棉县',
+          children: [
+            { label: '回隆镇', value: '回隆镇', longitude: 102.392206, latitude: 29.182922 },
+            { label: '美罗镇', value: '美罗镇', longitude: 102.443932, latitude: 29.294603 },
+            { label: '安顺场镇', value: '安顺场镇', longitude: 102.284178, latitude: 29.271568 }
+          ]
+        }
+      ],
       panelTitle: '',
       isPanelShow: false,
       panelRules: '',
@@ -526,7 +647,6 @@ export default {
           value: "T",
         }
       ]
-
     }
   },
   mounted() {
@@ -537,6 +657,74 @@ export default {
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
   methods: {
+    // 处理选择逻辑
+    // 假设已经拿到正确的级联选项路径
+    onLocationChange(selected) {
+      const region = this.locationOptions.find((r) => r.value === selected[0]);
+      if (region) {
+        const town = region.children.find((t) => t.value === selected[1]);
+        if (town) {
+          // 拼接完整地址
+          const prefix = '四川省雅安市';
+          const fullAddress = `${prefix}${region.label}${town.label}`;
+          this.addOrUpdateDTO.eqAddr = fullAddress;
+          this.addOrUpdateDTO.longitude = town.longitude;
+          this.addOrUpdateDTO.latitude = town.latitude;
+
+          // 设置级联选择框的选中路径
+          this.selectedPath = [region.value, town.value];
+        }
+      }
+    },
+    // 进度条动态计算渐变色
+    getGradientColors() {
+      return this.colors.map(item => item.color);
+    },
+    // 根据经纬度更新震发位置
+    updateLocationByCoordinates() {
+      const { longitude, latitude } = this.addOrUpdateDTO;
+
+      // 检查经纬度是否完整
+      if (!longitude || !latitude) {
+        console.log("经纬度未完整填写");
+        return; // 如果经纬度不完整，则直接返回
+      }
+
+      // 精度误差范围
+      const precision = 0.000001;
+
+      // 查找匹配项的辅助函数
+      const isMatch = (option) => {
+        return Math.abs(option.longitude - longitude) < precision &&
+            Math.abs(option.latitude - latitude) < precision;
+      };
+
+      // 定义递归函数，查找匹配项
+      const findMatchingLocation = (options) => {
+        for (const option of options) {
+          // 如果匹配，直接返回结果
+          if (isMatch(option)) {
+            return option;
+          }
+
+          // 如果有子节点，递归查找
+          if (option.children) {
+            const result = findMatchingLocation(option.children);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
+
+      // 调用递归函数查找匹配位置
+      const matchingLocation = findMatchingLocation(this.locationOptions);
+      if (matchingLocation) {
+        this.addOrUpdateDTO.eqAddr = matchingLocation.value;
+        // this.$message.success("已自动匹配震发位置！");
+      } else {
+        // this.$message.warning("未找到匹配的震发位置");
+      }
+    },
 
     commitPanel() {
       this.isPanelShow = !this.isPanelShow
@@ -564,17 +752,17 @@ export default {
       this.getEq()
     },
     // 进度条
-    // setInterval() {
-    //   this.interval = setInterval(() => {
-    //     this.updateProgress(event)
-    //   }, 9000)
-    // },
-    // updateProgress(event) {
-    //   eqProgress(event).then(res => {
-    //     this.isProgressShow = true
-    //     this.percentage = res.data.percentage
-    //   })
-    // },
+    setInterval() {
+      this.interval = setInterval(() => {
+        this.updateProgress(event)
+      }, 9000)
+    },
+    updateProgress(event) {
+      eqProgress(event).then(res => {
+        this.isProgressShow = true
+        this.percentage = res.data.percentage
+      })
+    },
     cancelPanel() {
       this.addOrUpdateDTO = {
         event: '',
