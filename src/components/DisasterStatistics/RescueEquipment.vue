@@ -104,7 +104,6 @@ function update(data){
     latestTime.value = formatDateChina(latestTime.value)
   }
 
-
   echartsInstance.setOption({
     tooltip: {
       trigger: 'axis',
