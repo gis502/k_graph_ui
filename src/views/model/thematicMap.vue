@@ -6,7 +6,7 @@
       <EarthquakeList
           @imag-selected="onImagSelected"
           @selectEq="selectEq"
-          :thematicMapClass="thematicMapClass"
+
       ></EarthquakeList>
 
       <!--            <div class="fold" :style="{ width: isFoldUnfolding ? '30px' : '10px' }" @mouseenter="isFoldUnfolding = true"-->
@@ -53,6 +53,7 @@ import html2canvas from "html2canvas";
 import * as turf from '@turf/turf';
 import {sampleTerrainMostDetailed} from "cesium";
 import {getEqList} from "@/api/system/damageassessment.js";
+import {handleOutputData} from "../../cesium/plot/eqThemes.js";
 
 
 export default {
@@ -458,15 +459,18 @@ export default {
 
     // 地震列表组件传回专题图路径
     onImagSelected(imagData) {
-      if (!imagData.path) {
-        if (imagData.name === "遥感影像图") {
+
+
+      console.log("imagData",imagData)
+      if (!imagData.imgUrl) {
+        if (imagData.theme === "遥感影像图") {
           //   调用截图方法
           this.remoteSensingImagePerspectiveJump(() => {
             // this.captureRemoteSensingImage();
             this.exportCesiumScene(imagData.name)
           });
         }
-        if (imagData.name === "三维模型图") {
+        if (imagData.theme === "三维模型图") {
           // 显示加载中的提示
           this.loading = true;
 
@@ -544,9 +548,10 @@ export default {
             });
           }
         }
-      } else {
-        this.imgurlFromDate = imagData.path
-        this.imgName = imagData.name
+      }
+      else {
+        this.imgurlFromDate = imagData.imgUrl
+        this.imgName = imagData.theme
         this.ifShowMapPreview = true
         this.showTypes = 1
         this.getAssetsFile()
