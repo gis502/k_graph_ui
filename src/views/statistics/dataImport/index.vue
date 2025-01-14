@@ -44,8 +44,7 @@
                 @change="handleFileChange"
                 :headers="this.headers">
               <!-- 隐藏的文件选择按钮 -->
-
-              <el-button type="primary" plain @click="triggerFileInput" >选择文件</el-button>
+              <el-button type="primary" plain>选择文件</el-button>
             </el-upload>
             <!--            <el-button type="primary" plain @click="confirmUpload">确定</el-button>-->
           </div>
@@ -327,7 +326,6 @@ export default {
       pageSize: 10,
       pageSizes: [10, 20, 30, 40],
       currentPage: 1,
-
       websock: null,
       websocketToTimeLine:null,
     }
@@ -360,6 +358,7 @@ export default {
         this.selectedFile = file;
       }
     },
+
     triggerFileInput() {
       this.$notify({
         title: '灾情上传',
@@ -371,16 +370,16 @@ export default {
 
 
 
-    confirmUpload() {
-      this.importDialogVisible = false;
-      if (this.selectedFile) {
-        const fileUpload = this.$refs.fileUpload;
-        fileUpload.uploadFiles = [this.selectedFile]; // 将文件添加到 el-upload 组件
-        fileUpload.submit(); // 提交文件上传
-      } else {
-        this.triggerFileInput();// 如果没有文件，触发文件选择
-      }
-    },
+    // confirmUpload() {
+    //   this.importDialogVisible = false;
+    //   if (this.selectedFile) {
+    //     const fileUpload = this.$refs.fileUpload;
+    //     fileUpload.uploadFiles = [this.selectedFile]; // 将文件添加到 el-upload 组件
+    //     fileUpload.submit(); // 提交文件上传
+    //   } else {
+    //     this.triggerFileInput();// 如果没有文件，触发文件选择
+    //   }
+    // },
     resetFileInput() {
       this.selectedFile = null;
       this.$refs.fileInput.value = ''; // 重置文件输入框
