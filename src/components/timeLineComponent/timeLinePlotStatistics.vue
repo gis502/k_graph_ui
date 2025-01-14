@@ -41,7 +41,9 @@ export default {
       scrollInterval: null,
       isWatching: false, // 添加标志位，'plots', 'currentTime','zoomLevel',三个变量触发，应该三选一
       countyCenterNew:'',
-      countyCenterNewCounty:''
+      countyCenterNewCounty:'',
+      //前一次数据
+      previousDataIntime: [], // 用于存储前一次的数据
     };
   },
   props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName'],
@@ -369,7 +371,16 @@ export default {
           this.dataIntime.push(item)
         }
       })
-      this.showZoomStatistic()
+      // 比较当前数据和前一次数据
+      if (JSON.stringify(this.dataIntime) === JSON.stringify(this.previousDataIntime)) {
+        // 数据相同，不执行 showZoomStatistic
+        return;
+      }
+
+      // 数据不同，更新 previousDataIntime 并执行 showZoomStatistic
+      this.previousDataIntime = JSON.parse(JSON.stringify(this.dataIntime));
+      this.showZoomStatistic();
+
     },
     async showZoomStatistic() {
       if (!this.dataIntime) {

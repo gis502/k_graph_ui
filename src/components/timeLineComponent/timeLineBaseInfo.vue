@@ -2,7 +2,7 @@
   <div class="pop-new">
     <div class="pop_header">
       <h2 class="pop_title">基础信息
-        <span class="time">{{ timestampToTimeChina(props.currentTime) }}</span>
+<!--        <span class="time">{{ timestampToTimeChina(props.currentTime) }}</span>-->
       </h2>
 
     </div>
