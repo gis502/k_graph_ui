@@ -4,7 +4,7 @@
       <div class="pop_header">
         <h2 class="pop_title">
           应急响应
-          <span class="time">{{ recordTime }}</span>
+          <span class="time">{{ timestampToTimeChina(recordTime) }}</span>
         </h2></div>
       <div class="sub-main">
         <ul class="sub-ul">
@@ -12,7 +12,7 @@
               v-for="(item, i) in responseShow"
           >
             <div class="pop_content">
-              <p class="pop_txt"><span>{{ item.responseTime }}</span></p>
+              <p class="pop_txt"><span>{{ timestampToTimeChina(item.responseTime) }}</span></p>
               <p class="pop_txt"><span>{{ item.unit }}</span></p>
               <p class="pop_responseName">
                 <span>{{ item.level }}</span>
@@ -80,6 +80,9 @@ export default {
         this.recordTime=timeTransfer.timestampToTime(currentTime)
       }
     },
+    timestampToTimeChina(time){
+      return timeTransfer.timestampToTimeChina(time)
+    }
   }
 };
 </script>
@@ -138,7 +141,7 @@ export default {
 
 .sub-main {
   margin-top: -6%;
-  max-height: 13vh;
+  max-height: 10vh;
   left: -2%;
   overflow-y: auto;
   overflow-x: hidden;

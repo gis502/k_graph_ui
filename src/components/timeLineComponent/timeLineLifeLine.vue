@@ -23,6 +23,7 @@ import * as echarts from "echarts";
 import 'echarts-gl';
 import {getVillages} from "../../api/system/ZhongDuanVillage";
 import {getSupplySituationList} from "../../api/system/supplySituation";
+import timeTransfer from "@/api/tool/timeTransfer.js";
 
 
 
@@ -980,21 +981,6 @@ function bindListen(echartsInstance) {
   });
 }
 
-function  timestampToTimeChina(timestamp) {
-  let DateObj = new Date(timestamp);
-  let year = DateObj.getFullYear();
-  let month = DateObj.getMonth() + 1;
-  let day = DateObj.getDate();
-  let hh = DateObj.getHours();
-  let mm = DateObj.getMinutes();
-  let ss = DateObj.getSeconds();
-  month = month > 9 ? month : '0' + month;
-  day = day > 9 ? day : '0' + day;
-  hh = hh > 9 ? hh : '0' + hh;
-  mm = mm > 9 ? mm : '0' + mm;
-  ss = ss > 9 ? ss : '0' + ss;
-  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
-}
 const formatDateChina = (dateStr) => {
   if (dateStr) {
     const date = new Date(dateStr.replace(' ', 'T')); // 将字符串转换为 Date 对象
@@ -1008,36 +994,9 @@ const formatDateChina = (dateStr) => {
   }
 };
 
-// 时间戳转为普通日期（格式：YYYY-MM-DD HH:mm:ss）
-const timestampToTime = (timestamp) => {
-  const DateObj = new Date(timestamp);
-  const year = DateObj.getFullYear();
-  const month = (DateObj.getMonth() + 1).toString().padStart(2, '0');
-  const day = DateObj.getDate().toString().padStart(2, '0');
-  const hh = DateObj.getHours().toString().padStart(2, '0');
-  const mm = DateObj.getMinutes().toString().padStart(2, '0');
-  const ss = DateObj.getSeconds().toString().padStart(2, '0');
-  return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
-};
-
-// 时间戳转为中文日期（格式：XX年XX月XX日XX时XX分XX秒）
-const timestampToTimeDate = (timestamp) => {
-  const DateObj = new Date(timestamp);
-  const year = DateObj.getFullYear();
-  let month = DateObj.getMonth() + 1;
-  let day = DateObj.getDate();
-  let hh = DateObj.getHours();
-  let mm = DateObj.getMinutes();
-  let ss = DateObj.getSeconds();
-  month = month > 9 ? month : '0' + month;
-  day = day > 9 ? day : '0' + day;
-  hh = hh > 9 ? hh : '0' + hh;
-  mm = mm > 9 ? mm : '0' + mm;
-  ss = ss > 9 ? ss : '0' + ss;
-  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
-};
-
-
+function timestampToTimeChina(time){
+  return timeTransfer.timestampToTimeChina(time)
+}
 
 </script>
 

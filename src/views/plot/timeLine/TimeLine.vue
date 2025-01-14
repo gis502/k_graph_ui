@@ -239,7 +239,7 @@ export default {
           document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
           document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:visible';
         }
-        document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 80%; left:10%;right:10%; ';
+        document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 70%; left:15%;right:15%; ';
         document.getElementsByClassName('cesium-timeline-bar')[0].style = 'background:rgba(0, 0, 0, 0.1);';
 
 
@@ -280,7 +280,7 @@ export default {
 </script>
 <style scoped>
 #box {
-  height: calc(100vh - 50px);
+  height: calc(100vh - 106px);
   width: 100%;
   margin: 0;
   padding: 0;
@@ -296,9 +296,9 @@ export default {
 }
 
 .pop_left_background {
-  top: 13%;
+  top: 11%;
   left: 1%;
-  height: 80.8vh;
+  height: 77vh;
   width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
@@ -306,9 +306,9 @@ export default {
 }
 
 .pop_right_background {
-  top: 13%;
+  top: 11%;
   right: 1%;
-  height: 80.8vh;
+  height: 77vh;
   width: 22%;
   position: absolute;
   background: rgb(4, 20, 34);
@@ -317,10 +317,28 @@ export default {
 
 :deep(.timelineLegend) {
   width: 19vw;
-  bottom: 6.8%;
+  bottom: 12%;
 }
 
 :deep(.timelineLegend.open) {
-  width: 38%;
+  width: 33%;
+  bottom: 8%;
+  height: 82%;
+}
+:deep(.legend-item){
+  margin-bottom: 7px;
+}
+:deep(.distance-legend) {
+  bottom: 1% !important;
+}
+:deep(.cesium-baseLayerPicker-dropDown-visible) {
+  z-index: 100 !important;
+  background-color: #2b323a;
+}
+
+:deep(.cesium-baseLayerPicker-dropDown) {
+  right: 9px !important;
+  width: 398px !important;
+  height: 310px !important;
 }
 </style>

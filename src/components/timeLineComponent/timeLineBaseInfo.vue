@@ -82,6 +82,7 @@ import {getDistrictEconomy} from "@/api/system/districtEconomy.js"; //地形、�
 
 import {ref, onMounted, onBeforeUnmount, nextTick, watch} from 'vue';
 import * as echarts from 'echarts';
+import timeTransfer from "@/api/tool/timeTransfer.js";
 
 // const recordtime = ref(new Date().toLocaleString());
 const initialIndex = ref(0);
@@ -267,20 +268,8 @@ function formatDate(date) {
   return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 }
 
-function timestampToTimeChina(timestamp) {
-  let DateObj = new Date(timestamp);
-  let year = DateObj.getFullYear();
-  let month = DateObj.getMonth() + 1;
-  let day = DateObj.getDate();
-  let hh = DateObj.getHours();
-  let mm = DateObj.getMinutes();
-  let ss = DateObj.getSeconds();
-  month = month > 9 ? month : '0' + month;
-  day = day > 9 ? day : '0' + day;
-  hh = hh > 9 ? hh : '0' + hh;
-  mm = mm > 9 ? mm : '0' + mm;
-  ss = ss > 9 ? ss : '0' + ss;
-  return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
+function timestampToTimeChina(time){
+  return timeTransfer.timestampToTimeChina(time)
 }
 
 const colors = ['rgba(113, 226, 135, 1)', 'rgba(119, 247, 253, 1)', 'rgba(44, 104, 231, 1)', 'rgba(93, 202, 250, 1)'];
@@ -615,7 +604,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .pop-new {
   position: absolute;
-  top: 54.4%;
+  top: 51%;
   height: 28%;
   width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
@@ -653,7 +642,7 @@ onBeforeUnmount(() => {
 .main {
   width: 100%;
   height: 100%;
-  margin-top: -15px;
+  margin-top: -7px;
 }
 
 

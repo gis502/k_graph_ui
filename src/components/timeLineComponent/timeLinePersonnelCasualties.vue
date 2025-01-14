@@ -246,7 +246,7 @@ export default {
 <style scoped>
 .pop {
   position: absolute;
-  top: 19%;
+  top: 16%;
   width: 100%; /* 调整宽度 */
   height: 21%;
   z-index: 20;
