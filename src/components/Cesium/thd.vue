@@ -4735,6 +4735,12 @@ export default {
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
     },
     downloadReport(item) {
+      this.$notify({
+        title: '报告下载',
+        message: '数据正在解析中...',
+        duration: 7000, // 设置持续时间
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
       // 报告下载逻辑
       console.log("报告下载逻辑")
       console.log(item)

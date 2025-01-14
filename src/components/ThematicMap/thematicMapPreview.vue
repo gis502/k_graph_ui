@@ -47,7 +47,7 @@
     </div>
     <div class="preview-buttons">
       <button @click="downloadPdf" class="download-button">导出为PDF</button>
-      <button @click="downloadImage" class="download-button">下载图片</button>
+      <button @click="downloadImage" class="download-button" >下载图片</button>
       <button @click="closePreview" class="cancel-button">取消</button>
     </div>
   </div>
@@ -57,6 +57,7 @@
 import {jsPDF} from 'jspdf';
 import html2canvas from "html2canvas";
 import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
+import {ElMessage} from "element-plus";
 
   export default {
     data() {
@@ -66,8 +67,6 @@ import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
         imgNameLocal: '',
         ifShow: false,
         pictureCreateTime: '',
-
-
       }
     },
     props: [
@@ -125,6 +124,12 @@ import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
       return this.imgNameLocal
     },
     downloadPdf() {
+      this.$notify({
+        title: 'pdf导出',
+        message: '数据正在解析中...',
+        duration: 7000, // 设置持续时间
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
       // 判断是否是遥感影像图
       if (this.imgName === "遥感影像图") {
         // 获取要截取的 DOM 元素
@@ -261,6 +266,12 @@ import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
       return new URL(imgshowURL, import.meta.url).href
     },
     async downloadImage() {
+      this.$notify({
+        title: '专题图下载',
+        message: '数据正在解析中...',
+        duration: 7000, // 设置持续时间
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
       console.log('下载图片')
       if (this.imgName === "遥感影像图" || this.imgName === "标绘专题图") {
         // 获取要截取的 DOM 元素
@@ -520,6 +531,8 @@ import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
       // 格式化日期为 YYYY年MM月DD日
       this.pictureCreateTime = `${year}年${month}月${day}日`;
     },
+
+
   }
 }
 </script>

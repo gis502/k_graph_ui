@@ -649,11 +649,8 @@ export default {
       }
       this.isPanelShow[type] = !this.isPanelShow[type];
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
-
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
-
           console.log(res)
-
           if (res.themeName.includes("null")) {
             this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
           } else {
@@ -666,7 +663,6 @@ export default {
           }
         });
       } else if(this.isPanelShow.instrument) {
-
         this.outputData.themeData = [
           {
             imgUrl:"http://10.16.7.69/image/instrument/仪器地震烈度分布图.jpeg",
@@ -717,6 +713,12 @@ export default {
     },
 
     handleDownloadMap(imgUrl) {
+      this.$notify({
+        title: '专题图下载',
+        message: '数据正在解析中...',
+        duration: 7000, // 设置持续时间
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
       if (imgUrl) {
         const a = document.createElement('a'); // 创建一个 <a> 元素
         a.href = imgUrl;                       // 设置 href 为图片的 src 地址
@@ -747,6 +749,12 @@ export default {
     },
 
     handleDownloadReport(docxUrl) {
+      this.$notify({
+        title: '灾情报告下载',
+        message: '数据正在解析中...',
+        duration: 7000, // 设置持续时间
+        zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+      });
       const a = document.createElement('a');
       a.href = docxUrl;
       a.download = docxUrl.split('/').pop();
