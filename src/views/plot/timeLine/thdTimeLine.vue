@@ -129,7 +129,6 @@
             @addJumpNodes="addJumpNodes"
         />
         <div>
-
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
               :eqid="eqid"

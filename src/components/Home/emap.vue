@@ -408,7 +408,7 @@ export default {
     function redraw(sel, transform) {
       // 更新四川路径
       sel.selectAll('path.sichuan').each(function (d) {
-        console.log("Selected path:", this); // 检查当前选择的路径
+        // console.log("Selected path:", this); // 检查当前选择的路径
         d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
 
