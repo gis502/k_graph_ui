@@ -347,6 +347,7 @@ import {querySituationData} from "@/api/system/model.js";
 import plotSearch from '@/components/Cesium/plotSearch.vue'
 import ThematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {Position} from "@element-plus/icons-vue";
+import {TianDiTuToken} from "@/cesium/tool/config.js";
 
 export default {
   components: {
@@ -566,6 +567,7 @@ export default {
 
     };
   },
+
   mounted() {
     // 初始化地图
     this.init()
@@ -578,6 +580,7 @@ export default {
     this.getPlotPicture()
     this.initTree()
   },
+
   beforeUnmount() {
     // console.log("111", window.viewer)
     if (window.viewer) {
@@ -607,6 +610,46 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
+
+    /**
+     * 添加交通图层到地图
+     * 该方法首先检查是否已经存在名为'TrafficLayer'的图层，如果不存在，则从天地图服务添加交通图层
+     * 同样，如果不存在名为'TrafficTxtLayer'的图层，则添加交通注记图层
+     */
+    addTrafficLayer() {
+      // 获取天地图API令牌
+      let token = TianDiTuToken;
+
+      // 检查是否存在'TrafficLayer'图层
+        // 创建并添加交通图层
+        let trafficLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通图层的URL模板
+              url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg", // 根据实际返回的图像格式调整
+              tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
+              show: true
+            })
+        );
+
+      // 检查是否存在'TrafficTxtLayer'图层
+        // 创建并添加交通注记图层
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通注记图层的URL模板
+              url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+                  TianDiTuToken,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false // 初始状态下不显示图层
+            })
+        )
+    },
 
 
     initTree() {
@@ -704,7 +747,7 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-
+this.addTrafficLayer()
     },
     // 初始化ws
     initWebsocket() {
@@ -3126,7 +3169,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 680px;
+  width: 690px;
   height: 372px;
   position: absolute;
   padding: 10px;
