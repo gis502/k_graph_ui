@@ -1,5 +1,8 @@
 <template>
   <div>
+    <timeLineTitle
+      :centerPoint="centerPoint"
+    />
     <div id="box" ref="box">
       <div id="cesiumContainer">
       </div>
@@ -62,6 +65,7 @@
 </template>
 <script>
 //组件
+import timeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
 import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
 import timeLineEmergencyResponse from "@/components/timeLineComponent/timeLineEmergencyResponse.vue";
 import timeLinePersonnelCasualties from "@/components/timeLineComponent/timeLinePersonnelCasualties.vue";
@@ -83,11 +87,13 @@ import {TianDiTuToken} from "@/cesium/tool/config.js";
 import timeTransfer from "@/api/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
 import Arrow from "@/cesium/drawArrow/drawPlot.js";
+import TimeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
 
 
 export default {
   name: "TimeLine",
   components: {
+    timeLineTitle,
     timeLineMiniMap,
     timeLinePlotStatistics,
     timeLineLifeLine,
@@ -106,7 +112,7 @@ export default {
       //----组件传值---
       //时间轴、缩略图
       viewer:'',
-      //基础信息组件传值-年月日
+      //基础信息组件传值-年月日、title
       eqyear: '',
       eqmonth: '',
       eqday: '',
