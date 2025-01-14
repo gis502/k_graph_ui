@@ -52,7 +52,10 @@
             :viewCenterCoordinate="viewCenterCoordinate"
             :earthquakeName="centerPoint.earthquakeName"
         />
-        <mini-map></mini-map>
+        <timeLineMiniMap
+            :viewer="viewer"
+            :centerPoint="centerPoint"
+        />
       </div>
     </div>
   </div>
@@ -66,24 +69,26 @@ import timeLineBaseInfo from "@/components/timeLineComponent/timeLineBaseInfo.vu
 import timeLineLegend from "@/components/timeLineComponent/timeLineLegend.vue";
 import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vue";
 import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
-import MiniMap from "@/components/TimeLine/miniMap.vue";
-
-
-import {getEqListById} from "@/api/system/eqlist.js";
+import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
+//cesium
 import * as Cesium from 'cesium'
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import CesiumNavigation from "cesium-navigation-es6";
-import timeTransfer from "@/api/tool/timeTransfer.js";
+//图片
 import centerstar from "@/assets/icons/TimeLine/震中.png";
-import timeLine from "@/cesium/timeLine.js";
+//前后端
+import {getEqListById} from "@/api/system/eqlist.js";
+//数据处理方法
 import {TianDiTuToken} from "@/cesium/tool/config.js";
+import timeTransfer from "@/api/tool/timeTransfer.js";
+import timeLine from "@/cesium/timeLine.js";
 import Arrow from "@/cesium/drawArrow/drawPlot.js";
 
 
 export default {
   name: "TimeLine",
   components: {
-    MiniMap,
+    timeLineMiniMap,
     timeLinePlotStatistics,
     timeLineLifeLine,
     timeLineLegend,
@@ -97,20 +102,9 @@ export default {
       eqid: '',
       currentTime: '',
       centerPoint: {},
-      // centerPoint: {
-      //   plotid: 'center',
-      //   earthquakeName: '',
-      //   startTime: '',
-      //   endTime: '',
-      //   magnitude: '',
-      //   longitude: '',
-      //   latitude: '',
-      //   height: '',
-      //   depth: '',
-      //   plotType: '震中'
-      // },
+
       //----组件传值---
-      //viewer
+      //时间轴、缩略图
       viewer:'',
       //基础信息组件传值-年月日
       eqyear: '',
@@ -246,88 +240,8 @@ export default {
         window.viewer = viewer
         this.viewer=viewer
 
-        this.initMiniMap()
         this.updateMapAndVariableBeforeInit()
       })
-    },
-
-    initMiniMap() {
-      // 创建缩略图视图器实例
-      let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
-      window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
-      smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-
-      smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                TianDiTuToken,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
-      smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                TianDiTuToken,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
-
-      // 隐藏缩略图视图器的版权信息
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none';
-
-      // 同步主视图器的相机到缩略图视图器
-      function syncCamera() {
-        const camera1 = viewer.scene.camera;
-        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
-        const camera2 = smallViewer.scene.camera;
-        camera2.setView({
-          destination: smallPoint,
-          orientation: {
-            heading: camera1.heading,
-            pitch: camera1.pitch,
-            roll: camera1.roll
-          }
-        });
-      }
-
-      // 监听主视图器的相机变化
-      viewer.scene.camera.changed.addEventListener(syncCamera);
-
-      // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function () {
-        smallViewer.scene.requestRender(); // 确保缩略图更新
-      });
-      // 初始同步
-      syncCamera();
-      console.log(this.centerPoint,"this.centerPoint")
-      timeLine.MiniMapAddMakerPoint(smallViewer, this.centerPoint.longitude, this.centerPoint.latitude, 0, centerstar, this.centerPoint.earthquakeName, this.centerPoint.plotId, this.centerPoint.plotType, "震中")
     },
 
     updateZoomLevel(cameraHeight) {
