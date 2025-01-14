@@ -63,15 +63,10 @@ let timeLine = {
             })
         }
         // console.log(window.viewer.entities,"window.viewer.entities")
-
     },
-    MiniMapAddMakerPoint(smallViewer,start, stop, lng, lat, height, img, labeltext, id, plottype,layerName) {
+    MiniMapAddMakerPoint(smallViewer, lng, lat, height, img, labeltext, id, plottype,layerName) {
         console.log(smallViewer.entities,"smallViewer.entities")
         smallViewer.entities.add({
-            availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
-                start: Cesium.JulianDate.fromDate(new Date(start)),
-                stop: Cesium.JulianDate.fromDate(new Date(stop))
-            })]),
             position: Cesium.Cartesian3.fromDegrees(
                 parseFloat(lng),
                 parseFloat(lat),
