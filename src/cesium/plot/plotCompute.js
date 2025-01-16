@@ -2,7 +2,8 @@ import * as Cesium from 'cesium'
 
 
 let plotCompute = {
-    //面的相关计算
+    //---面的相关计算---
+    // 获取大多边形的中心点
     getPolygonCenter(positions) {
         let x = 0, y = 0, z = 0;
         positions.forEach(pos => {
@@ -13,6 +14,7 @@ let plotCompute = {
         const center = new Cesium.Cartesian3(x / positions.length, y / positions.length, z / positions.length);
         return center;
     },
+    // 生成小矩形并确保其在大多边形内
     createContainedRectangle(center, width, height, angle, polygonPositions) {
         let scaleFactor = 1.0;
         let maxAttempts = 100;
@@ -44,6 +46,7 @@ let plotCompute = {
         }
         return smallRectanglePositions;
     },
+    // 动态生成比大多边形稍小的旋转矩形
     createRotatedRectangle(center, width, height, angle) {
         // 根据 scaleFactor 缩小宽高
         const halfWidth = (width / 2);
@@ -88,6 +91,15 @@ let plotCompute = {
             }
         }
         return c;
+    },
+
+    //---箭头相关计算---
+    cartesianToLatlng (cartesian) {
+        // var latlng = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var latlng = window.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        var lat = Cesium.Math.toDegrees(latlng.latitude);
+        var lng = Cesium.Math.toDegrees(latlng.longitude);
+        return [lng, lat];
     }
 
 }

@@ -131,7 +131,6 @@ const arrow = {
             }
         }
     },
-
     showPincerArrow: function (pincerArr) {
         for (var i = 0; i < pincerArr.length; i++) {
             var flag = this.drawArr.find(cur => cur.objId == pincerArr[i].plotId)		//查找一下传入的id和数组中的id是否相同
@@ -144,6 +143,7 @@ const arrow = {
             }
         }
     },
+
     drawStraightArrow: function (data, resolve) {
         window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
@@ -174,6 +174,7 @@ const arrow = {
         pincerArrow.startDraw(data, resolve);
         this.drawArr.push(pincerArrow);
     },
+
     nowArrowObj: null,
     bindEdit: function () {
         var $this = this;
