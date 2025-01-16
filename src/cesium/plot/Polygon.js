@@ -500,6 +500,7 @@ export default class Polygon {
           console.log("存在重复实体")
           window.viewer.entities.removeById(onlyPlotidItem + "_polygon"); // 先删除现有实体
         }
+
         // 1-3 把数据库同一Plotid的点数据放入此数组
         let polygon = []
         polygonArr.forEach(polygonElement => {

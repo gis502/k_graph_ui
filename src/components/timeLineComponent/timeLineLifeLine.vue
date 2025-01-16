@@ -23,7 +23,7 @@ import * as echarts from "echarts";
 import 'echarts-gl';
 import {getVillages} from "../../api/system/ZhongDuanVillage";
 import {getSupplySituationList} from "../../api/system/supplySituation";
-import timeTransfer from "@/api/tool/timeTransfer.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 
 
 

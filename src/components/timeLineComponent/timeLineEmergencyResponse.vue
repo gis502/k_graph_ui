@@ -29,7 +29,7 @@
 
 <script>
 import {getEmergencyResponse} from "../../api/system/timeLine.js";
-import timeTransfer from "@/api/tool/timeTransfer.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 
 export default {
   data() {

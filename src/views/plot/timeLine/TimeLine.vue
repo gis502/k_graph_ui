@@ -1,13 +1,12 @@
 <template>
   <div>
     <timeLineTitle
-      :centerPoint="centerPoint"
+        :centerPoint="centerPoint"
     />
     <div id="box" ref="box">
       <div id="cesiumContainer">
       </div>
     </div>
-<!--    <span>当前时间{{ this.currentTime }}</span>-->
     <!--    centerPoint经过一次数据库查询，eqid是别的页面传值，eqid传得更快-->
     <timeLinePlay
         :viewer="viewer"
@@ -16,7 +15,7 @@
         :currentTime="currentTime"
         @updatePlots="updatePlots"
     />
-<!--   -->
+    <!--   -->
     <div>
       <div class="pop_left_background">
         <timeLineEmergencyResponse
@@ -34,6 +33,7 @@
             :eqid="eqid"
             :currentTime="currentTime"
             :eqyear="eqyear"
+            :centerPoint="centerPoint"
             :earthquakeName="centerPoint.earthquakeName"
         />
       </div>
@@ -84,7 +84,7 @@ import centerstar from "@/assets/icons/TimeLine/震中.png";
 import {getEqListById} from "@/api/system/eqlist.js";
 //数据处理方法
 import {TianDiTuToken} from "@/cesium/tool/config.js";
-import timeTransfer from "@/api/tool/timeTransfer.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
 import Arrow from "@/cesium/drawArrow/drawPlot.js";
 import TimeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
@@ -111,7 +111,7 @@ export default {
 
       //----组件传值---
       //时间轴、缩略图
-      viewer:'',
+      viewer: '',
       //基础信息组件传值-年月日、title
       eqyear: '',
       eqmonth: '',
@@ -151,7 +151,7 @@ export default {
         this.centerPoint.startTime = new Date(this.centerPoint.occurrenceTime)
         this.centerPoint.endTime = new Date(this.centerPoint.startTime.getTime() + 10 * 24 * 3600 * 1000);
         this.currentTime = this.centerPoint.startTime
-        this.centerPoint.plotType="震中"
+        this.centerPoint.plotType = "震中"
 
         this.eqyear = this.centerPoint.startTime.getFullYear()
         this.eqmonth = this.centerPoint.startTime.getMonth() + 1
@@ -200,7 +200,7 @@ export default {
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
         // 设置相机高度和视角
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 2000),//足够高可以看到整个地球
+          destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 20000000),//足够高可以看到整个地球
           orientation: {
             // 指向
             heading: 6.283185307179581,
@@ -244,8 +244,8 @@ export default {
 
 
         window.viewer = viewer
-        this.viewer=viewer
-
+        this.viewer = viewer
+        viewer.clock.shouldAnimate = false;
         this.updateMapAndVariableBeforeInit()
       })
     },
@@ -259,18 +259,18 @@ export default {
         this.zoomLevel = '市'
       }
     },
-
     updateMapAndVariableBeforeInit() {
-      console.log(Cesium.JulianDate.toDate(window.viewer.clockViewModel.startTime))
-      timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000)
-      timeLine.addMakerPoint(this.centerPoint.startTime, this.centerPoint.endTime, this.centerPoint.longitude, this.centerPoint.latitude, 0, centerstar, this.centerPoint.earthquakeName, this.centerPoint.plotId, this.centerPoint.plotType, "震中")
+      timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000,5).then(() => {
+        viewer.clockViewModel.shouldAnimate = true;
+      });
+      timeLine.addMakerPoint(this.centerPoint,"震中")
     },
     toggleComponent(component) {
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
     },
     updatePlots(plots) {
-      console.log(this.plots,"plots updatePlots")
+      console.log(this.plots, "plots updatePlots")
       this.plots = plots
     }
   }
@@ -325,12 +325,15 @@ export default {
   bottom: 8%;
   height: 82%;
 }
-:deep(.legend-item){
+
+:deep(.legend-item) {
   margin-bottom: 7px;
 }
+
 :deep(.distance-legend) {
   bottom: 1% !important;
 }
+
 :deep(.cesium-baseLayerPicker-dropDown-visible) {
   z-index: 100 !important;
   background-color: #2b323a;

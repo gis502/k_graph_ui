@@ -40,7 +40,7 @@ import * as echarts from "echarts";
 import {getData} from "@/api/system/excel.js";
 import WebSocketReconnect from "@/api/websocket.js";
 import {initWebSocket} from "@/cesium/WS.js";
-import timeTransfer from "@/api/tool/timeTransfer.js"; // 引入 ECharts
+import timeTransfer from "@/cesium/tool/timeTransfer.js"; // 引入 ECharts
 
 export default {
   data() {

@@ -130,7 +130,7 @@ export default {
       // 初始同步
       syncCamera();},
     MiniMapAddCenterPoint(){
-      timeLine.MiniMapAddMakerPoint(window.smallViewer, this.centerPoint.longitude, this.centerPoint.latitude, 0, centerstar, this.centerPoint.earthquakeName, this.centerPoint.plotId, this.centerPoint.plotType, "震中")
+      timeLine.MiniMapAddMakerPoint(window.smallViewer, this.centerPoint)
     },
   },
 };

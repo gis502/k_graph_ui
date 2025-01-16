@@ -131,6 +131,7 @@ const arrow = {
             }
         }
     },
+
     showPincerArrow: function (pincerArr) {
         for (var i = 0; i < pincerArr.length; i++) {
             var flag = this.drawArr.find(cur => cur.objId == pincerArr[i].plotId)		//查找一下传入的id和数组中的id是否相同

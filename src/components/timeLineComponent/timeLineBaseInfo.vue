@@ -82,7 +82,7 @@ import {getDistrictEconomy} from "@/api/system/districtEconomy.js"; //地形、�
 
 import {ref, onMounted, onBeforeUnmount, nextTick, watch} from 'vue';
 import * as echarts from 'echarts';
-import timeTransfer from "@/api/tool/timeTransfer.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 
 // const recordtime = ref(new Date().toLocaleString());
 const initialIndex = ref(0);
@@ -588,7 +588,6 @@ onMounted(() => {
     handlePopulationData(); // 调用人口获取数据的方法
     economicData(); // 调用经济获取数据的方法
     initCharts(); // 确保 DOM 渲染后初始化图表
-
 
     window.addEventListener('resize', resizeCharts); // 监听窗口大小变化
   });

@@ -39,8 +39,12 @@
 
 import * as Cesium from 'cesium'
 import {getPlotwithStartandEndTime} from '@/api/system/plot.js'
-import timeTransfer from "@/api/tool/timeTransfer.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
+import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
+import Polyline from "@/cesium/plot/Polyline.js";
+import {useCesiumStore} from "@/store/modules/cesium.js";
+import Arrow from "@/cesium/drawArrow/drawPlot.js";
 
 export default {
   name: "timeLinePlay",
@@ -51,7 +55,7 @@ export default {
       speedOption: '1X',
       speedOptions: ['1X', '2X', '4X', '60X', '3600X'],
       plots: [],
-      ifNewEq:false,
+      ifNewEq:false, //用于 回到真实时间
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
@@ -63,7 +67,6 @@ export default {
       if (realTime >= this.centerPoint.startTime && realTime <= this.centerPoint.endTime) {
           this.ifNewEq=true
       }
-      // else
     },
     eqid(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
@@ -73,24 +76,21 @@ export default {
     }
   },
   mounted() {
-    // this.initRealTimeButton()
-    // console.log(this.eqid,"eqid mounted")
     this.getPlotwithStartandEndTime(this.eqid)
+    // this.initcesiumPlot()
   },
   methods: {
-    // ininRealTimeButton(){
-    //   let realTime = new Date()
-    //   if (realTime > this.centerPoint.startTime && realTime < this.centerPoint.endTime) {
-    //
-    //   }
+    // initcesiumPlot() {
+    //   let cesiumStore = useCesiumStore()
+    //   cesiumPlot.init(window.viewer, this.websock, cesiumStore)
     // },
     getPlotwithStartandEndTime(eqid) {
       // console.log(eqid,"eqid getPlotwithStartandEndTime")
       // 调用接口获取特定设备的绘图信息
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
         console.log(res, "res")
-        let plots = res
-        plots.forEach(item => {
+        this.plots = res
+        this.plots.forEach(item => {
           if (!item.endTime || new Date(item.endTime) < new Date(this.centerPoint.startTime) || new Date(item.endTime) <= new Date(item.startTime)) {
             // 为没有结束时间的点设置默认结束时间
             item.endTime = this.centerPoint.endTime  //20天 错误时间设置结束时间地震发生20天以后
@@ -100,21 +100,82 @@ export default {
             item.startTime = this.centerPoint.startTime;
           }
         })
-        this.$emit('updatePlots', plots);
-        // 显示标记，追加新的点 （增）
-        // 遍历返回的绘图信息，检查每个点是否已存在，如果不存在则添加
-        let pointArr = plots.filter(e => e.drawtype === 'point')
-        console.log(pointArr, "points")
-        // console.log(window.viewer,"windows.viewer")
-        // console.log(window.viewer.entities,"windows.viewer.entities")
+        //传值给父组件，用于标绘统计
+        this.$emit('updatePlots', this.plots);
+        //---点---
+        let pointArr = this.plots.filter(e => e.drawtype === 'point')
+        console.log(pointArr, "pointArr")
         pointArr.forEach(item => {
-          let iconurl = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
-          console.log(item, "item")
-          // console.log(item.startTime,item.endTime,"time item")
-          // timeLine.addMakerPoint(item.startTime, item.endTime, item.longitude, item.latitude, item.elevation, iconurl, "", item.plotId,item.plotType, "标绘点")
-          timeLine.addMakerPoint(item.startTime, item.endTime, item.longitude, item.latitude, item.elevation, iconurl, "", item.plotId, item.plotType, "标绘点")
-          // timeLine.addMakerPoint(item.startTime, item.endTime, item.longitude, item.latitude, 0, iconurl, "", item.plotId,item.plotType, "标绘点")
+          timeLine.addMakerPoint(item, "标绘点")
         })
+
+        //---线---
+        let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
+        console.log(polylineArr,"polylineArr")
+        polylineArr.forEach(item => {
+          timeLine.addPolyline(item, "标绘点")
+        })
+
+        //---面---
+        let polygonArr = this.plots.filter(e => e.drawtype === 'polygon')
+        console.log(polygonArr,"polygonArr")
+        polygonArr.forEach(item => {
+          timeLine.addPolygon(item, "标绘点")
+        })
+
+
+        //--------------------------箭头绘制------------------------------
+        // let straightArr = this.plots.filter(e => e.drawtype === 'straight');
+        // Arrow.showStraightArrow(straightArr)
+
+
+        // let attackArrShow = []
+        // let attackArr = this.plots.filter(e => e.drawtype === 'attack');
+        // attackArr.forEach(item => {
+        //   // 获取当前时间、多边形的开始时间和结束时间
+        //   const currentDate = new Date(this.currentTime);
+        //   const startDate = new Date(item.startTime);
+        //   const endDate = new Date(item.endTime);
+        //   // 如果当前时间在多边形的开始和结束时间内，且多边形未显示，则添加到显示列表
+        //   if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+        //     this.plotisshow[item.plotId] = 1
+        //     // Arrow.showStraightArrow(item)
+        //     attackArrShow.push(item);// 收集符合条件的面
+        //   }
+        //   // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
+        //   if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        //     this.plotisshow[item.plotId] = 0
+        //     Arrow.clearById(item.plotId)
+        //   }
+        // })
+        // if (attackArrShow.length > 0) {
+        //   Arrow.showAttackArrow(attackArr)
+        // }
+        //
+        //
+        // let pincerArrShow = []
+        // let pincerArr = this.plots.filter(e => e.drawtype === 'pincer');
+        // pincerArr.forEach(item => {
+        //   // 获取当前时间、多边形的开始时间和结束时间
+        //   const currentDate = new Date(this.currentTime);
+        //   const startDate = new Date(item.startTime);
+        //   const endDate = new Date(item.endTime);
+        //   // 如果当前时间在多边形的开始和结束时间内，且多边形未显示，则添加到显示列表
+        //   if (startDate <= currentDate && endDate >= currentDate && this.plotisshow[item.plotId] === 0) {
+        //     this.plotisshow[item.plotId] = 1
+        //     // Arrow.showStraightArrow(item)
+        //     pincerArrShow.push(item);// 收集符合条件的面
+        //   }
+        //   // 如果当前时间不在多边形的开始和结束时间内，且多边形正在显示，则从显示列表移除并删除实体
+        //   if ((endDate < currentDate || startDate > currentDate) && this.plotisshow[item.plotId] === 1) {
+        //     this.plotisshow[item.plotId] = 0
+        //     Arrow.clearById(item.plotId)
+        //   }
+        // })
+        // if (pincerArrShow.length > 0) {
+        //   Arrow.showPincerArrow(pincerArr)
+        // }
+
       })
     },
 
