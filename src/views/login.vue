@@ -59,7 +59,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2024 地震应急信息服务技术支撑平台</span>
+      <span>Copyright © 2024-2025 地震应急信息服务技术支撑平台</span>
     </div>
   </div>
 </template>

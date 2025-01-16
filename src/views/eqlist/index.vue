@@ -1164,16 +1164,18 @@ export default {
       if (!match) return eqAddr; // 无法匹配返回原始地名
 
       // 提取省、市/州、区/县
-      const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
-      const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
+      // const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
+      // const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
+      const province = match[1]  ; // 省份去掉“省”
+      const county = match[3]; // 区/县去掉后缀
 
       // 如果市/州与区/县之间只有一个字，连带区/县返回
       if (county.length === 1) {
-        return `${province}${match[3]}${eqMagnitude}级地震`;
+        return `${province}${match[3]}`;
       }
 
       // 正常返回省、市/州简化结果
-      return `${province}${county}${eqMagnitude}级地震`;
+      return `${province}${county}`;
     },
 
 
