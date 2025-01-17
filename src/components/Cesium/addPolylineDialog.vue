@@ -78,7 +78,7 @@ export default {
       this.starttime = this.timestampToTime(Date.now());  // 当前时间
       // 设置默认结束时间为5天后的时间
       const currentDate = new Date();
-      const fiveDaysLater = currentDate.setDate(currentDate.getDate() + 5); // 5天后
+      const fiveDaysLater = currentDate.setDate(currentDate.getDate() + 10); // 5天后
       this.endtime = this.timestampToTime(fiveDaysLater);
       // 1-1 显示弹窗
       this.DialogFormVisible = this.addPolylineDialogFormVisible
