@@ -511,26 +511,26 @@
         <template #default="{ node, data }">
           <!-- 根节点，显示图标和文字 -->
           <div class="tree-node-content">
-          <span v-if="data.name === '图层要素'" class="node-icon">
+            <span v-if="data.name === '图层要素'" class="node-icon">
             <!-- 图层要素的 SVG 图标 -->
-            <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
+              <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
                  xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
                     <path
                         d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
                         p-id="6182" fill="#ffffff"></path>
                   </svg>
-            <span class="node-text">{{ data.name }}</span>
-          </span>
+              <span class="node-text">{{ data.name }}</span>
+            </span>
             <span v-else-if="data.name === '视角跳转'" class="node-icon">
             <!-- 视角跳转的 SVG 图标 -->
-            <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
+              <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
                  xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
                     <path
                         d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
                         fill="#ffffff" p-id="2696"></path>
                   </svg>
-            <span class="node-text">{{ data.name }}</span>
-          </span>
+              <span class="node-text">{{ data.name }}</span>
+            </span>
             <!-- 子节点逻辑保持原有 -->
             <el-checkbox
                 v-if="layeritems.some(item => item.name === data.name)"
@@ -586,7 +586,8 @@
           <!-- 模型名称列 -->
           <el-table-column label=" " min-width="20px" show-overflow-tooltip>
             <template #default="scope">
-              <div style="display: flex; align-items: center; justify-content: center; height: 100%;"  class="arrow-container">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%;"
+                   class="arrow-container">
                 <div class="arrow-icon"></div>
               </div>
             </template>
@@ -1729,9 +1730,10 @@ export default {
 
       });
     },
+
+    //绘制图层管理的标绘点图层中的标绘点
     updatePlotOnce(type) {
       // 创建一个指向当前上下文的变量，用于在闭包中访问this
-      let that = this
       // --------------------------点绘制------------------------------
       // 过滤出绘制类型为点的plots
       let pointArr = this.plots.filter(e => e.drawtype === 'point')
@@ -1779,24 +1781,26 @@ export default {
       // 批量渲染点 + 非初始化状态渲染标会点动画
       if (points.length > 0) {
         if (this.timelinePopupShowCenterStrart) {
-          this.centerMarkOpacityTo1()
-          clearInterval(this.intervalIdcolor)
-          this.timelinePopupShowCenterStrart = false;
-          this.timelinePopupVisible = false;
+          this.centerMarkOpacityTo1(); // 取消闪烁，设置中心标记透明度为 1
+          clearInterval(this.intervalIdcolor); // 清除闪烁动画定时器
+          this.timelinePopupShowCenterStrart = false; // 关闭标记的初始化状态
+          this.timelinePopupVisible = false; // 隐藏时间线弹窗
         }
 
+
         if (type == false) {
-          // //console.log("false update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, false, 5000);
+          // 场景：适用于不需要动画的场景，例如静态点的渲染。
+          this.stopTimeforAddEntityOneIndex = 5000; // 固定动画时间
+          cesiumPlot.drawPoints(points, false, 5000); // 绘制点，无动画
         } else if (type == "3") {
+          // 场景：特殊标识的点（例如分类编号为 3 的点）需要默认动画的渲染。
           // //console.log("333 update")
-          this.stopTimeforAddEntityOneIndex = 5000
-          cesiumPlot.drawPoints(points, true, 5000);
+          this.stopTimeforAddEntityOneIndex = 5000; // 固定动画时间
+          cesiumPlot.drawPoints(points, true, 5000); // 绘制点，启用动画
         } else {
-          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed
-          cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex);
-          this.flyPointsForOneIndex(points, 0)
+          this.stopTimeforAddEntityOneIndex = (5000 * points.length) / this.currentSpeed; // 动态计算动画时间
+          cesiumPlot.drawPoints(points, true, this.stopTimeforAddEntityOneIndex); // 绘制点，启用动画
+          this.flyPointsForOneIndex(points, 0); // 控制点的飞行动画效果
         }
       }
       //--------------------------线绘制------------------------------
@@ -4048,32 +4052,65 @@ export default {
 
     // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
     // 暂停播放切换
+    // toggleTimer() {
+    //   // 如果计时器未运行，则初始化计时器线
+    //   if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
+    //     this.isTimerRunning = true
+    //     this.initTimerLine();
+    //     let that = this
+    //     setTimeout(() => {
+    //       this.canOperateTimerLine = true
+    //       that.bofang();
+    //     }, 3000);
+    //   } else {
+    //
+    //
+    //     this.canOperateTimerLine = true
+    //     if (!this.isTimerRunning) {
+    //       this.flyToCenter()
+    //       this.isTimerRunning = true
+    //       this.bofang();
+    //     }
+    //     // 如果计时器正在运行，则停止计时器
+    //     else {
+    //       this.stopTimer();
+    //       clearInterval(this.intervalIdcolor)
+    //       this.centerMarkOpacityTo1()
+    //     }
+    //
+    //   }
+    // },
     toggleTimer() {
-      // 如果计时器未运行，则初始化计时器线
-      if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
-        this.isTimerRunning = true
-        this.initTimerLine();
-        let that = this
-        setTimeout(() => {
-          this.canOperateTimerLine = true
-          that.bofang();
-        }, 3000);
-      } else {
+      if (this.isTimerRunning) {
         this.canOperateTimerLine = true
-        if (!this.isTimerRunning) {
-          this.flyToCenter()
-          this.isTimerRunning = true
-          this.bofang();
-        }
         // 如果计时器正在运行，则停止计时器
-        else {
-          this.stopTimer();
-          clearInterval(this.intervalIdcolor)
-          this.centerMarkOpacityTo1()
+        this.stopTimer();
+        clearInterval(this.intervalIdcolor)
+        this.centerMarkOpacityTo1()
+      } else {
+        // 如果计时器未运行，启动计时器
+        if (this.currentTimePosition >= 100 || this.currentTimePosition <= 0) {
+          this.isTimerRunning = true
+          this.initTimerLine();  // 重新初始化时间轴
+          let that = this
+          setTimeout(() => {
+            this.canOperateTimerLine = true
+            that.bofang();  // 调用播放方法
+          }, 3000);
         }
+        this.startPlayback(); // 开始播放
       }
     },
-    returnStart(){
+
+    startPlayback() {
+      this.canOperateTimerLine = true
+      this.flyToCenter()
+      this.isTimerRunning = true;
+      this.bofang(); // 调用播放方法
+    },
+
+
+    returnStart() {
       this.isTimerRunning = false;
       // 初始化
       this.currentTimePosition = 0;
@@ -4088,7 +4125,7 @@ export default {
       })
       this.flyToCenter()
       // setTimeout(() => {
-        this.flashingCenter()
+      this.flashingCenter()
       // }, 3000);
     },
     /**
@@ -4125,19 +4162,20 @@ export default {
     bofang() { //正向播放
       this.isfirst = false
       if (!this.isTimerRunning) { //根据次数跳出
-        this.stopTimer();
+        this.stopTimer();   // 如果计时器未运行，则停止
         return;
       } else {
+        // 更新一次时间轴位置
         let flag = this.updateCurrentTimeOnce();
         if (flag) {
           if (this.isMarkingLayer) {
-
+            // 更新标注
             this.updatePlotOnce(true)
             setTimeout(() => {
               this.bofang();
-            }, this.stopTimeforAddEntityOneIndex);
+            }, this.stopTimeforAddEntityOneIndex / this.currentSpeed);// 考虑倍速播放
           } else {
-            this.MarkingLayerRemove()
+            this.MarkingLayerRemove() // 移除标注层
           }
         }
       }
@@ -4179,8 +4217,8 @@ export default {
     stopTimer() {
       this.isfirst = true
       this.isTimerRunning = false;
-      this.centerMarkOpacityTo1()
-      this.ifUpdateEndTime()
+      this.centerMarkOpacityTo1() // 恢复中心标记透明度
+      this.ifUpdateEndTime() // 更新结束时间
     },
     initEnd() {
       this.currentTimePosition = 100;
@@ -4238,7 +4276,7 @@ export default {
         for (; i >= 0; i--) {
           // console.log()
           if (this.jumpNodes[i] === 1) {
-            console.log(i,"i")
+            console.log(i, "i")
             flag = 1;
             break;
           }
@@ -4260,12 +4298,11 @@ export default {
         }
         //更新到下一跳
         if (flag === 1) {
-          let currentTimeTmp=new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
+          let currentTimeTmp = new Date(this.eqstartTime.getTime() + i * 5 * 60 * 1000);
           //最后5分钟，不满5分钟的，再回退一跳
-          if(currentTimeTmp>=this.eqendTime){
+          if (currentTimeTmp >= this.eqendTime) {
             this.backward()
-          }
-          else{
+          } else {
             this.currentNodeIndex = i //前进timelineAdvancesNumber次，每次5分钟，
             this.currentTimePosition = 100.0 / (this.timelineAdvancesNumber * 1.0) * this.currentNodeIndex;
             this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
@@ -4290,12 +4327,19 @@ export default {
         const timeRulerRect = event.target.closest('.time-ruler').getBoundingClientRect();
         // 计算点击位置相对于时间轴左边缘的距离
         const clickedPosition = event.clientX - timeRulerRect.left;
+
+        // 限制点击位置在 [0, timeRulerRect.width] 之间
+        if (this.clickedPosition < 0) this.clickedPosition = 0;
+        if (this.clickedPosition > timeRulerRect.width) this.clickedPosition = timeRulerRect.width;
+
+
         // 根据点击位置计算当前时间进度的百分比
         this.currentTimePosition = (clickedPosition / timeRulerRect.width) * 100;
         // 更新时间进度条的宽度，以反映当前时间进度
         this.$el.querySelector('.time-progress').style.width = `${this.currentTimePosition}%`;
-        // 根据当前时间进度百分比和总步骤数计算当前步骤索引
-        this.currentNodeIndex = Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber) // Assuming 672 is the total number of steps
+        // 根据当前时间进度百分比和总步骤数计算当前步骤索
+        this.currentNodeIndex = Math.max(0, Math.floor((this.currentTimePosition / 100) * this.timelineAdvancesNumber));
+        // Assuming 672 is the total number of steps
         // console.log(this.currentTimePosition,this.timelineAdvancesNumber,"jumpToTime")
         // 根据当前步骤索引计算当前时间，假设每个步骤代表5分钟
         this.currentTime = new Date(this.eqstartTime.getTime() + this.currentNodeIndex * 5 * 60 * 1000);
@@ -4312,14 +4356,28 @@ export default {
           // 调用 intimexuanran 方法，传入地震ID
           // this.intimexuanran(this.eqid)
 
-        }
-        else {
+        } else if (this.currentTimePosition <= 0) {
+          this.currentTime = this.eqstartTime;
+          this.currentTimePosition = 0; // 同步更新 currentTimePosition
+        } else {
           if (currentTimeTmp > this.currentTime) {
             this.updatePlotOnce("3")
           } else {
             this.updatePlotOnce("3")
           }
         }
+
+        // 如果计算出的 currentTime 早于 eqstartTime，则重置为 eqstartTime
+        if (this.currentTime < this.eqstartTime) {
+          this.currentTime = this.eqstartTime;
+          this.currentTimePosition = 0; // 同步更新 currentTimePosition
+        }
+        // 计算 currentTime 时，确保它不晚于 eqendTime
+        if (this.currentTime > this.eqendTime) {
+          this.currentTime = this.eqendTime;
+          this.currentTimePosition = 100; // 同步更新 currentTimePosition
+        }
+
         this.isTimerRunning = false;
       }
     },
@@ -4426,6 +4484,11 @@ export default {
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
       this.currentSpeed = parseFloat(speed.split('-')[0])
       this.showSpeedOptions = false
+      if (this.isTimerRunning) {
+        // 如果计时器正在运行，重新设置播放速度
+        this.toggleTimer();
+        this.toggleTimer();
+      }
     },
 
 
@@ -4478,7 +4541,7 @@ export default {
         duration: 3 // 飞行动画持续时间（秒）
       });
     },
-    //中心点闪烁
+    //震中红色中心点闪烁
     flashingCenter() {
 
       //震中点闪烁
@@ -4487,13 +4550,16 @@ export default {
         drawtype: "center"
       }
       this.timelinePopupVisible = false;
+      // 清除已有的闪烁定时器
       if (this.intervalIdcolor) {
         clearInterval(this.intervalIdcolor);
       }
+      // 震中点标记（大视图）
       let centerMark = viewer.entities.getById(this.centerPoint.plotid);
       if (!centerMark) {
 
         centerMark = viewer.entities.add({
+          // 配置震中标记的各项属性（位置、图标、标签等）
           properties: {
             data
           },
@@ -5411,10 +5477,13 @@ export default {
         // 确认标绘图层变更，参数为true表示已选中
         this.handleMarkingLayerChange(true);
         // 更新绘图状态
-        this.updatePlotOnce(false);
+        this.updatePlotOnce(true);
+        // this.updatePlotOnce(false);
       } else {
         // 确认标绘图层变更，参数为false表示未选中
         this.handleMarkingLayerChange(false);
+        // 移除所有已存在的椭圆圈实体，以避免重复添加
+        // this.removeEntitiesByType("ovalCircle")
         // 移除标绘图层
         this.MarkingLayerRemove();
       }
@@ -5864,6 +5933,11 @@ export default {
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
           const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
+
+          //将标绘点实体删除
+          this.plotisshow[item.plotId] = 0;
+          cesiumPlot.deletePointById(item.plotId);
+
           //console.log("entityToRemove", entityToRemove)
           if (entityToRemove) {
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
@@ -5873,9 +5947,10 @@ export default {
           }
         }
 
-        viewer.entities.removeById(item.plotId);
-        // 标记该plotId对应的图层为隐藏状态
-        this.plotisshow[item.plotId] = 0
+        //将标绘点实体删除
+        // viewer.entities.removeById(item.plotId);
+        // // 标记该plotId对应的图层为隐藏状态
+        // this.plotisshow[item.plotId] = 0
 
       })
     },
@@ -6901,6 +6976,7 @@ export default {
   left: 9.5%;
   z-index: 100;
 }
+
 .cesium-viewer-geocoderContainer .cesium-geocoder-input {
   border: solid 1px #444;
   background-color: rgba(40, 40, 40, 0.7);
@@ -7114,6 +7190,7 @@ export default {
   border-radius: 14%;
   transition: all 0.3s ease; /* 添加过渡效果 */
 }
+
 .positionFlyToButton:hover {
   color: #fff;
   fill: #fff;
@@ -7211,6 +7288,7 @@ export default {
   position: relative;
   margin: 0;
 }
+
 /* 表格内容样式 */
 .model-dialog__content {
   height: calc(100% - 41px);
@@ -7221,9 +7299,11 @@ export default {
   font-size: 18px;
   font-weight: 500;
 }
+
 :deep(.checkBotton) {
   font-size: .8rem !important;
 }
+
 :deep(.el-table) {
   --el-table-border: 0;
   background-color: transparent; /* 表格背景透明 */
@@ -7235,11 +7315,12 @@ export default {
 
 :deep(.el-table tr) {
   background: #ffffff00;
-  //color: #ffffff;
+  color: #ffffff;
   font-weight: 1000;
   position: relative;
   transition: box-shadow 0.3s ease; /* 添加过渡效果 */
 }
+
 /* 初始隐藏箭头图标 */
 .arrow-icon {
   display: none; /* 默认隐藏 */
@@ -7248,10 +7329,12 @@ export default {
   background: url("@/assets/images/arrow.png") no-repeat center;
   background-size: contain;
 }
+
 /* 鼠标悬浮在行时显示箭头图标 */
 :deep(.el-table tr:hover) .arrow-icon {
   display: block; /* 行 hover 时显示箭头图标 */
 }
+
 :deep(.el-table tr:hover) {
   background: linear-gradient(0deg, rgba(38, 166, 221, 0.9) 30%, rgba(230, 247, 255, 1) 100%);
   font-weight: 1000;
@@ -7260,6 +7343,7 @@ export default {
   color: transparent;
   box-shadow: 0 0 8px 2px rgba(48, 140, 255, 1);
 }
+
 /* 表格自定义样式 */
 .custom-table {
   text-align: center;
