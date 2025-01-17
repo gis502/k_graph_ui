@@ -1208,29 +1208,6 @@ export default {
     },
 
 
-    timestampToTime(timestamp) {
-      // console.log("转换前的时间戳:", timestamp);
-      let DateObj = new Date(timestamp)
-      if (isNaN(DateObj.getTime())) {
-        console.error("无效的时间戳:", timestamp);
-        return "";
-      }
-      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
-    },
-
     /**
      * 将年月日转换成-的形式 （用于格式化传给后端）
      * @param inputDate
