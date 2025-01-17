@@ -820,7 +820,7 @@ export default {
 
           return {
             ...item,
-            occurrenceTime: this.timestampToTime(item.occurrenceTime),  // 转换时间
+            occurrenceTime: this.timestampToTime( item.occurrenceTime ),  // 转换时间
             magnitude: Number(item.magnitude).toFixed(1),  // 格式化震级为一位小数
             latitude: Number(latitude).toFixed(2),  // 格式化纬度为两位小数
             longitude: Number(longitude).toFixed(2),  // 格式化经度为两位小数
