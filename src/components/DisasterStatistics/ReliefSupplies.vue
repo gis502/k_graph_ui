@@ -81,7 +81,6 @@ setTimeout(()=>{
 watch(() => props.eqid, (newValue) => {
   eqid.value = newValue;
   getDisasterreLiefMaterials(eqid.value).then(res => {
-    console.log("getDisasterreLiefMaterials",res)
     update(res)
   })
 })

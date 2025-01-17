@@ -17,13 +17,14 @@
       </div>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
-      <el-form class="situation_eqTable">
+      <el-form class="situation_eqTable" @submit.prevent>
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <div class="modelAdj">查询</div>
           <el-input
             v-model="queryParams"
             placeholder="请输入搜索信息"
             clearable
+            @keydown.enter="handleQuery"
             style="width: 200px; margin-right: 10px;"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -1780,17 +1781,20 @@ this.addTrafficLayer()
       return new Promise(resolve => {
         const scene = viewer.scene;
 
-        // 监听渲染循环是否完成
+        // 检查实体是否完全渲染
         const checkEntitiesRendered = () => {
-          const isRendered = this.latLonEntities.filter(entity => entity.show).length === entityCount;
-          if (isRendered) {
+          const renderedEntities = this.latLonEntities.filter(entity => {
+            return entity.show && entity.polyline && entity.polyline.positions && entity.polyline.positions.getValue();
+          });
+
+          if (renderedEntities.length === entityCount) {
             // 等待 Cesium 完成渲染
             const removePostRender = scene.postRender.addEventListener(() => {
               removePostRender(); // 确保只监听一次
-              resolve();          // 确保渲染完成后再 resolve
+              setTimeout(() => resolve(), 200); // 等待额外 200ms，确保渲染稳定
             });
           } else {
-            setTimeout(checkEntitiesRendered, 100); // 每100ms检查一次
+            setTimeout(checkEntitiesRendered, 100); // 每 100ms 检查一次
           }
         };
 

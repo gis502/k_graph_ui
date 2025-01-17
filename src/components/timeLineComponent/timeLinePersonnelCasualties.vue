@@ -39,7 +39,8 @@ import {getRescueActionCasualties} from "../../api/system/timeLine.js";
 import * as echarts from "echarts";
 import {getData} from "@/api/system/excel.js";
 import WebSocketReconnect from "@/api/websocket.js";
-import {initWebSocket} from "@/cesium/WS.js"; // 引入 ECharts
+import {initWebSocket} from "@/cesium/WS.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js"; // 引入 ECharts
 
 export default {
   data() {
@@ -56,7 +57,7 @@ export default {
       websocketToTimeLine:null,
     };
   },
-  props: ["currentTime", "eqid","eqstartTime"],
+  props: ["currentTime", "eqid"],
   mounted() {
     this.init();
     this.initChart(); // 初始化图表
@@ -70,14 +71,15 @@ export default {
   methods: {
     async init() {
       this.ResponseContent = await getRescueActionCasualties({eqid: this.eqid});
+      console.log(this.ResponseContent,"this.ResponseContent")
       this.personnel_casualties_update(this.currentTime);
       this.updateChart(); // 更新图表数据
       this.initWebSocket() //接收人员伤亡websocket消息，初始化
     },
     initWebSocket(){
-      let that=this;
-      let eqid=this.eqid+"CasualtyExcelUpdate";
-      this.websocketToTimeLine=initWebSocket(eqid);
+      let that=this
+      let eqid=this.eqid+"CasualtyExcelUpdate"
+      this.websocketToTimeLine=initWebSocket(eqid)
       //接收到消息后，把数据添加到第一期请求到的数组里，便于后续数据处理
       //因为要操作数据，所以没有定义在ws.js文件里，onmessage函数定义在vue文件里
       this.websocketToTimeLine.onmessage = function (e) {
@@ -97,8 +99,9 @@ export default {
     async personnel_casualties_update(currentTime) {
       // console.log(this.ResponseContent,"this.ResponseContent personnel_casualties_update")
       this.casualtiesHistory = this.ResponseContent.filter((activity) => {
-        return new Date(activity.submissionDeadline) <= currentTime;
+        return new Date(activity.submissionDeadline) <= new Date(timeTransfer.timestampToTime(currentTime));
       });
+      // console.log(this.casualtiesHistory,"this.casualtiesHistory")
       if (this.casualtiesHistory.length >= 1) {
         const latest = this.casualtiesHistory[this.casualtiesHistory.length - 1];
         this.activity = {
@@ -243,7 +246,7 @@ export default {
 <style scoped>
 .pop {
   position: absolute;
-  top: 19%;
+  top: 16%;
   width: 100%; /* 调整宽度 */
   height: 21%;
   z-index: 20;
