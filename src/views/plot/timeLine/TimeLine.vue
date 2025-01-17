@@ -30,15 +30,6 @@
         <timeLineBaseInfo
             :centerPoint="centerPoint"
         />
-<!--        <timeLineBaseInfo-->
-<!--            v-if="eqyear"-->
-<!--            :eqid="eqid"-->
-<!--            :currentTime="currentTime"-->
-<!--            :isTimerRunning="isTimeRunning"-->
-<!--            :eqyear="eqyear"-->
-<!--            :centerPoint="centerPoint"-->
-<!--            :earthquakeName="centerPoint.earthquakeName"-->
-<!--        />-->
       </div>
       <timeLineLegend
           :activeComponent="activeComponent"

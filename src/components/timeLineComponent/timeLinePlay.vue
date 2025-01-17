@@ -135,7 +135,7 @@ export default {
       window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
     },
     jumpRealTime() {
-      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date('2022-06-02T04:23:46Z'));
+      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
     },
     backToStart() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
