@@ -27,15 +27,18 @@
             :eqid="eqid"
             :currentTime="currentTime"
         />
-
         <timeLineBaseInfo
-            v-if="eqyear"
-            :eqid="eqid"
-            :currentTime="currentTime"
-            :eqyear="eqyear"
             :centerPoint="centerPoint"
-            :earthquakeName="centerPoint.earthquakeName"
         />
+<!--        <timeLineBaseInfo-->
+<!--            v-if="eqyear"-->
+<!--            :eqid="eqid"-->
+<!--            :currentTime="currentTime"-->
+<!--            :isTimerRunning="isTimeRunning"-->
+<!--            :eqyear="eqyear"-->
+<!--            :centerPoint="centerPoint"-->
+<!--            :earthquakeName="centerPoint.earthquakeName"-->
+<!--        />-->
       </div>
       <timeLineLegend
           :activeComponent="activeComponent"
@@ -78,21 +81,20 @@ import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue"
 import * as Cesium from 'cesium'
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import CesiumNavigation from "cesium-navigation-es6";
-//图片
-import centerstar from "@/assets/icons/TimeLine/震中.png";
+
 //前后端
 import {getEqListById} from "@/api/system/eqlist.js";
 //数据处理方法
-import {TianDiTuToken} from "@/cesium/tool/config.js";
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
-import Arrow from "@/cesium/drawArrow/drawPlot.js";
-import TimeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
+import BaseInfoPopulationChart from "@/components/timeLineComponent/baseInfoPopulationChart.vue";
+
 
 
 export default {
   name: "TimeLine",
   components: {
+    BaseInfoPopulationChart,
     timeLineTitle,
     timeLineMiniMap,
     timeLinePlotStatistics,

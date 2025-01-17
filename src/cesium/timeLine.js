@@ -120,16 +120,16 @@ let timeLine = {
     },
     addPolyline(item, type) {
         if (window.viewer && window.viewer.entities) {
-            if (window.viewer.entities.getById(item.plotId)) {
-                window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
-            }
+
             let material = cesiumPlot.getMaterial(item.plotType, import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime())
 
             let positionsArr = []
             item.geom.coordinates.forEach(e => {
                 positionsArr.push(Cesium.Cartesian3.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0)))
             })
-
+            if (window.viewer.entities.getById(item.plotId)) {
+                window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
+            }
             window.viewer.entities.add({
                 availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
                     start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
@@ -298,7 +298,9 @@ let timeLine = {
                 }
                 return new Cesium.PolygonHierarchy(arrow);
             }
-
+            if (window.viewer.entities.getById(item.plotId)) {
+                window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
+            }
             window.viewer.entities.add({
                 availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
                     start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
@@ -340,7 +342,9 @@ let timeLine = {
                 if (index == -1) returnData = res.polygonalPoint;
                 return new Cesium.PolygonHierarchy(returnData);
             }
-
+            if (window.viewer.entities.getById(item.plotId)) {
+                window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
+            }
             window.viewer.entities.add({
                 availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
                     start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
@@ -382,7 +386,9 @@ let timeLine = {
                 if (index == -1) returnData = res.polygonalPoint;
                 return new Cesium.PolygonHierarchy(returnData);
             }
-
+            if (window.viewer.entities.getById(item.plotId)) {
+                window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
+            }
             window.viewer.entities.add({
                 availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
                     start: Cesium.JulianDate.fromDate(new Date(item.startTime)),

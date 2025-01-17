@@ -43,7 +43,7 @@ const props = defineProps({
 
 watch(() => props.currentTime, (newTime, oldTime) => {
   if (newTime !== oldTime) {
-    console.log("watch time new")
+    // console.log("watch time new")
     filterRecords(newTime);
   }
 });
