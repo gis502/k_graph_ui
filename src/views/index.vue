@@ -14,7 +14,7 @@
 
 
         <div class="center-body">
-          <e-map :eq-data="EqAll"/>
+          <e-map :eq-data="tableData"/>
         </div>
 
         <div class="left">
@@ -36,7 +36,6 @@
             </div>
           </div>
         </div>
-
 
         <div class="right">
           <div class="right-body">
@@ -234,6 +233,7 @@ const formValue = reactive({
   endDate:'',
 });
 
+//筛选
 const onSubmit = () => {
   if (formValue.occurrenceTime !== '') {
     const [startTime, endTime] = formValue.occurrenceTime;
@@ -267,7 +267,7 @@ const onSubmit = () => {
 const openQueryFrom = () => {
   queryFormVisible.value = true;
 };
-
+//查询
 const query = () => {
   if (requestParams.value === '') {
     tableData.value = EqAll.value;
@@ -316,7 +316,7 @@ const fillZero = (str) => {
 const getEq = () => {
   getEqList().then((res) => {
     console.log("地震数据",res.data)
-    EqAll.value = res.data;
+    EqAll.value = res.data.filter;
     tableData.value =res.data;
     // 之后要换回来     lastEqData.value = res[0];
     lastEqData.value = res.data[0];
