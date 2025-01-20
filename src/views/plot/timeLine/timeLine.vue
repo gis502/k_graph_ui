@@ -27,6 +27,7 @@
             :eqid="eqid"
             :currentTime="currentTime"
         />
+        <!--        震中信息组件-->
         <timeLineBaseInfo
             :centerPoint="centerPoint"
         />
@@ -35,7 +36,6 @@
           :activeComponent="activeComponent"
           @toggleComponent="toggleComponent"
       ></timeLineLegend>
-
       <div class="pop_right_background">
         <timeLineLifeLine
             :eqid="eqid"
@@ -78,14 +78,11 @@ import {getEqListById} from "@/api/system/eqlist.js";
 //数据处理方法
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
-import BaseInfoPopulationChart from "@/components/timeLineComponent/baseInfoPopulationChart.vue";
-
 
 
 export default {
   name: "TimeLine",
   components: {
-    BaseInfoPopulationChart,
     timeLineTitle,
     timeLineMiniMap,
     timeLinePlotStatistics,
@@ -159,17 +156,17 @@ export default {
         })
         let viewer = initCesium(Cesium, "cesiumContainer", clock)
         viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-        viewer.camera.changed.addEventListener(() => {
-          const positionCartographic = viewer.camera.positionCartographic
-          let height = positionCartographic.height;
-          // this.updateZoomLevel(height)
-          let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
-          let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
-          this.viewCenterCoordinate = {
-            lon: longitude,
-            lat: latitude
-          }
-        })
+        // viewer.camera.changed.addEventListener(() => {
+        //   const positionCartographic = viewer.camera.positionCartographic
+        //   let height = positionCartographic.height;
+        //   this.updateZoomLevel(height)
+        //   let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+        //   let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+        //   this.viewCenterCoordinate = {
+        //     lon: longitude,
+        //     lat: latitude
+        //   }
+        // })
 
 
         let options = {}
@@ -210,8 +207,16 @@ export default {
               } else {
                 that.isTimeRunning = false
               }
-            }
-        )
+              const positionCartographic = viewer.camera.positionCartographic
+              let height = positionCartographic.height;
+              that.updateZoomLevel(height)
+              let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+              let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+              that.viewCenterCoordinate = {
+                lon: longitude,
+                lat: latitude
+              }
+            })
 
         viewer.animation.viewModel.timeFormatter = timeTransfer.CesiumTimeFormatter;
         viewer.timeline.makeLabel = timeTransfer.CesiumDateTimeFormatter;
@@ -253,10 +258,10 @@ export default {
       }
     },
     updateMapAndVariableBeforeInit() {
-      timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000,5).then(() => {
+      timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000, 5).then(() => {
         viewer.clockViewModel.shouldAnimate = true;
       });
-      timeLine.addMakerPoint(this.centerPoint,"震中")
+      timeLine.addMakerPoint(this.centerPoint, "震中")
     },
     toggleComponent(component) {
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件

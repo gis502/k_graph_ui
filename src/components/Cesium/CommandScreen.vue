@@ -1,723 +1,597 @@
 <template>
   <div>
     <!--    地震列表切换-->
-    <div class="thd-listTable" v-if="activeComponent === 'eqList'">
-      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-        <damageThemeAssessment
-            :eqid="eqid"
-            :eqqueueId="eqqueueId"
-        >
-        </damageThemeAssessment>
-      </div>
-    </div>
-    <!--  态势标绘  -->
-    <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
-      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-        <div class="list-dialog__content" style="height: calc(100% - 30);">
-          <timeLineCasualtyStatisticthd
-              :zoomLevel="zoomLevel"
-              :pointsLayer="pointsLayer"
-              :currentTime="currentTime"
+        <div class="thd-listTable" v-if="activeComponent === 'eqList'">
+          <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+            <damageThemeAssessment
+                :eqid="eqid"
+                :eqqueueId="eqqueueId"
+            >
+            </damageThemeAssessment>
+          </div>
+        </div>
+        <!--  态势标绘  -->
+        <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
+          <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+            <div class="list-dialog__content" style="height: calc(100% - 30);">
+              <timeLineCasualtyStatisticthd
+                  :zoomLevel="zoomLevel"
+                  :pointsLayer="pointsLayer"
+                  :currentTime="currentTime"
+              />
+            </div>
+          </div>
+          <plotSearch
+              :eqid="eqid"
+          ></plotSearch>
+        </div>
+        <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
+          <div class="pop" style="width: 100%; height: 100%; z-index: 900;">
+            <div class="pop_header">
+              <span class="pop_title">图层要素</span>
+            </div>
+            <div class="list-dialog__content" style="height: calc(100% - 40px);">
+
+              <!-- 图层要素可展开 -->
+              <el-collapse>
+                <el-collapse-item>
+                  <template #title>
+                    <div style="display: flex; align-items: center;">
+                      <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                           xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
+                        <path
+                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                            p-id="6182" fill="#ffffff"></path>
+                      </svg>
+                      <span>图层管理</span>
+                    </div>
+                  </template>
+                  <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
+                    <el-checkbox
+                        v-for="item in layeritems"
+                        :key="item.id"
+                        :label="item.name"
+                        style="margin: 0 0;"
+                    >
+                      {{ item.name }}
+                    </el-checkbox>
+                  </el-checkbox-group>
+                </el-collapse-item>
+              </el-collapse>
+
+              <!-- 视角跳转可展开 -->
+              <el-collapse>
+                <el-collapse-item>
+                  <template #title>
+                    <div style="display: flex; align-items: center;">
+                      <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                           xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
+                        <path
+                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                            fill="#ffffff" p-id="2696"></path>
+                      </svg>
+                      <span>视角跳转</span>
+                    </div>
+                  </template>
+                  <!-- 行政区划单选按钮 -->
+                  <div class="district-buttons">
+                    <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
+                      <el-radio label="雅安市">雅安市</el-radio>
+                      <el-radio label="回到震中">回到震中</el-radio>
+                    </el-radio-group>
+                  </div>
+
+                  <!-- 下属区县单选按钮 -->
+                  <div class="district-buttons">
+                    <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
+                      <el-radio
+                          v-for="district in districts"
+                          :key="district.adcode"
+                          :label="district.name"
+                      >
+                        {{ district.name }}
+                      </el-radio>
+                    </el-radio-group>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+          </div>
+        </div>
+
+        <!-- 专题图产出 -->
+        <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
+          <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+            <disasterStatistics
+                :eqid="eqid"
+                :currentTime="currentTime"
+                @addJumpNodes="addJumpNodes"
+            />
+          </div>
+        </div>
+
+        <!-- 专题图产出 -->
+        <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
+          <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
+            <div class="pop_header">
+              <span class="pop_title">图件产出</span>
+            </div>
+            <div class="list-dialog__content" style="height: calc(100% - 40px);">
+              <!-- 切换按钮 -->
+              <div class="toggle-buttons">
+                <el-button
+                    :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
+                    @click="activeTab = 'thematicMap'"
+                >
+                  专题图预览
+                </el-button>
+                <el-button
+                    :type="activeTab === 'report' ? 'primary' : 'default'"
+                    @click="activeTab = 'report'"
+                >
+                  报告产出
+                </el-button>
+              </div>
+              <!-- 专题图 -->
+              <div v-if="activeTab === 'thematicMap'" class="section">
+                <div class="grid-container">
+                  <div
+                      v-for="(item, index) in thematicMapitems"
+                      :key="index"
+                      class="grid-item"
+                      @click="showThematicMapDialog(item)"
+                  >
+                    <el-card shadow="hover">
+                      <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
+                      <div class="item-info">
+                        <p class="item-title">{{ item.theme }}</p>
+                      </div>
+                    </el-card>
+                  </div>
+                </div>
+              </div>
+              <!-- 报告 -->
+              <div v-if="activeTab === 'report'" class="section">
+                <div class="grid-container-report">
+                  <div
+                      v-for="(item, index) in reportItems"
+                      :key="index"
+                      class="grid-item"
+                  >
+                    <el-card shadow="hover">
+                      <div class="report-preview">
+                        <p class="report-name">{{ item.theme }}</p>
+                        <div class="report-bottom" @click="downloadReport(item)">
+                          下载报告
+                        </div>
+                      </div>
+                    </el-card>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 专题图预览弹框 -->
+          <thematic-map-preview
+              v-if="ifShowMapPreview"
+              :img-url="imgshowURL"
+              :img-name="imgName"
+              @close="ifShowThematicMapDialog(false)"
           />
         </div>
-      </div>
-      <plotSearch
-          :eqid="eqid"
-      ></plotSearch>
-    </div>
-    <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
-      <div class="pop" style="width: 100%; height: 100%; z-index: 900;">
-        <div class="pop_header">
-          <span class="pop_title">图层要素</span>
-        </div>
-        <div class="list-dialog__content" style="height: calc(100% - 40px);">
 
-          <!-- 图层要素可展开 -->
-          <el-collapse>
-            <el-collapse-item>
-              <template #title>
-                <div style="display: flex; align-items: center;">
-                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                       xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
-                    <path
-                        d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                        p-id="6182" fill="#ffffff"></path>
-                  </svg>
-                  <span>图层管理</span>
-                </div>
-              </template>
-              <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-                <el-checkbox
-                    v-for="item in layeritems"
-                    :key="item.id"
-                    :label="item.name"
-                    style="margin: 0 0;"
-                >
-                  {{ item.name }}
-                </el-checkbox>
-              </el-checkbox-group>
-            </el-collapse-item>
-          </el-collapse>
-
-          <!-- 视角跳转可展开 -->
-          <el-collapse>
-            <el-collapse-item>
-              <template #title>
-                <div style="display: flex; align-items: center;">
-                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
-                    <path
-                        d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                        fill="#ffffff" p-id="2696"></path>
-                  </svg>
-                  <span>视角跳转</span>
-                </div>
-              </template>
-              <!-- 行政区划单选按钮 -->
-              <div class="district-buttons">
-                <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
-                  <el-radio label="雅安市">雅安市</el-radio>
-                  <el-radio label="回到震中">回到震中</el-radio>
-                </el-radio-group>
-              </div>
-
-              <!-- 下属区县单选按钮 -->
-              <div class="district-buttons">
-                <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
-                  <el-radio
-                      v-for="district in districts"
-                      :key="district.adcode"
-                      :label="district.name"
-                  >
-                    {{ district.name }}
-                  </el-radio>
-                </el-radio-group>
-              </div>
-            </el-collapse-item>
-          </el-collapse>
-        </div>
-      </div>
-    </div>
-
-    <!-- 专题图产出 -->
-    <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
-      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-        <disasterStatistics
-            :eqid="eqid"
-            :currentTime="currentTime"
-            @addJumpNodes="addJumpNodes"
-        />
-      </div>
-    </div>
-
-    <!-- 专题图产出 -->
-    <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
-      <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
-        <div class="pop_header">
-          <span class="pop_title">图件产出</span>
-        </div>
-        <div class="list-dialog__content" style="height: calc(100% - 40px);">
-          <!-- 切换按钮 -->
-          <div class="toggle-buttons">
-            <el-button
-                :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
-                @click="activeTab = 'thematicMap'"
-            >
-              专题图预览
-            </el-button>
-            <el-button
-                :type="activeTab === 'report' ? 'primary' : 'default'"
-                @click="activeTab = 'report'"
-            >
-              报告产出
-            </el-button>
-          </div>
-          <!-- 专题图 -->
-          <div v-if="activeTab === 'thematicMap'" class="section">
-            <div class="grid-container">
-              <div
-                  v-for="(item, index) in thematicMapitems"
-                  :key="index"
-                  class="grid-item"
-                  @click="showThematicMapDialog(item)"
-              >
-                <el-card shadow="hover">
-                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
-                  <div class="item-info">
-                    <p class="item-title">{{ item.theme }}</p>
-                  </div>
-                </el-card>
-              </div>
-            </div>
-          </div>
-          <!-- 报告 -->
-          <div v-if="activeTab === 'report'" class="section">
-            <div class="grid-container-report">
-              <div
-                  v-for="(item, index) in reportItems"
-                  :key="index"
-                  class="grid-item"
-              >
-                <el-card shadow="hover">
-                  <div class="report-preview">
-                    <p class="report-name">{{ item.theme }}</p>
-                    <div class="report-bottom" @click="downloadReport(item)">
-                      下载报告
-                    </div>
-                  </div>
-                </el-card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 专题图预览弹框 -->
-      <thematic-map-preview
-          v-if="ifShowMapPreview"
-          :img-url="imgshowURL"
-          :img-name="imgName"
-          @close="ifShowThematicMapDialog(false)"
-      />
-    </div>
-
-    <!--    box包裹地图，截图需要-->
+    <!--    &lt;!&ndash;    box包裹地图，截图需要&ndash;&gt;-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
-        <commonPanel
-            :visible="timelinePopupVisible"
-            :position="timelinePopupPosition"
-            :popupData="timelinePopupData"
-            :ifedit="false"
-            @wsSendPoint="wsSendPoint"
-            @closePlotPop="closePlotPop"
+                <commonPanel
+                    :visible="timelinePopupVisible"
+                    :position="timelinePopupPosition"
+                    :popupData="timelinePopupData"
+                    :ifedit="false"
+                    @wsSendPoint="wsSendPoint"
+                    @closePlotPop="closePlotPop"
+                />
+                <dataSourcePanel
+                    :visible="dataSourcePopupVisible"
+                    :position="dataSourcePopupPosition"
+                    :popupData="dataSourcePopupData"
+                />
+      </div>
+    </div>
+    <!--    &lt;!&ndash; RouterPanel 弹窗 &ndash;&gt;-->
+        <RouterPanel
+            :visible="routerPopupVisible"
+            :position="routerPopupPosition"
+            :popupData="routerPopupData"
         />
-        <dataSourcePanel
-            :visible="dataSourcePopupVisible"
-            :position="dataSourcePopupPosition"
-            :popupData="dataSourcePopupData"
-        />
-      </div>
-    </div>
-    <!-- RouterPanel 弹窗 -->
-    <RouterPanel
-        :visible="routerPopupVisible"
-        :position="routerPopupPosition"
-        :popupData="routerPopupData"
-    />
-
-    <div class="top-header">
-      <div class="system-title">
-        {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
-          this.centerPoint.earthquakeName
-        }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
-      </div>
-    </div>
-    <div class="logo-menu menue-left">
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('dataStats') }"
-          title="灾情总览"
-          @click="toggleComponent('dataStats')"
-      >
-        <p>灾情总览</p>
-      </div>
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('eqList') }"
-          title="灾损预估"
-          @click="toggleComponent('eqList')"
-      >
-        <p>灾损预估</p>
-      </div>
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('model') }"
-          title="标绘统计"
-          @click="toggleComponent('model')"
-      >
-        <p>标绘统计</p>
-      </div>
-    </div>
-    <div class="logo-menu menue-right">
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('layerChoose') }"
-          title="资源调度"
-          @click="toggleComponent('layerChoose')"
-      >
-        <p>资源调度</p>
-      </div>
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
-          title="灾情统计"
-          @click="toggleComponent('thematicMapDownload')"
-      >
-        <p>灾情统计</p>
-      </div>
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('reportDownload') }"
-          title="图件产出"
-          @click="toggleComponent('reportDownload')"
-      >
-        <p>图件产出</p>
-      </div>
-      <div
-          class="logo-menu-tittle"
-          :class="{ 'logo-menu-active': isActive('frontPage') }"
-          title="返回首页"
-          @click="navigateToFrontPage"
-      >
-        <p>返回首页</p>
-      </div>
-    </div>
-
-    <div class="logo-left-weather">
-      <div class="company-name">雅安市地震应急信息服务技术支撑平台</div>
-      <!-- 以下是实时获取时间的代码 -->
-      <div class="logo-left-time">
-        <div class="logo-time-hour">
-                <span class="pop-icon">
-                  <svg width="20" height="20" viewBox="0 0 48 48">
-                    <path
-                        d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
-                        fill="none" stroke="#BEE1FF" stroke-width="4"></path>
-                    <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
-                          stroke-linecap="round"></path>
-                  </svg>
-                </span>
-          <span id="current-time">--:--:--</span>
+    <div>
+      <div class="top-header">
+        <div class="system-title">
+          {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
+            this.centerPoint.earthquakeName
+          }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
         </div>
-        <div class="logo-time-year" id="current-date">----</div>
       </div>
-
-    </div>
-    <div class="logo-right-time">
-    </div>
-    <div class="left_component"></div>
-
-    <!-- 进度条-->
-    <div class="bottom">
-      <!--      播放暂停按钮-->
-      <div class="play">
-        <img class="play-icon" src="../../assets/icons/TimeLine/回到开始.png" @click="returnStart"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" v-show="!isTimerRunning"
-             @click="toggleTimer"/>
-        <img class="pause-icon" src="../../assets/icons/TimeLine/暂停.png" v-show="isTimerRunning"
-             @click="toggleTimer"/>
-        <img class="play-icon" src="../../assets/icons/TimeLine/前进箭头.png" @click="forward"/>
-      </div>
-
-      <div class="time-ruler" @mousedown="startDrag" @mouseenter="isDragging = true"
-           @mouseleave="isDragging = true">
-        <div class="time-ruler-line" @click="jumpToTime">
-          <div class="time-progress" :style="{ width: `${currentTimePosition}%` }"></div>
-          <div class="time-slider" :style="{ left: `${currentTimePosition-0.5}%` }"></div>
+      <div class="logo-menu menue-left">
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('dataStats') }"
+            title="灾情总览"
+            @click="toggleComponent('dataStats')"
+        >
+          <p>灾情总览</p>
         </div>
-
-        <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
-          <span class="speedButton">{{ speedOption }}</span>
-          <div class="chooseSpeed" v-if="showSpeedOptions">
-            <option
-                v-for="option in speedOptions"
-                :key="option"
-                @click.stop="selectSpeed(option)"
-                class="speed-option"
-            >
-              {{ option }}
-            </option>
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('eqList') }"
+            title="灾损预估"
+            @click="toggleComponent('eqList')"
+        >
+          <p>灾损预估</p>
+        </div>
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('model') }"
+            title="标绘统计"
+            @click="toggleComponent('model')"
+        >
+          <p>标绘统计</p>
+        </div>
+      </div>
+      <div class="logo-menu menue-right">
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('layerChoose') }"
+            title="资源调度"
+            @click="toggleComponent('layerChoose')"
+        >
+          <p>资源调度</p>
+        </div>
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
+            title="灾情统计"
+            @click="toggleComponent('thematicMapDownload')"
+        >
+          <p>灾情统计</p>
+        </div>
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('reportDownload') }"
+            title="图件产出"
+            @click="toggleComponent('reportDownload')"
+        >
+          <p>图件产出</p>
+        </div>
+        <div
+            class="logo-menu-tittle"
+            :class="{ 'logo-menu-active': isActive('frontPage') }"
+            title="返回首页"
+            @click="navigateToFrontPage"
+        >
+          <p>返回首页</p>
+        </div>
+      </div>
+      <div class="logo-left-weather">
+        <div class="company-name">雅安市地震应急信息服务技术支撑平台</div>
+        <!-- 以下是实时获取时间的代码 -->
+        <div class="logo-left-time">
+          <div class="logo-time-hour">
+                    <span class="pop-icon">
+                      <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path
+                            d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
+                            fill="none" stroke="#BEE1FF" stroke-width="4"></path>
+                        <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
+                              stroke-linecap="round"></path>
+                      </svg>
+                    </span>
+            <span id="current-time">--:--:--</span>
           </div>
+          <div class="logo-time-year" id="current-date">----</div>
         </div>
-      </div>
 
-      <!--      时间点-->
-      <div class="current-time-info">
-        <span class="timelabel">{{ this.timestampToTime(this.eqstartTime) }}</span>
-      </div>
-
-      <div class="end-time-info">
-        <div class="timelabel">
-          <span>{{ this.timestampToTime(this.currentTime) }}</span>
-          <span> / </span>
-          <span> {{ this.timestampToTime(this.eqendTime) }}</span>
-        </div>
       </div>
     </div>
 
-    <div class="bottom-footer"></div>
 
-    <!-- 进度条 end-->
+    <!--        <commandScreenTitle-->
+    <!--            :eqyear="eqyear"-->
+    <!--            :eqmonth="eqmonth"-->
+    <!--            :eqday="eqday"-->
+    <!--            :centerPoint="centerPoint"-->
+    <!--            @toggle-component="toggleComponent"-->
+    <!--        />-->
+
+    <timeLinePlay
+        :viewer="viewer"
+        :eqid="eqid"
+        :centerPoint="centerPoint"
+        :currentTime="currentTime"
+        @updatePlots="updatePlots"
+    />
 
     <!--    两侧组件-->
     <div v-show="showSidebarComponents">
       <div class="pop_left_background">
-        <!--   应急响应-左上   -->
         <timeLineEmergencyResponse
             :eqid="eqid"
             :currentTime="currentTime"
-            :eqstartTime="eqstartTime"
-            :isfirst="isfirst"
-            @addJumpNodes="addJumpNodes"
         />
-        <div>
-
-          <!--   人员伤亡-左中   -->
-          <timeLinePersonnelCasualties
-              :eqid="eqid"
-              :currentTime="currentTime"
-              @addJumpNodes="addJumpNodes"
-          />
-        </div>
-
-        <!--   基础信息-左下   -->
-        <timeLineRescueTeam
-            v-if="eqyear"
+        <!--   人员伤亡-左中   -->
+        <timeLinePersonnelCasualties
             :eqid="eqid"
             :currentTime="currentTime"
-            @addJumpNodes="addJumpNodes"
-            :eqyear="eqyear"
-            :earthquakeName="centerPoint.earthquakeName"
+        />
+        <!--        震中信息组件-->
+        <timeLineBaseInfo
+            :centerPoint="centerPoint"
         />
       </div>
-      <div class="pop_right_background">
-        <!--  新闻-右上  -->
-        <div>
-          <news
-              :eqid="eqid"
-              :currentTime="currentTime"
-              @ifShowDialog="ifShowDialog"
-              @detailedNews="detailedNews"
-              @addJumpNodes="addJumpNodes"
-          ></news>
-        </div>
-        <!--      新闻弹框-->
-        <div>
-          <news-dialog
-              :showDetailedNewsDialog="showDetailedNewsDialog"
-              :showingNewsContent="showingNewsContent"
-              @hideNewsDialog="hideNewsDialog"
-          ></news-dialog>
-        </div>
-        <!--      标绘统计-->
-        <div>
-          <plotStatistics
-              :plots="plots"
-              :currentTime="currentTime"
-              :zoomLevel="zoomLevel"
-              :isTimerRunning="isTimerRunning"
-              :viewCenterCoordinate="viewCenterCoordinate"
-              :earthquakeName="centerPoint.earthquakeName"
-          ></plotStatistics>
-        </div>
-        <!--      缩略图-->
-        <div>
-          <mini-map></mini-map>
-        </div>
-      </div>
-      <!--      图例-->
       <timeLineLegend
           :activeComponent="activeComponent"
           @toggleComponent="toggleComponent"
       ></timeLineLegend>
+      <div class="pop_right_background">
+        <timeLineLifeLine
+            :eqid="eqid"
+            :currentTime="currentTime"
+        />
+        <timeLinePlotStatistics
+            :plots="plots"
+            :currentTime="currentTime"
+            :zoomLevel="zoomLevel"
+            :isTimerRunning="isTimeRunning"
+            :viewCenterCoordinate="viewCenterCoordinate"
+            :earthquakeName="centerPoint.earthquakeName"
+        />
+        <timeLineMiniMap
+            :viewer="viewer"
+            :centerPoint="centerPoint"
+        />
+      </div>
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-    <div id="legend" v-show="isShowYaanRegionLegend"
-         style="position: absolute;
-           z-index:20; bottom: 100px;
-           right: 450px; color: #FFFFFF;
-           background-color: rgba(0, 0, 0, 0.5);
-           padding: 10px; border-radius: 5px;text-align: center;">
-      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
-        <div style="display: flex; align-items: center; margin-bottom: 5px;">
-          <div
-              style="width: 20px; height: 20px; margin-right: 10px;"
-              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
+        <div id="legend" v-show="isShowYaanRegionLegend"
+             style="position: absolute;
+               z-index:20; bottom: 100px;
+               right: 450px; color: #FFFFFF;
+               background-color: rgba(0, 0, 0, 0.5);
+               padding: 10px; border-radius: 5px;text-align: center;">
+          <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
+            <div style="display: flex; align-items: center; margin-bottom: 5px;">
+              <div
+                  style="width: 20px; height: 20px; margin-right: 10px;"
+                  :style="{ backgroundColor: colorItem.color.toCssColorString() }">
+              </div>
+              <span>{{ colorItem.name }}</span>
+            </div>
           </div>
-          <span>{{ colorItem.name }}</span>
         </div>
-      </div>
-    </div>
 
-    <!--   断裂带名称div   -->
-    <div id="faultInfo"
-         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
-    </div>
-
-    <!--经纬度跳转-->
-    <div
-        style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
-      <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
-        <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
-             style="width: 31px; height: 31px;">
-      </div>
-      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
-        <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
-             style="width: 31px; height: 31px;">
-      </div>
-      <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
-        <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
-             style="width: 31px; height: 31px;">
-      </div>
-      <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
-        <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
-             style="width: 31px; height: 31px;">
-      </div>
-    </div>
-    <!--   经纬度跳转弹框 -->
-    <div class="universalPanel" v-if="showPositionFlyTo">
-      <div class="panelTop">
-        <h2 class="panelName">经纬度跳转</h2>
-      </div>
-      <div class="panelContent">
-        <div>经度：
-          <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
-          ></el-input>
-          °
+        <!--   断裂带名称div   -->
+        <div id="faultInfo"
+             style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
         </div>
-        <div style="margin-left: 10px">纬度：
-          <el-input v-model="positionFlyTo.lat" class="positionFlyToInput"
-                    @keyup.enter="flyToPosition"></el-input>
-          °
-        </div>
-      </div>
-      <div class="panelButton">
-        <el-button class="panelButtons" @click="clearPositionPanel">取消</el-button>
-        <el-button class="panelButtons" type="primary" @click="flyToPosition">
-          跳转
-        </el-button>
-      </div>
-    </div>
 
-    <!--    图层管理弹框-->
-    <div class="universalPanel" v-if="showLayerFeatures">
-      <div class="panelTop">
-        <h2 class="panelName">图层管理</h2>
-      </div>
-      <el-tree
-          default-expand-all="true"
-          ref="tree"
-          node-key="id"
-          :props="props"
-          :load="loadNode"
-          :default-checked-keys="selectedlayersLocal"
-          lazy
-          @check="handleCheckChange"
-      >
-        <template #default="{ node, data }">
-          <!-- 根节点，显示图标和文字 -->
-          <div class="tree-node-content">
-            <span v-if="data.name === '图层要素'" class="node-icon">
-            <!-- 图层要素的 SVG 图标 -->
-              <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                 xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
-                    <path
-                        d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                        p-id="6182" fill="#ffffff"></path>
-                  </svg>
-              <span class="node-text">{{ data.name }}</span>
-            </span>
-            <span v-else-if="data.name === '视角跳转'" class="node-icon">
-            <!-- 视角跳转的 SVG 图标 -->
-              <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                 xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
-                    <path
-                        d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                        fill="#ffffff" p-id="2696"></path>
-                  </svg>
-              <span class="node-text">{{ data.name }}</span>
-            </span>
-            <!-- 子节点逻辑保持原有 -->
-            <el-checkbox
-                v-if="layeritems.some(item => item.name === data.name)"
-                v-model="selectedlayersLocal"
-                :label="data.name"
-                @change="updateMapLayers"
-            >
-              <span>{{ data.name }}</span>
-            </el-checkbox>
-            <el-radio-group
-                v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
-                v-model="selectedDistrict"
-            >
-              <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
-                <span>{{ data.name }}</span>
-              </el-radio>
-            </el-radio-group>
+        <!--经纬度跳转-->
+        <div
+            style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
+          <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
+            <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
+                 style="width: 31px; height: 31px;">
           </div>
-        </template>
-      </el-tree>
-    </div>
-
-    <!--    地震列表切换-->
-    <div class="universalPanel" v-if="showEqListPanel">
-      <!-- 顶部标题栏 -->
-      <div class="panelTop">
-        <h2 class="panelName">地震列表</h2>
-      </div>
-      <!-- 内容区域 -->
-      <div class="panelContent">
-        <div class="thd-Table">
-          <eqlistTable :eqData="eqTable"/>
+          <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+            <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
+                 style="width: 31px; height: 31px;">
+          </div>
+          <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+            <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
+                 style="width: 31px; height: 31px;">
+          </div>
+          <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+            <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
+                 style="width: 31px; height: 31px;">
+          </div>
         </div>
-      </div>
-    </div>
+        <!--   经纬度跳转弹框 -->
+        <div class="universalPanel" v-if="showPositionFlyTo">
+          <div class="panelTop">
+            <h2 class="panelName">经纬度跳转</h2>
+          </div>
+          <div class="panelContent">
+            <div>经度：
+              <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
+              ></el-input>
+              °
+            </div>
+            <div style="margin-left: 10px">纬度：
+              <el-input v-model="positionFlyTo.lat" class="positionFlyToInput"
+                        @keyup.enter="flyToPosition"></el-input>
+              °
+            </div>
+          </div>
+          <div class="panelButton">
+            <el-button class="panelButtons" @click="clearPositionPanel">取消</el-button>
+            <el-button class="panelButtons" type="primary" @click="flyToPosition">
+              跳转
+            </el-button>
+          </div>
+        </div>
 
-    <!-- 三维模型弹框 -->
-    <div class="universalPanel" v-if="showModelPanel">
-      <!-- 顶部标题栏 -->
-      <div class="panelTop">
-        <h2 class="panelName">三维模型</h2>
-      </div>
-      <!-- 表格内容 -->
-      <div class="model-dialog__content">
-        <el-table
-            :data="modelTableData"
-            class="custom-table"
-            style="width: 100%; height: 90%;"
-            :header-cell-style="tableHeaderColor"
-            :cell-style="tableColor"
-            :row-style="{ height: '37.5px', fontSize: '13px'}"
-        >
-          <!-- 模型名称列 -->
-          <el-table-column label=" " min-width="20px" show-overflow-tooltip>
-            <template #default="scope">
-              <div style="display: flex; align-items: center; justify-content: center; height: 100%;"
-                   class="arrow-container">
-                <div class="arrow-icon"></div>
+        <!--    图层管理弹框-->
+        <div class="universalPanel" v-if="showLayerFeatures">
+          <div class="panelTop">
+            <h2 class="panelName">图层管理</h2>
+          </div>
+          <el-tree
+              default-expand-all="true"
+              ref="tree"
+              node-key="id"
+              :props="props"
+              :load="loadNode"
+              :default-checked-keys="selectedlayersLocal"
+              lazy
+              @check="handleCheckChange"
+          >
+            <template #default="{ node, data }">
+              <!-- 根节点，显示图标和文字 -->
+              <div class="tree-node-content">
+                <span v-if="data.name === '图层要素'" class="node-icon">
+                <!-- 图层要素的 SVG 图标 -->
+                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                       xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
+                        <path
+                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                            p-id="6182" fill="#ffffff"></path>
+                      </svg>
+                  <span class="node-text">{{ data.name }}</span>
+                </span>
+                <span v-else-if="data.name === '视角跳转'" class="node-icon">
+                <!-- 视角跳转的 SVG 图标 -->
+                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
+                        <path
+                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                            fill="#ffffff" p-id="2696"></path>
+                      </svg>
+                  <span class="node-text">{{ data.name }}</span>
+                </span>
+                <!-- 子节点逻辑保持原有 -->
+                <el-checkbox
+                    v-if="layeritems.some(item => item.name === data.name)"
+                    v-model="selectedlayersLocal"
+                    :label="data.name"
+                    @change="updateMapLayers"
+                >
+                  <span>{{ data.name }}</span>
+                </el-checkbox>
+                <el-radio-group
+                    v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
+                    v-model="selectedDistrict"
+                >
+                  <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
+                    <span>{{ data.name }}</span>
+                  </el-radio>
+                </el-radio-group>
               </div>
             </template>
-          </el-table-column>
-          <el-table-column
-              prop="name"
-              label="模型名称"
-              width="auto"
-              min-width="130px"
-              show-overflow-tooltip
-          ></el-table-column>
-          <!-- 操作列 -->
-          <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
-            <template #default="scope">
-              <el-button type="text" :icon="Edit" @click="goModel(scope.row)" class="checkBotton">查看</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <!-- 分页 -->
-        <div>
-          <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="modelCurrentPage"
-              :page-size="modelPageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="ModelTotal"
-              class="custom-pagination"
-          >
-          </el-pagination>
+          </el-tree>
         </div>
-      </div>
-    </div>
 
-    <thematicMapPreview
-        @ifShowThematicMapDialog="ifShowThematicMapDialog"
-        :imgshowURL="imgshowURL"
-        :imgurlFromDate="imgurlFromDate"
-        :imgName="imgName"
-        :ifShowMapPreview="ifShowMapPreview"
-        :showTypes="showTypes"
-        style="width: 40%"
-    ></thematicMapPreview>
-    <div class="timelineRunningTimeLabel">
-      {{ this.timestampToTimeChinese(this.currentTime) }}
-    </div>
+        <!--    地震列表切换-->
+        <div class="universalPanel" v-if="showEqListPanel">
+          <!-- 顶部标题栏 -->
+          <div class="panelTop">
+            <h2 class="panelName">地震列表</h2>
+          </div>
+          <!-- 内容区域 -->
+          <div class="panelContent">
+            <div class="thd-Table">
+              <eqlistTable :eqData="eqTable"/>
+            </div>
+          </div>
+        </div>
 
-    <!--    <div id="legend" v-show="true"-->
-    <!--         style="position: absolute;-->
-    <!--           right: 500px;-->
-    <!--         z-index:20; bottom: 100px;-->
-    <!--         right: 450px; color: #FFFFFF;-->
-    <!--         background-color: rgba(0, 0, 0, 0.5);-->
-    <!--         padding: 10px; border-radius: 5px;text-align: center;">-->
-    <!--      <div v-for="(item, index) in slopeStatistics" :key="index">-->
-    <!--        <div style="display: flex; align-items: center; margin-bottom: 5px;">-->
-    <!--          <div-->
-    <!--              :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">-->
-    <!--          </div>-->
-    <!--          <span style="width: 80px;text-align: left">{{ item.degree }}</span>-->
-    <!--          <span style="text-align: left">{{ item.proportion }}</span>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
+        <!-- 三维模型弹框 -->
+        <div class="universalPanel" v-if="showModelPanel">
+          <!-- 顶部标题栏 -->
+          <div class="panelTop">
+            <h2 class="panelName">三维模型</h2>
+          </div>
+          <!-- 表格内容 -->
+          <div class="model-dialog__content">
+            <el-table
+                :data="modelTableData"
+                class="custom-table"
+                style="width: 100%; height: 90%;"
+                :header-cell-style="tableHeaderColor"
+                :cell-style="tableColor"
+                :row-style="{ height: '37.5px', fontSize: '13px'}"
+            >
+              <!-- 模型名称列 -->
+              <el-table-column label=" " min-width="20px" show-overflow-tooltip>
+                <template #default="scope">
+                  <div style="display: flex; align-items: center; justify-content: center; height: 100%;"
+                       class="arrow-container">
+                    <div class="arrow-icon"></div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  prop="name"
+                  label="模型名称"
+                  width="auto"
+                  min-width="130px"
+                  show-overflow-tooltip
+              ></el-table-column>
+              <!-- 操作列 -->
+              <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
+                <template #default="scope">
+                  <el-button type="text" :icon="Edit" @click="goModel(scope.row)" class="checkBotton">查看</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!-- 分页 -->
+            <div>
+              <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="modelCurrentPage"
+                  :page-size="modelPageSize"
+                  layout="total, prev, pager, next, jumper"
+                  :total="ModelTotal"
+                  class="custom-pagination"
+              >
+              </el-pagination>
+            </div>
+          </div>
+        </div>
 
-    <!--    <div style="position: absolute;width: 50px;bottom: 300px;right: 500px;-->
-    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-    <!--      <el-button @click="drawN">量算</el-button>-->
-    <!--    </div>-->
+        <thematicMapPreview
+            @ifShowThematicMapDialog="ifShowThematicMapDialog"
+            :imgshowURL="imgshowURL"
+            :imgurlFromDate="imgurlFromDate"
+            :imgName="imgName"
+            :ifShowMapPreview="ifShowMapPreview"
+            :showTypes="showTypes"
+            style="width: 40%"
+        ></thematicMapPreview>
 
-    <!--    <div style="position: absolute;width: 200px;bottom: 500px;right: 500px;-->
-    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-    <!--      <el-button @click="route">路径规划</el-button>-->
-    <!--    </div>-->
-    <!--    <div style="position: absolute;width: 200px;bottom: 450px;right: 500px;-->
-    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-    <!--      <el-button @click="addArea">添加障碍区域</el-button>-->
-    <!--    </div>-->
-    <!--    <div style="position: absolute;width: 200px;bottom: 400px;right: 500px;-->
-    <!--      z-index:20;padding: 10px; border-radius: 5px;text-align: center;">-->
-    <!--      <el-button @click="removeAll">清空所有实体</el-button>-->
-    <!--    </div>-->
-
-    <!--    路径规划    -->
-    <!--      <div class="universalPanel" v-if="showTips" style="top: 500px;">-->
-    <!--          <div class="panelTop">-->
-    <!--              <h2 class="panelName">路径规划</h2>-->
-    <!--          </div>-->
-
-    <!--          <div class="panelContent" style="padding-right: 5px;display: initial;">-->
-    <!--              <el-row style="margin: 20px;">-->
-    <!--                  <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>-->
-    <!--                  <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>-->
-    <!--              </el-row>-->
-    <!--              <div slot="header" class="clearfix"-->
-    <!--                   style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">-->
-    <!--                  <div>-->
-    <!--                      全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}-->
-    <!--                  </div>-->
-    <!--                  <div v-if="visibleGuilde">-->
-    <!--                      <div v-for="(instruction, index) in RouteGuilde" :key="index">-->
-    <!--                          {{ instruction }}-->
-    <!--                      </div>-->
-    <!--                      <div v-if="loading" class="loading">加载中...</div>-->
-    <!--                  </div>-->
-    <!--              </div>-->
-    <!--          </div>-->
-    <!--      </div>-->
   </div>
 </template>
 
 <script>
+//依赖
 import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
+
+//组件
+import timeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
+import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
+import timeLineEmergencyResponse from "@/components/timeLineComponent/timeLineEmergencyResponse.vue";
+import timeLinePersonnelCasualties from "@/components/timeLineComponent/timeLinePersonnelCasualties.vue";
+import timeLineBaseInfo from "@/components/timeLineComponent/timeLineBaseInfo.vue";
+import timeLineLegend from "@/components/timeLineComponent/timeLineLegend.vue";
+import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vue";
+import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
+import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
+//--未整理---
+//前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
+//前端方法
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
+import timeLine from "@/cesium/timeLine.js";
+
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-import newsDialog from "@/components/TimeLine/newsDialog.vue";
-import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
-import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
-import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
-import MiniMap from "@/components/TimeLine/miniMap.vue";
-import News from "@/components/TimeLine/news.vue";
-import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
-import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
-import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import eqTable from '@/components/Home/eqtable.vue'
@@ -770,18 +644,14 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import axios from "axios";
 import damageThemeAssessment from "./damageThemeAssessment.vue";
-import disasterStatistics from  "./disasterStatistics.vue"
+import disasterStatistics from "./disasterStatistics.vue"
 import PlotSearch from "./plotSearch.vue";
 import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
 import {AmapApiLocal} from "@/utils/server.js";
-import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
-import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
-import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
-import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vue";
-import timeLineBaseInfo from "@/components/timeLineComponent/timeLineBaseInfo.vue";
+import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf";
 
 export default {
   computed: {
@@ -790,7 +660,15 @@ export default {
     },
   },
   components: {
-    timeLineBaseInfo, timeLineLifeLine, timeLineMiniMap, timeLinePlotStatistics, timeLinePlay,
+    timeLinePlay,
+    timeLineEmergencyResponse,
+    timeLinePersonnelCasualties,
+    timeLineBaseInfo,
+    timeLineLegend,
+    timeLineLifeLine,
+    timeLinePlotStatistics,
+    timeLineMiniMap,
+    //--未整理---
     damageThemeAssessment,
     disasterStatistics,
     PlotSearch,
@@ -798,14 +676,6 @@ export default {
     thematicMapPreview,
     RouterPanel,
     TimeLinePanel,
-    News,
-    MiniMap,
-    plotStatistics,
-    timeLineEmergencyResponse,
-    timeLinePersonnelCasualties,
-    timeLineRescueTeam,
-    timeLineLegend,
-    newsDialog,
     commonPanel,
     dataSourcePanel,
     eqTable,
@@ -816,6 +686,24 @@ export default {
   },
   data: function () {
     return {
+      //时间轴和时间轴的组件
+      eqid: '',
+      currentTime: '',
+      centerPoint: {},
+      viewer: '',
+      //地震时间年月日
+      eqyear: '',
+      eqmonth: '',
+      eqday: '',
+      activeComponent: 'dataStats',// 默认为数据统计
+      //标绘统计组件传值
+      isTimeRunning: true,
+      plots: [],
+      zoomLevel: '市', // 初始化缩放层级
+      viewCenterCoordinate: {
+        lon: null,
+        lat: null
+      },//视角中心坐标
 // -----------弹窗们的状态变量-------------
       selectedEntityPosition: '', //存储断裂带div的位置
       selectedEntityHighDiy: null, // 存储弹窗的位置
@@ -832,50 +720,16 @@ export default {
       dataSourcePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
       dataSourcePopupData: [], // TimeLinePanel弹窗的数据
       //----------------------------------
-      eqid: '',
+
       eqqueueId: '',
-      // viewer: '',
+
       store: '',
-      //地震时间年月日
-      eqyear: '',
-      eqmonth: '',
-      eqday: '',
-
-      // 震中点数据结构
-      centerPoint: {
-        plotid: 'center',
-        earthquakeName: '',
-        // position: '',
-        // time:'',
-        starttime: '',
-        endtime: '',
-        magnitude: '',
-        longitude: '',
-        latitude: '',
-        height: '',
-        depth: '',
-        plottype: '震中'
-      },
-
-      // 新闻组件
-      showingNewsContent: {
-        id: '',
-        content: '',
-        earthquakeId: '',
-        image: '',
-        publishTime: '',
-        sourceName: '',
-        sourceLogo: '',
-        title: '',
-      },
-      showDetailedNewsDialog: false,
-
       //时间轴时间
       // ifShowData: false,
       // timelineTotalDurationMinutes:10380,
       timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
       eqstartTime: '',
-      currentTime: '',
+
       eqendTime: '',
       tmpeqendTime: '',//默认的地震结束时间
       realTime: new Date(),
@@ -896,7 +750,7 @@ export default {
       //是否记载到view上，已经存在则不再添加
       plotisshow: {},
       //包括最早出现时间，最晚结束时间的标绘点信息
-      plots: [],
+
       //时间轴暂停播放状态
       isTimerRunning: false,
       //时间轴拖拽
@@ -939,7 +793,7 @@ export default {
       labels: [],  // 保存标签实体的引用
       regionLayerJump: null,
 
-      activeComponent: 'dataStats',// 默认为数据统计
+
       activeTab: "thematicMap", // 当前显示的 tab (专题图或报告)
       showSidebarComponents: true,  // 控制两侧组件显示状态
       //-----------------图层要素---------------------
@@ -1007,7 +861,7 @@ export default {
         time: null,
         modelid: null
       },
-      zoomLevel: '市', // 初始化缩放层级
+
       pointsLayer: [], //传到子组件
       stopTimeforAddEntityOneIndex: 6000,
       timelinePopupShowCenterStrart: true,
@@ -1202,7 +1056,7 @@ export default {
       canOperateTimerLine: false,
       wsaddMakers: [],
       wsdeleteMakers: [],
-      viewCenterCoordinate: null,
+
       showLayerFeatures: false,// 图层要素弹框状态
       showEqListPanel: false,// 地震列表弹框状态
       showModelPanel: false,// 三维模型弹框状态
@@ -1227,17 +1081,15 @@ export default {
     this.init()
     this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.initModelTable(); // 初始化模型table数据
-    this.watchTerrainProviderChanged();
-    this.getEqInfo(this.eqid)
+
+
     this.getEq()
-    this.getPlotwithStartandEndTime(this.eqid)
+
     this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
     this.outputData()
-    // // 生成实体点击事件的handler
-    this.entitiesClickPonpHandler()
-    this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
-    // this.addSlopeCanvas()
+
+
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -1251,10 +1103,144 @@ export default {
   },
   methods: {
 
+    init() {
+      let clock;
+      getEqListById({id: this.eqid}).then(res => {
+        console.log(res)
+        //震中标绘点
+        this.centerPoint = res
+
+
+        // 设置中心点的标识和时间信息
+        this.centerPoint.plotId = res.eqid
+        this.centerPoint.startTime = new Date(this.centerPoint.occurrenceTime)
+        this.centerPoint.endTime = new Date(this.centerPoint.startTime.getTime() + 10 * 24 * 3600 * 1000);
+        this.currentTime = this.centerPoint.startTime
+        this.centerPoint.plotType = "震中"
+
+        this.eqyear = this.centerPoint.startTime.getFullYear()
+        this.eqmonth = this.centerPoint.startTime.getMonth() + 1
+        this.eqday = this.centerPoint.startTime.getDate()
+
+        // console.log(this.currentTime,"this.currentTime thd")
+        clock = new Cesium.Clock({
+          startTime: Cesium.JulianDate.fromDate(this.centerPoint.startTime),
+          stopTime: Cesium.JulianDate.fromDate(this.centerPoint.endTime),
+          currentTime: Cesium.JulianDate.fromDate(this.currentTime),
+          clockRange: Cesium.ClockRange.CLAMPED,
+        })
+        let viewer = initCesium(Cesium, "cesiumContainer", clock)
+        viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+        // viewer.camera.changed.addEventListener(() => {
+        //   const positionCartographic = viewer.camera.positionCartographic
+        //   let height = positionCartographic.height;
+        //   this.updateZoomLevel(height)
+        //   let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+        //   let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+        //   this.viewCenterCoordinate = {
+        //     lon: longitude,
+        //     lat: latitude
+        //   }
+        // })
+
+
+        let options = {}
+        // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
+        // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
+        // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
+        options.enableCompass = true
+        // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
+        options.enableZoomControls = true
+        // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
+        options.enableDistanceLegend = true
+        // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
+        options.enableCompassOuterRing = true
+        options.resetTooltip = "重置视图";
+        options.zoomInTooltip = "放大";
+        options.zoomOutTooltip = "缩小";
+        //新版必须new  CesiumNavigation ,可以查看作者github
+        window.navigation = new CesiumNavigation(viewer, options)
+        document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
+        document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
+        document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+        // 设置相机高度和视角
+        viewer.camera.setView({
+          destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 20000000),//足够高可以看到整个地球
+          orientation: {
+            // 指向
+            heading: 6.283185307179581,
+            // 视角
+            pitch: -1.5688168484696687,
+            roll: 0.0
+          }
+        });
+        let that = this
+        viewer.clock.onTick.addEventListener(function (clock) {
+          that.currentTime = clock.currentTime;
+          if (viewer.clockViewModel.shouldAnimate) {
+            that.isTimeRunning = true
+          } else {
+            that.isTimeRunning = false
+          }
+          const positionCartographic = viewer.camera.positionCartographic
+          let height = positionCartographic.height;
+          that.updateZoomLevel(height)
+          let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+          let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+          that.viewCenterCoordinate = {
+            lon: longitude,
+            lat: latitude
+          }
+        })
+
+        viewer.animation.viewModel.timeFormatter = timeTransfer.CesiumTimeFormatter;
+        viewer.timeline.makeLabel = timeTransfer.CesiumDateTimeFormatter;
+        viewer.animation.viewModel.dateFormatter = timeTransfer.CesiumDateFormatter;
+
+        let realTime = new Date()
+        if (realTime > this.centerPoint.startTime && realTime < this.centerPoint.endTime) {
+          console.log("还在更新的地震")
+          document.getElementsByClassName('cesium-viewer-animationContainer')[0].style = 'visibility:hidden;z-index:1 ;left:40%;bottom: 3%;';
+          document.getElementsByClassName('cesium-animation-rectButton')[0].style = 'visibility:hidden';
+          document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[3].style = 'visibility:visible';
+        } else {
+          console.log("历史地震")
+          document.getElementsByClassName('cesium-viewer-animationContainer')[0].style = 'visibility:hidden;z-index:1 ;left:40%;bottom: 3%;';
+          document.getElementsByClassName('cesium-animation-rectButton')[0].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:visible';
+        }
+        document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 70%; left:15%;right:15%; ';
+        document.getElementsByClassName('cesium-timeline-bar')[0].style = 'background:rgba(0, 0, 0, 0.1);';
+
+
+        window.viewer = viewer
+        this.viewer = viewer
+        viewer.clock.shouldAnimate = false;
+        this.updateMapAndVariableBeforeInit()
+        this.watchTerrainProviderChanged();
+        this.entitiesClickPonpHandler()
+        this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
+
+      })
+    },
+    updateMapAndVariableBeforeInit() {
+      timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000, 5).then(() => {
+        viewer.clockViewModel.shouldAnimate = true;
+      });
+      timeLine.addMakerPoint(this.centerPoint, "震中")
+    },
+    updatePlots(plots) {
+      console.log(this.plots, "plots updatePlots")
+      this.plots = plots
+    },
+
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         this.thematicMapitems = res.themeData
-        console.log("专题图：", this.thematicMapitems,"diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
+        console.log("专题图：", this.thematicMapitems, "diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
       })
       handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
         this.reportItems = res.themeData
@@ -1262,182 +1248,7 @@ export default {
       })
     },
 
-    // 初始化控件等
-    async init() {
-      this.isfirst = true
-      let viewer = initCesium(Cesium)
-      viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
 
-      viewer.camera.changed.addEventListener(() => {
-        const positionCartographic = viewer.camera.positionCartographic
-        var height = positionCartographic.height;
-        this.updateZoomLevel(height)
-        var longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
-        var latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
-        this.viewCenterCoordinate = {
-          lon: longitude,
-          lat: latitude
-        }
-        // console.log(this.viewCenterCoordinate,"this.viewCenterCoordinate thd")
-      })
-      window.viewer = viewer
-      Arrow.disable();
-      Arrow.init(viewer);
-
-      let options = {}
-      // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
-      // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
-      // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
-      options.enableCompass = false
-      // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
-      options.enableZoomControls = false
-      // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
-      options.enableDistanceLegend = true
-      // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
-      options.enableCompassOuterRing = false
-      options.resetTooltip = "重置视图";
-      options.zoomInTooltip = "放大";
-      options.zoomOutTooltip = "缩小";
-      //新版必须new  CesiumNavigation ,可以查看作者github
-      window.navigation = new CesiumNavigation(viewer, options)
-      document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
-      document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-      // 设置相机高度和视角
-      viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 20000000),//足够高可以看到整个地球
-        orientation: {
-          // 指向
-          heading: 6.283185307179581,
-          // 视角
-          pitch: -1.5688168484696687,
-          roll: 0.0
-        }
-      });
-
-      let that = this;
-      let canvas = viewer.scene.canvas;
-      // 具体事件的实现
-      let handler = new Cesium.ScreenSpaceEventHandler(canvas);
-
-      console.log("111111");
-      handler.setInputAction((movement) => {
-        // 使用 pickPosition 获取地球表面的位置
-        let cartesian = viewer.scene.pickPosition(movement.position);
-        let ray = viewer.camera.getPickRay(movement.position)
-        let position = viewer.scene.globe.pick(ray, viewer.scene)
-        if (Cesium.defined(cartesian)) {
-          // 将笛卡尔三维坐标转为地图坐标（弧度）
-          let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-          // 将地图坐标（弧度）转为十进制的度数
-          let latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(6);
-          let longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(6);
-          if (that.ifSlopeAnalyze) {
-            let geom = this.cartographicToGeoJSON(cartographic)
-            console.log("geom----", geom)
-            // 获取地形的海拔高度（米）
-            let height = cartographic.height.toFixed(2);
-            if (!this.firstClickPosition) {
-              this.firstClickPosition = {longitude, latitude}
-              console.log("第一个点：", this.firstClickPosition)
-              this.drawSite(position)
-            } else if (!this.secondClickPosition) {
-              this.secondClickPosition = {longitude, latitude}
-              console.log("第二个点：", this.secondClickPosition)
-              this.drawSite(position)
-              // 计算矩形的两个角点并打印
-              this.printRectangleCoordinates(this.firstClickPosition, this.secondClickPosition);
-              // 重置点击位置
-              this.firstClickPosition = null;
-              this.secondClickPosition = null;
-            }
-          }
-
-          // 示例：调用一个自定义方法处理数据
-          that.getPopDesity(longitude, latitude);
-        } else {
-          console.log("未拾取到有效地形点");
-        }
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-
-      // 创建缩略图视图器实例
-      let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
-      window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
-      smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-
-      smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                TianDiTuToken,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
-      smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                TianDiTuToken,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
-
-      // 隐藏缩略图视图器的版权信息
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none';
-
-      // 同步主视图器的相机到缩略图视图器
-      function syncCamera() {
-        const camera1 = viewer.scene.camera;
-        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
-        const camera2 = smallViewer.scene.camera;
-        camera2.setView({
-          destination: smallPoint,
-          orientation: {
-            heading: camera1.heading,
-            pitch: camera1.pitch,
-            roll: camera1.roll
-          }
-        });
-      }
-
-      // 监听主视图器的相机变化
-      viewer.scene.camera.changed.addEventListener(syncCamera);
-
-      // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function () {
-        smallViewer.scene.requestRender(); // 确保缩略图更新
-      });
-      // 初始同步
-      syncCamera();
-      this.initWebSocket()
-      this.initcesiumPlot()
-    },
     initWebSocket() {
       let that = this
       this.websock = initWebSocket(this.eqid)
@@ -1453,30 +1264,28 @@ export default {
           // }
           // // 标绘点
           // else{
-            let markType = JSON.parse(e.data).type
-            let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
-            if (markOperate === "add") {
-              if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
-                let markData = JSON.parse(e.data).data
-                if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-                  //标绘点
-                  that.wsAddMakerFunc(markType, markData)
-                }
-                //播放或播放暂停
-                else {
-                  that.wsaddMakers.push({markType: markType, markData: markData})
-                }
-              }
-            }
-            else if (markOperate === "delete") {
-              let id = JSON.parse(e.data).id.toString()
+          let markType = JSON.parse(e.data).type
+          let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
+          if (markOperate === "add") {
+            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
+              let markData = JSON.parse(e.data).data
               if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-                that.wsDeleteMakerFunc(id,markType)
+                //标绘点
+                that.wsAddMakerFunc(markType, markData)
               }
-              else{
-                that.wsdeleteMakers.push({id: id, markType: markType})
+              //播放或播放暂停
+              else {
+                that.wsaddMakers.push({markType: markType, markData: markData})
               }
             }
+          } else if (markOperate === "delete") {
+            let id = JSON.parse(e.data).id.toString()
+            if (!that.isTimerRunning && that.currentTimePosition >= 100) {
+              that.wsDeleteMakerFunc(id, markType)
+            } else {
+              that.wsdeleteMakers.push({id: id, markType: markType})
+            }
+          }
           // }
 
         } catch (err) {
@@ -1498,14 +1307,11 @@ export default {
       this.currentNodeIndex = this.timelineAdvancesNumber
       if (type === "point") {
         cesiumPlot.drawPoints(data.plot, true, 3000);
-      }
-      else if (type === "polyline") {
+      } else if (type === "polyline") {
         cesiumPlot.getDrawPolyline([data.plot])
-      }
-      else if (type === "polygon") {
+      } else if (type === "polygon") {
         cesiumPlot.getDrawPolygon([data.plot]);
-      }
-      else if (type === "arrow") {
+      } else if (type === "arrow") {
         if (data.plot.plotType === "攻击箭头") {
           arrow.showAttackArrow([data.plot])
         } else if (data.plot.plotType === "钳击箭头") {
@@ -1515,24 +1321,21 @@ export default {
         }
       }
     },
-    wsDeleteMakerFunc(id,markType){
+    wsDeleteMakerFunc(id, markType) {
       this.plotisshow[id] = 0
       if (markType === "point") {
         console.log('1111111111111111111111111111123123')
         cesiumPlot.deletePointById(id);
-      }
-      else if (markType === "polyline") {
+      } else if (markType === "polyline") {
         let polyline = window.viewer.entities.getById(id)
         let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
         polylinePosition.pointPosition.forEach((item, index) => {
           window.viewer.entities.remove(item)
         })
         window.viewer.entities.remove(polyline)
-      }
-      else if (markType === "polygon") {
+      } else if (markType === "polygon") {
         window.viewer.entities.removeById(id)
-      }
-      else if (markType === "arrow") {
+      } else if (markType === "arrow") {
         Arrow.clearById(id)
       }
     },
@@ -1577,8 +1380,7 @@ export default {
         if (this.realTime < this.tmpeqendTime) {
           this.eqendTime = new Date(this.realTime)
           this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-        }
-        else {
+        } else {
           this.eqendTime = this.tmpeqendTime
         }
         this.currentTime = this.eqstartTime
@@ -1640,11 +1442,11 @@ export default {
             })
             this.wsaddMakers = []
           }
-          if(this.wsdeleteMakers.length>0){
+          if (this.wsdeleteMakers.length > 0) {
             this.wsdeleteMakers.forEach((item) => {
               let id = item.id
               let markType = item.markType
-              that.wsDeleteMakerFunc(id,markType)
+              that.wsDeleteMakerFunc(id, markType)
             })
             this.wsdeleteMakers = []
           }
@@ -4765,11 +4567,11 @@ export default {
      */
     toggleComponent(component) {
       // 收起图层要素
-      this.isExpanded = false;
+      // this.isExpanded = false;
       // 清除主题地图预览的显示状态
-      this.isshowThematicMapPreview = null;
+      // this.isshowThematicMapPreview = null;
       // 清除选择的主题地图
-      this.selectthematicMap = null;
+      // this.selectthematicMap = null;
 
       if (component === 'dataStats') {
         // 切换 showSidebarComponents 以显示/隐藏两侧组件
@@ -7463,6 +7265,3 @@ export default {
   padding: 12px;
 }
 </style>
-
-
-

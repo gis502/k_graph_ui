@@ -216,7 +216,7 @@ export default {
   width: 30%;
   top: 8%;
   position: absolute;
-  z-index: 50;
+  z-index: 500;
   color: #FFFFFF;
   font-size: 23px;
   left: 32%;

@@ -63,7 +63,7 @@
         <el-carousel-item>
     <span
         style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: 7px; margin-left: 3%; font-size: 14px; color: #fff;">
-            {{ eqyear }}年各区县经济情况
+                       {{ eqyear }}年各区县经济情况
           </span>
 
           <!-- 折线图 -->
@@ -174,7 +174,6 @@ const economicData = async () => {
     const response = await getDistrictEconomy(currentYear);
     if (response && Array.isArray(response) && response.length > 0) {
       console.log(`年份 ${currentYear} 获取的区县经济数据：`, response);
-
 
       const districtEconomy = response.map(item => item.districtEconomy || '暂无数据');
       const countyDistrict = response.map(item => item.countyDistrict || '未知区县');

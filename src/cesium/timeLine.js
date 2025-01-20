@@ -66,7 +66,8 @@ let timeLine = {
         if (item.plotType == "震中") {
             img = centerstar
             labeltext = item.earthquakeName
-        } else {
+        }
+        else {
             img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
         }
 
@@ -77,8 +78,6 @@ let timeLine = {
             }
             window.viewer.entities.add({
                 availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
-                    // start: Cesium.JulianDate.fromDate(new Date("2022-06-01T15:57:30")),
-                    // stop: Cesium.JulianDate.fromDate(new Date("Sat Jun 11 2022 17:00:08 GMT+0800 (China Standard Time)"))
                     start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
                     stop: Cesium.JulianDate.fromDate(new Date(item.endTime))
                 })]),
