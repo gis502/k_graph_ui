@@ -753,7 +753,7 @@ import {
   isTerrainLoaded,
   transferModel,
   rotationModel,
-} from '../../functionjs/model.js';
+} from '@/cesium/model.js';
 import {initWebSocket} from '@/cesium/WS.js'
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
@@ -6920,10 +6920,6 @@ export default {
   z-index: 99 !important;
 }
 
-/*图层要素选项颜色改为白色*/
-.el-checkbox {
-  color: #FFFFFF;
-}
 
 /* 覆盖 el-tooltip 的宽度 */
 .el-tooltip__popper {
