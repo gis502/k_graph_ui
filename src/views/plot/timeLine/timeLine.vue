@@ -102,10 +102,7 @@ export default {
       //----组件传值---
       //时间轴、缩略图
       viewer: '',
-      //基础信息组件传值-年月日、title
-      eqyear: '',
-      eqmonth: '',
-      eqday: '',
+
       //图例组件传值-面板展开装状态
       activeComponent: null,
       //标绘统计组件传值
@@ -143,9 +140,7 @@ export default {
         this.currentTime = this.centerPoint.startTime
         this.centerPoint.plotType = "震中"
 
-        this.eqyear = this.centerPoint.startTime.getFullYear()
-        this.eqmonth = this.centerPoint.startTime.getMonth() + 1
-        this.eqday = this.centerPoint.startTime.getDate()
+
 
         // console.log(this.currentTime,"this.currentTime thd")
         clock = new Cesium.Clock({

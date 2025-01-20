@@ -1,309 +1,217 @@
 <template>
   <div>
+
+
     <!--    地震列表切换-->
-        <div class="thd-listTable" v-if="activeComponent === 'eqList'">
-          <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-            <damageThemeAssessment
-                :eqid="eqid"
-                :eqqueueId="eqqueueId"
-            >
-            </damageThemeAssessment>
-          </div>
-        </div>
-        <!--  态势标绘  -->
-        <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
-          <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-            <div class="list-dialog__content" style="height: calc(100% - 30);">
-              <timeLineCasualtyStatisticthd
-                  :zoomLevel="zoomLevel"
-                  :pointsLayer="pointsLayer"
-                  :currentTime="currentTime"
-              />
-            </div>
-          </div>
-          <plotSearch
-              :eqid="eqid"
-          ></plotSearch>
-        </div>
-        <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
-          <div class="pop" style="width: 100%; height: 100%; z-index: 900;">
-            <div class="pop_header">
-              <span class="pop_title">图层要素</span>
-            </div>
-            <div class="list-dialog__content" style="height: calc(100% - 40px);">
-
-              <!-- 图层要素可展开 -->
-              <el-collapse>
-                <el-collapse-item>
-                  <template #title>
-                    <div style="display: flex; align-items: center;">
-                      <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                           xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
-                        <path
-                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                            p-id="6182" fill="#ffffff"></path>
-                      </svg>
-                      <span>图层管理</span>
-                    </div>
-                  </template>
-                  <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
-                    <el-checkbox
-                        v-for="item in layeritems"
-                        :key="item.id"
-                        :label="item.name"
-                        style="margin: 0 0;"
-                    >
-                      {{ item.name }}
-                    </el-checkbox>
-                  </el-checkbox-group>
-                </el-collapse-item>
-              </el-collapse>
-
-              <!-- 视角跳转可展开 -->
-              <el-collapse>
-                <el-collapse-item>
-                  <template #title>
-                    <div style="display: flex; align-items: center;">
-                      <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                           xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
-                        <path
-                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                            fill="#ffffff" p-id="2696"></path>
-                      </svg>
-                      <span>视角跳转</span>
-                    </div>
-                  </template>
-                  <!-- 行政区划单选按钮 -->
-                  <div class="district-buttons">
-                    <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
-                      <el-radio label="雅安市">雅安市</el-radio>
-                      <el-radio label="回到震中">回到震中</el-radio>
-                    </el-radio-group>
-                  </div>
-
-                  <!-- 下属区县单选按钮 -->
-                  <div class="district-buttons">
-                    <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
-                      <el-radio
-                          v-for="district in districts"
-                          :key="district.adcode"
-                          :label="district.name"
-                      >
-                        {{ district.name }}
-                      </el-radio>
-                    </el-radio-group>
-                  </div>
-                </el-collapse-item>
-              </el-collapse>
-            </div>
-          </div>
-        </div>
-
-        <!-- 专题图产出 -->
-        <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
-          <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-            <disasterStatistics
-                :eqid="eqid"
-                :currentTime="currentTime"
-                @addJumpNodes="addJumpNodes"
-            />
-          </div>
-        </div>
-
-        <!-- 专题图产出 -->
-        <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
-          <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
-            <div class="pop_header">
-              <span class="pop_title">图件产出</span>
-            </div>
-            <div class="list-dialog__content" style="height: calc(100% - 40px);">
-              <!-- 切换按钮 -->
-              <div class="toggle-buttons">
-                <el-button
-                    :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
-                    @click="activeTab = 'thematicMap'"
-                >
-                  专题图预览
-                </el-button>
-                <el-button
-                    :type="activeTab === 'report' ? 'primary' : 'default'"
-                    @click="activeTab = 'report'"
-                >
-                  报告产出
-                </el-button>
-              </div>
-              <!-- 专题图 -->
-              <div v-if="activeTab === 'thematicMap'" class="section">
-                <div class="grid-container">
-                  <div
-                      v-for="(item, index) in thematicMapitems"
-                      :key="index"
-                      class="grid-item"
-                      @click="showThematicMapDialog(item)"
-                  >
-                    <el-card shadow="hover">
-                      <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
-                      <div class="item-info">
-                        <p class="item-title">{{ item.theme }}</p>
-                      </div>
-                    </el-card>
-                  </div>
-                </div>
-              </div>
-              <!-- 报告 -->
-              <div v-if="activeTab === 'report'" class="section">
-                <div class="grid-container-report">
-                  <div
-                      v-for="(item, index) in reportItems"
-                      :key="index"
-                      class="grid-item"
-                  >
-                    <el-card shadow="hover">
-                      <div class="report-preview">
-                        <p class="report-name">{{ item.theme }}</p>
-                        <div class="report-bottom" @click="downloadReport(item)">
-                          下载报告
-                        </div>
-                      </div>
-                    </el-card>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 专题图预览弹框 -->
-          <thematic-map-preview
-              v-if="ifShowMapPreview"
-              :img-url="imgshowURL"
-              :img-name="imgName"
-              @close="ifShowThematicMapDialog(false)"
+    <div class="thd-listTable" v-if="activeComponent === 'damageThemeAssessment'">
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+        <damageThemeAssessment
+            :eqid="eqid"
+            :eqqueueId="eqqueueId"
+        >
+        </damageThemeAssessment>
+      </div>
+    </div>
+    <!--  态势标绘  -->
+    <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+        <div class="list-dialog__content" style="height: calc(100% - 30);">
+          <timeLineCasualtyStatisticthd
+              :zoomLevel="zoomLevel"
+              :pointsLayer="pointsLayer"
+              :currentTime="currentTime"
           />
         </div>
+      </div>
+      <plotSearch
+          :eqid="eqid"
+      ></plotSearch>
+    </div>
+    <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
+      <div class="pop" style="width: 100%; height: 100%; z-index: 900;">
+        <div class="pop_header">
+          <span class="pop_title">图层要素</span>
+        </div>
+        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+
+          <!-- 图层要素可展开 -->
+          <el-collapse>
+            <el-collapse-item>
+              <template #title>
+                <div style="display: flex; align-items: center;">
+                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                       xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
+                    <path
+                        d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                        p-id="6182" fill="#ffffff"></path>
+                  </svg>
+                  <span>图层管理</span>
+                </div>
+              </template>
+              <el-checkbox-group v-model="selectedlayersLocal" @change="updateMapLayers" class="grid-container">
+                <el-checkbox
+                    v-for="item in layeritems"
+                    :key="item.id"
+                    :label="item.name"
+                    style="margin: 0 0;"
+                >
+                  {{ item.name }}
+                </el-checkbox>
+              </el-checkbox-group>
+            </el-collapse-item>
+          </el-collapse>
+
+          <!-- 视角跳转可展开 -->
+          <el-collapse>
+            <el-collapse-item>
+              <template #title>
+                <div style="display: flex; align-items: center;">
+                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
+                    <path
+                        d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                        fill="#ffffff" p-id="2696"></path>
+                  </svg>
+                  <span>视角跳转</span>
+                </div>
+              </template>
+              <!-- 行政区划单选按钮 -->
+              <div class="district-buttons">
+                <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
+                  <el-radio label="雅安市">雅安市</el-radio>
+                  <el-radio label="回到震中">回到震中</el-radio>
+                </el-radio-group>
+              </div>
+
+              <!-- 下属区县单选按钮 -->
+              <div class="district-buttons">
+                <el-radio-group v-model="selectedDistrict" @change="handleDistrictSelect">
+                  <el-radio
+                      v-for="district in districts"
+                      :key="district.adcode"
+                      :label="district.name"
+                  >
+                    {{ district.name }}
+                  </el-radio>
+                </el-radio-group>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
+      </div>
+    </div>
+
+    <!-- 专题图产出 -->
+    <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+        <disasterStatistics
+            :eqid="eqid"
+            :currentTime="currentTime"
+            @addJumpNodes="addJumpNodes"
+        />
+      </div>
+    </div>
+
+    <!-- 专题图产出 -->
+    <div v-if="activeComponent === 'reportDownload'" class="thd-listTable ">
+      <div class="pop" style="width: 100%;height: 100%; z-index: 900; ">
+        <div class="pop_header">
+          <span class="pop_title">图件产出</span>
+        </div>
+        <div class="list-dialog__content" style="height: calc(100% - 40px);">
+          <!-- 切换按钮 -->
+          <div class="toggle-buttons">
+            <el-button
+                :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
+                @click="activeTab = 'thematicMap'"
+            >
+              专题图预览
+            </el-button>
+            <el-button
+                :type="activeTab === 'report' ? 'primary' : 'default'"
+                @click="activeTab = 'report'"
+            >
+              报告产出
+            </el-button>
+          </div>
+          <!-- 专题图 -->
+          <div v-if="activeTab === 'thematicMap'" class="section">
+            <div class="grid-container">
+              <div
+                  v-for="(item, index) in thematicMapitems"
+                  :key="index"
+                  class="grid-item"
+                  @click="showThematicMapDialog(item)"
+              >
+                <el-card shadow="hover">
+                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
+                  <div class="item-info">
+                    <p class="item-title">{{ item.theme }}</p>
+                  </div>
+                </el-card>
+              </div>
+            </div>
+          </div>
+          <!-- 报告 -->
+          <div v-if="activeTab === 'report'" class="section">
+            <div class="grid-container-report">
+              <div
+                  v-for="(item, index) in reportItems"
+                  :key="index"
+                  class="grid-item"
+              >
+                <el-card shadow="hover">
+                  <div class="report-preview">
+                    <p class="report-name">{{ item.theme }}</p>
+                    <div class="report-bottom" @click="downloadReport(item)">
+                      下载报告
+                    </div>
+                  </div>
+                </el-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 专题图预览弹框 -->
+      <thematic-map-preview
+          v-if="ifShowMapPreview"
+          :img-url="imgshowURL"
+          :img-name="imgName"
+          @close="ifShowThematicMapDialog(false)"
+      />
+    </div>
 
     <!--    &lt;!&ndash;    box包裹地图，截图需要&ndash;&gt;-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
-                <commonPanel
-                    :visible="timelinePopupVisible"
-                    :position="timelinePopupPosition"
-                    :popupData="timelinePopupData"
-                    :ifedit="false"
-                    @wsSendPoint="wsSendPoint"
-                    @closePlotPop="closePlotPop"
-                />
-                <dataSourcePanel
-                    :visible="dataSourcePopupVisible"
-                    :position="dataSourcePopupPosition"
-                    :popupData="dataSourcePopupData"
-                />
+        <commonPanel
+            :visible="timelinePopupVisible"
+            :position="timelinePopupPosition"
+            :popupData="timelinePopupData"
+            :ifedit="false"
+            @wsSendPoint="wsSendPoint"
+            @closePlotPop="closePlotPop"
+        />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="dataSourcePopupPosition"
+            :popupData="dataSourcePopupData"
+        />
       </div>
     </div>
     <!--    &lt;!&ndash; RouterPanel 弹窗 &ndash;&gt;-->
-        <RouterPanel
-            :visible="routerPopupVisible"
-            :position="routerPopupPosition"
-            :popupData="routerPopupData"
-        />
-    <div>
-      <div class="top-header">
-        <div class="system-title">
-          {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
-            this.centerPoint.earthquakeName
-          }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
-        </div>
-      </div>
-      <div class="logo-menu menue-left">
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('dataStats') }"
-            title="灾情总览"
-            @click="toggleComponent('dataStats')"
-        >
-          <p>灾情总览</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('eqList') }"
-            title="灾损预估"
-            @click="toggleComponent('eqList')"
-        >
-          <p>灾损预估</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('model') }"
-            title="标绘统计"
-            @click="toggleComponent('model')"
-        >
-          <p>标绘统计</p>
-        </div>
-      </div>
-      <div class="logo-menu menue-right">
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('layerChoose') }"
-            title="资源调度"
-            @click="toggleComponent('layerChoose')"
-        >
-          <p>资源调度</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
-            title="灾情统计"
-            @click="toggleComponent('thematicMapDownload')"
-        >
-          <p>灾情统计</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('reportDownload') }"
-            title="图件产出"
-            @click="toggleComponent('reportDownload')"
-        >
-          <p>图件产出</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('frontPage') }"
-            title="返回首页"
-            @click="navigateToFrontPage"
-        >
-          <p>返回首页</p>
-        </div>
-      </div>
-      <div class="logo-left-weather">
-        <div class="company-name">雅安市地震应急信息服务技术支撑平台</div>
-        <!-- 以下是实时获取时间的代码 -->
-        <div class="logo-left-time">
-          <div class="logo-time-hour">
-                    <span class="pop-icon">
-                      <svg width="20" height="20" viewBox="0 0 48 48">
-                        <path
-                            d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
-                            fill="none" stroke="#BEE1FF" stroke-width="4"></path>
-                        <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
-                              stroke-linecap="round"></path>
-                      </svg>
-                    </span>
-            <span id="current-time">--:--:--</span>
-          </div>
-          <div class="logo-time-year" id="current-date">----</div>
-        </div>
-
-      </div>
-    </div>
-
-
-    <!--        <commandScreenTitle-->
-    <!--            :eqyear="eqyear"-->
-    <!--            :eqmonth="eqmonth"-->
-    <!--            :eqday="eqday"-->
-    <!--            :centerPoint="centerPoint"-->
-    <!--            @toggle-component="toggleComponent"-->
-    <!--        />-->
+    <RouterPanel
+        :visible="routerPopupVisible"
+        :position="routerPopupPosition"
+        :popupData="routerPopupData"
+    />
+    <commandScreenTitle
+        :centerPoint="centerPoint"
+        @toggle-component="toggleComponent"
+    />
 
     <timeLinePlay
         :viewer="viewer"
@@ -355,91 +263,91 @@
     </div>
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
-        <div id="legend" v-show="isShowYaanRegionLegend"
-             style="position: absolute;
+    <div id="legend" v-show="isShowYaanRegionLegend"
+         style="position: absolute;
                z-index:20; bottom: 100px;
                right: 450px; color: #FFFFFF;
                background-color: rgba(0, 0, 0, 0.5);
                padding: 10px; border-radius: 5px;text-align: center;">
-          <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
-            <div style="display: flex; align-items: center; margin-bottom: 5px;">
-              <div
-                  style="width: 20px; height: 20px; margin-right: 10px;"
-                  :style="{ backgroundColor: colorItem.color.toCssColorString() }">
-              </div>
-              <span>{{ colorItem.name }}</span>
-            </div>
+      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+          <div
+              style="width: 20px; height: 20px; margin-right: 10px;"
+              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
           </div>
+          <span>{{ colorItem.name }}</span>
         </div>
+      </div>
+    </div>
 
-        <!--   断裂带名称div   -->
-        <div id="faultInfo"
-             style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
-        </div>
+    <!--   断裂带名称div   -->
+    <div id="faultInfo"
+         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
+    </div>
 
-        <!--经纬度跳转-->
-        <div
-            style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
-          <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
-            <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
-                 style="width: 31px; height: 31px;">
-          </div>
-          <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
-            <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
-                 style="width: 31px; height: 31px;">
-          </div>
-          <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
-            <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
-                 style="width: 31px; height: 31px;">
-          </div>
-          <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
-            <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
-                 style="width: 31px; height: 31px;">
-          </div>
+    <!--经纬度跳转-->
+    <div
+        style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
+      <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
+        <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
+             style="width: 31px; height: 31px;">
+      </div>
+    </div>
+    <!--   经纬度跳转弹框 -->
+    <div class="universalPanel" v-if="showPositionFlyTo">
+      <div class="panelTop">
+        <h2 class="panelName">经纬度跳转</h2>
+      </div>
+      <div class="panelContent">
+        <div>经度：
+          <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
+          ></el-input>
+          °
         </div>
-        <!--   经纬度跳转弹框 -->
-        <div class="universalPanel" v-if="showPositionFlyTo">
-          <div class="panelTop">
-            <h2 class="panelName">经纬度跳转</h2>
-          </div>
-          <div class="panelContent">
-            <div>经度：
-              <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
-              ></el-input>
-              °
-            </div>
-            <div style="margin-left: 10px">纬度：
-              <el-input v-model="positionFlyTo.lat" class="positionFlyToInput"
-                        @keyup.enter="flyToPosition"></el-input>
-              °
-            </div>
-          </div>
-          <div class="panelButton">
-            <el-button class="panelButtons" @click="clearPositionPanel">取消</el-button>
-            <el-button class="panelButtons" type="primary" @click="flyToPosition">
-              跳转
-            </el-button>
-          </div>
+        <div style="margin-left: 10px">纬度：
+          <el-input v-model="positionFlyTo.lat" class="positionFlyToInput"
+                    @keyup.enter="flyToPosition"></el-input>
+          °
         </div>
+      </div>
+      <div class="panelButton">
+        <el-button class="panelButtons" @click="clearPositionPanel">取消</el-button>
+        <el-button class="panelButtons" type="primary" @click="flyToPosition">
+          跳转
+        </el-button>
+      </div>
+    </div>
 
-        <!--    图层管理弹框-->
-        <div class="universalPanel" v-if="showLayerFeatures">
-          <div class="panelTop">
-            <h2 class="panelName">图层管理</h2>
-          </div>
-          <el-tree
-              default-expand-all="true"
-              ref="tree"
-              node-key="id"
-              :props="props"
-              :load="loadNode"
-              :default-checked-keys="selectedlayersLocal"
-              lazy
-              @check="handleCheckChange"
-          >
-            <template #default="{ node, data }">
-              <!-- 根节点，显示图标和文字 -->
-              <div class="tree-node-content">
+    <!--    图层管理弹框-->
+    <div class="universalPanel" v-if="showLayerFeatures">
+      <div class="panelTop">
+        <h2 class="panelName">图层管理</h2>
+      </div>
+      <el-tree
+          default-expand-all="true"
+          ref="tree"
+          node-key="id"
+          :props="props"
+          :load="loadNode"
+          :default-checked-keys="selectedlayersLocal"
+          lazy
+          @check="handleCheckChange"
+      >
+        <template #default="{ node, data }">
+          <!-- 根节点，显示图标和文字 -->
+          <div class="tree-node-content">
                 <span v-if="data.name === '图层要素'" class="node-icon">
                 <!-- 图层要素的 SVG 图标 -->
                   <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
@@ -450,7 +358,7 @@
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
-                <span v-else-if="data.name === '视角跳转'" class="node-icon">
+            <span v-else-if="data.name === '视角跳转'" class="node-icon">
                 <!-- 视角跳转的 SVG 图标 -->
                   <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
@@ -460,106 +368,106 @@
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
-                <!-- 子节点逻辑保持原有 -->
-                <el-checkbox
-                    v-if="layeritems.some(item => item.name === data.name)"
-                    v-model="selectedlayersLocal"
-                    :label="data.name"
-                    @change="updateMapLayers"
-                >
-                  <span>{{ data.name }}</span>
-                </el-checkbox>
-                <el-radio-group
-                    v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
-                    v-model="selectedDistrict"
-                >
-                  <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
-                    <span>{{ data.name }}</span>
-                  </el-radio>
-                </el-radio-group>
+            <!-- 子节点逻辑保持原有 -->
+            <el-checkbox
+                v-if="layeritems.some(item => item.name === data.name)"
+                v-model="selectedlayersLocal"
+                :label="data.name"
+                @change="updateMapLayers"
+            >
+              <span>{{ data.name }}</span>
+            </el-checkbox>
+            <el-radio-group
+                v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
+                v-model="selectedDistrict"
+            >
+              <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
+                <span>{{ data.name }}</span>
+              </el-radio>
+            </el-radio-group>
+          </div>
+        </template>
+      </el-tree>
+    </div>
+
+    <!--    地震列表切换-->
+    <div class="universalPanel" v-if="showEqListPanel">
+      <!-- 顶部标题栏 -->
+      <div class="panelTop">
+        <h2 class="panelName">地震列表</h2>
+      </div>
+      <!-- 内容区域 -->
+      <div class="panelContent">
+        <div class="thd-Table">
+          <eqlistTable :eqData="eqTable"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- 三维模型弹框 -->
+    <div class="universalPanel" v-if="showModelPanel">
+      <!-- 顶部标题栏 -->
+      <div class="panelTop">
+        <h2 class="panelName">三维模型</h2>
+      </div>
+      <!-- 表格内容 -->
+      <div class="model-dialog__content">
+        <el-table
+            :data="modelTableData"
+            class="custom-table"
+            style="width: 100%; height: 90%;"
+            :header-cell-style="tableHeaderColor"
+            :cell-style="tableColor"
+            :row-style="{ height: '37.5px', fontSize: '13px'}"
+        >
+          <!-- 模型名称列 -->
+          <el-table-column label=" " min-width="20px" show-overflow-tooltip>
+            <template #default="scope">
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%;"
+                   class="arrow-container">
+                <div class="arrow-icon"></div>
               </div>
             </template>
-          </el-tree>
+          </el-table-column>
+          <el-table-column
+              prop="name"
+              label="模型名称"
+              width="auto"
+              min-width="130px"
+              show-overflow-tooltip
+          ></el-table-column>
+          <!-- 操作列 -->
+          <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
+            <template #default="scope">
+              <el-button type="text" :icon="Edit" @click="goModel(scope.row)" class="checkBotton">查看</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页 -->
+        <div>
+          <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="modelCurrentPage"
+              :page-size="modelPageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="ModelTotal"
+              class="custom-pagination"
+          >
+          </el-pagination>
         </div>
+      </div>
+    </div>
 
-        <!--    地震列表切换-->
-        <div class="universalPanel" v-if="showEqListPanel">
-          <!-- 顶部标题栏 -->
-          <div class="panelTop">
-            <h2 class="panelName">地震列表</h2>
-          </div>
-          <!-- 内容区域 -->
-          <div class="panelContent">
-            <div class="thd-Table">
-              <eqlistTable :eqData="eqTable"/>
-            </div>
-          </div>
-        </div>
-
-        <!-- 三维模型弹框 -->
-        <div class="universalPanel" v-if="showModelPanel">
-          <!-- 顶部标题栏 -->
-          <div class="panelTop">
-            <h2 class="panelName">三维模型</h2>
-          </div>
-          <!-- 表格内容 -->
-          <div class="model-dialog__content">
-            <el-table
-                :data="modelTableData"
-                class="custom-table"
-                style="width: 100%; height: 90%;"
-                :header-cell-style="tableHeaderColor"
-                :cell-style="tableColor"
-                :row-style="{ height: '37.5px', fontSize: '13px'}"
-            >
-              <!-- 模型名称列 -->
-              <el-table-column label=" " min-width="20px" show-overflow-tooltip>
-                <template #default="scope">
-                  <div style="display: flex; align-items: center; justify-content: center; height: 100%;"
-                       class="arrow-container">
-                    <div class="arrow-icon"></div>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column
-                  prop="name"
-                  label="模型名称"
-                  width="auto"
-                  min-width="130px"
-                  show-overflow-tooltip
-              ></el-table-column>
-              <!-- 操作列 -->
-              <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
-                <template #default="scope">
-                  <el-button type="text" :icon="Edit" @click="goModel(scope.row)" class="checkBotton">查看</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <!-- 分页 -->
-            <div>
-              <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page="modelCurrentPage"
-                  :page-size="modelPageSize"
-                  layout="total, prev, pager, next, jumper"
-                  :total="ModelTotal"
-                  class="custom-pagination"
-              >
-              </el-pagination>
-            </div>
-          </div>
-        </div>
-
-        <thematicMapPreview
-            @ifShowThematicMapDialog="ifShowThematicMapDialog"
-            :imgshowURL="imgshowURL"
-            :imgurlFromDate="imgurlFromDate"
-            :imgName="imgName"
-            :ifShowMapPreview="ifShowMapPreview"
-            :showTypes="showTypes"
-            style="width: 40%"
-        ></thematicMapPreview>
+    <thematicMapPreview
+        @ifShowThematicMapDialog="ifShowThematicMapDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
+        :showTypes="showTypes"
+        style="width: 40%"
+    ></thematicMapPreview>
 
   </div>
 </template>
@@ -571,7 +479,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 
 //组件
-import timeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
+import commandScreenTitle from "@/components/commandScreenComponent/commandScreenTitle.vue";
 import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
 import timeLineEmergencyResponse from "@/components/timeLineComponent/timeLineEmergencyResponse.vue";
 import timeLinePersonnelCasualties from "@/components/timeLineComponent/timeLinePersonnelCasualties.vue";
@@ -668,6 +576,8 @@ export default {
     timeLineLifeLine,
     timeLinePlotStatistics,
     timeLineMiniMap,
+
+    commandScreenTitle,
     //--未整理---
     damageThemeAssessment,
     disasterStatistics,
@@ -691,10 +601,7 @@ export default {
       currentTime: '',
       centerPoint: {},
       viewer: '',
-      //地震时间年月日
-      eqyear: '',
-      eqmonth: '',
-      eqday: '',
+
       activeComponent: 'dataStats',// 默认为数据统计
       //标绘统计组件传值
       isTimeRunning: true,
@@ -1079,7 +986,6 @@ export default {
   },
   mounted() {
     this.init()
-    this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.initModelTable(); // 初始化模型table数据
 
 
@@ -1102,7 +1008,42 @@ export default {
     }
   },
   methods: {
-
+    /**
+     * 设置组件展开的面板互斥,避免堆叠
+     * 切换组件的显示状态
+     * @param {String} component - 要切换的组件名称
+     */
+    toggleComponent(component) {
+      // 收起图层要素
+      // this.isExpanded = false;
+      // 清除主题地图预览的显示状态
+      // this.isshowThematicMapPreview = null;
+      // 清除选择的主题地图
+      // this.selectthematicMap = null;
+      if(component === 'frontPage'){
+        this.$router.push({
+          name: 'Index'
+        });
+      }
+      if (component === 'dataStats') {
+        // 切换 showSidebarComponents 以显示/隐藏两侧组件
+        this.showSidebarComponents = !this.showSidebarComponents;
+      }
+      else if (component !== 'legend') {
+        // 点击其他按钮时隐藏侧边栏组件，但图例按钮不会触发隐藏
+        this.showSidebarComponents = false;
+      }
+      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
+      this.activeComponent = this.activeComponent === component ? null : component;
+      if (this.activeComponent === 'layerChoose') {
+        this.removethdRegions();
+        const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
+        // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
+        if (hasYaanRegionLayer) {
+          this.addYaanRegion();
+        }
+      }
+    },
     init() {
       let clock;
       getEqListById({id: this.eqid}).then(res => {
@@ -1118,9 +1059,6 @@ export default {
         this.currentTime = this.centerPoint.startTime
         this.centerPoint.plotType = "震中"
 
-        this.eqyear = this.centerPoint.startTime.getFullYear()
-        this.eqmonth = this.centerPoint.startTime.getMonth() + 1
-        this.eqday = this.centerPoint.startTime.getDate()
 
         // console.log(this.currentTime,"this.currentTime thd")
         clock = new Cesium.Clock({
@@ -1236,6 +1174,8 @@ export default {
       console.log(this.plots, "plots updatePlots")
       this.plots = plots
     },
+
+
 
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
@@ -2366,287 +2306,6 @@ export default {
     },
 
 
-    // init() {
-    //     let that = this;
-    //     let viewer = initCesium(Cesium);
-    //     viewer._cesiumWidget._creditContainer.style.display = "none"; // 隐藏版权信息
-    //     window.viewer = viewer;
-    //     let options = {};
-    //     options.defaultResetView = Cesium.Cartographic.fromDegrees(
-    //         103.0,
-    //         29.98,
-    //         1500,
-    //         new Cesium.Cartographic()
-    //     );
-    //     options.enableCompass = true;
-    //     options.enableZoomControls = true;
-    //     options.enableDistanceLegend = true;
-    //     options.enableCompassOuterRing = true;
-    //     options.resetTooltip = "重置视图";
-    //     options.zoomInTooltip = "放大";
-    //     options.zoomOutTooltip = "缩小";
-    //     window.navigation = new CesiumNavigation(viewer, options);
-    //     document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-    //         "请输入地名进行搜索";
-    //     document.getElementsByClassName(
-    //         "cesium-baseLayerPicker-sectionTitle"
-    //     )[0].innerHTML = "影像服务";
-    //     document.getElementsByClassName(
-    //         "cesium-baseLayerPicker-sectionTitle"
-    //     )[1].innerHTML = "地形服务";
-    //
-    //     this.clickCount += 1;
-    //
-    //     const ellipsoid = viewer.scene.globe.ellipsoid;
-    //     const canvas = viewer.scene.canvas;
-    //     const handler = new Cesium.ScreenSpaceEventHandler(canvas);
-    //
-    //     let token = "34d101b55f6166c49c42aed5a7ed345c";
-    //     viewer.imageryLayers.addImageryProvider(
-    //         new Cesium.WebMapTileServiceImageryProvider({
-    //             url:
-    //                 "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-    //                 token,
-    //             layer: "tdtAnnoLayer",
-    //             style: "default",
-    //             format: "image/jpeg",
-    //             tileMatrixSetID: "GoogleMapsCompatible",
-    //         })
-    //     );
-    //     //影像注记
-    //     viewer.imageryLayers.addImageryProvider(
-    //         new Cesium.WebMapTileServiceImageryProvider({
-    //             url:
-    //                 "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-    //                 token,
-    //             layer: "tdtAnnoLayer",
-    //             style: "default",
-    //             format: "image/jpeg",
-    //             tileMatrixSetID: "GoogleMapsCompatible",
-    //             show: false,
-    //         })
-    //     );
-    //
-    //     handler.setInputAction((movement) => {
-    //         const cartesian = viewer.camera.pickEllipsoid(
-    //             movement.position,
-    //             ellipsoid
-    //         );
-    //         if (cartesian) {
-    //             const cartographic = ellipsoid.cartesianToCartographic(cartesian);
-    //             this.addSupplyPointCurrently.lat = Cesium.Math.toDegrees(
-    //                 cartographic.latitude
-    //             ).toFixed(5);
-    //             this.addSupplyPointCurrently.lng = Cesium.Math.toDegrees(
-    //                 cartographic.longitude
-    //             ).toFixed(5);
-    //
-    //             if (this.canMarkPoint) {
-    //                 this.DialogFormVisible = true;
-    //                 this.drawSite(
-    //                     this.addSupplyPointCurrently.lat,
-    //                     this.addSupplyPointCurrently.lng,
-    //                     this.clickCount,
-    //                     Cesium.Color.RED
-    //                 );
-    //                 // console.log("已添加标注点");
-    //                 this.canMarkPoint = false;
-    //             }
-    //         }
-    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    // },
-
-    // initPlot() {
-    //
-    //     getEmergency().then(res => {
-    //         let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
-    //         console.log('获取到的res', res);
-    //
-    //         this.supplyList = disasterReliefSupplies
-    //         this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
-    //         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
-    //
-    //         // 调用 `processPoints` 并传递不同的 `tableName`
-    //         this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-    //         this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-    //         this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
-    //
-    //         // this.fetSupplyPoints();
-    //         this.listField = 'supplies'
-    //         this.selectedSuppliesList = this.suppliesList[0]
-    //         this.showIcon = this.selectedSuppliesList;
-    //         this.total = this.selectedSuppliesList.length;
-    //         this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    //     });
-    // },
-
-    // processPoints(pointArr, type, icon, tableName) {
-    //     if (!Array.isArray(pointArr)) {
-    //         console.error(`${tableName} 数据格式不正确`, pointArr);
-    //         return;
-    //     }
-    //
-    //     pointArr = pointArr.filter(e => e.longitude !== null);
-    //
-    //     pointArr.forEach(element => {
-    //         // 检查是否已存在具有相同ID的实体
-    //         let existingEntity = window.viewer.entities.getById(element.uuid);
-    //         if (existingEntity) {
-    //             console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
-    //             return;
-    //         }
-    //         // 检查经度、纬度和高度是否为有效数值
-    //         if (isNaN(element.longitude) || isNaN(element.latitude)
-    //             || element.longitude < -180 || element.longitude > 180
-    //             || element.latitude < -90 || element.latitude > 90) {
-    //             console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
-    //             return;
-    //         }
-    //         let longitude = Number(element.longitude);
-    //         let latitude = Number(element.latitude);
-    //
-    //         element.type = type;
-    //         element.icon = icon
-    //
-    //         let bool = type === 'supplies' ? true : false
-    //
-    //         // 添加实体
-    //         this.addEntity(element, icon, tableName, longitude, latitude, bool);
-    //     });
-    // },
-
-    // addEntity(element, icon, tableName, longitude, latitude, bool) {
-    //     window.viewer.entities.add({
-    //         uuid: element.uuid,
-    //         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-    //         billboard: {
-    //             image: icon,
-    //             width: 40,
-    //             height: 40,
-    //             eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-    //             color: Cesium.Color.WHITE.withAlpha(1),
-    //             scale: 0.8,
-    //             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 禁用，导致图标在高度计算或与地形交互时出现闪烁。 原作用：绑定到地形高度,让billboard贴地
-    //             depthTest: bool ? true : false, // 让 Cesium 正确处理图标的遮挡关系
-    //             disableDepthTestDistance: Number.POSITIVE_INFINITY
-    //         },
-    //         properties: {
-    //             tableName: tableName, // 动态传入的表名称
-    //             ...element, // 将element对象展开，自动填充所有属性
-    //             longitude: element.longitude,
-    //             latitude: element.latitude
-    //         }
-    //     });
-    // },
-
-    // isTerrainLoaded() {
-    //     let terrainProvider = window.viewer.terrainProvider;
-    //     if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-    //         // console.log("地形未加载")
-    //         return false;
-    //     } else if (Cesium.defined(terrainProvider)) {
-    //         // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
-    //         // 则表示已经设置了其他地形提供者
-    //         // console.log("地形已加载")
-    //         return true;
-    //     }
-    //     // console.log("地形未加载")
-    //     return false;
-    // },
-
-    // entitiesClickPonpHandler() {
-    //     let that = this;
-    //     // 处理点击事件
-    //     window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-    //         // 获取点击位置的实体
-    //         let pickedEntity = window.viewer.scene.pick(click.position);
-    //         window.selectedEntity = pickedEntity?.id;
-    //
-    //         if (Cesium.defined(pickedEntity)) {
-    //             let entity = window.selectedEntity;
-    //
-    //             // 判断实体类型并处理
-    //             if (entity._billboard) {
-    //                 // 获取点击点的经纬度
-    //                 let ray = viewer.camera.getPickRay(click.position);
-    //                 let position = viewer.scene.globe.pick(ray, viewer.scene);
-    //                 let cartographic = Cesium.Cartographic.fromCartesian(position);
-    //                 let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-    //                 let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-    //
-    //                 // 如果有地形加载，更新高度
-    //                 let height = 0;
-    //                 if (this.isTerrainLoaded()) {
-    //                     height = viewer.scene.globe.getHeight(cartographic);
-    //                 }
-    //
-    //                 // 更新弹窗位置
-    //                 that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
-    //
-    //                 // that.popupData = entity.properties;
-    //
-    //                 // 解析 properties 以获取实际的数据
-    //                 let properties = {};
-    //                 entity.properties.propertyNames.forEach(name => {
-    //                     properties[name] = entity.properties[name].getValue();
-    //                 });
-    //                 that.popupData = properties;
-    //                 console.log("entity.properties作为弹窗数据:", that.popupData);
-    //
-    //                 this.popupVisible = true;
-    //                 this.updatePopupPosition();
-    //             } else {
-    //                 this.popupVisible = false;
-    //             }
-    //
-    //             // 处理面实体
-    //             if (entity._polygon) {
-    //                 that.showPolygon = true;
-    //             } else {
-    //                 that.showPolygon = false;
-    //             }
-    //
-    //             // 处理线实体
-    //             if (entity._polyline) {
-    //                 let status = cesiumPlot.drawPolylineStatus();
-    //                 that.showPolyline = (status === 0);
-    //             } else {
-    //                 that.showPolyline = false;
-    //             }
-    //         } else {
-    //             this.popupVisible = false;
-    //         }
-    //
-    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    //
-    //     // 确保在地图拖动时弹窗位置更新
-    //     window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-    //         if (that.popupVisible && window.selectedEntity) {
-    //             that.updatePopupPosition();
-    //         }
-    //     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    // },
-
-    //--------------------弹窗----------------------
-    // 判断是否有高程
-    // 更新弹窗的位置
-    // updatePopupPosition() {
-    //     // 笛卡尔3转笛卡尔2（屏幕坐标）
-    //     const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-    //         window.viewer.scene,
-    //         this.selectedEntityHighDiy
-    //     );
-    //     if (canvasPosition) {
-    //         this.popupPosition = {
-    //             x: canvasPosition.x, //+ 20,
-    //             y: canvasPosition.y, //- 60 // 假设弹窗应该在图标上方 50px 的位置
-    //         };
-    //     }
-    // },
-
-    //-----------附近资源快速匹配----------
-    //-----------行政区划匹配-------------
-
     // 行政区划匹配dialog选中函数
     selectRegions(district) {
       const index = this.selectedRegions.indexOf(district);
@@ -2657,66 +2316,6 @@ export default {
         this.selectedRegions.splice(index, 1); // 取消选中
       }
     },
-
-    // removethdRegions() {
-    //     // 检查是否存在名为regionLayerJump的图层
-    //     if (window.regionLayerJump) {
-    //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-    //         window.viewer.dataSources.remove(window.regionLayerJump, true);
-    //         // 清空regionLayerJump的引用，以便垃圾回收
-    //         window.regionLayerJump = null;
-    //
-    //
-    //         // console.log("图层已移除");
-    //     }
-    //     // this.isShowYaanRegionLegend = false;
-    //     // 获取图例容器，准备清空其内容
-    //     // const legend = document.getElementById('legend');
-    //     // 循环移除图例容器中的所有子元素
-    //     // while (legend.firstChild) {
-    //     //     legend.removeChild(legend.firstChild);
-    //     // }
-    //     // 遍历标签数组，移除每个标签实体
-    //     this.labels.forEach(label => {
-    //         window.viewer.entities.remove(label);
-    //     });
-    //     // 清空标签引用数组，以便垃圾回收
-    //     this.labels = [];
-    // },
-
-    // removethdRegions() {
-    //     // 检查是否存在名为regionLayerJump的图层
-    //     if (window.regionLayerJump) {
-    //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-    //         window.viewer.dataSources.remove(window.regionLayerJump, true);
-    //         // 清空regionLayerJump的引用，以便垃圾回收
-    //         window.regionLayerJump = null;
-    //
-    //
-    //         // console.log("图层已移除");
-    //     }
-    //     // this.isShowYaanRegionLegend = false;
-    //     // 获取图例容器，准备清空其内容
-    //     // const legend = document.getElementById('legend');
-    //     // 循环移除图例容器中的所有子元素
-    //     // while (legend.firstChild) {
-    //     //     legend.removeChild(legend.firstChild);
-    //     // }
-    //     // 遍历标签数组，移除每个标签实体
-    //     this.labels.forEach(label => {
-    //         window.viewer.entities.remove(label);
-    //     });
-    //     // 清空标签引用数组，以便垃圾回收
-    //     this.labels = [];
-    // },
-
-    // removeDataSourcesLayer(layerName) {
-    //     // 通过图层名称获取数据源对象如果存在，则执行移除操作
-    //     const dataSource = window.viewer.dataSources.getByName(layerName)[0];
-    //     if (dataSource) {
-    //         window.viewer.dataSources.remove(dataSource);
-    //     }
-    // },
 
     // 切换数据列表
     changeDataList(param) {
@@ -2737,82 +2336,6 @@ export default {
       this.total = this.selectedSuppliesList.length;
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
     },
-    // changeDataList(param) {
-    //     console.log("11111111111111111")
-    //     this.selectedSuppliesList = []
-    //     let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
-    //     let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
-    //     let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
-    //     let array
-    //
-    //     if(flag1){
-    //         array = 'selectedDataByRegions'
-    //     }else if(flag2){
-    //         array = 'selectedDataByRadius'
-    //     }else if(flag3){
-    //         array = 'selectedDataBySupplies'
-    //     }
-    //     if (param === 'supplies') {
-    //         this.listField = 'supplies'
-    //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-    //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
-    //         // this.selectedSuppliesList = this[array].suppliesArr
-    //     } else if (param === 'emergencyTeam') {
-    //         this.listField = 'emergencyTeam'
-    //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-    //         //   this.selectedSuppliesList = this[array].emergencyTeamArr
-    //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
-    //     } else {
-    //         this.listField = 'reserves'
-    //         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
-    //         //   this.selectedSuppliesList = this[array].reservesArr
-    //         this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
-    //     }
-    //     this.showIcon = this.selectedSuppliesList;
-    //     this.total = this.selectedSuppliesList.length;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    //
-    //     //   console.log("111")
-    //     //   this.selectedSuppliesList = []
-    //     //   let flag = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
-    //     //
-    //     //   console.log("flag:",flag)
-    //     //   if (param === 'supplies') {
-    //     //       this.listField = 'supplies'
-    //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-    //     //   } else if (param === 'emergencyTeam') {
-    //     //       this.listField = 'emergencyTeam'
-    //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-    //     //   } else {
-    //     //       this.listField = 'reserves'
-    //     //       this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
-    //     //   }
-    //     //   console.log("this.listField:",this.listField)
-    //     //   this.showIcon = this.selectedSuppliesList;
-    //     //   this.total = this.selectedSuppliesList.length;
-    //     //   this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // 绘制点
-    // drawSite(lat, lng, id, color) {
-    //     let point = {
-    //         id: id,
-    //         position: Cesium.Cartesian3.fromDegrees(
-    //             parseFloat(lng),
-    //             parseFloat(lat)
-    //         ),
-    //     };
-    //     this.affectedPoints.push(point);
-    //     if (viewer) {
-    //         viewer.entities.add({
-    //             position: point.position,
-    //             point: {
-    //                 pixelSize: 10,
-    //                 color: color,
-    //             },
-    //         });
-    //     }
-    // },
 
     // 点击列表某行显示对应标绘点
     showSupplyPoint(row) {
@@ -3064,62 +2587,7 @@ export default {
       });
       return result
     },
-// async marchSupplyByRadius(array, radius) {
-    //     // 移除现有的点
-    //     this.removePoints(this.suppliesList[0]);
-    //     this.removePoints(this.suppliesList[1]);
-    //     this.removePoints(this.suppliesList[2]);
-    //     let result = []
-    //     let suppliesArr = []
-    //     let reservesArr = []
-    //     let emergencyTeamArr = []
-    //     let longitude = parseFloat(this.addSupplyPointCurrently.lng);
-    //     let latitude = parseFloat(this.addSupplyPointCurrently.lat);
-    //     const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-    //     if(Array.isArray(array[0])){
-    //         array.forEach((arr,index) => {
-    //             arr.forEach((point) => {
-    //                 const pointLongitude = parseFloat(point.longitude);
-    //                 const pointLatitude = parseFloat(point.latitude);
-    //                 const initialPoint = Cesium.Cartesian3.fromDegrees(
-    //                     pointLongitude,
-    //                     pointLatitude
-    //                 );
-    //                 // 距离以公里为单位
-    //                 const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-    //                 if (distance < radius) {
-    //                     if(index === 0){
-    //                         suppliesArr.push(point);
-    //                     }else if(index === 1){
-    //                         reservesArr.push(point);
-    //                     }else{
-    //                         emergencyTeamArr.push(point);
-    //                     }
-    //                 }
-    //             });
-    //         })
-    //         result.push(suppliesArr)
-    //         result.push(reservesArr)
-    //         result.push(emergencyTeamArr)
-    //         // }else if(typeof array === 'string'){
-    //     }else{
-    //         array.forEach((point) => {
-    //             const pointLongitude = parseFloat(point.longitude);
-    //             const pointLatitude = parseFloat(point.latitude);
-    //             const initialPoint = Cesium.Cartesian3.fromDegrees(
-    //                 pointLongitude,
-    //                 pointLatitude
-    //             );
-    //             // 距离以公里为单位
-    //             const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-    //             if (distance < radius) {
-    //                 result.push(point);
-    //             }
-    //         });
-    //     }
-    //     return result
-    // },
-    // 通过目标数量匹配物资
+
     marchSupplyByCount(array) {
       let tents = 0
       let raincoats = 0
@@ -3274,68 +2742,6 @@ export default {
     handleTeamTotalMembersInput() {
       this.searchEmergencyTeamForm.totalMembers = value
     },
-    // ---------------------------------------------------------------------
-
-    // getPageArr(arr) {
-    //     let newArr = [];
-    //     let start = (this.currentPage - 1) * this.pageSize;
-    //     let end = this.currentPage * this.pageSize;
-    //     if (end > this.total) {
-    //         end = this.total;
-    //     }
-    //     for (; start < end; start++) {
-    //         newArr.push(arr[start]);
-    //     }
-    //     return newArr;
-    // },
-
-    // handleSizeChange(val) {
-    //     this.pageSize = val;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // handleCurrentChange(val) {
-    //     this.currentPage = val;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // tableHeaderColor() {
-    //     return {
-    //         "border-width": "1px",
-    //         "border-style": "solid",
-    //         "border-color": "#555555",
-    //         "background-color": "#293038 !important", // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
-    //         color: "#fff",
-    //         padding: "0",
-    //         "text-align": "center",
-    //     };
-    // },
-
-    // 修改table header的背景色
-
-    // tableColor({row, column, rowIndex, columnIndex}) {
-    //     if (rowIndex % 2 == 1) {
-    //         return {
-    //             "border-width": "1px",
-    //             "border-style": "solid",
-    //             "border-color": "#555555",
-    //             "background-color": "#313a44",
-    //             color: "#fff",
-    //             padding: "0",
-    //             "text-align": "center",
-    //         };
-    //     } else {
-    //         return {
-    //             "border-width": "1px",
-    //             "border-style": "solid",
-    //             "border-color": "#555555",
-    //             "background-color": "#304156",
-    //             color: "#fff",
-    //             padding: "0",
-    //             "text-align": "center",
-    //         };
-    //     }
-    // },
 
     //- ---------------------
     /** 以坐标点为中心，简单粗略的创建一个指定半径的圆，半径单位米，pointCount为构建圆的坐标点数（比如24个点，点越多越圆，最少3个点），返回构成圆的坐标点数组 **/
@@ -3745,52 +3151,7 @@ export default {
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     },
-    //绑定点击事件
-    //    bubbleTips(position) {
-    //     if (!viewer) {
-    //         console.error("Viewer is not initialized.");
-    //         return;
-    //     }
-    //     // 文字内容
-    //     var text = "Citizens Bank Park";
-    //     // 添加背景面板
-    //     var backgroundPanel = viewer.entities.add({
-    //         position: position,
-    //         billboard: {
-    //             // 使用 CSS 样式的背景图像或在下面的代码中可以选择不同的背景图
-    //             image: bubbleImg,
-    //             pixelOffset: new Cesium.Cartesian2(0, -80), // 需要根据实际需要调整偏移
-    //             width: 200, // 固定宽度或根据内容计算
-    //             height: 100, // 固定高度或根据内容计算
-    //         },
-    //     });
 
-    //     // 添加标签
-    //     var label = viewer.entities.add({
-    //         position: position,
-    //         label: {
-    //             text: text,
-    //             font: "16pt Arial",
-    //             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-    //             fillColor: Cesium.Color.WHITE,
-    //             outlineColor: Cesium.Color.GRAY,
-    //             outlineWidth: 2,
-    //             verticalOrigin: Cesium.VerticalOrigin.CENTER,
-    //             pixelOffset: new Cesium.Cartesian2(0, -30), // 根据背景面板的高度调整标签的位置
-    //             showBackground: true,
-    //             backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
-    //             backgroundPadding: new Cesium.Cartesian2(10, 6)
-    //         }
-    //     });
-
-    //     // 添加点击事件处理（可选）
-    //     viewer.screenSpaceEventHandler.setInputAction(function (click) {
-    //         var pick = viewer.scene.pick(click.position);
-    //         if (Cesium.defined(pick) && (pick.id === backgroundPanel || pick.id === label)) {
-    //             console.log("Label or background panel clicked");
-    //         }
-    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    // }
 
     initTool(frameDiv) {
       if (this.isInit) {
@@ -3856,38 +3217,6 @@ export default {
     },
 
     // ------------------------------路径规划+物资匹配---------------------------
-
-
-    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
-    // 暂停播放切换
-    // toggleTimer() {
-    //   // 如果计时器未运行，则初始化计时器线
-    //   if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
-    //     this.isTimerRunning = true
-    //     this.initTimerLine();
-    //     let that = this
-    //     setTimeout(() => {
-    //       this.canOperateTimerLine = true
-    //       that.bofang();
-    //     }, 3000);
-    //   } else {
-    //
-    //
-    //     this.canOperateTimerLine = true
-    //     if (!this.isTimerRunning) {
-    //       this.flyToCenter()
-    //       this.isTimerRunning = true
-    //       this.bofang();
-    //     }
-    //     // 如果计时器正在运行，则停止计时器
-    //     else {
-    //       this.stopTimer();
-    //       clearInterval(this.intervalIdcolor)
-    //       this.centerMarkOpacityTo1()
-    //     }
-    //
-    //   }
-    // },
     toggleTimer() {
       if (this.isTimerRunning) {
         this.canOperateTimerLine = true
@@ -4538,67 +3867,8 @@ export default {
       return ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) * checkboxHeight) + ((parseInt(this.layeritems.length / 2) + this.layeritems.length % 2) - 1) * margin;
     },
 
-    /**
-     * 图层要素 切换展开状态
-     *
-     * 此方法用于切换组件的展开和收起状态当用户点击展开按钮时，会触发此方法它通过取反当前的展开状态来改变组件的展开/收起状态
-     *
-     * @returns {void} 无返回值
-     */
-    toggleExpand() {
-      //console.log("Toggle expand clicked");
-      this.isExpanded = !this.isExpanded;
-    },
 
 
-    /**
-     * 跳转首页
-     */
-    navigateToFrontPage() {
-      this.$router.push({
-        name: 'Index'
-      });
-    },
-
-    /**
-     * 设置组件展开的面板互斥,避免堆叠
-     * 切换组件的显示状态
-     * @param {String} component - 要切换的组件名称
-     */
-    toggleComponent(component) {
-      // 收起图层要素
-      // this.isExpanded = false;
-      // 清除主题地图预览的显示状态
-      // this.isshowThematicMapPreview = null;
-      // 清除选择的主题地图
-      // this.selectthematicMap = null;
-
-      if (component === 'dataStats') {
-        // 切换 showSidebarComponents 以显示/隐藏两侧组件
-        this.showSidebarComponents = !this.showSidebarComponents;
-      } else if (component !== 'legend') {
-        // 点击其他按钮时隐藏侧边栏组件，但图例按钮不会触发隐藏
-        this.showSidebarComponents = false;
-      }
-      // 如果点击的是当前活动组件，则关闭它，否则打开新组件
-      this.activeComponent = this.activeComponent === component ? null : component;
-
-      // 如果激活的组件是地震列表，则获取地震数据
-      if (this.activeComponent === 'eqList') {
-
-      }
-      if (this.activeComponent === 'layerChoose') {
-        this.removethdRegions();
-        const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
-        // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
-        if (hasYaanRegionLayer) {
-          this.addYaanRegion();
-        }
-      }
-    },
-    isActive(component) {
-      return this.activeComponent === component; // 检查是否为活动组件
-    },
 
     showThematicMapPreview(item) {
       // item 中包含 name, path
@@ -4631,43 +3901,7 @@ export default {
       document.body.removeChild(link);
     },
 
-    /*
-    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-    * */
-    timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
 
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    },
-    timestampToTimeChinese(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
-    },
 
     /**
      * 处理实体点击事件的弹窗显示逻辑
@@ -5999,29 +5233,6 @@ export default {
     /*获取目前相机所属高度*/
 
 
-    //   菜单栏左上角实时获取时间代码
-    startRealTimeClock(timeElementId, dateElementId) {
-      function updateTime() {
-        const now = new Date();
-        const time = now.toLocaleTimeString('zh-CN', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-        const date = now.toLocaleDateString('zh-CN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          weekday: 'long'
-        });
-        document.getElementById(timeElementId).textContent = time;
-        document.getElementById(dateElementId).textContent = date;
-      }
-
-      updateTime();
-      setInterval(updateTime, 1000);
-    },
 
     // ------------------------------图层要素---------------------------------------------------
     handleCheckChange(data, checked, indeterminate) {
@@ -6116,65 +5327,53 @@ export default {
 </script>
 
 <style scoped>
-.menue-left {
-  left: 9%;
+#box {
+  height: 99vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overflow-y: hidden;
 }
 
-.logo-menu .logo-menu-active {
-  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
+#cesiumContainer {
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.logo-menu-tittle {
-  color: #fff;
-  height: 3.5vh;
-  width: 4.5vw;
-  margin-right: 12px;
-  margin-top: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-image: url(/src/assets/images/CommandScreen/发光框.png);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-@media screen and (max-width: 1490px) {
-  .logo-menu-tittle {
-    width: 92px !important;
-  }
-}
-
-@media screen and (max-width: 1835px) {
-  .logo-menu-tittle {
-    width: 86px !important;
-    font-size: 16px !important;
-  }
-}
-
-.logo-menu {
+.pop_left_background {
+  top: 13%;
+  left: 1%;
+  height: 80.8vh;
+  width: 22%;
   position: absolute;
-  top: 6px;
-  display: flex;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
 }
 
-.menue-right {
-  right: 3%;
-}
-
-.logo-left-weather {
-  color: #fff;
+.pop_right_background {
+  top: 13%;
+  right: 1%;
+  height: 80.8vh;
+  width: 22%;
   position: absolute;
-  top: 5px;
-  left: 9px;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
-.logo-left-time {
+.thd-listTable {
+  width: 26.5%;
+  top: 13%;
+  height: 79%;
+  z-index: 30;
+  right: 0.3%;
   position: absolute;
-  top: 2.3vh;
-  left: 1vw;
-  width: 9vw;
 }
 
+/*··············title end···········································*/
 .logo-right-time {
   position: absolute;
   top: 2.3vh;
@@ -6182,15 +5381,6 @@ export default {
   width: 9vw;
 }
 
-.logo-time-hour {
-  font-size: 17px;
-  font-weight: 500;
-  color: #fff;
-  text-shadow: 0px 2px 6px #123756;
-  background: linear-gradient(0deg, #bee1ff, #fff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 
 .pop-dialog .pop-dialog__content {
   height: 100%;
@@ -6327,51 +5517,6 @@ export default {
   text-decoration: underline;
 }
 
-.pop-icon {
-  margin-right: 10px;
-  margin-left: 6px;
-  vertical-align: middle;
-}
-
-.logo-time-year {
-  font-size: 12px;
-  font-weight: 500;
-  color: #cdcdcd;
-}
-
-
-.top-header {
-  height: 24vh;
-  width: 100%;
-  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
-  background-size: 100% 100%;
-  top: 0%;
-  position: absolute;
-}
-
-.company-name {
-  position: absolute;
-  width: 17vw;
-  top: 24%;
-  font-weight: 700;
-  font-size: .8rem;
-  color: #51d1ff;
-  line-height: 22px;
-  letter-spacing: 2px;
-  text-shadow: 0px 0px 20px #51f9ff;
-}
-
-.system-title {
-  font-size: 1.9rem;
-  font-family: math;
-  color: #fff;
-  letter-spacing: 5px;
-  text-align: center;
-  position: relative;
-  margin-top: 5px;
-  font-weight: 900;
-}
-
 .bottom-footer {
   width: 100%;
   position: absolute;
@@ -6380,44 +5525,6 @@ export default {
   left: 0;
   height: 12vh;
   background: url(/src/assets/images/CommandScreen/导航栏底部.png) 47% 116% no-repeat;
-}
-
-.pop_left_background {
-  top: 13%;
-  left: 1%;
-  height: 80.8vh;
-  width: 22%;
-  position: absolute;
-  background: rgb(4, 20, 34);
-  background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
-}
-
-:deep(.pop_right_background) {
-  top: 13%;
-  right: 1%;
-  height: 80.8vh;
-  width: 22%;
-  position: absolute;
-  background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
-  z-index: 100;
-}
-
-#box {
-  height: 99vh;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  overflow-y: hidden;
-}
-
-#cesiumContainer {
-  height: 100vh;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
 }
 
 .current-time-info {
@@ -6627,14 +5734,6 @@ export default {
   left: 20%;
 }
 
-.thd-listTable {
-  width: 26.5%;
-  top: 13%;
-  height: 79%;
-  z-index: 30;
-  right: 0.3%;
-  position: absolute;
-}
 
 :deep(.thd-Table ) {
   top: 8%;
@@ -7263,5 +6362,120 @@ export default {
   color: white;
   font-size: 15px;
   padding: 12px;
+}
+
+
+.top-header {
+  height: 24vh;
+  width: 100%;
+  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
+  background-size: 100% 100%;
+  top: 0%;
+  position: absolute;
+}
+
+.system-title {
+  font-size: 1.9rem;
+  font-family: math;
+  color: #fff;
+  letter-spacing: 5px;
+  text-align: center;
+  position: relative;
+  margin-top: 5px;
+  font-weight: 900;
+}
+
+.logo-menu {
+  position: absolute;
+  top: 6px;
+  display: flex;
+}
+
+.menue-left {
+  left: 9%;
+}
+
+.menue-right {
+  right: 3%;
+}
+
+.logo-menu-tittle {
+  color: #fff;
+  height: 3.5vh;
+  width: 4.5vw;
+  margin-right: 12px;
+  margin-top: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(/src/assets/images/CommandScreen/发光框.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.logo-menu .logo-menu-active {
+  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
+}
+
+@media screen and (max-width: 1490px) {
+  .logo-menu-tittle {
+    width: 92px !important;
+  }
+}
+
+@media screen and (max-width: 1835px) {
+  .logo-menu-tittle {
+    width: 86px !important;
+    font-size: 16px !important;
+  }
+}
+
+.logo-left-weather {
+  background-color: #1ab394;
+  color: #fff;
+  position: absolute;
+  top: 5px;
+  left: 9px;
+}
+
+.company-name {
+  position: absolute;
+  width: 17vw;
+  top: 24%;
+  font-weight: 700;
+  font-size: .8rem;
+  color: #51d1ff;
+  line-height: 22px;
+  letter-spacing: 2px;
+  text-shadow: 0px 0px 20px #51f9ff;
+}
+
+.logo-left-time {
+  position: absolute;
+  top: 2.3vh;
+  left: 1vw;
+  width: 9vw;
+}
+
+.logo-time-hour {
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0px 2px 6px #123756;
+  background: linear-gradient(0deg, #bee1ff, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pop-icon {
+  margin-right: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.logo-time-year {
+  font-size: 12px;
+  font-weight: 500;
+  color: #cdcdcd;
 }
 </style>

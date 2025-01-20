@@ -207,22 +207,27 @@ export default {
         // 可能时因为开启深度监听的原因（deep: true）。
         // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
-          // console.log("1123",this.popupPanelData)
-          if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
-            this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
-          } else if (this.popupPanelData.drawtype === 'point') {
-            this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
-          } else if (this.popupPanelData.drawtype === 'center') {
-            this.getEqInfo(this.popupPanelData)
-          } else {
-            if (this.popupPanelData[0].drawtype === 'polyline') {
-              // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
-            } else {
-              // console.log(this.popupPanelData[0], 987)
-              this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
+          if(this.popupPanelData.plotType==='震中'){this.getEqInfo(this.popupPanelData)}
+          else{
+            // console.log("1123",this.popupPanelData)
+            if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
+              this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
+            } else if (this.popupPanelData.drawtype === 'point' ) {
+              this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
+            } else if (this.popupPanelData.drawtype === 'center') {
+
+            }
+            else {
+              if (this.popupPanelData[0].drawtype === 'polyline') {
+                // console.log(this.popupPanelData[0], 987)
+                this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
+              } else {
+                // console.log(this.popupPanelData[0], 987)
+                this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
+              }
             }
           }
+
         }
       }
     },
