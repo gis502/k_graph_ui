@@ -5820,7 +5820,7 @@ export default {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapServiceImageryProvider({
-              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
+              url: baseURL + '/localgeoserver/yaan/wms', // WMS服务的URL
               layers: 'yaan:pop', // 需要请求的图层名称
               parameters: {
                 service: 'WMS', // 指定服务类型为WMS
@@ -5994,7 +5994,7 @@ export default {
     getPopDesity(longitude, latitude) {
       let baseURL = import.meta.env.VITE_APP_API_URL
       // WMS服务的URL
-      const url = baseURL + '/geoserver/yaan/wms'
+      const url = baseURL + '/localgeoserver/yaan/wms'
       // 查询区域的边界框大小，用于确定查询区域的范围
       const bboxSize = 0.001
       // 构建URL查询参数

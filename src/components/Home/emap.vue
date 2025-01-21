@@ -202,6 +202,7 @@ export default {
         // 故以此将其删去
         time: item.occurrenceTime.replace("T", " "),  //时间
         depth: item.depth,  //深度
+        eqType: item.eqType,  //地震类型
       }));
 
       //将历史地震数据 historyEqData 转换为合适的格式。
@@ -212,6 +213,7 @@ export default {
         latitude: item.latitude,
         time: item.occurrenceTime.replace("T", " "),
         depth: item.depth,
+        eqType: item.eqType,  //地震类型
       }));
       // 根据震级分类
       dataGroups.value.latestSlight = latestData.filter(item => item.magnitude < 4.5);

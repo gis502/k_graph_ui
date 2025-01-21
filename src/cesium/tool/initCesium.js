@@ -232,7 +232,7 @@ export function getTerrainProviderViewModelsArr() {
             //一个函数或命令，用于创建一个或多个提供程序，这些提供程序将在选择此项目时添加到地球仪中
             creationFunction: function () {
                 return new Cesium.CesiumTerrainProvider({
-                    url: baseURL + '/geoserver/www/dem',
+                    url: baseURL + '/localgeoserver/www/dem',
                     requestWaterMask: !0,
                     requestVertexNormals: !0,
                     // isSct : false //是否为iServer发布的TIN地形服务,stk地形设置为false。

@@ -37,6 +37,7 @@
           </div>
         </div>
 
+
         <div class="right">
           <div class="right-body">
             <div class="right-top public-bg" ref="rightTop">
@@ -50,31 +51,41 @@
 
                 <!-- 输入框和按钮 -->
                 <div
-                    style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; gap: 5px; z-index: 1;"
+                    style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; z-index: 1;"
                 >
                   <el-input
                       size="small"
-                      style="width: 7vw; font-size: 16px;"
+                      style="width: 5vw; font-size: 16px;margin-right: 5px;margin-left: 5px"
                       v-model="requestParams"
                       @keyup.enter="query()"
                   ></el-input>
                   <el-button
                       size="small"
-                      style="font-size: 16px;"
+                      style="font-size: 14px;"
                       @click="query()"
                   >查询</el-button>
                   <el-button
                       size="small"
-                      style="font-size: 16px;"
+                      style="font-size: 14px;"
                       @click="openQueryFrom()"
                   >筛选</el-button>
+
+                  <!-- 正式和测试按钮，固定不切换 -->
                   <el-button
                       size="small"
-                      :type="activeMode === 'Z' ? 'primary' : 'default'"
-                      style="font-size: 16px;"
-                      @click="toggleMode"
+                      :type="activeMode === 'Z' ? 'danger' : 'default'"
+                      style="font-size: 14px;"
+                      @click="activeMode = 'Z'"
                   >
-                    {{ activeMode === 'Z' ? '正式' : '测试' }}
+                    真实
+                  </el-button>
+                  <el-button
+                      size="small"
+                      :type="activeMode === 'Y' || activeMode === 'T' ? 'primary' : 'default'"
+                      style="font-size: 14px;"
+                      @click="activeMode = 'Y'"
+                  >
+                  测试
                   </el-button>
                 </div>
               </div>
@@ -157,10 +168,17 @@ const toggleMode = () => {
   activeMode.value = activeMode.value === 'Z' ? 'T' : 'Z';
 };
 
+
 // 根据模式过滤表格数据
-const CeShiTableData = computed(() =>
-    tableData.value.filter((item) => item.eqType === activeMode.value)
-);
+const CeShiTableData = computed(() => {
+  if (activeMode.value === 'Z') {
+    return tableData.value.filter(item => item.eqType === 'Z');
+  } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
+    return tableData.value.filter(item => item.eqType === 'Y' || item.eqType === 'T');
+  }
+  return tableData.value;  // 如果没有选择模式，默认返回所有数据
+});
+
 
 const queryFormVisible = ref(false);
 
@@ -316,7 +334,7 @@ const fillZero = (str) => {
 const getEq = () => {
   getEqList().then((res) => {
     console.log("地震数据",res.data)
-    EqAll.value = res.data.filter;
+    EqAll.value = res.data;
     tableData.value =res.data;
     // 之后要换回来     lastEqData.value = res[0];
     lastEqData.value = res.data[0];
@@ -455,7 +473,7 @@ onMounted(() => {
 
 .left-body .left-top {
   width: 100%;
-  height: 26%;
+  height: 30%;
   overflow: hidden;
 }
 
