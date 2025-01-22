@@ -206,104 +206,15 @@
         :position="routerPopupPosition"
         :popupData="routerPopupData"
     />
-    <div>
-      <div class="top-header">
-        <div class="system-title">
-          {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
-            this.centerPoint.earthquakeName
-          }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
-        </div>
-      </div>
-      <div class="logo-menu menue-left">
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('dataStats') }"
-            title="灾情总览"
-            @click="toggleComponent('dataStats')"
-        >
-          <p>灾情总览</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('eqList') }"
-            title="灾损预估"
-            @click="toggleComponent('eqList')"
-        >
-          <p>灾损预估</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('model') }"
-            title="标绘统计"
-            @click="toggleComponent('model')"
-        >
-          <p>标绘统计</p>
-        </div>
-      </div>
-      <div class="logo-menu menue-right">
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('layerChoose') }"
-            title="资源调度"
-            @click="toggleComponent('layerChoose')"
-        >
-          <p>资源调度</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('thematicMapDownload') }"
-            title="灾情统计"
-            @click="toggleComponent('thematicMapDownload')"
-        >
-          <p>灾情统计</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('reportDownload') }"
-            title="图件产出"
-            @click="toggleComponent('reportDownload')"
-        >
-          <p>图件产出</p>
-        </div>
-        <div
-            class="logo-menu-tittle"
-            :class="{ 'logo-menu-active': isActive('frontPage') }"
-            title="返回首页"
-            @click="navigateToFrontPage"
-        >
-          <p>返回首页</p>
-        </div>
-      </div>
-      <div class="logo-left-weather">
-        <div class="company-name">雅安市地震应急信息服务技术支撑平台</div>
-        <!-- 以下是实时获取时间的代码 -->
-        <div class="logo-left-time">
-          <div class="logo-time-hour">
-                    <span class="pop-icon">
-                      <svg width="20" height="20" viewBox="0 0 48 48">
-                        <path
-                            d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"
-                            fill="none" stroke="#BEE1FF" stroke-width="4"></path>
-                        <path d="M24.0084 12.0001L24.0072 24.0089L32.4866 32.4883" stroke="#BEE1FF" stroke-width="4"
-                              stroke-linecap="round"></path>
-                      </svg>
-                    </span>
-            <span id="current-time">--:--:--</span>
-          </div>
-          <div class="logo-time-year" id="current-date">----</div>
-        </div>
-
-      </div>
-    </div>
 
 
-    <!--        <commandScreenTitle-->
-    <!--            :eqyear="eqyear"-->
-    <!--            :eqmonth="eqmonth"-->
-    <!--            :eqday="eqday"-->
-    <!--            :centerPoint="centerPoint"-->
-    <!--            @toggle-component="toggleComponent"-->
-    <!--        />-->
+    <commandScreenTitle
+        :eqyear="eqyear"
+        :eqmonth="eqmonth"
+        :eqday="eqday"
+        :centerPoint="centerPoint"
+        @toggle-component="toggleComponent"
+    />
 
     <timeLinePlay
         :viewer="viewer"
@@ -313,7 +224,7 @@
         @updatePlots="updatePlots"
     />
 
-    <!--    两侧组件-->
+    <!--   灾情总览-->
     <div v-show="showSidebarComponents">
       <div class="pop_left_background">
         <timeLineEmergencyResponse
@@ -353,6 +264,7 @@
         />
       </div>
     </div>
+
     <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
     <div id="legend" v-show="isShowYaanRegionLegend"
@@ -1079,17 +991,11 @@ export default {
   },
   mounted() {
     this.init()
-    this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.initModelTable(); // 初始化模型table数据
-
-
     this.getEq()
-
     this.initPlot(); // 初始化加载应急数据
     // // ---------------------------------------------------
     this.outputData()
-
-
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -1102,7 +1008,7 @@ export default {
     }
   },
   methods: {
-
+    //地图
     init() {
       let clock;
       getEqListById({id: this.eqid}).then(res => {
@@ -1232,11 +1138,13 @@ export default {
       });
       timeLine.addMakerPoint(this.centerPoint, "震中")
     },
+    //时间轴组件传值
     updatePlots(plots) {
       console.log(this.plots, "plots updatePlots")
       this.plots = plots
     },
 
+    //未重构
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         this.thematicMapitems = res.themeData
@@ -2365,285 +2273,6 @@ export default {
       this.routeValue = this.showTips ? "隐藏路径规划" : "显示路径规划";
     },
 
-
-    // init() {
-    //     let that = this;
-    //     let viewer = initCesium(Cesium);
-    //     viewer._cesiumWidget._creditContainer.style.display = "none"; // 隐藏版权信息
-    //     window.viewer = viewer;
-    //     let options = {};
-    //     options.defaultResetView = Cesium.Cartographic.fromDegrees(
-    //         103.0,
-    //         29.98,
-    //         1500,
-    //         new Cesium.Cartographic()
-    //     );
-    //     options.enableCompass = true;
-    //     options.enableZoomControls = true;
-    //     options.enableDistanceLegend = true;
-    //     options.enableCompassOuterRing = true;
-    //     options.resetTooltip = "重置视图";
-    //     options.zoomInTooltip = "放大";
-    //     options.zoomOutTooltip = "缩小";
-    //     window.navigation = new CesiumNavigation(viewer, options);
-    //     document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-    //         "请输入地名进行搜索";
-    //     document.getElementsByClassName(
-    //         "cesium-baseLayerPicker-sectionTitle"
-    //     )[0].innerHTML = "影像服务";
-    //     document.getElementsByClassName(
-    //         "cesium-baseLayerPicker-sectionTitle"
-    //     )[1].innerHTML = "地形服务";
-    //
-    //     this.clickCount += 1;
-    //
-    //     const ellipsoid = viewer.scene.globe.ellipsoid;
-    //     const canvas = viewer.scene.canvas;
-    //     const handler = new Cesium.ScreenSpaceEventHandler(canvas);
-    //
-    //     let token = "34d101b55f6166c49c42aed5a7ed345c";
-    //     viewer.imageryLayers.addImageryProvider(
-    //         new Cesium.WebMapTileServiceImageryProvider({
-    //             url:
-    //                 "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-    //                 token,
-    //             layer: "tdtAnnoLayer",
-    //             style: "default",
-    //             format: "image/jpeg",
-    //             tileMatrixSetID: "GoogleMapsCompatible",
-    //         })
-    //     );
-    //     //影像注记
-    //     viewer.imageryLayers.addImageryProvider(
-    //         new Cesium.WebMapTileServiceImageryProvider({
-    //             url:
-    //                 "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-    //                 token,
-    //             layer: "tdtAnnoLayer",
-    //             style: "default",
-    //             format: "image/jpeg",
-    //             tileMatrixSetID: "GoogleMapsCompatible",
-    //             show: false,
-    //         })
-    //     );
-    //
-    //     handler.setInputAction((movement) => {
-    //         const cartesian = viewer.camera.pickEllipsoid(
-    //             movement.position,
-    //             ellipsoid
-    //         );
-    //         if (cartesian) {
-    //             const cartographic = ellipsoid.cartesianToCartographic(cartesian);
-    //             this.addSupplyPointCurrently.lat = Cesium.Math.toDegrees(
-    //                 cartographic.latitude
-    //             ).toFixed(5);
-    //             this.addSupplyPointCurrently.lng = Cesium.Math.toDegrees(
-    //                 cartographic.longitude
-    //             ).toFixed(5);
-    //
-    //             if (this.canMarkPoint) {
-    //                 this.DialogFormVisible = true;
-    //                 this.drawSite(
-    //                     this.addSupplyPointCurrently.lat,
-    //                     this.addSupplyPointCurrently.lng,
-    //                     this.clickCount,
-    //                     Cesium.Color.RED
-    //                 );
-    //                 // console.log("已添加标注点");
-    //                 this.canMarkPoint = false;
-    //             }
-    //         }
-    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    // },
-
-    // initPlot() {
-    //
-    //     getEmergency().then(res => {
-    //         let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
-    //         console.log('获取到的res', res);
-    //
-    //         this.supplyList = disasterReliefSupplies
-    //         this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
-    //         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
-    //
-    //         // 调用 `processPoints` 并传递不同的 `tableName`
-    //         this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-    //         this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-    //         this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
-    //
-    //         // this.fetSupplyPoints();
-    //         this.listField = 'supplies'
-    //         this.selectedSuppliesList = this.suppliesList[0]
-    //         this.showIcon = this.selectedSuppliesList;
-    //         this.total = this.selectedSuppliesList.length;
-    //         this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    //     });
-    // },
-
-    // processPoints(pointArr, type, icon, tableName) {
-    //     if (!Array.isArray(pointArr)) {
-    //         console.error(`${tableName} 数据格式不正确`, pointArr);
-    //         return;
-    //     }
-    //
-    //     pointArr = pointArr.filter(e => e.longitude !== null);
-    //
-    //     pointArr.forEach(element => {
-    //         // 检查是否已存在具有相同ID的实体
-    //         let existingEntity = window.viewer.entities.getById(element.uuid);
-    //         if (existingEntity) {
-    //             console.warn(`id为${element.uuid}的实体已存在。跳过此实体`);
-    //             return;
-    //         }
-    //         // 检查经度、纬度和高度是否为有效数值
-    //         if (isNaN(element.longitude) || isNaN(element.latitude)
-    //             || element.longitude < -180 || element.longitude > 180
-    //             || element.latitude < -90 || element.latitude > 90) {
-    //             console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
-    //             return;
-    //         }
-    //         let longitude = Number(element.longitude);
-    //         let latitude = Number(element.latitude);
-    //
-    //         element.type = type;
-    //         element.icon = icon
-    //
-    //         let bool = type === 'supplies' ? true : false
-    //
-    //         // 添加实体
-    //         this.addEntity(element, icon, tableName, longitude, latitude, bool);
-    //     });
-    // },
-
-    // addEntity(element, icon, tableName, longitude, latitude, bool) {
-    //     window.viewer.entities.add({
-    //         uuid: element.uuid,
-    //         position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
-    //         billboard: {
-    //             image: icon,
-    //             width: 40,
-    //             height: 40,
-    //             eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-    //             color: Cesium.Color.WHITE.withAlpha(1),
-    //             scale: 0.8,
-    //             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 禁用，导致图标在高度计算或与地形交互时出现闪烁。 原作用：绑定到地形高度,让billboard贴地
-    //             depthTest: bool ? true : false, // 让 Cesium 正确处理图标的遮挡关系
-    //             disableDepthTestDistance: Number.POSITIVE_INFINITY
-    //         },
-    //         properties: {
-    //             tableName: tableName, // 动态传入的表名称
-    //             ...element, // 将element对象展开，自动填充所有属性
-    //             longitude: element.longitude,
-    //             latitude: element.latitude
-    //         }
-    //     });
-    // },
-
-    // isTerrainLoaded() {
-    //     let terrainProvider = window.viewer.terrainProvider;
-    //     if (terrainProvider instanceof Cesium.EllipsoidTerrainProvider) {
-    //         // console.log("地形未加载")
-    //         return false;
-    //     } else if (Cesium.defined(terrainProvider)) {
-    //         // 如果terrainProvider已定义，但不是EllipsoidTerrainProvider，
-    //         // 则表示已经设置了其他地形提供者
-    //         // console.log("地形已加载")
-    //         return true;
-    //     }
-    //     // console.log("地形未加载")
-    //     return false;
-    // },
-
-    // entitiesClickPonpHandler() {
-    //     let that = this;
-    //     // 处理点击事件
-    //     window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-    //         // 获取点击位置的实体
-    //         let pickedEntity = window.viewer.scene.pick(click.position);
-    //         window.selectedEntity = pickedEntity?.id;
-    //
-    //         if (Cesium.defined(pickedEntity)) {
-    //             let entity = window.selectedEntity;
-    //
-    //             // 判断实体类型并处理
-    //             if (entity._billboard) {
-    //                 // 获取点击点的经纬度
-    //                 let ray = viewer.camera.getPickRay(click.position);
-    //                 let position = viewer.scene.globe.pick(ray, viewer.scene);
-    //                 let cartographic = Cesium.Cartographic.fromCartesian(position);
-    //                 let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-    //                 let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-    //
-    //                 // 如果有地形加载，更新高度
-    //                 let height = 0;
-    //                 if (this.isTerrainLoaded()) {
-    //                     height = viewer.scene.globe.getHeight(cartographic);
-    //                 }
-    //
-    //                 // 更新弹窗位置
-    //                 that.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
-    //
-    //                 // that.popupData = entity.properties;
-    //
-    //                 // 解析 properties 以获取实际的数据
-    //                 let properties = {};
-    //                 entity.properties.propertyNames.forEach(name => {
-    //                     properties[name] = entity.properties[name].getValue();
-    //                 });
-    //                 that.popupData = properties;
-    //                 console.log("entity.properties作为弹窗数据:", that.popupData);
-    //
-    //                 this.popupVisible = true;
-    //                 this.updatePopupPosition();
-    //             } else {
-    //                 this.popupVisible = false;
-    //             }
-    //
-    //             // 处理面实体
-    //             if (entity._polygon) {
-    //                 that.showPolygon = true;
-    //             } else {
-    //                 that.showPolygon = false;
-    //             }
-    //
-    //             // 处理线实体
-    //             if (entity._polyline) {
-    //                 let status = cesiumPlot.drawPolylineStatus();
-    //                 that.showPolyline = (status === 0);
-    //             } else {
-    //                 that.showPolyline = false;
-    //             }
-    //         } else {
-    //             this.popupVisible = false;
-    //         }
-    //
-    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    //
-    //     // 确保在地图拖动时弹窗位置更新
-    //     window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-    //         if (that.popupVisible && window.selectedEntity) {
-    //             that.updatePopupPosition();
-    //         }
-    //     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    // },
-
-    //--------------------弹窗----------------------
-    // 判断是否有高程
-    // 更新弹窗的位置
-    // updatePopupPosition() {
-    //     // 笛卡尔3转笛卡尔2（屏幕坐标）
-    //     const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-    //         window.viewer.scene,
-    //         this.selectedEntityHighDiy
-    //     );
-    //     if (canvasPosition) {
-    //         this.popupPosition = {
-    //             x: canvasPosition.x, //+ 20,
-    //             y: canvasPosition.y, //- 60 // 假设弹窗应该在图标上方 50px 的位置
-    //         };
-    //     }
-    // },
-
     //-----------附近资源快速匹配----------
     //-----------行政区划匹配-------------
 
@@ -2658,65 +2287,6 @@ export default {
       }
     },
 
-    // removethdRegions() {
-    //     // 检查是否存在名为regionLayerJump的图层
-    //     if (window.regionLayerJump) {
-    //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-    //         window.viewer.dataSources.remove(window.regionLayerJump, true);
-    //         // 清空regionLayerJump的引用，以便垃圾回收
-    //         window.regionLayerJump = null;
-    //
-    //
-    //         // console.log("图层已移除");
-    //     }
-    //     // this.isShowYaanRegionLegend = false;
-    //     // 获取图例容器，准备清空其内容
-    //     // const legend = document.getElementById('legend');
-    //     // 循环移除图例容器中的所有子元素
-    //     // while (legend.firstChild) {
-    //     //     legend.removeChild(legend.firstChild);
-    //     // }
-    //     // 遍历标签数组，移除每个标签实体
-    //     this.labels.forEach(label => {
-    //         window.viewer.entities.remove(label);
-    //     });
-    //     // 清空标签引用数组，以便垃圾回收
-    //     this.labels = [];
-    // },
-
-    // removethdRegions() {
-    //     // 检查是否存在名为regionLayerJump的图层
-    //     if (window.regionLayerJump) {
-    //         // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-    //         window.viewer.dataSources.remove(window.regionLayerJump, true);
-    //         // 清空regionLayerJump的引用，以便垃圾回收
-    //         window.regionLayerJump = null;
-    //
-    //
-    //         // console.log("图层已移除");
-    //     }
-    //     // this.isShowYaanRegionLegend = false;
-    //     // 获取图例容器，准备清空其内容
-    //     // const legend = document.getElementById('legend');
-    //     // 循环移除图例容器中的所有子元素
-    //     // while (legend.firstChild) {
-    //     //     legend.removeChild(legend.firstChild);
-    //     // }
-    //     // 遍历标签数组，移除每个标签实体
-    //     this.labels.forEach(label => {
-    //         window.viewer.entities.remove(label);
-    //     });
-    //     // 清空标签引用数组，以便垃圾回收
-    //     this.labels = [];
-    // },
-
-    // removeDataSourcesLayer(layerName) {
-    //     // 通过图层名称获取数据源对象如果存在，则执行移除操作
-    //     const dataSource = window.viewer.dataSources.getByName(layerName)[0];
-    //     if (dataSource) {
-    //         window.viewer.dataSources.remove(dataSource);
-    //     }
-    // },
 
     // 切换数据列表
     changeDataList(param) {
@@ -3064,62 +2634,7 @@ export default {
       });
       return result
     },
-// async marchSupplyByRadius(array, radius) {
-    //     // 移除现有的点
-    //     this.removePoints(this.suppliesList[0]);
-    //     this.removePoints(this.suppliesList[1]);
-    //     this.removePoints(this.suppliesList[2]);
-    //     let result = []
-    //     let suppliesArr = []
-    //     let reservesArr = []
-    //     let emergencyTeamArr = []
-    //     let longitude = parseFloat(this.addSupplyPointCurrently.lng);
-    //     let latitude = parseFloat(this.addSupplyPointCurrently.lat);
-    //     const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-    //     if(Array.isArray(array[0])){
-    //         array.forEach((arr,index) => {
-    //             arr.forEach((point) => {
-    //                 const pointLongitude = parseFloat(point.longitude);
-    //                 const pointLatitude = parseFloat(point.latitude);
-    //                 const initialPoint = Cesium.Cartesian3.fromDegrees(
-    //                     pointLongitude,
-    //                     pointLatitude
-    //                 );
-    //                 // 距离以公里为单位
-    //                 const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-    //                 if (distance < radius) {
-    //                     if(index === 0){
-    //                         suppliesArr.push(point);
-    //                     }else if(index === 1){
-    //                         reservesArr.push(point);
-    //                     }else{
-    //                         emergencyTeamArr.push(point);
-    //                     }
-    //                 }
-    //             });
-    //         })
-    //         result.push(suppliesArr)
-    //         result.push(reservesArr)
-    //         result.push(emergencyTeamArr)
-    //         // }else if(typeof array === 'string'){
-    //     }else{
-    //         array.forEach((point) => {
-    //             const pointLongitude = parseFloat(point.longitude);
-    //             const pointLatitude = parseFloat(point.latitude);
-    //             const initialPoint = Cesium.Cartesian3.fromDegrees(
-    //                 pointLongitude,
-    //                 pointLatitude
-    //             );
-    //             // 距离以公里为单位
-    //             const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-    //             if (distance < radius) {
-    //                 result.push(point);
-    //             }
-    //         });
-    //     }
-    //     return result
-    // },
-    // 通过目标数量匹配物资
+
     marchSupplyByCount(array) {
       let tents = 0
       let raincoats = 0
@@ -3276,66 +2791,9 @@ export default {
     },
     // ---------------------------------------------------------------------
 
-    // getPageArr(arr) {
-    //     let newArr = [];
-    //     let start = (this.currentPage - 1) * this.pageSize;
-    //     let end = this.currentPage * this.pageSize;
-    //     if (end > this.total) {
-    //         end = this.total;
-    //     }
-    //     for (; start < end; start++) {
-    //         newArr.push(arr[start]);
-    //     }
-    //     return newArr;
-    // },
-
-    // handleSizeChange(val) {
-    //     this.pageSize = val;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // handleCurrentChange(val) {
-    //     this.currentPage = val;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // tableHeaderColor() {
-    //     return {
-    //         "border-width": "1px",
-    //         "border-style": "solid",
-    //         "border-color": "#555555",
-    //         "background-color": "#293038 !important", // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
-    //         color: "#fff",
-    //         padding: "0",
-    //         "text-align": "center",
-    //     };
-    // },
 
     // 修改table header的背景色
 
-    // tableColor({row, column, rowIndex, columnIndex}) {
-    //     if (rowIndex % 2 == 1) {
-    //         return {
-    //             "border-width": "1px",
-    //             "border-style": "solid",
-    //             "border-color": "#555555",
-    //             "background-color": "#313a44",
-    //             color: "#fff",
-    //             padding: "0",
-    //             "text-align": "center",
-    //         };
-    //     } else {
-    //         return {
-    //             "border-width": "1px",
-    //             "border-style": "solid",
-    //             "border-color": "#555555",
-    //             "background-color": "#304156",
-    //             color: "#fff",
-    //             padding: "0",
-    //             "text-align": "center",
-    //         };
-    //     }
-    // },
 
     //- ---------------------
     /** 以坐标点为中心，简单粗略的创建一个指定半径的圆，半径单位米，pointCount为构建圆的坐标点数（比如24个点，点越多越圆，最少3个点），返回构成圆的坐标点数组 **/
@@ -4631,43 +4089,6 @@ export default {
       document.body.removeChild(link);
     },
 
-    /*
-    * 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-    * */
-    timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
-    },
-    timestampToTimeChinese(timestamp) {
-      let DateObj = new Date(timestamp)
-
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
-    },
 
     /**
      * 处理实体点击事件的弹窗显示逻辑
@@ -5995,33 +5416,7 @@ export default {
       this.modelCurrentPage = val
       this.modelTableData = this.getPageArr(this.modelList)
     },
-    //model style end
-    /*获取目前相机所属高度*/
 
-
-    //   菜单栏左上角实时获取时间代码
-    startRealTimeClock(timeElementId, dateElementId) {
-      function updateTime() {
-        const now = new Date();
-        const time = now.toLocaleTimeString('zh-CN', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-        const date = now.toLocaleDateString('zh-CN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          weekday: 'long'
-        });
-        document.getElementById(timeElementId).textContent = time;
-        document.getElementById(dateElementId).textContent = date;
-      }
-
-      updateTime();
-      setInterval(updateTime, 1000);
-    },
 
     // ------------------------------图层要素---------------------------------------------------
     handleCheckChange(data, checked, indeterminate) {
@@ -6115,82 +5510,101 @@ export default {
 }
 </script>
 
-<style scoped>
-.menue-left {
-  left: 9%;
+<style code>
+/*地图*/
+#box {
+  height: 99vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overflow-y: hidden;
 }
-
-.logo-menu .logo-menu-active {
-  box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
+#cesiumContainer {
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
-
-.logo-menu-tittle {
-  color: #fff;
-  height: 3.5vh;
-  width: 4.5vw;
-  margin-right: 12px;
-  margin-top: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-image: url(/src/assets/images/CommandScreen/发光框.png);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-}
-
-@media screen and (max-width: 1490px) {
-  .logo-menu-tittle {
-    width: 92px !important;
-  }
-}
-
-@media screen and (max-width: 1835px) {
-  .logo-menu-tittle {
-    width: 86px !important;
-    font-size: 16px !important;
-  }
-}
-
-.logo-menu {
+/* 更改比例尺位置 */
+:deep(.distance-legend) {
+  bottom: 1% !important;
+  pointer-events: auto;
   position: absolute;
-  top: 6px;
-  display: flex;
+  border-radius: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+  height: 30px;
+  right: 1%;
+  top: 94%;
+  width: 125px;
+  box-sizing: content-box;
 }
-
-.menue-right {
-  right: 3%;
-}
-
-.logo-left-weather {
-  color: #fff;
+/* 更改指南针位置 */
+:deep(.compass) {
+  pointer-events: auto;
   position: absolute;
-  top: 5px;
-  left: 9px;
+  width: 94px;
+  height: 94px;
+  transform: scale(0.6);
+  z-index: 500;
+  overflow: hidden;
+  left: 6.5%;
+  top: 91.5%;
 }
-
-.logo-left-time {
+/* 更改搜索、切换地形图组件位置*/
+:deep(.cesium-viewer-toolbar) {
+  display: block;
   position: absolute;
-  top: 2.3vh;
-  left: 1vw;
-  width: 9vw;
+  top: 94.5%;
+  left: 9.5%;
+  z-index: 100;
+  width: 5%;
+}
+:deep(.cesium-baseLayerPicker-dropDown-visible) {
+  z-index: 600000 !important;
+  background-color: #2b323a;
+}
+:deep(.cesium-baseLayerPicker-dropDown) {
+  right: 9px !important;
+  width: 398px !important;
+  height: 310px !important;
 }
 
-.logo-right-time {
+/*左右组件*/
+.pop_left_background {
+  top: 13%;
+  left: 1%;
+  height: 80.8vh;
+  width: 22%;
   position: absolute;
-  top: 2.3vh;
-  right: 1vw;
-  width: 9vw;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
+}
+.pop_right_background {
+  top: 13%;
+  right: 1%;
+  height: 80.8vh;
+  width: 22%;
+  position: absolute;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  z-index: 100;
+}
+/*灾情总览组件*/
+:deep(.timelineLegend) {
+  width: 22vw;
+}
+:deep(.timelineLegend.open) {
+  width: 33%;
+}
+:deep(.legend-item) {
+  margin-bottom: 7px;
 }
 
-.logo-time-hour {
-  font-size: 17px;
-  font-weight: 500;
-  color: #fff;
-  text-shadow: 0px 2px 6px #123756;
-  background: linear-gradient(0deg, #bee1ff, #fff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+/*未整理*/
+
 
 .pop-dialog .pop-dialog__content {
   height: 100%;
@@ -6327,243 +5741,8 @@ export default {
   text-decoration: underline;
 }
 
-.pop-icon {
-  margin-right: 10px;
-  margin-left: 6px;
-  vertical-align: middle;
-}
-
-.logo-time-year {
-  font-size: 12px;
-  font-weight: 500;
-  color: #cdcdcd;
-}
-
-
-.top-header {
-  height: 24vh;
-  width: 100%;
-  background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
-  background-size: 100% 100%;
-  top: 0%;
-  position: absolute;
-}
-
-.company-name {
-  position: absolute;
-  width: 17vw;
-  top: 24%;
-  font-weight: 700;
-  font-size: .8rem;
-  color: #51d1ff;
-  line-height: 22px;
-  letter-spacing: 2px;
-  text-shadow: 0px 0px 20px #51f9ff;
-}
-
-.system-title {
-  font-size: 1.9rem;
-  font-family: math;
-  color: #fff;
-  letter-spacing: 5px;
-  text-align: center;
-  position: relative;
-  margin-top: 5px;
-  font-weight: 900;
-}
-
-.bottom-footer {
-  width: 100%;
-  position: absolute;
-  z-index: 2;
-  bottom: 0;
-  left: 0;
-  height: 12vh;
-  background: url(/src/assets/images/CommandScreen/导航栏底部.png) 47% 116% no-repeat;
-}
-
-.pop_left_background {
-  top: 13%;
-  left: 1%;
-  height: 80.8vh;
-  width: 22%;
-  position: absolute;
-  background: rgb(4, 20, 34);
-  background: linear-gradient(90deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(44, 69, 94, 0) 100%);
-}
-
-:deep(.pop_right_background) {
-  top: 13%;
-  right: 1%;
-  height: 80.8vh;
-  width: 22%;
-  position: absolute;
-  background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
-  z-index: 100;
-}
-
-#box {
-  height: 99vh;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  overflow-y: hidden;
-}
-
-#cesiumContainer {
-  height: 100vh;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-.current-time-info {
-  position: absolute;
-  bottom: 3%;
-  width: 30%;
-  left: 12%;
-}
-
-.end-time-info {
-  position: absolute;
-  bottom: 3%;
-  width: 45%;
-  right: 0%;
-}
-
-.end-time-info .timelabel span:nth-child(2) {
-  margin: 0 5px; /* 分隔符前后的间隔 */
-}
-
-.timelabel {
-  color: #ffffff;
-}
-
 /*·························································*/
-.bottom {
-  height: 8%;
-  width: 50%;
-  left: 27%;
-  bottom: 5%;
-  position: absolute;
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.play {
-  width: 4%;
-  height: 100%;
-  margin-left: -4%;
-  display: flex;
-  align-items: center;
-}
-
-.play-icon,
-.pause-icon {
-  width: 100%;
-  margin-right: 4px;
-  height: auto;
-  cursor: pointer;
-}
-
-.speed-selector {
-  position: absolute;
-  cursor: pointer;
-  display: inline-block;
-  right: -12%;
-  bottom: -50%;
-}
-
-.speedButton {
-  padding: 2px 20px;
-  background-color: #dddddd; /* 蓝色背景 */
-  border-radius: 30px; /* 椭圆框 */
-  text-align: center;
-  color: #1b6cd0; /* 文字颜色 */
-
-}
-
-.chooseSpeed {
-  position: absolute;
-  bottom: 100%; /* 向上展开 */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  background-color: #dddddd; /* 蓝色背景 */
-  padding: 5px 0;
-  border-radius: 6px; /* 椭圆框 */
-  min-width: 100%; /* 确保下拉菜单宽度至少与按钮一样宽 */
-  z-index: 1000; /* 确保下拉菜单在最上层 */
-}
-
-.speed-option {
-  padding: 2px 20px;
-  color: #1b6cd0; /* 文字颜色 */
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.speed-option:hover,
-.speed-option:focus {
-  background-color: #71a8e3; /* 蓝色背景 */
-}
-
-.speed-option.selected {
-  background-color: #71a8e3; /* 选中项更深的蓝色 */
-}
-
-.time-ruler {
-  position: relative;
-  width: 69%;
-  height: 8px;
-  left: -15%;
-  background-color: #ddd;
-  border-radius: 4px;
-  margin: 0 1%;
-  cursor: pointer;
-  flex-direction: row;
-}
-
-
-.time-ruler-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.time-progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background-color: #196cd2;
-  border-radius: 4px;
-  /*transition: width 0.1s ease;*/
-}
-
-.time-slider {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #fff;
-  border: 2px solid #196cd2;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  /*transition: left 0.1s ease;*/
-}
 
 .tmp {
   position: absolute;
@@ -6738,16 +5917,7 @@ export default {
   width: 200px; /* 返回首页的下拉框宽度 */
 }
 
-:deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 600000 !important;
-  background-color: #2b323a;
-}
 
-:deep(.cesium-baseLayerPicker-dropDown) {
-  right: 9px !important;
-  width: 398px !important;
-  height: 310px !important;
-}
 .modelAdj {
   color: #FFFFFF;
   margin-bottom: 5px;
@@ -6769,6 +5939,7 @@ export default {
 :deep(.el-pagination>.is-last) {
   color: #FFFFFF;
 }
+
 .cesium-viewer-geocoderContainer .cesium-geocoder-input {
   border: solid 1px #444;
   background-color: rgba(40, 40, 40, 0.7);
@@ -6791,43 +5962,7 @@ export default {
   z-index: 999; /* 确保下拉框在其他元素之上 */
 }
 
-/* 更改比例尺位置 */
-:deep(.distance-legend) {
-  bottom: 1% !important;
-  pointer-events: auto;
-  position: absolute;
-  border-radius: 15px;
-  padding-left: 5px;
-  padding-right: 5px;
-  height: 30px;
-  right: 1%;
-  top: 94%;
-  width: 125px;
-  box-sizing: content-box;
-}
 
-/* 更改指南针位置 */
-:deep(.compass) {
-  pointer-events: auto;
-  position: absolute;
-  width: 94px;
-  height: 94px;
-  transform: scale(0.6);
-  z-index: 500;
-  overflow: hidden;
-  left: 6.5%;
-  top: 91.5%;
-}
-
-/* 更改搜索、切换地形图组件位置*/
-:deep(.cesium-viewer-toolbar) {
-  display: block;
-  position: absolute;
-  top: 94.5%;
-  left: 9.5%;
-  z-index: 100;
-  width:5%;
-}
 .table {
   width: 100%;
   height: 98%;
@@ -6953,9 +6088,6 @@ export default {
   background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
 }
 
-:deep(.timelineLegend) {
-  width: 22vw;
-}
 
 :deep(.new-panel) {
   top: 6%;
@@ -6975,9 +6107,7 @@ export default {
   top: 21%;
 }
 
-:deep(.timelineLegend.open) {
-  width: 33%;
-}
+
 
 :deep(.eldriver) {
   width: 300px;
@@ -7258,4 +6388,6 @@ export default {
   font-size: 15px;
   padding: 12px;
 }
+
+
 </style>

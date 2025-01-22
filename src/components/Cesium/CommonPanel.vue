@@ -6,7 +6,7 @@
         <div class="earthquake-info-panel">
           <el-card class="eqbox-card">
             <div slot="header" class="clearfix">
-                <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25"><path d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z" fill="#fbf102" p-id="2672"></path></svg>
+              <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25"><path d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z" fill="#fbf102" p-id="2672"></path></svg>
               <span>震中信息</span>
             </div>
             <table class="earthquake-info-table">
@@ -207,27 +207,22 @@ export default {
         // 可能时因为开启深度监听的原因（deep: true）。
         // console.log("this.popupPanelData.drawtype",this.popupPanelData)
         if (this.visiblePanel) {
-          if(this.popupPanelData.plotType==='震中'){this.getEqInfo(this.popupPanelData)}
-          else{
-            // console.log("1123",this.popupPanelData)
-            if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
-              this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
-            } else if (this.popupPanelData.drawtype === 'point' ) {
-              this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
-            } else if (this.popupPanelData.drawtype === 'center') {
-
-            }
-            else {
-              if (this.popupPanelData[0].drawtype === 'polyline') {
-                // console.log(this.popupPanelData[0], 987)
-                this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
-              } else {
-                // console.log(this.popupPanelData[0], 987)
-                this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
-              }
+          // console.log("1123",this.popupPanelData)
+          if (this.popupPanelData.drawtype === 'straight' || this.popupPanelData.drawtype === 'attack' || this.popupPanelData.drawtype === 'pincer') {
+            this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
+          } else if (this.popupPanelData.drawtype === 'point') {
+            this.getPlotInfo(this.popupPanelData.plotId, this.popupPanelData.plotType)
+          } else if (this.popupPanelData.drawtype === 'center') {
+            this.getEqInfo(this.popupPanelData)
+          } else {
+            if (this.popupPanelData[0].drawtype === 'polyline') {
+              // console.log(this.popupPanelData[0], 987)
+              this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
+            } else {
+              // console.log(this.popupPanelData[0], 987)
+              this.getPlotInfo(this.popupPanelData[0].plotId, this.popupPanelData[0].plotType)
             }
           }
-
         }
       }
     },
@@ -535,10 +530,10 @@ export default {
 }
 
 .eq-videoMonitorWin {
-   position: absolute;
-    width: 315px;
-    padding: 0px;
-    z-index: 80;
+  position: absolute;
+  width: 315px;
+  padding: 0px;
+  z-index: 80;
   box-shadow: 0 4px 8px rgb(60, 215, 255), 0 6px 20px rgb(25, 108, 210);
 }
 

@@ -59,7 +59,9 @@ export default {
   props: ["currentTime", "eqid","eqstartTime"],
   mounted() {
     this.init();
-    this.initChart(); // 初始化图表
+    this.$nextTick(() => {
+      this.initChart(); // 确保 DOM 加载完成后再初始化图表
+    });
   },
   watch: {
     currentTime(newVal) {
