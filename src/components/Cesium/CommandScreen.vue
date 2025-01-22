@@ -17,7 +17,7 @@
           <timeLineCasualtyStatisticthd
               :zoomLevel="zoomLevel"
               :pointsLayer="pointsLayer"
-              :currentTime="currentTime"
+              :currentTime="currentTimeString"
           />
         </div>
       </div>
@@ -104,7 +104,7 @@
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <disasterStatistics
             :eqid="eqid"
-            :currentTime="currentTime"
+            :currentTime="currentTimeString"
             @addJumpNodes="addJumpNodes"
         />
       </div>
@@ -220,7 +220,7 @@
         :viewer="viewer"
         :eqid="eqid"
         :centerPoint="centerPoint"
-        :currentTime="currentTime"
+        :currentTime="currentTimeString"
         @updatePlots="updatePlots"
     />
 
@@ -229,12 +229,12 @@
       <div class="pop_left_background">
         <timeLineEmergencyResponse
             :eqid="eqid"
-            :currentTime="currentTime"
+            :currentTime="currentTimeString"
         />
         <!--   人员伤亡-左中   -->
         <timeLinePersonnelCasualties
             :eqid="eqid"
-            :currentTime="currentTime"
+            :currentTime="currentTimeString"
         />
         <!--        震中信息组件-->
         <timeLineBaseInfo
@@ -244,15 +244,16 @@
       <timeLineLegend
           :activeComponent="activeComponent"
           @toggleComponent="toggleComponent"
-      ></timeLineLegend>
+      />
       <div class="pop_right_background">
         <timeLineLifeLine
             :eqid="eqid"
-            :currentTime="currentTime"
+            :currentTime="currentTimeString"
         />
         <timeLinePlotStatistics
             :plots="plots"
-            :currentTime="currentTime"
+            :currentTime="currentTimeString"
+            :startTime="centerPoint.startTime"
             :zoomLevel="zoomLevel"
             :isTimerRunning="isTimeRunning"
             :viewCenterCoordinate="viewCenterCoordinate"
@@ -483,7 +484,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 
 //组件
-import timeLineTitle from "@/components/timeLineComponent/timeLineTitle.vue";
+import commandScreenTitle from "@/components/commandScreenComponent/commandScreenTitle.vue";
 import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
 import timeLineEmergencyResponse from "@/components/timeLineComponent/timeLineEmergencyResponse.vue";
 import timeLinePersonnelCasualties from "@/components/timeLineComponent/timeLinePersonnelCasualties.vue";
@@ -570,8 +571,18 @@ export default {
     Edit() {
       return Edit
     },
+    // 在父组件中，将 JulianDate 转换为字符串
+    currentTimeString() {
+      if (this.currentTime) {
+        // 使用 Cesium 的函数将 JulianDate 转换为 ISO 字符串
+        return Cesium.JulianDate.toIso8601(this.currentTime);
+      }
+      return '';
+    }
   },
   components: {
+    commandScreenTitle, //标头
+    //灾情总览
     timeLinePlay,
     timeLineEmergencyResponse,
     timeLinePersonnelCasualties,
@@ -580,6 +591,7 @@ export default {
     timeLineLifeLine,
     timeLinePlotStatistics,
     timeLineMiniMap,
+    //灾情总览 end
     //--未整理---
     damageThemeAssessment,
     disasterStatistics,
@@ -5510,7 +5522,7 @@ export default {
 }
 </script>
 
-<style code>
+<style scoped>
 /*地图*/
 #box {
   height: 99vh;

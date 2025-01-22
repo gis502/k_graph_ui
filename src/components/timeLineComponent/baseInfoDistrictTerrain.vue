@@ -57,7 +57,7 @@ const stats = ref({
 
 //接收卡片信息
 const fetchDistrictEconomy = async () => {
-  if(props.centerPoint&&props.centerPoint.earthquakeName.slice(-3)){
+  if(props.centerPoint.earthquakeName && props.centerPoint.earthquakeName.slice(-3)){
     try {
       const response = await getDistrictTerrain(props.centerPoint.earthquakeName.slice(-3)); // 根据年份动态获取数据
       console.log(response,"response baseInfoDisTer")

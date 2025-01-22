@@ -152,7 +152,7 @@ let timeLine = {
         }
     },
     addPolygon(item, type) {
-        console.log(item, "item")
+        // console.log(item, "item")
         if (window.viewer && window.viewer.entities) {
             if (item.plotType === "未搜索区域" || item.plotType === "已搜索区域" || item.plotType === "已营救区域" || item.plotType === "正在营救区域" || item.plotType === "未营救区域") {
                 // 1-1 经纬度
