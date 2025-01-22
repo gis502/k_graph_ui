@@ -48,15 +48,17 @@ export default {
     return {
       currentSpeed: 1,
       showSpeedOptions: false,
-      speedOption: '1X',
-      speedOptions: ['1X', '2X', '4X', '60X', '3600X'],
+      speedOption: '60X',
+      speedOptions: ['1X', '60X', '600X', '3600X', '7200X'],
       plots: [],
       ifNewEq:false, //用于 回到真实时间
+      timeRecoard:[],
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
     currentTime(newVal) {
+        // this.ifstopandflash(newVal)
     },
     centerPoint(newVal) {
       let realTime = new Date()
@@ -90,6 +92,7 @@ export default {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.centerPoint.startTime;
           }
+          this.timeRecoard.push(new Date(item.startTime))
         })
         //传值给父组件，用于标绘统计
         this.$emit('updatePlots', this.plots);
@@ -139,6 +142,14 @@ export default {
     },
     backToStart() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
+    },
+    ifstopandflash(currentTime){
+      console.log(new Date(currentTime),"currentTime")
+      console.log( this.timeRecoard," this.timeRecoard")
+      if(new Date(currentTime) in this.timeRecoard){
+        viewer.clockViewModel.shouldAnimate=false
+        console.log(currentTime,"stop")
+      }
     },
 
     timestampToTime(time) {
