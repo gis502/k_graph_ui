@@ -17,13 +17,14 @@
       </div>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
-      <el-form class="situation_eqTable">
+      <el-form class="situation_eqTable" @submit.prevent>
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <div class="modelAdj">查询</div>
           <el-input
             v-model="queryParams"
             placeholder="请输入搜索信息"
             clearable
+            @keydown.enter="handleQuery"
             style="width: 200px; margin-right: 10px;"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -347,6 +348,7 @@ import {querySituationData} from "@/api/system/model.js";
 import plotSearch from '@/components/Cesium/plotSearch.vue'
 import ThematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {Position} from "@element-plus/icons-vue";
+import {TianDiTuToken} from "@/cesium/tool/config.js";
 
 export default {
   components: {
@@ -566,6 +568,7 @@ export default {
 
     };
   },
+
   mounted() {
     // 初始化地图
     this.init()
@@ -578,6 +581,7 @@ export default {
     this.getPlotPicture()
     this.initTree()
   },
+
   beforeUnmount() {
     // console.log("111", window.viewer)
     if (window.viewer) {
@@ -607,6 +611,46 @@ export default {
   //   this.websock.close()
   // },
   methods: {
+
+
+    /**
+     * 添加交通图层到地图
+     * 该方法首先检查是否已经存在名为'TrafficLayer'的图层，如果不存在，则从天地图服务添加交通图层
+     * 同样，如果不存在名为'TrafficTxtLayer'的图层，则添加交通注记图层
+     */
+    addTrafficLayer() {
+      // 获取天地图API令牌
+      let token = TianDiTuToken;
+
+      // 检查是否存在'TrafficLayer'图层
+        // 创建并添加交通图层
+        let trafficLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通图层的URL模板
+              url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg", // 根据实际返回的图像格式调整
+              tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
+              show: true
+            })
+        );
+
+      // 检查是否存在'TrafficTxtLayer'图层
+        // 创建并添加交通注记图层
+        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+            new Cesium.WebMapTileServiceImageryProvider({
+              // 天地图交通注记图层的URL模板
+              url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+                  TianDiTuToken,
+              layer: "tdtAnnoLayer",
+              style: "default",
+              format: "image/jpeg",
+              tileMatrixSetID: "GoogleMapsCompatible",
+              show: false // 初始状态下不显示图层
+            })
+        )
+    },
 
 
     initTree() {
@@ -704,7 +748,7 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-
+this.addTrafficLayer()
     },
     // 初始化ws
     initWebsocket() {
@@ -1737,17 +1781,20 @@ export default {
       return new Promise(resolve => {
         const scene = viewer.scene;
 
-        // 监听渲染循环是否完成
+        // 检查实体是否完全渲染
         const checkEntitiesRendered = () => {
-          const isRendered = this.latLonEntities.filter(entity => entity.show).length === entityCount;
-          if (isRendered) {
+          const renderedEntities = this.latLonEntities.filter(entity => {
+            return entity.show && entity.polyline && entity.polyline.positions && entity.polyline.positions.getValue();
+          });
+
+          if (renderedEntities.length === entityCount) {
             // 等待 Cesium 完成渲染
             const removePostRender = scene.postRender.addEventListener(() => {
               removePostRender(); // 确保只监听一次
-              resolve();          // 确保渲染完成后再 resolve
+              setTimeout(() => resolve(), 200); // 等待额外 200ms，确保渲染稳定
             });
           } else {
-            setTimeout(checkEntitiesRendered, 100); // 每100ms检查一次
+            setTimeout(checkEntitiesRendered, 100); // 每 100ms 检查一次
           }
         };
 
@@ -3126,7 +3173,7 @@ export default {
 }
 
 .situation_eqTable {
-  width: 680px;
+  width: 690px;
   height: 372px;
   position: absolute;
   padding: 10px;

@@ -2,23 +2,31 @@
   <div class="app-container">
     <el-form-item label="地震信息">
       <el-input
-        v-model="queryParams"
-        placeholder="请输入地震信息"
-        clearable
-        style="width: 200px"
-        @keyup.enter="handleQuery"
+          v-model="queryParams"
+          placeholder="请输入地震信息"
+          clearable
+          style="width: 200px"
+          @keyup.enter="handleQuery"
       />
       <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
       <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-<!--      二三维一体化——地震信息管理-->
-<!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
+      <!--      二三维一体化——地震信息管理-->
+      <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
 
     </el-form-item>
 
-    <el-progress v-if="isProgressShow" :text-inside="true" :stroke-width="26" :percentage="percentage"
-                 :color="colors"></el-progress>
+    <el-progress
+        v-if="isProgressShow"
+        :text-inside="true"
+        :stroke-width="16"
+        :percentage="percentage"
+        :color="getGradientColors()"
+        :show-text="true"
+        style="border-radius: 15px; background: linear-gradient(90deg, #f5f7fa, #eaf0ff); padding: 3px; box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);"
+    />
+
 
     <el-table
         :data="tableData"
@@ -34,17 +42,17 @@
       </el-table-column>
 
       <el-table-column
-        prop="occurrenceTime"
-        label="发震时间"
-        width="250"
-        show-overflow-tooltip
+          prop="occurrenceTime"
+          label="发震时间"
+          width="250"
+          show-overflow-tooltip
       ></el-table-column>
 
       <el-table-column
-        prop="earthquakeName"
-        label="位置"
-        width="200"
-        show-overflow-tooltip
+          prop="earthquakeName"
+          label="位置"
+          width="200"
+          show-overflow-tooltip
       ></el-table-column>
 
 
@@ -69,15 +77,15 @@
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button
-            type="text"
-            icon="Edit"
-            @click="handleOpen('修改', scope.row)"
+              type="text"
+              icon="Edit"
+              @click="handleOpen('修改', scope.row)"
           >修改
           </el-button>
           <el-button
-            type="text"
-            icon="Delete"
-            @click="handleDelete(scope.row)"
+              type="text"
+              icon="Delete"
+              @click="handleDelete(scope.row)"
           >删除
           </el-button>
         </template>
@@ -85,13 +93,13 @@
     </el-table>
 
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="pageSizes"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="pageSizes"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total">
     </el-pagination>
 
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%">
@@ -107,11 +115,11 @@
           <el-col :span="18">
             <el-form-item label="发震时间：" prop="occurrenceTime">
               <el-date-picker
-                v-model="dialogContent.occurrenceTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                size="large">
+                  v-model="dialogContent.occurrenceTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
+                  size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -151,10 +159,10 @@
     </el-dialog>
 
     <el-dialog
-      v-model="queryFormVisible"
-      title="筛选"
-      width="30vw"
-      style="top:20vh"
+        v-model="queryFormVisible"
+        title="筛选"
+        width="30vw"
+        style="top:20vh"
     >
       <el-form :inline="true" :model="formValue" ref="formValue" :rules="formValuerules" :show-close="false">
         <el-form-item label="地震位置">
@@ -162,15 +170,15 @@
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-            v-model="formValue.occurrenceTime"
-            type="daterange"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-            :shortcuts="shortcuts"
-            style="width: 23vw;"
-            value-format="YYYY-MM-DDTHH:mm:ss"/>
+              v-model="formValue.occurrenceTime"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              :shortcuts="shortcuts"
+              style="width: 23vw;"
+              value-format="YYYY-MM-DDTHH:mm:ss"/>
         </el-form-item>
         <el-form-item label="地震震级" prop="magnitude" class="formValue">
           <el-input v-model="formValue.startMagnitude" style="width: 5vw;" placeholder="起始震级"/>
@@ -193,11 +201,31 @@
     </el-dialog>
 
     <el-dialog :title="panelTitle" v-model="isPanelShow" width="30%">
-      <el-form ref="panel" :model="addOrUpdateDTO" :rules="panelRules">
+      <el-form ref="panel" :model="addOrUpdateDTO" :rules="panelRules" >
         <el-row>
-          <el-col :span="13">
-            <el-form-item label="震发位置：" prop="eqName">
-              <el-input v-model="addOrUpdateDTO.eqAddr" placeholder="请输入内容"></el-input>
+          <el-col :span="55">
+            <el-form-item label="震发位置：" prop="eqAddr">
+              <div class="custom-cascader-wrapper">
+                <!-- 输入框 -->
+                <el-input
+                    v-model="customAddress"
+                    placeholder="请选择或输入震发位置"
+                    @blur="handleCustomInput"
+                    @input="handleInputChange"
+                    class="custom-input"
+                />
+                <!-- 下拉框 -->
+                <el-cascader
+                    ref="cascader"
+                    :options="filteredOptions"
+                    v-model="selectedPath"
+                    @change="onLocationChange"
+                    separator=""
+                    :filterable="false"
+                    placeholder="请选择震发位置"
+                    class="custom-cascader"
+                />
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -205,11 +233,11 @@
           <el-col :span="18">
             <el-form-item label="发震时间：" prop="eqTime">
               <el-date-picker
-                v-model="addOrUpdateDTO.eqTime"
-                type="datetime"
-                placeholder="选择日期时间"
-                value-format="YYYY-MM-DDTHH:mm:ss"
-                size="large">
+                  v-model="addOrUpdateDTO.eqTime"
+                  type="datetime"
+                  placeholder="选择日期时间"
+                  value-format="YYYY-MM-DDTHH:mm:ss"
+                  size="large">
               </el-date-picker>
             </el-form-item>
           </el-col>
@@ -245,10 +273,10 @@
           <el-form-item label="地震类型：" prop="eqType">
             <el-select v-model="addOrUpdateDTO.eqType" placeholder="请选择地震类型" style="width: 200px" clearable>
               <el-option
-                v-for="item in eqType"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                  v-for="item in eqType"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
               >
               </el-option>
             </el-select>
@@ -417,14 +445,12 @@ export default {
       isProgressShow: false,
       percentage: 0,
       colors: [
-        {color: '#e3e8f5', percentage: 10},
-        {color: '#acd2f8', percentage: 30},
-        {color: '#7cbdfa', percentage: 40},
-        {color: '#7ea3f8', percentage: 50},
-        {color: '#6293f6', percentage: 60},
-        {color: '#4f80ff', percentage: 70},
-        {color: '#4b6bfa', percentage: 80},
-        {color: '#445ede', percentage: 100}
+        { color: '#d3e0fa', percentage: 10 },
+        { color: '#a4c7fc', percentage: 30 },
+        { color: '#7aaef8', percentage: 50 },
+        { color: '#5795f4', percentage: 70 },
+        { color: '#3c7ef0', percentage: 90 },
+        { color: '#2369e8', percentage: 100 }
       ],
       formValid: false, // 表单验证状态
       getEqData: [],
@@ -507,7 +533,116 @@ export default {
         eqDepth: '',
         eqType: '',
       },
-
+      customAddress: "", // 用于保存用户自定义输入或选择的震发位置
+      filteredOptions: [], // 动态筛选后的选项
+      selectedPath: [], // 级联选择器的选中路径
+      locationOptions: [
+        {
+          label: '雨城区',
+          value: '雨城区',
+          children: [
+            { label: '碧峰峡镇', value: '碧峰峡镇', longitude: 102.99, latitude: 30.06 },
+            { label: '八步镇', value: '八步镇', longitude: 102.93, latitude: 29.93 },
+            { label: '周公山镇', value: '周公山镇', longitude: 103.03, latitude: 29.90 },
+            { label: '多营镇', value: '多营镇', longitude: 103.03, latitude: 29.90 },
+            { label: '草坝镇', value: '草坝镇', longitude: 103.11, latitude: 29.96 },
+            { label: '望鱼镇', value: '望鱼镇', longitude: 103.05, latitude: 29.73 },
+            { label: '晏望镇', value: '晏望镇', longitude: 103.12, latitude: 29.74 },
+            { label: '上里镇', value: '上里镇', longitude: 103.07, latitude: 30.18 }
+          ]
+        },
+        {
+          label: '名山区',
+          value: '名山区',
+          children: [
+            { label: '蒙顶山镇', value: '蒙顶山镇', longitude: 103.09, latitude: 30.07 },
+            { label: '前进镇', value: '前进镇', longitude: 103.20, latitude: 30.04 },
+            { label: '车岭镇', value: '车岭镇', longitude: 103.24, latitude: 30.08 },
+            { label: '百丈镇', value: '百丈镇', longitude: 103.23, latitude: 30.18 },
+            { label: '黑竹镇', value: '黑竹镇', longitude: 103.30, latitude: 30.21 },
+            { label: '红星镇', value: '红星镇', longitude: 103.28, latitude: 30.15 },
+            { label: '茅河镇', value: '茅河镇', longitude: 103.35, latitude: 30.22 },
+            { label: '马岭镇', value: '马岭镇', longitude: 103.34, latitude: 30.12 },
+            { label: '新店镇', value: '新店镇', longitude: 103.19, latitude: 30.14 },
+            { label: '万古镇', value: '万古镇', longitude: 103.14, latitude: 30.16 },
+            { label: '中锋镇', value: '中锋镇', longitude: 103.18, latitude: 30.19 }
+          ]
+        },
+        {
+          label: '天全县',
+          value: '天全县',
+          children: [
+            { label: '城厢镇', value: '城厢镇', longitude: 102.77, latitude: 30.06 },
+            { label: '始阳镇', value: '始阳镇', longitude: 102.83, latitude: 30.02 },
+            { label: '新场镇', value: '新场镇', longitude: 102.84, latitude: 29.96 },
+            { label: '思经镇', value: '思经镇', longitude: 102.73, latitude: 30.02 },
+            { label: '小河镇', value: '小河镇', longitude: 102.74, latitude: 30.11 },
+            { label: '喇叭河镇', value: '喇叭河镇', longitude: 102.60, latitude: 30.04 },
+            { label: '仁义镇', value: '仁义镇', longitude: 102.81, latitude: 30.11 }
+          ]
+        },
+        {
+          label: '芦山县',
+          value: '芦山县',
+          children: [
+            { label: '大川镇', value: '大川镇', longitude: 102.93, latitude: 30.14 },
+            { label: '太平镇', value: '太平镇', longitude: 102.99, latitude: 30.34 },
+            { label: '龙门镇', value: '龙门镇', longitude: 103.02, latitude: 30.25 },
+            { label: '双石镇', value: '双石镇', longitude: 102.92, latitude: 30.25 },
+            { label: '思延镇', value: '思延镇', longitude: 102.91, latitude: 30.13 },
+            { label: '飞仙关镇', value: '飞仙关镇', longitude: 102.89, latitude: 30.04 }
+          ]
+        },
+        {
+          label: '宝兴县',
+          value: '宝兴县',
+          children: [
+            { label: '穆坪镇', value: '穆坪镇', longitude: 102.81, latitude: 30.38 },
+            { label: '灵关镇', value: '灵关镇', longitude: 102.83, latitude: 30.25 },
+            { label: '陇东镇', value: '陇东镇', longitude: 102.71, latitude: 30.47 }
+          ]
+        },
+        {
+          label: '荥经县',
+          value: '荥经县',
+          children: [
+            { label: '花滩镇', value: '花滩镇', longitude: 102.77, latitude: 29.78 },
+            { label: '龙苍沟镇', value: '龙苍沟镇', longitude: 102.85, latitude: 29.70 },
+            { label: '牛背山镇', value: '牛背山镇', longitude: 102.53, latitude: 29.77 },
+            { label: '新添镇', value: '新添镇', longitude: 102.84, latitude: 29.84 },
+            { label: '青龙镇', value: '青龙镇', longitude: 102.88, latitude: 29.79 },
+            { label: '荥河镇', value: '荥河镇', longitude: 102.71, latitude: 29.83 },
+            { label: '五宪镇', value: '五宪镇', longitude: 102.84, latitude: 29.77 }
+          ]
+        },
+        {
+          label: '汉源县',
+          value: '汉源县',
+          children: [
+            { label: '富林镇', value: '富林镇', longitude: 102.63, latitude: 29.36 },
+            { label: '九襄镇', value: '九襄镇', longitude: 102.62, latitude: 29.50 },
+            { label: '皇木镇', value: '皇木镇', longitude: 102.90, latitude: 29.35 },
+            { label: '宜东镇', value: '宜东镇', longitude: 102.46, latitude: 29.64 },
+            { label: '富庄镇', value: '富庄镇', longitude: 102.54, latitude: 29.55 },
+            { label: '清溪镇', value: '清溪镇', longitude: 102.62, latitude: 29.58 },
+            { label: '大树镇', value: '大树镇', longitude: 102.69, latitude: 29.31 },
+            { label: '乌斯河镇', value: '乌斯河镇', longitude: 102.90, latitude: 29.22 },
+            { label: '唐家镇', value: '唐家镇', longitude: 102.63, latitude: 29.45 },
+            { label: '富泉镇', value: '富泉镇', longitude: 29.38, latitude: 29.38 },
+            { label: '前域镇', value: '前域镇', longitude: 102.59, latitude: 29.50 },
+            { label: '安乐镇', value: '安乐镇', longitude: 102.72, latitude: 29.36 }
+          ]
+        },
+        {
+          label: '石棉县',
+          value: '石棉县',
+          children: [
+            { label: '回隆镇', value: '回隆镇', longitude: 102.39, latitude: 29.18 },
+            { label: '美罗镇', value: '美罗镇', longitude: 102.44, latitude: 29.29 },
+            { label: '安顺场镇', value: '安顺场镇', longitude: 102.28, latitude: 29.27 }
+          ]
+        }
+      ],
       panelTitle: '',
       isPanelShow: false,
       panelRules: '',
@@ -526,10 +661,11 @@ export default {
           value: "T",
         }
       ]
-
     }
   },
   mounted() {
+    // 初始化选项
+    this.filteredOptions = this.locationOptions;
     setInterval(this.updateTime, 500)
     this.getEq()
     console.log(this.simplifyLocation("四川省雅安市雨城区某某镇" ,5))
@@ -537,6 +673,66 @@ export default {
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
   methods: {
+    handleInputChange(value) {
+      // 动态更新 filteredOptions
+      this.filteredOptions = this.filterOptions(value, this.locationOptions);
+    },
+    filterOptions(query, options) {
+      // 自定义模糊匹配逻辑
+      if (!query) return options;
+
+      const filtered = [];
+      options.forEach((region) => {
+        const matchedRegion = {
+          ...region,
+          children: region.children.filter((child) =>
+              child.label.includes(query)
+          ),
+        };
+        if (matchedRegion.children.length > 0 || region.label.includes(query)) {
+          filtered.push(matchedRegion);
+        }
+      });
+      return filtered;
+    },
+    /**
+     * 处理自定义输入
+     */
+    handleCustomInput() {
+      // 如果用户输入值与表单字段值相同，不做任何处理
+      if (this.customAddress === this.addOrUpdateDTO.eqAddr) {
+        return;
+      }
+      if (this.customAddress) {
+        this.addOrUpdateDTO.eqAddr = this.customAddress; // 保存用户输入到表单字段
+        this.addOrUpdateDTO.longitude = null;
+        this.addOrUpdateDTO.latitude = null;
+        this.selectedPath = []; // 清除级联选择器的选中状态
+      }
+    },
+    // 处理选择逻辑
+    // 假设已经拿到正确的级联选项路径
+    onLocationChange(selected) {
+      const region = this.locationOptions.find((r) => r.value === selected[0]);
+      if (region) {
+        const town = region.children.find((t) => t.value === selected[1]);
+        if (town) {
+          // 拼接完整地址
+          const prefix = '四川省雅安市';
+          const fullAddress = `${prefix}${region.label}${town.label}`;
+          this.addOrUpdateDTO.eqAddr = fullAddress;
+          this.addOrUpdateDTO.longitude = town.longitude;
+          this.addOrUpdateDTO.latitude = town.latitude;
+          this.customAddress = fullAddress; // 同步到输入框
+          this.selectedPath = selected; // 同步选中路径
+        }
+      }
+    },
+
+    // 进度条动态计算渐变色
+    getGradientColors() {
+      return this.colors.map(item => item.color);
+    },
 
     commitPanel() {
       this.isPanelShow = !this.isPanelShow
@@ -564,17 +760,17 @@ export default {
       this.getEq()
     },
     // 进度条
-    // setInterval() {
-    //   this.interval = setInterval(() => {
-    //     this.updateProgress(event)
-    //   }, 9000)
-    // },
-    // updateProgress(event) {
-    //   eqProgress(event).then(res => {
-    //     this.isProgressShow = true
-    //     this.percentage = res.data.percentage
-    //   })
-    // },
+    setInterval() {
+      this.interval = setInterval(() => {
+        this.updateProgress(event)
+      }, 9000)
+    },
+    updateProgress(event) {
+      eqProgress(event).then(res => {
+        this.isProgressShow = true
+        this.percentage = res.data.percentage
+      })
+    },
     cancelPanel() {
       this.addOrUpdateDTO = {
         event: '',
@@ -624,7 +820,7 @@ export default {
 
           return {
             ...item,
-            occurrenceTime: this.timestampToTime(item.occurrenceTime),  // 转换时间
+            occurrenceTime: this.timestampToTime( item.occurrenceTime ),  // 转换时间
             magnitude: Number(item.magnitude).toFixed(1),  // 格式化震级为一位小数
             latitude: Number(latitude).toFixed(2),  // 格式化纬度为两位小数
             longitude: Number(longitude).toFixed(2),  // 格式化经度为两位小数
@@ -968,16 +1164,18 @@ export default {
       if (!match) return eqAddr; // 无法匹配返回原始地名
 
       // 提取省、市/州、区/县
-      const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
-      const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
+      // const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
+      // const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
+      const province = match[1]  ; // 省份去掉“省”
+      const county = match[3]; // 区/县去掉后缀
 
       // 如果市/州与区/县之间只有一个字，连带区/县返回
       if (county.length === 1) {
-        return `${province}${match[3]}${eqMagnitude}级地震`;
+        return `${province}${match[3]}`;
       }
 
       // 正常返回省、市/州简化结果
-      return `${province}${county}${eqMagnitude}级地震`;
+      return `${province}${county}`;
     },
 
 
@@ -1001,37 +1199,14 @@ export default {
 
     guid(num) {
       return num ?
-        Array.from({ length: num }, () => Math.floor(Math.random() * 10)).join('') :
-        'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-          let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
+          Array.from({ length: num }, () => Math.floor(Math.random() * 10)).join('') :
+          'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            let r = Math.random() * 16 | 0,
+                v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
     },
 
-
-    timestampToTime(timestamp) {
-      // console.log("转换前的时间戳:", timestamp);
-      let DateObj = new Date(timestamp)
-      if (isNaN(DateObj.getTime())) {
-        console.error("无效的时间戳:", timestamp);
-        return "";
-      }
-      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
-    },
 
     /**
      * 将年月日转换成-的形式 （用于格式化传给后端）
@@ -1066,6 +1241,36 @@ export default {
 </script>
 
 <style scoped>
+.custom-cascader-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 20px; /* 在左右各增加 20px */
+}
+
+.custom-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 50px); /* 剩下 36px 露出右侧 */
+  z-index: 2; /* 显示在上层 */
+  background: transparent;
+}
+
+.custom-cascader {
+  width: 100%;
+  z-index: 1; /* 显示在下层 */
+}
+
+.custom-cascader .el-cascader__label {
+  visibility: hidden; /* 隐藏文本 */
+}
+
+.custom-cascader .el-cascader__dropdown {
+  z-index: 3; /* 保证下拉框可用 */
+}
+
 .el-pagination {
   margin-top: 10px;
   justify-content: center;

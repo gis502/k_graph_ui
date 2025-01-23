@@ -77,7 +77,7 @@ export const constantRoutes = [
     children: [
       {
         path: '/thdTimeLine/:eqid',
-        component: () => import('@/views/plot/timeLine/thdTimeLine.vue'),
+        component: () => import('@/views/plot/timeLine/timeLine.vue'),
         name: 'thdTimeLine',
         props: true,
       }]
@@ -98,7 +98,8 @@ export const constantRoutes = [
   },
   {
     path:'/thd',
-    component: () =>import('@/components/Cesium/thd'),
+    // component: () =>import('@/components/Cesium/thd.vue'),
+    component: () =>import('@/components/Cesium/CommandScreen.vue'),
     hidden: true
   },
   {

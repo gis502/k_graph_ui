@@ -149,7 +149,6 @@ import {
   updataModel,
   updataModelNoElevation,
   updataModelElevation, querytiltModelData,
-
 } from '@/api/system/model.js'
 // import tiltTable from '@/components/Model/tiltModel/tiltTable.vue'
 import {ElMessageBox} from 'element-plus';
@@ -167,7 +166,8 @@ import {
   isTerrainLoaded,
   transferModel,
   rotationModel
-} from '../../../functionjs/model.js';
+} from '@/cesium/model.js';
+
 
 let pageStatus = ref(true)
 let tz = ref(0)

@@ -69,6 +69,7 @@
     <div class="bottom">
       <!--      播放暂停按钮-->
       <div class="play">
+        <img class="play-icon" src="../../../assets/icons/TimeLine/回到开始.png" @click="returnStart"/>
         <img class="play-icon" src="../../../assets/icons/TimeLine/后退箭头.png" @click="backward"/>
         <img class="play-icon" src="../../../assets/icons/TimeLine/播放.png" v-show="!isTimerRunning"
              @click="toggleTimer"/>
@@ -128,7 +129,6 @@
             @addJumpNodes="addJumpNodes"
         />
         <div>
-
           <!--   人员伤亡-左中   -->
           <timeLinePersonnelCasualties
               :eqid="eqid"
@@ -1178,8 +1178,24 @@ export default {
           this.centerMarkOpacityTo1()
         }
       }
-
-
+    },
+    returnStart(){
+      this.isTimerRunning = false;
+      // 初始化
+      this.currentTimePosition = 0;
+      this.currentTime = this.eqstartTime;
+      this.currentNodeIndex = 0;
+      // 从 dataSource 中删除点
+      this.plots.forEach(item => {
+        if (this.plotisshow[item.plotId] === 1) {
+          this.plotisshow[item.plotId] = 0
+          cesiumPlot.deleteMakerById(item.plotId, item.drawtype, item.plotType);
+        }
+      })
+      this.flyToCenter()
+      // setTimeout(() => {
+        this.flashingCenter()
+      // }, 3000);
     },
     /**
      * 初始化计时线
@@ -1311,6 +1327,7 @@ export default {
         if (flag) {
           if (this.isMarkingLayer) {
             this.updatePlotOnce("3")
+            this.isTimerRunning = false;
           } else {
             this.MarkingLayerRemove()
           }
@@ -1367,7 +1384,7 @@ export default {
             // 根据是否需要显示标绘层来更新图层
             this.updatePlotOnce("3")
           }
-
+          this.isTimerRunning = false;
         }
       }
 
@@ -1407,13 +1424,16 @@ export default {
           // 调用 intimexuanran 方法，传入地震ID
           // this.intimexuanran(this.eqid)
 
-        } else {
+        }
+        else {
           if (currentTimeTmp > this.currentTime) {
             this.updatePlotOnce("3")
           } else {
             this.updatePlotOnce("3")
           }
         }
+
+        this.isTimerRunning = false;
       }
     },
 
@@ -1503,6 +1523,7 @@ export default {
         document.body.style.WebkitUserSelect = 'auto';
         document.body.style.MozUserSelect = 'auto';
         document.body.style.msUserSelect = 'auto';
+        this.isTimerRunning = false;
       }
     },
 
@@ -2669,7 +2690,7 @@ export default {
 .play {
   width: 4%;
   height: 100%;
-  margin-left: -2%;
+  margin-left: -8%;
   display: flex;
   align-items: center;
 }

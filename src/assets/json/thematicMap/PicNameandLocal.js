@@ -1,5 +1,4 @@
 const MapPicUrl=[
-
     {id:'1',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "震区交通图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/EarthquakeZoneTrafficMap.jpg" },
     {id:'2',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "人口公里网格分布图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/PopulationGridMap.jpg" },
     {id:'3',eqid:'be3a5ea4-8dfd-a0a2-2510-21845f17960b',name: "水库分布图", path: "/ThematicMap/TwoAndThreeDIntegration/LuShan/ReservoirsMap.jpg" },

@@ -143,6 +143,7 @@ const arrow = {
             }
         }
     },
+
     drawStraightArrow: function (data, resolve) {
         window.isDrawingPolygon = true;
         for (var i = 0; i < this.drawArr.length; i++) {
@@ -173,6 +174,7 @@ const arrow = {
         pincerArrow.startDraw(data, resolve);
         this.drawArr.push(pincerArrow);
     },
+
     nowArrowObj: null,
     bindEdit: function () {
         var $this = this;
