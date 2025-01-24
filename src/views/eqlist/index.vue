@@ -14,6 +14,25 @@
       <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
+      <!-- 正式地震按钮 -->
+<!--      <el-button-->
+<!--          size="primary"-->
+<!--          :type="activeMode === 'Z' ? 'danger' : 'default'"-->
+<!--          style="font-size: 16px;"-->
+<!--          @click="activeMode = 'Z'"-->
+<!--      >-->
+<!--        正式地震-->
+<!--      </el-button>-->
+
+<!--      &lt;!&ndash; 测试地震按钮 &ndash;&gt;-->
+<!--      <el-button-->
+<!--          size="primary"-->
+<!--          :type="activeMode === 'Y' || activeMode === 'T' ? 'primary' : 'default'"-->
+<!--          style="font-size: 16px;"-->
+<!--          @click="activeMode = 'Y'"-->
+<!--      >-->
+<!--        测试地震-->
+<!--      </el-button>-->
 
     </el-form-item>
 
@@ -65,7 +84,7 @@
               size="mini"
               style="margin: 0; padding: 2px 8px; border-radius: 4px;"
           >
-            {{ row.eqType === 'Z' ? '正式地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
+            {{ row.eqType === 'Z' ? '真实地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
           </el-button>
         </template>
       </el-table-column>
@@ -646,10 +665,11 @@ export default {
       panelTitle: '',
       isPanelShow: false,
       panelRules: '',
+      activeMode: 'Z',
 
       eqType: [
         {
-          label: "正式",
+          label: "真实",
           value: "Z",
         },
         {
@@ -663,6 +683,17 @@ export default {
       ]
     }
   },
+  computed: {
+    filteredTableData() {
+      // 根据activeMode过滤tableData
+      if (this.activeMode === 'Z') {
+        return this.tableData.filter(item => item.eqType === 'Z');
+      } else if (this.activeMode === 'Y' || this.activeMode === 'T') {
+        return this.tableData.filter(item => item.eqType === 'Y' || item.eqType === 'T');
+      }
+      return this.tableData; // 如果没有选择模式，返回所有数据
+    },
+  },
   mounted() {
     // 初始化选项
     this.filteredOptions = this.locationOptions;
@@ -672,6 +703,9 @@ export default {
     console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
+
+
+
   methods: {
     handleInputChange(value) {
       // 动态更新 filteredOptions
@@ -1166,16 +1200,17 @@ export default {
       // 提取省、市/州、区/县
       // const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
       // const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
-      const province = match[1]  ; // 省份去掉“省”
-      const county = match[3]; // 区/县去掉后缀
+      const province = match[1];
+      const cityOrState = match[2]
+      const county = match[3];
 
       // 如果市/州与区/县之间只有一个字，连带区/县返回
-      if (county.length === 1) {
-        return `${province}${match[3]}`;
-      }
+      // if (county.length === 1) {
+      //   return `${province}${match[3]}`;
+      // }
 
       // 正常返回省、市/州简化结果
-      return `${province}${county}`;
+      return `${province}${cityOrState}${county}`;
     },
 
 

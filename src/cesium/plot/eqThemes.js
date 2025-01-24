@@ -4,7 +4,7 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json"
-import {domainName, zaisunimageipLocal, zaisunipLocal} from "../../utils/server.js";
+import {domainName, zaisunimageipLocal} from "../../utils/server.js";
 
 // 雅安行政区加载
 export function addYaanLayer() {

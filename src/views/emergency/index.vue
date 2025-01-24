@@ -1,9 +1,9 @@
 <template>
   <div id="cesiumContainer">
     <RouterPanel
-      :visible="popupVisible"
-      :position="popupPosition"
-      :popupData="popupData"
+        :visible="popupVisible"
+        :position="popupPosition"
+        :popupData="popupData"
     />
     <div v-if="isShowMessage"
          style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
@@ -15,8 +15,8 @@
           <svg t="1731159698197" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
                p-id="4760" width="32" height="32">
             <path
-              d="M749.888 501.952v34.368a150.464 150.464 0 0 1 133.76 149.504v150.464l30.08 40.128a16.704 16.704 0 0 1-13.44 26.752h-85.248a83.584 83.584 0 0 1-163.84 0H566.016a16.704 16.704 0 0 1-13.312-26.752l30.08-40.128v-150.4c0-77.44 58.496-141.248 133.76-149.568v-34.368h33.408z m-235.52-448a64 64 0 0 1 45.696 19.2l232.576 237.056a64 64 0 0 1 18.304 44.8v114.944h-64V374.784h-256V117.952h-320v768h343.424v64h-343.68c-30.464 0-63.744-21.568-63.744-59.008V112.96c0-37.376 33.28-59.008 63.68-59.008h343.744z m249.664 840.192h-61.76a32.768 32.768 0 0 0 61.76 0z m-30.912-297.6c-51.328 0-92.928 41.664-92.928 92.992v134.976l-13.248 17.664h212.416l-13.312-17.664v-134.976c0-51.328-41.6-92.928-92.928-92.928z m-210.176-6.144v64h-256v-64h256z m0-152.448v64h-256v-64h256z m32-278.592v151.424h148.608L554.88 159.36z"
-              fill="#ffffff" fill-opacity=".9" p-id="4761"></path>
+                d="M749.888 501.952v34.368a150.464 150.464 0 0 1 133.76 149.504v150.464l30.08 40.128a16.704 16.704 0 0 1-13.44 26.752h-85.248a83.584 83.584 0 0 1-163.84 0H566.016a16.704 16.704 0 0 1-13.312-26.752l30.08-40.128v-150.4c0-77.44 58.496-141.248 133.76-149.568v-34.368h33.408z m-235.52-448a64 64 0 0 1 45.696 19.2l232.576 237.056a64 64 0 0 1 18.304 44.8v114.944h-64V374.784h-256V117.952h-320v768h343.424v64h-343.68c-30.464 0-63.744-21.568-63.744-59.008V112.96c0-37.376 33.28-59.008 63.68-59.008h343.744z m249.664 840.192h-61.76a32.768 32.768 0 0 0 61.76 0z m-30.912-297.6c-51.328 0-92.928 41.664-92.928 92.992v134.976l-13.248 17.664h212.416l-13.312-17.664v-134.976c0-51.328-41.6-92.928-92.928-92.928z m-210.176-6.144v64h-256v-64h256z m0-152.448v64h-256v-64h256z m32-278.592v151.424h148.608L554.88 159.36z"
+                fill="#ffffff" fill-opacity=".9" p-id="4761"></path>
           </svg>
           <span class="text">应急资源信息</span>
         </div>
@@ -36,18 +36,18 @@
       </div>
       <div>
         <el-select
-          v-model="eqlistName"
-          placeholder="请选择地震信息"
-          size="large"
-          style="width: 350px"
-          filterable
+            v-model="eqlistName"
+            placeholder="请选择地震信息"
+            size="large"
+            style="width: 350px"
+            filterable
         >
           <el-option
-            v-for="item in tableNameOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-            @click="handleEqListChange"
+              v-for="item in tableNameOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              @click="handleEqListChange"
           />
         </el-select>
       </div>
@@ -120,9 +120,9 @@
             <el-col :span="12">
               <el-form-item label="队伍人数">
                 <el-input
-                  v-model="displayTeamTotalMembers"
-                  @input="handleTeamTotalMembersInput"
-                  autocomplete="off"/>
+                    v-model="displayTeamTotalMembers"
+                    @input="handleTeamTotalMembersInput"
+                    autocomplete="off"/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -167,19 +167,19 @@
             <el-col :span="12">
               <el-form-item label="帐篷">
                 <el-input
-                  v-model="displayDisasterTentsCount"
-                  @input="handleDisasterTentsInput"
-                  placeholder="/件"
-                  autocomplete="off"/>
+                    v-model="displayDisasterTentsCount"
+                    @input="handleDisasterTentsInput"
+                    placeholder="/件"
+                    autocomplete="off"/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="手电筒">
                 <el-input
-                  v-model="displayFlashlightsCount"
-                  @input="handleFlashlightsInput"
-                  placeholder="/件"
-                  autocomplete="off"/>
+                    v-model="displayFlashlightsCount"
+                    @input="handleFlashlightsInput"
+                    placeholder="/件"
+                    autocomplete="off"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -187,19 +187,19 @@
             <el-col :span="12">
               <el-form-item label="雨衣">
                 <el-input
-                  v-model="displayRaincoatsCount"
-                  @input="handleRaincoatsInput"
-                  placeholder="/件"
-                  autocomplete="off"/>
+                    v-model="displayRaincoatsCount"
+                    @input="handleRaincoatsInput"
+                    placeholder="/件"
+                    autocomplete="off"/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="雨鞋">
                 <el-input
-                  v-model="displayRainBootsCount"
-                  @input="handleRainBootsInput"
-                  placeholder="/双"
-                  autocomplete="off"/>
+                    v-model="displayRainBootsCount"
+                    @input="handleRainBootsInput"
+                    placeholder="/双"
+                    autocomplete="off"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -248,28 +248,28 @@
         <h2 class="panelName">行政区划匹配</h2>
       </div>
 
-      <div class="panelContent" style="padding-right: 5px" v-if="marchRegion">
-        <div class="district-buttons">
-          <div v-for="district in districts" :key="district.adcode" class="district-button">
-            <el-button
-              @click="selectRegions(district)"
-              class="district-button"
-              :class="{ 'selected': selectedRegions.includes(district) }">
-              {{ district.name }}
-            </el-button>
-          </div>
+        <div class="panelContent" style="padding-right: 5px" v-if="marchRegion">
+            <div class="district-buttons">
+                <div v-for="district in districts" :key="district.adcode" class="district-button">
+                    <el-button
+                            @click="selectRegions(district)"
+                            class="district-button"
+                            :class="{ 'selected': selectedRegions.includes(district) }">
+                        {{ district.name }}
+                    </el-button>
+                </div>
+            </div>
+<!--            <el-button type="primary" @click="confirmSelection">确认选择</el-button>-->
         </div>
-        <!--            <el-button type="primary" @click="confirmSelection">确认选择</el-button>-->
-      </div>
 
-      <!-- marchRegionSupplies 供应详情 -->
-      <!--        <div class="panelContent" style="padding-right: 5px" v-if="marchRegionSupplies">-->
-      <!--            <div>-->
-      <!--&lt;!&ndash;                <p>当前选择的区域：{{ selectedRegions.map(r => r.name).join(', ') }}</p>&ndash;&gt;-->
-      <!--                <h1>11111111111111111111111</h1>-->
-      <!--                <el-button type="primary" @click="goBackToRegionSelection">返回重新选择</el-button>-->
-      <!--            </div>-->
-      <!--        </div>-->
+        <!-- marchRegionSupplies 供应详情 -->
+<!--        <div class="panelContent" style="padding-right: 5px" v-if="marchRegionSupplies">-->
+<!--            <div>-->
+<!--&lt;!&ndash;                <p>当前选择的区域：{{ selectedRegions.map(r => r.name).join(', ') }}</p>&ndash;&gt;-->
+<!--                <h1>11111111111111111111111</h1>-->
+<!--                <el-button type="primary" @click="goBackToRegionSelection">返回重新选择</el-button>-->
+<!--            </div>-->
+<!--        </div>-->
 
       <div style="width: 100%;display: flex;justify-content: center;align-items: center">
         <div class="panelButtons">
@@ -292,58 +292,58 @@
       <div class="panelContent" style="padding: 5px;margin-top: 10px">
         <!--     数据列表     -->
         <el-table
-          :data="showSuppliesList"
-          style="margin-bottom: 5px; text-align: center"
-          :stripe="true"
-          :header-cell-style="tableHeaderColor"
-          :cell-style="tableColor"
-          :row-style="{ height: '40px' }"
-          @row-click="showSupplyPoint"
+            :data="showSuppliesList"
+            style="margin-bottom: 5px; text-align: center"
+            :stripe="true"
+            :header-cell-style="tableHeaderColor"
+            :cell-style="tableColor"
+            :row-style="{ height: '40px' }"
+            @row-click="showSupplyPoint"
         >
           <!--      救援物资      -->
           <el-table-column
-            v-if="listField === 'supplies'"
-            v-for="column in listFieldsOfSupplies"
-            :key="column.prop"
-            :prop="column.prop"
-            :label="column.label"
-            :width="column.width"
-            show-overflow-tooltip
+              v-if="listField === 'supplies'"
+              v-for="column in listFieldsOfSupplies"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
           ></el-table-column>
           <!--      救援力量      -->
           <el-table-column
-            v-if="listField === 'emergencyTeam'"
-            v-for="column in listFieldOfEmergencyTeam"
-            :key="column.prop"
-            :prop="column.prop"
-            :label="column.label"
-            :width="column.width"
-            show-overflow-tooltip
+              v-if="listField === 'emergencyTeam'"
+              v-for="column in listFieldOfEmergencyTeam"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
           ></el-table-column>
           <!--      救灾装备      -->
           <el-table-column
-            v-if="listField === 'reserves'"
-            v-for="column in listFieldOfReserves"
-            :key="column.prop"
-            :prop="column.prop"
-            :label="column.label"
-            :width="column.width"
-            show-overflow-tooltip
+              v-if="listField === 'reserves'"
+              v-for="column in listFieldOfReserves"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
           ></el-table-column>
         </el-table>
         <!--     数据列表end     -->
       </div>
       <div style="width: 100%;display: flex;justify-content: center;align-items: center">
         <el-pagination
-          v-if="panels.tableVisible"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next, jumper"
-          :total="total"
-          class="pagination1"
-          style="padding: 10px"
+            v-if="panels.tableVisible"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next, jumper"
+            :total="total"
+            class="pagination1"
+            style="padding: 10px"
         >
         </el-pagination>
 
@@ -411,6 +411,7 @@ import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../
 import {getEqById, getEqListById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import {AmapApiLocal} from "@/utils/server.js";
+import {TianDiTuToken} from "@/cesium/tool/config.js";
 
 export default {
   components: {
@@ -503,8 +504,8 @@ export default {
         searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
         marchRegionsDialog: false,  //行政区划匹配dialog是否显示
       },
-      marchRegion: true, // 选定匹配区域
-      marchRegionSupplies: false, // 选定行政区后填写要匹配的物资
+        marchRegion: true, // 选定匹配区域
+        marchRegionSupplies: false, // 选定行政区后填写要匹配的物资
 
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
 
@@ -712,8 +713,8 @@ export default {
               const pointLongitude = parseFloat(point.longitude);
               const pointLatitude = parseFloat(point.latitude);
               const initialPoint = Cesium.Cartesian3.fromDegrees(
-                pointLongitude,
-                pointLatitude
+                  pointLongitude,
+                  pointLatitude
               );
               // 距离以公里为单位
               const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
@@ -741,8 +742,8 @@ export default {
 
           //  画圆
           const position = Cesium.Cartesian3.fromDegrees(
-            parseFloat(res.longitude),
-            parseFloat(res.latitude)
+              parseFloat(res.longitude),
+              parseFloat(res.latitude)
           );
           viewer.entities.values.forEach((entity) => {
             if (entity.ellipse) {
@@ -800,14 +801,14 @@ export default {
           ElMessage.error("地震列表无数据")
         }
         this.tableNameOptions = res.map(file => {
-            const eqid = file.split(' - ')[0]?.trim();
-            const details = file.split(' - ')[1]?.trim();
-            // 提取 `-` 后面的部分
-            return {
-              label: details, // 使用提取的部分作为标签
-              value: eqid// 选择值为 ID
+              const eqid = file.split(' - ')[0]?.trim();
+              const details = file.split(' - ')[1]?.trim();
+              // 提取 `-` 后面的部分
+              return {
+                label: details, // 使用提取的部分作为标签
+                value: eqid// 选择值为 ID
+              }
             }
-          }
         )
       })
     },
@@ -876,18 +877,18 @@ export default {
       //采用Haversine formula算法，高德地图的js计算代码，比较简洁 https://www.cnblogs.com/ggz19/p/7551088.html
       let d = Math.PI / 180;
       let f = lat1 * d,
-        h = lat2 * d;
+          h = lat2 * d;
       let i = lng2 * d - lng1 * d;
       let e =
-        (1 - Math.cos(h - f) + (1 - Math.cos(i)) * Math.cos(f) * Math.cos(h)) /
-        2;
+          (1 - Math.cos(h - f) + (1 - Math.cos(i)) * Math.cos(f) * Math.cos(h)) /
+          2;
       return 2 * 6378137 * Math.asin(Math.sqrt(e));
     },
     sortedSuppliesList() {
       // 按照 tents 排序
       this.showSuppliesList = this.showSuppliesList
-        .slice()
-        .sort((a, b) => b.tents - a.tents);
+          .slice()
+          .sort((a, b) => b.tents - a.tents);
     },
     toggleTable() {
 
@@ -916,10 +917,10 @@ export default {
       window.viewer = viewer;
       let options = {};
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        1500,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          1500,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -930,12 +931,12 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName(
-        "cesium-baseLayerPicker-sectionTitle"
+          "cesium-baseLayerPicker-sectionTitle"
       )[0].innerHTML = "影像服务";
       document.getElementsByClassName(
-        "cesium-baseLayerPicker-sectionTitle"
+          "cesium-baseLayerPicker-sectionTitle"
       )[1].innerHTML = "地形服务";
 
       this.clickCount += 1;
@@ -946,58 +947,58 @@ export default {
 
       let token = "34d101b55f6166c49c42aed5a7ed345c";
       viewer.imageryLayers.addImageryProvider(
-        new Cesium.WebMapTileServiceImageryProvider({
-          url:
-            "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-            token,
-          layer: "tdtAnnoLayer",
-          style: "default",
-          format: "image/jpeg",
-          tileMatrixSetID: "GoogleMapsCompatible",
-        })
+          new Cesium.WebMapTileServiceImageryProvider({
+            // url:
+            //     "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            //     token,
+            url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+          })
       );
       //影像注记
       viewer.imageryLayers.addImageryProvider(
-        new Cesium.WebMapTileServiceImageryProvider({
-          url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-            token,
-          layer: "tdtAnnoLayer",
-          style: "default",
-          format: "image/jpeg",
-          tileMatrixSetID: "GoogleMapsCompatible",
-          show: false,
-        })
+          new Cesium.WebMapTileServiceImageryProvider({
+            url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+            show: false,
+          })
       );
 
       handler.setInputAction((movement) => {
         const cartesian = viewer.camera.pickEllipsoid(
-          movement.position,
-          ellipsoid
+            movement.position,
+            ellipsoid
         );
         if (cartesian) {
           const cartographic = ellipsoid.cartesianToCartographic(cartesian);
           this.addSupplyPointCurrently.lat = Cesium.Math.toDegrees(
-            cartographic.latitude
+              cartographic.latitude
           ).toFixed(5);
           this.addSupplyPointCurrently.lng = Cesium.Math.toDegrees(
-            cartographic.longitude
+              cartographic.longitude
           ).toFixed(5);
 
           if (this.canMarkPoint) {
             this.DialogFormVisible = true;
             this.drawSite(
-              this.addSupplyPointCurrently.lat,
-              this.addSupplyPointCurrently.lng,
-              this.clickCount,
-              Cesium.Color.RED
+                this.addSupplyPointCurrently.lat,
+                this.addSupplyPointCurrently.lng,
+                this.clickCount,
+                Cesium.Color.RED
             );
             this.isShowMessage = false
             // console.log("已添加标注点");
             this.canMarkPoint = false;
-            if (this.searchSupplyBy === 'RadiusDialog') {
-              this.panels.searchSupplyByRadiusDialog = true
+            if(this.searchSupplyBy === 'RadiusDialog'){
+                this.panels.searchSupplyByRadiusDialog = true
 
-            } else if (this.searchSupplyBy === 'RadiusDialog')
+            }else if(this.searchSupplyBy = 'RadiusDialog')
               this.panels.marchSupplyDialog = true
           }
         }
@@ -1044,8 +1045,8 @@ export default {
         }
         // 检查经度、纬度和高度是否为有效数值
         if (isNaN(element.longitude) || isNaN(element.latitude)
-          || element.longitude < -180 || element.longitude > 180
-          || element.latitude < -90 || element.latitude > 90) {
+            || element.longitude < -180 || element.longitude > 180
+            || element.latitude < -90 || element.latitude > 90) {
           console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
           return;
         }
@@ -1178,8 +1179,8 @@ export default {
     updatePopupPosition() {
       // 笛卡尔3转笛卡尔2（屏幕坐标）
       const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-        window.viewer.scene,
-        this.selectedEntityHighDiy
+          window.viewer.scene,
+          this.selectedEntityHighDiy
       );
       if (canvasPosition) {
         this.popupPosition = {
@@ -1204,17 +1205,17 @@ export default {
       // this.marchRegion = false
       //   this.marchRegionSupplies = true
     },
-    // 返回重新选择区域
-    goBackToRegionSelection() {
-      this.selectedRegions = []
-      this.marchRegion = true
-      this.marchRegionSupplies = false
-    },
+      // 返回重新选择区域
+      goBackToRegionSelection() {
+          this.selectedRegions = []
+          this.marchRegion = true
+          this.marchRegionSupplies = false
+      },
 
-    // 行政区域匹配
+      // 行政区域匹配
     handleDistrictClick() {
       let district = this.selectedRegions[0]
-      this.selectedDataByRegions = []
+        this.selectedDataByRegions = []
       //清除其他实体标签
       this.removethdRegions()
       this.removeDataSourcesLayer('YaanRegionLayer');
@@ -1308,7 +1309,7 @@ export default {
           let reserves = res.insideEmergencyRescueEquipment
           this.selectedDataByRegions = {supplies, emergencyTeam, reserves}
           // console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
-          this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+            this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
           this.processPoints(supplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
 
           this.processPoints(emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
@@ -1357,35 +1358,35 @@ export default {
 
     // 切换数据列表
     changeDataList(param) {
-      console.log("11111111111111111")
+        console.log("11111111111111111")
       this.selectedSuppliesList = []
       let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
       let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
       let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
-      let array
+        let array
 
-      if (flag1) {
-        array = 'selectedDataByRegions'
-      } else if (flag2) {
-        array = 'selectedDataByRadius'
-      } else if (flag3) {
-        array = 'selectedDataBySupplies'
-      }
+        if(flag1){
+            array = 'selectedDataByRegions'
+        }else if(flag2){
+            array = 'selectedDataByRadius'
+        }else if(flag3){
+            array = 'selectedDataBySupplies'
+        }
       if (param === 'supplies') {
-        this.listField = 'supplies'
+          this.listField = 'supplies'
         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-        this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
-        // this.selectedSuppliesList = this[array].suppliesArr
+          this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
+          // this.selectedSuppliesList = this[array].suppliesArr
       } else if (param === 'emergencyTeam') {
         this.listField = 'emergencyTeam'
         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
         //   this.selectedSuppliesList = this[array].emergencyTeamArr
-        this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
+          this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
       } else {
         this.listField = 'reserves'
         // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
         //   this.selectedSuppliesList = this[array].reservesArr
-        this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
+          this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
       }
       this.showIcon = this.selectedSuppliesList;
       this.total = this.selectedSuppliesList.length;
@@ -1417,8 +1418,8 @@ export default {
       let point = {
         id: id,
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(lng),
-          parseFloat(lat)
+            parseFloat(lng),
+            parseFloat(lat)
         ),
       };
       this.affectedPoints.push(point);
@@ -1569,9 +1570,9 @@ export default {
       // } else {
       //   this.panels.marchSupplyDialog = true
       // }
-      this.addDisasterPoint()
-      this.isShowMessage = true
-      this.searchSupplyBy = 'marchSupplyDialog'
+        this.addDisasterPoint()
+        this.isShowMessage = true
+        this.searchSupplyBy = 'marchSupplyDialog'
 
     },
     // 物资匹配
@@ -1583,12 +1584,12 @@ export default {
       let radiusResult = []
       let countResult = []
       this.selectedSuppliesList = []
-      console.log("result-------------------", result)
+      console.log("result-------------------",result)
       let i = 1.0
       let flag = false
       while (i < 15.0 && !flag) {
         radiusResult = await this.marchSupplyByRadius(result, i)
-        console.log("radiusResult-------------------", radiusResult)
+        console.log("radiusResult-------------------",radiusResult)
         countResult = this.marchSupplyByCount(radiusResult)
         console.log("countResult-------------------", countResult);
         if (countResult.length > 0) {
@@ -1611,10 +1612,10 @@ export default {
         });
       }
       this.selectedDataBySupplies.supplies = countResult
-      this.selectedDataBySupplies.emergencyTeam = []
-      this.selectedDataBySupplies.reserves = []
-      this.listField = 'supplies'
-      this.changeDataList('supplies')
+        this.selectedDataBySupplies.emergencyTeam = []
+        this.selectedDataBySupplies.reserves = []
+        this.listField = 'supplies'
+        this.changeDataList('supplies')
       this.panels.marchSupplyDialog = false
     },
 
@@ -1627,31 +1628,31 @@ export default {
       // } else {
       //   this.panels.searchSupplyByRadiusDialog = true
       // }
-      this.addDisasterPoint()
-      this.isShowMessage = true
-      this.searchSupplyBy = 'RadiusDialog'
+        this.addDisasterPoint()
+        this.isShowMessage = true
+        this.searchSupplyBy = 'RadiusDialog'
     },
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
       this.ifDrawEllipse = true
-      // 移除现有的点
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
+        // 移除现有的点
+        this.removePoints(this.suppliesList[0]);
+        this.removePoints(this.suppliesList[1]);
+        this.removePoints(this.suppliesList[2]);
       let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
       // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
-      this.selectedDataByRadius = {
-        supplies: result[0],
-        reserves: result[1],
-        emergencyTeam: result[2]
-      };
-      this.selectPoints(this.searchSupplyForm.radius)
-      this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-      this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-      this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-      this.listField = 'supplies'
-      this.changeDataList('supplies')
+        this.selectedDataByRadius = {
+            supplies: result[0],
+            reserves: result[1],
+            emergencyTeam: result[2]
+        };
+        this.selectPoints(this.searchSupplyForm.radius)
+        this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
+        this.listField = 'supplies'
+        this.changeDataList('supplies')
       this.panels.searchSupplyByRadiusDialog = false
     },
     // 半径匹配
@@ -1661,52 +1662,52 @@ export default {
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
       let result = []
-      let suppliesArr = []
-      let reservesArr = []
-      let emergencyTeamArr = []
+        let suppliesArr = []
+        let reservesArr = []
+        let emergencyTeamArr = []
       let longitude = parseFloat(this.addSupplyPointCurrently.lng);
       let latitude = parseFloat(this.addSupplyPointCurrently.lat);
       const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-      if (Array.isArray(array[0])) {
-        array.forEach((arr, index) => {
-          arr.forEach((point) => {
-            const pointLongitude = parseFloat(point.longitude);
-            const pointLatitude = parseFloat(point.latitude);
-            const initialPoint = Cesium.Cartesian3.fromDegrees(
-              pointLongitude,
-              pointLatitude
-            );
-            // 距离以公里为单位
-            const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-            if (distance < radius) {
-              if (index === 0) {
-                suppliesArr.push(point);
-              } else if (index === 1) {
-                reservesArr.push(point);
-              } else {
-                emergencyTeamArr.push(point);
+      if(Array.isArray(array[0])){
+          array.forEach((arr,index) => {
+              arr.forEach((point) => {
+                  const pointLongitude = parseFloat(point.longitude);
+                  const pointLatitude = parseFloat(point.latitude);
+                  const initialPoint = Cesium.Cartesian3.fromDegrees(
+                      pointLongitude,
+                      pointLatitude
+                  );
+                  // 距离以公里为单位
+                  const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+                  if (distance < radius) {
+                      if(index === 0){
+                          suppliesArr.push(point);
+                      }else if(index === 1){
+                          reservesArr.push(point);
+                      }else{
+                          emergencyTeamArr.push(point);
+                      }
+                  }
+              });
+          })
+          result.push(suppliesArr)
+          result.push(reservesArr)
+          result.push(emergencyTeamArr)
+      // }else if(typeof array === 'string'){
+      }else{
+          array.forEach((point) => {
+              const pointLongitude = parseFloat(point.longitude);
+              const pointLatitude = parseFloat(point.latitude);
+              const initialPoint = Cesium.Cartesian3.fromDegrees(
+                  pointLongitude,
+                  pointLatitude
+              );
+              // 距离以公里为单位
+              const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
+              if (distance < radius) {
+                  result.push(point);
               }
-            }
           });
-        })
-        result.push(suppliesArr)
-        result.push(reservesArr)
-        result.push(emergencyTeamArr)
-        // }else if(typeof array === 'string'){
-      } else {
-        array.forEach((point) => {
-          const pointLongitude = parseFloat(point.longitude);
-          const pointLatitude = parseFloat(point.latitude);
-          const initialPoint = Cesium.Cartesian3.fromDegrees(
-            pointLongitude,
-            pointLatitude
-          );
-          // 距离以公里为单位
-          const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-          if (distance < radius) {
-            result.push(point);
-          }
-        });
       }
       return result
     },
@@ -1742,9 +1743,9 @@ export default {
           flashlights += ele.flashlights;
           // console.log("rainBoots=====-----",rainBoots)
           if (tents >= this.searchSupplyForm.tents
-            && raincoats >= this.searchSupplyForm.raincoats
-            && rainBoots >= this.searchSupplyForm.rainBoots
-            && flashlights >= this.searchSupplyForm.flashlights) {
+              && raincoats >= this.searchSupplyForm.raincoats
+              && rainBoots >= this.searchSupplyForm.rainBoots
+              && flashlights >= this.searchSupplyForm.flashlights) {
             flag = true;
           }
           resultArray.push(ele)
@@ -1764,8 +1765,8 @@ export default {
       this.removePoints(this.showIcon);
       viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.addSupplyPointCurrently.lng),
-          parseFloat(this.addSupplyPointCurrently.lat)
+            parseFloat(this.addSupplyPointCurrently.lng),
+            parseFloat(this.addSupplyPointCurrently.lat)
         ),
         point: {
           pixelSize: 10,
@@ -1818,8 +1819,8 @@ export default {
 
         // 将经纬度转换为 Cartesian3 类型
         const position = Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.addSupplyPointCurrently.lng),
-          parseFloat(this.addSupplyPointCurrently.lat)
+            parseFloat(this.addSupplyPointCurrently.lng),
+            parseFloat(this.addSupplyPointCurrently.lat)
         );
         viewer.entities.values.forEach((entity) => {
           if (entity.ellipse) {
@@ -1933,8 +1934,8 @@ export default {
       let rc = (radius / c) * a;
       let arr = [];
       let n = 0,
-        step = 360.0 / pointCount,
-        N = 360 - step / 2; //注意浮点数±0.000000001的差异
+          step = 360.0 / pointCount,
+          N = 360 - step / 2; //注意浮点数±0.000000001的差异
       for (let i = 0; n < N; i++, n += step) {
         let x = lng + rb * Math.cos((n * Math.PI) / 180);
         let y = lat + rc * Math.sin((n * Math.PI) / 180);
@@ -2009,7 +2010,7 @@ export default {
       });
       this.propertiesId = []; // 清空propertiesId，为新的路径规划准备
 
-      console.log("111")
+        console.log("111")
       this.handler.setInputAction((event) => {
         if (!this.isRouting) return; // 如果路径规划已完成，则不执行后续代码
 
@@ -2020,7 +2021,7 @@ export default {
         let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
 
-        console.log("222")
+          console.log("222")
         that.pos.push([lon, lat]);
         let billBoardId = Date.now();
         if (that.pos.length === 1) {
@@ -2030,7 +2031,7 @@ export default {
           that.billboardD(position, end, billBoardId);
           this.propertiesId.push(billBoardId);  // 将billboardId加入propertiesId数组
         }
-        console.log("333")
+          console.log("333")
 
         if (that.pos.length === 2) {
           // 已获取两个点，开始路径规划
@@ -2042,7 +2043,7 @@ export default {
           let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
           let avoidArea = "";
 
-          console.log("444")
+            console.log("444")
           // 添加受灾区域逻辑
           if (that.areas.length > 0) {
             let area = JSON.parse(JSON.stringify(that.areas));
@@ -2054,38 +2055,38 @@ export default {
             }
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
-          console.log("555")
+            console.log("555")
           axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
-            .then(res => {
-              pathM += parseInt(res.data.route.paths[0].distance);
-              res.data.route.paths[0].steps.forEach(step => {
-                pathName.push(step.instruction);
-                path += step.polyline + ";";
-              });
+              .then(res => {
+                pathM += parseInt(res.data.route.paths[0].distance);
+                res.data.route.paths[0].steps.forEach(step => {
+                  pathName.push(step.instruction);
+                  path += step.polyline + ";";
+                });
 
-              let pathSegments = path.split(";")
-                .map(segment =>
-                  segment
-                    .replace(/"/g, "")  // 去除双引号
-                    .split(",")  // 按逗号分割成经纬度数组
-                    .map(Number)  // 将字符串转换为数字
-                    .filter(seg => !isNaN(seg))  // 去除无效数字
-                )
-                .filter(segment => segment.length === 2)
-                .map(segment => gcj02towgs84(segment[0], segment[1]))
+                let pathSegments = path.split(";")
+                    .map(segment =>
+                        segment
+                            .replace(/"/g, "")  // 去除双引号
+                            .split(",")  // 按逗号分割成经纬度数组
+                            .map(Number)  // 将字符串转换为数字
+                            .filter(seg => !isNaN(seg))  // 去除无效数字
+                    )
+                    .filter(segment => segment.length === 2)
+                    .map(segment => gcj02towgs84(segment[0], segment[1]))
 // 在pathSegments数组开头插入起点
-              pathSegments.unshift(that.pos[0]);
+                pathSegments.unshift(that.pos[0]);
 
 // 在pathSegments数组结尾添加终点
-              pathSegments.push(that.pos[1]);
-              that.polylineD(pathSegments, propertiesId);
-              this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
-              this.humantime = (pathM * 0.7 / 60).toFixed(2);
-              this.driveStyle();
-              this.walkStyle();
-              this.totalRoute = pathM;
-              this.RouteGuilde = pathName;
-            })
+                pathSegments.push(that.pos[1]);
+                that.polylineD(pathSegments, propertiesId);
+                this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
+                this.humantime = (pathM * 0.7 / 60).toFixed(2);
+                this.driveStyle();
+                this.walkStyle();
+                this.totalRoute = pathM;
+                this.RouteGuilde = pathName;
+              })
 
           that.showTips = true;
           this.isRouting = false; // 路径规划完成，设置标志
@@ -2137,7 +2138,7 @@ export default {
         polygon: {
           hierarchy: arr,
           material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(
-            0.2
+              0.2
           ),
           clampToGround: true,
         },
@@ -2238,31 +2239,31 @@ export default {
 
       // 请求路径规划
       axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
-        .then(res => {
-          // 处理路径返回的数据，更新路径
-          let pathM = parseInt(res.data.route.paths[0].distance);
-          let pathName = [];
-          let path = "";
-          res.data.route.paths[0].steps.forEach(step => {
-            pathName.push(step.instruction);
-            path += step.polyline + ";";
+          .then(res => {
+            // 处理路径返回的数据，更新路径
+            let pathM = parseInt(res.data.route.paths[0].distance);
+            let pathName = [];
+            let path = "";
+            res.data.route.paths[0].steps.forEach(step => {
+              pathName.push(step.instruction);
+              path += step.polyline + ";";
+            });
+
+            // 更新路径
+            let pathSegments = path.split(";")
+                .map(segment => segment.replace(/"/g, "").split(",").map(Number).filter(seg => !isNaN(seg)))
+                .filter(segment => segment.length === 2)
+                .map(segment => gcj02towgs84(segment[0], segment[1]));
+
+            pathSegments.unshift(that.pos[0]);
+            pathSegments.push(that.pos[1]);
+
+            // 将新的路径绘制到地图上
+            that.polylineD(pathSegments, that.propertiesId);  // 传递路径和 id 更新折线
+          })
+          .catch(error => {
+            console.error("路径规划请求失败", error);
           });
-
-          // 更新路径
-          let pathSegments = path.split(";")
-            .map(segment => segment.replace(/"/g, "").split(",").map(Number).filter(seg => !isNaN(seg)))
-            .filter(segment => segment.length === 2)
-            .map(segment => gcj02towgs84(segment[0], segment[1]));
-
-          pathSegments.unshift(that.pos[0]);
-          pathSegments.push(that.pos[1]);
-
-          // 将新的路径绘制到地图上
-          that.polylineD(pathSegments, that.propertiesId);  // 传递路径和 id 更新折线
-        })
-        .catch(error => {
-          console.error("路径规划请求失败", error);
-        });
 
       // 显示提示
       that.showTips = true;
@@ -2281,10 +2282,10 @@ export default {
     },
     removePoint() {
       let handler = new Cesium.ScreenSpaceEventHandler(
-        window.viewer.scene.canvas
+          window.viewer.scene.canvas
       );
       let that = this;
-      that.pos = [];  // 清空路径点
+        that.pos = [];  // 清空路径点
       handler.setInputAction(async (click) => {
         let pickedEntity = window.viewer.scene.pick(click.position);
         // let entity = window.selectedEntity = pickedEntity?.id
@@ -2300,14 +2301,14 @@ export default {
     },
     removePolyline() {
       let handler = new Cesium.ScreenSpaceEventHandler(
-        window.viewer.scene.canvas
+          window.viewer.scene.canvas
       );
       handler.setInputAction(async (click) => {
         let pickedEntity = window.viewer.scene.pick(click.position);
         let entity = (window.selectedEntity = pickedEntity?.id);
         if (
-          Cesium.defined(pickedEntity) &&
-          window.selectedEntity._polyline !== undefined
+            Cesium.defined(pickedEntity) &&
+            window.selectedEntity._polyline !== undefined
         ) {
           let propertiesId = entity.properties.propertiesId._value;
           for (let i = 0; i < propertiesId.length; i++) {

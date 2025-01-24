@@ -257,6 +257,7 @@ import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
 import axios from "axios";
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
+import {tianditu} from "@/utils/server.js";
 
 export default {
   components: {
@@ -604,9 +605,8 @@ export default {
 
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            // url: "http://59.255.48.160:81/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-            url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                TianDiTuToken,
+            url: `${tianditu}/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
+            // url: "http://t0.tianditu.com/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=vec&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg",
@@ -615,9 +615,8 @@ export default {
       );
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            // url: "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                TianDiTuToken,
+            url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
+            // url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg",
@@ -2351,12 +2350,11 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              // url:
-              //     "http://59.255.48.160:81/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-              //     token,
               url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  token,
+                  `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
+              // url:
+              //     "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+              //     token,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
@@ -2373,12 +2371,7 @@ export default {
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
-              // url:
-              //     "http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-              //     token,
-              url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  token,
+              url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
