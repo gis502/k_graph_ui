@@ -60,7 +60,10 @@ const earthquakeType = ref('');
 
 
 watch(() => props.lastEq, () => {
-  initNewEq();
+  if (props.lastEq) {
+    initNewEq();
+  }
+  console.log(props.lastEq)
 });
 
 const initNewEq = () => {
@@ -78,8 +81,8 @@ const initNewEq = () => {
 
   time.value = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
   magnitude.value = props.lastEq.magnitude;
-  longitude.value = props.lastEq.longitude;
-  latitude.value = props.lastEq.latitude;
+  longitude.value = props.lastEq.longitude || props.lastEq.geom.coordinates[0];
+  latitude.value = props.lastEq.latitude || props.lastEq.geom.coordinates[1];
   position.value = props.lastEq.earthquakeName;
   depth.value = props.lastEq.depth;
   earthquakeType.value = props.lastEq.eqType;

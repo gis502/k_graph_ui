@@ -17,7 +17,7 @@
       <div class="compass-outer-ring" style="width: 85px; height:85px;">
         <svg class="cesium-svgPath-svg" width="80" height="80" viewBox="0 0 145 145">
           <path
-              d="m 66.5625,0 0,15.15625 3.71875,0 0,-10.40625 5.5,10.40625 4.375,0 0,-15.15625 -3.71875,0 0,10.40625 L 70.9375,0 66.5625,0 z M 72.5,20.21875 c -28.867432,0 -52.28125,23.407738 -52.28125,52.28125 0,28.87351 23.413818,52.3125 52.28125,52.3125 28.86743,0 52.28125,-23.43899 52.28125,-52.3125 0,-28.873512 -23.41382,-52.28125 -52.28125,-52.28125 z m 0,1.75 c 13.842515,0 26.368948,5.558092 35.5,14.5625 l -11.03125,11 0.625,0.625 11.03125,-11 c 8.9199,9.108762 14.4375,21.579143 14.4375,35.34375 0,13.764606 -5.5176,26.22729 -14.4375,35.34375 l -11.03125,-11 -0.625,0.625 11.03125,11 c -9.130866,9.01087 -21.658601,14.59375 -35.5,14.59375 -13.801622,0 -26.321058,-5.53481 -35.4375,-14.5 l 11.125,-11.09375 c 6.277989,6.12179 14.857796,9.90625 24.3125,9.90625 19.241896,0 34.875,-15.629154 34.875,-34.875 0,-19.245847 -15.633104,-34.84375 -34.875,-34.84375 -9.454704,0 -18.034511,3.760884 -24.3125,9.875 L 37.0625,36.4375 C 46.179178,27.478444 58.696991,21.96875 72.5,21.96875 z m -0.875,0.84375 0,13.9375 1.75,0 0,-13.9375 -1.75,0 z M 36.46875,37.0625 47.5625,48.15625 C 41.429794,54.436565 37.65625,63.027539 37.65625,72.5 c 0,9.472461 3.773544,18.055746 9.90625,24.34375 L 36.46875,107.9375 c -8.96721,-9.1247 -14.5,-21.624886 -14.5,-35.4375 0,-13.812615 5.53279,-26.320526 14.5,-35.4375 z M 72.5,39.40625 c 18.297686,0 33.125,14.791695 33.125,33.09375 0,18.302054 -14.827314,33.125 -33.125,33.125 -18.297687,0 -33.09375,-14.822946 -33.09375,-33.125 0,-18.302056 14.796063,-33.09375 33.09375,-33.09375 z M 22.84375,71.625 l 0,1.75 13.96875,0 0,-1.75 -13.96875,0 z m 85.5625,0 0,1.75 14,0 0,-1.75 -14,0 z M 71.75,108.25 l 0,13.9375 1.71875,0 0,-13.9375 -1.71875,0 z"></path>
+            d="m 66.5625,0 0,15.15625 3.71875,0 0,-10.40625 5.5,10.40625 4.375,0 0,-15.15625 -3.71875,0 0,10.40625 L 70.9375,0 66.5625,0 z M 72.5,20.21875 c -28.867432,0 -52.28125,23.407738 -52.28125,52.28125 0,28.87351 23.413818,52.3125 52.28125,52.3125 28.86743,0 52.28125,-23.43899 52.28125,-52.3125 0,-28.873512 -23.41382,-52.28125 -52.28125,-52.28125 z m 0,1.75 c 13.842515,0 26.368948,5.558092 35.5,14.5625 l -11.03125,11 0.625,0.625 11.03125,-11 c 8.9199,9.108762 14.4375,21.579143 14.4375,35.34375 0,13.764606 -5.5176,26.22729 -14.4375,35.34375 l -11.03125,-11 -0.625,0.625 11.03125,11 c -9.130866,9.01087 -21.658601,14.59375 -35.5,14.59375 -13.801622,0 -26.321058,-5.53481 -35.4375,-14.5 l 11.125,-11.09375 c 6.277989,6.12179 14.857796,9.90625 24.3125,9.90625 19.241896,0 34.875,-15.629154 34.875,-34.875 0,-19.245847 -15.633104,-34.84375 -34.875,-34.84375 -9.454704,0 -18.034511,3.760884 -24.3125,9.875 L 37.0625,36.4375 C 46.179178,27.478444 58.696991,21.96875 72.5,21.96875 z m -0.875,0.84375 0,13.9375 1.75,0 0,-13.9375 -1.75,0 z M 36.46875,37.0625 47.5625,48.15625 C 41.429794,54.436565 37.65625,63.027539 37.65625,72.5 c 0,9.472461 3.773544,18.055746 9.90625,24.34375 L 36.46875,107.9375 c -8.96721,-9.1247 -14.5,-21.624886 -14.5,-35.4375 0,-13.812615 5.53279,-26.320526 14.5,-35.4375 z M 72.5,39.40625 c 18.297686,0 33.125,14.791695 33.125,33.09375 0,18.302054 -14.827314,33.125 -33.125,33.125 -18.297687,0 -33.09375,-14.822946 -33.09375,-33.125 0,-18.302056 14.796063,-33.09375 33.09375,-33.09375 z M 22.84375,71.625 l 0,1.75 13.96875,0 0,-1.75 -13.96875,0 z m 85.5625,0 0,1.75 14,0 0,-1.75 -14,0 z M 71.75,108.25 l 0,13.9375 1.71875,0 0,-13.9375 -1.71875,0 z"></path>
         </svg>
       </div>
     </div>
@@ -36,13 +36,13 @@
           <!-- 左列（历史，黄色）-->
           <div class="column_left">
             <div
-                class="line history"
-                v-for="(item, itemIndex) in eqGroups[0].items"
-                :key="'history-' + itemIndex"
+              class="line history"
+              v-for="(item, itemIndex) in eqGroups[0].items"
+              :key="'history-' + itemIndex"
             >
               {{ item.label }}<span
-                :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
-                @click="toggleSeriesVisibility('history', item.type)"
+              :class="[item.type, {'inactive': !seriesVisibility['history-' + item.type]}]"
+              @click="toggleSeriesVisibility('history', item.type)"
             ></span>
             </div>
           </div>
@@ -50,14 +50,14 @@
           <!-- 右列（最新，红色）-->
           <div class="column_right">
             <div
-                class="line latest"
-                v-for="(item, itemIndex) in eqGroups[1].items"
-                :key="'latest-' + itemIndex"
+              class="line latest"
+              v-for="(item, itemIndex) in eqGroups[1].items"
+              :key="'latest-' + itemIndex"
             >
 
               {{ item.label }}<span
-                :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
-                @click="toggleSeriesVisibility('latest', item.type)"
+              :class="[item.type, {'inactive': !seriesVisibility['latest-' + item.type]}]"
+              @click="toggleSeriesVisibility('latest', item.type)"
             ></span>
             </div>
 
@@ -72,11 +72,11 @@
     </div>
     <!-- 信息窗组件 -->
     <InfoWindow
-        v-if="showInfoWindow"
-        :infoWindow="mapConfig.infoWindow"
-        :data="mapConfig.infoWindowData"
-        :style="{left: `${infoWindowPosition.x}px`, top: `${infoWindowPosition.y}px` }"
-        @callback="infoWindowCallback"
+      v-if="showInfoWindow"
+      :infoWindow="mapConfig.infoWindow"
+      :data="mapConfig.infoWindowData"
+      :style="{left: `${infoWindowPosition.x}px`, top: `${infoWindowPosition.y}px` }"
+      @callback="infoWindowCallback"
     />
   </div>
 
@@ -178,15 +178,17 @@ export default {
 
     watch(() => props.eqData, () => {
       console.log("11111111111",props.eqData)
-      latestEqData.value = [props.eqData[0]]; // 只取最新的一个
-      historyEqData.value = props.eqData.slice(1); // 剩下的为历史数据
+      if (props.eqData.length > 0) {
+        latestEqData.value = [props.eqData[0]]; // 只取最新的一个
+        historyEqData.value = props.eqData.slice(1); // 剩下的为历史数据
 
-      console.log("2222222222222222222222222222222", latestEqData.value)
+        console.log("你好：", props.eqData)
 
-      // 处理数据分组
-      processData();
-      // initMap(); // 初始化地图
-      addMarkers();//标点
+        // 处理数据分组
+        processData();
+        // initMap(); // 初始化地图
+        addMarkers();//标点
+      }
     });
 
     const processData = () => {
@@ -194,8 +196,8 @@ export default {
       const latestData = latestEqData.value.map(item => ({
         position: item.earthquakeName,  //位置
         magnitude: parseFloat(item.magnitude),  //震级
-        longitude: item.longitude,  //经度
-        latitude: item.latitude,  //纬度
+        longitude: item.longitude || item.geom.coordinates[0],  //经度
+        latitude: item.latitude || item.geom.coordinates[1],  //纬度
         // 数据库表中time字段院数据为2015-01-03 08:16:20，
         // 但渲染在前端会出现个'T'，
         // 也就变成了2015-01-03T08:16:20，
@@ -209,11 +211,10 @@ export default {
       const historyData = historyEqData.value.map(item => ({
         position: item.earthquakeName,
         magnitude: parseFloat(item.magnitude),
-        longitude: item.longitude,
-        latitude: item.latitude,
+        longitude: item.longitude || item.geom.coordinates[0],
+        latitude: item.latitude || item.geom.coordinates[1],
         time: item.occurrenceTime.replace("T", " "),
         depth: item.depth,
-        eqType: item.eqType,  //地震类型
       }));
       // 根据震级分类
       dataGroups.value.latestSlight = latestData.filter(item => item.magnitude < 4.5);
@@ -222,11 +223,11 @@ export default {
       dataGroups.value.historyModerate = historyData.filter(item => item.magnitude >= 4.5 && item.magnitude < 6);
       dataGroups.value.historyMajor = historyData.filter(item => item.magnitude >= 6);
 
-      console.log("最新4.5级以下地震:", dataGroups.value.latestSlight);
-      console.log("最新4.5 - 6级地震:", dataGroups.value.latestModerate);
-      console.log("最新6级以上地震:", dataGroups.value.latestMajor);
-      console.log("历史4.5 - 6级地震:", dataGroups.value.historyModerate);
-      console.log("历史6级以上地震:", dataGroups.value.historyMajor);
+      // console.log("最新4.5级以下地震:", dataGroups.value.latestSlight);
+      // console.log("最新4.5 - 6级地震:", dataGroups.value.latestModerate);
+      // console.log("最新6级以上地震:", dataGroups.value.latestMajor);
+      // console.log("历史4.5 - 6级地震:", dataGroups.value.historyModerate);
+      // console.log("历史6级以上地震:", dataGroups.value.historyMajor);
 
 
     };
@@ -334,16 +335,16 @@ export default {
       // console.log("Updating paths2222222222222222222222222222222222222:", upd);
 
       upd.enter()
-          .append('path')
-          .attr("class", "sichuan")
-          .attr('d', pathGenerator) // 设置路径
-          // .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
-          .attr('stroke', '#05CEE5') // 边界线颜色
-          .attr('stroke-width', '1px') // 边界线宽度
-          // .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
-          .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
-          // .attr('fill', (d, i) => d3.hsl(Math.random() * 360, 0.9, 0.5)) // 区域填充颜色,d3.hsl(Math.random() * 360, 0.9, 0.5)。这将会给每个区域随机生成一个颜色，
-          .attr('fill-opacity', 0.3); // 区域填充透明度
+        .append('path')
+        .attr("class", "sichuan")
+        .attr('d', pathGenerator) // 设置路径
+        // .attr('stroke', 'rgba(143,79,14,0.99)') // 边界线颜色
+        .attr('stroke', '#05CEE5') // 边界线颜色
+        .attr('stroke-width', '1px') // 边界线宽度
+        // .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+        .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+        // .attr('fill', (d, i) => d3.hsl(Math.random() * 360, 0.9, 0.5)) // 区域填充颜色,d3.hsl(Math.random() * 360, 0.9, 0.5)。这将会给每个区域随机生成一个颜色，
+        .attr('fill-opacity', 0.3); // 区域填充透明度
 
       // 添加区域名称
       const textUpd = sel.selectAll('text.region-label').data(sichuan.features);
@@ -354,42 +355,42 @@ export default {
 
 
       textUpd.enter()
-          .append('text')
-          .attr('class', 'region-label')
-          .attr('x', d => pathGenerator.centroid(d)[0])  // 获取中心位置的 x 坐标
-          .attr('y', d => pathGenerator.centroid(d)[1])  // 获取中心位置的 y 坐标
-          .attr('dy', '.35em')  // 使文本在 y 方向居中
-          .attr('font-size', '13px')  // 文本大小
-          .attr('fill', '#54aade')  // 文本颜色
-          .attr('text-anchor', 'middle')  // 文本水平居中
-          .text(d => d.properties.name);  // 显示区域名称
+        .append('text')
+        .attr('class', 'region-label')
+        .attr('x', d => pathGenerator.centroid(d)[0])  // 获取中心位置的 x 坐标
+        .attr('y', d => pathGenerator.centroid(d)[1])  // 获取中心位置的 y 坐标
+        .attr('dy', '.35em')  // 使文本在 y 方向居中
+        .attr('font-size', '13px')  // 文本大小
+        .attr('fill', '#54aade')  // 文本颜色
+        .attr('text-anchor', 'middle')  // 文本水平居中
+        .text(d => d.properties.name);  // 显示区域名称
 
 
       // 绘制雅安的行政区划
       const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
       yaanUpd.enter()
-          .append('path')
-          .attr("class", "yaan")  // 设置类名
-          .attr('d', pathGenerator) // 设置路径
-          // .attr('stroke', '#05CEE5') // 边界线颜色
-          .attr('stroke', 'rgba(255,173,84,0.99)') // 边界线颜色
-          .attr('stroke-width', '2px')
-          // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
-          .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
-          .attr('fill-opacity', 0.3);  //透明度
+        .append('path')
+        .attr("class", "yaan")  // 设置类名
+        .attr('d', pathGenerator) // 设置路径
+        // .attr('stroke', '#05CEE5') // 边界线颜色
+        .attr('stroke', 'rgba(255,173,84,0.99)') // 边界线颜色
+        .attr('stroke-width', '2px')
+        // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+        .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+        .attr('fill-opacity', 0.3);  //透明度
 
       // 添加雅安区域名称
       const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
       yaanTextUpd.enter()
-          .append('text')
-          .attr('class', 'yaan-label')
-          .attr('x', d => pathGenerator.centroid(d)[0])
-          .attr('y', d => pathGenerator.centroid(d)[1])
-          .attr('dy', '.35em')
-          .attr('font-size', '13px')
-          .attr('fill', '#cef1f6')  // 雅安区域名称颜色
-          .attr('text-anchor', 'middle')
-          .text(d => d.properties.name); // 显示区域名称
+        .append('text')
+        .attr('class', 'yaan-label')
+        .attr('x', d => pathGenerator.centroid(d)[0])
+        .attr('y', d => pathGenerator.centroid(d)[1])
+        .attr('dy', '.35em')
+        .attr('font-size', '13px')
+        .attr('fill', '#cef1f6')  // 雅安区域名称颜色
+        .attr('text-anchor', 'middle')
+        .text(d => d.properties.name); // 显示区域名称
 
       // 更新文本位置
       updateTextPositions(sel, transform);
@@ -399,12 +400,12 @@ export default {
 
     function updateTextPositions(sel, transform) {
       sel.selectAll('text.region-label')
-          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
-          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+        .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+        .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
 
       sel.selectAll('text.yaan-label')
-          .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
-          .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
+        .attr('x', d => transform.pathFromGeojson.centroid(d)[0])
+        .attr('y', d => transform.pathFromGeojson.centroid(d)[1]);
     }
 
     // 重绘函数
@@ -420,7 +421,7 @@ export default {
 
       // 更新雅安路径
       sel.selectAll('path.yaan').each(function (d) {
-        console.log("Selected yaan path:", this); // 检查当前选择的雅安路径
+        // console.log("Selected yaan path:", this); // 检查当前选择的雅安路径
         d3.select(this).attr('d', transform.pathFromGeojson(d)); // 使用 transform 更新路径
       });
     }
@@ -488,11 +489,12 @@ export default {
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
-      // clearMarkers();
+      clearMarkers();
       // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
         if (key.startsWith('history') && seriesVisibility.value[key]) {
           const [group, type] = key.split('-');
+          console.log(dataGroups.value)
           dataGroups.value[`${group}${capitalize(type)}`].forEach(item => {
             addMarker1(item.longitude, item.latitude, 'yellow', getMarkerSize(type), item);
           });
@@ -582,7 +584,7 @@ export default {
           opacity: 0.1, // 设置透明度
 
         }),
-        zIndexOffset:zIndexOffset
+        zIndexOffset: zIndexOffset
       };
 
       // 创建标记并添加到地图
@@ -594,19 +596,19 @@ export default {
 
 // 添加悬停事件
       marker.addEventListener('mouseover', (e) => {
-        console.log(e.originalEvent.relatedTarget.offsetHeight, e.originalEvent.relatedTarget.offsetWidth)
-        console.log(e)
+        // console.log(e.originalEvent.relatedTarget.offsetHeight, e.originalEvent.relatedTarget.offsetWidth)
+        // console.log(e)
         showInfoWindow.value = true;
         mapConfig.value.infoWindowData = item;
-        console.log("weight.value*********", weight.value)
+        // console.log("weight.value*********", weight.value)
 
-        infoWindowPosition.value.x =  e.containerPoint.x - 130// 获取鼠标位置
-        infoWindowPosition.value.y =  e.containerPoint.y - 190 // 获取鼠标位置
-        console.log("item-----------------", item)
+        infoWindowPosition.value.x = e.containerPoint.x - 130// 获取鼠标位置
+        infoWindowPosition.value.y = e.containerPoint.y - 190 // 获取鼠标位置
+        // console.log("item-----------------", item)
         // 创建信息窗口对象
         mapConfig.value.infoWindow = new T.InfoWindow(
-            document.querySelector('#infoWindow'),
-            {offset: new T.Point(0, -20), closeButton: false}
+          document.querySelector('#infoWindow'),
+          {offset: new T.Point(0, -20), closeButton: false}
         );
         // setTimeout(() => {
         //   mapConfig.value.map.openInfoWindow(mapConfig.value.infoWindow);  //打开信息窗口
@@ -779,7 +781,7 @@ export default {
   margin-bottom: 5px;
 }
 
-:deep(.tdt-left .tdt-control-scale ){
+:deep(.tdt-left .tdt-control-scale ) {
   margin-left: 300px;
 }
 
@@ -876,10 +878,6 @@ export default {
     transform: rotate(360deg);
   }
 }
-
-
-
-
 
 
 .breathing-marker {
