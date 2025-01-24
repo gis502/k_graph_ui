@@ -44,6 +44,8 @@ export default {
       countyCenterNewCounty:'',
       //前一次数据
       previousDataIntime: [], // 用于存储前一次的数据
+      // cameraStopTimeout: null, // 用于存储定时器
+      // cameraStopDuration: 1000, // 相机停止的持续时间（单位：毫秒）
     };
   },
   props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName','startTime'],
