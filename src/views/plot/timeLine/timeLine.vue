@@ -186,6 +186,7 @@ export default {
         document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
+
         // 设置相机高度和视角
         viewer.camera.setView({
           destination: Cesium.Cartesian3.fromDegrees(103.00, 29.98, 20000000),//足够高可以看到整个地球
@@ -197,6 +198,8 @@ export default {
             roll: 0.0
           }
         });
+        viewer.clock.multiplier = 3600
+
         let that = this
         viewer.clock.onTick.addEventListener(function (clock) {
           that.currentTime = clock.currentTime;
@@ -218,7 +221,7 @@ export default {
             if (!that.hasUpdatedPosition) { // 检查是否已经更新过位置
               const elapsedTime = now - that.lastCameraTime;
               if (elapsedTime >= 1000) {
-                console.log("更新视角中心");
+                // console.log("更新视角中心");
                 const positionCartographic = viewer.camera.positionCartographic;
                 let height = positionCartographic.height;
                 that.updateZoomLevel(height);
@@ -233,8 +236,6 @@ export default {
             }
           }
         });
-
-
 
 
         viewer.animation.viewModel.timeFormatter = timeTransfer.CesiumTimeFormatter;

@@ -53,9 +53,9 @@ export default {
   data: function () {
     return {
       oldCurrentTime: null,
-      currentSpeed: 1,
+      currentSpeed: 3600,
       showSpeedOptions: false,
-      speedOption: '600X',
+      speedOption: '3600X',
       speedOptions: ['1X', '60X', '600X', '3600X', '7200X'],
       plots: [],
       ifNewEq: false, //用于 回到真实时间
@@ -63,6 +63,7 @@ export default {
 
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
+      // kongzhitimechazhaobofang:true,
       // isAnimating: true,
     }
   },
@@ -71,7 +72,7 @@ export default {
     currentTime(newVal, oldVal) {
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
-        // console.log(new Date(newVal),new Date(oldVal),"time111111")
+        console.log(new Date(newVal),new Date(oldVal),"time111111")
         this.ifstopandflash(newVal, oldVal);
       }
     },
@@ -145,14 +146,15 @@ export default {
       // 直接赋值速度选项
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
-      this.currentSpeed = parseFloat(speed.split('-')[0])
+      this.currentSpeed = parseFloat(speed.split('X')[0])
+      // console.log("this.currentSpeed",this.currentSpeed)
       window.viewer.clock.multiplier = this.currentSpeed
       // window.viewer.clock.multiplier = 3600
       this.showSpeedOptions = false
     },
-    pause() {
-      window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
-    },
+    // pause() {
+    //   window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
+    // },
     jumpRealTime() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
     },
@@ -161,6 +163,7 @@ export default {
     },
     start() {
       window.viewer.clockViewModel.shouldAnimate = true;
+      // this.kongzhitimechazhaobofang=true;
       this.endflag = false;
     },
     end() {
@@ -176,12 +179,12 @@ export default {
       const timeDiff = Cesium.JulianDate.secondsDifference(currentTime, startTime);
       // 如果当前时间接近某个点的开始时间（允许一定的误差范围）
       if (Math.abs(timeDiff) < 1) { // 误差范围设置为1秒
-        console.log("11111")
+        // console.log("11111")
         return true
 
       } else {
         if (new Date(currentTime).getTime() >= new Date(itemTime).getTime() && new Date(oldCurrentTime).getTime() <= new Date(itemTime).getTime()) {
-          console.log("22222")
+          // console.log("22222")
           return true
         } else {
           return false
@@ -193,10 +196,11 @@ export default {
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
         console.log(item, "plotArrinOneTime fly");
-
+        console.log(this.endflag,"this.endflag")
         if (this.endflag) {
-          console.log("终止飞行");
-          this.endflag = false;
+          console.log(index,this.plotArrinOneTime.length,"终止飞行1111");
+          // this.endflag = false;
+          // this.kongzhitimechazhaobofang=false;
           break; // 终止循环
         }
 
@@ -205,15 +209,16 @@ export default {
           await timeLine.fly(item.longitude, item.latitude, 20000);
           console.log(Date.now(), "fly completed");
 
+          console.log(this.endflag,"this.endflag")
           if (this.endflag) {
-            console.log("终止飞行");
-            this.endflag = false;
+            console.log(index,this.plotArrinOneTime.length,"终止飞行222");
+            // this.endflag = false;
+            // this.kongzhitimechazhaobofang=false;
             break; // 终止循环
           }
-
           // 等待3秒
           await this.wait(3000);
-          console.log("等待3秒后继续");
+          console.log(index,this.plotArrinOneTime.length,"等待3秒后继续");
         } catch (error) {
           console.error("飞行过程中发生错误:", error);
           break; // 发生错误时终止循环
@@ -221,23 +226,27 @@ export default {
       }
 
       // 如果所有点都飞完了，重新启动时间轴
+      console.log(this.endflag,"this.endflag")
+      // if (!this.endflag || this.kongzhitimechazhaobofang==true) {
       if (!this.endflag) {
-        this.viewer.clockViewModel.shouldAnimate = true;
+        window.viewer.clockViewModel.shouldAnimate = true;
       }
     },
     wait(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     },
     ifstopandflash(currentTime, oldCurrentTime) {
-       this.plotArrinOneTime = this.plots.filter(plot => {
+      this.plotArrinOneTime = this.plots.filter(plot => {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });
-      if (this.endflag) {
-        console.log("111111111111111")
-        this.endflag = false;
+      console.log(this.endflag,"this.endflag")
+      // if (this.endflag || this.kongzhitimechazhaobofang==false) {
+      if (this.endflag ) {
+        window.viewer.clockViewModel.shouldAnimate = false;
+        console.log("终止333");
+        // this.endflag = false;
         return
       } else {
-
         if (this.plotArrinOneTime .length > 0) {
           console.log(this.plotArrinOneTime , "this.plotArrinOneTime ")
           window.viewer.clockViewModel.shouldAnimate = false;

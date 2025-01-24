@@ -26,6 +26,7 @@ import * as echarts from "echarts";
 import {markRaw} from 'vue'
 import {getPlotBelongCounty} from '@/api/system/plot'
 import axios from "axios";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 export default {
   data() {
     return {
@@ -56,9 +57,7 @@ export default {
       }
     },
     currentTime(newVal) {
-      if(new Date(newVal)>new Date(this.startTime)){
         this.updateTimeStatistic();
-      }
     },
     zoomLevel(newVal,oldVal) {
       if (newVal !== oldVal) {
@@ -362,21 +361,6 @@ export default {
           locationInfo: locationInfo
         });
       }));
-
-
-      // this.resInfo = []
-      // this.plots.forEach(item=>{
-      //   this.resInfo.push({
-      //     plotId: plotId,
-      //     plotType: plotType,
-      //     startTime: startTime,
-      //     endTime: endTime,
-      //     locationInfo: {city:"雅安市",county:"芦山县"}
-      //   });
-      // })
-
-      // this.isDataReady = true;
-      // console.log("resInfo.value111", this.resInfo)
       this.updateTimeStatistic()
     },
 
@@ -406,7 +390,6 @@ export default {
       // 数据不同，更新 previousDataIntime 并执行 showZoomStatistic
       this.previousDataIntime = JSON.parse(JSON.stringify(this.dataIntime));
       this.showZoomStatistic();
-
     },
     async showZoomStatistic() {
       if (!this.dataIntime) {
@@ -468,7 +451,7 @@ export default {
         }
         return acc;
       }, {}); // 初始化一个空对象作为累加器
-
+      // console.log(counts,"counts")
       // 将结果转换为数组
       this.myChart1Data = Object.values(counts);
       // console.log(this.myChart1Data, "this.myChart1Data")
@@ -622,21 +605,9 @@ export default {
       }
 
     },
-    timestampToTimeChina(timestamp) {
-      let DateObj = new Date(timestamp);
-      let year = DateObj.getFullYear();
-      let month = DateObj.getMonth() + 1;
-      let day = DateObj.getDate();
-      let hh = DateObj.getHours();
-      let mm = DateObj.getMinutes();
-      let ss = DateObj.getSeconds();
-      month = month > 9 ? month : '0' + month;
-      day = day > 9 ? day : '0' + day;
-      hh = hh > 9 ? hh : '0' + hh;
-      mm = mm > 9 ? mm : '0' + mm;
-      ss = ss > 9 ? ss : '0' + ss;
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
-    },
+    timestampToTimeChina(time) {
+      return timeTransfer.timestampToTimeChina(time)
+    }
   }
 
 };
