@@ -34,7 +34,7 @@ export default {
       myChart1Data: [],
       filtdata: [],
       resInfo: [],
-      isDataReady: false,
+      // isDataReady: false,
       dataInTimeAndZoom: [],
       centerPosionName: '',
       option: null,
@@ -46,38 +46,50 @@ export default {
       previousDataIntime: [], // 用于存储前一次的数据
     };
   },
-  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName'],
+  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName','startTime'],
   watch: {
-    plots(newVal) {
-      this.getRescueActionCasualtiesPlotAndInfo();
+    plots(newVal,oldVal) {
+      if (newVal !== oldVal) {
+        this.getRescueActionCasualtiesPlotAndInfo();
+      }
     },
     currentTime(newVal) {
-      this.updateTimeStatistic();
+      if(new Date(newVal)>new Date(this.startTime)){
+        this.updateTimeStatistic();
+      }
     },
-    zoomLevel(newVal) {
-      this.showZoomStatistic()
+    zoomLevel(newVal,oldVal) {
+      if (newVal !== oldVal) {
+        this.showZoomStatistic()
+      }
     },
     //中心点位置
     async viewCenterCoordinate(newVal) {
-      console.log("viewCenterCoordinate watch", newVal)
-      if(this.typeIsYaan){
-        let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
-        console.log(countyCenterTmp,"countyCenterTmp")
-        if(countyCenterTmp!= this.countyCenterNew){
-          this.countyCenterNew=countyCenterTmp
-          // console.log(this.countyCenterNew,"this.countyCenterNew")
-          this.showZoomStatistic()
-        }
+      if(this.zoomLevel=='市'){
+        return
       }
       else{
-        const countyCenterTmp = await this.getReverseGeocode(newVal.lon,newVal.lat);
-        if(countyCenterTmp.county!= this.countyCenterNew){
-          this.countyCenterNew=countyCenterTmp.county
-          this.countyCenterNewCity=countyCenterTmp.city
-          // console.log(this.countyCenterNew,"this.countyCenterNew")
-          this.showZoomStatistic()
+        // console.log("viewCenterCoordinate watch", newVal)
+        if(this.typeIsYaan){
+          let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
+          // console.log(countyCenterTmp,"countyCenterTmp")
+          if(countyCenterTmp!= this.countyCenterNew){
+            this.countyCenterNew=countyCenterTmp
+            // console.log(this.countyCenterNew,"this.countyCenterNew")
+            this.showZoomStatistic()
+          }
+        }
+        else{
+          const countyCenterTmp = await this.getReverseGeocode(newVal.lon,newVal.lat);
+          if(countyCenterTmp.county!= this.countyCenterNew){
+            this.countyCenterNew=countyCenterTmp.county
+            this.countyCenterNewCity=countyCenterTmp.city
+            // console.log(this.countyCenterNew,"this.countyCenterNew")
+            this.showZoomStatistic()
+          }
         }
       }
+
     },
     //时间轴停止，标绘统计上下滚动
     isTimerRunning(newVal) {
@@ -300,7 +312,6 @@ export default {
 
     //取位置
     async getRescueActionCasualtiesPlotAndInfo() {
-      // console.log("this.plots getRescueActionCasualtiesPlotAndInfo", this.plots)
       if (!this.plots) {
         return;
       }
@@ -311,7 +322,7 @@ export default {
           if(this.typeIsYaan){
             //走数据库json
             let county = await this.getPlotBelongCounty(longitude, latitude)
-            console.log(county,"county")
+            // console.log(county,"county")
             let city=null
             if(county&&county!="不在雅安市"){
               city="雅安市"
@@ -324,7 +335,7 @@ export default {
           else{
             // 逆地址 接口
             const locationInfotmp = await this.getReverseGeocode(longitude, latitude);
-            console.log("locationInfotmp plots",locationInfotmp)
+            // console.log("locationInfotmp plots",locationInfotmp)
             locationInfo={
               city:locationInfotmp.city,
               county:locationInfotmp.county
@@ -349,7 +360,20 @@ export default {
           locationInfo: locationInfo
         });
       }));
-      this.isDataReady = true;
+
+
+      // this.resInfo = []
+      // this.plots.forEach(item=>{
+      //   this.resInfo.push({
+      //     plotId: plotId,
+      //     plotType: plotType,
+      //     startTime: startTime,
+      //     endTime: endTime,
+      //     locationInfo: {city:"雅安市",county:"芦山县"}
+      //   });
+      // })
+
+      // this.isDataReady = true;
       // console.log("resInfo.value111", this.resInfo)
       this.updateTimeStatistic()
     },
@@ -387,7 +411,7 @@ export default {
         return;
       }
       this.dataInTimeAndZoom = []
-      console.log(this.dataIntime, "this.dataIntime")
+      // console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
 
       let viewCenterLocation={}
@@ -401,17 +425,17 @@ export default {
           city:city,
           county:this.countyCenterNew
         }
-        console.log(viewCenterLocation,"viewCenterLocation")
-        console.log(this.zoomLevel,"showZoomStatistic")
+        // console.log(viewCenterLocation,"viewCenterLocation")
+        // console.log(this.zoomLevel,"showZoomStatistic")
         if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
           this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
           this.centerPosionName = viewCenterLocation.county
-          console.log(this.centerPosionName, "this.centerPosionName")
+          // console.log(this.centerPosionName, "this.centerPosionName")
         }
         else {
           this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
           this.centerPosionName = '雅安市'
-          console.log(this.centerPosionName, "this.centerPosionName")
+          // console.log(this.centerPosionName, "this.centerPosionName")
         }
       }
       else{
@@ -422,18 +446,18 @@ export default {
         if (this.zoomLevel === "区/县") {
           this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
           this.centerPosionName = viewCenterLocation.county
-          console.log(this.centerPosionName, "this.centerPosionName")
+          // console.log(this.centerPosionName, "this.centerPosionName")
         } else {
           this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
           this.centerPosionName = viewCenterLocation.city
-          console.log(this.centerPosionName, "this.centerPosionName")
+          // console.log(this.centerPosionName, "this.centerPosionName")
         }
       }
 
 
 
       let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
-        console.log(acc, obj, "occ,obj")
+        // console.log(acc, obj, "occ,obj")
         // 如果acc中已经有这个icon值，则增加它的计数
         if (acc[obj.plotType]) {
           acc[obj.plotType].value += 1;
@@ -445,7 +469,7 @@ export default {
 
       // 将结果转换为数组
       this.myChart1Data = Object.values(counts);
-      console.log(this.myChart1Data, "this.myChart1Data")
+      // console.log(this.myChart1Data, "this.myChart1Data")
       this.myChart1Data = this.myChart1Data.sort((a, b) => {
         return b.value - a.value
       });
@@ -530,7 +554,7 @@ export default {
             tk: '80eb284748e84ca6c70468c906f0c889'
           }
         });
-        console.log(response,"response")
+        // console.log(response,"response")
         return response.data.result.addressComponent;
       } catch (error) {
         console.error("逆地理编码失败:", error);
