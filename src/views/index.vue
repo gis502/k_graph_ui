@@ -55,7 +55,7 @@
                 >
                   <el-input
                       size="small"
-                      style="width: 5vw; font-size: 16px;margin-right: 5px;margin-left: 5px"
+                      style="width: 5vw; font-size: 16px;margin-right: 5px;margin-left: 7px"
                       v-model="requestParams"
                       @keyup.enter="query()"
                   ></el-input>
