@@ -14,7 +14,7 @@
 
 
         <div class="center-body">
-          <e-map :eq-data="tableData"/>
+          <e-map :eq-data="CeShiTableData"/>
         </div>
 
         <div class="left">
@@ -175,9 +175,9 @@ let lastEqData = ref(null);
 const requestParams = ref('');
 // 当前模式，初始为正式
 const activeMode = ref('Z');
-
+let CeShiTableData = ref([]);
 // 根据模式过滤表格数据
-const CeShiTableData = computed(() => {
+CeShiTableData = computed(() => {
   if (activeMode.value === 'Z') {
     return tableData.value.filter(item => item.eqType === 'Z');
   } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
