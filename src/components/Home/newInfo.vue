@@ -63,7 +63,7 @@ watch(() => props.lastEq, () => {
   if (props.lastEq) {
     initNewEq();
   }
-  console.log(props.lastEq)
+  console.log("props.lastEq",props.lastEq)
 });
 
 const initNewEq = () => {

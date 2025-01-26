@@ -167,7 +167,6 @@ const getEq = () => {
     tableData.value = res.data;
 
     lastEqData.value = tableData.value[0];
-
   });
 };
 
@@ -185,7 +184,6 @@ CeShiTableData = computed(() => {
   }
   return tableData.value;  // 如果没有选择模式，默认返回所有数据
 });
-
 
 const queryFormVisible = ref(false);
 

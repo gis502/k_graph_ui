@@ -39,6 +39,9 @@ export default {
       default: () => ({}),
     },
   },
+  mounted() {
+    console.log("传入的 data:", this.data);
+  },
   computed: {
     position() { return this.data.position || '未知位置'; },
     // time() {
@@ -53,7 +56,6 @@ export default {
     // },
     time() {
       if (!this.data.time) return '未知时间';
-      console.log("111111",this.data)
 
       const date = new Date(this.data.time);
       const year = date.getFullYear();
@@ -81,6 +83,7 @@ export default {
     }
 
   },
+
   methods: {
     close() {
       this.$emit('update:showInfoWindow', false);

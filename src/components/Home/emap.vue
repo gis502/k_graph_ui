@@ -215,6 +215,7 @@ export default {
         latitude: item.latitude || item.geom.coordinates[1],
         time: item.occurrenceTime.replace("T", " "),
         depth: item.depth,
+        eqType: item.eqType,  //地震类型
       }));
       // 根据震级分类
       dataGroups.value.latestSlight = latestData.filter(item => item.magnitude < 4.5);
