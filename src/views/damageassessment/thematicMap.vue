@@ -183,7 +183,7 @@ import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "../../cesium/tool/initCesium.js";
 import {getEqList} from "../../api/system/damageassessment.js";
-import yaan from "../../assets/geoJson/yaan.json";
+import yaan from "../../assets/geoJson/yaan1.json";
 import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 import eqMark from "@/assets/images/DamageAssessment/eqMark.png";
 

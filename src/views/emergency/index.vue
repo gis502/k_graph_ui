@@ -405,7 +405,7 @@ import {getWay} from "@/api/system/routeplan.js";
 import {walk} from "vue/compiler-sfc";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import axios from "axios"
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
 import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import {getEqById, getEqListById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";

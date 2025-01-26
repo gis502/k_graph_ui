@@ -45,7 +45,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq, getAllEqList} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
 import EarthquakeList from "../../components/ThematicMap/earthquakeList.vue";
 import ThematicMapPreview from "../../components/ThematicMap/thematicMapPreview.vue";
 import html2canvas from "html2canvas";
@@ -716,7 +716,7 @@ export default {
       this.historyEqPoints = [];
       this.historyEqData = [];
       this.removeEntitiesByType("historyEq")
-      this.removeEntitiesByType("faultZone")
+     this.removeDataSourcesLayer('duanliedai');
       this.removeEntitiesByType("ovalCircle")
       this.isHistoryEqPointsShow = false;
     },
