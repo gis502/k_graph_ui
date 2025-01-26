@@ -72,7 +72,7 @@ export default {
     currentTime(newVal, oldVal) {
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
-        console.log(new Date(newVal),new Date(oldVal),"time111111")
+        console.log(new Date(newVal), new Date(oldVal), "time111111")
         this.ifstopandflash(newVal, oldVal);
       }
     },
@@ -196,9 +196,9 @@ export default {
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
         console.log(item, "plotArrinOneTime fly");
-        console.log(this.endflag,"this.endflag")
+        console.log(this.endflag, "this.endflag")
         if (this.endflag) {
-          console.log(index,this.plotArrinOneTime.length,"终止飞行1111");
+          console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
           // this.endflag = false;
           // this.kongzhitimechazhaobofang=false;
           break; // 终止循环
@@ -209,16 +209,15 @@ export default {
           await timeLine.fly(item.longitude, item.latitude, 20000);
           console.log(Date.now(), "fly completed");
 
-          console.log(this.endflag,"this.endflag")
+          console.log(this.endflag, "this.endflag")
           if (this.endflag) {
-            console.log(index,this.plotArrinOneTime.length,"终止飞行222");
-            // this.endflag = false;
-            // this.kongzhitimechazhaobofang=false;
+            console.log(index, this.plotArrinOneTime.length, "终止飞行222");
             break; // 终止循环
           }
           // 等待3秒
-          await this.wait(3000);
-          console.log(index,this.plotArrinOneTime.length,"等待3秒后继续");
+          // await this.wait(3000);
+          await this.blinkMarker(item);
+          console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
         } catch (error) {
           console.error("飞行过程中发生错误:", error);
           break; // 发生错误时终止循环
@@ -226,29 +225,55 @@ export default {
       }
 
       // 如果所有点都飞完了，重新启动时间轴
-      console.log(this.endflag,"this.endflag")
+      console.log(this.endflag, "this.endflag")
       // if (!this.endflag || this.kongzhitimechazhaobofang==true) {
       if (!this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = true;
       }
     },
-    wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+
+    blinkMarker(plot) {
+      return new Promise((resolve) => {
+        const entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
+        if (!entity) {
+          console.error("Entity not found:", plot);
+          resolve();
+          return;
+        }
+
+        // const duration = 3000; // 总时间3秒
+        const interval = 200; // 每次闪烁的时间间隔
+
+        let count = 0;
+        const blinkInterval = setInterval(() => {
+          entity.show = !entity.show
+          count++;
+          if (count >= 5) {
+            clearInterval(blinkInterval);
+            entity.show = true;
+            resolve(); // 完成闪烁，继续后续操作
+          }
+        }, interval);
+      });
     },
+    // wait(ms) {
+    //   return new Promise(resolve => setTimeout(resolve, ms));
+    // },
+
     ifstopandflash(currentTime, oldCurrentTime) {
       this.plotArrinOneTime = this.plots.filter(plot => {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });
-      console.log(this.endflag,"this.endflag")
+      console.log(this.endflag, "this.endflag")
       // if (this.endflag || this.kongzhitimechazhaobofang==false) {
-      if (this.endflag ) {
+      if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
         console.log("终止333");
         // this.endflag = false;
         return
       } else {
-        if (this.plotArrinOneTime .length > 0) {
-          console.log(this.plotArrinOneTime , "this.plotArrinOneTime ")
+        if (this.plotArrinOneTime.length > 0) {
+          console.log(this.plotArrinOneTime, "this.plotArrinOneTime ")
           window.viewer.clockViewModel.shouldAnimate = false;
           this.flyToPointsSequentially()
         }
