@@ -226,7 +226,6 @@ export default {
 
       // 如果所有点都飞完了，重新启动时间轴
       console.log(this.endflag, "this.endflag")
-      // if (!this.endflag || this.kongzhitimechazhaobofang==true) {
       if (!this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = true;
       }
