@@ -724,7 +724,7 @@ import eqTable from '@/components/Home/eqtable.vue'
 import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
 import modelTable from '@/components/Home/modelTable.vue'
-import yaan from '@/assets/geoJson/yaan.json'
+import yaan from '@/assets/geoJson/yaan1.json'
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
@@ -4992,7 +4992,7 @@ export default {
      */
     addFaultZone() {
       // 移除当前所有故障区域实体
-      this.removeEntitiesByType("faultZone")
+     this.removeDataSourcesLayer('duanliedai');
       // 在中心点位置添加新的故障区域
       addFaultZones(this.centerPoint)
     },
@@ -5565,8 +5565,15 @@ export default {
       if (hasFaultZoneLayer) {
         this.addFaultZone();
       } else {
+        if (window.duanliedai) {
+          // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+          window.viewer.dataSources.remove(window.duanliedai, true);
+          // 清空regionLayerJump的引用，以便垃圾回收
+          window.duanliedai = null;
+          // //console.log("图层已移除");
+        }
         // 如果未选定断裂带要素图层，则移除断裂带图层
-        this.removeEntitiesByType('faultZone');
+       this.removeDataSourcesLayer('duanliedai');
       }
 
       // 判断是否选定了烈度圈要素图层

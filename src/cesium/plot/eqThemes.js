@@ -1,5 +1,4 @@
 import * as Cesium from 'cesium'
-import fault_zone from "@/assets/geoJson/line_fault_zone.json";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
@@ -18,47 +17,47 @@ export function addYaanLayer() {
     window.viewer.dataSources.add(dataSource);
     dataSource.name = 'YaanRegionLayer'; // 给图层取名字,以便删除时找到
 
-    const colors = [
-      {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-      {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-      {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
-      {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
-      {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
-      {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
-      {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
-      {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
-      {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
-    ];
-    dataSource.entities.values.forEach((entity, index) => {
-      // console.log("dataSource entity",entity)
-      // 根据实体索引依次从颜色数组中取颜色
-      const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-      const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
-      entity.polygon.material = colorMaterial; // 设置填充颜色
-      // console.log("--------", index, "----------------", entity)
-    });
-    yaan.features.forEach((feature) => {
-      let center = feature.properties.center;
-
-      if (center && center.length === 2) {
-        let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-        let regionlabel = viewer.entities.add(new Cesium.Entity({
-          position: position,
-          label: new Cesium.LabelGraphics({
-            text: feature.properties.name,
-            scale: 1,
-            font: '18px Sans-serif',
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            outlineWidth: 2,
-            verticalOrigin: Cesium.VerticalOrigin.CENTER,
-            horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-            fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-            pixelOffset: new Cesium.Cartesian2(0, 0)
-          })
-        }));
-        this.RegionLabels.push(regionlabel)
-      }
-    })
+    // const colors = [
+    //   {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+    //   {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
+    //   {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
+    //   {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
+    //   {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
+    //   {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
+    //   {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
+    //   {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
+    //   {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
+    // ];
+    // dataSource.entities.values.forEach((entity, index) => {
+    //   // console.log("dataSource entity",entity)
+    //   // 根据实体索引依次从颜色数组中取颜色
+    //   const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
+    //   const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
+    //   entity.polygon.material = colorMaterial; // 设置填充颜色
+    //   // console.log("--------", index, "----------------", entity)
+    // });
+    // yaan.features.forEach((feature) => {
+    //   let center = feature.properties.center;
+    //
+    //   if (center && center.length === 2) {
+    //     let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+    //     let regionlabel = viewer.entities.add(new Cesium.Entity({
+    //       position: position,
+    //       label: new Cesium.LabelGraphics({
+    //         text: feature.properties.name,
+    //         scale: 1,
+    //         font: '18px Sans-serif',
+    //         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+    //         outlineWidth: 2,
+    //         verticalOrigin: Cesium.VerticalOrigin.CENTER,
+    //         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+    //         fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+    //         pixelOffset: new Cesium.Cartesian2(0, 0)
+    //       })
+    //     }));
+    //     this.RegionLabels.push(regionlabel)
+    //   }
+    // })
 
     //雅安行政区加载 end
   })
@@ -66,68 +65,92 @@ export function addYaanLayer() {
 
 // 绘制断裂带
 export function addFaultZones(centerPoint) {
-  const faultZoneLines = [];
-  const lonAndlat = [centerPoint.longitude, centerPoint.latitude];
+// GeoJSON文件路径
+  const geoJsonUrl = new URL("@/assets/geoJson/duanliedai.geojson", import.meta.url).href;
 
-  // 直接解析经纬度
-  let lon1 = parseFloat(lonAndlat[0]);
-  let lat1 = parseFloat(lonAndlat[1]);
+  // 使用fetch加载GeoJSON文件
+  fetch(geoJsonUrl)
+      .then((response) => response.json())
+      .then((geoJsonData) => {
+        // 将GeoJSON数据加载到Cesium
+        viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
+          stroke: Cesium.Color.RED,
+          fill: Cesium.Color.RED.withAlpha(0.5),
+          strokeWidth: 2,
+          clampToGround: true,
+        })).then(function(dataSource) {
+          // 给 dataSource 添加 name 属性
+          dataSource.name = "duanliedai";
+        })
 
-  let radlat1 = (lat1 * Math.PI) / 180.0;
+      })
+      .catch((error) => {
+        console.error("Error loading GeoJSON:", error);
+      });
 
-  fault_zone.forEach((item) => {
-    // 计算距离逻辑应调整为从断裂带的点到中心点的距离
-    const itemLon = parseFloat(item.lonlat[0][0][0]);
-    const itemLat = parseFloat(item.lonlat[0][0][1]);
-    let radlat2 = (itemLat * Math.PI) / 180.0;
-    let a = radlat1 - radlat2;
-    let b = (lon1 * Math.PI) / 180.0 - (itemLon * Math.PI) / 180.0;
-    let s =
-      2 *
-      Math.asin(
-        Math.sqrt(
-          Math.pow(Math.sin(a / 2), 2) +
-          Math.cos(radlat1) *
-          Math.cos(radlat2) *
-          Math.pow(Math.sin(b / 2), 2)
-        )
-      );
-    s = s * 6378.137; // 地球半径
-
-    const num = Math.round(s * 10000) / 10000;
-
-    if (num < 200) {
-      faultZoneLines.push(item);
-    }
-  });
-
-  faultZoneLines.forEach((item) => {
-    let positionsArr = [];
-    for (var i = 0; i + 1 < item.lonlat[0].length; i++) {
-      positionsArr.push(
-        parseFloat(item.lonlat[0][i][0]),
-        parseFloat(item.lonlat[0][i][1]),
-        0
-      );
-    }
-
-    viewer.entities.add({
-      id: item.line,
-      polyline: {
-        status: 1,
-        positions: Cesium.Cartesian3.fromDegreesArrayHeights(positionsArr),
-        width: 5,
-        material: Cesium.Color.RED,
-        depthFailMaterial: Cesium.Color.YELLOW,
-        clampToGround: true,
-      },
-      properties: {
-        type: "faultZone",
-        name: item.name,
-      },
-      layer: "断裂带",
-    });
-  });
+  //以下为加载全国断裂带line_fault_zone.json
+  // const faultZoneLines = [];
+  // const lonAndlat = [centerPoint.longitude, centerPoint.latitude];
+  //
+  // // 直接解析经纬度
+  // let lon1 = parseFloat(lonAndlat[0]);
+  // let lat1 = parseFloat(lonAndlat[1]);
+  //
+  // let radlat1 = (lat1 * Math.PI) / 180.0;
+  //
+  // fault_zone.forEach((item) => {
+  //   // 计算距离逻辑应调整为从断裂带的点到中心点的距离
+  //   const itemLon = parseFloat(item.lonlat[0][0][0]);
+  //   const itemLat = parseFloat(item.lonlat[0][0][1]);
+  //   let radlat2 = (itemLat * Math.PI) / 180.0;
+  //   let a = radlat1 - radlat2;
+  //   let b = (lon1 * Math.PI) / 180.0 - (itemLon * Math.PI) / 180.0;
+  //   let s =
+  //     2 *
+  //     Math.asin(
+  //       Math.sqrt(
+  //         Math.pow(Math.sin(a / 2), 2) +
+  //         Math.cos(radlat1) *
+  //         Math.cos(radlat2) *
+  //         Math.pow(Math.sin(b / 2), 2)
+  //       )
+  //     );
+  //   s = s * 6378.137; // 地球半径
+  //
+  //   const num = Math.round(s * 10000) / 10000;
+  //
+  //   if (num < 200) {
+  //     faultZoneLines.push(item);
+  //   }
+  // });
+  //
+  // faultZoneLines.forEach((item) => {
+  //   let positionsArr = [];
+  //   for (var i = 0; i + 1 < item.lonlat[0].length; i++) {
+  //     positionsArr.push(
+  //       parseFloat(item.lonlat[0][i][0]),
+  //       parseFloat(item.lonlat[0][i][1]),
+  //       0
+  //     );
+  //   }
+  //
+  //   viewer.entities.add({
+  //     id: item.line,
+  //     polyline: {
+  //       status: 1,
+  //       positions: Cesium.Cartesian3.fromDegreesArrayHeights(positionsArr),
+  //       width: 5,
+  //       material: Cesium.Color.RED,
+  //       depthFailMaterial: Cesium.Color.YELLOW,
+  //       clampToGround: true,
+  //     },
+  //     properties: {
+  //       type: "faultZone",
+  //       name: item.name,
+  //     },
+  //     layer: "断裂带",
+  //   });
+  // });
 }
 
 // 绘制历史地震点
@@ -918,6 +941,14 @@ export function timestampToTime(timestamp, format = "full") {
   } else {
     // 返回完整的日期时间格式
     return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
+  }
+}
+export function removeDataSourcesLayer(layerName) {
+  // 通过图层名称获取数据源对象如果存在，则执行移除操作
+  const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+  if (dataSource) {
+    window.viewer.dataSources.remove(dataSource);
+    // console.log(dataSource)
   }
 }
 

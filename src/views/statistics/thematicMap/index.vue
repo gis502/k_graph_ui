@@ -263,7 +263,7 @@ import * as echarts from 'echarts';
 import {initCesium} from '@/cesium/tool/initCesium.js';
 import {getExcelUploadEarthquake, getExcelUploadEqList, getGeomByEqListId, getGeomById} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
-import yaan from '@/assets/geoJson/yaan.json'
+import yaan from '@/assets/geoJson/yaan1.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
 // import cumulativeTransferredImg from '@/assets/images/emergencySheltersLogo.png'
 import damagedWaterSupply from '@/assets/images/damagedWaterSupply.png'

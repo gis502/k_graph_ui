@@ -90,7 +90,7 @@ import InfoWindow from './emap/infowindow.vue'; //信息窗口 在后面
 
 
 import sichuan from '@/assets/geoJson/data.json'; // 导入四川的 GeoJSON 数据
-import yaan from '@/assets/geoJson/yaan.json'
+import yaan from '@/assets/geoJson/yaan1.json'
 
 import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";

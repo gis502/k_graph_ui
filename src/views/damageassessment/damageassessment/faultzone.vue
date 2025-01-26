@@ -131,8 +131,8 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import yaan from "@/assets/geoJson/yaan.json";
-import {addFaultZones} from "../../../cesium/plot/eqThemes.js";
+import yaan from "@/assets/geoJson/yaan1.json";
+import {addFaultZones,removeDataSourcesLayer} from "../../../cesium/plot/eqThemes.js";
 
 export default {
   components: {
@@ -635,7 +635,7 @@ export default {
     },
 
     removeData() {
-      this.removeEntitiesByType("faultZone")
+      removeDataSourcesLayer('duanliedai');
       this.isshowFaultZone = false;
       const faultInfoDiv = document.getElementById('faultInfo');
       faultInfoDiv.style.display = 'none';
@@ -647,7 +647,7 @@ export default {
       if (this.isshowFaultZone) {
         addFaultZones(this.selectedTabData)
       } else {
-        this.removeEntitiesByType("faultZone")
+        removeDataSourcesLayer('duanliedai');
         const faultInfoDiv = document.getElementById('faultInfo');
         faultInfoDiv.style.display = 'none';
       }

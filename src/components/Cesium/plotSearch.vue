@@ -159,7 +159,7 @@ import TwoAndThreeDIntegrationImageData
 import {getExcelPlotInfo, getPlot, getPlotIcon} from '@/api/system/plot'
 import * as Cesium from "cesium";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
 import axios from "axios";
 import {tianDitulocalApi} from "@/utils/server.js";
 

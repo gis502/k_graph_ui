@@ -241,7 +241,7 @@ import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
 import fileUrl from "@/assets/json/TimeLine/芦山地震人员伤亡态势专题报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
 import eqTable from '@/components/Home/eqtable.vue'
-import yaan from '@/assets/geoJson/yaan.json'
+import yaan from '@/assets/geoJson/yaan1.json'
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
