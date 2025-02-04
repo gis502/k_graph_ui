@@ -507,7 +507,7 @@ function fetchData() {
 }
 
 function filterRecords(currentTime) {
-  console.log("filterRecords")
+  // console.log("filterRecords")
   if (Array.isArray(getVillagesAll.value)) {
     const filteredRecords = getVillagesAll.value.filter(record => new Date(record.insertTime) < new Date(currentTime));
     if (filteredRecords.length > 0) {
@@ -540,7 +540,7 @@ function filterRecords(currentTime) {
       currentInterruptedVillages.value = 0;
       currentlyBlackedOutVillages.value =0;
       roadBlockVillage.value = 0;
-      console.log("No records found for the given time criteria.");
+      // console.log("No records found for the given time criteria.");
     }
   } else {
     console.error('getVillagesAll is not an array');
@@ -556,7 +556,7 @@ function filterRecords(currentTime) {
     } else {
        centralizedWaterProjectDamages.value = 0
 
-      console.log("No records found for the given time criteria.");
+      // console.log("No records found for the given time criteria.");
     }
   } else {
     console.error('getVillagesAll is not an array');
@@ -597,7 +597,7 @@ function update() {
       },
     },
   ]
-  console.log("ecData.value",ecData.value)
+  // console.log("ecData.value",ecData.value)
   const pieData = ecData.value
 //设置图表配置项
   const option = getPie3D(pieData, 0.8)

@@ -1,11 +1,11 @@
 <template>
-    <div class="chart-container">
+  <div class="chart-container">
            <span
                style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: 0px; margin-left: 3%; font-size: 14px; color: #fff;">
                   {{ year }}年各区县经济情况
                 </span>
-      <div ref="lineChart" class="chart"></div>
-    </div>
+    <div ref="lineChart" class="chart"></div>
+  </div>
 </template>
 
 <script setup>
@@ -27,7 +27,7 @@ watch(() => props.centerPoint, (newVal, oldVal) => {
 //经济折线图数据
 // 接收卡片信息并根据年份动态获取数据
 //经济折线图数据
-const year=ref('')
+const year = ref('')
 const datas = ref({
   districtEconomy: [], // 经济
   countyDistrict: [], //区县
@@ -38,10 +38,8 @@ const economicData = async () => {
   try {
     // 调用接口获取数据
     const response = await getDistrictEconomy();
-
+    year.value = response[0].year || '2020'
     console.log(`年份 ${response[0].year} 获取的区县经济数据：`, response);
-
-
     const districtEconomy = response.map(item => item.districtEconomy || '暂无数据');
     const countyDistrict = response.map(item => item.countyDistrict || '未知区县');
     const growthRate = response.map(item => {
@@ -49,8 +47,7 @@ const economicData = async () => {
       return rate === '未知区县' ? rate : rate.replace('%', '').trim();
     });
 
-    // datas.value.year=response[0].year||'2020'
-    year.value=response[0].year||'2020'
+
     datas.value.districtEconomy = districtEconomy; // 响应式更新
     datas.value.countyDistrict = countyDistrict; // 响应式更新
     datas.value.growthRate = growthRate; // 响应式更新
@@ -64,7 +61,7 @@ const economicData = async () => {
 
 const initChart = () => {
   if (lineChart.value) {
-    lineChartInstance =echarts.init(lineChart.value,{width:'250px',height:'130px'});
+    lineChartInstance = echarts.init(lineChart.value, {width: '250px', height: '130px'});
     const selectedIndex = datas.value.countyDistrict.findIndex(item => item === props.centerPoint.earthquakeName.slice(-3));
     const barData = datas.value.districtEconomy.map((value, index) => {
       if (index === selectedIndex) {
@@ -233,6 +230,7 @@ onBeforeUnmount(() => {
   height: 98%;
   min-height: 50px;
 }
+
 .chart {
   width: 100%;
   height: 100%;

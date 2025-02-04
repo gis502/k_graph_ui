@@ -506,7 +506,7 @@ function fetchData() {
 }
 
 function filterRecords(currentTime) {
-  console.log("filterRecords")
+  // console.log("filterRecords")
   if (Array.isArray(getVillagesAll.value)) {
     const filteredRecords = getVillagesAll.value.filter(record => new Date(record.insertTime) < new Date(currentTime));
     if (filteredRecords.length > 0) {
@@ -596,7 +596,7 @@ function update() {
       },
     },
   ]
-  console.log("ecData.value",ecData.value)
+  // console.log("ecData.value",ecData.value)
   const pieData = ecData.value
 //设置图表配置项
   const option = getPie3D(pieData, 0.8)

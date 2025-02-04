@@ -89,16 +89,7 @@ export function initCesium(Cesium, container , clock) {
             roll: 0.0
         }
     });
-    // viewer.imageryLayers.addImageryProvider(
-    //     new Cesium.WebMapTileServiceImageryProvider({
-    //         url: `http://59.255.48.160:81/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
-    //         layer: "tdtAnnoLayer",
-    //         style: "default",
-    //         format: "image/jpeg",
-    //         tileMatrixSetID: "GoogleMapsCompatible",
-    //         show: false,
-    //     })
-    // );
+
     return viewer
 }
 

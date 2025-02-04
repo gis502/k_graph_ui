@@ -141,7 +141,7 @@ import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import historyEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
 import {addHistoryEqPoints} from "../../../cesium/plot/eqThemes.js";
 
 export default {

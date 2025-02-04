@@ -14,7 +14,7 @@
 
 
         <div class="center-body">
-          <e-map :eq-data="EqAll"/>
+          <e-map :eq-data="tableData"/>
         </div>
 
         <div class="left">
@@ -44,38 +44,48 @@
               <div style="position: relative; width: 100%; height: auto;">
                 <!-- 图片 -->
                 <img
-                    src="@/assets/earthquakeList.png"
-                    alt="地震列表"
-                    style="width: 90%; height: auto; display: block;"
+                  src="@/assets/earthquakeList.png"
+                  alt="地震列表"
+                  style="width: 90%; height: auto; display: block;"
                 >
 
                 <!-- 输入框和按钮 -->
                 <div
-                    style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; gap: 5px; z-index: 1;"
+                  style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; z-index: 1;"
                 >
                   <el-input
-                      size="small"
-                      style="width: 7vw; font-size: 16px;"
-                      v-model="requestParams"
-                      @keyup.enter="query()"
+                    size="small"
+                    style="width: 5vw; font-size: 16px;margin-right: 5px;margin-left: 7px"
+                    v-model="requestParams"
+                    @keyup.enter="query()"
                   ></el-input>
                   <el-button
-                      size="small"
-                      style="font-size: 16px;"
-                      @click="query()"
+                    size="small"
+                    style="font-size: 14px;"
+                    @click="query()"
                   >查询</el-button>
                   <el-button
-                      size="small"
-                      style="font-size: 16px;"
-                      @click="openQueryFrom()"
+                    size="small"
+                    style="font-size: 14px;"
+                    @click="openQueryFrom()"
                   >筛选</el-button>
+
+                  <!-- 正式和测试按钮，固定不切换 -->
                   <el-button
-                      size="small"
-                      :type="activeMode === 'Z' ? 'primary' : 'default'"
-                      style="font-size: 16px;"
-                      @click="toggleMode"
+                    size="small"
+                    :type="activeMode === 'Z' ? 'danger' : 'default'"
+                    style="font-size: 14px;"
+                    @click="activeMode = 'Z'"
                   >
-                    {{ activeMode === 'Z' ? '正式' : '测试' }}
+                    真实
+                  </el-button>
+                  <el-button
+                    size="small"
+                    :type="activeMode === 'Y' || activeMode === 'T' ? 'primary' : 'default'"
+                    style="font-size: 14px;"
+                    @click="activeMode = 'Y'"
+                  >
+                    测试
                   </el-button>
                 </div>
               </div>
@@ -100,15 +110,15 @@
         </el-form-item>
         <el-form-item label="发震时间">
           <el-date-picker
-              v-model="formValue.occurrenceTime"
-              type="daterange"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              :shortcuts="shortcuts"
-              style="width: 23vw;"
-              value-format="x"
+            v-model="formValue.occurrenceTime"
+            type="daterange"
+            unlink-panels
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            :shortcuts="shortcuts"
+            style="width: 23vw;"
+            value-format="x"
           />
         </el-form-item>
         <el-form-item label="地震震级">
@@ -148,20 +158,34 @@ import {getEqList} from "@/api/system/damageassessment.js";
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([]);
-const lastEqData = ref();
+
+const getEq = () => {
+  getEqList().then((res) => {
+    // console.log("地震数据", res.data)
+    EqAll.value = res.data;
+    console.log("EqAll.value", EqAll.value)
+    tableData.value = res.data;
+
+    lastEqData.value = tableData.value[0];
+
+  });
+};
+
+let lastEqData = ref(null);
 const requestParams = ref('');
 // 当前模式，初始为正式
 const activeMode = ref('Z');
 
-// 切换模式
-const toggleMode = () => {
-  activeMode.value = activeMode.value === 'Z' ? 'T' : 'Z';
-};
-
 // 根据模式过滤表格数据
-const CeShiTableData = computed(() =>
-    tableData.value.filter((item) => item.eqType === activeMode.value)
-);
+const CeShiTableData = computed(() => {
+  if (activeMode.value === 'Z') {
+    return tableData.value.filter(item => item.eqType === 'Z');
+  } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
+    return tableData.value.filter(item => item.eqType === 'Y' || item.eqType === 'T');
+  }
+  return tableData.value;  // 如果没有选择模式，默认返回所有数据
+});
+
 
 const queryFormVisible = ref(false);
 
@@ -230,10 +254,11 @@ const formValue = reactive({
   endMagnitude: '',
   startDepth: '',
   endDepth: '',
-  startDate:'',
-  endDate:'',
+  startDate: '',
+  endDate: '',
 });
 
+//筛选
 const onSubmit = () => {
   if (formValue.occurrenceTime !== '') {
     const [startTime, endTime] = formValue.occurrenceTime;
@@ -256,10 +281,11 @@ const onSubmit = () => {
   };
 
 
-  console.log("5555555555555555555555555555",queryParams)
+  console.log("5555555555555555555555555555", queryParams)
 
   fromEqList(queryParams).then((res) => {
     tableData.value = res;
+    lastEqData.value = CeShiTableData.value[0];
   });
   queryFormVisible.value = false;
 };
@@ -267,15 +293,18 @@ const onSubmit = () => {
 const openQueryFrom = () => {
   queryFormVisible.value = true;
 };
-
+//查询
 const query = () => {
   if (requestParams.value === '') {
     tableData.value = EqAll.value;
+    lastEqData.value = CeShiTableData.value[0];
     return;
   }
   // queryEq({ queryValue: requestParams.value }).then((res) => {
-  queryEqList({ queryValue: requestParams.value }).then((res) => {
+  queryEqList({queryValue: requestParams.value}).then((res) => {
+    console.log(requestParams.value)
     tableData.value = res;
+    lastEqData.value = CeShiTableData.value[0];
   });
 };
 
@@ -294,18 +323,18 @@ const now_time = () => {
   let mySecond = myDate.getSeconds(); // 获取当前秒数(0-59)
   let week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
   return (
-      myYear +
-      '年' +
-      fillZero(myMonth) +
-      '月' +
-      fillZero(myToday) +
-      '日' +
-      fillZero(myHour) +
-      ':' +
-      fillZero(myMinute) +
-      ':' +
-      fillZero(mySecond) +
-      week[myDay]
+    myYear +
+    '年' +
+    fillZero(myMonth) +
+    '月' +
+    fillZero(myToday) +
+    '日' +
+    fillZero(myHour) +
+    ':' +
+    fillZero(myMinute) +
+    ':' +
+    fillZero(mySecond) +
+    week[myDay]
   );
 };
 
@@ -313,27 +342,13 @@ const fillZero = (str) => {
   return str < 10 ? '0' + str : str;
 };
 
-const getEq = () => {
-  getEqList().then((res) => {
-    console.log("地震数据",res.data)
-    EqAll.value = res.data;
-    tableData.value =res.data;
-    // 之后要换回来     lastEqData.value = res[0];
-    lastEqData.value = res.data[0];
-    // 打印最新的 eqid
-    if (lastEqData.value) {
-      console.log('最新地震的 eqid:', lastEqData.value.eqid);
-    }
-  });
-};
-
 const updateStyles = () => {
   // Dynamically update styles without using key
-  borderBoxStyles1.value = { width: leftTop.value.offsetWidth + 'px', height: leftTop.value.offsetHeight + 'px' };
-  borderBoxStyles2.value = { width: leftCon.value.offsetWidth + 'px', height: leftCon.value.offsetHeight + 'px' };
-  borderBoxStyles3.value = { width: leftBottom.value.offsetWidth + 'px', height: leftBottom.value.offsetHeight + 'px' };
-  borderBoxStyles4.value = { width: rightTop.value.offsetWidth + 'px', height: rightTop.value.offsetHeight + 'px' };
-  borderBoxStyles5.value = { width: rightBottom.value.offsetWidth + 'px', height: rightBottom.value.offsetHeight + 'px' };
+  borderBoxStyles1.value = {width: leftTop.value.offsetWidth + 'px', height: leftTop.value.offsetHeight + 'px'};
+  borderBoxStyles2.value = {width: leftCon.value.offsetWidth + 'px', height: leftCon.value.offsetHeight + 'px'};
+  borderBoxStyles3.value = {width: leftBottom.value.offsetWidth + 'px', height: leftBottom.value.offsetHeight + 'px'};
+  borderBoxStyles4.value = {width: rightTop.value.offsetWidth + 'px', height: rightTop.value.offsetHeight + 'px'};
+  borderBoxStyles5.value = {width: rightBottom.value.offsetWidth + 'px', height: rightBottom.value.offsetHeight + 'px'};
 };
 
 onMounted(() => {
@@ -376,7 +391,7 @@ onMounted(() => {
   content: "";
   background: #2997e4;
   border-radius: 2px;
-  left:4px;
+  left: 4px;
 }
 
 .content-body {
@@ -424,7 +439,7 @@ onMounted(() => {
 .content {
   left: 7px;
   padding: 3px 16px;
-   position: absolute;
+  position: absolute;
   margin-top: 7vh;
   width: 100%;
   height: calc(100% - 62px);
@@ -442,7 +457,7 @@ onMounted(() => {
   left: 0.5%;
   float: left;
   /*background-image: url("@/assets/home/黑色遮罩左.png");*/
-  background: rgb(2,0,36);
+  background: rgb(2, 0, 36);
   background: linear-gradient(90deg, rgb(4 33 65 / 56%) 32%, rgb(64 106 171 / 6%) 89%);
 }
 
@@ -455,7 +470,7 @@ onMounted(() => {
 
 .left-body .left-top {
   width: 100%;
-  height: 26%;
+  height: 30%;
   overflow: hidden;
 }
 
@@ -528,7 +543,7 @@ onMounted(() => {
   height: 96%;
 }
 
-.right{
+.right {
   position: absolute;
   width: 32.3%;
   left: 66%;
@@ -536,7 +551,7 @@ onMounted(() => {
   float: right;
   margin: 0 0.3%;
   /*background-image: url("@/assets/home/黑色遮罩右.png");*/
-  background: rgb(0,195,255);
+  background: rgb(0, 195, 255);
   background: linear-gradient(90deg, rgb(22 105 179 / 9%) 25%, rgb(10 33 75 / 76%) 88%);
 }
 
@@ -634,9 +649,6 @@ onMounted(() => {
   height: 45%;
   margin-top: 1%;
 }
-
-
-
 
 
 /* 新增样式 */

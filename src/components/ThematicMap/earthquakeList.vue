@@ -113,7 +113,7 @@ import TwoAndThreeDIntegrationImageData
 import {getAllEq, getAllEqList} from "../../api/system/eqlist.js";
 import * as Cesium from "cesium";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
 import {handleOutputData} from "../../cesium/plot/eqThemes.js";
 import {getEqList} from "@/api/system/damageassessment.js";
 

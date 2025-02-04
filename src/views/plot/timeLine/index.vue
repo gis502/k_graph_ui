@@ -35,7 +35,7 @@
               size="mini"
               style="margin: 0; padding: 2px 8px; border-radius: 4px;"
           >
-            {{ row.eqType === 'Z' ? '正式地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
+            {{ row.eqType === 'Z' ? '真实地震' : (row.eqType === 'Y' ? '演练地震' : '测试地震') }}
           </el-button>
         </template>
       </el-table-column>
