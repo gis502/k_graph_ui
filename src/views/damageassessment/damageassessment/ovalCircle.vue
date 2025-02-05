@@ -150,7 +150,7 @@ import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
 import {getAllEq} from "@/api/system/eqlist";
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
 import {addOvalCircles} from "../../../cesium/plot/eqThemes.js";
 import * as turf from '@turf/turf';
 import Polyline from "../../../cesium/plot/Polyline.js"
