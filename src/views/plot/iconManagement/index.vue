@@ -31,6 +31,9 @@
             <img width="30px" height="30px"
                  :src="'http://localhost:8080'+'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"
                  alt="暂无符号">
+<!--            <img width="30px" height="30px"-->
+<!--                 :src="'http://59.213.183.7/prod-api/'+'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()"-->
+<!--                 alt="暂无符号">-->
           </div>
           <div v-else>
             <span> </span>

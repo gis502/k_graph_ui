@@ -410,7 +410,7 @@ import {ElMessageBox, ElMessage} from 'element-plus';
 import {marchByRegion, searchEmergencyTeamData, searchMaterialData} from "../../api/system/emergency.js";
 import {getEqById, getEqListById, getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import centerstar from "@/assets/icons/TimeLine/震中.png";
-import {AmapApiLocal} from "@/utils/server.js";
+import {AmapApiLocal, tianditu} from "@/utils/server.js";
 import {TianDiTuToken} from "@/cesium/tool/config.js";
 
 export default {

@@ -777,6 +777,7 @@ import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from '@/cesium/tool/initCesium.js'
 
+
 //组件
 import commandScreenTitle from "@/components/commandScreenComponent/commandScreenTitle.vue";
 import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
@@ -790,7 +791,7 @@ import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue"
 //--未整理---
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
+import {getAllEq, getAllEqList, getEqById, getEqListById, getExcelUploadEarthquake} from '@/api/system/eqlist'
 //前端方法
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
@@ -818,7 +819,7 @@ import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
 import arrowImage from "@/assets/images/arrow.png";
-
+import {tianditu} from "@/utils/server.js";
 import {Edit, Delete} from '@element-plus/icons-vue'
 import {
   addModelApi,
@@ -1331,7 +1332,6 @@ export default {
       canOperateTimerLine: false,
       wsaddMakers: [],
       wsdeleteMakers: [],
-      viewCenterCoordinate: null,
       showLayerFeatures: false,// 图层要素弹框状态
       showEqListPanel: false,// 地震列表弹框状态
       showModelPanel: false,// 三维模型弹框状态
@@ -1537,8 +1537,7 @@ export default {
         viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             url:
-              "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-              token,
+                `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg",
@@ -1548,8 +1547,7 @@ export default {
         //影像注记
         viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-              token,
+            url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg",
