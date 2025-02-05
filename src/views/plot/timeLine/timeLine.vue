@@ -199,7 +199,6 @@ export default {
           }
         });
         viewer.clock.multiplier = 3600
-
         let that = this
         viewer.clock.onTick.addEventListener(function (clock) {
           that.currentTime = clock.currentTime;
