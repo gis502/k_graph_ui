@@ -263,7 +263,7 @@ import * as echarts from 'echarts';
 import {initCesium} from '@/cesium/tool/initCesium.js';
 import {getExcelUploadEarthquake, getExcelUploadEqList, getGeomByEqListId, getGeomById} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
-import yaan from '@/assets/geoJson/yaan.json'
+import yaan from '@/assets/geoJson/yaan1.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
 // import cumulativeTransferredImg from '@/assets/images/emergencySheltersLogo.png'
 import damagedWaterSupply from '@/assets/images/damagedWaterSupply.png'
@@ -295,7 +295,7 @@ import {getMaterialDonation} from "@/api/system/materialDonation.js";
 import {getPublicOpinion} from "@/api/system/publicOpinion.js";
 import {getSocialOrder} from "@/api/system/socialOrder.js";
 import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.js";
-import {AmapApiLocal} from "@/utils/server.js";
+import {AmapApiLocal, tianditu} from "@/utils/server.js";
 
 export default {
   components: {dataSourcePanel},
@@ -1114,9 +1114,7 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  token,
+              url:`${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
@@ -1133,9 +1131,7 @@ export default {
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
-              url:
-                  "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  token,
+              url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",

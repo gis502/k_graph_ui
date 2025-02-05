@@ -724,7 +724,7 @@ import eqTable from '@/components/Home/eqtable.vue'
 import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
 import modelTable from '@/components/Home/modelTable.vue'
-import yaan from '@/assets/geoJson/yaan.json'
+import yaan from '@/assets/geoJson/yaan1.json'
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
@@ -777,11 +777,7 @@ import end from "@/assets/end.svg";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
 import {AmapApiLocal} from "@/utils/server.js";
-import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
-import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
-import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
-import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vue";
-import timeLineBaseInfo from "@/components/timeLineComponent/timeLineBaseInfo.vue";
+import {tianditu} from "@/utils/server.js";
 
 export default {
   computed: {
@@ -790,7 +786,6 @@ export default {
     },
   },
   components: {
-    timeLineBaseInfo, timeLineLifeLine, timeLineMiniMap, timeLinePlotStatistics, timeLinePlay,
     damageThemeAssessment,
     disasterStatistics,
     PlotSearch,
@@ -1389,8 +1384,8 @@ export default {
 
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-                TianDiTuToken,
+            // url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
+            url: `${tianditu}/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&&tk=${TianDiTuToken}`,
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg",
@@ -1399,8 +1394,7 @@ export default {
       );
       smallViewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
-            url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                TianDiTuToken,
+            url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg",
@@ -4998,7 +4992,7 @@ export default {
      */
     addFaultZone() {
       // 移除当前所有故障区域实体
-      this.removeEntitiesByType("faultZone")
+     this.removeDataSourcesLayer('duanliedai');
       // 在中心点位置添加新的故障区域
       addFaultZones(this.centerPoint)
     },
@@ -5571,8 +5565,15 @@ export default {
       if (hasFaultZoneLayer) {
         this.addFaultZone();
       } else {
+        if (window.duanliedai) {
+          // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+          window.viewer.dataSources.remove(window.duanliedai, true);
+          // 清空regionLayerJump的引用，以便垃圾回收
+          window.duanliedai = null;
+          // //console.log("图层已移除");
+        }
         // 如果未选定断裂带要素图层，则移除断裂带图层
-        this.removeEntitiesByType('faultZone');
+       this.removeDataSourcesLayer('duanliedai');
       }
 
       // 判断是否选定了烈度圈要素图层
@@ -5856,7 +5857,8 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              // url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg", // 根据实际返回的图像格式调整
@@ -5874,8 +5876,9 @@ export default {
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
-              url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  TianDiTuToken,
+              // url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+              //     TianDiTuToken,
+              url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
@@ -6920,6 +6923,10 @@ export default {
   z-index: 99 !important;
 }
 
+/*图层要素选项颜色改为白色*/
+.el-checkbox {
+  color: #FFFFFF;
+}
 
 /* 覆盖 el-tooltip 的宽度 */
 .el-tooltip__popper {
@@ -7459,6 +7466,3 @@ export default {
   padding: 12px;
 }
 </style>
-
-
-

@@ -35,6 +35,12 @@
         <span>震中位置：{{ position }}</span>
       </div>
     </el-col>
+    <el-col>
+      <div class="newColCommon">
+        <img src="@/assets/震中位置.png" class="icon" />
+        <span>地震类型：{{ earthquakeType }}</span>
+      </div>
+    </el-col>
   </div>
 </template>
 
@@ -50,13 +56,18 @@ const magnitude = ref('');
 const longitude = ref('');
 const latitude = ref('');
 const depth = ref('');
+const earthquakeType = ref('');
 
 
 watch(() => props.lastEq, () => {
-  initNewEq();
+  if (props.lastEq) {
+    initNewEq();
+  }
+  console.log(props.lastEq)
 });
 
 const initNewEq = () => {
+  console.log("111111111",props.lastEq)
   eqName.value = props.lastEq.earthquakeName;
   // 转换并格式化发震时间
   const date = new Date(props.lastEq.occurrenceTime);
@@ -70,10 +81,18 @@ const initNewEq = () => {
 
   time.value = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
   magnitude.value = props.lastEq.magnitude;
-  longitude.value = props.lastEq.longitude;
-  latitude.value = props.lastEq.latitude;
+  longitude.value = props.lastEq.longitude || props.lastEq.geom.coordinates[0];
+  latitude.value = props.lastEq.latitude || props.lastEq.geom.coordinates[1];
   position.value = props.lastEq.earthquakeName;
   depth.value = props.lastEq.depth;
+  earthquakeType.value = props.lastEq.eqType;
+  if (earthquakeType.value === 'Z') {
+    // 如果值为 Z，设置为“正式地震”
+    earthquakeType.value = '真实地震';
+  } else if (earthquakeType.value === 'Y' || earthquakeType.value === 'T') {
+    // 如果值为 Y 或 T，设置为“测试地址”
+    earthquakeType.value = '测试地震';
+  }
 }
 
 </script>

@@ -29,8 +29,8 @@
               <!-- 地震名称与简要信息 -->
               <div class="eqText">
           <span
-            class="eqTitle">
-            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{eq.magnitude}}级地震
+              class="eqTitle">
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{ eq.magnitude }}级地震
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
@@ -38,7 +38,7 @@
             参考位置：{{ eq.earthquakeName }}<br/>
             震中经纬：{{ eq.longitude }}°E, {{ eq.latitude }}°N<br/>
             震源深度：{{ eq.depth }}千米<br/>
-                  地震类型：{{ eq.eqType === 'Z' ? '正式地震' : (eq.eqType === 'Y' ? '演练地震' : '测试地震') }}
+                  地震类型：{{ eq.eqType === 'Z' ? '真实地震' : (eq.eqType === 'Y' ? '演练地震' : '测试地震') }}
           </span>
               </div>
               <!-- 详情按钮 -->
@@ -49,13 +49,13 @@
           <!-- 分页 -->
           <div class="pagination">
             <el-pagination
-              small
-              layout="total, prev, pager, next"
-              :total="filteredEqData.length"
-              :page-size="pageSize"
-              :current-page.sync="currentPage"
-              @current-change="handleCurrentChange"
-              style="margin: 0 20px"
+                small
+                layout="total, prev, pager, next"
+                :total="filteredEqData.length"
+                :page-size="pageSize"
+                :current-page.sync="currentPage"
+                @current-change="handleCurrentChange"
+                style="margin: 0 20px"
             />
           </div>
         </div>
@@ -108,12 +108,12 @@
               <div class="button themes economicLoss" :class="{ active: eqThemes.show.isshowEconomicLoss }"
                    @click="showEconomicLoss()"> 经济损失
               </div>
-<!--              <div class="button themes hospital" :class="{  }"-->
-<!--                   @click=""> 医院-->
-<!--              </div>-->
-<!--              <div class="button themes school" :class="{  }"-->
-<!--                   @click=""> 学校-->
-<!--              </div>-->
+              <!--              <div class="button themes hospital" :class="{  }"-->
+              <!--                   @click=""> 医院-->
+              <!--              </div>-->
+              <!--              <div class="button themes school" :class="{  }"-->
+              <!--                   @click=""> 学校-->
+              <!--              </div>-->
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -122,7 +122,7 @@
 
             <div class="eqVisible">
               <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
-                src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+                  src="../../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
               </div>
             </div>
 
@@ -142,30 +142,30 @@
       <!-- 底部面板(考虑代码差异性过大，设计成子组件形式) -->
       <div class="panel" v-if="eqPanel.isHistoryEqPanelShow">
         <historyEqPanel
-          :eqData="eqData"
-          :selectedTabData="selectedTabData"
-          @flyTo="flyTo"
+            :eqData="eqData"
+            :selectedTabData="selectedTabData"
+            @flyTo="flyTo"
         />
       </div>
 
       <div class="panel" v-if="eqPanel.isBuildingDamagePanelShow">
         <buildingDamagePanel
-          :buildingDamageData="panelData.buildingDamageData"
-          :selectedTabData="selectedTabData"
+            :buildingDamageData="panelData.buildingDamageData"
+            :selectedTabData="selectedTabData"
         />
       </div>
 
       <div class="panel" v-if="eqPanel.isEconomicLossPanelShow">
         <economicLossPanel
-          :economicLossData="panelData.economicLossData"
-          :selectedTabData="selectedTabData"
+            :economicLossData="panelData.economicLossData"
+            :selectedTabData="selectedTabData"
         />
       </div>
 
       <div class="panel" v-if="eqPanel.isPersonalCasualtyPanelShow">
         <personalCasualtyPanel
-          :personalCasualtyData="panelData.personalCasualtyData"
-          :selectedTabData="selectedTabData"
+            :personalCasualtyData="panelData.personalCasualtyData"
+            :selectedTabData="selectedTabData"
         />
       </div>
 
@@ -205,13 +205,14 @@ import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import HistoryEqPanel from "../../../components/DamageAssessment/historyEqPanel.vue";
 import PersonalCasualtyPanel from "../../../components/DamageAssessment/personalCasualtyPanel.vue";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-import yaan from "@/assets/geoJson/yaan.json";
+import yaan from "@/assets/geoJson/yaan1.json";
+import yaanRegion from "@/assets/geoJson/yaan.json";
 import {
   addFaultZones,
   addHistoryEqPoints, addOCTest,
   addOvalCircles,
   computeOvalCircles,
-  handleTownData, timestampToTime
+  handleTownData, removeDataSourcesLayer, timestampToTime
 } from "../../../cesium/plot/eqThemes.js";
 import BuildingDamagePanel from "../../../components/DamageAssessment/buildingDamagePanel.vue";
 import {
@@ -413,17 +414,17 @@ export default {
       // 延迟绑定事件，确保控件已经加载
       this.$nextTick(() => {
         const baseLayerContainer = document.querySelector(
-          ".cesium-baseLayerPicker-dropDown"
+            ".cesium-baseLayerPicker-dropDown"
         );
 
         if (baseLayerContainer) {
           // 事件代理监听点击事件
           baseLayerContainer.addEventListener("click", (event) => {
             const clickedIcon = event.target.closest(
-              ".cesium-baseLayerPicker-itemIcon"
+                ".cesium-baseLayerPicker-itemIcon"
             );
             const clickedLabel = event.target.closest(
-              ".cesium-baseLayerPicker-itemLabel"
+                ".cesium-baseLayerPicker-itemLabel"
             );
 
             if (clickedIcon || clickedLabel) {
@@ -470,10 +471,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        500000,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          500000,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -484,11 +485,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.toggleYaanLayer('colorful')
@@ -628,58 +629,57 @@ export default {
         console.log("1123", this.yaanLayerRequire)
         this.removeLayers(['YaanRegionLayer'])
         this.eqThemes.show.isshowRegion = true;
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaanRegion, {
           clampToGround: this.isTerrainLoading, //贴地显示
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          stroke: Cesium.Color.WHITE,
+          fill: Cesium.Color.WHITE.withAlpha(0.0),
           strokeWidth: 4,
         });
         geoPromise.then((dataSource) => {
           window.viewer.dataSources.add(dataSource);
           dataSource.name = 'YaanRegionLayer';
+          // 遍历 GeoJSON 的每个 feature
+          yaanRegion.features.forEach((feature) => {
+            // 获取第一个多边形的所有顶点
+            const firstPolygon = feature.geometry.coordinates[0]; // 第一个多边形
+            const firstRing = firstPolygon[0]; // 第一个多边形的外环
 
-          const colors = [
-            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-            {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
-            {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
-            {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
-            {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
-            {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
-            {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
-            {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
-          ];
-          dataSource.entities.values.forEach((entity, index) => {
-            const colorIndex = index % colors.length;
-            entity.polygon.material = new Cesium.ColorMaterialProperty(colors[colorIndex].color);
+            // 将经纬度转换为 Cartesian3 数组
+            const positions = firstRing.map(vertex => {
+              return Cesium.Cartesian3.fromDegrees(vertex[0], vertex[1]);
+            });
+
+            // 计算多边形的质心
+            let centroid = Cesium.Cartesian3.ZERO;
+            positions.forEach(pos => {
+              centroid = Cesium.Cartesian3.add(centroid, pos, new Cesium.Cartesian3());
+            });
+
+            centroid = Cesium.Cartesian3.divideByScalar(centroid, positions.length, new Cesium.Cartesian3());
+
+            // 创建一个新的 Entity 并添加 label
+            let regionlabel = window.viewer.entities.add(new Cesium.Entity({
+              position: centroid,
+              label: new Cesium.LabelGraphics({
+                text: feature.properties.name || 'Default Name', // 如果没有 name 属性，使用默认名称
+                scale: 1,
+                font: '18px Sans-serif',
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                clampToGround: true,
+                pixelOffset: new Cesium.Cartesian2(0, 0),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
+              })
+            }));
+
+            // 将 regionlabel 添加到数组中（如果需要后续操作）
+            this.RegionLabels.push(regionlabel);
           });
-
-          yaan.features.forEach((feature) => {
-            let center = feature.properties.center;
-
-            if (center && center.length === 2) {
-              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-              let regionlabel = viewer.entities.add(new Cesium.Entity({
-                position: position,
-                label: new Cesium.LabelGraphics({
-                  text: feature.properties.name,
-                  scale: 1,
-                  font: '18px Sans-serif',
-                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                  outlineWidth: 2,
-                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                  clampToGround: true,
-                  pixelOffset: new Cesium.Cartesian2(0, 0),
-                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
-                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
-                })
-              }));
-              this.RegionLabels.push(regionlabel)
-            }
-          })
           //雅安行政区加载 end
         })
       } else if (require === "none") {
@@ -691,10 +691,10 @@ export default {
           window.viewer.entities.remove(label);
         })
         this.RegionLabels = []
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaanRegion, {
           clampToGround: this.isTerrainLoading, //贴地显示
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
+          stroke: Cesium.Color.WHITE,
+          fill: Cesium.Color.WHITE.withAlpha(0.0),
           strokeWidth: 4,
         });
         geoPromise.then((dataSource) => {
@@ -705,31 +705,8 @@ export default {
             entity.polygon.outline = true;
             entity.polygon.outlineColor = Cesium.Color.WHITE;
           });
-          yaan.features.forEach((feature) => {
-            let center = feature.properties.center;
-
-            if (center && center.length === 2) {
-              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
-              let regionlabel = viewer.entities.add(new Cesium.Entity({
-                position: position,
-                label: new Cesium.LabelGraphics({
-                  text: feature.properties.name,
-                  scale: 1,
-                  font: '18px Sans-serif',
-                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                  outlineWidth: 2,
-                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
-                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                  clampToGround: true,
-                  pixelOffset: new Cesium.Cartesian2(0, 0),
-                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
-                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
-                })
-              }));
-              this.RegionLabels.push(regionlabel)
-            }
+          yaanRegion.features.forEach((feature) => {
+            this.RegionLabels.push(regionlabel)
           })
           //雅安行政区加载 end
         })
@@ -776,9 +753,9 @@ export default {
           const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -824,7 +801,7 @@ export default {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.eqData.find(
-          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.thisTab
+            eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.thisTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -845,8 +822,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
+              Number(this.selectedTabData.longitude),
+              Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -856,8 +833,8 @@ export default {
           },
           label: {
             text: timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-              this.selectedTabData.earthquakeName +
-              this.selectedTabData.magnitude + '级地震',
+                this.selectedTabData.earthquakeName +
+                this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -1009,18 +986,18 @@ export default {
       this.renderQueryEqPoints()
       //视角回雅安
       const position = Cesium.Cartesian3.fromDegrees(
-        103.0,
-        29.98,
-        500000
+          103.0,
+          29.98,
+          500000
       );
       viewer.camera.flyTo({destination: position})
     },
 
     flyTo(lonAndLat, eqid) {
       const position = Cesium.Cartesian3.fromDegrees(
-        lonAndLat[0],
-        lonAndLat[1],
-        10000
+          lonAndLat[0],
+          lonAndLat[1],
+          10000
       );
       viewer.camera.flyTo({destination: position});
 
@@ -1029,7 +1006,7 @@ export default {
         return type === "historyEq"; // 过滤出 type 为 historyEq 的实体
       });
 
-      console.log(666,eqid)
+      console.log(666, eqid)
 
       for (let i = historyEntities.length - 1; i >= 0; i--) {
         if (historyEntities[i]._billboard !== undefined) {
@@ -1068,7 +1045,6 @@ export default {
     // -----------------------------------------------------------------------------------------------------------------
 
 
-
     // 历史地震(半径50km以内)
     showHistoryEqPoints() {
       const tabName = "历史地震"
@@ -1097,7 +1073,7 @@ export default {
       if (this.eqThemes.show.isshowFaultZone) {
         addFaultZones(this.selectedTabData)
       } else {
-        this.removeEntitiesByType(["faultZone"])
+        removeDataSourcesLayer('duanliedai');
         const faultInfoDiv = document.getElementById('faultInfo');
         faultInfoDiv.style.display = 'none';
       }
@@ -1190,10 +1166,10 @@ export default {
 
         // // 将人员伤亡数据整理为适合的格式
         this.layerData.pcData = JSON.parse(JSON.stringify(
-          this.panelData.personalCasualtyData.reduce((acc, item) => {
-            acc[item.county] = item.partTotal;
-            return acc;
-          }, {})
+            this.panelData.personalCasualtyData.reduce((acc, item) => {
+              acc[item.county] = item.partTotal;
+              return acc;
+            }, {})
         ));
 
         console.log(111, this.layerData.pcData);
@@ -1245,8 +1221,8 @@ export default {
 
         // 加载 sichuanCounty.json 数据
         Cesium.GeoJsonDataSource.load(sichuanCounty, {
-            clampToGround: true,
-          }
+              clampToGround: true,
+            }
         ).then((geoJsonDataSource) => {
           viewer.dataSources.add(geoJsonDataSource);
           geoJsonDataSource.name = layerName;
@@ -1315,10 +1291,10 @@ export default {
     // 将字符串颜色解析为 RGB 数组
     getRgbFromColorString(colorString) {
       return colorString
-        .replace('(', '')
-        .replace(')', '')
-        .split(',')
-        .map((c) => parseInt(c.trim()));
+          .replace('(', '')
+          .replace(')', '')
+          .split(',')
+          .map((c) => parseInt(c.trim()));
     },
 
     // 设置为透明
@@ -1365,8 +1341,8 @@ export default {
       this.$nextTick(() => {
         if (this.selectedEntityPosition) {
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           if (canvasPosition) {
             const faultInfoDiv = document.getElementById('faultInfo');
@@ -1467,7 +1443,7 @@ export default {
   height: calc(100% - 50px);
   z-index: 3;
   background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 .closeIcon {
@@ -1487,7 +1463,7 @@ export default {
   width: 10px;
   height: 50px;
   background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   -webkit-border-top-left-radius: 10px;
   -webkit-border-bottom-left-radius: 10px;
   cursor: pointer;
@@ -1606,7 +1582,7 @@ export default {
   position: absolute;
   bottom: 0;
   width: 333px;
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   border: 2px solid #FFFFFF; /* 白色边框 */
 }
 

@@ -157,8 +157,15 @@ export default {
       if (hasFaultZoneLayer) {
         this.addFaultZone();
       } else {
+        if (window.duanliedai) {
+          // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
+          window.viewer.dataSources.remove(window.duanliedai, true);
+          // 清空regionLayerJump的引用，以便垃圾回收
+          window.duanliedai = null;
+          // //console.log("图层已移除");
+        }
         // 如果未选定断裂带要素图层，则移除断裂带图层
-        this.removeEntitiesByType('faultZone');
+       this.removeDataSourcesLayer('duanliedai');
       }
 
       // 判断是否选定了烈度圈要素图层

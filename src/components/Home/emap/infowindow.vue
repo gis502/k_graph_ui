@@ -3,7 +3,7 @@
     <div class="windows_close" @click="close" title="关闭信息窗口"></div>
     <div class="_head" style="margin-bottom: 10px">
       <div class="info-item">
-        <span style="margin: 6px">{{ position }}</span>
+        <span style="margin: 6px">{{ position }}{{Number(magnitude).toFixed(1)}}级地震</span>
       </div>
     </div>
     <div class="_body">
@@ -19,6 +19,9 @@
       <div class="info-item" style="margin-bottom: 3px">
         <span style="margin: 0 6px">震中经纬: </span><span>东经</span>{{ Number(latitude).toFixed(2) }}<span>度</span>
         <span style="margin-left:5px">北纬</span>{{ Number(longitude).toFixed(2)  }}<span>度</span>
+      </div>
+      <div class="info-item" style="margin-bottom: 3px">
+        <span style="margin: 0 6px">地震类型:</span> {{ eqType }}<span style="margin: 0 5px"></span>
       </div>
     </div>
   </div>
@@ -50,6 +53,7 @@ export default {
     // },
     time() {
       if (!this.data.time) return '未知时间';
+      console.log("111111",this.data)
 
       const date = new Date(this.data.time);
       const year = date.getFullYear();
@@ -65,7 +69,17 @@ export default {
     magnitude() { return this.data.magnitude || '未知震级'; },
     depth() { return this.data.depth || '未知深度'; },
     latitude() { return this.data.latitude || '未知纬度'; },
-    longitude() { return this.data.longitude || '未知经度'; }
+    longitude() { return this.data.longitude || '未知经度'; },
+    eqType() {
+      if (this.data.eqType === 'Z') {
+        return '真实地震';
+      } else if (this.data.eqType === 'Y' || this.data.eqType === 'T') {
+        return '测试地震';
+      } else {
+        return '未知地震类型';
+      }
+    }
+
   },
   methods: {
     close() {

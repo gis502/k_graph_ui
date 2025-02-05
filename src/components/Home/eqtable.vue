@@ -82,7 +82,7 @@ const tableData = ref([]);
 const router = useRouter();
 
 watch(() => props.eqData, () => {
-  console.log(props.eqData)
+  // console.log("data：",props.eqData)
   let list = props.eqData.filter(item => item.magnitude >= 3)
   getEqData.value = list;
   total.value = list.length;
@@ -91,7 +91,7 @@ watch(() => props.eqData, () => {
 
 const go = (row) => {
   const route = router.resolve({path: '/thd', query: {eqid: row.eqid, eqqueueId: row.eqqueueId}}).href;
-  console.log("row.eqid----------------",row.eqid)
+  // console.log("row.eqid----------------",row.eqid)
   window.open(route, '_blank');
 };
 
