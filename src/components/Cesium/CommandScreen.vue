@@ -4,8 +4,8 @@
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <damageThemeAssessment
-            :eqid="eqid"
-            :eqqueueId="eqqueueId"
+          :eqid="eqid"
+          :eqqueueId="eqqueueId"
         >
         </damageThemeAssessment>
       </div>
@@ -15,14 +15,14 @@
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <div class="list-dialog__content" style="height: calc(100% - 30);">
           <timeLineCasualtyStatisticthd
-              :zoomLevel="zoomLevel"
-              :pointsLayer="pointsLayer"
-              :currentTime="currentTimeString"
+            :zoomLevel="zoomLevel"
+            :pointsLayer="pointsLayer"
+            :currentTime="currentTimeString"
           />
         </div>
       </div>
       <plotSearch
-          :eqid="eqid"
+        :eqid="eqid"
       ></plotSearch>
     </div>
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
@@ -37,17 +37,17 @@
 
         <div class="emergencyContents">
           <div
-              v-for="(item, index) in emergencyTitleProperty"
-              :key="index"
-              class="emergencyContent"
+            v-for="(item, index) in emergencyTitleProperty"
+            :key="index"
+            class="emergencyContent"
           >
             <!-- 渲染每个item.content -->
             <div
-                v-for="(contentItem, subIndex) in item.content"
-                :key="subIndex"
-                class="emergencyContentItem"
-                :class="{active: contentItem.active}"
-                @click="emergencyClick(contentItem)"
+              v-for="(contentItem, subIndex) in item.content"
+              :key="subIndex"
+              class="emergencyContentItem"
+              :class="{active: contentItem.active}"
+              @click="emergencyClick(contentItem)"
             >
               {{ contentItem.name }}
             </div>
@@ -57,9 +57,9 @@
 
       <!-- 路径规划 -->
       <RouterPanel
-          :visible="popupVisible"
-          :position="popupPosition"
-          :popupData="popupData"
+        :visible="popupVisible"
+        :position="popupPosition"
+        :popupData="popupData"
       />
       <div v-if="isShowMessage"
            style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
@@ -133,9 +133,9 @@
               <el-col :span="12">
                 <el-form-item label="队伍人数">
                   <el-input
-                      v-model="displayTeamTotalMembers"
-                      @input="handleTeamTotalMembersInput"
-                      autocomplete="off"/>
+                    v-model="displayTeamTotalMembers"
+                    @input="handleTeamTotalMembersInput"
+                    autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -180,19 +180,19 @@
               <el-col :span="12">
                 <el-form-item label="帐篷">
                   <el-input
-                      v-model="displayDisasterTentsCount"
-                      @input="handleDisasterTentsInput"
-                      placeholder="/件"
-                      autocomplete="off"/>
+                    v-model="displayDisasterTentsCount"
+                    @input="handleDisasterTentsInput"
+                    placeholder="/件"
+                    autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="手电筒">
                   <el-input
-                      v-model="displayFlashlightsCount"
-                      @input="handleFlashlightsInput"
-                      placeholder="/件"
-                      autocomplete="off"/>
+                    v-model="displayFlashlightsCount"
+                    @input="handleFlashlightsInput"
+                    placeholder="/件"
+                    autocomplete="off"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -200,19 +200,19 @@
               <el-col :span="12">
                 <el-form-item label="雨衣">
                   <el-input
-                      v-model="displayRaincoatsCount"
-                      @input="handleRaincoatsInput"
-                      placeholder="/件"
-                      autocomplete="off"/>
+                    v-model="displayRaincoatsCount"
+                    @input="handleRaincoatsInput"
+                    placeholder="/件"
+                    autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="雨鞋">
                   <el-input
-                      v-model="displayRainBootsCount"
-                      @input="handleRainBootsInput"
-                      placeholder="/双"
-                      autocomplete="off"/>
+                    v-model="displayRainBootsCount"
+                    @input="handleRainBootsInput"
+                    placeholder="/双"
+                    autocomplete="off"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -247,7 +247,7 @@
         </div>
         <div style="width: 100%;display: flex;justify-content: center;align-items: center">
           <div class="panelButtons">
-            <el-button @click="panels.searchSupplyByRadiusDialog = false">取消</el-button>
+            <el-button @click="cancelRadiusQuery()">取消</el-button>
             <el-button type="primary" @click="marchSuppliesByRadius">
               查询
             </el-button>
@@ -265,9 +265,9 @@
           <div class="district-buttons">
             <div v-for="district in districts" :key="district.adcode" class="district-button">
               <el-button
-                  @click="selectRegions(district)"
-                  class="district-button"
-                  :class="{ 'selected': selectedRegions.includes(district) }">
+                @click="selectRegions(district)"
+                class="district-button"
+                :class="{ 'selected': selectedRegions.includes(district) }">
                 {{ district.name }}
               </el-button>
             </div>
@@ -305,58 +305,58 @@
         <div class="panelContent" style="padding: 5px;margin-top: 10px">
           <!--     数据列表     -->
           <el-table
-              :data="showSuppliesList"
-              style="margin-bottom: 5px; text-align: center;height: 30vh"
-              :stripe="true"
-              :header-cell-style="tableHeaderColor"
-              :cell-style="tableColor"
-              :row-style="{ height: '40px' }"
-              @row-click="showSupplyPoint"
+            :data="showSuppliesList"
+            style="margin-bottom: 5px; text-align: center;height: 30vh"
+            :stripe="true"
+            :header-cell-style="tableHeaderColor"
+            :cell-style="tableColor"
+            :row-style="{ height: '40px' }"
+            @row-click="showSupplyPoint"
           >
             <!--      救援物资      -->
             <el-table-column
-                v-if="listField === 'supplies'"
-                v-for="column in listFieldsOfSupplies"
-                :key="column.prop"
-                :prop="column.prop"
-                :label="column.label"
-                :width="column.width"
-                show-overflow-tooltip
+              v-if="listField === 'supplies'"
+              v-for="column in listFieldsOfSupplies"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
             ></el-table-column>
             <!--      救援力量      -->
             <el-table-column
-                v-if="listField === 'emergencyTeam'"
-                v-for="column in listFieldOfEmergencyTeam"
-                :key="column.prop"
-                :prop="column.prop"
-                :label="column.label"
-                :width="column.width"
-                show-overflow-tooltip
+              v-if="listField === 'emergencyTeam'"
+              v-for="column in listFieldOfEmergencyTeam"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
             ></el-table-column>
             <!--      救灾装备      -->
             <el-table-column
-                v-if="listField === 'reserves'"
-                v-for="column in listFieldOfReserves"
-                :key="column.prop"
-                :prop="column.prop"
-                :label="column.label"
-                :width="column.width"
-                show-overflow-tooltip
+              v-if="listField === 'reserves'"
+              v-for="column in listFieldOfReserves"
+              :key="column.prop"
+              :prop="column.prop"
+              :label="column.label"
+              :width="column.width"
+              show-overflow-tooltip
             ></el-table-column>
           </el-table>
           <!--     数据列表end     -->
         </div>
         <div style="width: 100%;display: flex;justify-content: center;align-items: center">
           <el-pagination
-              v-if="panels.tableVisible"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="currentPage"
-              :page-size="pageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="total"
-              class="pagination1"
-              style="padding: 10px"
+            v-if="panels.tableVisible"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next, jumper"
+            :total="total"
+            class="pagination1"
+            style="padding: 10px"
           >
           </el-pagination>
 
@@ -388,18 +388,15 @@
           </div>
         </div>
       </div>
-
-      <h4 class="showTable" @click="toggleTable">{{ toolValue }}</h4>
-      <h4 class="showRoute" @click="toggleRoute">{{ routeValue }}</h4>
     </div>
 
     <!-- 专题图产出 -->
     <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <disasterStatistics
-            :eqid="eqid"
-            :currentTime="currentTimeString"
-            @addJumpNodes="addJumpNodes"
+          :eqid="eqid"
+          :currentTime="currentTimeString"
+          @addJumpNodes="addJumpNodes"
         />
       </div>
     </div>
@@ -414,14 +411,14 @@
           <!-- 切换按钮 -->
           <div class="toggle-buttons">
             <el-button
-                :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
-                @click="activeTab = 'thematicMap'"
+              :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
+              @click="activeTab = 'thematicMap'"
             >
               专题图预览
             </el-button>
             <el-button
-                :type="activeTab === 'report' ? 'primary' : 'default'"
-                @click="activeTab = 'report'"
+              :type="activeTab === 'report' ? 'primary' : 'default'"
+              @click="activeTab = 'report'"
             >
               报告产出
             </el-button>
@@ -430,10 +427,10 @@
           <div v-if="activeTab === 'thematicMap'" class="section">
             <div class="grid-container">
               <div
-                  v-for="(item, index) in thematicMapitems"
-                  :key="index"
-                  class="grid-item"
-                  @click="showThematicMapDialog(item)"
+                v-for="(item, index) in thematicMapitems"
+                :key="index"
+                class="grid-item"
+                @click="showThematicMapDialog(item)"
               >
                 <el-card shadow="hover">
                   <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
@@ -448,9 +445,9 @@
           <div v-if="activeTab === 'report'" class="section">
             <div class="grid-container-report">
               <div
-                  v-for="(item, index) in reportItems"
-                  :key="index"
-                  class="grid-item"
+                v-for="(item, index) in reportItems"
+                :key="index"
+                class="grid-item"
               >
                 <el-card shadow="hover">
                   <div class="report-preview">
@@ -468,10 +465,10 @@
 
       <!-- 专题图预览弹框 -->
       <thematic-map-preview
-          v-if="ifShowMapPreview"
-          :img-url="imgshowURL"
-          :img-name="imgName"
-          @close="ifShowThematicMapDialog(false)"
+        v-if="ifShowMapPreview"
+        :img-url="imgshowURL"
+        :img-name="imgName"
+        @close="ifShowThematicMapDialog(false)"
       />
     </div>
 
@@ -480,82 +477,82 @@
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
         <commonPanel
-            :visible="timelinePopupVisible"
-            :position="timelinePopupPosition"
-            :popupData="timelinePopupData"
-            :ifedit="false"
-            @wsSendPoint="wsSendPoint"
-            @closePlotPop="closePlotPop"
+          :visible="timelinePopupVisible"
+          :position="timelinePopupPosition"
+          :popupData="timelinePopupData"
+          :ifedit="false"
+          @wsSendPoint="wsSendPoint"
+          @closePlotPop="closePlotPop"
         />
         <dataSourcePanel
-            :visible="dataSourcePopupVisible"
-            :position="dataSourcePopupPosition"
-            :popupData="dataSourcePopupData"
+          :visible="dataSourcePopupVisible"
+          :position="dataSourcePopupPosition"
+          :popupData="dataSourcePopupData"
         />
       </div>
     </div>
     <!--    &lt;!&ndash; RouterPanel 弹窗 &ndash;&gt;-->
     <RouterPanel
-        :visible="routerPopupVisible"
-        :position="routerPopupPosition"
-        :popupData="routerPopupData"
+      :visible="routerPopupVisible"
+      :position="routerPopupPosition"
+      :popupData="routerPopupData"
     />
 
 
     <commandScreenTitle
-        :eqyear="eqyear"
-        :eqmonth="eqmonth"
-        :eqday="eqday"
-        :centerPoint="centerPoint"
-        @toggle-component="toggleComponent"
+      :eqyear="eqyear"
+      :eqmonth="eqmonth"
+      :eqday="eqday"
+      :centerPoint="centerPoint"
+      @toggle-component="toggleComponent"
     />
 
     <timeLinePlay
-        :viewer="viewer"
-        :eqid="eqid"
-        :centerPoint="centerPoint"
-        :currentTime="currentTimeString"
-        @updatePlots="updatePlots"
+      :viewer="viewer"
+      :eqid="eqid"
+      :centerPoint="centerPoint"
+      :currentTime="currentTimeString"
+      @updatePlots="updatePlots"
     />
 
     <!--   灾情总览-->
     <div v-show="showSidebarComponents">
       <div class="pop_left_background">
         <timeLineEmergencyResponse
-            :eqid="eqid"
-            :currentTime="currentTimeString"
+          :eqid="eqid"
+          :currentTime="currentTimeString"
         />
         <!--   人员伤亡-左中   -->
         <timeLinePersonnelCasualties
-            :eqid="eqid"
-            :currentTime="currentTimeString"
+          :eqid="eqid"
+          :currentTime="currentTimeString"
         />
         <!--        震中信息组件-->
         <timeLineBaseInfo
-            :centerPoint="centerPoint"
+          :centerPoint="centerPoint"
         />
       </div>
       <timeLineLegend
-          :activeComponent="activeComponent"
-          @toggleComponent="toggleComponent"
+        :activeComponent="activeComponent"
+        @toggleComponent="toggleComponent"
       />
       <div class="pop_right_background">
         <timeLineLifeLine
-            :eqid="eqid"
-            :currentTime="currentTimeString"
+          :eqid="eqid"
+          :currentTime="currentTimeString"
         />
         <timeLinePlotStatistics
-            :plots="plots"
-            :currentTime="currentTimeString"
-            :startTime="centerPoint.startTime"
-            :zoomLevel="zoomLevel"
-            :isTimerRunning="isTimeRunning"
-            :viewCenterCoordinate="viewCenterCoordinate"
-            :earthquakeName="centerPoint.earthquakeName"
+          :plots="plots"
+          :currentTime="currentTimeString"
+          :startTime="centerPoint.startTime"
+          :zoomLevel="zoomLevel"
+          :isTimerRunning="isTimeRunning"
+          :viewCenterCoordinate="viewCenterCoordinate"
+          :earthquakeName="centerPoint.earthquakeName"
         />
         <timeLineMiniMap
-            :viewer="viewer"
-            :centerPoint="centerPoint"
+          :viewer="viewer"
+          :centerPoint="centerPoint"
         />
       </div>
     </div>
@@ -571,8 +568,8 @@
       <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
           <div
-              style="width: 20px; height: 20px; margin-right: 10px;"
-              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
+            style="width: 20px; height: 20px; margin-right: 10px;"
+            :style="{ backgroundColor: colorItem.color.toCssColorString() }">
           </div>
           <span>{{ colorItem.name }}</span>
         </div>
@@ -586,7 +583,7 @@
 
     <!--经纬度跳转-->
     <div
-        style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
+      style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
       <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
         <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
              style="width: 31px; height: 31px;">
@@ -635,14 +632,14 @@
         <h2 class="panelName">图层管理</h2>
       </div>
       <el-tree
-          default-expand-all="true"
-          ref="tree"
-          node-key="id"
-          :props="props"
-          :load="loadNode"
-          :default-checked-keys="selectedlayersLocal"
-          lazy
-          @check="handleCheckChange"
+        default-expand-all="true"
+        ref="tree"
+        node-key="id"
+        :props="props"
+        :load="loadNode"
+        :default-checked-keys="selectedlayersLocal"
+        lazy
+        @check="handleCheckChange"
       >
         <template #default="{ node, data }">
           <!-- 根节点，显示图标和文字 -->
@@ -652,8 +649,8 @@
                   <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
                         <path
-                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                            p-id="6182" fill="#ffffff"></path>
+                          d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                          p-id="6182" fill="#ffffff"></path>
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
@@ -662,23 +659,23 @@
                   <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
                         <path
-                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                            fill="#ffffff" p-id="2696"></path>
+                          d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                          fill="#ffffff" p-id="2696"></path>
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
             <!-- 子节点逻辑保持原有 -->
             <el-checkbox
-                v-if="layeritems.some(item => item.name === data.name)"
-                v-model="selectedlayersLocal"
-                :label="data.name"
-                @change="updateMapLayers"
+              v-if="layeritems.some(item => item.name === data.name)"
+              v-model="selectedlayersLocal"
+              :label="data.name"
+              @change="updateMapLayers"
             >
               <span>{{ data.name }}</span>
             </el-checkbox>
             <el-radio-group
-                v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
-                v-model="selectedDistrict"
+              v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
+              v-model="selectedDistrict"
             >
               <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
                 <span>{{ data.name }}</span>
@@ -712,12 +709,12 @@
       <!-- 表格内容 -->
       <div class="model-dialog__content">
         <el-table
-            :data="modelTableData"
-            class="custom-table"
-            style="width: 100%; height: 90%;"
-            :header-cell-style="tableHeaderColor"
-            :cell-style="tableColor"
-            :row-style="{ height: '37.5px', fontSize: '13px'}"
+          :data="modelTableData"
+          class="custom-table"
+          style="width: 100%; height: 90%;"
+          :header-cell-style="tableHeaderColor"
+          :cell-style="tableColor"
+          :row-style="{ height: '37.5px', fontSize: '13px'}"
         >
           <!-- 模型名称列 -->
           <el-table-column label=" " min-width="20px" show-overflow-tooltip>
@@ -729,11 +726,11 @@
             </template>
           </el-table-column>
           <el-table-column
-              prop="name"
-              label="模型名称"
-              width="auto"
-              min-width="130px"
-              show-overflow-tooltip
+            prop="name"
+            label="模型名称"
+            width="auto"
+            min-width="130px"
+            show-overflow-tooltip
           ></el-table-column>
           <!-- 操作列 -->
           <el-table-column label="操作" width="auto" align="center" min-width="100px" show-overflow-tooltip>
@@ -745,13 +742,13 @@
         <!-- 分页 -->
         <div>
           <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="modelCurrentPage"
-              :page-size="modelPageSize"
-              layout="total, prev, pager, next, jumper"
-              :total="ModelTotal"
-              class="custom-pagination"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="modelCurrentPage"
+            :page-size="modelPageSize"
+            layout="total, prev, pager, next, jumper"
+            :total="ModelTotal"
+            class="custom-pagination"
           >
           </el-pagination>
         </div>
@@ -759,13 +756,13 @@
     </div>
 
     <thematicMapPreview
-        @ifShowThematicMapDialog="ifShowThematicMapDialog"
-        :imgshowURL="imgshowURL"
-        :imgurlFromDate="imgurlFromDate"
-        :imgName="imgName"
-        :ifShowMapPreview="ifShowMapPreview"
-        :showTypes="showTypes"
-        style="width: 40%"
+      @ifShowThematicMapDialog="ifShowThematicMapDialog"
+      :imgshowURL="imgshowURL"
+      :imgurlFromDate="imgurlFromDate"
+      :imgName="imgName"
+      :ifShowMapPreview="ifShowMapPreview"
+      :showTypes="showTypes"
+      style="width: 40%"
     ></thematicMapPreview>
 
   </div>
@@ -790,7 +787,7 @@ import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue"
 //--未整理---
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
-import {getAllEq, getAllEqList, getEqById, getEqListById} from '@/api/system/eqlist'
+import {getAllEq, getAllEqList, getEqById, getEqListById, getExcelUploadEarthquake} from '@/api/system/eqlist'
 //前端方法
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
@@ -863,6 +860,14 @@ import routePlanningIcon from '../../assets/icons/svg/routePlanning.svg';
 import rescueForceMatchingIcon from '../../assets/icons/svg/rescueForceMatching.svg';
 import rescueInfoTableIcon from '../../assets/icons/svg/rescueInfoTable.svg';
 import disasterReliefSuppliesLogo from "@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg";
+import {
+  billboardD,
+  CreateSimpleCircle,
+  formatTime,
+  marchSupplyByCount, pointD, polygonD,
+  polylineD,
+  selectPoints
+} from "@/cesium/route.js";
 
 export default {
   computed: {
@@ -1153,7 +1158,6 @@ export default {
       fyValues: [],
       slopeCounts: [0, 0, 0, 0, 0], // 坡度范围计数
       totalCells: 0, // 总格子数
-      clickCount: 0,
       firstClickPosition: null,
       secondClickPosition: null,
       isShowSlopeLegend: false,
@@ -1225,8 +1229,6 @@ export default {
 
       ifDrawEllipse: false,
       marchSupplyRadius: 0,
-      toolValue: "隐藏列表",
-      routeValue: "隐藏路径规划",
       showSupply: "显示所有物资点",
       // total: 0,
       // pageSize: 5,
@@ -1350,7 +1352,7 @@ export default {
           content: [
             {name: "路径规划", action: 'route', active: false},
             {name: "添加障碍区", action: 'addArea', active: false},
-            {name: "清空规划", action: 'removePolyline', active: false}
+            {name: "清空规划", action: 'removeRoute', active: false}
           ]
         },
         {
@@ -1503,7 +1505,6 @@ export default {
         document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 70%; left:15%;right:15%; ';
         document.getElementsByClassName('cesium-timeline-bar')[0].style = 'background:rgba(0, 0, 0, 0.1);';
 
-
         window.viewer = viewer
         this.viewer = viewer
         viewer.clock.shouldAnimate = false;
@@ -1512,62 +1513,31 @@ export default {
         this.entitiesClickPonpHandler()
         this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
 
-        // 具体事件的实现
-        console.log("111111");
         const ellipsoid = viewer.scene.globe.ellipsoid;
-
-        // 11111111111111111
-
-        this.clickCount += 1;
-
         const canvas = viewer.scene.canvas;
         const handler = new Cesium.ScreenSpaceEventHandler(canvas);
 
-        let token = "34d101b55f6166c49c42aed5a7ed345c";
-        viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              url:
-                  "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  token,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-            })
-        );
-        //影像注记
-        viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  token,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-              show: false,
-            })
-        );
         handler.setInputAction((movement) => {
           const cartesian = viewer.camera.pickEllipsoid(
-              movement.position,
-              ellipsoid
+            movement.position,
+            ellipsoid
           );
           if (cartesian) {
             const cartographic = ellipsoid.cartesianToCartographic(cartesian);
             this.addSupplyPointCurrently.lat = Cesium.Math.toDegrees(
-                cartographic.latitude
+              cartographic.latitude
             ).toFixed(5);
             this.addSupplyPointCurrently.lng = Cesium.Math.toDegrees(
-                cartographic.longitude
+              cartographic.longitude
             ).toFixed(5);
 
             if (this.canMarkPoint) {
               this.DialogFormVisible = true;
               this.drawEmergencySite(
-                  this.addSupplyPointCurrently.lat,
-                  this.addSupplyPointCurrently.lng,
-                  this.clickCount,
-                  Cesium.Color.RED
+                this.addSupplyPointCurrently.lat,
+                this.addSupplyPointCurrently.lng,
+                Cesium.createGuid(),
+                Cesium.Color.RED
               );
               this.isShowMessage = false;
               this.canMarkPoint = false;
@@ -1582,7 +1552,26 @@ export default {
       })
 
     },
+
+    /**
+     * 初始化绘制功能 图层要素
+     * 该方法通过获取特征图层（features layer）来设置灾害储备、应急队伍和应急避难所的数据，并将应急资源管理的数据初始化，以便表格渲染
+     * 它将这些数据存储在组件的相应属性中
+     */
+
     initPlot() {
+      getFeaturesLayer().then(res => {
+        // 解构赋值，从响应数据中提取灾害储备、应急队伍和应急避难所的信息
+        let {disasterReserves, emergencyTeam, emergencyShelters} = res;
+        // 更新组件的灾害储备数据
+        this.disasterReserves = disasterReserves;
+        // 更新组件的应急队伍数据
+        this.emergencyTeam = emergencyTeam;
+        // 更新组件的应急避难所数据
+        this.emergencyShelters = emergencyShelters;
+        // 原注释保留，但实际代码中未调用此方法
+        // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
+      });
 
       getEmergency().then(res => {
         let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
@@ -1593,11 +1582,10 @@ export default {
         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
 
         // 调用 `processPoints` 并传递不同的 `tableName`
-        this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-        this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+        // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
 
-        // this.fetSupplyPoints();
         this.listField = 'supplies'
         this.selectedSuppliesList = this.suppliesList[0]
         this.showIcon = this.selectedSuppliesList;
@@ -1678,7 +1666,7 @@ export default {
       // console.log(data.plot,"data.plot wsadd")
       data.plot.longitude = Number(data.plot.geom.coordinates[0])
       data.plot.latitude = Number(data.plot.geom.coordinates[1]),
-          this.plots.push(data.plot)
+        this.plots.push(data.plot)
       this.plotisshow[data.plot.plotId] = 1
       var jumpnode = Math.ceil((new Date() - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))
       // console.log(jumpnode,"jumpnode")
@@ -1899,9 +1887,9 @@ export default {
         let flytime = (timeEachPoint / 1000 - 1) < 2 ? timeEachPoint : 2
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
-              parseFloat(point.longitude),
-              parseFloat(point.latitude),
-              20000),
+            parseFloat(point.longitude),
+            parseFloat(point.latitude),
+            20000),
           orientation: {
             heading: 6.283185307179581,
             pitch: -1.5688168484696687,
@@ -2026,9 +2014,9 @@ export default {
         console.log(filteredPolylineArr, "filteredPolylineArr")
         viewer.scene.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(
-              parseFloat(filteredPolylineArr[0].geom.coordinates[0][0]),
-              parseFloat(filteredPolylineArr[0].geom.coordinates[0][1]),
-              30000),
+            parseFloat(filteredPolylineArr[0].geom.coordinates[0][0]),
+            parseFloat(filteredPolylineArr[0].geom.coordinates[0][1]),
+            30000),
           orientation: {
             // 指向
             heading: 6.283185307179581,
@@ -2203,24 +2191,24 @@ export default {
 
       // 格网距离
       const ddx =
-          Cartesian3.distance(
-              Cartesian3.fromDegrees(polygonPos[0], polygonPos[1]),
-              Cartesian3.fromDegrees(polygonPos[2], polygonPos[1])
-          ) / width;
+        Cartesian3.distance(
+          Cartesian3.fromDegrees(polygonPos[0], polygonPos[1]),
+          Cartesian3.fromDegrees(polygonPos[2], polygonPos[1])
+        ) / width;
       const ddy =
-          Cartesian3.distance(
-              Cartesian3.fromDegrees(polygonPos[0], polygonPos[1]),
-              Cartesian3.fromDegrees(polygonPos[0], polygonPos[3])
-          ) / height;
+        Cartesian3.distance(
+          Cartesian3.fromDegrees(polygonPos[0], polygonPos[1]),
+          Cartesian3.fromDegrees(polygonPos[0], polygonPos[3])
+        ) / height;
 
       //console.log("111111")
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const longitude = CesiumMath.toDegrees(
-              CesiumMath.lerp(rectangle.west, rectangle.east, x / (width - 1))
+            CesiumMath.lerp(rectangle.west, rectangle.east, x / (width - 1))
           );
           const latitude = CesiumMath.toDegrees(
-              CesiumMath.lerp(rectangle.north, rectangle.south, y / (height - 1))
+            CesiumMath.lerp(rectangle.north, rectangle.south, y / (height - 1))
           );
 
           // 八连通点
@@ -2254,10 +2242,10 @@ export default {
       // //console.log(pointGrid.features, "pointGrid.features");
       for (let i = 0; i < pointGrid.features.length; i++) {
         heightArr.push(
-            Cesium.Cartographic.fromDegrees(
-                pointGrid.features[i].geometry.coordinates[0],
-                pointGrid.features[i].geometry.coordinates[1]
-            )
+          Cesium.Cartographic.fromDegrees(
+            pointGrid.features[i].geometry.coordinates[0],
+            pointGrid.features[i].geometry.coordinates[1]
+          )
         );
       }
 
@@ -2289,17 +2277,17 @@ export default {
             const eastSouthHeight = updatedPositions[i + 7].height;
 
             const fx =
-                (westSouthHeight +
-                    2 * southHeight +
-                    eastSouthHeight -
-                    (westNorthHeight + 2 * northHeight + eastNorthHeight)) /
-                (8 * ddx);
+              (westSouthHeight +
+                2 * southHeight +
+                eastSouthHeight -
+                (westNorthHeight + 2 * northHeight + eastNorthHeight)) /
+              (8 * ddx);
             const fy =
-                (eastNorthHeight +
-                    2 * eastHeight +
-                    eastSouthHeight -
-                    (westNorthHeight + 2 * westHeight + westSouthHeight)) /
-                (8 * ddy);
+              (eastNorthHeight +
+                2 * eastHeight +
+                eastSouthHeight -
+                (westNorthHeight + 2 * westHeight + westSouthHeight)) /
+              (8 * ddy);
 
             const slope = Math.atan(Math.sqrt(fx ** 2 + fy ** 2));
             slopes.push(slope);
@@ -2358,13 +2346,13 @@ export default {
             extruded: true,
             clampToGround: true,
           })
-              .then((contourSource) => {
-                window.viewer.dataSources.add(contourSource);
-                //console.log("Contour lines added successfully");
-              })
-              .catch((error) => {
-                console.error("Error loading GeoJSON data:", error);
-              });
+            .then((contourSource) => {
+              window.viewer.dataSources.add(contourSource);
+              //console.log("Contour lines added successfully");
+            })
+            .catch((error) => {
+              console.error("Error loading GeoJSON data:", error);
+            });
         });
 
       }, 5000)
@@ -2399,9 +2387,9 @@ export default {
 
       //console.log("7777777")
       const position = Cesium.Cartesian3.fromDegrees(
-          100.69,
-          28.22,
-          50000
+        100.69,
+        28.22,
+        50000
       );
       // viewer.camera.flyTo({destination: position,})
     },
@@ -2528,129 +2516,7 @@ export default {
       }
     },
     // ------------------------------路径规划+物资匹配---------------------------
-    handleEqListChange() {
-      if (this.eqlistName) {
-        getEqListById({'id': this.eqlistName}).then(async res => {
-          window.viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(parseFloat(res.longitude), parseFloat(res.latitude), 40000),
-            orientation: {
-              // 指向
-              heading: 6.283185307179581,
-              // 视角
-              pitch: -1.5688168484696687,
-              roll: 0.0
-            }
-          });
 
-          window.viewer.entities.removeAll();
-          let result = []
-          let longitude = parseFloat(res.longitude);
-          let latitude = parseFloat(res.latitude);
-          const clickPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-          this.all.forEach((item) => {
-            item.forEach((point) => {
-              const pointLongitude = parseFloat(point.longitude);
-              const pointLatitude = parseFloat(point.latitude);
-              const initialPoint = Cesium.Cartesian3.fromDegrees(
-                  pointLongitude,
-                  pointLatitude
-              );
-              // 距离以公里为单位
-              const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
-              if (distance < 10) {
-                result.push(point);
-              }
-            })
-          });
-          let reservesArr = []
-          let suppliesArr = []
-          let emergencyTeamArr = []
-          result.forEach((item) => {
-            if (item.type === "reserves") {
-              reservesArr.push(item);
-            } else if (item.type === "supplies") {
-              suppliesArr.push(item);
-            } else if (item.type === "emergency") {
-              emergencyTeamArr.push(item);
-            }
-          });
-
-          this.processPoints(suppliesArr, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-          this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-          this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
-
-          //  画圆
-          const position = Cesium.Cartesian3.fromDegrees(
-              parseFloat(res.longitude),
-              parseFloat(res.latitude)
-          );
-          viewer.entities.values.forEach((entity) => {
-            if (entity.ellipse) {
-              viewer.entities.remove(entity);
-            }
-          });
-          viewer.entities.add({
-            position: position,
-            ellipse: {
-              semiMajorAxis: parseFloat("10") * 1000,
-              semiMinorAxis: parseFloat("10") * 1000,
-              material: Cesium.Color.GREEN.withAlpha(0.4),
-            },
-          });
-          viewer.entities.add({
-            position: position,
-            ellipse: {
-              semiMajorAxis: parseFloat("5") * 1000,
-              semiMinorAxis: parseFloat("5") * 1000,
-              material: Cesium.Color.GREEN.withAlpha(0.7),
-            },
-          });
-          viewer.entities.add({
-            position: position,
-            billboard: {
-              image: centerstar,
-              width: 60,
-              height: 60,
-              scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
-              disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
-            },
-            label: {
-              text: res.earthquakeName + parseFloat(res.magnitude).toFixed(1) + "级",
-              show: true,
-              font: '20px sans-serif',
-              fillColor: Cesium.Color.RED,        //字体颜色
-              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-              outlineWidth: 2,
-              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-              pixelOffset: new Cesium.Cartesian2(0, -30),
-              scaleByDistance: new Cesium.NearFarScalar(500, 1, 5e5, 0.1), // 近大远小
-
-              disableDepthTestDistance: Number.POSITIVE_INFINITY // 确保 billboard 不被遮挡
-            },
-            id: res.plotid,
-            plottype: "震中",
-            layer: "标绘点"
-          });
-        })
-      }
-    },
-    getEarthquake() {
-      getExcelUploadEarthquake().then(res => {
-        if (res.data === null) {
-          ElMessage.error("地震列表无数据")
-        }
-        this.tableNameOptions = res.map(file => {
-              const eqid = file.split(' - ')[0]?.trim();
-              const details = file.split(' - ')[1]?.trim();
-              // 提取 `-` 后面的部分
-              return {
-                label: details, // 使用提取的部分作为标签
-                value: eqid// 选择值为 ID
-              }
-            }
-        )
-      })
-    },
     switchPanel(action) {
       // 更新 panels 的状态，先设置所有为 false
       for (let key in this.panels) {
@@ -2658,7 +2524,6 @@ export default {
           this.panels[key] = false;
         }
       }
-      this.toolValue = this.panels.tableVisible ? "隐藏列表" : "显示列表";
       console.log(this.panels);  // 这里的 panels 会先被更新为 false
 
       // 在下次 DOM 更新后执行 handleMenuAction(action)
@@ -2667,13 +2532,7 @@ export default {
         this.handleMenuAction(action);  // 在面板状态更新后执行
       });
     },
-    // 导航栏按钮
-    showDropdown(index) {
-      this.menus[index].showDropdown = true;
-    },
-    hideDropdown(index) {
-      this.menus[index].showDropdown = false;
-    },
+
     handleMenuAction(action) {
       console.log(action);
 
@@ -2709,42 +2568,6 @@ export default {
         console.log('其他情况：', action);
       }
     },
-    /** 计算两个坐标的距离，单位米 **/
-    Distance(lng1, lat1, lng2, lat2) {
-      //采用Haversine formula算法，高德地图的js计算代码，比较简洁 https://www.cnblogs.com/ggz19/p/7551088.html
-      let d = Math.PI / 180;
-      let f = lat1 * d,
-          h = lat2 * d;
-      let i = lng2 * d - lng1 * d;
-      let e =
-          (1 - Math.cos(h - f) + (1 - Math.cos(i)) * Math.cos(f) * Math.cos(h)) /
-          2;
-      return 2 * 6378137 * Math.asin(Math.sqrt(e));
-    },
-    sortedSuppliesList() {
-      // 按照 tents 排序
-      this.showSuppliesList = this.showSuppliesList
-          .slice()
-          .sort((a, b) => b.tents - a.tents);
-    },
-    toggleTable() {
-
-      if (!this.panels.tableVisible) {
-        for (let key in this.panels) {
-          if (this.panels.hasOwnProperty(key)) {
-            this.panels[key] = false;
-          }
-        }
-      }
-
-      this.panels.tableVisible = !this.panels.tableVisible;
-      this.toolValue = this.panels.tableVisible ? "隐藏列表" : "显示列表";
-
-    },
-    toggleRoute() {
-      this.showTips = !this.showTips;
-      this.routeValue = this.showTips ? "隐藏路径规划" : "显示路径规划";
-    },
 
     //-----------附近资源快速匹配----------
     //-----------行政区划匹配-------------
@@ -2763,12 +2586,11 @@ export default {
 
     // 切换数据列表
     changeDataList(param) {
-      console.log("11111111111111111")
       this.selectedSuppliesList = []
 
-      console.log(this.selectedDataByRegions)
-      console.log(this.selectedDataByRadius)
-      console.log(this.selectedDataBySupplies)
+      // console.log(this.selectedDataByRegions)
+      // console.log(this.selectedDataByRadius)
+      // console.log(this.selectedDataBySupplies)
 
       let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
       let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
@@ -2808,8 +2630,8 @@ export default {
       let point = {
         id: id,
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(lng),
-            parseFloat(lat)
+          parseFloat(lng),
+          parseFloat(lat)
         ),
       };
       this.affectedPoints.push(point);
@@ -2820,18 +2642,35 @@ export default {
             pixelSize: 10,
             color: color,
           },
+          customType: "emergencySite",
         });
       }
     },
 
-    // 点击列表某行显示对应标绘点
-    showSupplyPoint(row) {
-      console.log("点击了：", row);
-      this.showIcon = [];
-      this.showIcon.push(row);
+    removeAllEmergencySites() {
+      // console.log(window.viewer.entities.values)
+      let entities = window.viewer.entities.values;
+      for (let i = entities.length - 1; i >= 0; i--) {
+        if (entities[i].customType === "emergencySite") {
+          window.viewer.entities.remove(entities[i]);
+        }
+      }
+      this.removeSuppliesList();
+    },
+
+    // 用于移除物资点
+    removeSuppliesList() {
       this.removePoints(this.suppliesList[0]);
       this.removePoints(this.suppliesList[1]);
       this.removePoints(this.suppliesList[2]);
+    },
+
+    // 点击列表某行显示对应标绘点
+    showSupplyPoint(row) {
+      // console.log("点击了：", row);
+      this.showIcon = [];
+      this.showIcon.push(row);
+      this.removeSuppliesList();
       if (this.showIcon[0].type === "supplies") {
         this.processPoints(this.showIcon, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
       } else if (this.showIcon[0].type === "reserves") {
@@ -2841,38 +2680,11 @@ export default {
       }
     },
 
-    // 移除地图上的标绘点
-    removePoints(entityArr) {
-      entityArr.forEach((entity) => {
-        // console.log("-----", entity);
-        let uuid = entity.uuid;
-        window.viewer.entities.values.forEach((existingEntity) => {
-          if (existingEntity.uuid === uuid) {
-            window.viewer.entities.remove(existingEntity);
-          }
-        });
-      });
-    },
-
-    // 显示所有标绘点
-    showAllSupplyPoints() {
-      let that = this;
-      viewer.entities.values.forEach((entity) => {
-        if (entity.ellipse) {
-          viewer.entities.remove(entity);
-        }
-      });
-      this.removePoints(that.showIcon);
-      this.removePoints(that.selectedSuppliesList);
-      this.removethdRegions()
-      this.removeDataSourcesLayer('YaanRegionLayer');
-      this.initPlot()
-    },
-
     // 物资查询
     async searchSupply() {
       let that = this;
       this.activeMenuIndex = '2'
+
       viewer.entities.values.forEach((entity) => {
         if (entity.ellipse) {
           viewer.entities.remove(entity);
@@ -2880,9 +2692,7 @@ export default {
       });
       this.removePoints(that.showIcon);
       this.removePoints(that.selectedSuppliesList);
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
+      this.removeSuppliesList();
       let result = []
       this.ifDrawEllipse = false
       this.selectedSuppliesList = []
@@ -2927,9 +2737,7 @@ export default {
       });
       this.removePoints(that.showIcon);
       this.removePoints(that.selectedSuppliesList);
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
+      this.removeSuppliesList();
       this.ifDrawEllipse = false
       this.selectedSuppliesList = []
       await searchEmergencyTeamData(this.searchEmergencyTeamForm).then(res => {
@@ -2959,9 +2767,7 @@ export default {
     },
     // 物资匹配
     async marchSupplies() {
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
+      this.removeSuppliesList();
       let result = this.supplyList
       let radiusResult = []
       let countResult = []
@@ -2972,7 +2778,7 @@ export default {
       while (i < 15.0 && !flag) {
         radiusResult = await this.marchSupplyByRadius(result, i)
         // console.log("radiusResult-------------------",radiusResult)
-        countResult = this.marchSupplyByCount(radiusResult)
+        countResult = marchSupplyByCount(radiusResult, this.searchSupplyForm)
         // console.log("countResult-------------------", countResult);
         if (countResult.length > 0) {
           flag = true
@@ -3003,14 +2809,8 @@ export default {
 
     // 半径查询
     async searchSuppliesByRadius() {
-      // if (this.addSupplyPointCurrently.lat === 0) {
-      //   await ElMessageBox.alert('请先添加受灾点。', '提示', {
-      //     confirmButtonText: '确认',
-      //   });
-      // } else {
-      //   this.panels.searchSupplyByRadiusDialog = true
-      // }
       this.addDisasterPoint()
+      this.removeAllEmergencySites();
       this.isShowMessage = true
       this.searchSupplyBy = 'RadiusDialog'
     },
@@ -3019,9 +2819,7 @@ export default {
     async marchSuppliesByRadius() {
       this.ifDrawEllipse = true
       // 移除现有的点
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
+      this.removeSuppliesList();
       let result = await this.marchSupplyByRadius(this.suppliesList, this.searchSupplyForm.radius)
       // this.drawSupplyPoint("searchSupplies", this.searchSupplyForm.radius)
       this.selectedDataByRadius = {
@@ -3029,7 +2827,7 @@ export default {
         reserves: result[1],
         emergencyTeam: result[2]
       };
-      this.selectPoints(this.searchSupplyForm.radius)
+      selectPoints(this.searchSupplyForm.radius, this.addSupplyPointCurrently.lng, this.addSupplyPointCurrently.lat)
       this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
       this.processPoints(result[1], 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
       this.processPoints(result[2], 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
@@ -3037,12 +2835,11 @@ export default {
       this.changeDataList('supplies')
       this.panels.searchSupplyByRadiusDialog = false
     },
+
     // 半径匹配
     async marchSupplyByRadius(array, radius) {
       // 移除现有的点
-      this.removePoints(this.suppliesList[0]);
-      this.removePoints(this.suppliesList[1]);
-      this.removePoints(this.suppliesList[2]);
+      this.removeSuppliesList();
       let result = []
       let suppliesArr = []
       let reservesArr = []
@@ -3056,8 +2853,8 @@ export default {
             const pointLongitude = parseFloat(point.longitude);
             const pointLatitude = parseFloat(point.latitude);
             const initialPoint = Cesium.Cartesian3.fromDegrees(
-                pointLongitude,
-                pointLatitude
+              pointLongitude,
+              pointLatitude
             );
             // 距离以公里为单位
             const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
@@ -3081,8 +2878,8 @@ export default {
           const pointLongitude = parseFloat(point.longitude);
           const pointLatitude = parseFloat(point.latitude);
           const initialPoint = Cesium.Cartesian3.fromDegrees(
-              pointLongitude,
-              pointLatitude
+            pointLongitude,
+            pointLatitude
           );
           // 距离以公里为单位
           const distance = Cesium.Cartesian3.distance(clickPoint, initialPoint) / 1000;
@@ -3094,52 +2891,10 @@ export default {
       return result
     },
 
-    // 通过目标数量匹配物资
-    marchSupplyByCount(array) {
-      let tents = 0
-      let raincoats = 0
-      let rainBoots = 0
-      let flashlights = 0
-      let flag = false
-      let bool1 = this.searchSupplyForm.tents > 0 ? false : true
-      let bool2 = this.searchSupplyForm.raincoats > 0 ? false : true
-      let bool3 = this.searchSupplyForm.rainBoots > 0 ? false : true
-      let bool4 = this.searchSupplyForm.flashlights > 0 ? false : true
-      let resultArray = []
-      array.forEach((ele) => {
-        if (ele.tents === 0) {
-          bool1 = true
-        }
-        if (ele.raincoats === 0) {
-          bool2 = true
-        }
-        if (ele.rainBoots === 0) {
-          bool3 = true
-        }
-        if (ele.flashlights === 0) {
-          bool4 = true
-        }
-        if (!bool1 || !bool2 || !bool3 || !bool4) {
-          tents += ele.tents;
-          raincoats += ele.raincoats;
-          rainBoots += ele.rainBoots;
-          flashlights += ele.flashlights;
-          // console.log("rainBoots=====-----",rainBoots)
-          if (tents >= this.searchSupplyForm.tents
-              && raincoats >= this.searchSupplyForm.raincoats
-              && rainBoots >= this.searchSupplyForm.rainBoots
-              && flashlights >= this.searchSupplyForm.flashlights) {
-            flag = true;
-          }
-          resultArray.push(ele)
-        }
-      });
-      // console.log("flag-----------------",flag)
-      if (flag) {
-        return resultArray
-      } else {
-        return []
-      }
+    cancelRadiusQuery(){
+      this.panels.searchSupplyByRadiusDialog = false;
+      this.removeSuppliesList();
+      this.removeAllEmergencySites();
     },
 
     drawSupplyPoint(param, radius) {
@@ -3148,8 +2903,8 @@ export default {
       this.removePoints(this.showIcon);
       viewer.entities.add({
         position: Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.addSupplyPointCurrently.lng),
-            parseFloat(this.addSupplyPointCurrently.lat)
+          parseFloat(this.addSupplyPointCurrently.lng),
+          parseFloat(this.addSupplyPointCurrently.lat)
         ),
         point: {
           pixelSize: 10,
@@ -3189,37 +2944,12 @@ export default {
       this.processPoints(reservesArr, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
       this.processPoints(emergencyTeamArr, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
       if (this.ifDrawEllipse) {
-        this.selectPoints(radius);
+        selectPoints(radius, this.addSupplyPointCurrently.lng, this.addSupplyPointCurrently.lat);
       }
       // }
 
     },
-    // 查询指定范围内的物资点
 
-    selectPoints(radius) {
-      if (!isNaN(parseFloat(radius))) {
-        radius = parseFloat(radius) * 1000;
-
-        // 将经纬度转换为 Cartesian3 类型
-        const position = Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.addSupplyPointCurrently.lng),
-            parseFloat(this.addSupplyPointCurrently.lat)
-        );
-        viewer.entities.values.forEach((entity) => {
-          if (entity.ellipse) {
-            viewer.entities.remove(entity);
-          }
-        });
-        viewer.entities.add({
-          position: position,
-          ellipse: {
-            semiMajorAxis: radius,
-            semiMinorAxis: radius,
-            material: Cesium.Color.GREEN.withAlpha(0.5),
-          },
-        });
-      }
-    },
     // 添加物资点
     addDisasterPoint() {
       if (this.isRouting) {
@@ -3249,99 +2979,12 @@ export default {
     handleTeamTotalMembersInput() {
       this.searchEmergencyTeamForm.totalMembers = value
     },
-    // ---------------------------------------------------------------------
-
-    // getPageArr(arr) {
-    //     let newArr = [];
-    //     let start = (this.currentPage - 1) * this.pageSize;
-    //     let end = this.currentPage * this.pageSize;
-    //     if (end > this.total) {
-    //         end = this.total;
-    //     }
-    //     for (; start < end; start++) {
-    //         newArr.push(arr[start]);
-    //     }
-    //     return newArr;
-    // },
-
-    // handleSizeChange(val) {
-    //     this.pageSize = val;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // handleCurrentChange(val) {
-    //     this.currentPage = val;
-    //     this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-    // },
-
-    // tableHeaderColor() {
-    //     return {
-    //         "border-width": "1px",
-    //         "border-style": "solid",
-    //         "border-color": "#555555",
-    //         "background-color": "#293038 !important", // 此处是elemnetPlus的奇怪bug，header-cell-style中背景颜色不加!important不生效
-    //         color: "#fff",
-    //         padding: "0",
-    //         "text-align": "center",
-    //     };
-    // },
-
-    // 修改table header的背景色
-
-    // tableColor({row, column, rowIndex, columnIndex}) {
-    //     if (rowIndex % 2 == 1) {
-    //         return {
-    //             "border-width": "1px",
-    //             "border-style": "solid",
-    //             "border-color": "#555555",
-    //             "background-color": "#313a44",
-    //             color: "#fff",
-    //             padding: "0",
-    //             "text-align": "center",
-    //         };
-    //     } else {
-    //         return {
-    //             "border-width": "1px",
-    //             "border-style": "solid",
-    //             "border-color": "#555555",
-    //             "background-color": "#304156",
-    //             color: "#fff",
-    //             padding: "0",
-    //             "text-align": "center",
-    //         };
-    //     }
-    // },
 
     //- ---------------------
-    /** 以坐标点为中心，简单粗略的创建一个指定半径的圆，半径单位米，pointCount为构建圆的坐标点数（比如24个点，点越多越圆，最少3个点），返回构成圆的坐标点数组 **/
-    CreateSimpleCircle(lng, lat, radius, pointCount) {
-      //球面坐标不会算，转换成三角坐标简单点，经度代表值大约：0.01≈1km 0.1≈10km 1≈100km 10≈1000km
-      let km = radius / 1000;
-      let a = km < 5 ? 0.01 : km < 50 ? 0.1 : km < 500 ? 1 : 10;
-      let b = this.Distance(lng, lat, lng + a, lat);
-      let c = this.Distance(lng, lat, lng, lat + a);
-      let rb = (radius / b) * a;
-      let rc = (radius / c) * a;
-      let arr = [];
-      let n = 0,
-          step = 360.0 / pointCount,
-          N = 360 - step / 2; //注意浮点数±0.000000001的差异
-      for (let i = 0; n < N; i++, n += step) {
-        let x = lng + rb * Math.cos((n * Math.PI) / 180);
-        let y = lat + rc * Math.sin((n * Math.PI) / 180);
-        arr[i] = [x, y];
-      }
-      arr.push([arr[0][0], arr[0][1]]); //闭环
-      return arr;
-    },
-    formatTime(minutes) {
-      const hours = Math.floor(minutes / 60); // 计算小时数
-      const remainingMinutes = Math.round(minutes % 60); // 计算剩余的分钟数并四舍五入
-      return `${hours > 0 ? hours + '小时' : ''}${remainingMinutes}分钟`;
-    },
+
     walkStyle() {
       this.visibleGuilde = false;
-      this.RouteTime = this.formatTime(this.humantime);
+      this.RouteTime = formatTime(this.humantime);
       if (this.RouteTime === "0分钟") {
         this.RouteTime = "1分钟";
       }
@@ -3354,7 +2997,7 @@ export default {
       if (this.cartime.includes("0时0分钟")) {
         this.RouteTime = "1分钟";
       } else {
-        this.RouteTime = this.formatTime(this.cartime);
+        this.RouteTime = formatTime(this.cartime);
       }
       if (this.RouteTime === "0分钟") {
         this.RouteTime = "1分钟";
@@ -3362,31 +3005,8 @@ export default {
       this.RouteWay = "驾驶";
     },
 
-    onScroll(event) {
-      const container = event.target;
-      const bottom = container.scrollHeight === container.scrollTop + container.clientHeight;
-      if (bottom && !this.loading) {
-        this.loadMoreGuide();
-      }
-    },
-    async loadMoreGuide() {
-      this.loading = true;
-      try {
-        // 调用API获取更多的指南数据
-        const newGuides = await this.fetchMoreGuides();
-        this.RouteGuilde = [...this.RouteGuilde, ...newGuides];
-      } catch (error) {
-        console.error('Failed to load more guides', error);
-      } finally {
-        this.loading = false;
-      }
-    },
-    async fetchMoreGuides() {
-      // 实现调用API逻辑
-      return []; // 返回新的指南数据
-    },
     route() {
-      console.log("调用了")
+      // console.log("调用了")
       if (this.canMarkPoint) {
         this.canMarkPoint = false;
       }
@@ -3416,13 +3036,13 @@ export default {
         that.pos.push([lon, lat]);
         let billBoardId = Date.now();
         if (that.pos.length === 1) {
-          that.billboardD(position, start, billBoardId);
+          billboardD(position, start, billBoardId);
           this.propertiesId.push(billBoardId);  // 将billboardId加入propertiesId数组
         } else {
-          that.billboardD(position, end, billBoardId);
+          billboardD(position, end, billBoardId);
           this.propertiesId.push(billBoardId);  // 将billboardId加入propertiesId数组
         }
-        console.log("333")
+        // console.log("333")
 
         if (that.pos.length === 2) {
           // 已获取两个点，开始路径规划
@@ -3434,7 +3054,7 @@ export default {
           let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
           let avoidArea = "";
 
-          console.log("444")
+          // console.log("444")
           // 添加受灾区域逻辑
           if (that.areas.length > 0) {
             let area = JSON.parse(JSON.stringify(that.areas));
@@ -3446,127 +3066,58 @@ export default {
             }
             avoidArea = avoidArea.substring(0, avoidArea.length - 1);
           }
-          console.log("555")
+          // console.log("555")
           axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
-              .then(res => {
-                pathM += parseInt(res.data.route.paths[0].distance);
-                res.data.route.paths[0].steps.forEach(step => {
-                  pathName.push(step.instruction);
-                  path += step.polyline + ";";
-                });
+            .then(res => {
+              pathM += parseInt(res.data.route.paths[0].distance);
+              res.data.route.paths[0].steps.forEach(step => {
+                pathName.push(step.instruction);
+                path += step.polyline + ";";
+              });
 
-                let pathSegments = path.split(";")
-                    .map(segment =>
-                        segment
-                            .replace(/"/g, "")  // 去除双引号
-                            .split(",")  // 按逗号分割成经纬度数组
-                            .map(Number)  // 将字符串转换为数字
-                            .filter(seg => !isNaN(seg))  // 去除无效数字
-                    )
-                    .filter(segment => segment.length === 2)
-                    .map(segment => gcj02towgs84(segment[0], segment[1]))
+              let pathSegments = path.split(";")
+                .map(segment =>
+                  segment
+                    .replace(/"/g, "")  // 去除双引号
+                    .split(",")  // 按逗号分割成经纬度数组
+                    .map(Number)  // 将字符串转换为数字
+                    .filter(seg => !isNaN(seg))  // 去除无效数字
+                )
+                .filter(segment => segment.length === 2)
+                .map(segment => gcj02towgs84(segment[0], segment[1]))
 // 在pathSegments数组开头插入起点
-                pathSegments.unshift(that.pos[0]);
+              pathSegments.unshift(that.pos[0]);
 
 // 在pathSegments数组结尾添加终点
-                pathSegments.push(that.pos[1]);
-                that.polylineD(pathSegments, propertiesId);
-                this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
-                this.humantime = (pathM * 0.7 / 60).toFixed(2);
-                this.driveStyle();
-                this.walkStyle();
-                this.totalRoute = pathM;
-                this.RouteGuilde = pathName;
-              })
+              pathSegments.push(that.pos[1]);
+              that.polylineD(pathSegments, propertiesId);
+              this.cartime = (parseFloat(res.data.route.paths[0].duration) / 60).toFixed(2);
+              this.humantime = (pathM * 0.7 / 60).toFixed(2);
+              this.driveStyle();
+              this.walkStyle();
+              this.totalRoute = pathM;
+              this.RouteGuilde = pathName;
+            })
 
           that.showTips = true;
           this.isRouting = false; // 路径规划完成，设置标志
           this.clearHandler(); // 移除点击事件监听器
-          const showRouteDiv = document.querySelector('.showRoute');
-          if (showRouteDiv) {
-            showRouteDiv.style.display = 'initial'; // 设置 display 为初始值
-          }
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     },
-    //绘制路径的线
+
+    // 绘制障碍物点的面与半径的中心点已封装！！！
+    // 绘制路径的线
     polylineD(data, propertiesId) {
-      let arr = [];
-      for (let i = 0; i < data.length; i++) {
-        let c3 = Cesium.Cartesian3.fromDegrees(data[i][0], data[i][1]);
-        // let cartographic = Cesium.Cartographic.fromDegrees(data[i][0],data[i][1])
-        // let cartesian3 = Cesium.Ellipsoid.WGS84.cartographicToCartesian(cartographic)
-        arr.push(c3);
-      }
 
       // 创建一个唯一的 ID，可以使用当前时间戳或其他唯一标识符
       let uniqueId = Cesium.createGuid(); // 或者使用 Date.now()
+      polylineD(data, propertiesId, uniqueId);
 
-      viewer.entities.add({
-        id: uniqueId,  // 为每个折线实体指定唯一的 id
-        polyline: {
-          positions: arr,
-          width: 10,
-          depthFailMaterial: Cesium.Color.YELLOW,
-          clampToGround: true,
-        },
-        properties: {
-          propertiesId,
-        },
-      });
       this.propertiesId.push(uniqueId);
     },
-    //绘制障碍物点的面
-    polygonD(positions, id) {
-      let arr = [];
-      for (let i = 0; i < positions.length; i++) {
-        let a = Cesium.Cartesian3.fromDegrees(positions[i][0], positions[i][1]);
-        arr.push(a);
-      }
-      let polygon = new Entity({
-        id: id,
-        polygon: {
-          hierarchy: arr,
-          material: new Cesium.Color.fromCssColorString("#FFD700").withAlpha(
-              0.2
-          ),
-          clampToGround: true,
-        },
-        properties: {},
-      });
-      viewer.entities.add(polygon);
-    },
-    //绘制半径的中心点
-    pointD(position, id) {
-      return viewer.entities.add({
-        id: id,
-        position: position,
-        point: {
-          pixelSize: 20,
-          color: Cesium.Color.RED,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
-          depthTest: false, //禁止深度测试但是没有下面那句有用
-          disableDepthTestDistance: Number.POSITIVE_INFINITY, //不再进行深度测试（真神）
-        },
-      });
-    },
-    //路径规划
-    billboardD(position, img, billBoardId) {
-      viewer.entities.add({
-        id: billBoardId,
-        position: position,
-        billboard: {
-          image: img,
-          // width: 25,//图片宽度,单位px
-          // height: 25,//图片高度，单位px // 会影响point大小，离谱
-          // eyeOffset: new Cesium.Cartesian3(-1, 1, 0),//与坐标位置的偏移距离
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度,让billboard贴地
-          depthTest: false, //禁止深度测试但是没有下面那句有用
-          disableDepthTestDistance: Number.POSITIVE_INFINITY, //不再进行深度测试（真神）
-        },
-      });
-    },
+
     addArea() {
       if (this.canMarkPoint) {
         this.canMarkPoint = false;
@@ -3584,11 +3135,11 @@ export default {
         let cartographic = Cesium.Cartographic.fromCartesian(position);
         let lon = Cesium.Math.toDegrees(cartographic.longitude);
         let lat = Cesium.Math.toDegrees(cartographic.latitude);
-        let ar = that.CreateSimpleCircle(lon, lat, 50, 24);
+        let ar = CreateSimpleCircle(lon, lat, 50, 24);
         that.areas.push({area: ar, name: "area_" + Date.now()});
         let id = "area_" + Date.now();
-        that.pointD(position, id);
-        that.polygonD(ar, id + "a");
+        pointD(position, id);
+        polygonD(ar, id + "a");
         // 这里是更新路径规划，调用路径更新函数
         if (that.pos.length > 0) {
           that.updateRoute(); // 调用方法重新计算路径并避开新障碍区域
@@ -3623,38 +3174,37 @@ export default {
         that.propertiesId.splice(2, 1);  // 删除 propertiesId 中的第三个 ID
       }
 
-      console.log("asdasdasd", that.pos)
       // 获取起点和终点
       let from = wgs84togcj02(that.pos[0][0], that.pos[0][1]);
       let end = wgs84togcj02(that.pos[1][0], that.pos[1][1]);
 
       // 请求路径规划
       axios.get(`${AmapApiLocal}/direction/driving?origin=${from}&destination=${end}&extensions=base&strategy=0&avoidpolygons=${avoidArea}&key=7b0b64174ef6951cc6ee669de03e4f59`)
-          .then(res => {
-            // 处理路径返回的数据，更新路径
-            let pathM = parseInt(res.data.route.paths[0].distance);
-            let pathName = [];
-            let path = "";
-            res.data.route.paths[0].steps.forEach(step => {
-              pathName.push(step.instruction);
-              path += step.polyline + ";";
-            });
-
-            // 更新路径
-            let pathSegments = path.split(";")
-                .map(segment => segment.replace(/"/g, "").split(",").map(Number).filter(seg => !isNaN(seg)))
-                .filter(segment => segment.length === 2)
-                .map(segment => gcj02towgs84(segment[0], segment[1]));
-
-            pathSegments.unshift(that.pos[0]);
-            pathSegments.push(that.pos[1]);
-
-            // 将新的路径绘制到地图上
-            that.polylineD(pathSegments, that.propertiesId);  // 传递路径和 id 更新折线
-          })
-          .catch(error => {
-            console.error("路径规划请求失败", error);
+        .then(res => {
+          // 处理路径返回的数据，更新路径
+          let pathM = parseInt(res.data.route.paths[0].distance);
+          let pathName = [];
+          let path = "";
+          res.data.route.paths[0].steps.forEach(step => {
+            pathName.push(step.instruction);
+            path += step.polyline + ";";
           });
+
+          // 更新路径
+          let pathSegments = path.split(";")
+            .map(segment => segment.replace(/"/g, "").split(",").map(Number).filter(seg => !isNaN(seg)))
+            .filter(segment => segment.length === 2)
+            .map(segment => gcj02towgs84(segment[0], segment[1]));
+
+          pathSegments.unshift(that.pos[0]);
+          pathSegments.push(that.pos[1]);
+
+          // 将新的路径绘制到地图上
+          that.polylineD(pathSegments, that.propertiesId);  // 传递路径和 id 更新折线
+        })
+        .catch(error => {
+          console.error("路径规划请求失败", error);
+        });
 
       // 显示提示
       that.showTips = true;
@@ -3663,7 +3213,7 @@ export default {
     clearHandler() {
       // 清除所有之前的 LEFT_CLICK 监听器
       if (this.handler) {
-        console.log("11111111")
+        // console.log("11111111")
         this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
       }
     },
@@ -3671,155 +3221,17 @@ export default {
       viewer.entities.removeAll();
       this.areas = [];
     },
-    removePoint() {
-      let handler = new Cesium.ScreenSpaceEventHandler(
-          window.viewer.scene.canvas
-      );
-      let that = this;
-      that.pos = [];  // 清空路径点
-      handler.setInputAction(async (click) => {
-        let pickedEntity = window.viewer.scene.pick(click.position);
-        // let entity = window.selectedEntity = pickedEntity?.id
-        let entity = pickedEntity?.id;
-        if (Cesium.defined(pickedEntity) && entity._point !== undefined) {
-          let id = entity.id;
-          that.areas = that.areas.filter((area) => area.name !== id);
-          viewer.entities.remove(entity);
-          viewer.entities.removeById(id + "a");
-          handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    removeRoute() {
+      let entities = window.viewer.entities.values;
+      for (let i = entities.length - 1; i >= 0; i--) {
+        if (entities[i].selfType === "route") {
+          window.viewer.entities.remove(entities[i]);
         }
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    },
-    removePolyline() {
-      let handler = new Cesium.ScreenSpaceEventHandler(
-          window.viewer.scene.canvas
-      );
-      handler.setInputAction(async (click) => {
-        let pickedEntity = window.viewer.scene.pick(click.position);
-        let entity = (window.selectedEntity = pickedEntity?.id);
-        if (
-            Cesium.defined(pickedEntity) &&
-            window.selectedEntity._polyline !== undefined
-        ) {
-          let propertiesId = entity.properties.propertiesId._value;
-          for (let i = 0; i < propertiesId.length; i++) {
-            console.log(propertiesId[i], propertiesId[i] + "");
-            viewer.entities.removeById(propertiesId[i] + "");
-          }
-          viewer.entities.remove(entity);
-          handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        }
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    },
-    //绑定点击事件
-    //    bubbleTips(position) {
-    //     if (!viewer) {
-    //         console.error("Viewer is not initialized.");
-    //         return;
-    //     }
-    //     // 文字内容
-    //     var text = "Citizens Bank Park";
-    //     // 添加背景面板
-    //     var backgroundPanel = viewer.entities.add({
-    //         position: position,
-    //         billboard: {
-    //             // 使用 CSS 样式的背景图像或在下面的代码中可以选择不同的背景图
-    //             image: bubbleImg,
-    //             pixelOffset: new Cesium.Cartesian2(0, -80), // 需要根据实际需要调整偏移
-    //             width: 200, // 固定宽度或根据内容计算
-    //             height: 100, // 固定高度或根据内容计算
-    //         },
-    //     });
-
-    //     // 添加标签
-    //     var label = viewer.entities.add({
-    //         position: position,
-    //         label: {
-    //             text: text,
-    //             font: "16pt Arial",
-    //             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-    //             fillColor: Cesium.Color.WHITE,
-    //             outlineColor: Cesium.Color.GRAY,
-    //             outlineWidth: 2,
-    //             verticalOrigin: Cesium.VerticalOrigin.CENTER,
-    //             pixelOffset: new Cesium.Cartesian2(0, -30), // 根据背景面板的高度调整标签的位置
-    //             showBackground: true,
-    //             backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
-    //             backgroundPadding: new Cesium.Cartesian2(10, 6)
-    //         }
-    //     });
-
-    //     // 添加点击事件处理（可选）
-    //     viewer.screenSpaceEventHandler.setInputAction(function (click) {
-    //         var pick = viewer.scene.pick(click.position);
-    //         if (Cesium.defined(pick) && (pick.id === backgroundPanel || pick.id === label)) {
-    //             console.log("Label or background panel clicked");
-    //         }
-    //     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    // }
-
-    initTool(frameDiv) {
-      if (this.isInit) {
-        return 0;
       }
-      //弹窗容器div
-      const rightdiv = document.createElement("DIV");
-      rightdiv.className = "tooltipdiv-right";
-      rightdiv.style = `
-      position:absolute;
-      width:200px;
-      min-height:100px;
-      max-height:300px;
-      background:#fff;
-      border-radius:4px;
-      box-shadow: 2px 4px 5px #888888;
-      `;
-
-      //弹窗箭头div
-      const arrow = document.createElement("DIV");
-      arrow.className = "tooltip-arrow";
-      arrow.style = `
-      position:absolute;
-      left:-24px;
-      top:38px;
-      width:0;
-      height:0;
-      border-top: 12px solid transparent;
-      border-right: 12px solid #fff;
-      border-bottom: 12px solid transparent;
-      border-left: 12px solid transparent;`;
-      rightdiv.appendChild(arrow);
-      //标题div
-      const title = document.createElement("DIV");
-      title.className = "tooltipdiv-inner";
-      title.style = `
-      width:100%;
-      height:25px;
-      line-height:25px;
-      text-align:center;
-      background:red;
-      `;
-      rightdiv.appendChild(title);
-
-      //内容div
-      const content = document.createElement("DIV");
-      content.className = "tooltipdiv-content";
-      content.style = `
-      width:200px;
-      box-sizing:border-box;
-      padding:10px 0 10px 10px;
-      overflow-y:scroll;
-      word-break:break-all;
-      `;
-      rightdiv.appendChild(content);
-
-      this.addDiv = rightdiv;
-      this.addtitle = title;
-      this.addcontent = content;
-      frameDiv.appendChild(rightdiv);
-
-      this.isInit = true;
+      this.showTips = false;
     },
+
 
     // ------------------------------路径规划+物资匹配---------------------------
 
@@ -4276,11 +3688,11 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            // parseFloat(this.centerPoint.geom.coordinates[0]),
-            // parseFloat(this.centerPoint.geom.coordinates[1]),
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            30000),
+          // parseFloat(this.centerPoint.geom.coordinates[0]),
+          // parseFloat(this.centerPoint.geom.coordinates[1]),
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          30000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -4300,11 +3712,11 @@ export default {
       // 飞行动画持续时间（秒）
       viewer.scene.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-            // parseFloat(this.centerPoint.geom.coordinates[0]),
-            // parseFloat(this.centerPoint.geom.coordinates[1]),
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            200000),
+          // parseFloat(this.centerPoint.geom.coordinates[0]),
+          // parseFloat(this.centerPoint.geom.coordinates[1]),
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          200000),
         orientation: {
           // 指向
           heading: 6.283185307179581,
@@ -4338,11 +3750,11 @@ export default {
             data
           },
           position: Cesium.Cartesian3.fromDegrees(
-              // parseFloat(this.centerPoint.geom.coordinates[0]),
-              // parseFloat(this.centerPoint.geom.coordinates[1]),
-              parseFloat(this.centerPoint.longitude),
-              parseFloat(this.centerPoint.latitude),
-              parseFloat(this.centerPoint.height || 0)
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
             image: centerstar,
@@ -4385,11 +3797,11 @@ export default {
       if (!smallcenterMark) {
         smallcenterMark = smallViewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-              // parseFloat(this.centerPoint.geom.coordinates[0]),
-              // parseFloat(this.centerPoint.geom.coordinates[1]),
-              parseFloat(this.centerPoint.longitude),
-              parseFloat(this.centerPoint.latitude),
-              parseFloat(this.centerPoint.height || 0)
+            // parseFloat(this.centerPoint.geom.coordinates[0]),
+            // parseFloat(this.centerPoint.geom.coordinates[1]),
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
           ),
           billboard: {
             image: centerstar,
@@ -4555,11 +3967,24 @@ export default {
       }
       if (this.activeComponent === 'layerChoose') {
         this.removethdRegions();
+        let defaultTable = null;
+        this.emergencyTitleProperty.forEach(category => {
+          let item = category.content.find(i => i.name === "救援物资");
+          if (item) {
+            defaultTable = item;
+          }
+        });
+        this.emergencyClick(defaultTable)
+        this.showTips = false;
         const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
         // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
         if (hasYaanRegionLayer) {
           this.addYaanRegion();
         }
+      }
+      if(this.activeComponent !== 'layerChoose') {
+        this.removeAllEmergencySites();
+        this.showTips = false;
       }
     },
     isActive(component) {
@@ -4807,8 +4232,8 @@ export default {
         if (this.selectedEntityPosition) {
           // //console.log(this.selectedEntityPosition)
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-              window.viewer.scene,
-              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+            window.viewer.scene,
+            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           if (canvasPosition) {
             const faultInfoDiv = document.getElementById('faultInfo');
@@ -4834,8 +4259,8 @@ export default {
         if (this.selectedEntityPosition) {
           // 将地理坐标转换为窗口坐标
           const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-              window.viewer.scene,
-              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+            window.viewer.scene,
+            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
           );
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
@@ -5058,9 +4483,7 @@ export default {
 
         // console.log("filteredFeatures---------------------------", filteredFeatures)
 
-        this.removePoints(this.suppliesList[0]);
-        this.removePoints(this.suppliesList[1]);
-        this.removePoints(this.suppliesList[2]);
+        this.removeSuppliesList();
 
         // 创建一个经过过滤的GeoJSON对象，包含过滤后的特性数据
         let filteredGeoJson = {
@@ -5191,35 +4614,15 @@ export default {
 
       // 根据经度和纬度创建一个三维坐标点，Z轴设置为120000，以确保视角高度
       const position = Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          120000,
+        parseFloat(this.centerPoint.longitude),
+        parseFloat(this.centerPoint.latitude),
+        120000,
       );
 
       // 飞行到计算出的中心点位置
       viewer.camera.flyTo({destination: position,})
     },
 
-
-    /**
-     * 初始化绘制功能 图层要素
-     * 该方法通过获取特征图层（features layer）来设置灾害储备、应急队伍和应急避难所的数据
-     * 它将这些数据存储在组件的相应属性中
-     */
-    // initPlot() {
-    //   getFeaturesLayer().then(res => {
-    //     // 解构赋值，从响应数据中提取灾害储备、应急队伍和应急避难所的信息
-    //     let {disasterReserves, emergencyTeam, emergencyShelters} = res;
-    //     // 更新组件的灾害储备数据
-    //     this.disasterReserves = disasterReserves;
-    //     // 更新组件的应急队伍数据
-    //     this.emergencyTeam = emergencyTeam;
-    //     // 更新组件的应急避难所数据
-    //     this.emergencyShelters = emergencyShelters;
-    //     // 原注释保留，但实际代码中未调用此方法
-    //     // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
-    //   });
-    // },
     /*
     * 视角跳转互斥复选框
     * 每次只能选中一个视角，其他复选框默认关闭
@@ -5362,9 +4765,9 @@ export default {
       if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
         // 创建一个Cartesian3对象，用于表示相机将要飞往的经纬度位置
         const position = Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            120000,
+          parseFloat(this.centerPoint.longitude),
+          parseFloat(this.centerPoint.latitude),
+          120000,
         );
         // 使用flyTo方法使相机飞往指定的经纬度位置
         viewer.camera.flyTo({destination: position,})
@@ -5372,9 +4775,9 @@ export default {
         // 当选中的图层数量不满足上述条件时，执行以下逻辑
         // 创建一个Cartesian3对象，用于表示相机将要飞往的默认经纬度位置
         const position = Cesium.Cartesian3.fromDegrees(
-            103.0,
-            29.98,
-            500000,
+          103.0,
+          29.98,
+          500000,
         );
         // 使用flyTo方法使相机飞往默认的经纬度位置
         viewer.camera.flyTo({destination: position,})
@@ -5410,8 +4813,8 @@ export default {
         }
         // 检查经度、纬度和高度是否为有效数值
         if (isNaN(element.longitude) || isNaN(element.latitude)
-            || element.longitude < -180 || element.longitude > 180
-            || element.latitude < -90 || element.latitude > 90) {
+          || element.longitude < -180 || element.longitude > 180
+          || element.latitude < -90 || element.latitude > 90) {
           console.log(`id为${element.uuid}的实体的坐标无效或超出范围`, element.longitude, element.latitude);
           return;
         }
@@ -5421,7 +4824,7 @@ export default {
         element.type = type;
         element.icon = icon
 
-        let bool = type === 'supplies' ? true : false
+        let bool = type === 'supplies'
 
         // 添加实体
         this.addEntity(element, icon, tableName, longitude, latitude, bool);
@@ -5459,6 +4862,21 @@ export default {
           longitude: element.longitude,
           latitude: element.latitude
         }
+      });
+    },
+
+    /**
+     * 移除地图上的标绘点
+     */
+    removePoints(entityArr) {
+      entityArr.forEach((entity) => {
+        // console.log("-----", entity);
+        let uuid = entity.uuid;
+        window.viewer.entities.values.forEach((existingEntity) => {
+          if (existingEntity.uuid === uuid) {
+            window.viewer.entities.remove(existingEntity);
+          }
+        });
       });
     },
 
@@ -5599,15 +5017,15 @@ export default {
       if (!popLayerexists) {
         // 如果不存在，则创建并添加新的WMS图层
         let popLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapServiceImageryProvider({
-              url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
-              layers: 'yaan:pop', // 需要请求的图层名称
-              parameters: {
-                service: 'WMS', // 指定服务类型为WMS
-                format: 'image/png', // 指定返回的图像格式为PNG
-                transparent: true // 启用透明背景
-              }
-            })
+          new Cesium.WebMapServiceImageryProvider({
+            url: baseURL + '/geoserver/yaan/wms', // WMS服务的URL
+            layers: 'yaan:pop', // 需要请求的图层名称
+            parameters: {
+              service: 'WMS', // 指定服务类型为WMS
+              format: 'image/png', // 指定返回的图像格式为PNG
+              transparent: true // 启用透明背景
+            }
+          })
         );
         popLayer.name = "PopLayer"; // 设置图层名称为"PopLayer"
       }
@@ -5628,15 +5046,15 @@ export default {
       if (!trafficLayerexists) {
         // 创建并添加交通图层
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              // 天地图交通图层的URL模板
-              url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg", // 根据实际返回的图像格式调整
-              tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
-              show: true
-            })
+          new Cesium.WebMapTileServiceImageryProvider({
+            // 天地图交通图层的URL模板
+            url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg", // 根据实际返回的图像格式调整
+            tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
+            show: true
+          })
         );
         trafficLayer.name = "TrafficLayer"; // 设置名称
       }
@@ -5646,16 +5064,16 @@ export default {
       if (!trafficTxtLayerExists) {
         // 创建并添加交通注记图层
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              // 天地图交通注记图层的URL模板
-              url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  TianDiTuToken,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-              show: false // 初始状态下不显示图层
-            })
+          new Cesium.WebMapTileServiceImageryProvider({
+            // 天地图交通注记图层的URL模板
+            url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+              TianDiTuToken,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+            show: false // 初始状态下不显示图层
+          })
         )
         traffictxtLayer.name = "TrafficTxtLayer"
       }
@@ -5979,8 +5397,8 @@ export default {
 
       // 获取当前所有选中的具体图层节点
       const selectedLayers = this.$refs.tree.getCheckedNodes(false)
-          .filter(node => this.layeritems.some(item => item.name === node.name))
-          .map(node => node.name);
+        .filter(node => this.layeritems.some(item => item.name === node.name))
+        .map(node => node.name);
 
       console.log("selectedLayers:", selectedLayers);
 
@@ -6063,8 +5481,6 @@ export default {
     },
 
     emergencyClick(contentItem) {
-
-
       // 设置选中效果
       this.emergencyTitleProperty.forEach(title => {
         title.content.forEach(item => {
@@ -7088,45 +6504,6 @@ export default {
 
 .emergencyContentItem.active {
   box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
-}
-
-.showTable {
-  position: absolute;
-  top: 120px;
-  right: 10px;
-  margin: 0;
-  padding: 5px;
-  border: 1px solid #fff;
-  border-radius: 5px;
-  background-color: #2a3b4c;
-  color: #fff;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  z-index: 101;
-}
-
-.showRoute {
-  display: none;
-  position: absolute;
-  top: 510px;
-  right: 10px;
-  margin: 0;
-  padding: 5px;
-  border: 1px solid #fff;
-  border-radius: 5px;
-  background-color: #2a3b4c;
-  color: #fff;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  z-index: 101;
-}
-
-.showTable:hover {
-  color: #409eff;
-}
-
-.showRoute:hover {
-  color: #409eff;
 }
 
 .panelButtons {
