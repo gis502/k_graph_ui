@@ -70,8 +70,6 @@ let timeLine = {
         else {
             img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
         }
-
-
         if (window.viewer && window.viewer.entities) {
             if (window.viewer.entities.getById(item.plotId)) {
                 window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
@@ -115,7 +113,6 @@ let timeLine = {
                 layer: type
             })
         }
-
     },
     addPolyline(item, type) {
         if (window.viewer && window.viewer.entities) {
