@@ -156,8 +156,6 @@ export default {
         this.currentTime = this.centerPoint.startTime
         this.centerPoint.plotType = "震中"
 
-
-        // console.log(this.currentTime,"this.currentTime thd")
         clock = new Cesium.Clock({
           startTime: Cesium.JulianDate.fromDate(this.centerPoint.startTime),
           stopTime: Cesium.JulianDate.fromDate(this.centerPoint.endTime),
