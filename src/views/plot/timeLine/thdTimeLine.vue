@@ -1750,7 +1750,7 @@ export default {
     },
     //底图级别
     updateZoomLevel(cameraHeight) {
-      console.log("层级", cameraHeight)
+      // console.log("层级", cameraHeight)
       // 根据相机高度设置 zoomLevel
       if (cameraHeight < 50000) {
         this.zoomLevel = '区/县'

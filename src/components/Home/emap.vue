@@ -215,6 +215,7 @@ export default {
         latitude: item.latitude || item.geom.coordinates[1],
         time: item.occurrenceTime.replace("T", " "),
         depth: item.depth,
+        eqType: item.eqType,  //地震类型
       }));
       // 根据震级分类
       dataGroups.value.latestSlight = latestData.filter(item => item.magnitude < 4.5);
@@ -513,10 +514,11 @@ export default {
     };
 
     const clearMarkers = () => {
-      mapConfig.value.map.clearOverLays() // 清除所有覆盖物
+      mapConfig.value.map.clearOverLays(marker) // 清除所有覆盖物
       // 这里应该实现清除当前所有标记的逻辑
       // 例如，使用 mapConfig.value.map.removeMarker(marker) 来移除标记
     };
+
 
 
     // 点击图例中的点 在地图上点的展示消失效果

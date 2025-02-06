@@ -57,6 +57,7 @@ import {ElMessage} from 'element-plus'
 import {plotType} from '@/cesium/plot/plotType.js'
 import {useCesiumStore} from "@/store/modules/cesium.js";
 import {insertPlotAndInfo} from '@/api/system/plot.js'
+import generalCompute from "@/cesium/plot/generalCompute.js";
 
 export default {
   name: "addMarkDialog",
@@ -113,7 +114,7 @@ export default {
       this.$emit('clearMarkDialogForm')// 调用父组件中clearPolyline对应的方法，重置标绘信息填写框里的信息
     },
     //确认添加标注
-    commitAddNote() {
+    async commitAddNote() {
       let that = this
       // 创建一个新的对象，只保留字段和它们的 value 值
       let typeInfoValues = {};
@@ -124,7 +125,8 @@ export default {
           }
         }
       }
-      let data = this.assembleData(this.form, typeInfoValues, this.starttime, this.endtime)
+      const locationInfo= await generalCompute.getReverseGeocode(this.form.situationPlotData[0].geom.coordinates[0][0],this.form.situationPlotData[0].geom.coordinates[0][1]);
+      let data = this.assembleData(this.form, typeInfoValues, locationInfo,this.starttime, this.endtime)
       console.log("插入数据库得线数据",data)
       insertPlotAndInfo(data).then(res => {
         // 此处新定义变量存form是因为传过来给this.from的个promise包着的对象，传给ws会有问题
@@ -146,8 +148,8 @@ export default {
       })
     },
     // 组装成发送请求的数据形式
-    assembleData(data1, data2, startTime, endTime) {
-      console.log("组装的数据请求",data1, data2, startTime, endTime)
+    assembleData(data1, data2, locationInfo,startTime, endTime) {
+      console.log("polyline组装的数据请求",data1, data2, locationInfo,startTime, endTime)
       let assemblyData = {
         plot:{
           earthquakeId:null,
@@ -162,6 +164,12 @@ export default {
           endTime:null,
           severity:null,
           isDeleted:null,
+
+          belongProvince:null,
+          belongCity:null,
+          belongCounty:null,
+          belongTown:null,
+
         },
         plotinfo:{
           plotId:null,
@@ -178,6 +186,10 @@ export default {
       assemblyData.plot.icon = data1.situationPlotData[0].icon
       assemblyData.plot.startTime = this.timestampToTime(startTime)
       assemblyData.plot.endTime = this.timestampToTime(endTime)
+      assemblyData.plot.belongProvince=locationInfo.province
+      assemblyData.plot.belongCity=locationInfo.city
+      assemblyData.plot.belongCounty=locationInfo.county
+      assemblyData.plot.belongTown=locationInfo.town
       // 组装plotinfo
       assemblyData.plotinfo = {
         ...data2,     //展开data2的内容

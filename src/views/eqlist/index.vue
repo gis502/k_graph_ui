@@ -772,16 +772,18 @@ export default {
       this.isPanelShow = !this.isPanelShow
       // this.setInterval()
       this.$notify({
-        title: '地震模拟成功',
+        title: '地震模拟',
         message: '正在进行灾损评估中',
-        duration: 600000
+        duration:  10000
       });
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
       eqEventTrigger(this.addOrUpdateDTO)
           .then(res => {
-            console.log(res)
+            console.log(res);
+            // 在这里调用 getEq 方法
+            this.getEq();
           })
       // this.addOrUpdateDTO.event = this.createTid()
       // this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
@@ -791,7 +793,6 @@ export default {
       //   console.log(res)
       // })
       // // console.log("你好：", this.addOrUpdateDTO)
-      this.getEq()
     },
     // 进度条
     setInterval() {

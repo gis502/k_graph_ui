@@ -14,7 +14,7 @@
 
 
         <div class="center-body">
-          <e-map :eq-data="tableData"/>
+          <e-map :eq-data="CeShiTableData"/>
         </div>
 
         <div class="left">
@@ -145,7 +145,7 @@
 
 <script setup>
 import { BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5 } from '@kjgl77/datav-vue3';
-import { onMounted, ref, reactive, nextTick } from 'vue';
+import { onMounted, ref, reactive, nextTick, watch } from 'vue';
 import EMap from '@/components/Home/emap.vue';
 import EqTable from '@/components/Home/eqtable.vue';
 import NewInfo from '@/components/Home/newInfo.vue';
@@ -158,6 +158,7 @@ import {getEqList} from "@/api/system/damageassessment.js";
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([]);
+const lastValidEqData = ref(null);
 
 const getEq = () => {
   getEqList().then((res) => {
@@ -172,20 +173,28 @@ const getEq = () => {
 };
 
 let lastEqData = ref(null);
+
 const requestParams = ref('');
 // 当前模式，初始为正式
 const activeMode = ref('Z');
-
-// 根据模式过滤表格数据
 const CeShiTableData = computed(() => {
   if (activeMode.value === 'Z') {
     return tableData.value.filter(item => item.eqType === 'Z');
   } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
     return tableData.value.filter(item => item.eqType === 'Y' || item.eqType === 'T');
   }
-  return tableData.value;  // 如果没有选择模式，默认返回所有数据
+  return tableData.value;
 });
 
+// 监听 CeShiTableData 变化，更新 lastEqData
+watch(CeShiTableData, (newVal) => {
+  if (newVal.length > 0) {
+    lastValidEqData.value = newVal[0]; // 存储上一次有值的第一条数据
+    lastEqData.value = newVal[0];
+  } else {
+    lastEqData.value = lastValidEqData.value; // 为空时回退到存储值
+  }
+}, { deep: true, immediate: true });
 
 const queryFormVisible = ref(false);
 
@@ -285,7 +294,7 @@ const onSubmit = () => {
 
   fromEqList(queryParams).then((res) => {
     tableData.value = res;
-    lastEqData.value = CeShiTableData.value[0];
+    lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
   });
   queryFormVisible.value = false;
 };
@@ -297,14 +306,14 @@ const openQueryFrom = () => {
 const query = () => {
   if (requestParams.value === '') {
     tableData.value = EqAll.value;
-    lastEqData.value = CeShiTableData.value[0];
+    lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
     return;
   }
   // queryEq({ queryValue: requestParams.value }).then((res) => {
   queryEqList({queryValue: requestParams.value}).then((res) => {
     console.log(requestParams.value)
     tableData.value = res;
-    lastEqData.value = CeShiTableData.value[0];
+    lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
   });
 };
 
@@ -353,16 +362,17 @@ const updateStyles = () => {
 
 onMounted(() => {
   nextTick(() => {
-    // Start observing the elements
-    resizeObserver.observe(leftTop.value);
-    resizeObserver.observe(leftCon.value);
-    resizeObserver.observe(leftBottom.value);
-    resizeObserver.observe(rightTop.value);
-    resizeObserver.observe(rightBottom.value);
+    if (leftTop.value) resizeObserver.observe(leftTop.value);
+    if (leftCon.value) resizeObserver.observe(leftCon.value);
+    if (leftBottom.value) resizeObserver.observe(leftBottom.value);
+    if (rightTop.value) resizeObserver.observe(rightTop.value);
+    if (rightBottom.value) resizeObserver.observe(rightBottom.value);
   });
+
   setInterval(updateTime, 500);
   getEq();
 });
+
 </script>
 
 

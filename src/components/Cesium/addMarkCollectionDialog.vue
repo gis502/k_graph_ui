@@ -73,6 +73,9 @@ import {ElMessage} from 'element-plus'
 import {plotType} from '@/cesium/plot/plotType.js'
 import {useCesiumStore} from "@/store/modules/cesium.js";
 import {insertPlotAndInfo} from '@/api/system/plot.js'
+import axios from "axios";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
+import generalCompute from "@/cesium/plot/generalCompute.js";
 
 export default {
   name: "addMarkDialog",
@@ -126,7 +129,7 @@ export default {
       this.$emit('clearMarkDialogForm')// 调用父组件中clearMarkDialogForm对应的方法，重置标绘信息填写框里的信息
     },
     //确认添加标注
-    commitAddNote() {
+    async commitAddNote() {
       let that = this
       // 创建一个新的对象，只保留字段和它们的 value 值
       let typeInfoValues = {};
@@ -137,7 +140,9 @@ export default {
           }
         }
       }
-      let data = this.assembleData(this.form,typeInfoValues,this.starttime,this.endtime)
+      //逆地址接续位置信息
+      const locationInfo= await generalCompute.getReverseGeocode(this.form.geom.coordinates[0], this.form.geom.coordinates[1]);
+      let data = this.assembleData(this.form,typeInfoValues,locationInfo,this.starttime,this.endtime)
       insertPlotAndInfo(data).then(res=>{
         let bool = true
         this.$emit('ifPointAnimate',bool)
@@ -162,9 +167,10 @@ export default {
     },
 
     // 组装成发送请求的数据形式
-    assembleData(data1,data2,startTime,endTime){
-      console.log("data1",startTime,startTime)
+    assembleData(data1,data2,locationInfo,startTime,endTime){
+      console.log("点标绘data1,data2",data1,data2,locationInfo,startTime,startTime)
       let assemblyData = {
+        //字段
         plot:{
           earthquakeId:null,
           plotId:null,
@@ -178,11 +184,17 @@ export default {
           endTime:null,
           severity:null,
           isDeleted:null,
+
+          belongProvince:null,
+          belongCity:null,
+          belongCounty:null,
+          belongTown:null,
         },
         plotinfo:{
           plotId:null,
         }
       }
+      //赋值
       // 组装 plot
       assemblyData.plot.earthquakeId = data1.earthquakeId
       assemblyData.plot.plotId = data1.plotId
@@ -194,6 +206,10 @@ export default {
       assemblyData.plot.icon = data1.icon
       assemblyData.plot.startTime = this.timestampToTime(startTime)
       assemblyData.plot.endTime = this.timestampToTime(endTime)
+      assemblyData.plot.belongProvince=locationInfo.province
+      assemblyData.plot.belongCity=locationInfo.city
+      assemblyData.plot.belongCounty=locationInfo.county
+      assemblyData.plot.belongTown=locationInfo.town
       // 组装plotinfo)
       assemblyData.plotinfo = {
         ...data2,     //展开data2的内容
