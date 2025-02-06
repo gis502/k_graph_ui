@@ -490,7 +490,7 @@ export default {
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
-      clearMarkers();
+      // clearMarkers();
       // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
         if (key.startsWith('history') && seriesVisibility.value[key]) {
