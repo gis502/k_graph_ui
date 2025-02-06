@@ -245,13 +245,13 @@ export default {
           document.getElementsByClassName('cesium-viewer-animationContainer')[0].style = 'visibility:hidden;z-index:1 ;left:40%;bottom: 3%;';
           document.getElementsByClassName('cesium-animation-rectButton')[0].style = 'visibility:hidden';
           document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
-          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:hidden';
           document.getElementsByClassName('cesium-animation-rectButton')[3].style = 'visibility:hidden';
         } else {
           console.log("历史地震")
           document.getElementsByClassName('cesium-viewer-animationContainer')[0].style = 'visibility:hidden;z-index:1 ;left:40%;bottom: 3%;';
           document.getElementsByClassName('cesium-animation-rectButton')[0].style = 'visibility:visible';
-          document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:hidden';
           document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:hidden';
         }
         document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 70%; left:15%;right:15%; ';
