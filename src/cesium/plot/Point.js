@@ -213,9 +213,6 @@ export default class Point {
   }
 
 
-  // deletePoint(point) {
-  //   viewer.entities.remove(point)
-  // }
 
   deletePointById(plotId) {
     //集合图层 图表和底层蓝色圈

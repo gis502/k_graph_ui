@@ -30,6 +30,12 @@
       </div>
       <span class="timelabel">{{ speedOption }}</span>
     </div>
+    <div class="start">
+      <img class="play-icon" src="../../assets/icons/TimeLine/播放new.png" @click="start" title="播放"/>
+    </div>
+    <div class="end">
+      <img class="play-icon" src="../../assets/icons/TimeLine/停止new.png" @click="end" title="停止"/>
+    </div>
     <div class="end-time-info">
       <span class="timelabel">结束时间：{{ this.timestampToTimeChina(this.centerPoint.endTime) }}</span>
     </div>
@@ -46,24 +52,34 @@ export default {
   name: "timeLinePlay",
   data: function () {
     return {
-      currentSpeed: 1,
+      oldCurrentTime: null,
+      currentSpeed: 3600,
       showSpeedOptions: false,
-      speedOption: '60X',
+      speedOption: '3600X',
       speedOptions: ['1X', '60X', '600X', '3600X', '7200X'],
       plots: [],
-      ifNewEq:false, //用于 回到真实时间
-      timeRecoard:[],
+      ifNewEq: false, //用于 回到真实时间
+      timeRecoard: [],
+
+      plotArrinOneTime: [], // 假设这是你的点数组
+      endflag: false, // 控制飞行结束的标志
+      // kongzhitimechazhaobofang:true,
+      // isAnimating: true,
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
-    currentTime(newVal) {
-        // this.ifstopandflash(newVal)
+    currentTime(newVal, oldVal) {
+      // console.log("newVal:", newVal, "oldVal:", oldVal);
+      if (newVal && oldVal && newVal !== oldVal) {
+        console.log(new Date(newVal), new Date(oldVal), "time111111")
+        this.ifstopandflash(newVal, oldVal);
+      }
     },
     centerPoint(newVal) {
       let realTime = new Date()
       if (realTime >= this.centerPoint.startTime && realTime <= this.centerPoint.endTime) {
-          this.ifNewEq=true
+        this.ifNewEq = true
       }
     },
     eqid(newVal) {
@@ -92,7 +108,7 @@ export default {
             // 为没有开始时间的点设置默认开始时间
             item.startTime = this.centerPoint.startTime;
           }
-          this.timeRecoard.push(new Date(item.startTime))
+          // this.timeRecoard.push(new Date(item.startTime).getTime())
         })
         //传值给父组件，用于标绘统计
         this.$emit('updatePlots', this.plots);
@@ -105,24 +121,24 @@ export default {
 
         //---线---
         let polylineArr = this.plots.filter(e => e.drawtype === 'polyline')
-        console.log(polylineArr,"polylineArr")
+        console.log(polylineArr, "polylineArr")
         polylineArr.forEach(item => {
           timeLine.addPolyline(item, "标绘点")
         })
 
         //---面---
         let polygonArr = this.plots.filter(e => e.drawtype === 'polygon')
-        console.log(polygonArr,"polygonArr")
+        console.log(polygonArr, "polygonArr")
         polygonArr.forEach(item => {
           timeLine.addPolygon(item, "标绘点")
         })
 
 
         //---箭头绘制---
-        let arrowArr=this.plots.filter(e => e.drawtype === 'straight'||e.drawtype === 'attack'||e.drawtype === 'pincer');
+        let arrowArr = this.plots.filter(e => e.drawtype === 'straight' || e.drawtype === 'attack' || e.drawtype === 'pincer');
         arrowArr.forEach(item => {
-              timeLine.addArrow(item, "标绘点")
-            })
+          timeLine.addArrow(item, "标绘点")
+        })
       })
     },
 
@@ -130,25 +146,141 @@ export default {
       // 直接赋值速度选项
       this.speedOption = speed
       // 解析速度字符串中的数字部分，并转换为浮点数作为实际的速度值
-      this.currentSpeed = parseFloat(speed.split('-')[0])
+      this.currentSpeed = parseFloat(speed.split('X')[0])
+      // console.log("this.currentSpeed",this.currentSpeed)
       window.viewer.clock.multiplier = this.currentSpeed
+      // window.viewer.clock.multiplier = 3600
       this.showSpeedOptions = false
     },
-    pause() {
-      window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
-    },
+    // pause() {
+    //   window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
+    // },
     jumpRealTime() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
     },
     backToStart() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
     },
-    ifstopandflash(currentTime){
-      console.log(new Date(currentTime),"currentTime")
-      console.log( this.timeRecoard," this.timeRecoard")
-      if(new Date(currentTime) in this.timeRecoard){
-        viewer.clockViewModel.shouldAnimate=false
-        console.log(currentTime,"stop")
+    start() {
+      window.viewer.clockViewModel.shouldAnimate = true;
+      // this.kongzhitimechazhaobofang=true;
+      this.endflag = false;
+    },
+    end() {
+      window.viewer.clockViewModel.shouldAnimate = false;
+
+      this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
+      console.log(this.endflag, "this.endflag change")
+    },
+
+    //视角跳转
+    ifArriveTime(currentTime, oldCurrentTime, itemTime) {
+      const startTime = Cesium.JulianDate.fromDate(new Date(itemTime));
+      const timeDiff = Cesium.JulianDate.secondsDifference(currentTime, startTime);
+      // 如果当前时间接近某个点的开始时间（允许一定的误差范围）
+      if (Math.abs(timeDiff) < 1) { // 误差范围设置为1秒
+        // console.log("11111")
+        return true
+
+      } else {
+        if (new Date(currentTime).getTime() >= new Date(itemTime).getTime() && new Date(oldCurrentTime).getTime() <= new Date(itemTime).getTime()) {
+          // console.log("22222")
+          return true
+        } else {
+          return false
+        }
+      }
+
+    },
+    async flyToPointsSequentially() {
+      for (let index = 0; index < this.plotArrinOneTime.length; index++) {
+        const item = this.plotArrinOneTime[index];
+        console.log(item, "plotArrinOneTime fly");
+        console.log(this.endflag, "this.endflag")
+        if (this.endflag) {
+          console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
+          // this.endflag = false;
+          // this.kongzhitimechazhaobofang=false;
+          break; // 终止循环
+        }
+
+        try {
+          // 飞到指定点
+          await timeLine.fly(item.longitude, item.latitude, 20000);
+          console.log(Date.now(), "fly completed");
+
+          console.log(this.endflag, "this.endflag")
+          if (this.endflag) {
+            console.log(index, this.plotArrinOneTime.length, "终止飞行222");
+            break; // 终止循环
+          }
+          // 等待3秒
+          // await this.wait(3000);
+          await this.blinkMarker(item);
+          console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
+        } catch (error) {
+          console.error("飞行过程中发生错误:", error);
+          break; // 发生错误时终止循环
+        }
+      }
+
+      // 如果所有点都飞完了，重新启动时间轴
+      console.log(this.endflag, "this.endflag")
+      if (!this.endflag) {
+        window.viewer.clockViewModel.shouldAnimate = true;
+      }
+    },
+
+    blinkMarker(plot) {
+      return new Promise((resolve) => {
+        let entity=null
+        if(plot.drawtype === 'point'){
+          entity =window.pointDataSource.entities.getById(plot.plotId);
+        }
+        else{
+          entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
+        }
+
+        if (!entity) {
+          console.error("Entity not found:", plot);
+          resolve();
+          return;
+        }
+
+        // const duration = 3000; // 总时间3秒
+        const interval = 200; // 每次闪烁的时间间隔
+
+        let count = 0;
+        const blinkInterval = setInterval(() => {
+          entity.show = !entity.show
+          count++;
+          if (count >= 5) {
+            clearInterval(blinkInterval);
+            entity.show = true;
+            resolve(); // 完成闪烁，继续后续操作
+          }
+        }, interval);
+      });
+    },
+
+
+    ifstopandflash(currentTime, oldCurrentTime) {
+      this.plotArrinOneTime = this.plots.filter(plot => {
+        return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
+      });
+      console.log(this.endflag, "this.endflag")
+      // if (this.endflag || this.kongzhitimechazhaobofang==false) {
+      if (this.endflag) {
+        window.viewer.clockViewModel.shouldAnimate = false;
+        console.log("终止333");
+        // this.endflag = false;
+        return
+      } else {
+        if (this.plotArrinOneTime.length > 0) {
+          console.log(this.plotArrinOneTime, "this.plotArrinOneTime ")
+          window.viewer.clockViewModel.shouldAnimate = false;
+          this.flyToPointsSequentially()
+        }
       }
     },
 
@@ -209,6 +341,20 @@ export default {
   background-color: #323940;
 }
 
+.start {
+  position: absolute;
+  bottom: 3%;
+  left: 30.5%;
+  //background-color: #323940;
+}
+
+.end {
+  position: absolute;
+  bottom: 3%;
+  left: 26.5%;
+  //background-color: #323940;
+}
+
 .speed-selector {
   position: absolute;
   bottom: 3%;
@@ -220,6 +366,7 @@ export default {
   color: #ffffff;
   font-size: 12px;
 }
+
 .topCurrentTimeLabel {
   background-color: #163253;
   border-radius: 20px;
@@ -236,6 +383,7 @@ export default {
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
 }
+
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
   bottom: 1% !important;
@@ -286,10 +434,12 @@ export default {
   display: block;
   opacity: 0.5;
 }
-.play-icon{
+
+.play-icon {
   width: 21px;
   margin-right: 4px;
   height: auto;
   cursor: pointer;
 }
+
 </style>

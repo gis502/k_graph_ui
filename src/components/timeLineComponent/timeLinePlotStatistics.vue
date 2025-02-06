@@ -9,9 +9,9 @@
       <div class="pop_content"
            @mouseenter="handleMouseEnter"
            @mouseleave="handleMouseLeave">
-        <div class="range">统计范围：{{ this.centerPosionName }}</div>
-        <div class="num">总计：{{ this.dataInTimeAndZoom.length }}个</div>
-        <div id="plotsStatisticChart"></div>
+<!--        <div class="range">统计范围：{{ this.centerPosionName }}</div>-->
+<!--        <div class="num">总计：{{ this.dataInTimeAndZoom.length }}个</div>-->
+<!--        <div id="plotsStatisticChart"></div>-->
       </div>
     </div>
   </div>
@@ -26,6 +26,7 @@ import * as echarts from "echarts";
 import {markRaw} from 'vue'
 import {getPlotBelongCounty} from '@/api/system/plot'
 import axios from "axios";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 export default {
   data() {
     return {
@@ -44,23 +45,23 @@ export default {
       countyCenterNewCounty:'',
       //前一次数据
       previousDataIntime: [], // 用于存储前一次的数据
+      // cameraStopTimeout: null, // 用于存储定时器
+      // cameraStopDuration: 1000, // 相机停止的持续时间（单位：毫秒）
     };
   },
   props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName','startTime'],
   watch: {
     plots(newVal,oldVal) {
       if (newVal !== oldVal) {
-        this.getRescueActionCasualtiesPlotAndInfo();
+        // this.getRescueActionCasualtiesPlotAndInfo();
       }
     },
     currentTime(newVal) {
-      if(new Date(newVal)>new Date(this.startTime)){
-        this.updateTimeStatistic();
-      }
+        // this.updateTimeStatistic();
     },
     zoomLevel(newVal,oldVal) {
       if (newVal !== oldVal) {
-        this.showZoomStatistic()
+        // this.showZoomStatistic()
       }
     },
     //中心点位置
@@ -101,7 +102,7 @@ export default {
     }
   },
   mounted() {
-    this.initEcharts() //初始化
+    // this.initEcharts() //初始化
     // this.isInYaan()
   },
   methods: {
@@ -360,21 +361,6 @@ export default {
           locationInfo: locationInfo
         });
       }));
-
-
-      // this.resInfo = []
-      // this.plots.forEach(item=>{
-      //   this.resInfo.push({
-      //     plotId: plotId,
-      //     plotType: plotType,
-      //     startTime: startTime,
-      //     endTime: endTime,
-      //     locationInfo: {city:"雅安市",county:"芦山县"}
-      //   });
-      // })
-
-      // this.isDataReady = true;
-      // console.log("resInfo.value111", this.resInfo)
       this.updateTimeStatistic()
     },
 
@@ -404,7 +390,6 @@ export default {
       // 数据不同，更新 previousDataIntime 并执行 showZoomStatistic
       this.previousDataIntime = JSON.parse(JSON.stringify(this.dataIntime));
       this.showZoomStatistic();
-
     },
     async showZoomStatistic() {
       if (!this.dataIntime) {
@@ -428,12 +413,12 @@ export default {
         // console.log(viewCenterLocation,"viewCenterLocation")
         // console.log(this.zoomLevel,"showZoomStatistic")
         if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
+          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
           this.centerPosionName = viewCenterLocation.county
           // console.log(this.centerPosionName, "this.centerPosionName")
         }
         else {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
+          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
           this.centerPosionName = '雅安市'
           // console.log(this.centerPosionName, "this.centerPosionName")
         }
@@ -444,104 +429,104 @@ export default {
           county:this.countyCenterNew
         }
         if (this.zoomLevel === "区/县") {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
+          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
           this.centerPosionName = viewCenterLocation.county
           // console.log(this.centerPosionName, "this.centerPosionName")
         } else {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
+          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
           this.centerPosionName = viewCenterLocation.city
           // console.log(this.centerPosionName, "this.centerPosionName")
         }
       }
 
 
-
-      let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
-        // console.log(acc, obj, "occ,obj")
-        // 如果acc中已经有这个icon值，则增加它的计数
-        if (acc[obj.plotType]) {
-          acc[obj.plotType].value += 1;
-        } else {
-          acc[obj.plotType] = {name: obj.plotType, value: 1};
-        }
-        return acc;
-      }, {}); // 初始化一个空对象作为累加器
-
-      // 将结果转换为数组
-      this.myChart1Data = Object.values(counts);
-      // console.log(this.myChart1Data, "this.myChart1Data")
-      this.myChart1Data = this.myChart1Data.sort((a, b) => {
-        return b.value - a.value
-      });
-      let maxValue = Math.max(...this.getArrByKey(this.myChart1Data, 'value'));
-      let yAxisData = this.getArrByKey(this.myChart1Data, 'name');
-      let that = this
-      this.chart.setOption({
-        yAxis: [{
-          data: yAxisData
-        }],
-        series: [
-          {
-            data: this.myChart1Data.map(item => item.value)
-          },
-          {
-            data: this.myChart1Data.map(item => item.value),
-            itemStyle: {
-              color: function (params) {
-                // 根据值的大小动态设置颜色
-                let value = params.name;
-                let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
-                // return top3Values.includes(value) ? '#ffd15d' : '#59dbf8';
-                // 判断当前条形图的名称是否在前三个值中
-                if (top3Values.includes(value)) {
-                  // 如果在前三个值中，返回渐变色
-                  return {
-                    type: 'linear',
-                    x: 0, // 左
-                    y: 0, // 下
-                    x2: 1, // 左
-                    y2: 1, // 上
-                    colorStops: [
-                      {
-                        offset: 0, // 0% 处的颜色
-                        color: '#c09933' // 亮色
-                      },
-                      {
-                        offset: 1, // 100% 处的颜色
-                        color: '#fce19a' // 暗色，您可以根据需要调整这个颜色值
-                      }
-                    ],
-                    global: false // 缺省为 false
-                  };
-                } else {
-                  // 如果不在前三个值中，返回单一颜色
-                  return {
-                    type: 'linear',
-                    x: 0, // 左
-                    y: 0, // 下
-                    x2: 1, // 右
-                    y2: 1, // 上
-                    colorStops: [
-                      {
-                        offset: 0, // 0% 处的颜色
-                        color: '#35aac5' // 亮色
-                      },
-                      {
-                        offset: 1, // 100% 处的颜色
-                        color: '#9ae8fa' // 暗色，您可以根据需要调整这个颜色值
-                      }
-                    ],
-                    global: false // 缺省为 false
-                  };
-                }
-              },
-            },
-          },
-          {
-            data: Array(this.myChart1Data.length).fill(maxValue),
-          }
-        ]
-      });
+      //
+      // let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
+      //   // console.log(acc, obj, "occ,obj")
+      //   // 如果acc中已经有这个icon值，则增加它的计数
+      //   if (acc[obj.plotType]) {
+      //     acc[obj.plotType].value += 1;
+      //   } else {
+      //     acc[obj.plotType] = {name: obj.plotType, value: 1};
+      //   }
+      //   return acc;
+      // }, {}); // 初始化一个空对象作为累加器
+      // // console.log(counts,"counts")
+      // // 将结果转换为数组
+      // this.myChart1Data = Object.values(counts);
+      // // console.log(this.myChart1Data, "this.myChart1Data")
+      // this.myChart1Data = this.myChart1Data.sort((a, b) => {
+      //   return b.value - a.value
+      // });
+      // let maxValue = Math.max(...this.getArrByKey(this.myChart1Data, 'value'));
+      // let yAxisData = this.getArrByKey(this.myChart1Data, 'name');
+      // let that = this
+      // this.chart.setOption({
+      //   yAxis: [{
+      //     data: yAxisData
+      //   }],
+      //   series: [
+      //     {
+      //       data: this.myChart1Data.map(item => item.value)
+      //     },
+      //     {
+      //       data: this.myChart1Data.map(item => item.value),
+      //       itemStyle: {
+      //         color: function (params) {
+      //           // 根据值的大小动态设置颜色
+      //           let value = params.name;
+      //           let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
+      //           // return top3Values.includes(value) ? '#ffd15d' : '#59dbf8';
+      //           // 判断当前条形图的名称是否在前三个值中
+      //           if (top3Values.includes(value)) {
+      //             // 如果在前三个值中，返回渐变色
+      //             return {
+      //               type: 'linear',
+      //               x: 0, // 左
+      //               y: 0, // 下
+      //               x2: 1, // 左
+      //               y2: 1, // 上
+      //               colorStops: [
+      //                 {
+      //                   offset: 0, // 0% 处的颜色
+      //                   color: '#c09933' // 亮色
+      //                 },
+      //                 {
+      //                   offset: 1, // 100% 处的颜色
+      //                   color: '#fce19a' // 暗色，您可以根据需要调整这个颜色值
+      //                 }
+      //               ],
+      //               global: false // 缺省为 false
+      //             };
+      //           } else {
+      //             // 如果不在前三个值中，返回单一颜色
+      //             return {
+      //               type: 'linear',
+      //               x: 0, // 左
+      //               y: 0, // 下
+      //               x2: 1, // 右
+      //               y2: 1, // 上
+      //               colorStops: [
+      //                 {
+      //                   offset: 0, // 0% 处的颜色
+      //                   color: '#35aac5' // 亮色
+      //                 },
+      //                 {
+      //                   offset: 1, // 100% 处的颜色
+      //                   color: '#9ae8fa' // 暗色，您可以根据需要调整这个颜色值
+      //                 }
+      //               ],
+      //               global: false // 缺省为 false
+      //             };
+      //           }
+      //         },
+      //       },
+      //     },
+      //     {
+      //       data: Array(this.myChart1Data.length).fill(maxValue),
+      //     }
+      //   ]
+      // });
     },
 
 
@@ -620,21 +605,9 @@ export default {
       }
 
     },
-    timestampToTimeChina(timestamp) {
-      let DateObj = new Date(timestamp);
-      let year = DateObj.getFullYear();
-      let month = DateObj.getMonth() + 1;
-      let day = DateObj.getDate();
-      let hh = DateObj.getHours();
-      let mm = DateObj.getMinutes();
-      let ss = DateObj.getSeconds();
-      month = month > 9 ? month : '0' + month;
-      day = day > 9 ? day : '0' + day;
-      hh = hh > 9 ? hh : '0' + hh;
-      mm = mm > 9 ? mm : '0' + mm;
-      ss = ss > 9 ? ss : '0' + ss;
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
-    },
+    timestampToTimeChina(time) {
+      return timeTransfer.timestampToTimeChina(time)
+    }
   }
 
 };
