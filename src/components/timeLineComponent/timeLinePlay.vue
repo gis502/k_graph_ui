@@ -233,7 +233,14 @@ export default {
 
     blinkMarker(plot) {
       return new Promise((resolve) => {
-        const entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
+        let entity=null
+        if(plot.drawtype === 'point'){
+          entity =window.pointDataSource.entities.getById(plot.plotId);
+        }
+        else{
+          entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
+        }
+
         if (!entity) {
           console.error("Entity not found:", plot);
           resolve();
@@ -255,9 +262,7 @@ export default {
         }, interval);
       });
     },
-    // wait(ms) {
-    //   return new Promise(resolve => setTimeout(resolve, ms));
-    // },
+
 
     ifstopandflash(currentTime, oldCurrentTime) {
       this.plotArrinOneTime = this.plots.filter(plot => {
