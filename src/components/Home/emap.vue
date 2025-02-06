@@ -215,6 +215,7 @@ export default {
         latitude: item.latitude || item.geom.coordinates[1],
         time: item.occurrenceTime.replace("T", " "),
         depth: item.depth,
+        eqType: item.eqType,  //地震类型
       }));
       // 根据震级分类
       dataGroups.value.latestSlight = latestData.filter(item => item.magnitude < 4.5);
@@ -489,7 +490,7 @@ export default {
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
-      clearMarkers();
+      // clearMarkers();
       // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
         if (key.startsWith('history') && seriesVisibility.value[key]) {
