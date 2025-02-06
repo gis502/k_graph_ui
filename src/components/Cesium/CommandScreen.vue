@@ -967,12 +967,18 @@ export default {
       currentTime: '',
       centerPoint: {},
       viewer: '',
-      //地震时间年月日
+      //地震时间年月日-title
       eqyear: '',
       eqmonth: '',
       eqday: '',
+      //组件选中展开收起
       activeComponent: 'dataStats',// 默认为数据统计
       //标绘统计组件传值
+      lastCameraPosition: Cesium.Cartesian3.ZERO, // 上一次相机的位置，默认值为 (0, 0, 0)
+      lastCameraTime: 0,     // 上一次相机位置的时间戳，默认值为 0
+      cameraPosition: null,     // 当前相机的位置
+      isCameraStopped: false,   // 标记相机是否停止
+
       isTimeRunning: true,
       plots: [],
       zoomLevel: '市', // 初始化缩放层级
@@ -980,6 +986,8 @@ export default {
         lon: null,
         lat: null
       },//视角中心坐标
+      hasUpdatedPosition:false,
+      //------------------未整理-----------------------
 // -----------弹窗们的状态变量-------------
       selectedEntityPosition: '', //存储断裂带div的位置
       selectedEntityHighDiy: null, // 存储弹窗的位置
@@ -1001,8 +1009,6 @@ export default {
 
       store: '',
       //时间轴时间
-      // ifShowData: false,
-      // timelineTotalDurationMinutes:10380,
       timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
       eqstartTime: '',
 
@@ -1011,9 +1017,6 @@ export default {
       realTime: new Date(),
       //时间轴当前进度条节点位置
       currentTimePosition: 0,
-      // currentTimePosition: 100,
-      //时间轴当前前进步
-      // currentNodeIndex: 2076,
       currentNodeIndex: 0,
       realtimeinterval: null,
       eqendtimeinterval: null,
@@ -1333,7 +1336,6 @@ export default {
       canOperateTimerLine: false,
       wsaddMakers: [],
       wsdeleteMakers: [],
-      viewCenterCoordinate: null,
       showLayerFeatures: false,// 图层要素弹框状态
       showEqListPanel: false,// 地震列表弹框状态
       showModelPanel: false,// 三维模型弹框状态
@@ -1472,16 +1474,35 @@ export default {
           } else {
             that.isTimeRunning = false
           }
-          const positionCartographic = viewer.camera.positionCartographic
-          let height = positionCartographic.height;
-          that.updateZoomLevel(height)
-          let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
-          let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
-          that.viewCenterCoordinate = {
-            lon: longitude,
-            lat: latitude
+
+          //视角中心监测 1秒钟时间不变才更新
+          const now = new Date().getTime();
+          const currentPosition = viewer.scene.camera.position;
+          const hasMoved = !Cesium.Cartesian3.equals(that.lastCameraPosition, currentPosition);
+
+          if (hasMoved) {
+            that.lastCameraPosition = Cesium.Cartesian3.clone(currentPosition);
+            that.lastCameraTime = now;
+            that.hasUpdatedPosition = false; // 重置标志位
+          } else {
+            if (!that.hasUpdatedPosition) { // 检查是否已经更新过位置
+              const elapsedTime = now - that.lastCameraTime;
+              if (elapsedTime >= 1000) {
+                // console.log("更新视角中心");
+                const positionCartographic = viewer.camera.positionCartographic;
+                let height = positionCartographic.height;
+                that.updateZoomLevel(height);
+                let longitude = Cesium.Math.toDegrees(positionCartographic.longitude);
+                let latitude = Cesium.Math.toDegrees(positionCartographic.latitude);
+                that.viewCenterCoordinate = {
+                  lon: longitude,
+                  lat: latitude
+                };
+                that.hasUpdatedPosition = true; // 设置标志位
+              }
+            }
           }
-        })
+        });
 
         viewer.animation.viewModel.timeFormatter = timeTransfer.CesiumTimeFormatter;
         viewer.timeline.makeLabel = timeTransfer.CesiumDateTimeFormatter;

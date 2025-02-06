@@ -67,119 +67,115 @@ let timeLine = {
             let pointDataSource = null
             if (window.viewer &&window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'pointData')) {
                 pointDataSource = window.pointDataSource
-
-            } else {
-                pointDataSource = new Cesium.CustomDataSource("pointData");
-                let dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
-                dataSourcePromise.then(function (pointDataSource) {
-                    let pixelRange = 10;
-                    let minimumClusterSize = 6;
-                    let enabled = true;
-                    pointDataSource.clustering.enabled = enabled; //是否聚合
-                    pointDataSource.clustering.pixelRange = pixelRange;
-                    pointDataSource.clustering.minimumClusterSize = minimumClusterSize;
-                    let pinBuilder = new Cesium.PinBuilder();
-                    let pin1000 = pinBuilder
-                        .fromText("1000+", Cesium.Color.RED, 48)
-                        .toDataURL();
-                    let pin500 = pinBuilder
-                        .fromText("100+", Cesium.Color.RED, 48)
-                        .toDataURL();
-                    let pin100 = pinBuilder
-                        .fromText("100+", Cesium.Color.RED, 48)
-                        .toDataURL();
-                    let pin50 = pinBuilder
-                        .fromText("50+", Cesium.Color.RED, 48)
-                        .toDataURL();
-                    let pin40 = pinBuilder
-                        .fromText("40+", Cesium.Color.ORANGE, 48)
-                        .toDataURL();
-                    let pin30 = pinBuilder
-                        .fromText("30+", Cesium.Color.YELLOW, 48)
-                        .toDataURL();
-                    let pin20 = pinBuilder
-                        .fromText("20+", Cesium.Color.GREEN, 48)
-                        .toDataURL();
-                    let pin10 = pinBuilder
-                        .fromText("10+", Cesium.Color.BLUE, 48)
-                        .toDataURL();
-                    // let singleDigitPins = new Array(8);
-                    let singleDigitPins = new Array(20);
-                    for (let i = 0; i < singleDigitPins.length; ++i) {
-                        singleDigitPins[i] = pinBuilder
-                            .fromText(`${Math.floor((i + 2)/2)}`, Cesium.Color.VIOLET, 48)
-                            // .fromText(`${Math.floor(i /2)}`, Cesium.Color.VIOLET, 48)
+            }
+            else {
+                if (window.viewer &&window.viewer.dataSources) {
+                    pointDataSource = new Cesium.CustomDataSource("pointData");
+                    let dataSourcePromise = window.viewer.dataSources.add(pointDataSource)
+                    dataSourcePromise.then(function (pointDataSource) {
+                        let pixelRange = 10;
+                        let minimumClusterSize = 3;
+                        let enabled = true;
+                        pointDataSource.clustering.enabled = enabled; //是否聚合
+                        pointDataSource.clustering.pixelRange = pixelRange;
+                        pointDataSource.clustering.minimumClusterSize = minimumClusterSize;
+                        let pinBuilder = new Cesium.PinBuilder();
+                        let pin1000 = pinBuilder
+                            .fromText("1000+", Cesium.Color.RED, 48)
                             .toDataURL();
-                    }
-                    let removeListener
+                        let pin500 = pinBuilder
+                            .fromText("100+", Cesium.Color.RED, 48)
+                            .toDataURL();
+                        let pin100 = pinBuilder
+                            .fromText("100+", Cesium.Color.RED, 48)
+                            .toDataURL();
+                        let pin50 = pinBuilder
+                            .fromText("50+", Cesium.Color.RED, 48)
+                            .toDataURL();
+                        let pin40 = pinBuilder
+                            .fromText("40+", Cesium.Color.ORANGE, 48)
+                            .toDataURL();
+                        let pin30 = pinBuilder
+                            .fromText("30+", Cesium.Color.YELLOW, 48)
+                            .toDataURL();
+                        let pin20 = pinBuilder
+                            .fromText("20+", Cesium.Color.GREEN, 48)
+                            .toDataURL();
+                        let pin10 = pinBuilder
+                            .fromText("10+", Cesium.Color.BLUE, 48)
+                            .toDataURL();
+                        // let singleDigitPins = new Array(8);
+                        let singleDigitPins = new Array(20);
+                        for (let i = 0; i < singleDigitPins.length; ++i) {
+                            singleDigitPins[i] = pinBuilder
+                                .fromText(`${Math.floor((i + 2) / 2)}`, Cesium.Color.VIOLET, 48)
+                                // .fromText(`${Math.floor(i /2)}`, Cesium.Color.VIOLET, 48)
+                                .toDataURL();
+                        }
+                        let removeListener
 
-                    function customStyle() {
-                        if (Cesium.defined(removeListener)) {
-                            removeListener && removeListener();
-                            removeListener = undefined;
-                        } else {
-                            removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
-                                function (clusteredEntities, cluster) {
-                                    // if (clusteredEntities.length < 10) {
-                                    //   // 禁用 Billboard 显示
-                                    //   cluster.billboard.show = false;
-                                    //   cluster.label.show = false;
-                                    // } else {
-                                    cluster.label.show = false;
-                                    cluster.billboard.show = true;
-                                    cluster.billboard.id = cluster.label.id;
-                                    cluster.billboard.verticalOrigin =
-                                        Cesium.VerticalOrigin.BOTTOM;
+                        function customStyle() {
+                            if (Cesium.defined(removeListener)) {
+                                removeListener && removeListener();
+                                removeListener = undefined;
+                            } else {
+                                removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
+                                    function (clusteredEntities, cluster) {
+                                        // if (clusteredEntities.length < 10) {
+                                        //   // 禁用 Billboard 显示
+                                        //   cluster.billboard.show = false;
+                                        //   cluster.label.show = false;
+                                        // } else {
+                                        cluster.label.show = false;
+                                        cluster.billboard.show = true;
+                                        cluster.billboard.id = cluster.label.id;
+                                        cluster.billboard.verticalOrigin =
+                                            Cesium.VerticalOrigin.BOTTOM;
 
-                                    // 设置 Billboard 高度引用地形
-                                    cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+                                        // 设置 Billboard 高度引用地形
+                                        cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
 
-                                    // 禁用深度测试，使 Billboard 不会被地形遮挡
-                                    cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                                        // 禁用深度测试，使 Billboard 不会被地形遮挡
+                                        cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
 
-                                    if (clusteredEntities.length >= 2000) {
-                                        cluster.billboard.image = pin1000;
+                                        if (clusteredEntities.length >= 2000) {
+                                            cluster.billboard.image = pin1000;
+                                        } else if (clusteredEntities.length >= 1000) {
+                                            cluster.billboard.image = pin500;
+                                        } else if (clusteredEntities.length >= 200) {
+                                            cluster.billboard.image = pin100;
+                                        } else if (clusteredEntities.length >= 100) {
+                                            cluster.billboard.image = pin50;
+                                        } else if (clusteredEntities.length >= 80) {
+                                            cluster.billboard.image = pin40;
+                                        } else if (clusteredEntities.length >= 60) {
+                                            cluster.billboard.image = pin30;
+                                        } else if (clusteredEntities.length >= 40) {
+                                            cluster.billboard.image = pin20;
+                                        } else if (clusteredEntities.length >= 20) {
+                                            cluster.billboard.image = pin10;
+                                        } else {
+                                            cluster.billboard.image =
+                                                // singleDigitPins[clusteredEntities.length - 2];
+                                                singleDigitPins[clusteredEntities.length];
+                                        }
                                     }
-                                    else if (clusteredEntities.length >= 1000) {
-                                        cluster.billboard.image = pin500;
-                                    }
-                                    else if (clusteredEntities.length >= 200) {
-                                        cluster.billboard.image = pin100;
-                                    }
-                                    else if (clusteredEntities.length >= 100) {
-                                        cluster.billboard.image = pin50;
-                                    }
-                                    else if (clusteredEntities.length >= 80) {
-                                        cluster.billboard.image = pin40;
-                                    }
-                                    else if (clusteredEntities.length >= 60) {
-                                        cluster.billboard.image = pin30;
-                                    }
-                                    else if (clusteredEntities.length >= 40) {
-                                        cluster.billboard.image = pin20;
-                                    }
-                                    else if (clusteredEntities.length >= 20) {
-                                        cluster.billboard.image = pin10;
-                                    }
-                                    else {
-                                        cluster.billboard.image =
-                                            // singleDigitPins[clusteredEntities.length - 2];
-                                            singleDigitPins[clusteredEntities.length];
-                                    }
-                                }
-                                // }
-                            );
+                                    // }
+                                );
+                            }
+
+                            let pixelRange = pointDataSource.clustering.pixelRange;
+                            pointDataSource.clustering.pixelRange = 0;
+                            pointDataSource.clustering.pixelRange = pixelRange;
                         }
 
-                        let pixelRange = pointDataSource.clustering.pixelRange;
-                        pointDataSource.clustering.pixelRange = 0;
-                        pointDataSource.clustering.pixelRange = pixelRange;
-                    }
-
-                    customStyle();
-                })
-                window.pointDataSource = pointDataSource;
+                        customStyle();
+                    })
+                    window.pointDataSource = pointDataSource;
+                }
             }
+
+
             return pointDataSource
         }
         else if (datasourcename === "label") {
@@ -188,214 +184,216 @@ let timeLine = {
                 labeldataSource = window.labeldataSource
             }
             else {
-                labeldataSource = new Cesium.CustomDataSource("label");
-                let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
-                dataSourcePromise.then(function (labeldataSource) {
-                    labeldataSource.clustering.enabled = true; // 开启聚合
-                    // labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
-                    labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
+                if (window.viewer &&window.viewer.dataSources) {
+                    labeldataSource = new Cesium.CustomDataSource("label");
+                    let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
+                    dataSourcePromise.then(function (labeldataSource) {
+                        labeldataSource.clustering.enabled = true; // 开启聚合
+                        // labeldataSource.clustering.pixelRange = 30; // 聚合像素范围
+                        labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
-                    // 监听相机变化事件来动态调整聚合像素范围
-                    let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
-                        const cameraHeight = viewer.camera.positionCartographic.height;
-                        if (cameraHeight < 50000) {
-                            labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
-                        } else {
-                            labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
-                        }
-                    });
+                        // 监听相机变化事件来动态调整聚合像素范围
+                        let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
+                            const cameraHeight = viewer.camera.positionCartographic.height;
+                            if (cameraHeight < 50000) {
+                                labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
+                            } else {
+                                labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
+                            }
+                        });
 
-                    let removeListener
+                        let removeListener
 
-                    function customStyle() {
-                        if (Cesium.defined(removeListener)) {
-                            removeListener && removeListener();
-                            let removeListener = undefined;
-                        } else {
-                            let removeListener = labeldataSource.clustering.clusterEvent.addEventListener(
-                                function (clusteredEntities, cluster) {
-                                    cluster.label.show = false;
-                                    // 创建 Canvas 标签
-                                    const canvas = document.createElement('canvas');
-                                    const context = canvas.getContext('2d');
+                        function customStyle() {
+                            if (Cesium.defined(removeListener)) {
+                                removeListener && removeListener();
+                                let removeListener = undefined;
+                            } else {
+                                let removeListener = labeldataSource.clustering.clusterEvent.addEventListener(
+                                    function (clusteredEntities, cluster) {
+                                        cluster.label.show = false;
+                                        // 创建 Canvas 标签
+                                        const canvas = document.createElement('canvas');
+                                        const context = canvas.getContext('2d');
 
-                                    // 设置字体和布局
-                                    const titleFontSize = 19; // 标题字体大小
-                                    const contentFontSize = 19; // 内容字体大小
-                                    const rowHeight = 30; // 每行高度调整为 30
-                                    const padding = 40; // 内边距
-                                    const margin = 10; // 外边距
-                                    const headerHeight = 50; // 表格标题高度调整为 50
-                                    const extraHeight = 50; // 额外增加的背景高度
+                                        // 设置字体和布局
+                                        const titleFontSize = 19; // 标题字体大小
+                                        const contentFontSize = 19; // 内容字体大小
+                                        const rowHeight = 30; // 每行高度调整为 30
+                                        const padding = 40; // 内边距
+                                        const margin = 10; // 外边距
+                                        const headerHeight = 50; // 表格标题高度调整为 50
+                                        const extraHeight = 50; // 额外增加的背景高度
 
-                                    // 动态计算标题宽度（确保标题适配背景）
-                                    const title = '出队情况，伤亡人员统计（标绘）';
-                                    context.font = `bold ${titleFontSize}px Arial`;
-                                    const titleWidth = context.measureText(title).width + 2 * padding; // 标题宽度
+                                        // 动态计算标题宽度（确保标题适配背景）
+                                        const title = '出队情况，伤亡人员统计（标绘）';
+                                        context.font = `bold ${titleFontSize}px Arial`;
+                                        const titleWidth = context.measureText(title).width + 2 * padding; // 标题宽度
 
-                                    // 红色标绘的文字和操场椭圆
-                                    const markText = '应急' ;
-                                    const markFontSize = 22; // 红色文字字体大小
-                                    context.font = `bold ${markFontSize}px Arial`;
-                                    const markTextWidth = context.measureText(markText).width; // 标绘文字宽度
-                                    const markPadding = 10; // 跑道椭圆文字左右的间距
-                                    const trackHeight = markFontSize + 14; // 跑道椭圆高度
-                                    const trackWidth = markTextWidth + markPadding * 2.5; // 跑道椭圆宽度
-
-                                    // 动态计算 Canvas 的宽度和高度
-                                    const canvasWidth = Math.max(titleWidth+130, 460); // 保证最小宽度为 400
-                                    const canvasHeight =
-                                        headerHeight + rowHeight * clusteredEntities.length + padding * 2 + extraHeight; // 计算总高度
-
-                                    canvas.width = canvasWidth; // 设置 Canvas 宽度
-                                    canvas.height = canvasHeight; // 设置 Canvas 高度
-
-                                    // 加载背景图片
-                                    const backgroundImage = new Image();
-                                    backgroundImage.src = '/images/背景边框.png'; // 确保路径正确
-                                    backgroundImage.onload = function () {
-                                        // 背景图片放大比例（例如 1.2 表示放大 20%）
-                                        const scaleFactor = 1.6;
-
-                                        // 计算背景图片缩放比例
-                                        const imageAspectRatio = backgroundImage.width / backgroundImage.height;
-                                        const canvasAspectRatio = canvasWidth / canvasHeight;
-                                        let drawWidth, drawHeight, offsetX, offsetY;
-
-                                        if (imageAspectRatio < canvasAspectRatio) {
-                                            // 图片更高，以 Canvas 高度为准缩放，并放大
-                                            drawHeight = canvasHeight * scaleFactor;
-                                            drawWidth = drawHeight * imageAspectRatio;
-                                            offsetX = (canvasWidth - drawWidth) / 2; // 水平居中
-                                            offsetY = (canvasHeight - drawHeight) / 2; // 垂直居中
-                                        } else {
-                                            // 图片更宽，以 Canvas 宽度为准缩放，并放大
-                                            drawWidth = canvasWidth * scaleFactor;
-                                            drawHeight = drawWidth / imageAspectRatio;
-                                            offsetX = (canvasWidth - drawWidth) / 2; // 水平居中
-                                            offsetY = (canvasHeight - drawHeight) / 2; // 垂直居中
-                                        }
-
-                                        // 绘制背景图片（完全显示并放大）
-                                        context.drawImage(backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
-
-                                        // 绘制操场跑道样式的红色椭圆
-                                        const trackX = padding - 7; // 椭圆起点 X
-                                        const trackY = headerHeight / 2 + padding / 2; // 椭圆起点 Y
-                                        const radius = trackHeight / 2; // 椭圆两端的圆弧半径
-                                        const straightWidth = trackWidth - 2 * radius; // 椭圆中间的直线长度
-
-                                        context.strokeStyle = '#D77786'; // 红色边框
-                                        context.lineWidth = 3; // 加粗椭圆边框
-                                        context.beginPath();
-                                        // 左侧圆弧
-                                        context.arc(trackX + radius, trackY, radius, Math.PI / 2, -Math.PI / 2, false);
-                                        // 上方直线
-                                        context.lineTo(trackX + radius + straightWidth, trackY - radius);
-                                        // 右侧圆弧
-                                        context.arc(
-                                            trackX + radius + straightWidth,
-                                            trackY,
-                                            radius,
-                                            -Math.PI / 2,
-                                            Math.PI / 2,
-                                            false
-                                        );
-                                        // 下方直线
-                                        context.lineTo(trackX + radius, trackY + radius);
-                                        context.closePath();
-                                        context.stroke();
-
-                                        // 绘制红色标绘文字
+                                        // 红色标绘的文字和操场椭圆
+                                        const markText = '应急';
+                                        const markFontSize = 22; // 红色文字字体大小
                                         context.font = `bold ${markFontSize}px Arial`;
-                                        context.fillStyle = '#D77786'; // 红色字体
-                                        context.textAlign = 'center';
-                                        context.textBaseline = 'middle';
-                                        context.fillText(markText, trackX + trackWidth / 2, trackY);
+                                        const markTextWidth = context.measureText(markText).width; // 标绘文字宽度
+                                        const markPadding = 10; // 跑道椭圆文字左右的间距
+                                        const trackHeight = markFontSize + 14; // 跑道椭圆高度
+                                        const trackWidth = markTextWidth + markPadding * 2.5; // 跑道椭圆宽度
 
-                                        // 绘制表格标题文字
-                                        context.font = `bold ${titleFontSize}px Arial`; // 标题字体
-                                        context.fillStyle = '#ffffff'; // 白色文字
-                                        context.textAlign = 'center';
-                                        context.textBaseline = 'middle';
-                                        context.fillText(
-                                            title,
-                                            canvasWidth / 2,
-                                            headerHeight / 2 + padding / 2
-                                        ); // 居中绘制标题
+                                        // 动态计算 Canvas 的宽度和高度
+                                        const canvasWidth = Math.max(titleWidth + 130, 460); // 保证最小宽度为 400
+                                        const canvasHeight =
+                                            headerHeight + rowHeight * clusteredEntities.length + padding * 2 + extraHeight; // 计算总高度
 
-                                        // 绘制表格内容
-                                        clusteredEntities.forEach((entity, index) => {
-                                            const yPosition = headerHeight + padding + index * rowHeight;
+                                        canvas.width = canvasWidth; // 设置 Canvas 宽度
+                                        canvas.height = canvasHeight; // 设置 Canvas 高度
 
-                                            // 确保内容在背景范围内
-                                            if (yPosition + rowHeight > canvasHeight - padding) {
-                                                console.warn('内容超出背景范围，跳过绘制');
-                                                return;
+                                        // 加载背景图片
+                                        const backgroundImage = new Image();
+                                        backgroundImage.src = '/images/背景边框.png'; // 确保路径正确
+                                        backgroundImage.onload = function () {
+                                            // 背景图片放大比例（例如 1.2 表示放大 20%）
+                                            const scaleFactor = 1.6;
+
+                                            // 计算背景图片缩放比例
+                                            const imageAspectRatio = backgroundImage.width / backgroundImage.height;
+                                            const canvasAspectRatio = canvasWidth / canvasHeight;
+                                            let drawWidth, drawHeight, offsetX, offsetY;
+
+                                            if (imageAspectRatio < canvasAspectRatio) {
+                                                // 图片更高，以 Canvas 高度为准缩放，并放大
+                                                drawHeight = canvasHeight * scaleFactor;
+                                                drawWidth = drawHeight * imageAspectRatio;
+                                                offsetX = (canvasWidth - drawWidth) / 2; // 水平居中
+                                                offsetY = (canvasHeight - drawHeight) / 2; // 垂直居中
+                                            } else {
+                                                // 图片更宽，以 Canvas 宽度为准缩放，并放大
+                                                drawWidth = canvasWidth * scaleFactor;
+                                                drawHeight = drawWidth / imageAspectRatio;
+                                                offsetX = (canvasWidth - drawWidth) / 2; // 水平居中
+                                                offsetY = (canvasHeight - drawHeight) / 2; // 垂直居中
                                             }
 
-                                            // 绘制内容
-                                            context.font = `${contentFontSize}px Arial`; // 内容字体
-                                            context.fillStyle = '#ffffff'; // 白色字体
-                                            context.textAlign = 'left';
-                                            context.fillText(
-                                                `${entity.labeltext || '无信息'}`,
-                                                padding, // 左对齐
-                                                yPosition + rowHeight / 2
+                                            // 绘制背景图片（完全显示并放大）
+                                            context.drawImage(backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+
+                                            // 绘制操场跑道样式的红色椭圆
+                                            const trackX = padding - 7; // 椭圆起点 X
+                                            const trackY = headerHeight / 2 + padding / 2; // 椭圆起点 Y
+                                            const radius = trackHeight / 2; // 椭圆两端的圆弧半径
+                                            const straightWidth = trackWidth - 2 * radius; // 椭圆中间的直线长度
+
+                                            context.strokeStyle = '#D77786'; // 红色边框
+                                            context.lineWidth = 3; // 加粗椭圆边框
+                                            context.beginPath();
+                                            // 左侧圆弧
+                                            context.arc(trackX + radius, trackY, radius, Math.PI / 2, -Math.PI / 2, false);
+                                            // 上方直线
+                                            context.lineTo(trackX + radius + straightWidth, trackY - radius);
+                                            // 右侧圆弧
+                                            context.arc(
+                                                trackX + radius + straightWidth,
+                                                trackY,
+                                                radius,
+                                                -Math.PI / 2,
+                                                Math.PI / 2,
+                                                false
                                             );
-                                        });
+                                            // 下方直线
+                                            context.lineTo(trackX + radius, trackY + radius);
+                                            context.closePath();
+                                            context.stroke();
 
-                                        // 将 Canvas 转换为 Billboard 图像
-                                        const canvasImage = canvas.toDataURL('image/png');
+                                            // 绘制红色标绘文字
+                                            context.font = `bold ${markFontSize}px Arial`;
+                                            context.fillStyle = '#D77786'; // 红色字体
+                                            context.textAlign = 'center';
+                                            context.textBaseline = 'middle';
+                                            context.fillText(markText, trackX + trackWidth / 2, trackY);
 
-                                        try {
-                                            // 检查 Billboard 是否已初始化
-                                            if (cluster.billboard) {
-                                                cluster.billboard.show = true;
-                                                cluster.billboard.image = canvasImage;
+                                            // 绘制表格标题文字
+                                            context.font = `bold ${titleFontSize}px Arial`; // 标题字体
+                                            context.fillStyle = '#ffffff'; // 白色文字
+                                            context.textAlign = 'center';
+                                            context.textBaseline = 'middle';
+                                            context.fillText(
+                                                title,
+                                                canvasWidth / 2,
+                                                headerHeight / 2 + padding / 2
+                                            ); // 居中绘制标题
 
-                                                // 调整宽高比例
-                                                cluster.billboard.width = canvasWidth * 0.7;
-                                                cluster.billboard.height = canvasHeight * 0.7;
-                                                cluster.billboard.verticalOrigin =
-                                                    Cesium.VerticalOrigin.BOTTOM;
+                                            // 绘制表格内容
+                                            clusteredEntities.forEach((entity, index) => {
+                                                const yPosition = headerHeight + padding + index * rowHeight;
 
-                                                // 设置 Billboard 高度引用地形
-                                                cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+                                                // 确保内容在背景范围内
+                                                if (yPosition + rowHeight > canvasHeight - padding) {
+                                                    console.warn('内容超出背景范围，跳过绘制');
+                                                    return;
+                                                }
 
-                                                // 禁用深度测试，使 Billboard 不会被地形遮挡
-                                                cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
-                                                // 设置 Billboard 位置：背景图片右下角对齐标绘图标正上方
-                                                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
-                                                cluster.billboard.pixelOffset = new Cesium.Cartesian2(
-                                                    -(canvasWidth * 0.35), // 调整为右下角更贴近图标
-                                                    -(canvasHeight * 0.1) // 上移贴近图标
+                                                // 绘制内容
+                                                context.font = `${contentFontSize}px Arial`; // 内容字体
+                                                context.fillStyle = '#ffffff'; // 白色字体
+                                                context.textAlign = 'left';
+                                                context.fillText(
+                                                    `${entity.labeltext || '无信息'}`,
+                                                    padding, // 左对齐
+                                                    yPosition + rowHeight / 2
                                                 );
+                                            });
 
-                                                // 隐藏 Cesium 默认的标签
-                                                cluster.label.show = false;
-                                            } else {
-                                                cluster.label.show = false;
-                                            }
-                                        } catch (error) {
-                                            // 捕获 Cesium 的内部报错，避免控制台输出
-                                            if (error.message && error.message.includes('_textureAtlas')) {
-                                            } else {
-                                            }
-                                        }
-                                    };
+                                            // 将 Canvas 转换为 Billboard 图像
+                                            const canvasImage = canvas.toDataURL('image/png');
 
-                                    // 捕获图片加载错误
-                                    backgroundImage.onerror = function () {
-                                    };
-                                }
-                            );
+                                            try {
+                                                // 检查 Billboard 是否已初始化
+                                                if (cluster.billboard) {
+                                                    cluster.billboard.show = true;
+                                                    cluster.billboard.image = canvasImage;
+
+                                                    // 调整宽高比例
+                                                    cluster.billboard.width = canvasWidth * 0.7;
+                                                    cluster.billboard.height = canvasHeight * 0.7;
+                                                    cluster.billboard.verticalOrigin =
+                                                        Cesium.VerticalOrigin.BOTTOM;
+
+                                                    // 设置 Billboard 高度引用地形
+                                                    cluster.billboard.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
+
+                                                    // 禁用深度测试，使 Billboard 不会被地形遮挡
+                                                    cluster.billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                                                    // 设置 Billboard 位置：背景图片右下角对齐标绘图标正上方
+                                                    cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+                                                    cluster.billboard.pixelOffset = new Cesium.Cartesian2(
+                                                        -(canvasWidth * 0.35), // 调整为右下角更贴近图标
+                                                        -(canvasHeight * 0.1) // 上移贴近图标
+                                                    );
+
+                                                    // 隐藏 Cesium 默认的标签
+                                                    cluster.label.show = false;
+                                                } else {
+                                                    cluster.label.show = false;
+                                                }
+                                            } catch (error) {
+                                                // 捕获 Cesium 的内部报错，避免控制台输出
+                                                if (error.message && error.message.includes('_textureAtlas')) {
+                                                } else {
+                                                }
+                                            }
+                                        };
+
+                                        // 捕获图片加载错误
+                                        backgroundImage.onerror = function () {
+                                        };
+                                    }
+                                );
+                            }
                         }
-                    }
 
-                    customStyle();
-                })
-                window.labeldataSource = labeldataSource;
+                        customStyle();
+                    })
+                    window.labeldataSource = labeldataSource;
+                }
             }
             return labeldataSource
         }

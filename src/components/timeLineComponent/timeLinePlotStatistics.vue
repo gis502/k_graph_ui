@@ -9,9 +9,9 @@
       <div class="pop_content"
            @mouseenter="handleMouseEnter"
            @mouseleave="handleMouseLeave">
-<!--        <div class="range">统计范围：{{ this.centerPosionName }}</div>-->
-<!--        <div class="num">总计：{{ this.dataInTimeAndZoom.length }}个</div>-->
-<!--        <div id="plotsStatisticChart"></div>-->
+        <div class="range">统计范围：{{ this.centerPosionName }}</div>
+        <div class="num">总计：{{ this.dataInTimeAndZoom.length }}个</div>
+        <div id="plotsStatisticChart"></div>
       </div>
     </div>
   </div>
@@ -27,70 +27,62 @@ import {markRaw} from 'vue'
 import {getPlotBelongCounty} from '@/api/system/plot'
 import axios from "axios";
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
+import generalCompute from "@/cesium/plot/generalCompute.js";
+
 export default {
   data() {
     return {
-      typeIsYaan:true, //是否是雅安市
+      typeIsYaan: true, //是否是雅安市
       chart: null, // 保存 ECharts 实例
       myChart1Data: [],
-      filtdata: [],
-      resInfo: [],
-      // isDataReady: false,
-      dataInTimeAndZoom: [],
-      centerPosionName: '',
       option: null,
       scrollInterval: null,
-      isWatching: false, // 添加标志位，'plots', 'currentTime','zoomLevel',三个变量触发，应该三选一
-      countyCenterNew:'',
-      countyCenterNewCounty:'',
-      //前一次数据
+      centerPosionName: '',//统计范围名称
+      viewCenterCountyNew: '',//视角中心区县
+      viewCenterCityNew:'',//视角中心市
       previousDataIntime: [], // 用于存储前一次的数据
-      // cameraStopTimeout: null, // 用于存储定时器
-      // cameraStopDuration: 1000, // 相机停止的持续时间（单位：毫秒）
+      dataIntime:[],
+      dataInTimeAndZoom: [],
     };
   },
-  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning','earthquakeName','startTime'],
+  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning', 'earthquakeName', 'startTime'],
   watch: {
-    plots(newVal,oldVal) {
-      if (newVal !== oldVal) {
-        // this.getRescueActionCasualtiesPlotAndInfo();
-      }
+    plots(newVal, oldVal) {
     },
     currentTime(newVal) {
-        // this.updateTimeStatistic();
+      this.updateTimeStatistic();
     },
-    zoomLevel(newVal,oldVal) {
+    zoomLevel(newVal, oldVal) {
       if (newVal !== oldVal) {
-        // this.showZoomStatistic()
+        this.showZoomStatistic()
       }
     },
     //中心点位置
     async viewCenterCoordinate(newVal) {
-      if(this.zoomLevel=='市'){
+      //只对固定的一个市范围内进行统计
+      if (this.zoomLevel == '市') {
         return
       }
-      else{
+      else {
         // console.log("viewCenterCoordinate watch", newVal)
-        if(this.typeIsYaan){
-          let countyCenterTmp=await this.getPlotBelongCounty(newVal.lon,newVal.lat)
-          // console.log(countyCenterTmp,"countyCenterTmp")
-          if(countyCenterTmp!= this.countyCenterNew){
-            this.countyCenterNew=countyCenterTmp
-            // console.log(this.countyCenterNew,"this.countyCenterNew")
+        if (this.typeIsYaan) {
+          let belongCounty = await this.getPlotBelongCounty(newVal.lon, newVal.lat)
+          if (belongCounty != this.viewCenterCountyNew) {
+            this.viewCenterCountyNew = belongCounty
+            this.viewCenterCityNew=  "雅安市"
             this.showZoomStatistic()
           }
         }
-        else{
-          const countyCenterTmp = await this.getReverseGeocode(newVal.lon,newVal.lat);
-          if(countyCenterTmp.county!= this.countyCenterNew){
-            this.countyCenterNew=countyCenterTmp.county
-            this.countyCenterNewCity=countyCenterTmp.city
-            // console.log(this.countyCenterNew,"this.countyCenterNew")
+        else {
+          const countyCenterTmp = await generalCompute.getReverseGeocode(newVal.lon, newVal.lat);
+          if (countyCenterTmp.county != this.viewCenterCountyNew) {
+            this.viewCenterCountyNew = countyCenterTmp.county
+            this.viewCenterCityNew = countyCenterTmp.city
             this.showZoomStatistic()
           }
         }
+        // console.log( this.viewCenterCountyNew,this.viewCenterCityNew,"this.viewCenterCountyNew,this.viewCenterCityNew")
       }
-
     },
     //时间轴停止，标绘统计上下滚动
     isTimerRunning(newVal) {
@@ -102,16 +94,16 @@ export default {
     }
   },
   mounted() {
-    // this.initEcharts() //初始化
+    this.initEcharts() //初始化
     // this.isInYaan()
   },
   methods: {
-    isInYaan(){
+    //雅安市的还是其他地方的？
+    isInYaan() {
       if (this.earthquakeName && this.earthquakeName.includes('雅安市')) {
-        this.typeIsYaan=true
-      }
-      else{
-        this.typeIsYaan=false
+        this.typeIsYaan = true
+      } else {
+        this.typeIsYaan = false
       }
     },
     //图表操作
@@ -310,70 +302,16 @@ export default {
       //配置
       this.chart.setOption(this.option);
     },
-
-    //取位置
-    async getRescueActionCasualtiesPlotAndInfo() {
-      if (!this.plots) {
-        return;
-      }
-      const locationDataArray = await Promise.all(this.plots.map(async data => {
-        const {plotId, plotType, longitude, latitude, startTime, endTime} = data;
-        try {
-          let locationInfo={}
-          if(this.typeIsYaan){
-            //走数据库json
-            let county = await this.getPlotBelongCounty(longitude, latitude)
-            // console.log(county,"county")
-            let city=null
-            if(county&&county!="不在雅安市"){
-              city="雅安市"
-            }
-            locationInfo={
-              city:city,
-              county:county
-            }
-          }
-          else{
-            // 逆地址 接口
-            const locationInfotmp = await this.getReverseGeocode(longitude, latitude);
-            // console.log("locationInfotmp plots",locationInfotmp)
-            locationInfo={
-              city:locationInfotmp.city,
-              county:locationInfotmp.county
-            }
-          }
-          return {longitude, latitude, plotId, plotType, locationInfo, startTime, endTime};
-        }
-        catch (error) {
-          console.error(`Failed to get location info for plotId ${plotId}:`, error);
-          return null;
-        }
-      }));
-      const validLocationData = locationDataArray.filter(item => item !== null);
-      this.resInfo = []
-      await Promise.all(validLocationData.map(async data => {
-        const {locationInfo, plotId, plotType, longitude, latitude, startTime, endTime} = data;
-        this.resInfo.push({
-          plotId: plotId,
-          plotType: plotType,
-          startTime: startTime,
-          endTime: endTime,
-          locationInfo: locationInfo
-        });
-      }));
-      this.updateTimeStatistic()
-    },
-
     async getPlotBelongCounty(lon, lat) {
       return getPlotBelongCounty({lon: lon, lat: lat}); // 直接返回Promise
     },
-
+    //筛选符合当前时间的点
     updateTimeStatistic() {
       if (!this.currentTime) {
         return;
       }
       this.dataIntime = []
-      this.resInfo.forEach(item => {
+      this.plots.forEach(item => {
         let currentDate = new Date(this.currentTime);
         let startDate = new Date(item.startTime);
         let endDate = new Date(item.endTime);
@@ -386,167 +324,126 @@ export default {
         // 数据相同，不执行 showZoomStatistic
         return;
       }
-
       // 数据不同，更新 previousDataIntime 并执行 showZoomStatistic
       this.previousDataIntime = JSON.parse(JSON.stringify(this.dataIntime));
       this.showZoomStatistic();
     },
+    //从符合时间的点中筛选符合统计范围的点
     async showZoomStatistic() {
+      console.log("this.dataIntime",this.dataIntime)
       if (!this.dataIntime) {
         return;
       }
       this.dataInTimeAndZoom = []
-      // console.log(this.dataIntime, "this.dataIntime")
       const originalArray = Array.from(this.dataIntime);
-
-      let viewCenterLocation={}
-      if(this.typeIsYaan){
+      if (this.typeIsYaan) {
         //雅安市，走json
-        let city=null
-        if(this.countyCenterNew&&this.countyCenterNew!="不在雅安市"){
-          city="雅安市"
-        }
-        viewCenterLocation={
-          city:city,
-          county:this.countyCenterNew
-        }
-        // console.log(viewCenterLocation,"viewCenterLocation")
-        // console.log(this.zoomLevel,"showZoomStatistic")
-        if (this.zoomLevel === "区/县"&&viewCenterLocation.city==="雅安市") {
-          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
-          this.centerPosionName = viewCenterLocation.county
-          // console.log(this.centerPosionName, "this.centerPosionName")
-        }
-        else {
-          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === '雅安市');
-          this.centerPosionName = '雅安市'
-          // console.log(this.centerPosionName, "this.centerPosionName")
-        }
-      }
-      else{
-        viewCenterLocation={
-          city:this.countyCenterNewCity,
-          county:this.countyCenterNew
-        }
-        if (this.zoomLevel === "区/县") {
-          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.county === viewCenterLocation.county);
-          this.centerPosionName = viewCenterLocation.county
-          // console.log(this.centerPosionName, "this.centerPosionName")
+        if (this.zoomLevel === "区/县" && this.viewCenterCityNew === "雅安市") {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.viewCenterCountyNew);
+          this.centerPosionName = this.viewCenterCountyNew
         } else {
-          // this.dataInTimeAndZoom = originalArray.filter(data => data.locationInfo.city === viewCenterLocation.city);
-          this.centerPosionName = viewCenterLocation.city
-          // console.log(this.centerPosionName, "this.centerPosionName")
+          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCity === '雅安市');
+          this.centerPosionName = '雅安市'
         }
       }
-
-
-      //
-      // let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
-      //   // console.log(acc, obj, "occ,obj")
-      //   // 如果acc中已经有这个icon值，则增加它的计数
-      //   if (acc[obj.plotType]) {
-      //     acc[obj.plotType].value += 1;
-      //   } else {
-      //     acc[obj.plotType] = {name: obj.plotType, value: 1};
-      //   }
-      //   return acc;
-      // }, {}); // 初始化一个空对象作为累加器
-      // // console.log(counts,"counts")
-      // // 将结果转换为数组
-      // this.myChart1Data = Object.values(counts);
-      // // console.log(this.myChart1Data, "this.myChart1Data")
-      // this.myChart1Data = this.myChart1Data.sort((a, b) => {
-      //   return b.value - a.value
-      // });
-      // let maxValue = Math.max(...this.getArrByKey(this.myChart1Data, 'value'));
-      // let yAxisData = this.getArrByKey(this.myChart1Data, 'name');
-      // let that = this
-      // this.chart.setOption({
-      //   yAxis: [{
-      //     data: yAxisData
-      //   }],
-      //   series: [
-      //     {
-      //       data: this.myChart1Data.map(item => item.value)
-      //     },
-      //     {
-      //       data: this.myChart1Data.map(item => item.value),
-      //       itemStyle: {
-      //         color: function (params) {
-      //           // 根据值的大小动态设置颜色
-      //           let value = params.name;
-      //           let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
-      //           // return top3Values.includes(value) ? '#ffd15d' : '#59dbf8';
-      //           // 判断当前条形图的名称是否在前三个值中
-      //           if (top3Values.includes(value)) {
-      //             // 如果在前三个值中，返回渐变色
-      //             return {
-      //               type: 'linear',
-      //               x: 0, // 左
-      //               y: 0, // 下
-      //               x2: 1, // 左
-      //               y2: 1, // 上
-      //               colorStops: [
-      //                 {
-      //                   offset: 0, // 0% 处的颜色
-      //                   color: '#c09933' // 亮色
-      //                 },
-      //                 {
-      //                   offset: 1, // 100% 处的颜色
-      //                   color: '#fce19a' // 暗色，您可以根据需要调整这个颜色值
-      //                 }
-      //               ],
-      //               global: false // 缺省为 false
-      //             };
-      //           } else {
-      //             // 如果不在前三个值中，返回单一颜色
-      //             return {
-      //               type: 'linear',
-      //               x: 0, // 左
-      //               y: 0, // 下
-      //               x2: 1, // 右
-      //               y2: 1, // 上
-      //               colorStops: [
-      //                 {
-      //                   offset: 0, // 0% 处的颜色
-      //                   color: '#35aac5' // 亮色
-      //                 },
-      //                 {
-      //                   offset: 1, // 100% 处的颜色
-      //                   color: '#9ae8fa' // 暗色，您可以根据需要调整这个颜色值
-      //                 }
-      //               ],
-      //               global: false // 缺省为 false
-      //             };
-      //           }
-      //         },
-      //       },
-      //     },
-      //     {
-      //       data: Array(this.myChart1Data.length).fill(maxValue),
-      //     }
-      //   ]
-      // });
-    },
-
-
-    async getReverseGeocode(lon, lat) {
-      try {
-        const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
-          params: {
-            postStr: JSON.stringify({lon, lat, ver: 1}),
-            type: 'geocode',
-            tk: '80eb284748e84ca6c70468c906f0c889'
-          }
-        });
-        // console.log(response,"response")
-        return response.data.result.addressComponent;
-      } catch (error) {
-        console.error("逆地理编码失败:", error);
-        return null;
+      else {
+        if (this.zoomLevel === "区/县") {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.viewCenterCountyNew);
+          this.centerPosionName = this.viewCenterCountyNew
+        } else {
+          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCity === this.viewCenterCityNew);
+          this.centerPosionName = this.viewCenterCityNew
+        }
       }
-    },
+      // console.log( this.dataInTimeAndZoom,this.centerPosionName, " this.dataInTimeAndZoom,this.centerPosionName")
 
+      let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
+        // console.log(acc, obj, "occ,obj")
+        // 如果acc中已经有这个icon值，则增加它的计数
+        if (acc[obj.plotType]) {
+          acc[obj.plotType].value += 1;
+        } else {
+          acc[obj.plotType] = {name: obj.plotType, value: 1};
+        }
+        return acc;
+      }, {}); // 初始化一个空对象作为累加器
+      // console.log(counts,"counts")
+      // 将结果转换为数组
+      this.myChart1Data = Object.values(counts);
+      // console.log(this.myChart1Data, "this.myChart1Data")
+      this.myChart1Data = this.myChart1Data.sort((a, b) => {
+        return b.value - a.value
+      });
+      let maxValue = Math.max(...this.getArrByKey(this.myChart1Data, 'value'));
+      let yAxisData = this.getArrByKey(this.myChart1Data, 'name');
+      let that = this
+      this.chart.setOption({
+        yAxis: [{
+          data: yAxisData
+        }],
+        series: [
+          {
+            data: this.myChart1Data.map(item => item.value)
+          },
+          {
+            data: this.myChart1Data.map(item => item.value),
+            itemStyle: {
+              color: function (params) {
+                // 根据值的大小动态设置颜色
+                let value = params.name;
+                let top3Values = that.myChart1Data.slice(0, 3).map(item => item.name);
+                // return top3Values.includes(value) ? '#ffd15d' : '#59dbf8';
+                // 判断当前条形图的名称是否在前三个值中
+                if (top3Values.includes(value)) {
+                  // 如果在前三个值中，返回渐变色
+                  return {
+                    type: 'linear',
+                    x: 0, // 左
+                    y: 0, // 下
+                    x2: 1, // 左
+                    y2: 1, // 上
+                    colorStops: [
+                      {
+                        offset: 0, // 0% 处的颜色
+                        color: '#c09933' // 亮色
+                      },
+                      {
+                        offset: 1, // 100% 处的颜色
+                        color: '#fce19a' // 暗色，您可以根据需要调整这个颜色值
+                      }
+                    ],
+                    global: false // 缺省为 false
+                  };
+                } else {
+                  // 如果不在前三个值中，返回单一颜色
+                  return {
+                    type: 'linear',
+                    x: 0, // 左
+                    y: 0, // 下
+                    x2: 1, // 右
+                    y2: 1, // 上
+                    colorStops: [
+                      {
+                        offset: 0, // 0% 处的颜色
+                        color: '#35aac5' // 亮色
+                      },
+                      {
+                        offset: 1, // 100% 处的颜色
+                        color: '#9ae8fa' // 暗色，您可以根据需要调整这个颜色值
+                      }
+                    ],
+                    global: false // 缺省为 false
+                  };
+                }
+              },
+            },
+          },
+          {
+            data: Array(this.myChart1Data.length).fill(maxValue),
+          }
+        ]
+      });
+    },
     scrollToStart() {
       if (this.scrollInterval) {
         clearInterval(this.scrollInterval);
@@ -603,13 +500,11 @@ export default {
         // 鼠标移开时，恢复自动滚动的 interval
         this.scroll();
       }
-
     },
     timestampToTimeChina(time) {
       return timeTransfer.timestampToTimeChina(time)
     }
   }
-
 };
 </script>
 
@@ -621,7 +516,6 @@ export default {
   z-index: 20; /* 提高层级 */
   top: 35%;
 }
-
 
 .pop_header {
   top: -10%;
@@ -647,21 +541,6 @@ export default {
   position: relative;
   padding: 0; /* 确保没有内边距 */
   margin: 0; /* 确保没有外边距 */
-}
-
-.pop_responseName {
-  font-size: 1.1rem;
-  line-height: 0.6rem;
-  font-weight: bold;
-  font-family: 'myFirstFont', sans-serif;
-  color: #419fff;
-}
-
-.pop_txt {
-  line-height: 0.6rem;
-  font-size: 1.1rem;
-  font-weight: 550;
-  color: #ffffff;
 }
 
 .time {

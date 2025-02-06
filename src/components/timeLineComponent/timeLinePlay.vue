@@ -63,8 +63,7 @@ export default {
 
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
-      // kongzhitimechazhaobofang:true,
-      // isAnimating: true,
+
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
@@ -163,7 +162,6 @@ export default {
     },
     start() {
       window.viewer.clockViewModel.shouldAnimate = true;
-      // this.kongzhitimechazhaobofang=true;
       this.endflag = false;
     },
     end() {
@@ -199,8 +197,6 @@ export default {
         console.log(this.endflag, "this.endflag")
         if (this.endflag) {
           console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
-          // this.endflag = false;
-          // this.kongzhitimechazhaobofang=false;
           break; // 终止循环
         }
 
@@ -269,11 +265,10 @@ export default {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });
       console.log(this.endflag, "this.endflag")
-      // if (this.endflag || this.kongzhitimechazhaobofang==false) {
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
         console.log("终止333");
-        // this.endflag = false;
+
         return
       } else {
         if (this.plotArrinOneTime.length > 0) {

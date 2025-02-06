@@ -205,7 +205,7 @@ export default {
           } else {
             that.isTimeRunning = false
           }
-
+          //视角中心监测 1秒钟时间不变才更新
           const now = new Date().getTime();
           const currentPosition = viewer.scene.camera.position;
           const hasMoved = !Cesium.Cartesian3.equals(that.lastCameraPosition, currentPosition);
