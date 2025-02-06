@@ -490,7 +490,7 @@ export default {
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
-      // clearMarkers();
+      clearMarkers();
       // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
         if (key.startsWith('history') && seriesVisibility.value[key]) {
@@ -514,10 +514,11 @@ export default {
     };
 
     const clearMarkers = () => {
-      mapConfig.value.map.clearOverLays() // 清除所有覆盖物
+      mapConfig.value.map.clearOverLays(marker) // 清除所有覆盖物
       // 这里应该实现清除当前所有标记的逻辑
       // 例如，使用 mapConfig.value.map.removeMarker(marker) 来移除标记
     };
+
 
 
     // 点击图例中的点 在地图上点的展示消失效果
