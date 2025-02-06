@@ -1514,14 +1514,14 @@ export default {
           document.getElementsByClassName('cesium-viewer-animationContainer')[0].style = 'visibility:hidden;z-index:1 ;left:40%;bottom: 3%;';
           document.getElementsByClassName('cesium-animation-rectButton')[0].style = 'visibility:hidden';
           document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
-          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:visible';
-          document.getElementsByClassName('cesium-animation-rectButton')[3].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:hidden';
+          document.getElementsByClassName('cesium-animation-rectButton')[3].style = 'visibility:hidden';
         } else {
           console.log("历史地震")
           document.getElementsByClassName('cesium-viewer-animationContainer')[0].style = 'visibility:hidden;z-index:1 ;left:40%;bottom: 3%;';
           document.getElementsByClassName('cesium-animation-rectButton')[0].style = 'visibility:visible';
-          document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:visible';
-          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:visible';
+          document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:hidden';
+          document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:hidden';
         }
         document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 70%; left:15%;right:15%; ';
         document.getElementsByClassName('cesium-timeline-bar')[0].style = 'background:rgba(0, 0, 0, 0.1);';
@@ -5633,7 +5633,11 @@ export default {
   height: 310px !important;
 }
 
-/*左右组件*/
+/*时间轴 头顶时间*/
+:deep(.topCurrentTimeLabel){
+  top:12%;
+}
+  /*左右组件*/
 .pop_left_background {
   top: 13%;
   left: 1%;

@@ -31,10 +31,10 @@
       <span class="timelabel">{{ speedOption }}</span>
     </div>
     <div class="start">
-      <img class="play-icon" src="../../assets/icons/TimeLine/播放new.png" @click="start" title="播放"/>
+      <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" @click="start" title="播放"/>
     </div>
     <div class="end">
-      <img class="play-icon" src="../../assets/icons/TimeLine/停止new.png" @click="end" title="停止"/>
+      <img class="play-icon" src="../../assets/icons/TimeLine/停止.png" @click="end" title="停止"/>
     </div>
     <div class="end-time-info">
       <span class="timelabel">结束时间：{{ this.timestampToTimeChina(this.centerPoint.endTime) }}</span>
@@ -326,27 +326,27 @@ export default {
   position: absolute;
   bottom: 3%;
   left: 39%;
-  background-color: #323940;
+  //background-color: #323940;
 }
 
 .back_start {
   position: absolute;
   bottom: 3%;
   left: 40.5%;
-  background-color: #323940;
+  //background-color: #323940;
 }
 
 .start {
   position: absolute;
   bottom: 3%;
-  left: 30.5%;
+  left: 46%;
   //background-color: #323940;
 }
 
 .end {
   position: absolute;
   bottom: 3%;
-  left: 26.5%;
+  left: 44.5%;
   //background-color: #323940;
 }
 
@@ -366,13 +366,13 @@ export default {
   background-color: #163253;
   border-radius: 20px;
   height: 6%;
-  width: 30%;
+  width: 18%;
   top: 8%;
   position: absolute;
   z-index: 500;
   color: #FFFFFF;
   font-size: 23px;
-  left: 32%;
+  left: 41%;
   //text-align: center;
   display: flex; /* 使用Flexbox布局 */
   justify-content: center; /* 水平居中 */
