@@ -514,7 +514,7 @@ export default {
     };
 
     const clearMarkers = () => {
-      mapConfig.value.map.clearOverLays(marker) // 清除所有覆盖物
+      mapConfig.value.map.clearOverLays() // 清除所有覆盖物
       // 这里应该实现清除当前所有标记的逻辑
       // 例如，使用 mapConfig.value.map.removeMarker(marker) 来移除标记
     };
