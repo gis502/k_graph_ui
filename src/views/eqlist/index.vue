@@ -322,7 +322,7 @@ import {
   fromEq,
   eqEventTrigger,
   deletedEq,
-  getAllEqList, queryEqList, fromEqList
+  getAllEqList, queryEqList, fromEqList, eqProgress
 } from '@/api/system/eqlist'
 import {getEqList} from "@/api/system/damageassessment.js";
 
@@ -769,8 +769,8 @@ export default {
     },
 
     commitPanel() {
+      this.isProgressShow = true
       this.isPanelShow = !this.isPanelShow
-      // this.setInterval()
       this.$notify({
         title: '地震模拟',
         message: '正在进行灾损评估中',
@@ -779,12 +779,14 @@ export default {
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
+
       eqEventTrigger(this.addOrUpdateDTO)
           .then(res => {
             console.log(res);
             // 在这里调用 getEq 方法
             this.getEq();
           })
+      this.setInterval()
       // this.addOrUpdateDTO.event = this.createTid()
       // this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
       // this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
@@ -797,13 +799,14 @@ export default {
     // 进度条
     setInterval() {
       this.interval = setInterval(() => {
-        this.updateProgress(event)
+        this.getEq();
+        this.updateProgress(this.addOrUpdateDTO.event)
       }, 9000)
     },
     updateProgress(event) {
-      eqProgress(event).then(res => {
+      eqProgress({event}).then(res => {
         this.isProgressShow = true
-        this.percentage = res.data.percentage
+        this.percentage = Number(res.data).toFixed(2); // 保留两位小数
       })
     },
     cancelPanel() {
