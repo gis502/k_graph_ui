@@ -258,8 +258,8 @@
 
       </el-dialog>
 
-      <el-button style="position: absolute;top: 90px;left: 10px;z-index: 1;" v-if="!showEqList" @click="showEqList = true">显示地震列表</el-button>
-      <el-button style="position: absolute;top: 500px;left: 10px;z-index: 1;" v-if="!showToolbar" @click="showToolbar = true">显示工具栏</el-button>
+      <el-button style="position: absolute;top: 90px;left: 10px;" v-if="!showEqList" @click="showEqList = true">显示地震列表</el-button>
+      <el-button style="position: absolute;top: 500px;left: 10px;" v-if="!showToolbar" @click="showToolbar = true">显示工具栏</el-button>
     </div>
     <!-- Cesium 视图 -->
     <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
