@@ -17,7 +17,7 @@
       </div>
     </div>
     <div id="cesiumContainer" class="situation_cesiumContainer">
-      <el-form class="situation_eqTable" @submit.prevent>
+      <el-form v-if="showEqList" class="situation_eqTable" @submit.prevent>
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <div class="modelAdj">查询</div>
           <el-input
@@ -29,6 +29,7 @@
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          <el-button  @click="showEqList = false">隐藏地震列表</el-button>
         </div>
         <el-table :data="tableData" style="width: 100%;margin-bottom: 5px" :stripe="true"
                   :header-cell-style="tableHeaderColor" :cell-style="tableColor">
@@ -91,8 +92,9 @@
         </el-pagination>
 
       </el-form>
-      <el-form class="noteContainer">
-        <div class="modelAdj">态势标绘工具</div>
+      <el-form v-if="showToolbar" class="noteContainer">
+        <div class="modelAdj">态势标绘工具<span style="margin-left: 10px;" @click="showToolbar = false">隐藏工具栏</span></div>
+
         <el-row>
           <el-col :span="13">
             <el-tree class="plotTool" :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick"
@@ -166,6 +168,7 @@
         :ifedit="true"
         @wsSendPoint="wsSendPoint"
         @closePlotPop="closePlotPop"
+        @updateQuery="updateQuery"
       />
       <dataSourcePanel
         :visible="dataSourcePopupVisible"
@@ -255,6 +258,8 @@
 
       </el-dialog>
 
+      <el-button style="position: absolute;top: 90px;left: 10px;z-index: 1;" v-if="!showEqList" @click="showEqList = true">显示地震列表</el-button>
+      <el-button style="position: absolute;top: 500px;left: 10px;z-index: 1;" v-if="!showToolbar" @click="showToolbar = true">显示工具栏</el-button>
     </div>
     <!-- Cesium 视图 -->
     <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
@@ -567,6 +572,9 @@ export default {
       //--------------搜索框内容更新--
       plotArray: [],
 
+      //--------------控制显隐--
+      showEqList: true,
+      showToolbar: true,
     };
   },
 
@@ -613,6 +621,13 @@ export default {
   // },
   methods: {
 
+    updateQuery() {
+      let tempEqid = this.eqid;
+      this.eqid = "";
+      this.$nextTick(() => {
+        this.eqid = tempEqid;
+      });
+    },
 
     /**
      * 添加交通图层到地图
