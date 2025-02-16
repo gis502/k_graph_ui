@@ -24,7 +24,7 @@ export function getEqOutputMap(eqOutputMapDTO) {
     })
 }
 
-export function getEqOutputReport(eqOutputReportDTO) {
+export function getEqOutputReports(eqOutputReportDTO) {
   return request({
     url: '/tp/api/open/eq/output/report',
     method: 'get',
@@ -32,7 +32,7 @@ export function getEqOutputReport(eqOutputReportDTO) {
   })
 }
 
-export function getEqOutputMap(eqId,eqqueueId) {
+export function getEqOutputMaps(eqId,eqqueueId) {
     return request({
         url: '/tp/api/open/eq/map/start',
         method: 'get',
