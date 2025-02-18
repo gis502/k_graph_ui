@@ -11,13 +11,13 @@
     <div class="jump_realTime" v-if="ifNewEq">
       <div class="tooltip" :class="{ 'highlight': selectedId === 'jumpRealTime' }" @click="selectButton('jumpRealTime'); jumpRealTime()">
         <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png" />
-        <span class="tooltiptext">跳转到真实时间</span>
+        <span class="tooltiptext">真实时间</span>
       </div>
     </div>
     <div class="back_start">
       <div class="tooltip" :class="{ 'highlight': selectedId === 'backStart' }" @click="selectButton('backStart'); backToStart()">
         <img class="play-icon" src="../../assets/icons/TimeLine/重播.png" />
-        <span class="tooltiptext">重新播放</span>
+        <span class="tooltiptext">从头播放</span>
       </div>
     </div>
     <div class="play_back">
