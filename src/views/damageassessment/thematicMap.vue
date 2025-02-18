@@ -28,8 +28,8 @@
               <!-- 地震名称与简要信息 -->
               <div class="eqText">
           <span
-            class="eqTitle">
-            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{eq.magnitude}}级地震
+              class="eqTitle">
+            {{ timestampToTime(eq.occurrenceTime, 'date') }}{{ eq.earthquakeName }}{{ eq.magnitude }}级地震
           </span>
                 <br/>
                 <span style="color: #fff; font-size: 13px; display: inline-block; margin-top: 5px;">
@@ -50,13 +50,13 @@
           <!-- 分页 -->
           <div class="pagination">
             <el-pagination
-              small
-              layout="total, prev, pager, next"
-              :total="filteredEqData.length"
-              :page-size="pageSize"
-              :current-page.sync="currentPage"
-              @current-change="handleCurrentChange"
-              style="margin: 0 20px"
+                small
+                layout="total, prev, pager, next"
+                :total="filteredEqData.length"
+                :page-size="pageSize"
+                :current-page.sync="currentPage"
+                @current-change="handleCurrentChange"
+                style="margin: 0 20px"
             />
           </div>
         </div>
@@ -118,7 +118,7 @@
 
             <div class="eqVisible">
               <div class="button toVisible" @click="navigateToVisualization(this.selectedTabData)"><img
-                src="../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
+                  src="../../assets/icons/svg/druid.svg" style="height: 25px;width: 25px;">可视化大屏展示
               </div>
             </div>
           </div>
@@ -128,7 +128,8 @@
 
       <div class="eqPanel" v-if="isPanelShow.thematicMap || isPanelShow.report || isPanelShow.instrument">
         <h2>{{ this.outputData.themeName }}</h2>
-        <div style="width: 100%;height: calc(100% - 120px);text-align: center;color: #fff;font-size: 16px" v-if="isNoData">
+        <div style="width: 100%;height: calc(100% - 120px);text-align: center;color: #fff;font-size: 16px"
+             v-if="isNoData">
           该地震暂无评估图件产出
         </div>
         <div class="mapItem" v-if="this.outputData.type === `thematicMap`">
@@ -144,7 +145,8 @@
         </div>
 
         <div class="reportItem" v-if="this.outputData.type === `report`">
-          <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleDownloadReport(item.docxUrl)">
+          <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item"
+               @click="handleDownloadReport(item.docxUrl)">
             <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 50px">
             {{ item.theme }}
           </div>
@@ -182,10 +184,16 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "../../cesium/tool/initCesium.js";
-import {getEqList} from "../../api/system/damageassessment.js";
+import {
+  getEqList,
+  getEqOutputMaps,
+  getEqOutputReports
+} from "../../api/system/damageassessment.js";
 import yaan from "../../assets/geoJson/yaan1.json";
 import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 import eqMark from "@/assets/images/DamageAssessment/eqMark.png";
+import WebSocketReconnect from "@/api/websocket.js";
+import {webSocketLocal} from "@/utils/server.js";
 
 export default {
   components: {},
@@ -230,6 +238,9 @@ export default {
       imgUrl: '',
 
       isNoData: false,
+
+      websocket: null,
+      images: []
     };
   },
 
@@ -238,6 +249,7 @@ export default {
     this.getEq();
     this.viewer = new Cesium.Viewer("cesiumContainer");
     this.addEventListeners();
+
   },
 
   beforeUnmount() {
@@ -254,9 +266,52 @@ export default {
       gl = null
       window.viewer = null;
     }
+
+    this.closeWebSocket();
   },
 
   methods: {
+
+    setupWebSocket() {
+      // 创建 WebSocket 连接
+      this.websocket = new WebSocket("ws://localhost:8080/ws/map/MapData");
+      this.websocket.onopen = () => {
+        console.log('WebSocket 连接已建立');
+        // 只有在连接建立后才发送消息
+        // this.websocket.send('Hello, 我是websocket前端!');
+      };
+
+      // 监听消息
+      this.websocket.onmessage = (event) => {
+        const message = event.data;
+        if (message.startsWith("MapData:")) {
+          // 解析专题图数据
+          const mapData = JSON.parse(message.replace("MapData:", ""));
+          this.images = mapData;
+          console.log("专题图数据:", mapData);
+        }
+      };
+
+      // 监听错误
+      this.websocket.onerror = (event) => {
+        console.error("WebSocket error:", event);
+        this.closeWebSocket();
+      };
+
+      // 监听连接关闭
+      this.websocket.onclose = () => {
+        console.log("WebSocket connection closed");
+        this.closeWebSocket();
+      };
+    },
+
+    closeWebSocket() {
+      if (this.websocket) {
+        this.websocket.close();
+        this.websocket = null;
+      }
+    },
+
     timestampToTime,
 
     // 不知道为什么要在上面这里导入，可能是template里面的调用要这么搞？？？
@@ -267,17 +322,17 @@ export default {
       // 延迟绑定事件，确保控件已经加载
       this.$nextTick(() => {
         const baseLayerContainer = document.querySelector(
-          ".cesium-baseLayerPicker-dropDown"
+            ".cesium-baseLayerPicker-dropDown"
         );
 
         if (baseLayerContainer) {
           // 事件代理监听点击事件
           baseLayerContainer.addEventListener("click", (event) => {
             const clickedIcon = event.target.closest(
-              ".cesium-baseLayerPicker-itemIcon"
+                ".cesium-baseLayerPicker-itemIcon"
             );
             const clickedLabel = event.target.closest(
-              ".cesium-baseLayerPicker-itemLabel"
+                ".cesium-baseLayerPicker-itemLabel"
             );
 
             if (clickedIcon || clickedLabel) {
@@ -322,10 +377,10 @@ export default {
         destination: Cesium.Cartesian3.fromDegrees(103.0, 29.98, 500000), // 设置经度、纬度和高度
       });
       options.defaultResetView = Cesium.Cartographic.fromDegrees(
-        103.0,
-        29.98,
-        500000,
-        new Cesium.Cartographic()
+          103.0,
+          29.98,
+          500000,
+          new Cesium.Cartographic()
       );
       options.enableCompass = true;
       options.enableZoomControls = true;
@@ -336,11 +391,11 @@ export default {
       options.zoomOutTooltip = "缩小";
       window.navigation = new CesiumNavigation(viewer, options);
       document.getElementsByClassName("cesium-geocoder-input")[0].placeholder =
-        "请输入地名进行搜索";
+          "请输入地名进行搜索";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[0].innerHTML =
-        "影像服务";
+          "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
-        "地形服务";
+          "地形服务";
 
       this.initMouseEvents();
       this.toggleYaanLayer();
@@ -529,9 +584,9 @@ export default {
           const positionStr = eq.earthquakeName;
           const magnitudeStr = eq.magnitude;
           return (
-            dateStr.includes(this.title) ||
-            positionStr.includes(this.title) ||
-            magnitudeStr.includes(this.title)
+              dateStr.includes(this.title) ||
+              positionStr.includes(this.title) ||
+              magnitudeStr.includes(this.title)
           );
         });
       } else {
@@ -565,7 +620,7 @@ export default {
 
         // 查找与选项卡名称匹配的地震数据
         this.selectedTabData = this.eqData.find(
-          eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.thisTab
+            eq => `${eq.earthquakeName} ${eq.magnitude}级地震` === this.thisTab
         );
         // 如果找到对应数据，调用定位函数
         if (this.selectedTabData) {
@@ -586,8 +641,8 @@ export default {
         // 提取 selectedEqPoint
         this.selectedEqPoint = window.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(
-            Number(this.selectedTabData.longitude),
-            Number(this.selectedTabData.latitude)
+              Number(this.selectedTabData.longitude),
+              Number(this.selectedTabData.latitude)
           ),
           billboard: {
             image: eqMark,
@@ -597,8 +652,8 @@ export default {
           },
           label: {
             text: timestampToTime(this.selectedTabData.occurrenceTime, 'date') +
-              this.selectedTabData.earthquakeName +
-              this.selectedTabData.magnitude + '级地震',
+                this.selectedTabData.earthquakeName +
+                this.selectedTabData.magnitude + '级地震',
             font: '18px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -640,6 +695,9 @@ export default {
     },
 
     handlePanel(type) {
+
+      // 打开 websocket 服务进行专题图的获取
+
       for (const key in this.isPanelShow) {
         if (this.isPanelShow.hasOwnProperty(key)) {
           if (key !== type && this.isPanelShow[key] === true) {
@@ -649,6 +707,17 @@ export default {
       }
       this.isPanelShow[type] = !this.isPanelShow[type];
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
+
+        getEqOutputMaps(this.eqid, this.eqqueueId).then((res) => {
+          console.log("专题图", res.data)
+        })
+
+        getEqOutputReports(this.eqid, this.eqqueueId).then((res) => {
+          console.log("灾情报告", res.data)
+        })
+
+        console.log("开始进行评估------------------------")
+
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
           console.log(res)
@@ -664,44 +733,44 @@ export default {
             this.isNoData = true
           }
         });
-      } else if(this.isPanelShow.instrument) {
+      } else if (this.isPanelShow.instrument) {
         this.outputData.themeData = [
           {
-            imgUrl:"http://10.16.7.69/image/instrument/仪器地震烈度分布图.jpeg",
-            theme:"仪器地震烈度分布图"
+            imgUrl: "http://10.16.7.69/image/instrument/仪器地震烈度分布图.jpeg",
+            theme: "仪器地震烈度分布图"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/台站峰值加速度分布图.jpeg",
-            theme:"台站峰值加速度分布图"
+            imgUrl: "http://10.16.7.69/image/instrument/台站峰值加速度分布图.jpeg",
+            theme: "台站峰值加速度分布图"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/台站峰值速度分布图.jpeg",
-            theme:"台站峰值速度分布图"
+            imgUrl: "http://10.16.7.69/image/instrument/台站峰值速度分布图.jpeg",
+            theme: "台站峰值速度分布图"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/台站仪器地震烈度分布图.jpeg",
-            theme:"台站仪器地震烈度分布图"
+            imgUrl: "http://10.16.7.69/image/instrument/台站仪器地震烈度分布图.jpeg",
+            theme: "台站仪器地震烈度分布图"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/3.0秒加速度反应谱(gal).jpeg",
-            theme:"3.0秒加速度反应谱(gal)"
+            imgUrl: "http://10.16.7.69/image/instrument/3.0秒加速度反应谱(gal).jpeg",
+            theme: "3.0秒加速度反应谱(gal)"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/1.0秒加速度反应谱(gal).jpeg",
-            theme:"1.0秒加速度反应谱(gal)"
+            imgUrl: "http://10.16.7.69/image/instrument/1.0秒加速度反应谱(gal).jpeg",
+            theme: "1.0秒加速度反应谱(gal)"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/0.3秒加速度反应谱(gal).jpeg",
-            theme:"0.3秒加速度反应谱(gal)"
+            imgUrl: "http://10.16.7.69/image/instrument/0.3秒加速度反应谱(gal).jpeg",
+            theme: "0.3秒加速度反应谱(gal)"
           },
           {
-            imgUrl:"http://10.16.7.69/image/instrument/乡镇仪器地震烈度分布.jpeg",
-            theme:"乡镇仪器地震烈度分布"
+            imgUrl: "http://10.16.7.69/image/instrument/乡镇仪器地震烈度分布.jpeg",
+            theme: "乡镇仪器地震烈度分布"
           },
         ]
         this.outputData.type = 'instrument';
         this.outputData.themeName = '2022年06月01日四川雅安市芦山县6.1级地震-台网数据';
-      }else{
+      } else {
         console.log("无图片数据")
       }
     },
@@ -789,9 +858,9 @@ export default {
 
       //视角回雅安
       const position = Cesium.Cartesian3.fromDegrees(
-        103.0,
-        29.98,
-        500000
+          103.0,
+          29.98,
+          500000
       );
       viewer.camera.flyTo({destination: position,})
     },
@@ -871,7 +940,7 @@ export default {
   height: calc(100% - 50px);
   z-index: 3;
   background: rgb(4, 20, 34);
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 }
 
 // 搜索框
@@ -967,7 +1036,7 @@ export default {
   position: absolute;
   bottom: 0;
   width: 333px;
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%,rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
   border: 2px solid #FFFFFF; /* 白色边框 */
 }
 

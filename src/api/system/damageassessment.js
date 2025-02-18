@@ -32,6 +32,22 @@ export function getEqOutputReport(eqOutputReportDTO) {
   })
 }
 
+export function getEqOutputMaps(eqId,eqqueueId) {
+    return request({
+        url: '/tp/api/open/eq/map/start',
+        method: 'get',
+        params: { eqId, eqqueueId}
+    })
+}
+
+export function getEqOutputReports(eqId,eqqueueId) {
+    return request({
+        url: '/tp/api/open/eq/report/start',
+        method: 'get',
+        params: { eqId, eqqueueId}
+    })
+}
+
 export function getPersonDes(eqid) {
     return request({
         url: '/damageassessment/getPersonDes',
