@@ -647,24 +647,31 @@ export default {
           }
         }
       }
+
       this.isPanelShow[type] = !this.isPanelShow[type];
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
           console.log(res)
 
-          if (res.themeName.includes("null")) {
-            this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
-          } else {
-            this.outputData.themeData = res.themeData;
-            console.log(this.outputData.themeData)
-            this.outputData.type = type;
-          }
+          this.outputData.themeName = res.themeName;
+
+          this.outputData.themeData = res.themeData;
+          this.outputData.type = type;
+
+          // if (res.themeName.includes("null")) {
+          //   this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
+          // } else {
+          //   this.outputData.themeData = res.themeData;
+          //   console.log(this.outputData.themeData)
+          //   this.outputData.type = type;
+          // }
           if (res.themeData.length === 0) {
             this.isNoData = true
           }
         });
       } else if(this.isPanelShow.instrument) {
+        this.isNoData = false
         this.outputData.themeData = [
           {
             imgUrl:"http://10.16.7.69/image/instrument/仪器地震烈度分布图.jpeg",
