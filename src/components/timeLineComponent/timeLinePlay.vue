@@ -3,20 +3,32 @@
     <div class="topCurrentTimeLabel">
       {{ this.timestampToTimeChina(this.currentTime) }}
     </div>
+
     <div class="start-time-info">
       <span class="timelabel">开始时间：{{ this.timestampToTimeChina(this.centerPoint.startTime) }}</span>
     </div>
-    <div class="current-time-info">
-      <span class="timelabel">{{ this.timestampToTimeChina(this.currentTime) }}</span>
-    </div>
-    <div class="speed-label">
-      <span class="timelabel">当前播放速度：</span>
-    </div>
+
+
+
     <div class="jump_realTime" v-if="ifNewEq">
       <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png" @click="jumpRealTime" title="跳转到真实时间"/>
     </div>
     <div class="back_start">
       <img class="play-icon" src="../../assets/icons/TimeLine/回到开始.png" @click="backToStart" title="重新播放"/>
+    </div>
+    <div class="play_back">
+      <img class="play-icon" src="../../assets/icons/TimeLine/向后播放.png" @click="playBack" title="向后播放"/>
+    </div>
+    <div class="end">
+      <img class="play-icon" src="../../assets/icons/TimeLine/停止.png" @click="end" title="停止"/>
+    </div>
+    <div class="start">
+      <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" @click="start" title="播放"/>
+    </div>
+
+
+    <div class="speed-label">
+      <span class="timelabel">当前播放速度：</span>
     </div>
     <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
       <div v-if="showSpeedOptions">
@@ -30,11 +42,8 @@
       </div>
       <span class="timelabel">{{ speedOption }}</span>
     </div>
-    <div class="start">
-      <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" @click="start" title="播放"/>
-    </div>
-    <div class="end">
-      <img class="play-icon" src="../../assets/icons/TimeLine/停止.png" @click="end" title="停止"/>
+    <div class="current-time-info">
+      <span class="timelabel">{{ this.timestampToTimeChina(this.currentTime) }}</span>
     </div>
     <div class="end-time-info">
       <span class="timelabel">结束时间：{{ this.timestampToTimeChina(this.centerPoint.endTime) }}</span>
@@ -141,6 +150,27 @@ export default {
       })
     },
 
+
+    jumpRealTime() {
+      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+    },
+    backToStart() {
+      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
+    },
+    playBack(){
+      window.viewer.clock.multiplier = this.currentSpeed*(-1.0)
+      window.viewer.clockViewModel.shouldAnimate = true;
+      this.endflag = false;
+    },
+    end() {
+      window.viewer.clockViewModel.shouldAnimate = false;
+      this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
+      // console.log(this.endflag, "this.endflag change")
+    },
+    start() {
+      window.viewer.clockViewModel.shouldAnimate = true;
+      this.endflag = false;
+    },
     selectSpeed(speed) {
       // 直接赋值速度选项
       this.speedOption = speed
@@ -151,25 +181,7 @@ export default {
       // window.viewer.clock.multiplier = 3600
       this.showSpeedOptions = false
     },
-    // pause() {
-    //   window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
-    // },
-    jumpRealTime() {
-      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-    },
-    backToStart() {
-      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
-    },
-    start() {
-      window.viewer.clockViewModel.shouldAnimate = true;
-      this.endflag = false;
-    },
-    end() {
-      window.viewer.clockViewModel.shouldAnimate = false;
 
-      this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
-      console.log(this.endflag, "this.endflag change")
-    },
 
     //视角跳转
     ifArriveTime(currentTime, oldCurrentTime, itemTime) {
@@ -335,12 +347,8 @@ export default {
   left: 40.5%;
   //background-color: #323940;
 }
+.play_back{
 
-.start {
-  position: absolute;
-  bottom: 3%;
-  left: 46%;
-  //background-color: #323940;
 }
 
 .end {
@@ -349,6 +357,13 @@ export default {
   left: 44.5%;
   //background-color: #323940;
 }
+.start {
+  position: absolute;
+  bottom: 3%;
+  left: 46%;
+  //background-color: #323940;
+}
+
 
 .speed-selector {
   position: absolute;

@@ -52,26 +52,39 @@ export default {
           "影像服务";
       document.getElementsByClassName("cesium-baseLayerPicker-sectionTitle")[1].innerHTML =
           "地形服务";
+
+      viewer.scene.globe.depthTestAgainstTerrain = false;
       this.addOrthophotographViewer()
     },
     addOrthophotographViewer(){
       let url = this.$route.query.url
       let layers = this.$route.query.layers
       // console.log(url,layers)
-      window.viewer.imageryLayers.addImageryProvider(
+      let imageLyr =window.viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapServiceImageryProvider({
             url,
             layers,
             parameters: {
               service: 'WMS', // 指定服务类型为WMS
               format: 'image/png', // 指定返回的图像格式为PNG
-              transparent: true // 启用透明背景
-            }
+              transparent: true, // 启用透明背景
+              srs: 'EPSG:4326', // 指定坐标系
+            },
+            tilingScheme: new Cesium.GeographicTilingScheme() // 使用地理格网划分方案，避免投影拉伸
+
           })
       );
 
 
+      // 设置背景透明
+      // window.viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
 
+      // 确保WebGL上下文支持透明度
+      // window.viewer.scene.context._gl.getContextAttributes().alpha = true;
+
+      // 设置图层底色透明
+      imageLyr.transperantBackColor = Cesium.Color.fromCssColorString('#FFFFFF');
+      imageLyr.transperantBackColorTolerance = 0.1; // 去白边
     }
 
   }
