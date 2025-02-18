@@ -21,11 +21,11 @@
         <div style="display: flex; align-items: center; margin-bottom: 10px;">
           <div class="modelAdj">查询</div>
           <el-input
-            v-model="queryParams"
-            placeholder="请输入搜索信息"
-            clearable
-            @keydown.enter="handleQuery"
-            style="width: 200px; margin-right: 10px;"
+              v-model="queryParams"
+              placeholder="请输入搜索信息"
+              clearable
+              @keydown.enter="handleQuery"
+              style="width: 200px; margin-right: 10px;"
           />
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -75,20 +75,20 @@
           <el-table-column label="操作" width="75">
             <template #default="scope">
               <el-button
-                size="small"
-                @click="plotAdj(scope.row)">查看
+                  size="small"
+                  @click="plotAdj(scope.row)">查看
               </el-button>
             </template>
           </el-table-column>
         </el-table>
 
         <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next"
-          :total="total">
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next"
+            :total="total">
         </el-pagination>
 
       </el-form>
@@ -142,50 +142,50 @@
         </el-row>
       </el-form>
       <addMarkCollectionDialog
-        :addMarkDialogFormVisible="addMarkDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @drawPoints="drawPoints"
-        @ifPointAnimate="ifPointAnimation"
-        @clearMarkDialogForm="resetAddMarkCollection"
-        @sendPlot="sendPlot"
+          :addMarkDialogFormVisible="addMarkDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @drawPoints="drawPoints"
+          @ifPointAnimate="ifPointAnimation"
+          @clearMarkDialogForm="resetAddMarkCollection"
+          @sendPlot="sendPlot"
       />
       <addPolylineDialog
-        :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolyline"
-        @sendPlot="sendPlot"
+          :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolyline"
+          @sendPlot="sendPlot"
       />
       <addPolygonDialog
-        :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
-        @wsSendPoint="wsSendPoint"
-        @clearMarkDialogForm="resetPolygon"
-        @sendPlot="sendPlot"
+          :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
+          @wsSendPoint="wsSendPoint"
+          @clearMarkDialogForm="resetPolygon"
+          @sendPlot="sendPlot"
       />
       <commonPanel
-        :visible="popupVisible"
-        :position="popupPosition"
-        :popupData="popupData"
-        :ifedit="true"
-        @wsSendPoint="wsSendPoint"
-        @closePlotPop="closePlotPop"
-        @updateQuery="updateQuery"
+          :visible="popupVisible"
+          :position="popupPosition"
+          :popupData="popupData"
+          :ifedit="true"
+          @wsSendPoint="wsSendPoint"
+          @closePlotPop="closePlotPop"
+          @updateQuery="updateQuery"
       />
       <dataSourcePanel
-        :visible="dataSourcePopupVisible"
-        :position="dataSourcePopupPosition"
-        :popupData="dataSourcePopupData"
+          :visible="dataSourcePopupVisible"
+          :position="dataSourcePopupPosition"
+          :popupData="dataSourcePopupData"
       />
 
 
       <el-upload
-        ref="upload"
-        :action="uploadUrl"
-        :multiple="false"
-        :show-file-list="false"
-        :on-success="handleSuccess"
-        :before-upload="beforeUpload"
-        :headers="this.headers"
-        style="position: absolute;top: 150px;right: 100px;z-index: 100;"
+          ref="upload"
+          :action="uploadUrl"
+          :multiple="false"
+          :show-file-list="false"
+          :on-success="handleSuccess"
+          :before-upload="beforeUpload"
+          :headers="this.headers"
+          style="position: absolute;top: 150px;right: 100px;z-index: 100;"
       >
       </el-upload>
       <!-- 提示框 -->
@@ -204,9 +204,9 @@
       </el-notification>
 
       <el-dialog
-        v-model="selectVisible"
-        width="30%"
-        @close="selectVisible=false"
+          v-model="selectVisible"
+          width="30%"
+          @close="selectVisible=false"
       >
         <template #title>
           <div style="text-align: center;">{{ this.excelPanel }}</div>
@@ -219,12 +219,12 @@
               <div>可选择标绘名称</div>
               <el-row>
                 <el-tree
-                  ref="tree"
-                  :data="plotTreeData"
-                  :props="defaultProps"
-                  show-checkbox
-                  node-key="label"
-                  @check-change="handleCheck"
+                    ref="tree"
+                    :data="plotTreeData"
+                    :props="defaultProps"
+                    show-checkbox
+                    node-key="label"
+                    @check-change="handleCheck"
                 >
                 </el-tree>
               </el-row>
@@ -258,8 +258,8 @@
 
       </el-dialog>
 
-      <el-button style="position: absolute;top: 90px;left: 10px;" v-if="!showEqList" @click="showEqList = true">显示地震列表</el-button>
-      <el-button style="position: absolute;top: 500px;left: 10px;" v-if="!showToolbar" @click="showToolbar = true">显示工具栏</el-button>
+      <el-button style="position: absolute;top: 90px;left: 10px;z-index: 1;" v-if="!showEqList" @click="showEqList = true">显示地震列表</el-button>
+      <el-button style="position: absolute;top: 500px;left: 10px;z-index: 1;" v-if="!showToolbar" @click="showToolbar = true">显示工具栏</el-button>
     </div>
     <!-- Cesium 视图 -->
     <!--    <layeredShowPlot :zoomLevel="zoomLevel" :pointsLayer="pointsLayer"/>-->
@@ -269,7 +269,7 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-<!--            <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()">-->
+            <!--            <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()">-->
             <img :src="'http://localhost:8080'+'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
                  alt="icon" style="width: 20px; height: 20px;"/>
           </template>
@@ -307,19 +307,19 @@
 
     <!--    专题图预览组件    -->
     <thematicMapPreview
-      @ifShowThematicMapDialog="ifShowDialog"
-      :imgshowURL="imgshowURL"
-      :imgurlFromDate="imgurlFromDate"
-      :imgName="imgName"
-      :ifShowMapPreview="ifShowMapPreview"
-      :showTypes="showTypes"
-      :corners="corners"
-      :step="step"
+        @ifShowThematicMapDialog="ifShowDialog"
+        :imgshowURL="imgshowURL"
+        :imgurlFromDate="imgurlFromDate"
+        :imgName="imgName"
+        :ifShowMapPreview="ifShowMapPreview"
+        :showTypes="showTypes"
+        :corners="corners"
+        :step="step"
     ></thematicMapPreview>
     <!--      地震列表组件-点击列表“详情”显示专题图列表      -->
     <plotSearch
-      :eqid="eqid"
-      :plotArray="plotArray"
+        :eqid="eqid"
+        :plotArray="plotArray"
     ></plotSearch>
 
 
@@ -639,35 +639,35 @@ export default {
       let token = TianDiTuToken;
 
       // 检查是否存在'TrafficLayer'图层
-        // 创建并添加交通图层
-        let trafficLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              // 天地图交通图层的URL模板
-              // url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
-              url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg", // 根据实际返回的图像格式调整
-              tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
-              show: true
-            })
-        );
+      // 创建并添加交通图层
+      let trafficLayer = viewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            // 天地图交通图层的URL模板
+            // url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+            url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg", // 根据实际返回的图像格式调整
+            tileMatrixSetID: "w", // 如果URL中已经指定了tileMatrixSet，则此参数可能不是必需的
+            show: true
+          })
+      );
 
       // 检查是否存在'TrafficTxtLayer'图层
-        // 创建并添加交通注记图层
-        let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
-            new Cesium.WebMapTileServiceImageryProvider({
-              // 天地图交通注记图层的URL模板
-              // url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-              //     TianDiTuToken,
-              url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
-              layer: "tdtAnnoLayer",
-              style: "default",
-              format: "image/jpeg",
-              tileMatrixSetID: "GoogleMapsCompatible",
-              show: false // 初始状态下不显示图层
-            })
-        )
+      // 创建并添加交通注记图层
+      let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
+          new Cesium.WebMapTileServiceImageryProvider({
+            // 天地图交通注记图层的URL模板
+            // url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
+            //     TianDiTuToken,
+            url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
+            layer: "tdtAnnoLayer",
+            style: "default",
+            format: "image/jpeg",
+            tileMatrixSetID: "GoogleMapsCompatible",
+            show: false // 初始状态下不显示图层
+          })
+      )
     },
 
 
@@ -703,12 +703,12 @@ export default {
         // console.log(this.excelContent)
 
         const formattedTitle = this.title
-          // 删除时间部分，例如 T17:07:10 或 11:07:10
-          .replace(/\s?T?\d{2}:\d{2}:\d{2}/, "")
-          // 然后将日期部分 2024-05-27 转换为 2024年5月27日
-          .replace(/^(\d{4})-(\d{2})-(\d{2})/, (match, year, month, day) =>
-            `${year}年${parseInt(month, 10)}月${parseInt(day, 10)}日`
-          );
+            // 删除时间部分，例如 T17:07:10 或 11:07:10
+            .replace(/\s?T?\d{2}:\d{2}:\d{2}/, "")
+            // 然后将日期部分 2024-05-27 转换为 2024年5月27日
+            .replace(/^(\d{4})-(\d{2})-(\d{2})/, (match, year, month, day) =>
+                `${year}年${parseInt(month, 10)}月${parseInt(day, 10)}日`
+            );
 
         const excelTitle = this.excelContent.length > 0 ? `${formattedTitle}级地震-标绘数据` : "标绘数据模板";
 
@@ -766,7 +766,7 @@ export default {
       document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
       document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
-this.addTrafficLayer()
+      this.addTrafficLayer()
     },
     // 初始化ws
     initWebsocket() {
@@ -953,9 +953,9 @@ this.addTrafficLayer()
 
       // 过滤掉最高级和第二级的label
       this.selectedNodes = checkedNodes
-        .map(node => node.label)
-        // 过滤掉最高级和第二级的 label
-        .filter(label => !highestAndSecondLabels.includes(label));
+          .map(node => node.label)
+          // 过滤掉最高级和第二级的 label
+          .filter(label => !highestAndSecondLabels.includes(label));
     },
 
     confirmDownload() {
@@ -979,22 +979,22 @@ this.addTrafficLayer()
         // 根据 typeKey 动态设置 fields.unshift
         if (specialTypes.includes(typeKey)) {
           fields.unshift(
-            {name: "绘制类型", type: "text"},
-            {name: "经纬度集合", type: "text"},
-            {name: "高程", type: "text"},
-            {name: "角度", type: "text"},
-            {name: "开始时间", type: "text"},
-            {name: "结束时间", type: "text"}
+              {name: "绘制类型", type: "text"},
+              {name: "经纬度集合", type: "text"},
+              {name: "高程", type: "text"},
+              {name: "角度", type: "text"},
+              {name: "开始时间", type: "text"},
+              {name: "结束时间", type: "text"}
           );
         } else {
           fields.unshift(
-            {name: "绘制类型", type: "text"},
-            {name: "经度", type: "text"},
-            {name: "纬度", type: "text"},
-            {name: "高程", type: "text"},
-            {name: "角度", type: "text"},
-            {name: "开始时间", type: "text"},
-            {name: "结束时间", type: "text"}
+              {name: "绘制类型", type: "text"},
+              {name: "经度", type: "text"},
+              {name: "纬度", type: "text"},
+              {name: "高程", type: "text"},
+              {name: "角度", type: "text"},
+              {name: "开始时间", type: "text"},
+              {name: "结束时间", type: "text"}
           );
         }
 
@@ -1074,29 +1074,29 @@ this.addTrafficLayer()
             // 提取 plotTypeInfo 中的字段
             const plotTypeFields = plotInfo.plotType ? Object.values(plotType).find(team => team.name === plotInfo.plotType) : null;
             const filteredPlotTypeInfo = Object.keys(plotTypeFields).filter(key => key !== 'name')
-              .reduce((obj, key) => {
-                if (plotTypeInfo[key] !== undefined) {
-                  obj[plotTypeFields[key].name] = plotTypeInfo[key];
-                }
-                return obj;
-              }, {});
+                .reduce((obj, key) => {
+                  if (plotTypeInfo[key] !== undefined) {
+                    obj[plotTypeFields[key].name] = plotTypeInfo[key];
+                  }
+                  return obj;
+                }, {});
 
             const formattedCoordinates = plotInfo.geom.coordinates
-              // 判断 coordinates 是否为二维数组，如果是，则处理每个坐标对
-              .map(coord => {
-                if (Array.isArray(coord)) {
-                  if (coord.length === 2) {
-                    // 如果是简单的坐标对（[经度, 纬度]），直接格式化
-                    return `(${coord[0]}, ${coord[1]})`;
-                  } else if (Array.isArray(coord[0]) && coord[0].length === 2) {
-                    // 如果是一个包含多个坐标对的数组，处理其中的每个坐标对
-                    return coord.map(subCoord => `(${subCoord[0]}, ${subCoord[1]})`).join("、");
+                // 判断 coordinates 是否为二维数组，如果是，则处理每个坐标对
+                .map(coord => {
+                  if (Array.isArray(coord)) {
+                    if (coord.length === 2) {
+                      // 如果是简单的坐标对（[经度, 纬度]），直接格式化
+                      return `(${coord[0]}, ${coord[1]})`;
+                    } else if (Array.isArray(coord[0]) && coord[0].length === 2) {
+                      // 如果是一个包含多个坐标对的数组，处理其中的每个坐标对
+                      return coord.map(subCoord => `(${subCoord[0]}, ${subCoord[1]})`).join("、");
+                    }
                   }
-                }
-                return '';  // 如果格式不符合要求，则返回空字符串
-              })
-              .filter(coord => coord !== '')  // 过滤掉无效的空字符串
-              .join("、");  // 使用中文顿号连接
+                  return '';  // 如果格式不符合要求，则返回空字符串
+                })
+                .filter(coord => coord !== '')  // 过滤掉无效的空字符串
+                .join("、");  // 使用中文顿号连接
 
             // 返回提取的字段
             return {
@@ -1128,7 +1128,7 @@ this.addTrafficLayer()
               "结束时间": item["结束时间"],
               // 将 plotTypeInfo 中的其他字段加入
               ...Object.fromEntries(
-                Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "经纬度集合", "高程", "角度", "开始时间", "结束时间"].includes(key))
+                  Object.entries(item).filter(([key]) => !["绘制类型", "标绘类型", "经度", "纬度", "经纬度集合", "高程", "角度", "开始时间", "结束时间"].includes(key))
               )
             };
 
@@ -1210,9 +1210,9 @@ this.addTrafficLayer()
         const firstCell = worksheet['A1'];
         if (!firstCell && firstCell !== "绘制类型") {
           this.$message({
-              type: 'error',
-              message: `文件的第一行数据有误，请检查文件内容！`
-            }
+                type: 'error',
+                message: `文件的第一行数据有误，请检查文件内容！`
+              }
           );
         }
       };
@@ -1364,14 +1364,14 @@ this.addTrafficLayer()
 
           // 将 geomDetails 转换为数组形式的 coordinates
           const coordinates = geomDetails
-            .split("、")
-            .map(coord => {
-              const [lng, lat] = coord
-                .replace(/[()]/g, "")
-                .split(",")
-                .map(Number);
-              return [lng, lat];
-            });
+              .split("、")
+              .map(coord => {
+                const [lng, lat] = coord
+                    .replace(/[()]/g, "")
+                    .split(",")
+                    .map(Number);
+                return [lng, lat];
+              });
 
           if (splitData[i].plotInfo.drawtype === "polyline" || splitData[i].plotInfo.drawtype === "线") {
             console.log("线")
@@ -1646,9 +1646,9 @@ this.addTrafficLayer()
 
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
-          parseFloat(targetInfo.longitude),
-          parseFloat(targetInfo.latitude),
-          70000
+            parseFloat(targetInfo.longitude),
+            parseFloat(targetInfo.latitude),
+            70000
         ),
         orientation: {
           heading: 6.283185307179581,
@@ -2367,9 +2367,9 @@ this.addTrafficLayer()
           centerData
         },
         position: Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          parseFloat(this.centerPoint.height || 0)
+            parseFloat(this.centerPoint.longitude),
+            parseFloat(this.centerPoint.latitude),
+            parseFloat(this.centerPoint.height || 0)
         ),
 
         billboard: {
@@ -2913,7 +2913,7 @@ this.addTrafficLayer()
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-          v = c == 'x' ? r : (r & 0x3 | 0x8);
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
@@ -2998,47 +2998,47 @@ this.addTrafficLayer()
 
       // 格式化搜索关键字，转换为后端可以识别的格式（例如：ISO时间字符串）
       const formattedKey = searchKey
-        .replace(/年/g, "-")
-        .replace(/月/g, "-")
-        .replace(/日/g, " ")
-        .replace(/时/g, ":")
-        .replace(/分/g, ":")
-        .replace(/秒/g, "");
+          .replace(/年/g, "-")
+          .replace(/月/g, "-")
+          .replace(/日/g, " ")
+          .replace(/时/g, ":")
+          .replace(/分/g, ":")
+          .replace(/秒/g, "");
 
       // 根据是否有格式化的搜索关键字来调用不同的查询方法
       const queryPromise = formattedKey ? querySituationData(formattedKey) : querySituationData();
 
       queryPromise
-        .then(res => {
-          console.log("获取的数据:", res);
+          .then(res => {
+            console.log("获取的数据:", res);
 
-          // 只筛选震中震级大于等于5的数据
-          let resData = res.data.filter(item => item.magnitude >= 5);
+            // 只筛选震中震级大于等于5的数据
+            let resData = res.data.filter(item => item.magnitude >= 5);
 
-          // 格式化返回的数据
-          this.getEqData = resData.map(item => {
-            // 格式化时间：将ISO时间中的'T'替换为' '
-            item.time = item.occurrenceTime.replace("T", " ");
+            // 格式化返回的数据
+            this.getEqData = resData.map(item => {
+              // 格式化时间：将ISO时间中的'T'替换为' '
+              item.time = item.occurrenceTime.replace("T", " ");
 
-            // 格式化震级、纬度和经度
-            item.magnitude = Number(item.magnitude).toFixed(1); // 震级保留1位小数
-            item.latitude = Number(item.latitude).toFixed(2); // 纬度保留2位小数
-            item.longitude = Number(item.longitude).toFixed(2); // 经度保留2位小数
+              // 格式化震级、纬度和经度
+              item.magnitude = Number(item.magnitude).toFixed(1); // 震级保留1位小数
+              item.latitude = Number(item.latitude).toFixed(2); // 纬度保留2位小数
+              item.longitude = Number(item.longitude).toFixed(2); // 经度保留2位小数
 
-            return item;
+              return item;
+            });
+
+            // 更新总数
+            this.total = this.getEqData.length;
+
+            // 获取分页数据
+            this.tableData = this.getPageArr();
+          })
+          .catch(error => {
+            console.error("查询时出现错误:", error.message || error);
+            const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
+            ElMessage.error(errorMessage);  // 弹出错误提示
           });
-
-          // 更新总数
-          this.total = this.getEqData.length;
-
-          // 获取分页数据
-          this.tableData = this.getPageArr();
-        })
-        .catch(error => {
-          console.error("查询时出现错误:", error.message || error);
-          const errorMessage = error.response?.data?.message || '查询失败，请稍后重试';
-          ElMessage.error(errorMessage);  // 弹出错误提示
-        });
     },
 
     // 重置功能

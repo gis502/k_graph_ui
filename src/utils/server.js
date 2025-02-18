@@ -1,5 +1,6 @@
-export const domainName = "http://59.213.183.7";
+// export const domainName = "http://59.213.183.7";
 // export const domainName = "http://172.26.86.82";
+export const domainName = "http://10.16.7.69/zaisunimage";
 
 
 export const tianDitulocalApi="http://api.tianditu.gov.cn"
