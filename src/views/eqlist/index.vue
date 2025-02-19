@@ -778,6 +778,12 @@ export default {
       });
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
+
+      // 直接去除 eqName 里的 "undefined"
+      if (this.addOrUpdateDTO.eqName.includes("undefined")) {
+        this.addOrUpdateDTO.eqName = this.addOrUpdateDTO.eqName.replace(/undefined/g, "").trim();
+      }
+
       this.addOrUpdateDTO.eqTime = this.addOrUpdateDTO.eqTime.replace('T', ' ')
 
       eqEventTrigger(this.addOrUpdateDTO)
