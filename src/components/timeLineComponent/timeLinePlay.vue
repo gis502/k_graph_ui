@@ -337,7 +337,7 @@ export default {
   position: absolute;
   bottom: 3%;
   width: 12%;
-  left: 15%;
+  left: 18%;
 }
 
 .current-time-info {

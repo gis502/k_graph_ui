@@ -583,7 +583,7 @@
 
     <!--经纬度跳转-->
     <div
-      style="display: flex; align-items: center; position: absolute; top: 94.75%; left: 1%; z-index: 1000; pointer-events: none;">
+      style="display: flex; align-items: center; position: absolute; top: 95.25%; left: 1%; z-index: 1000; pointer-events: none;">
       <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
         <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
              style="width: 31px; height: 31px;">
@@ -598,6 +598,10 @@
       </div>
       <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
         <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
+             style="width: 31px; height: 31px;">
+      </div>
+      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+        <img src="../../assets/icons/svg/slopeAnalysis.svg" title="坡面分析"
              style="width: 31px; height: 31px;">
       </div>
     </div>
@@ -765,6 +769,24 @@
       style="width: 40%"
     ></thematicMapPreview>
 
+    <!-- 坡面分析图例 -->
+    <div id="legend" v-if="showSlopeAnalysis"
+         style="position: absolute;
+           right: 500px;
+         z-index:20; bottom: 100px;
+         right: 450px; color: #FFFFFF;
+         background-color: rgba(0, 0, 0, 0.5);
+         padding: 10px; border-radius: 5px;text-align: center;">
+      <div v-for="(item, index) in slopeStatistics" :key="index">
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+          <div
+            :style="{ width: '20px', height: '20px', marginRight: '10px', backgroundColor: item.color }">
+          </div>
+          <span style="width: 80px;text-align: left">{{ item.degree }}</span>
+          <span style="text-align: left">{{ item.proportion }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -868,6 +890,7 @@ import {
   polylineD,
   selectPoints
 } from "@/cesium/route.js";
+import {deleteSlopeEntities, toggleSlopeAnalysis} from "@/cesium/slopeAnalysis.js";
 
 export default {
   computed: {
@@ -1041,6 +1064,33 @@ export default {
 
       //-------------ws---------------------
       websock: null,
+      slopeStatistics: [
+        {
+          degree: '< 15°',
+          color: '#00FF00',
+          proportion: ''
+        },
+        {
+          degree: '15°- 30°',
+          color: '#FFFF00',
+          proportion: ''
+        },
+        {
+          degree: '30°- 45°',
+          color: '#FFCC00',
+          proportion: ''
+        },
+        {
+          degree: '45°- 60°',
+          color: '#FF7F00',
+          proportion: ''
+        },
+        {
+          degree: '> 60°',
+          color: '#FF0000',
+          proportion: ''
+        }
+      ],
       //-----------------地震列表---------------------
       // eqListShow: false,
       //-地震列表---------------------------------
@@ -1153,45 +1203,7 @@ export default {
         lat: "", // 纬度
       },
       // 坡面分析+距离量算
-      ifSlopeAnalyze: false,
-      ifDistanceMeasure: false,
-      polygonPos: [], // 存储包围盒坐标
-      slopes: [], // 存储坡度信息
-      fxValues: [],
-      fyValues: [],
-      slopeCounts: [0, 0, 0, 0, 0], // 坡度范围计数
-      totalCells: 0, // 总格子数
-      firstClickPosition: null,
-      secondClickPosition: null,
       isShowSlopeLegend: false,
-      slopeStatistics: [
-        {
-          degree: '< 15°',
-          color: '#00FF00',
-          proportion: ''
-        },
-        {
-          degree: '15°- 30°',
-          color: '#FFFF00',
-          proportion: ''
-        },
-        {
-          degree: '30°- 45°',
-          color: '#FFCC00',
-          proportion: ''
-        },
-        {
-          degree: '45°- 60°',
-          color: '#FF7F00',
-          proportion: ''
-        },
-        {
-          degree: '> 60°',
-          color: '#FF0000',
-          proportion: ''
-        }
-      ],
-
 
       // 路径规划+物资匹配
       // ---------------------------------------------
@@ -1339,6 +1351,7 @@ export default {
       showLayerFeatures: false,// 图层要素弹框状态
       showEqListPanel: false,// 地震列表弹框状态
       showModelPanel: false,// 三维模型弹框状态
+      showSlopeAnalysis: false,// 坡面分析弹框状态
       props: {
         label: 'name',
         children: 'children',
@@ -1524,7 +1537,7 @@ export default {
           document.getElementsByClassName('cesium-animation-rectButton')[1].style = 'visibility:hidden';
           document.getElementsByClassName('cesium-animation-rectButton')[2].style = 'visibility:hidden';
         }
-        document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 70%; left:15%;right:15%; ';
+        document.getElementsByClassName('cesium-timeline-main')[0].style = 'width: 64%; left:18%;right:18%; ';
         document.getElementsByClassName('cesium-timeline-bar')[0].style = 'background:rgba(0, 0, 0, 0.1);';
 
         window.viewer = viewer
@@ -1685,9 +1698,10 @@ export default {
       };
     },
     wsAddMakerFunc(type, data) {
+      console.log("触发了新增")
       // console.log(data.plot,"data.plot wsadd")
       data.plot.longitude = Number(data.plot.geom.coordinates[0])
-      data.plot.latitude = Number(data.plot.geom.coordinates[1]),
+      data.plot.latitude = Number(data.plot.geom.coordinates[1])
         this.plots.push(data.plot)
       this.plotisshow[data.plot.plotId] = 1
       var jumpnode = Math.ceil((new Date() - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))
@@ -1711,8 +1725,13 @@ export default {
           arrow.showStraightArrow([data.plot])
         }
       }
+      let tempEqid = this.eqid;
+      this.$nextTick(() => {
+        this.eqid = tempEqid;
+      })
     },
     wsDeleteMakerFunc(id, markType) {
+      console.log("触发了删除")
       this.plotisshow[id] = 0
       if (markType === "point") {
         console.log('1111111111111111111111111111123123')
@@ -1729,6 +1748,10 @@ export default {
       } else if (markType === "arrow") {
         Arrow.clearById(id)
       }
+      let tempEqid = this.eqid;
+      this.$nextTick(() => {
+        this.eqid = tempEqid;
+      })
     },
     initcesiumPlot() {
       let cesiumStore = useCesiumStore()
@@ -2162,381 +2185,6 @@ export default {
       }
     },
 
-
-    // ------------------------------坡面分析---------------------------
-    // 绘制点
-    drawSite(clickedPoint) {
-      if (window.viewer) {
-        window.viewer.entities.add({
-          position: clickedPoint,
-          point: {
-            pixelSize: 10,
-            color: Cesium.Color.RED,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 绑定到地形高度
-            depthTest: false, // 禁止深度测试
-            disableDepthTestDistance: Number.POSITIVE_INFINITY // 不再进行深度测试
-          },
-        });
-      }
-    },
-    // 计算矩形的四个角点
-    printRectangleCoordinates(firstPoint, secondPoint) {
-      const minLon = Math.min(firstPoint.longitude, secondPoint.longitude);
-      const maxLon = Math.max(firstPoint.longitude, secondPoint.longitude);
-      const minLat = Math.min(firstPoint.latitude, secondPoint.latitude);
-      const maxLat = Math.max(firstPoint.latitude, secondPoint.latitude);
-
-      this.addSlopeCanvas(minLon, maxLon, minLat, maxLat)
-    },
-    // 坡面分析
-    // addSlopeCanvas(){
-    addSlopeCanvas(minLon, maxLon, minLat, maxLat) {
-      // 测试区域
-      // const extent = turf.square([100.64, 28.22, 100.69, 28.27]);
-      // const extent = turf.square([minLon, minLat, maxLon, maxLat]);
-      const extent = [minLon, minLat, maxLon, maxLat]
-      // const extent = [102.94, 30.37, 102.99, 30.42]
-      // 获取包围盒坐标
-      const polygonPos = turf.getCoord(extent);
-      // const polygonPos = [minLon, minLat, maxLon, maxLat];
-      this.polygonPos = polygonPos;
-
-      const rectangle = Rectangle.fromDegrees(...polygonPos);
-      // //console.log("----------",rectangle)
-      const width = 20; // 横向点数
-      const height = 20; // 纵向点数
-      const positions = [];
-
-      // 格网度数
-      const dx = (polygonPos[2] - polygonPos[0]) / width;
-      const dy = (polygonPos[3] - polygonPos[1]) / height;
-
-      // 格网距离
-      const ddx =
-        Cartesian3.distance(
-          Cartesian3.fromDegrees(polygonPos[0], polygonPos[1]),
-          Cartesian3.fromDegrees(polygonPos[2], polygonPos[1])
-        ) / width;
-      const ddy =
-        Cartesian3.distance(
-          Cartesian3.fromDegrees(polygonPos[0], polygonPos[1]),
-          Cartesian3.fromDegrees(polygonPos[0], polygonPos[3])
-        ) / height;
-
-      //console.log("111111")
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const longitude = CesiumMath.toDegrees(
-            CesiumMath.lerp(rectangle.west, rectangle.east, x / (width - 1))
-          );
-          const latitude = CesiumMath.toDegrees(
-            CesiumMath.lerp(rectangle.north, rectangle.south, y / (height - 1))
-          );
-
-          // 八连通点
-          positions.push(Cartographic.fromDegrees(longitude - dx / 2, latitude)); // w
-          positions.push(Cartographic.fromDegrees(longitude - dx / 2, latitude - dy / 2)); // ws
-          positions.push(Cartographic.fromDegrees(longitude, latitude + dy / 2)); // n
-          positions.push(Cartographic.fromDegrees(longitude - dx / 2, latitude + dy / 2)); // wn
-          positions.push(Cartographic.fromDegrees(longitude + dx / 2, latitude)); // e
-          positions.push(Cartographic.fromDegrees(longitude + dx / 2, latitude + dy / 2)); // en
-          positions.push(Cartographic.fromDegrees(longitude, latitude - dy / 2)); // s
-          positions.push(Cartographic.fromDegrees(longitude + dx / 2, latitude - dy / 2)); // es
-
-          // 顶点
-          positions.push(Cartographic.fromDegrees(longitude, latitude)); // mid
-        }
-      }
-
-      //console.log("222222")
-      const slopes = [];
-      const fxValues = [];
-      const fyValues = [];
-
-      // 创建等值线区域
-      // let extent = [120, 30, 120.1, 30.1];
-      let heightArr = [];
-      // 等高线生成效果与控制点是否精细有关
-      let pointGrid = turf.pointGrid(extent, 0.001, {
-        units: "degrees",
-      });
-
-      // //console.log(pointGrid.features, "pointGrid.features");
-      for (let i = 0; i < pointGrid.features.length; i++) {
-        heightArr.push(
-          Cesium.Cartographic.fromDegrees(
-            pointGrid.features[i].geometry.coordinates[0],
-            pointGrid.features[i].geometry.coordinates[1]
-          )
-        );
-      }
-
-      // //console.log(window.viewer.terrainProvider)
-      setTimeout(() => {
-        // //console.log(viewer._cesiumWidget.terrainProvider,viewer.terrainProvider)
-        // sampleTerrainMostDetailed(viewer._cesiumWidget.terrainProvider, positions).then((updatedPositions) => {
-
-        let arr = positions.concat(heightArr)
-        sampleTerrainMostDetailed(viewer._cesiumWidget.terrainProvider, arr).then((updatedPositions) => {
-          let slopes = [];
-          let fxValues = [];
-          let fyValues = [];
-          let heightArr = [];
-          let testArr = [];
-          let breaks = [];
-
-          // 遍历 positions 部分，计算坡度和方向
-          for (let i = 0; i < updatedPositions.length; i += 9) {
-            if (i + 8 >= updatedPositions.length) break; // 防止越界
-
-            const westHeight = updatedPositions[i + 0].height;
-            const westSouthHeight = updatedPositions[i + 1].height;
-            const northHeight = updatedPositions[i + 2].height;
-            const westNorthHeight = updatedPositions[i + 3].height;
-            const eastHeight = updatedPositions[i + 4].height;
-            const eastNorthHeight = updatedPositions[i + 5].height;
-            const southHeight = updatedPositions[i + 6].height;
-            const eastSouthHeight = updatedPositions[i + 7].height;
-
-            const fx =
-              (westSouthHeight +
-                2 * southHeight +
-                eastSouthHeight -
-                (westNorthHeight + 2 * northHeight + eastNorthHeight)) /
-              (8 * ddx);
-            const fy =
-              (eastNorthHeight +
-                2 * eastHeight +
-                eastSouthHeight -
-                (westNorthHeight + 2 * westHeight + westSouthHeight)) /
-              (8 * ddy);
-
-            const slope = Math.atan(Math.sqrt(fx ** 2 + fy ** 2));
-            slopes.push(slope);
-            fxValues.push(fx);
-            fyValues.push(fy);
-          }
-
-          // 更新材质（假设 createMaterial 是用户自定义的函数）
-          //console.log("Slope calculations complete");
-          this.slopes = slopes;
-          this.fxValues = fxValues;
-          this.fyValues = fyValues;
-          this.createMaterial();
-
-          // 创建 pointGrid 并计算等高线
-          let pointGrid = turf.pointGrid(extent, 0.001, {units: "degrees"});
-          for (let i = positions.length; i < updatedPositions.length; i++) {
-            heightArr.push(updatedPositions[i]); // 收集剩余位置的高度数据
-          }
-
-          // 将高度数据更新到 pointGrid
-          for (let i = 0; i < pointGrid.features.length; i++) {
-            pointGrid.features[i].properties.height = heightArr[i]?.height || 0;
-            testArr.push(heightArr[i]?.height || 0);
-          }
-
-          // 计算 breaks
-          testArr.sort((a, b) => a - b);
-          let minHeight = testArr[0];
-          let maxHeight = testArr[testArr.length - 1];
-          let step = (maxHeight - minHeight) / 10;
-          for (let i = 0; i < 10; i++) {
-            breaks.push(minHeight + i * step);
-          }
-
-          // 使用 turf.js 生成等高线
-          let lines = turf.isolines(pointGrid, breaks, {zProperty: "height"});
-
-          // 平滑等高线
-          lines.features.forEach((feature) => {
-            let coords = feature.geometry.coordinates;
-            let lineCoords = [];
-            coords.forEach((coord) => {
-              let line = turf.lineString(coord);
-              let curve = turf.bezierSpline(line);
-              lineCoords.push(curve.geometry.coordinates);
-            });
-            feature.geometry.coordinates = lineCoords;
-          });
-
-          // 加载等高线到 Cesium
-          Cesium.GeoJsonDataSource.load(lines, {
-            stroke: Cesium.Color.RED,
-            strokeWidth: 3,
-            fill: Cesium.Color.RED,
-            extruded: true,
-            clampToGround: true,
-          })
-            .then((contourSource) => {
-              window.viewer.dataSources.add(contourSource);
-              //console.log("Contour lines added successfully");
-            })
-            .catch((error) => {
-              console.error("Error loading GeoJSON data:", error);
-            });
-        });
-
-      }, 5000)
-
-    },
-    // 添加坡面实体
-    createMaterial() {
-      // //console.log('坡度计算完成，材质生成逻辑在此实现');
-      const canvas = this.toCanvas();
-      // //console.log("this.slopes-------------",this.slopes)
-      //console.log("666666")
-      const positions = [
-        Cartesian3.fromDegrees(this.polygonPos[0], this.polygonPos[1]),
-        Cartesian3.fromDegrees(this.polygonPos[0], this.polygonPos[3]),
-        Cartesian3.fromDegrees(this.polygonPos[2], this.polygonPos[3]),
-        Cartesian3.fromDegrees(this.polygonPos[2], this.polygonPos[1]),
-      ];
-      window.viewer.entities.add({
-        polygon: {
-          hierarchy: new PolygonHierarchy(positions),
-          material: new Cesium.ImageMaterialProperty({
-            image: canvas,
-          }),
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,// 绑定到地形高度,让billboard贴地
-          depthTest: false,//禁止深度测试但是没有下面那句有用
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,//不再进行深度测试（真神）
-          classificationType: ClassificationType.BOTH,
-        },
-      });
-
-      this.ifSlopeAnalyze = false
-
-      //console.log("7777777")
-      const position = Cesium.Cartesian3.fromDegrees(
-        100.69,
-        28.22,
-        50000
-      );
-      // viewer.camera.flyTo({destination: position,})
-    },
-    // 设置坡面箭头、等高线材质
-    toCanvas() {
-      //console.log("444444");
-      const w = 20;
-      const h = 20;
-      const canvas = document.createElement("canvas");
-      canvas.width = 2000; // 放大画布以便观察
-      canvas.height = 2000;
-      this.totalCells = w * h;
-      const ctx = canvas.getContext("2d");
-      const cellSize = canvas.width / w;
-
-      this.slopeCounts = [0, 0, 0, 0, 0];
-      const bitmap = new Uint8ClampedArray(w * h * 4); // 每像素 RGBA
-
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const slopeIndex = y * w + x;
-          const slope = this.slopes[slopeIndex];
-          const fx = this.fxValues[slopeIndex]; // x方向坡度分量
-          const fy = this.fyValues[slopeIndex]; // y方向坡度分量
-
-          let color;
-          let rangeIndex;
-
-          // 根据坡度范围分配颜色
-          if (slope < Math.PI / 18) {
-            rangeIndex = 0;
-            color = Color.fromCssColorString("#00FF00").withAlpha(0.4); // 浅绿色，透明度增大
-          } else if (slope < Math.PI / 12) {
-            rangeIndex = 1;
-            color = Color.fromCssColorString("#FFFF00").withAlpha(0.4); // 黄色，透明度增大
-          } else if (slope < Math.PI / 6) {
-            rangeIndex = 2;
-            color = Color.fromCssColorString("#FFCC00").withAlpha(0.4); // 橙色，透明度增大
-          } else if (slope < Math.PI / 4) {
-            rangeIndex = 3;
-            color = Color.fromCssColorString("#FF7F00").withAlpha(0.4); // 橘红色，透明度增大
-          } else {
-            rangeIndex = 4;
-            color = Color.fromCssColorString("#FF0000").withAlpha(0.4); // 红色，透明度增大
-          }
-          this.slopeCounts[rangeIndex]++;
-
-          // 绘制背景颜色
-          ctx.fillStyle = color.toCssColorString();
-          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-
-
-          // 绘制箭头：主线加箭头头部
-          const centerX = x * cellSize + cellSize / 2;
-          const centerY = y * cellSize + cellSize / 2;
-
-          const arrowLength = cellSize / 2; // 调整箭头长度
-          let norm = Math.sqrt(fx ** 2 + fy ** 2) || 1; // 防止除以 0
-
-          if (fx * fy > 0) {
-            norm = -norm
-          }
-
-          const directionX = fx / norm; // 反方向，确保箭头指向下坡
-          const directionY = fy / norm;
-
-          // 起点和终点的偏移量
-          const offsetX = directionX * arrowLength * 0.5;
-          const offsetY = directionY * arrowLength * 0.5;
-
-          const startX = centerX - offsetX;
-          const startY = centerY - offsetY;
-          const endX = centerX + offsetX;
-          const endY = centerY + offsetY;
-
-          // 绘制箭头主线
-          ctx.strokeStyle = "yellow"; // 箭头为黄色
-          ctx.lineWidth = 5; // 增加箭头线条宽度
-          ctx.beginPath();
-          ctx.moveTo(startX, startY);
-          ctx.lineTo(endX, endY);
-          ctx.stroke();
-
-          // 绘制箭头头部（三角形）
-          const arrowHeadSize = 10; // 调整箭头头部大小
-          const headX1 = endX - arrowHeadSize * (directionX - directionY);
-          const headY1 = endY - arrowHeadSize * (directionY + directionX);
-          const headX2 = endX - arrowHeadSize * (directionX + directionY);
-          const headY2 = endY - arrowHeadSize * (directionY - directionX);
-
-          ctx.beginPath();
-          ctx.moveTo(endX, endY);
-          ctx.lineTo(headX1, headY1);
-          ctx.lineTo(headX2, headY2);
-          ctx.closePath();
-          ctx.fillStyle = "yellow"; // 箭头头部为黄色
-          ctx.fill();
-        }
-      }
-
-      const slopeRatios = this.slopeCounts.map(count => (count / this.totalCells * 100).toFixed(2) + "%");
-      //console.log("坡度范围比例：", slopeRatios);
-      this.slopeStatistics[0].proportion = slopeRatios[0];
-      this.slopeStatistics[1].proportion = slopeRatios[1];
-      this.slopeStatistics[2].proportion = slopeRatios[2];
-      this.slopeStatistics[3].proportion = slopeRatios[3];
-      this.slopeStatistics[4].proportion = slopeRatios[4];
-
-      const imageData = new ImageData(bitmap, w, h);
-      ctx.putImageData(imageData, 0, 0); // 直接覆盖
-      //console.log("555555");
-      return canvas;
-    },
-    // ------------------------------坡面分析结束---------------------------
-
-    // ------------------------------距离量算---------------------------
-    // 画线
-    drawN() {
-      this.ifDistanceMeasure = true
-      if (this.ifDistanceMeasure) {
-        let result = cesiumPlot.drawActivatePolyline("量算")
-        //console.log("量算-----结果1：",result)
-        this.ifDistanceMeasure = false
-      }
-    },
     // ------------------------------路径规划+物资匹配---------------------------
 
     switchPanel(action) {
@@ -5472,6 +5120,7 @@ export default {
         this.showLayerFeatures = false; // 关闭其他弹框
         this.showEqListPanel = false; // 关闭其他弹框
         this.showModelPanel = false; // 关闭其他弹框
+        this.showSlopeAnalysis = false; // 关闭其他弹框
       }
     },
     toggleLayerFeatures() {
@@ -5482,6 +5131,7 @@ export default {
         this.showPositionFlyTo = false; // 关闭其他弹框
         this.showEqListPanel = false; // 关闭其他弹框
         this.showModelPanel = false; // 关闭其他弹框
+        this.showSlopeAnalysis = false; // 关闭其他弹框
       }
     },
     // 控制地震列表显隐
@@ -5491,6 +5141,7 @@ export default {
         this.showLayerFeatures = false; // 关闭其他弹框
         this.showPositionFlyTo = false; // 关闭其他弹框
         this.showModelPanel = false; // 关闭其他弹框
+        this.showSlopeAnalysis = false; // 关闭其他弹框
       }
     },
     toggleModelPanel() {
@@ -5499,6 +5150,54 @@ export default {
         this.showLayerFeatures = false; // 关闭其他弹框
         this.showPositionFlyTo = false; // 关闭其他弹框
         this.showEqListPanel = false; // 关闭其他弹框
+        this.showSlopeAnalysis = false; // 关闭其他弹框
+      }
+    },
+
+    toggleSlopeAnalysis(websock){
+      this.showSlopeAnalysis = !this.showSlopeAnalysis;
+      if (this.showSlopeAnalysis) {
+        // 还原
+        this.slopeStatistics = [
+          {
+            degree: '< 15°',
+            color: '#00FF00',
+            proportion: ''
+          },
+          {
+            degree: '15°- 30°',
+            color: '#FFFF00',
+            proportion: ''
+          },
+          {
+            degree: '30°- 45°',
+            color: '#FFCC00',
+            proportion: ''
+          },
+          {
+            degree: '45°- 60°',
+            color: '#FF7F00',
+            proportion: ''
+          },
+          {
+            degree: '> 60°',
+            color: '#FF0000',
+            proportion: ''
+          }
+        ];
+        this.showLayerFeatures = false; // 关闭其他弹框
+        this.showPositionFlyTo = false; // 关闭其他弹框
+        this.showEqListPanel = false; // 关闭其他弹框
+        this.showModelPanel = false; // 关闭其他弹框
+        toggleSlopeAnalysis(websock);
+        window.addEventListener('slopeStatisticsUpdated', (e) => {
+          const slopeStatistics = e.detail;
+          // console.log('接收：:', slopeStatistics);
+          this.slopeStatistics = slopeStatistics;
+        });
+      } else {
+        // 删除所有坡面分析实体与图层
+        deleteSlopeEntities();
       }
     },
 
@@ -5609,7 +5308,7 @@ export default {
   transform: scale(0.6);
   z-index: 500;
   overflow: hidden;
-  left: 6.5%;
+  left: 14.5%;
   top: 91.5%;
 }
 
@@ -5618,7 +5317,7 @@ export default {
   display: block;
   position: absolute;
   top: 94.5%;
-  left: 9.5%;
+  left: 11.5%;
   z-index: 100;
   width: 5%;
 }
