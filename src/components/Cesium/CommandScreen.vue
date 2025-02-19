@@ -600,7 +600,7 @@
         <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
              style="width: 31px; height: 31px;">
       </div>
-      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;" id="slope">
         <img src="../../assets/icons/svg/slopeAnalysis.svg" title="坡面分析"
              style="width: 31px; height: 31px;">
       </div>
@@ -794,7 +794,7 @@
 //依赖
 import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
-import {initCesium} from '@/cesium/tool/initCesium.js'
+import {getTerrainProviderViewModelsArr, initCesium} from '@/cesium/tool/initCesium.js'
 
 //组件
 import commandScreenTitle from "@/components/commandScreenComponent/commandScreenTitle.vue";
@@ -1446,6 +1446,38 @@ export default {
         })
         let viewer = initCesium(Cesium, "cesiumContainer", clock)
         viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
+
+        const terrainProviderViewModels = getTerrainProviderViewModelsArr();
+        let isThirdParty = true; // 标记当前是否为第三方地形
+
+        const switchToLocalDEM = () => {
+          // 切换地形提供者
+          if (isThirdParty) {
+            viewer.scene.terrainProvider = terrainProviderViewModels[1].creationCommand(); // 切换到第三方地形
+          } else {
+            viewer.scene.terrainProvider = terrainProviderViewModels[0].creationCommand(); // 切换到仅底图
+          }
+
+          // 更新选中的地形
+          viewer.baseLayerPicker.viewModel.selectedTerrain = terrainProviderViewModels[isThirdParty ? 1 : 0];
+
+          // 高亮当前选中的地形
+          const currentLayer = document.querySelector(`[title="${isThirdParty ? '第三方地形' : 'WGS84标准球体'}"]`);
+          if (currentLayer) {
+            currentLayer.classList.add('cesium-baseLayerPicker-selectedItem');
+          }
+
+          // 切换标记，准备下次切换
+          isThirdParty = !isThirdParty;
+        };
+
+// 绑定按钮点击事件
+        document.getElementById('slope').addEventListener('click', switchToLocalDEM);
+
+
+
+        document.getElementById('slope').addEventListener('click', switchToLocalDEM);
+        // document.getElementById('slope').addEventListener('click', switchToEllipsoid);
 
         let options = {}
         // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
@@ -5318,7 +5350,7 @@ export default {
   position: absolute;
   top: 94.5%;
   left: 11.5%;
-  z-index: 100;
+  z-index: 502;
   width: 5%;
 }
 

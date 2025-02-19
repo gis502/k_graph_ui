@@ -61,7 +61,7 @@ export function toggleSlopeAnalysis(websock) {
 
   let firstClickPosition = null;
   let secondClickPosition = null;
-  window.viewer.terrainProvider = Cesium.createWorldTerrain();
+  // window.viewer.terrainProvider = Cesium.createWorldTerrain();
 
   const canvas = viewer.scene.canvas;
   handler = new Cesium.ScreenSpaceEventHandler(canvas);
