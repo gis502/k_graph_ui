@@ -34,8 +34,16 @@
 
       <!-- 正射影像名称列 -->
       <el-table-column
-          prop="name"
+          prop="label"
           label="正射影像名称"
+          :min-width="200"
+          align="center"
+      ></el-table-column>
+
+      <!-- 正射影像名称列 -->
+      <el-table-column
+          prop="name"
+          label="正射影像图层"
           :min-width="200"
           align="center"
       ></el-table-column>
@@ -111,12 +119,18 @@
         <!-- 正射影像名称 -->
         <el-form-item label="正射影像名称" prop="name">
           <el-input
-              v-model="dialogContent.name"
+              v-model="dialogContent.label"
               placeholder="请输入正射影像名称"
               style="width: 100%;"
           ></el-input>
         </el-form-item>
-
+        <el-form-item label="正射影像图层" prop="name">
+          <el-input
+              v-model="dialogContent.name"
+              placeholder="请输入正射影像图层"
+              style="width: 100%;"
+          ></el-input>
+        </el-form-item>
         <!-- 正射影像路径 -->
         <el-form-item label="正射影像路径" prop="path">
           <el-input
@@ -156,13 +170,20 @@
         <!-- 正射影像名称 -->
         <el-form-item label="正射影像名称">
           <el-input
+              v-model="dialogContent.modelLabel"
+              style="width: 100%;"
+              placeholder="请输入正射影像名称"
+              clearable
+          />
+        </el-form-item>
+        <el-form-item label="正射影像图层">
+          <el-input
               v-model="dialogContent.modelName"
               style="width: 100%;"
               placeholder="请输入正射影像名称"
               clearable
           />
         </el-form-item>
-
         <!-- 添加时间 -->
         <el-form-item label="添加时间" prop="createTime">
           <el-date-picker
@@ -226,6 +247,7 @@ export default {
       dialogTitle: null,
       dialogContent: {
         name: '',
+        label:'',
         createTime: '',
         path: '',
         uuid: ''
@@ -285,6 +307,7 @@ export default {
     onSubmit() {
       this.filterContent = {
         name: this.dialogContent.modelName || null,
+        label:this.dialogContent.modelLabel||null,
         createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
         path: this.dialogContent.modelPath || null,
         uuid: this.dialogContent.uuid || null,
@@ -425,6 +448,7 @@ export default {
       if (title === "新增") {
         this.dialogContent = {
           name: '',
+          label: '',
           createTime: '',
           path: '',
           uuid: ''
@@ -432,6 +456,7 @@ export default {
       } else if (title === "修改") {
         this.dialogContent = {
           name: row.name,
+          label: row.label,
           path: row.path,
           createTime: this.formatDateToBackend(row.createTime),
           uuid: row.uuid
@@ -468,6 +493,7 @@ export default {
         if (valid) {
           const modelData = {
             name: this.dialogContent.name,
+            label:this.dialogContent.label,
             path: this.dialogContent.path,
             createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
             uuid: this.dialogContent.uuid,

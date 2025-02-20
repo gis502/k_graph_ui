@@ -269,6 +269,7 @@ export default {
       dialogContent: {
         serialNumber: '',
         modelName: '',
+        modelLabel:'',
         modelSize: '',
         addTime: '',
         modelPath: '',
