@@ -63,6 +63,30 @@ export function addYaanLayer() {
   })
 }
 
+export function addHospitalLayer() {
+  // GeoJSON文件路径
+  const geoJsonUrl = new URL("@/assets/geoJson/hospital.geojson", import.meta.url).href;
+
+  // 使用fetch加载GeoJSON文件
+  fetch(geoJsonUrl)
+      .then((response) => response.json())
+      .then((geoJsonData) => {
+        // 将GeoJSON数据加载到Cesium
+        viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
+          stroke: Cesium.Color.GREEN,
+          fill: Cesium.Color.GREEN.withAlpha(0.5),
+          strokeWidth: 2,
+          clampToGround: true,
+        })).then(function(dataSource) {
+          // 给 dataSource 添加 name 属性
+          dataSource.name = "hospital";
+        })
+      })
+      .catch((error) => {
+        console.error("Error loading GeoJSON:", error);
+      });
+}
+
 // 绘制断裂带
 export function addFaultZones(centerPoint) {
 // GeoJSON文件路径
@@ -87,6 +111,8 @@ export function addFaultZones(centerPoint) {
       .catch((error) => {
         console.error("Error loading GeoJSON:", error);
       });
+
+
 
   //以下为加载全国断裂带line_fault_zone.json
   // const faultZoneLines = [];

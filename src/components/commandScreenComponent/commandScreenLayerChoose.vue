@@ -55,6 +55,8 @@ export default {
         {id: '6', name: '应急物资存储要素图层'},
         {id: '7', name: '历史地震要素图层'},
         {id: '8', name: '断裂带要素图层'},
+        {id: '9', name: '医院要素图层'},
+        {id: '10', name: '村委会要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
       isShowYaanRegionLegend: false, //雅安行政区划图例
