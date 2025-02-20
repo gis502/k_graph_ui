@@ -2699,6 +2699,8 @@ export default {
     },
     // ws发送数据（只有点的是在这里）
     wsSendPoint(data) {
+      console.log(this.websock,"websock:")
+      console.log(data,"wsSendPoint(data)")
       this.websock.send(data)
     },
 

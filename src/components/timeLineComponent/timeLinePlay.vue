@@ -92,6 +92,7 @@ export default {
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
+
     currentTime(newVal, oldVal) {
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
@@ -100,8 +101,6 @@ export default {
         this.ifstopandflash(newVal, oldVal);
         //到达真实时间后1:1流速
         if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0){
-          // this.currentSpeed=1.0
-          // this.speedOption="1X"
           window.viewer.clock.multiplier=1.0
         }
       }
@@ -117,6 +116,9 @@ export default {
     },
     viewer(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
+      window.viewer.timeline.container.onmouseup = (e) => {
+          this.playEnd()
+      };
     }
   },
   mounted() {
@@ -191,6 +193,7 @@ export default {
     playEnd() {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
+      this.selectButton("playEnd")
     },
     playStart() {
       if(window.viewer.clock.multiplier<0){
@@ -307,7 +310,6 @@ export default {
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
         console.log("终止333");
-
         return
       } else {
         if (this.plotArrinOneTime.length > 0) {

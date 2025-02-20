@@ -6,7 +6,7 @@ import {webSocketLocal} from "@/utils/server.js";
 
 let webSocket
 let ip = `ws://${webSocketLocal}/ws/`
-// let ip = "ws://172.26.86.82:8080/ws/"
+// let ip = "ws://192.168.113.1:81/ws/"
 let message=''
 // import cesiumPlot from '@/cesium/plot/cesiumPlot'
 export function initWebSocket(eqid) {

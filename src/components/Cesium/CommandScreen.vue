@@ -891,6 +891,7 @@ import {
   selectPoints
 } from "@/cesium/route.js";
 import {deleteSlopeEntities, toggleSlopeAnalysis} from "@/cesium/slopeAnalysis.js";
+import log from "@/views/monitor/job/log.vue";
 
 export default {
   computed: {
@@ -1417,6 +1418,10 @@ export default {
     }
   },
   methods: {
+    playEnd11() {
+      console.log("should be end!!!!!")
+      //震中标绘点
+    },
     //地图
     init() {
       let clock;
@@ -1519,6 +1524,7 @@ export default {
 
         viewer.animation.viewModel.timeFormatter = timeTransfer.CesiumTimeFormatter;
         viewer.timeline.makeLabel = timeTransfer.CesiumDateTimeFormatter;
+
         viewer.animation.viewModel.dateFormatter = timeTransfer.CesiumDateFormatter;
 
         let realTime = new Date()
@@ -1640,7 +1646,7 @@ export default {
       this.plots = plots
     },
 
-    //未重构
+    //------------------未重构----------------------
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         this.thematicMapitems = res.themeData
@@ -1770,56 +1776,7 @@ export default {
       };
     },
 
-    /**
-     * 取地震信息+开始结束当前时间初始化
-     * @param {string} eqid - 地震ID
-     */
-    getEqInfo(eqid) {
-      getEqListById({id: eqid}).then(res => {
-        //震中标绘点
-        this.centerPoint = res
-        // 设置中心点的标识和时间信息
-        this.centerPoint.plotid = "center"
-        this.centerPoint.starttime = new Date(res.occurrenceTime)
-        this.centerPoint.endtime = new Date(this.centerPoint.starttime.getTime() + 10 * 24 * 36000 * 1000);
-        //变量初始化
-        this.eqstartTime = this.centerPoint.starttime
-        this.eqyear = this.eqstartTime.getFullYear()
-        this.eqmonth = this.eqstartTime.getMonth() + 1
-        this.eqday = this.eqstartTime.getDate()
-        // 计算结束时间 结束时间为开始后72小时，单位为毫秒
-        //默认结束时间 方便展示设置成芦山的时间  要改！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        this.tmpeqendTime = new Date(this.centerPoint.starttime.getTime() + this.timelineAdvancesNumber * 5 * 60 * 1000);
-        // 根据当前时间和地震结束时间计算时间线推进数量
-        if (this.realTime < this.tmpeqendTime) {
-          this.eqendTime = new Date(this.realTime)
-          this.timelineAdvancesNumber = ((new Date(this.eqendTime).getTime() + 5 * 60 * 1000) - new Date(this.eqstartTime).getTime()) / (5 * 60 * 1000);
-        } else {
-          this.eqendTime = this.tmpeqendTime
-        }
-        this.currentTime = this.eqstartTime
-        for (let i = 0; i < this.timelineAdvancesNumber; i++) {
-          this.jumpNodes[i] = 0;
-        }
 
-        // 获取地震数据并更新地图和变量
-        this.checkIfOvalCircleLayer();
-        this.updateMapandVariablebeforInit()
-
-      })
-    },
-    /*
-    * 更新地图中心视角，更新变量：地震起止时间，渲染点
-    * */
-    updateMapandVariablebeforInit() {
-      this.flyToCenter()
-      setTimeout(() => {
-        this.flashingCenter()
-        setTimeout(() => {
-          this.toggleTimer() //模拟播放时间轴
-        }, 3000);
-      }, 3000);
-    },
     /**
      * 根据指定的eqid渲染数据
      * 此方法主要负责针对特定的eqid获取并渲染数据，包括初始化渲染和动态更新数据
@@ -2905,37 +2862,6 @@ export default {
 
     // ------------------------------路径规划+物资匹配---------------------------
 
-
-    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
-    // 暂停播放切换
-    // toggleTimer() {
-    //   // 如果计时器未运行，则初始化计时器线
-    //   if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
-    //     this.isTimerRunning = true
-    //     this.initTimerLine();
-    //     let that = this
-    //     setTimeout(() => {
-    //       this.canOperateTimerLine = true
-    //       that.bofang();
-    //     }, 3000);
-    //   } else {
-    //
-    //
-    //     this.canOperateTimerLine = true
-    //     if (!this.isTimerRunning) {
-    //       this.flyToCenter()
-    //       this.isTimerRunning = true
-    //       this.bofang();
-    //     }
-    //     // 如果计时器正在运行，则停止计时器
-    //     else {
-    //       this.stopTimer();
-    //       clearInterval(this.intervalIdcolor)
-    //       this.centerMarkOpacityTo1()
-    //     }
-    //
-    //   }
-    // },
     toggleTimer() {
       if (this.isTimerRunning) {
         this.canOperateTimerLine = true
