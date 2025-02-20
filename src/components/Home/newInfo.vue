@@ -41,6 +41,12 @@
         <span>地震类型：{{ earthquakeType }}</span>
       </div>
     </el-col>
+<!--    <el-col>-->
+<!--      <div class="newColCommon">-->
+<!--        <img src="@/assets/震中位置.png" class="icon" />-->
+<!--        <span>信息来源：中国地震预警网[试运行]</span>-->
+<!--      </div>-->
+<!--    </el-col>-->
   </div>
 </template>
 
