@@ -108,9 +108,9 @@
               <div class="button themes economicLoss" :class="{ active: eqThemes.show.isshowEconomicLoss }"
                    @click="showEconomicLoss()"> 经济损失
               </div>
-              <!--              <div class="button themes hospital" :class="{  }"-->
-              <!--                   @click=""> 医院-->
-              <!--              </div>-->
+<!--                            <div class="button themes hospital" :class="{ active: eqThemes.show.isshowHospital }"-->
+<!--                                 @click="showHospital"> 医院-->
+<!--                            </div>-->
               <!--              <div class="button themes school" :class="{  }"-->
               <!--                   @click=""> 学校-->
               <!--              </div>-->
@@ -207,11 +207,14 @@ import PersonalCasualtyPanel from "../../../components/DamageAssessment/personal
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 import yaan from "@/assets/geoJson/yaan1.json";
 import yaanRegion from "@/assets/geoJson/yaan.json";
+// import hospital from "@/assets/geoJson/hospital.geojson";
+// import village from "@/assets/geoJson/village.geojson";
 import {
   addFaultZones,
   addHistoryEqPoints, addOCTest,
   addOvalCircles,
   computeOvalCircles,
+  addHospitalLayer,
   handleTownData, removeDataSourcesLayer, timestampToTime
 } from "../../../cesium/plot/eqThemes.js";
 import BuildingDamagePanel from "../../../components/DamageAssessment/buildingDamagePanel.vue";
@@ -221,6 +224,7 @@ import {
 } from "../../../api/system/damageassessment.js";
 import EconomicLossPanel from "../../../components/DamageAssessment/economicLossPanel.vue";
 import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
+
 
 export default {
   components: {
@@ -282,7 +286,7 @@ export default {
           isshowPersonalCasualty: false,
           isshowBuildingDamage: false,
           isshowEconomicLoss: false,
-          // isshowOCTest: false,
+          isshowHospital: false,
         },
       },
 
@@ -513,6 +517,7 @@ export default {
       // 鼠标点击事件
       window.viewer.screenSpaceEventHandler.setInputAction((click) => {
         const pickedObject = window.viewer.scene.pick(click.position);
+        // console.log(pickedObject.id.properties,"pickedObject")
         this.selectedEntityPosition = this.calculatePosition(click.position);
         // 与断裂带名称div绑定
         if (Cesium.defined(pickedObject) && pickedObject.id.polyline) {
@@ -1076,6 +1081,15 @@ export default {
         removeDataSourcesLayer('duanliedai');
         const faultInfoDiv = document.getElementById('faultInfo');
         faultInfoDiv.style.display = 'none';
+      }
+    },
+    // 医院
+    showHospital() {
+      this.eqThemes.show.isshowHospital = !this.eqThemes.show.isshowHospital;
+      if (this.eqThemes.show.isshowHospital) {
+        addHospitalLayer()
+      } else {
+        removeDataSourcesLayer('hospital');
       }
     },
 

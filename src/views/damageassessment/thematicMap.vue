@@ -80,6 +80,7 @@
               <p>地震震级：{{ selectedTabData.magnitude }}</p>
               <p>震源深度：{{ selectedTabData.depth }}千米</p>
               <p>参考位置：{{ selectedTabData.earthquakeName }}</p>
+<!--              <p>信息来源：中国地震预警网[试运行]</p>-->
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>

@@ -4811,7 +4811,6 @@ export default {
       console.log("报告下载逻辑")
       console.log(item)
       const link = document.createElement("a");
-      // const urlBase = 'http://59.213.183.7/jcpt'; // 设置新的基础 URL
       console.log(link)
       link.href = item.docxUrl;
       console.log(link.href)
