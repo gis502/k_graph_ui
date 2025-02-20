@@ -511,7 +511,7 @@ function filterRecords(currentTime) {
     const filteredRecords = getVillagesAll.value.filter(record => new Date(record.insertTime) < new Date(currentTime));
     if (filteredRecords.length > 0) {
       let latestRecord = filteredRecords.reduce((max, record) => (new Date(record.insertTime) > new Date(max.insertTime) ? record : max));
-      console.log(latestRecord,"latestRecord")
+      // console.log(latestRecord,"latestRecord")
       const formatDateTime = (dateString) => {
         if (dateString === null) {
           return null;

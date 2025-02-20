@@ -75,7 +75,6 @@ export default {
   data: function () {
     return {
       oldCurrentTime: null,
-
       selectedId: "playStart", // 当前选中的按钮，前进后退，暂停播放
       currentSpeed: 3600,
       showSpeedOptions: false,
@@ -84,19 +83,18 @@ export default {
       plots: [],
       ifNewEq: false, //用于 回到真实时间
       timeRecoard: [],
-
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
+      flyflag:true,//视角是否跳转？只有依次向前播放时才跳
 
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
-
     currentTime(newVal, oldVal) {
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
-        console.log(new Date(newVal), new Date(oldVal), "time111111")
+        // console.log(new Date(newVal), new Date(oldVal), "time111111")
         // if(this.speedOption)
         this.ifstopandflash(newVal, oldVal);
         //到达真实时间，向前播放，1:1流速
@@ -179,16 +177,19 @@ export default {
     },
     jumpRealTime() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+      this.flyflag=false
     },
     backToStart() {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
-    },
+      this.flyflag=true
+      },
     playBack(){
       if(window.viewer.clock.multiplier>0){
         window.viewer.clock.multiplier = this.currentSpeed*(-1.0)
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
+      this.flyflag=false
     },
     playEnd() {
       window.viewer.clockViewModel.shouldAnimate = false;
@@ -201,6 +202,7 @@ export default {
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
+      this.flyflag=true
     },
     selectSpeed(speed) {
       // 直接赋值速度选项
@@ -300,9 +302,8 @@ export default {
         }, interval);
       });
     },
-
-
     ifstopandflash(currentTime, oldCurrentTime) {
+      if(this.flyflag==false){return;}
       this.plotArrinOneTime = this.plots.filter(plot => {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });

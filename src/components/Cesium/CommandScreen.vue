@@ -3245,8 +3245,7 @@ export default {
         // 确认标绘图层变更，参数为true表示已选中
         this.handleMarkingLayerChange(true);
         // 更新绘图状态
-        this.updatePlotOnce(true);
-        // this.updatePlotOnce(false);
+        // this.updatePlotOnce(true);
       } else {
         // 确认标绘图层变更，参数为false表示未选中
         this.handleMarkingLayerChange(false);
