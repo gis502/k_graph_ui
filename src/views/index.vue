@@ -352,13 +352,42 @@ const fillZero = (str) => {
 };
 
 const updateStyles = () => {
-  // Dynamically update styles without using key
-  borderBoxStyles1.value = {width: leftTop.value.offsetWidth + 'px', height: leftTop.value.offsetHeight + 'px'};
-  borderBoxStyles2.value = {width: leftCon.value.offsetWidth + 'px', height: leftCon.value.offsetHeight + 'px'};
-  borderBoxStyles3.value = {width: leftBottom.value.offsetWidth + 'px', height: leftBottom.value.offsetHeight + 'px'};
-  borderBoxStyles4.value = {width: rightTop.value.offsetWidth + 'px', height: rightTop.value.offsetHeight + 'px'};
-  borderBoxStyles5.value = {width: rightBottom.value.offsetWidth + 'px', height: rightBottom.value.offsetHeight + 'px'};
+  if (leftTop.value) {
+    borderBoxStyles1.value = {
+      width: leftTop.value.offsetWidth + 'px',
+      height: leftTop.value.offsetHeight + 'px',
+    };
+  }
+
+  if (leftCon.value) {
+    borderBoxStyles2.value = {
+      width: leftCon.value.offsetWidth + 'px',
+      height: leftCon.value.offsetHeight + 'px',
+    };
+  }
+
+  if (leftBottom.value) {
+    borderBoxStyles3.value = {
+      width: leftBottom.value.offsetWidth + 'px',
+      height: leftBottom.value.offsetHeight + 'px',
+    };
+  }
+
+  if (rightTop.value) {
+    borderBoxStyles4.value = {
+      width: rightTop.value.offsetWidth + 'px',
+      height: rightTop.value.offsetHeight + 'px',
+    };
+  }
+
+  if (rightBottom.value) {
+    borderBoxStyles5.value = {
+      width: rightBottom.value.offsetWidth + 'px',
+      height: rightBottom.value.offsetHeight + 'px',
+    };
+  }
 };
+
 
 onMounted(() => {
   nextTick(() => {

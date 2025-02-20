@@ -141,6 +141,9 @@ export default {
 
     const countriesOverlay = ref(null); // 用于存储 overlay 实例
 
+    const earthquakeMarkers = ref([]); // 存储地震点标记对象
+
+
 
     // 数据分组
     const dataGroups = ref({
@@ -189,7 +192,7 @@ export default {
         // initMap(); // 初始化地图
         addMarkers();//标点
       }
-    });
+    }, { immediate: true, deep: true });
 
     const processData = () => {
       //处理最新地震数据，映射成适合 ECharts 使用的格式
@@ -490,7 +493,10 @@ export default {
     // 添加标记
     const addMarkers = () => {
       // 清除当前所有标记
-      clearMarkers();
+      // clearMarkers();
+
+      clearEarthquakeMarkers(); // 先清除之前的地震点
+
       // 先添加历史地震标记（黄色）
       Object.keys(seriesVisibility.value).forEach(key => {
         if (key.startsWith('history') && seriesVisibility.value[key]) {
@@ -514,9 +520,16 @@ export default {
     };
 
     const clearMarkers = () => {
-      mapConfig.value.map.clearOverLays(marker) // 清除所有覆盖物
+      mapConfig.value.map.clearOverLays() // 清除所有覆盖物
       // 这里应该实现清除当前所有标记的逻辑
       // 例如，使用 mapConfig.value.map.removeMarker(marker) 来移除标记
+    };
+
+    const clearEarthquakeMarkers = () => {
+      earthquakeMarkers.value.forEach(marker => {
+        mapConfig.value.map.removeOverLay(marker); // 从地图中移除标记
+      });
+      earthquakeMarkers.value = []; // 清空数组
     };
 
 
@@ -627,6 +640,10 @@ export default {
         // infoWindowPosition.value.y = -550//- 330; // 获取鼠标位置
       });
 
+      // **存储标记对象**
+      earthquakeMarkers.value.push(marker);
+
+      // 添加到地图
       mapConfig.value.map.addOverLay(marker);
 
 
@@ -752,6 +769,7 @@ export default {
       toggleSeriesVisibility,
       infoWindowPosition,
       countriesOverlay,//行政
+      clearEarthquakeMarkers,//清除标绘点
     };
   },
 };

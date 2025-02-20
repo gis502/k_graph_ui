@@ -3,20 +3,45 @@
     <div class="topCurrentTimeLabel">
       {{ this.timestampToTimeChina(this.currentTime) }}
     </div>
+
     <div class="start-time-info">
       <span class="timelabel">开始时间：{{ this.timestampToTimeChina(this.centerPoint.startTime) }}</span>
     </div>
-    <div class="current-time-info">
-      <span class="timelabel">{{ this.timestampToTimeChina(this.currentTime) }}</span>
-    </div>
-    <div class="speed-label">
-      <span class="timelabel">当前播放速度：</span>
-    </div>
+
     <div class="jump_realTime" v-if="ifNewEq">
-      <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png" @click="jumpRealTime" title="跳转到真实时间"/>
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'jumpRealTime' }" @click="selectButton('jumpRealTime'); jumpRealTime()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png" />
+        <span class="tooltiptext">真实时间</span>
+      </div>
     </div>
     <div class="back_start">
-      <img class="play-icon" src="../../assets/icons/TimeLine/回到开始.png" @click="backToStart" title="重新播放"/>
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'backStart' }" @click="selectButton('backStart'); backToStart()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/重播.png" />
+        <span class="tooltiptext">从头播放</span>
+      </div>
+    </div>
+    <div class="play_back">
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'playBack' }" @click="selectButton('playBack'); playBack()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/向后播放.png" />
+        <span class="tooltiptext">向后播放</span>
+      </div>
+    </div>
+    <div class="play_end">
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'playEnd' }" @click="selectButton('playEnd'); playEnd()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/停止.png" />
+        <span class="tooltiptext">停止</span>
+      </div>
+    </div>
+    <div class="play_start">
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'playStart' }" @click="selectButton('playStart'); playStart()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" />
+        <span class="tooltiptext">播放</span>
+      </div>
+    </div>
+
+
+    <div class="speed-label">
+      <span class="timelabel">当前播放速度：</span>
     </div>
     <div class="speed-selector" @click="this.showSpeedOptions = !this.showSpeedOptions">
       <div v-if="showSpeedOptions">
@@ -30,11 +55,8 @@
       </div>
       <span class="timelabel">{{ speedOption }}</span>
     </div>
-    <div class="start">
-      <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" @click="start" title="播放"/>
-    </div>
-    <div class="end">
-      <img class="play-icon" src="../../assets/icons/TimeLine/停止.png" @click="end" title="停止"/>
+    <div class="current-time-info">
+      <span class="timelabel">{{ this.timestampToTimeChina(this.currentTime) }}</span>
     </div>
     <div class="end-time-info">
       <span class="timelabel">结束时间：{{ this.timestampToTimeChina(this.centerPoint.endTime) }}</span>
@@ -53,6 +75,7 @@ export default {
   data: function () {
     return {
       oldCurrentTime: null,
+      selectedId: "playStart", // 当前选中的按钮，前进后退，暂停播放
       currentSpeed: 3600,
       showSpeedOptions: false,
       speedOption: '3600X',
@@ -60,9 +83,9 @@ export default {
       plots: [],
       ifNewEq: false, //用于 回到真实时间
       timeRecoard: [],
-
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
+      flyflag:true,//视角是否跳转？只有依次向前播放时才跳
 
     }
   },
@@ -71,8 +94,13 @@ export default {
     currentTime(newVal, oldVal) {
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
-        console.log(new Date(newVal), new Date(oldVal), "time111111")
+        // console.log(new Date(newVal), new Date(oldVal), "time111111")
+        // if(this.speedOption)
         this.ifstopandflash(newVal, oldVal);
+        //到达真实时间，向前播放，1:1流速
+        if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0){
+          window.viewer.clock.multiplier=1.0
+        }
       }
     },
     centerPoint(newVal) {
@@ -86,6 +114,9 @@ export default {
     },
     viewer(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
+      window.viewer.timeline.container.onmouseup = (e) => {
+          this.playEnd()
+      }
     }
   },
   mounted() {
@@ -141,6 +172,38 @@ export default {
       })
     },
 
+    selectButton(id) {
+      this.selectedId = id; // 更新选中的按钮ID
+    },
+    jumpRealTime() {
+      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+      this.flyflag=false
+    },
+    backToStart() {
+      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
+      this.flyflag=true
+      },
+    playBack(){
+      if(window.viewer.clock.multiplier>0){
+        window.viewer.clock.multiplier = this.currentSpeed*(-1.0)
+      }
+      window.viewer.clockViewModel.shouldAnimate = true;
+      this.endflag = false;
+      this.flyflag=false
+    },
+    playEnd() {
+      window.viewer.clockViewModel.shouldAnimate = false;
+      this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
+      this.selectButton("playEnd")
+    },
+    playStart() {
+      if(window.viewer.clock.multiplier<0){
+        window.viewer.clock.multiplier = this.currentSpeed
+      }
+      window.viewer.clockViewModel.shouldAnimate = true;
+      this.endflag = false;
+      this.flyflag=true
+    },
     selectSpeed(speed) {
       // 直接赋值速度选项
       this.speedOption = speed
@@ -151,25 +214,7 @@ export default {
       // window.viewer.clock.multiplier = 3600
       this.showSpeedOptions = false
     },
-    // pause() {
-    //   window.viewer.clock.shouldAnimate = !window.viewer.clock.shouldAnimate;
-    // },
-    jumpRealTime() {
-      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-    },
-    backToStart() {
-      viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
-    },
-    start() {
-      window.viewer.clockViewModel.shouldAnimate = true;
-      this.endflag = false;
-    },
-    end() {
-      window.viewer.clockViewModel.shouldAnimate = false;
 
-      this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
-      console.log(this.endflag, "this.endflag change")
-    },
 
     //视角跳转
     ifArriveTime(currentTime, oldCurrentTime, itemTime) {
@@ -226,7 +271,6 @@ export default {
         window.viewer.clockViewModel.shouldAnimate = true;
       }
     },
-
     blinkMarker(plot) {
       return new Promise((resolve) => {
         let entity=null
@@ -258,9 +302,8 @@ export default {
         }, interval);
       });
     },
-
-
     ifstopandflash(currentTime, oldCurrentTime) {
+      if(this.flyflag==false){return;}
       this.plotArrinOneTime = this.plots.filter(plot => {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });
@@ -268,7 +311,6 @@ export default {
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
         console.log("终止333");
-
         return
       } else {
         if (this.plotArrinOneTime.length > 0) {
@@ -278,7 +320,6 @@ export default {
         }
       }
     },
-
     timestampToTime(time) {
       return timeTransfer.timestampToTime(time)
     },
@@ -299,7 +340,7 @@ export default {
   position: absolute;
   bottom: 3%;
   width: 12%;
-  left: 15%;
+  left: 18%;
 }
 
 .current-time-info {
@@ -326,28 +367,60 @@ export default {
   position: absolute;
   bottom: 3%;
   left: 39%;
-  //background-color: #323940;
 }
 
 .back_start {
   position: absolute;
   bottom: 3%;
   left: 40.5%;
-  //background-color: #323940;
 }
-
-.start {
+.play_back{
   position: absolute;
   bottom: 3%;
-  left: 46%;
-  //background-color: #323940;
+  left: 42%;
 }
 
-.end {
+.play_end {
   position: absolute;
   bottom: 3%;
-  left: 44.5%;
-  //background-color: #323940;
+  left: 43.5%;
+}
+.play_start {
+  position: absolute;
+  bottom: 3%;
+  left: 45%;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 80px;
+  background-color: #123051;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* 将工具提示放在图标上方 */
+  left: 50%;
+  margin-left: -40px; /* 水平居中 */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* 高亮样式 */
+.highlight {
+  border: 2px solid #4caf50; /* 绿色边框 */
 }
 
 .speed-selector {
