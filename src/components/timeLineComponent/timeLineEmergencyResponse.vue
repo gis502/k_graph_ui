@@ -36,7 +36,7 @@ export default {
     return {
       EmergencyResponseResponsecontent: [],
       responseShow:[],
-      recordTime: '',
+      recordTime: new Date(),
     };
   },
   props: ['currentTime', 'eqid'],
@@ -46,7 +46,9 @@ export default {
 
   watch: {
     currentTime(newVal) {
-      this.updateEmergencyResponse(this.currentTime);
+      if(newVal) {
+        this.updateEmergencyResponse(this.currentTime);
+      }
     },
     centerPoint(newVal) {
     }
@@ -69,16 +71,18 @@ export default {
       });
     },
     async updateEmergencyResponse(currentTime) {
-       this.responseShow = await this.EmergencyResponseResponsecontent.filter(item => {
-        return new Date(item.responseTime) <= new Date(timeTransfer.timestampToTime(currentTime));
-      });
-      if(this.responseShow.length>0){
-        // console.log(this.responseShow[0],"this.responseShow[length-1]")
-        this.recordTime=this.responseShow[0].responseTime
+      if(currentTime){
+        this.responseShow = await this.EmergencyResponseResponsecontent.filter(item => {
+          return new Date(item.responseTime) <= new Date(timeTransfer.timestampToTime(currentTime));
+        });
+        if(this.responseShow.length>0){
+          this.recordTime=this.responseShow[0].responseTime
+        }
+        else{
+          this.recordTime=timeTransfer.timestampToTime(currentTime)
+        }
       }
-      else{
-        this.recordTime=timeTransfer.timestampToTime(currentTime)
-      }
+
     },
     timestampToTimeChina(time){
       return timeTransfer.timestampToTimeChina(time)

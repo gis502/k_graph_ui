@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="topCurrentTimeLabel">
-      {{ this.timestampToTimeChina(this.currentTime) }}
+      {{ this.timestampToTimeChina(this.currentTimeLocal) }}
     </div>
 
     <div class="start-time-info">
@@ -86,16 +86,16 @@ export default {
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
       flyflag:true,//视角是否跳转？只有依次向前播放时才跳
-
+      currentTimeLocal: new Date(),
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
     currentTime(newVal, oldVal) {
+
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
-        // console.log(new Date(newVal), new Date(oldVal), "time111111")
-        // if(this.speedOption)
+        this.currentTimeLocal=newVal
         this.ifstopandflash(newVal, oldVal);
         //到达真实时间，向前播放，1:1流速
         if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0){

@@ -4,7 +4,7 @@
       <div class="pop_header">
         <h2 class="pop_title">
           标绘统计
-          <span class="time">{{ this.timestampToTimeChina(this.currentTime) }}</span>
+          <span class="time">{{ this.timestampToTimeChina(this.currentTimeLocal) }}</span>
         </h2></div>
       <div class="pop_content"
            @mouseenter="handleMouseEnter"
@@ -43,6 +43,7 @@ export default {
       previousDataIntime: [], // 用于存储前一次的数据
       dataIntime:[],
       dataInTimeAndZoom: [],
+      currentTimeLocal: new Date(),
     };
   },
   props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning', 'earthquakeName', 'startTime'],
@@ -50,6 +51,9 @@ export default {
     plots(newVal, oldVal) {
     },
     currentTime(newVal) {
+      if(newVal){
+        this.currentTimeLocal=newVal
+      }
       this.updateTimeStatistic();
     },
     zoomLevel(newVal, oldVal) {

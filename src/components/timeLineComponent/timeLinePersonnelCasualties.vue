@@ -48,7 +48,7 @@ export default {
       ResponseContent: [],
       casualtiesHistory:[],
       activity: {
-        time: "",
+        time:this.timestampToTime(new Date()),
         death: "0",
         miss: "0",
         injure: "0",
@@ -61,20 +61,20 @@ export default {
   mounted() {
     this.init();
     this.initChart(); // 初始化图表
+    this.initWebSocket() //接收人员伤亡websocket消息，初始化
   },
   watch: {
     currentTime(newVal) {
-      this.personnel_casualties_update(newVal);
-      this.updateChart();
+      if(newVal) {
+        this.personnel_casualties_update(newVal);
+        this.updateChart();
+      }
     },
   },
   methods: {
     async init() {
       this.ResponseContent = await getRescueActionCasualties({eqid: this.eqid});
       console.log(this.ResponseContent,"this.ResponseContent")
-      this.personnel_casualties_update(this.currentTime);
-      this.updateChart(); // 更新图表数据
-      this.initWebSocket() //接收人员伤亡websocket消息，初始化
     },
     initWebSocket(){
       let that=this
@@ -97,23 +97,24 @@ export default {
       };
     },
     async personnel_casualties_update(currentTime) {
-      // console.log(this.ResponseContent,"this.ResponseContent personnel_casualties_update")
-      this.casualtiesHistory = this.ResponseContent.filter((activity) => {
-        return new Date(activity.submissionDeadline) <= new Date(timeTransfer.timestampToTime(currentTime));
-      });
-      // console.log(this.casualtiesHistory,"this.casualtiesHistory")
-      if (this.casualtiesHistory.length >= 1) {
-        const latest = this.casualtiesHistory[this.casualtiesHistory.length - 1];
-        this.activity = {
-          time: this.timestampToTime(latest.submissionDeadline),
-          death: latest.totalDeceased,
-          miss: latest.totalMissing,
-          injure: latest.totalInjured,
-        };
-        this.updateChart(); // 更新图表数据
-      }
-      else {
-        this.activity = {time: this.timestampToTime(currentTime), death: "0", miss: "0", injure: "0"};
+      if(currentTime) {
+        // console.log(this.ResponseContent,"this.ResponseContent personnel_casualties_update")
+        this.casualtiesHistory = this.ResponseContent.filter((activity) => {
+          return new Date(activity.submissionDeadline) <= new Date(timeTransfer.timestampToTime(currentTime));
+        });
+        // console.log(this.casualtiesHistory,"this.casualtiesHistory")
+        if (this.casualtiesHistory.length >= 1) {
+          const latest = this.casualtiesHistory[this.casualtiesHistory.length - 1];
+          this.activity = {
+            time: this.timestampToTime(latest.submissionDeadline),
+            death: latest.totalDeceased,
+            miss: latest.totalMissing,
+            injure: latest.totalInjured,
+          };
+          this.updateChart(); // 更新图表数据
+        } else {
+          this.activity = {time: this.timestampToTime(currentTime), death: "0", miss: "0", injure: "0"};
+        }
       }
     },
     initChart() {

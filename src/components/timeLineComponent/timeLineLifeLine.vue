@@ -5,7 +5,7 @@
       <div class="pop_header">
         <h2 class="sub-title-new">
           生命线情况
-          <span class="time">{{timestampToTimeChina(props.currentTime) }}</span>
+          <span class="time">{{timestampToTimeChina(currentTimeLocal) }}</span>
           <!-- <span class="title-time">{{ recordTime }}</span> -->
           <span class="title-time"></span>
         </h2>
@@ -40,9 +40,10 @@ const props = defineProps({
     required: true
   }
 });
-
+const currentTimeLocal = ref(new Date());
 watch(() => props.currentTime, (newTime, oldTime) => {
-  if (newTime !== oldTime) {
+  if (props.currentTime && newTime !== oldTime) {
+    currentTimeLocal.value=props.currentTime
     // console.log("watch time new")
     filterRecords(newTime);
   }
