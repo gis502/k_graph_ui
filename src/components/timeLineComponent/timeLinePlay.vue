@@ -99,7 +99,7 @@ export default {
         console.log(new Date(newVal), new Date(oldVal), "time111111")
         // if(this.speedOption)
         this.ifstopandflash(newVal, oldVal);
-        //到达真实时间后1:1流速
+        //到达真实时间，向前播放，1:1流速
         if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0){
           window.viewer.clock.multiplier=1.0
         }
@@ -118,7 +118,7 @@ export default {
       this.getPlotwithStartandEndTime(this.eqid)
       window.viewer.timeline.container.onmouseup = (e) => {
           this.playEnd()
-      };
+      }
     }
   },
   mounted() {

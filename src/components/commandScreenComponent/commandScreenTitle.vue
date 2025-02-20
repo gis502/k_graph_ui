@@ -27,7 +27,7 @@
           class="logo-menu-tittle"
           :class="{ 'logo-menu-active': isActive(item.component) }"
           :title="item.title"
-          @click="toggleComponent(item.component)"
+          @click="item.component === 'frontPage' ? navigateToFrontPage() : toggleComponent(item.component)"
       >
         <p>{{ item.title }}</p>
       </div>
@@ -93,6 +93,11 @@ export default {
     toggleComponent(component) {
       this.$emit('toggle-component', component);
     },
+    navigateToFrontPage() {
+      this.$router.push({
+        name: 'Index'
+      });
+    },
     //   菜单栏左上角实时获取时间代码
     startRealTimeClock(timeElementId, dateElementId) {
       function updateTime() {
@@ -112,7 +117,6 @@ export default {
         document.getElementById(timeElementId).textContent = time;
         document.getElementById(dateElementId).textContent = date;
       }
-
       updateTime();
       setInterval(updateTime, 1000);
     },
