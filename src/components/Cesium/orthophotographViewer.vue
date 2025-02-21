@@ -59,19 +59,17 @@ export default {
     addOrthophotographViewer(){
       let url = this.$route.query.url
       let layers = this.$route.query.layers
-      // console.log(url,layers)
-      let imageLyr =window.viewer.imageryLayers.addImageryProvider(
+      let lon = parseFloat(this.$route.query.lon )
+      let lat = parseFloat(this.$route.query.lat )
+      window.viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapServiceImageryProvider({
             url,
             layers,
             parameters: {
               service: 'WMS', // 指定服务类型为WMS
               format: 'image/png', // 指定返回的图像格式为PNG
-              transparent: true, // 启用透明背景
-              srs: 'EPSG:4326', // 指定坐标系
-            },
-            tilingScheme: new Cesium.GeographicTilingScheme() // 使用地理格网划分方案，避免投影拉伸
-
+              transparent: true // 启用透明背景
+            }
           })
       );
 
@@ -81,10 +79,10 @@ export default {
 
       // 确保WebGL上下文支持透明度
       // window.viewer.scene.context._gl.getContextAttributes().alpha = true;
-
-      // 设置图层底色透明
-      imageLyr.transperantBackColor = Cesium.Color.fromCssColorString('#FFFFFF');
-      imageLyr.transperantBackColorTolerance = 0.1; // 去白边
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(lon, lat, 5000), // 设置经度、纬度和高度
+        duration:1
+      });
     }
 
   }

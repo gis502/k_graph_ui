@@ -48,6 +48,22 @@
           align="center"
       ></el-table-column>
 
+      <!-- 纬度 -->
+      <el-table-column
+          prop="lat"
+          label="纬度"
+          :min-width="200"
+          align="center"
+      ></el-table-column>
+
+      <!-- 经度 -->
+      <el-table-column
+          prop="lon"
+          label="经度"
+          :min-width="200"
+          align="center"
+      ></el-table-column>
+
       <!-- 正射影像路径列 -->
       <el-table-column
           prop="path"
@@ -128,6 +144,20 @@
           <el-input
               v-model="dialogContent.name"
               placeholder="请输入正射影像图层"
+              style="width: 100%;"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="纬度" prop="name">
+          <el-input
+              v-model="dialogContent.lat"
+              placeholder="请输入纬度"
+              style="width: 100%;"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="经度" prop="name">
+          <el-input
+              v-model="dialogContent.lon"
+              placeholder="请输入经度"
               style="width: 100%;"
           ></el-input>
         </el-form-item>
@@ -248,6 +278,8 @@ export default {
       dialogContent: {
         name: '',
         label:'',
+        lon:'',
+        lat:'',
         createTime: '',
         path: '',
         uuid: ''
@@ -429,6 +461,9 @@ export default {
       return {
         name: '',
         createTime: '',
+        label:'',
+        lon:'',
+        lat:'',
         path: '',
         uuid: ''
       };
@@ -437,8 +472,10 @@ export default {
     handleOpen(row) {
       let url = row.path
       let layers = row.name
+      let lon=row.lon
+      let lat=row.lat
       // 后续优化
-      window.open('/orthophotographViewer?url='+url+'&layers='+layers, "_blank");
+      window.open('/orthophotographViewer?url='+url+'&layers='+layers+'&lat='+lat+'&lon='+lon, "_blank");
     },
 
 
@@ -449,6 +486,8 @@ export default {
         this.dialogContent = {
           name: '',
           label: '',
+          lon:'',
+          lat:'',
           createTime: '',
           path: '',
           uuid: ''
@@ -457,6 +496,8 @@ export default {
         this.dialogContent = {
           name: row.name,
           label: row.label,
+          lon:row.lon,
+          lat:row.lat,
           path: row.path,
           createTime: this.formatDateToBackend(row.createTime),
           uuid: row.uuid
@@ -494,6 +535,8 @@ export default {
           const modelData = {
             name: this.dialogContent.name,
             label:this.dialogContent.label,
+            lon:this.dialogContent.lon,
+            lat:this.dialogContent.lat,
             path: this.dialogContent.path,
             createTime: this.formatISODateTimeToBackend(this.dialogContent.createTime),
             uuid: this.dialogContent.uuid,
@@ -520,6 +563,7 @@ export default {
       this.dialogContent = {
         name: '',
         createTime: '',
+        label: '',
         path: '',
         uuid: ''
       };
