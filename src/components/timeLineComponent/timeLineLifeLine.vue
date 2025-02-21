@@ -5,7 +5,7 @@
       <div class="pop_header">
         <h2 class="sub-title-new">
           生命线情况
-          <span class="time">{{timestampToTimeChina(currentTimeLocal) }}</span>
+          <span class="time">{{currentTimeLocal }}</span>
           <!-- <span class="title-time">{{ recordTime }}</span> -->
           <span class="title-time"></span>
         </h2>
@@ -40,10 +40,13 @@ const props = defineProps({
     required: true
   }
 });
-const currentTimeLocal = ref(new Date());
+const currentTimeLocal = ref(timeTransfer.timestampToTimeChina(new Date()));
 watch(() => props.currentTime, (newTime, oldTime) => {
   if (props.currentTime && newTime !== oldTime) {
-    currentTimeLocal.value=props.currentTime
+    let currentTimeLocaltmp=timeTransfer.timestampToTimeChina(props.currentTime)
+    if( currentTimeLocaltmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+      currentTimeLocal.value = currentTimeLocaltmp
+    }
     // console.log("watch time new")
     filterRecords(newTime);
   }
@@ -537,7 +540,7 @@ function filterRecords(currentTime) {
       // };
       // latestTime.value = formatDateTime(props.currentTime);
       // latestTime.value = formatDateChina(latestTime.value)
-      latestTime.value = timestampToTimeChina(props.currentTime)
+      latestTime.value = timeTransfer.timestampToTimeChina(props.currentTime)
       currentInterruptedVillages.value = 0;
       currentlyBlackedOutVillages.value =0;
       roadBlockVillage.value = 0;
@@ -995,9 +998,7 @@ const formatDateChina = (dateStr) => {
   }
 };
 
-function timestampToTimeChina(time){
-  return timeTransfer.timestampToTimeChina(time)
-}
+
 
 </script>
 

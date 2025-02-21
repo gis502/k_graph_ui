@@ -4,7 +4,7 @@
       <div class="pop_header">
         <h2 class="pop_title">
           应急响应
-          <span class="time">{{ timestampToTimeChina(recordTime) }}</span>
+          <span class="time">{{ recordTime }}</span>
         </h2></div>
       <div class="sub-main">
         <ul class="sub-ul">
@@ -36,7 +36,7 @@ export default {
     return {
       EmergencyResponseResponsecontent: [],
       responseShow:[],
-      recordTime: new Date(),
+      recordTime: timeTransfer.timestampToTimeChina(new Date()),
     };
   },
   props: ['currentTime', 'eqid'],
@@ -76,17 +76,21 @@ export default {
           return new Date(item.responseTime) <= new Date(timeTransfer.timestampToTime(currentTime));
         });
         if(this.responseShow.length>0){
-          this.recordTime=this.responseShow[0].responseTime
+          let recordTimetmp=timeTransfer.timestampToTimeChina(this.responseShow[0].responseTime)
+          if( recordTimetmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
+            this.recordTime=recordTimetmp
+          }
         }
         else{
-          this.recordTime=timeTransfer.timestampToTime(currentTime)
+          let recordTimetmp=timeTransfer.timestampToTimeChina(this.currentTime)
+          if( recordTimetmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
+            this.recordTime=recordTimetmp
+          }
         }
       }
 
     },
-    timestampToTimeChina(time){
-      return timeTransfer.timestampToTimeChina(time)
-    }
+
   }
 };
 </script>

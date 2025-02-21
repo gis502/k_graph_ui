@@ -1516,6 +1516,8 @@ export default {
           if(clock.currentTime){
             that.currentTime = clock.currentTime;
           }
+          // if()
+          // console.log("maybe non",this.currentTime)
           if (viewer.clockViewModel.shouldAnimate) {
             that.isTimeRunning = true
           } else {

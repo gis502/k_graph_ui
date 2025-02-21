@@ -105,16 +105,23 @@ export default {
         // console.log(this.casualtiesHistory,"this.casualtiesHistory")
         if (this.casualtiesHistory.length >= 1) {
           const latest = this.casualtiesHistory[this.casualtiesHistory.length - 1];
-          this.activity = {
-            time: this.timestampToTime(latest.submissionDeadline),
-            death: latest.totalDeceased,
-            miss: latest.totalMissing,
-            injure: latest.totalInjured,
-          };
+          let activityTimetmp=timeTransfer.timestampToTimeChina(latest.submissionDeadline)
+          if( activityTimetmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
+            this.activity = {
+              time: activityTimetmp,
+              death: latest.totalDeceased,
+              miss: latest.totalMissing,
+              injure: latest.totalInjured,
+            };
+          }
           this.updateChart(); // 更新图表数据
-        } else {
-          this.activity = {time: this.timestampToTime(currentTime), death: "0", miss: "0", injure: "0"};
         }
+        else {
+          let activityTimetmp=timeTransfer.timestampToTimeChina(currentTime)
+          if( activityTimetmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+            this.activity = {time: activityTimetmp, death: "0", miss: "0", injure: "0"};
+          }
+          }
       }
     },
     initChart() {
