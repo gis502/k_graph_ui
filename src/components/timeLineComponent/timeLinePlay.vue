@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="topCurrentTimeLabel">
-      {{ this.timestampToTimeChina(this.currentTime) }}
+      {{ this.currentTimeLocal }}
+<!--      {{ this.currentTimeLocal }}-->
     </div>
 
     <div class="start-time-info">
@@ -56,7 +57,7 @@
       <span class="timelabel">{{ speedOption }}</span>
     </div>
     <div class="current-time-info">
-      <span class="timelabel">{{ this.timestampToTimeChina(this.currentTime) }}</span>
+      <span class="timelabel">{{ this.currentTimeLocal }}</span>
     </div>
     <div class="end-time-info">
       <span class="timelabel">结束时间：{{ this.timestampToTimeChina(this.centerPoint.endTime) }}</span>
@@ -86,16 +87,21 @@ export default {
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
       flyflag:true,//视角是否跳转？只有依次向前播放时才跳
-
+      currentTimeLocal: this.timestampToTimeChina(new Date()),
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
     currentTime(newVal, oldVal) {
+
+
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
-        // console.log(new Date(newVal), new Date(oldVal), "time111111")
-        // if(this.speedOption)
+        //有时候输入的值不是nan,调用函数读取的参数也不是nan，但是取转换成呢哇Date格式，时间是invalid data
+        let currentTimeLocaltmp=this.timestampToTimeChina(this.currentTime)
+        if( currentTimeLocaltmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
+          this.currentTimeLocal=currentTimeLocaltmp
+        }
         this.ifstopandflash(newVal, oldVal);
         //到达真实时间，向前播放，1:1流速
         if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0){
@@ -176,10 +182,12 @@ export default {
       this.selectedId = id; // 更新选中的按钮ID
     },
     jumpRealTime() {
+      window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
       this.flyflag=false
     },
     backToStart() {
+      window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
       this.flyflag=true
       },
