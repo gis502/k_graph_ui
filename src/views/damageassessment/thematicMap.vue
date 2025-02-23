@@ -183,7 +183,11 @@
 import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "../../cesium/tool/initCesium.js";
-import {getEqList} from "../../api/system/damageassessment.js";
+import {
+  getEqList,
+  getEqOutputMaps,
+  getEqOutputReports
+} from "../../api/system/damageassessment.js";
 import yaan from "../../assets/geoJson/yaan1.json";
 import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 import eqMark from "@/assets/images/DamageAssessment/eqMark.png";
@@ -651,6 +655,17 @@ export default {
 
       this.isPanelShow[type] = !this.isPanelShow[type];
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
+
+        getEqOutputMaps(this.eqid, this.eqqueueId).then((res) => {
+          console.log("专题图", res.data)
+        })
+
+        getEqOutputReports(this.eqid, this.eqqueueId).then((res) => {
+          console.log("灾情报告", res.data)
+        })
+
+        console.log("开始进行评估------------------------")
+
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
           console.log(res)

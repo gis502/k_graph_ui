@@ -177,12 +177,7 @@
       </el-form>
     </el-dialog>
 
-    <el-dialog
-        v-model="queryFormVisible"
-        title="筛选"
-        width="30vw"
-        style="top:20vh"
-    >
+    <el-dialog v-model="queryFormVisible" title="筛选" width="30vw" style="top:20vh">
       <el-form :inline="true" :model="formValue" ref="formValue" :rules="formValuerules" :show-close="false">
         <el-form-item label="地震位置">
           <el-input v-model="formValue.earthquakeName" style="width: 23vw;" placeholder="地震位置" clearable/>
@@ -1104,6 +1099,8 @@ export default {
         });
       } else {
 
+        // 修改接口
+
         console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
         updataEq(this.dialogContent).then(res => {
           this.getEq();
@@ -1258,9 +1255,22 @@ export default {
      * @param inputDate
      * @returns {string}
      */
+    // formatDateToBackend(inputDate) {
+    //   // 使用正则表达式提取日期和时间部分
+    //   const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+    //   const matches = inputDate.match(regex);
+    //
+    //   if (matches) {
+    //     // 格式化为目标格式 "yyyy-MM-dd HH:mm:ss"
+    //     return `${matches[1]}-${matches[2]}-${matches[3]} ${matches[4]}:${matches[5]}:${matches[6]}`;
+    //   } else {
+    //     throw new Error("Invalid date format");
+    //   }
+    // },
+
     formatDateToBackend(inputDate) {
       // 使用正则表达式提取日期和时间部分
-      const regex = /(\d{4})年(\d{2})月(\d{2})日 (\d{2}):(\d{2}):(\d{2})/;
+      const regex = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
       const matches = inputDate.match(regex);
 
       if (matches) {
@@ -1270,6 +1280,7 @@ export default {
         throw new Error("Invalid date format");
       }
     },
+
     /**
      * 将ISO格式换成后端想要的格式
      * @param input
