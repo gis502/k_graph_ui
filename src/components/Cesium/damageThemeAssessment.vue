@@ -1,104 +1,172 @@
 <template>
-  <el-carousel trigger="click" height="650px" interval="3000">
+  <el-carousel trigger="click" height="880px" v-model="carouselIndex" :interval="0" @change="handleIndexChange">
     <el-carousel-item>
-      <div class="pop">
-        <div class="pop_header">
-          <span class="pop_title">人员伤亡统计表格</span>
+      <div class="people-item">
+<!--        人员伤亡统计表格-->
+        <div class="people-table">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">人员伤亡统计表格</span>
+            </div>
+          </div>
+          <div class="statistics">
+            <span class="total">雅安地区预估伤亡人数：</span>
+            <span class="emphasis"> {{ totalCasualtyNum }} </span>
+            <span class="total"> 人</span>
+          </div>
+          <div class="tables">
+            <el-table :data="PCTableData" :height="230" :max-height="230" :row-style="{ height: '46px', backgroundColor: 'transparent' }"
+                      :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+              <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
+              <el-table-column prop="county" label="雅安市地区" align="center" width="100"></el-table-column>
+              <el-table-column prop="casualty.death" label="死亡人数" align="center" width="90"></el-table-column>
+              <el-table-column prop="casualty.injury" label="受伤人数" align="center" width="90"></el-table-column>
+              <el-table-column prop="casualty.pops" label="受灾人数" align="center" width="90"></el-table-column>
+              <el-table-column prop="casualty.buriedCount" label="压埋人数" align="center"></el-table-column>
+              <el-table-column prop="casualty.missing" label="失踪人数" align="center"></el-table-column>
+              <el-table-column prop="casualty.buriedCount" label="需转移安置人数" align="center"
+                               width="120"></el-table-column>
+            </el-table>
+          </div>
+        </div>
+<!--        人员统计chart图-->
+        <div class="people-chart">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">人员伤亡</span>
+            </div>
+          </div>
+          <div class="panelChart" ref="PCChart"></div>
+        </div>
+<!--        人员伤亡地图图例-->
+        <div class="people-legend">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">人员伤亡地图图例</span>
+            </div>
+          </div>
+          <div class="legend">
+            <span>图例（人数）</span>
+            <ul>
+              <li v-for="(item, index) in legendItems1" :key="index">
+            <span
+                :style="{ backgroundColor: `rgb(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
+                {{ item.label }}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-
-      <div class="statistics">
-        <span class="total">雅安地区预估伤亡人数：</span>
-        <span class="emphasis"> {{ totalCasualtyNum }} </span>
-        <span class="total"> 人</span>
-      </div>
-
-      <div class="tables">
-        <el-table :data="PCTableData" :height="230" :max-height="230" :row-style="{ height: '46px', backgroundColor: 'transparent' }"
-                  :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-          <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-          <el-table-column prop="county" label="雅安市地区" align="center" width="100"></el-table-column>
-          <el-table-column prop="casualty.death" label="死亡人数" align="center" width="90"></el-table-column>
-          <el-table-column prop="casualty.injury" label="受伤人数" align="center" width="90"></el-table-column>
-          <el-table-column prop="casualty.pops" label="受灾人数" align="center" width="90"></el-table-column>
-          <el-table-column prop="casualty.buriedCount" label="压埋人数" align="center"></el-table-column>
-          <el-table-column prop="casualty.missing" label="失踪人数" align="center"></el-table-column>
-          <el-table-column prop="casualty.buriedCount" label="需转移安置人数" align="center"
-                           width="120"></el-table-column>
-        </el-table>
-      </div>
-      <div class="pop">
-        <div class="pop_header">
-          <span class="pop_title">人员伤亡</span>
-        </div>
-      </div>
-      <div class="panelChart" ref="PCChart"></div>
     </el-carousel-item>
     <el-carousel-item>
-      <div class="pop">
-        <div class="pop_header">
-          <span class="pop_title">经济损失统计表格</span>
+      <div class="economic-item">
+        <div class="economic-table">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">经济损失统计表格</span>
+            </div>
+          </div>
+          <div class="statistics">
+            <span class="total">地震造成经济损失共计约</span>
+            <span class="emphasis"> {{ ELTotal.toFixed(2) }} </span>
+            <span class="total">万元</span>
+          </div>
+          <div class="tables">
+            <el-table :data="panelData.economicLossData" :height="230" :max-height="230" :row-style="{ height: '46px' }"
+                      :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+              <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
+              <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
+              <el-table-column prop="amount" label="经济损失 / 万元" align="center"></el-table-column>
+            </el-table>
+          </div>
+        </div>
+        <div class="economic-chart">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">经济损失</span>
+            </div>
+          </div>
+          <div class="panelChart" ref="ELChart"></div>
+        </div>
+        <div class="economic-legend">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">经济损失地图图例</span>
+            </div>
+          </div>
+          <div class="legend">
+            <span>图例（元）</span>
+            <ul>
+              <li v-for="(item, index) in legendItems2" :key="index">
+          <span
+              :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
+                {{ item.label }}
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-
-      <div class="statistics">
-        <span class="total">地震造成经济损失共计约</span>
-        <span class="emphasis"> {{ ELTotal.toFixed(2) }} </span>
-        <span class="total">万元</span>
-      </div>
-
-      <div class="tables">
-        <el-table :data="panelData.economicLossData" :height="230" :max-height="230" :row-style="{ height: '46px' }"
-                  :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-          <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-          <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
-          <el-table-column prop="amount" label="经济损失 / 万元" align="center"></el-table-column>
-        </el-table>
-      </div>
-      <div class="pop">
-        <div class="pop_header">
-          <span class="pop_title">经济损失</span>
-        </div>
-      </div>
-      <div class="panelChart" ref="ELChart"></div>
     </el-carousel-item>
     <el-carousel-item>
-      <div class="pop">
-        <div class="pop_header">
-          <span class="pop_title">建筑破坏统计表格</span>
+      <div class="building-item">
+
+      </div>
+      <div class="building-table">
+        <div class="pop">
+          <div class="pop_header">
+            <span class="pop_title">建筑破坏统计表格</span>
+          </div>
+        </div>
+        <div class="statistics">
+          <span class="total">地震造成建筑破坏共计约</span>
+          <span class="emphasis"> {{ BDTotal.toFixed(2) }} </span>
+          <span class="total">平方公里</span>
+        </div>
+        <div class="tables">
+          <el-table :data="panelData.buildingDamageData" :height="230" :max-height="230" :row-style="{ height: '46px' }"
+                    :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+            <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
+            <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
+            <el-table-column prop="size" label="建筑破坏 / km²" align="center"></el-table-column>
+          </el-table>
         </div>
       </div>
-
-      <div class="statistics">
-        <span class="total">地震造成建筑破坏共计约</span>
-        <span class="emphasis"> {{ BDTotal.toFixed(2) }} </span>
-        <span class="total">平方公里</span>
+      <div class="building-chart">
+        <div class="pop">
+          <div class="pop_header">
+            <span class="pop_title">建筑破坏</span>
+          </div>
+        </div>
+        <div class="panelChart" ref="BDChart"></div>
       </div>
-
-      <div class="tables">
-        <el-table :data="panelData.buildingDamageData" :height="230" :max-height="230" :row-style="{ height: '46px' }"
-                  :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-          <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-          <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
-          <el-table-column prop="size" label="建筑破坏 / km²" align="center"></el-table-column>
-        </el-table>
-      </div>
-      <div class="pop">
-        <div class="pop_header">
-          <span class="pop_title">建筑破坏</span>
+      <div class="building-legend">
+        <div class="pop">
+          <div class="pop_header">
+            <span class="pop_title">建筑破坏地图图例</span>
+          </div>
+        </div>
+        <div class="legend">
+          <span>图例（平方千米）</span>
+          <ul>
+            <li v-for="(item, index) in legendItems3" :key="index">
+          <span
+              :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
+              {{ item.label }}
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="panelChart" ref="BDChart"></div>
     </el-carousel-item>
   </el-carousel>
-
 
 </template>
 
 <script>
 import {getDA, getEqTownResult} from "../../api/system/damageassessment.js";
-import {handleTownData} from "../../cesium/plot/eqThemes.js";
+import {handleTownData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 import * as echarts from 'echarts';
+import * as Cesium from 'cesium';
+import eqMark from "@/assets/images/DamageAssessment/eqMark.png";
 
 export default {
   props: {
@@ -128,6 +196,40 @@ export default {
 
       BDTableData: [],
       BDTotal: 0,
+
+      legendItems1: [
+        { color: '(254, 204, 203)', label: '1-5人' },
+        { color: '(255, 177, 167)', label: '6-10人' },
+        { color: '(254, 151, 134)', label: '11-20人' },
+        { color: '(253, 128, 106)', label: '21-50人' },
+        { color: '(245, 101, 75)', label: '51-100人' },
+        { color: '(240, 78, 53)', label: '101-250人' },
+        { color: '(231, 50, 31)', label: '251-500人' },
+        { color: '(218, 0, 0)', label: '> 500人' },
+      ],
+
+      legendItems2: [
+        {color: '(255, 234, 203)', label: '< 1亿'},
+        {color: '(255, 216, 173)', label: '1~5亿'},
+        {color: '(255, 198, 143)', label: '5~10亿'},
+        {color: '(254, 167, 88)', label: '10~20亿'},
+        {color: '(250, 148, 64)', label: '20~50亿'},
+        {color: '(245, 135, 38)', label: '50~100亿'},
+        {color: '(240, 120, 20)', label: '> 100亿'},
+      ],
+
+      legendItems3: [
+        {color: '(232, 236, 248)', label: '< 0.1km²'},
+        {color: '(188, 197, 228)', label: '0.1~0.5km²'},
+        {color: '(114, 143, 199)', label: '0.5~1km²'},
+        {color: '(84, 127, 195)', label: '1~2km²'},
+        {color: '(55, 109, 185)', label: '2~5km²'},
+        {color: '(28, 96, 174)', label: '5~10km²'},
+        {color: '(0, 84, 165)', label: '> 10km²'},
+      ],
+
+      // 初始化为子组件的索引
+      carouselIndex: 0,
     }
   },
   mounted() {
@@ -136,6 +238,12 @@ export default {
     this.getData()
   },
   methods: {
+    convertColor(colorString) {
+      return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
+    },
+
+
+
     /**
      * 缩写：PC-人员伤亡；EL-经济损失；BD-建筑破坏
      */
@@ -620,6 +728,210 @@ export default {
         'background-color': '#ffffff00',
       }
     },
+
+
+
+
+
+    // 新写的代码
+    // ----------------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------
+
+    // 建筑破坏
+    showBuildingDamage() {
+      const tabName = "建筑破坏";
+      const type = "buildingDamage";
+      this.eqThemes.show.isshowBuildingDamage = !this.eqThemes.show.isshowBuildingDamage;
+
+      if (this.eqThemes.show.isshowBuildingDamage) {
+        this.addTab(tabName);
+
+        console.log("建筑破坏数据：", this.panelData.buildingDamageData)
+        this.layerData.bddData = this.panelData.buildingDamageData.reduce((acc, item) => {
+          acc[item.county] = item.size;
+          return acc;
+        }, {});
+        this.addThemeLayer(this.layerData.bddData, type);
+
+        if (this.eqThemes.show.isshowRegion) {
+          this.toggleYaanLayer('none');
+        }
+
+      } else {
+        const index = this.tabs.indexOf(tabName);
+        this.removeTab(tabName, index);
+        this.removeLayers([type]);
+        this.removeEntitiesByType([type]);
+        this.layerData.bddData = {};
+        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
+          this.toggleYaanLayer('colorful');
+        }
+      }
+    },
+
+    // 经济损失
+    showEconomicLoss() {
+      const tabName = "经济损失";
+      const type = "economicLoss";
+      this.eqThemes.show.isshowEconomicLoss = !this.eqThemes.show.isshowEconomicLoss;
+
+      if (this.eqThemes.show.isshowEconomicLoss) {
+        this.addTab(tabName);
+
+        console.log("经济损失数据：", this.panelData.economicLossData)
+
+        // 将经济损失数据整理为适合的格式
+        this.layerData.ecoData = this.panelData.economicLossData.reduce((acc, item) => {
+          acc[item.county] = item.amount;
+          return acc;
+        }, {});
+
+        // 添加主题图层并等待其完成
+        this.addThemeLayer(this.layerData.ecoData, type);
+
+        if (this.eqThemes.show.isshowRegion) {
+          this.toggleYaanLayer('none');
+        }
+      } else {
+        const index = this.tabs.indexOf(tabName);
+        this.removeTab(tabName, index);
+        this.removeLayers([type]);
+        this.removeEntitiesByType([type]);
+        this.layerData.ecoData = {};
+        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
+          this.toggleYaanLayer('colorful');
+        }
+      }
+    },
+
+    // 人员伤亡评估
+    showPersonalCasualty() {
+      const tabName = "人员伤亡";
+      const type = "personalCasualty";
+      this.eqThemes.show.isshowPersonalCasualty = !this.eqThemes.show.isshowPersonalCasualty;
+      if (this.eqThemes.show.isshowPersonalCasualty) {
+        this.addTab(tabName);
+
+        // // 将人员伤亡数据整理为适合的格式
+        this.layerData.pcData = JSON.parse(JSON.stringify(
+            this.panelData.personalCasualtyData.reduce((acc, item) => {
+              acc[item.county] = item.partTotal;
+              return acc;
+            }, {})
+        ));
+
+        console.log(111, this.layerData.pcData);
+
+        // 添加主题图层并等待其完成
+        this.addThemeLayer(this.layerData.pcData, type)
+        if (this.eqThemes.show.isshowRegion) {
+          this.toggleYaanLayer('none');
+        }
+
+      } else {
+        const index = this.tabs.indexOf(tabName);
+        this.removeTab(tabName, index);
+        this.removeLayers([type])
+        this.removeEntitiesByType([type]);
+        this.layerData.pcData = {};
+        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
+          this.toggleYaanLayer('colorful')
+        }
+      }
+    },
+
+    // 切换选项卡
+    changeTab(tabName) {
+      // 将中文 tab 映射到相应的数据和图层类型
+      const tabMapping = {
+        '经济损失': {data: this.layerData.ecoData, type: "economicLoss"},
+        '建筑破坏': {data: this.layerData.bddData, type: "buildingDamage"},
+        '人员伤亡': {data: this.layerData.pcData, type: "personalCasualty"}
+      };
+
+      this.currentTab = tabName;
+      // 根据 tabName 加载对应的图层数据和类型
+      if (tabMapping[tabName]) {
+        this.addThemeLayer(tabMapping[tabName].data, tabMapping[tabName].type);
+      }
+
+      const tab = this.transferTab(tabName)[0];
+      // 如果 tabs 中包含该 tabName，打开对应面板，否则添加 tab
+      if (this.tabs.includes(tabName)) {
+        this.eqPanel[tab] = true;
+      } else {
+        this.addTab(tabName);
+      }
+
+      // 关闭其他面板，保留当前 tab 面板
+      Object.keys(this.eqPanel).forEach(key => {
+        this.eqPanel[key] = (key === tab);
+      });
+    },
+
+    // 删除选项卡
+    removeTab(tabName, index) {
+      const [panel, info, layerType, dataKey] = this.transferTab(tabName);
+
+      if (tabName in this.tabMapping) {
+        // 通过映射对象清理对应数据
+        this.layerData[dataKey] = {};
+        this.removeEntitiesByType([layerType]);
+        this.removeLayers([layerType]);
+      }
+
+      // 多个：删除当前选项卡
+      if (this.currentTab === this.tabs[index] && this.tabs.length !== 1) {
+
+        this.eqPanel[panel] = false;
+        this.eqThemes.show[info] = false;
+
+        const nextTabIndex = this.tabs[index - 1] ? index - 1 : index + 1;
+        this.currentTab = this.tabs[nextTabIndex];
+        const [nextPanel, , nextLayer, nextData] = this.transferTab(this.currentTab);
+
+        this.eqPanel[nextPanel] = true;
+        this.addThemeLayer(this.layerData[nextData], nextLayer);
+
+      }
+      // 多个：删除的不是当前选项卡
+      else if (this.tabs.length !== 1 && this.currentTab !== this.tabs[index]) {
+
+        this.eqThemes.show[info] = false;
+      }
+      // 单个：删除最后的选项卡
+      else if (this.tabs.length === 1) {
+        this.eqPanel[panel] = false;
+        this.eqThemes.show[info] = false;
+        this.toggleYaanLayer('colorful');
+      }
+
+      // 移除选项卡
+      this.tabs.splice(index, 1);
+    },
+
+    // 专题面板展开
+    unfoldInfo(currentTab) {
+      const tab = this.transferTab(currentTab)[0]
+      this.eqPanel[tab] = true;
+      this.isShow = false;
+    },
+
+    // 将中文转化成对应要用的属性，[0]为控制对应底部面板展示，[1]为控制对应右侧信息展示，[2]为图层专题名，[3]为专题数据
+    // 目前使用映射处理，如果有新增，请先在this.tabMapping处注册
+    transferTab(tabName) {
+      return this.tabMapping[tabName] || [];
+    },
+
+
+
+
+    handleIndexChange(newIndex) {
+      // 当索引变化时，向父组件传递新的索引
+      this.$emit('update:index', newIndex);
+    }
+
   },
 };
 </script>
@@ -706,8 +1018,38 @@ export default {
 }
 
 .panelChart {
-  float: right;
   width: 500px;
   height: 250px;
+}
+
+.people-item{
+  width: 530px;
+  height: 880px;
+}
+
+.legend {
+  width: 150px;
+  height: 100%;
+  padding: 5px 0 0 10px;
+}
+
+span {
+  color: #fff;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+ul {
+  padding: 0;
+}
+
+li {
+  display: flex;
+  margin: 3px 0;
+  color: #fff;
+  width: 100%;
+  height: 15px;
+  line-height: 15px;
+  font-size: 12px;
 }
 </style>
