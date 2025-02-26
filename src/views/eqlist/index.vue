@@ -15,24 +15,24 @@
       <el-button type="primary" icon="Filter" @click="openQueryForm">筛选</el-button>
       <el-button type="primary" plain icon="Plus" @click="handleAddOrUpdate('add')">新增</el-button>
       <!-- 正式地震按钮 -->
-<!--      <el-button-->
-<!--          size="primary"-->
-<!--          :type="activeMode === 'Z' ? 'danger' : 'default'"-->
-<!--          style="font-size: 16px;"-->
-<!--          @click="activeMode = 'Z'"-->
-<!--      >-->
-<!--        正式地震-->
-<!--      </el-button>-->
+      <!--      <el-button-->
+      <!--          size="primary"-->
+      <!--          :type="activeMode === 'Z' ? 'danger' : 'default'"-->
+      <!--          style="font-size: 16px;"-->
+      <!--          @click="activeMode = 'Z'"-->
+      <!--      >-->
+      <!--        正式地震-->
+      <!--      </el-button>-->
 
-<!--      &lt;!&ndash; 测试地震按钮 &ndash;&gt;-->
-<!--      <el-button-->
-<!--          size="primary"-->
-<!--          :type="activeMode === 'Y' || activeMode === 'T' ? 'primary' : 'default'"-->
-<!--          style="font-size: 16px;"-->
-<!--          @click="activeMode = 'Y'"-->
-<!--      >-->
-<!--        测试地震-->
-<!--      </el-button>-->
+      <!--      &lt;!&ndash; 测试地震按钮 &ndash;&gt;-->
+      <!--      <el-button-->
+      <!--          size="primary"-->
+      <!--          :type="activeMode === 'Y' || activeMode === 'T' ? 'primary' : 'default'"-->
+      <!--          style="font-size: 16px;"-->
+      <!--          @click="activeMode = 'Y'"-->
+      <!--      >-->
+      <!--        测试地震-->
+      <!--      </el-button>-->
 
     </el-form-item>
 
@@ -215,7 +215,7 @@
     </el-dialog>
 
     <el-dialog :title="panelTitle" v-model="isPanelShow" width="30%">
-      <el-form ref="panel" :model="addOrUpdateDTO" :rules="panelRules" >
+      <el-form ref="panel" :model="addOrUpdateDTO" :rules="panelRules">
         <el-row>
           <el-col :span="55">
             <el-form-item label="震发位置：" prop="eqAddr">
@@ -317,7 +317,7 @@ import {
   fromEq,
   eqEventTrigger,
   deletedEq,
-  getAllEqList, queryEqList, fromEqList, eqProgress
+  getAllEqList, queryEqList, fromEqList, eqProgress, eqEventReassessment
 } from '@/api/system/eqlist'
 import {getEqList} from "@/api/system/damageassessment.js";
 
@@ -459,12 +459,12 @@ export default {
       isProgressShow: false,
       percentage: 0,
       colors: [
-        { color: '#d3e0fa', percentage: 10 },
-        { color: '#a4c7fc', percentage: 30 },
-        { color: '#7aaef8', percentage: 50 },
-        { color: '#5795f4', percentage: 70 },
-        { color: '#3c7ef0', percentage: 90 },
-        { color: '#2369e8', percentage: 100 }
+        {color: '#d3e0fa', percentage: 10},
+        {color: '#a4c7fc', percentage: 30},
+        {color: '#7aaef8', percentage: 50},
+        {color: '#5795f4', percentage: 70},
+        {color: '#3c7ef0', percentage: 90},
+        {color: '#2369e8', percentage: 100}
       ],
       formValid: false, // 表单验证状态
       getEqData: [],
@@ -555,105 +555,105 @@ export default {
           label: '雨城区',
           value: '雨城区',
           children: [
-            { label: '碧峰峡镇', value: '碧峰峡镇', longitude: 102.99, latitude: 30.06 },
-            { label: '八步镇', value: '八步镇', longitude: 102.93, latitude: 29.93 },
-            { label: '周公山镇', value: '周公山镇', longitude: 103.03, latitude: 29.90 },
-            { label: '多营镇', value: '多营镇', longitude: 103.03, latitude: 29.90 },
-            { label: '草坝镇', value: '草坝镇', longitude: 103.11, latitude: 29.96 },
-            { label: '望鱼镇', value: '望鱼镇', longitude: 103.05, latitude: 29.73 },
-            { label: '晏望镇', value: '晏望镇', longitude: 103.12, latitude: 29.74 },
-            { label: '上里镇', value: '上里镇', longitude: 103.07, latitude: 30.18 }
+            {label: '碧峰峡镇', value: '碧峰峡镇', longitude: 102.99, latitude: 30.06},
+            {label: '八步镇', value: '八步镇', longitude: 102.93, latitude: 29.93},
+            {label: '周公山镇', value: '周公山镇', longitude: 103.03, latitude: 29.90},
+            {label: '多营镇', value: '多营镇', longitude: 103.03, latitude: 29.90},
+            {label: '草坝镇', value: '草坝镇', longitude: 103.11, latitude: 29.96},
+            {label: '望鱼镇', value: '望鱼镇', longitude: 103.05, latitude: 29.73},
+            {label: '晏望镇', value: '晏望镇', longitude: 103.12, latitude: 29.74},
+            {label: '上里镇', value: '上里镇', longitude: 103.07, latitude: 30.18}
           ]
         },
         {
           label: '名山区',
           value: '名山区',
           children: [
-            { label: '蒙顶山镇', value: '蒙顶山镇', longitude: 103.09, latitude: 30.07 },
-            { label: '前进镇', value: '前进镇', longitude: 103.20, latitude: 30.04 },
-            { label: '车岭镇', value: '车岭镇', longitude: 103.24, latitude: 30.08 },
-            { label: '百丈镇', value: '百丈镇', longitude: 103.23, latitude: 30.18 },
-            { label: '黑竹镇', value: '黑竹镇', longitude: 103.30, latitude: 30.21 },
-            { label: '红星镇', value: '红星镇', longitude: 103.28, latitude: 30.15 },
-            { label: '茅河镇', value: '茅河镇', longitude: 103.35, latitude: 30.22 },
-            { label: '马岭镇', value: '马岭镇', longitude: 103.34, latitude: 30.12 },
-            { label: '新店镇', value: '新店镇', longitude: 103.19, latitude: 30.14 },
-            { label: '万古镇', value: '万古镇', longitude: 103.14, latitude: 30.16 },
-            { label: '中锋镇', value: '中锋镇', longitude: 103.18, latitude: 30.19 }
+            {label: '蒙顶山镇', value: '蒙顶山镇', longitude: 103.09, latitude: 30.07},
+            {label: '前进镇', value: '前进镇', longitude: 103.20, latitude: 30.04},
+            {label: '车岭镇', value: '车岭镇', longitude: 103.24, latitude: 30.08},
+            {label: '百丈镇', value: '百丈镇', longitude: 103.23, latitude: 30.18},
+            {label: '黑竹镇', value: '黑竹镇', longitude: 103.30, latitude: 30.21},
+            {label: '红星镇', value: '红星镇', longitude: 103.28, latitude: 30.15},
+            {label: '茅河镇', value: '茅河镇', longitude: 103.35, latitude: 30.22},
+            {label: '马岭镇', value: '马岭镇', longitude: 103.34, latitude: 30.12},
+            {label: '新店镇', value: '新店镇', longitude: 103.19, latitude: 30.14},
+            {label: '万古镇', value: '万古镇', longitude: 103.14, latitude: 30.16},
+            {label: '中锋镇', value: '中锋镇', longitude: 103.18, latitude: 30.19}
           ]
         },
         {
           label: '天全县',
           value: '天全县',
           children: [
-            { label: '城厢镇', value: '城厢镇', longitude: 102.77, latitude: 30.06 },
-            { label: '始阳镇', value: '始阳镇', longitude: 102.83, latitude: 30.02 },
-            { label: '新场镇', value: '新场镇', longitude: 102.84, latitude: 29.96 },
-            { label: '思经镇', value: '思经镇', longitude: 102.73, latitude: 30.02 },
-            { label: '小河镇', value: '小河镇', longitude: 102.74, latitude: 30.11 },
-            { label: '喇叭河镇', value: '喇叭河镇', longitude: 102.60, latitude: 30.04 },
-            { label: '仁义镇', value: '仁义镇', longitude: 102.81, latitude: 30.11 }
+            {label: '城厢镇', value: '城厢镇', longitude: 102.77, latitude: 30.06},
+            {label: '始阳镇', value: '始阳镇', longitude: 102.83, latitude: 30.02},
+            {label: '新场镇', value: '新场镇', longitude: 102.84, latitude: 29.96},
+            {label: '思经镇', value: '思经镇', longitude: 102.73, latitude: 30.02},
+            {label: '小河镇', value: '小河镇', longitude: 102.74, latitude: 30.11},
+            {label: '喇叭河镇', value: '喇叭河镇', longitude: 102.60, latitude: 30.04},
+            {label: '仁义镇', value: '仁义镇', longitude: 102.81, latitude: 30.11}
           ]
         },
         {
           label: '芦山县',
           value: '芦山县',
           children: [
-            { label: '大川镇', value: '大川镇', longitude: 102.93, latitude: 30.14 },
-            { label: '太平镇', value: '太平镇', longitude: 102.99, latitude: 30.34 },
-            { label: '龙门镇', value: '龙门镇', longitude: 103.02, latitude: 30.25 },
-            { label: '双石镇', value: '双石镇', longitude: 102.92, latitude: 30.25 },
-            { label: '思延镇', value: '思延镇', longitude: 102.91, latitude: 30.13 },
-            { label: '飞仙关镇', value: '飞仙关镇', longitude: 102.89, latitude: 30.04 }
+            {label: '大川镇', value: '大川镇', longitude: 102.93, latitude: 30.14},
+            {label: '太平镇', value: '太平镇', longitude: 102.99, latitude: 30.34},
+            {label: '龙门镇', value: '龙门镇', longitude: 103.02, latitude: 30.25},
+            {label: '双石镇', value: '双石镇', longitude: 102.92, latitude: 30.25},
+            {label: '思延镇', value: '思延镇', longitude: 102.91, latitude: 30.13},
+            {label: '飞仙关镇', value: '飞仙关镇', longitude: 102.89, latitude: 30.04}
           ]
         },
         {
           label: '宝兴县',
           value: '宝兴县',
           children: [
-            { label: '穆坪镇', value: '穆坪镇', longitude: 102.81, latitude: 30.38 },
-            { label: '灵关镇', value: '灵关镇', longitude: 102.83, latitude: 30.25 },
-            { label: '陇东镇', value: '陇东镇', longitude: 102.71, latitude: 30.47 }
+            {label: '穆坪镇', value: '穆坪镇', longitude: 102.81, latitude: 30.38},
+            {label: '灵关镇', value: '灵关镇', longitude: 102.83, latitude: 30.25},
+            {label: '陇东镇', value: '陇东镇', longitude: 102.71, latitude: 30.47}
           ]
         },
         {
           label: '荥经县',
           value: '荥经县',
           children: [
-            { label: '花滩镇', value: '花滩镇', longitude: 102.77, latitude: 29.78 },
-            { label: '龙苍沟镇', value: '龙苍沟镇', longitude: 102.85, latitude: 29.70 },
-            { label: '牛背山镇', value: '牛背山镇', longitude: 102.53, latitude: 29.77 },
-            { label: '新添镇', value: '新添镇', longitude: 102.84, latitude: 29.84 },
-            { label: '青龙镇', value: '青龙镇', longitude: 102.88, latitude: 29.79 },
-            { label: '荥河镇', value: '荥河镇', longitude: 102.71, latitude: 29.83 },
-            { label: '五宪镇', value: '五宪镇', longitude: 102.84, latitude: 29.77 }
+            {label: '花滩镇', value: '花滩镇', longitude: 102.77, latitude: 29.78},
+            {label: '龙苍沟镇', value: '龙苍沟镇', longitude: 102.85, latitude: 29.70},
+            {label: '牛背山镇', value: '牛背山镇', longitude: 102.53, latitude: 29.77},
+            {label: '新添镇', value: '新添镇', longitude: 102.84, latitude: 29.84},
+            {label: '青龙镇', value: '青龙镇', longitude: 102.88, latitude: 29.79},
+            {label: '荥河镇', value: '荥河镇', longitude: 102.71, latitude: 29.83},
+            {label: '五宪镇', value: '五宪镇', longitude: 102.84, latitude: 29.77}
           ]
         },
         {
           label: '汉源县',
           value: '汉源县',
           children: [
-            { label: '富林镇', value: '富林镇', longitude: 102.63, latitude: 29.36 },
-            { label: '九襄镇', value: '九襄镇', longitude: 102.62, latitude: 29.50 },
-            { label: '皇木镇', value: '皇木镇', longitude: 102.90, latitude: 29.35 },
-            { label: '宜东镇', value: '宜东镇', longitude: 102.46, latitude: 29.64 },
-            { label: '富庄镇', value: '富庄镇', longitude: 102.54, latitude: 29.55 },
-            { label: '清溪镇', value: '清溪镇', longitude: 102.62, latitude: 29.58 },
-            { label: '大树镇', value: '大树镇', longitude: 102.69, latitude: 29.31 },
-            { label: '乌斯河镇', value: '乌斯河镇', longitude: 102.90, latitude: 29.22 },
-            { label: '唐家镇', value: '唐家镇', longitude: 102.63, latitude: 29.45 },
-            { label: '富泉镇', value: '富泉镇', longitude: 29.38, latitude: 29.38 },
-            { label: '前域镇', value: '前域镇', longitude: 102.59, latitude: 29.50 },
-            { label: '安乐镇', value: '安乐镇', longitude: 102.72, latitude: 29.36 }
+            {label: '富林镇', value: '富林镇', longitude: 102.63, latitude: 29.36},
+            {label: '九襄镇', value: '九襄镇', longitude: 102.62, latitude: 29.50},
+            {label: '皇木镇', value: '皇木镇', longitude: 102.90, latitude: 29.35},
+            {label: '宜东镇', value: '宜东镇', longitude: 102.46, latitude: 29.64},
+            {label: '富庄镇', value: '富庄镇', longitude: 102.54, latitude: 29.55},
+            {label: '清溪镇', value: '清溪镇', longitude: 102.62, latitude: 29.58},
+            {label: '大树镇', value: '大树镇', longitude: 102.69, latitude: 29.31},
+            {label: '乌斯河镇', value: '乌斯河镇', longitude: 102.90, latitude: 29.22},
+            {label: '唐家镇', value: '唐家镇', longitude: 102.63, latitude: 29.45},
+            {label: '富泉镇', value: '富泉镇', longitude: 29.38, latitude: 29.38},
+            {label: '前域镇', value: '前域镇', longitude: 102.59, latitude: 29.50},
+            {label: '安乐镇', value: '安乐镇', longitude: 102.72, latitude: 29.36}
           ]
         },
         {
           label: '石棉县',
           value: '石棉县',
           children: [
-            { label: '回隆镇', value: '回隆镇', longitude: 102.39, latitude: 29.18 },
-            { label: '美罗镇', value: '美罗镇', longitude: 102.44, latitude: 29.29 },
-            { label: '安顺场镇', value: '安顺场镇', longitude: 102.28, latitude: 29.27 }
+            {label: '回隆镇', value: '回隆镇', longitude: 102.39, latitude: 29.18},
+            {label: '美罗镇', value: '美罗镇', longitude: 102.44, latitude: 29.29},
+            {label: '安顺场镇', value: '安顺场镇', longitude: 102.28, latitude: 29.27}
           ]
         }
       ],
@@ -694,11 +694,10 @@ export default {
     this.filteredOptions = this.locationOptions;
     setInterval(this.updateTime, 500)
     this.getEq()
-    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇" ,5))
+    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇", 5))
     console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
     console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
-
 
 
   methods: {
@@ -769,7 +768,7 @@ export default {
       this.$notify({
         title: '地震模拟',
         message: '正在进行灾损评估中',
-        duration:  10000
+        duration: 10000
       });
       this.addOrUpdateDTO.event = this.createTid()
       this.addOrUpdateDTO.eqName = this.simplifyLocation(this.addOrUpdateDTO.eqAddr, this.addOrUpdateDTO.eqMagnitude)
@@ -859,7 +858,7 @@ export default {
 
           return {
             ...item,
-            occurrenceTime: this.timestampToTime( item.occurrenceTime ),  // 转换时间
+            occurrenceTime: this.timestampToTime(item.occurrenceTime),  // 转换时间
             magnitude: Number(item.magnitude).toFixed(1),  // 格式化震级为一位小数
             latitude: Number(latitude).toFixed(2),  // 格式化纬度为两位小数
             longitude: Number(longitude).toFixed(2),  // 格式化经度为两位小数
@@ -908,10 +907,10 @@ export default {
     getEq() {
       let that = this
       getEqList().then(res => {
-        console.log("返回的数据",res.data)
-        let resData = res.data.filter(item =>  Number(item.magnitude)  >= 3)
+        console.log("返回的数据", res.data)
+        let resData = res.data.filter(item => Number(item.magnitude) >= 3)
         that.getEqData = resData
-        console.log("过滤后",resData)
+        console.log("过滤后", resData)
         that.total = resData.length
         let data = []
         for (let i = 0; i < res.data.length; i++) {
@@ -987,7 +986,7 @@ export default {
       let finalSearchKey = searchKey;
 
       // 判断是否是时间格式
-      const timePattern = /^(\d{4})年(\d{1,2})月(\d{1,2})日(\d{1,2})时(\d{1,2})分(\d{1,2})秒$/;
+      const timePattern = /^(\d{4})-(\d{1,2})-(\d{1,2}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/;
       const timeMatch = searchKey.match(timePattern);
 
       if (timeMatch) {
@@ -998,7 +997,7 @@ export default {
 
       // 发送搜索请求
       queryEqList({queryValue: finalSearchKey}).then(res => {
-        console.log("检查返回的数据",res); // 检查返回的数据
+        console.log("检查返回的数据", res); // 检查返回的数据
         // 处理并格式化返回的数据
         const filteredData = res.filter(item => item.magnitude >= 3).map(item => {
           // 提取 geom 中的坐标信息，默认值 [0, 0] 防止数据缺失
@@ -1061,8 +1060,8 @@ export default {
       hh = hh > 9 ? hh : '0' + hh
       mm = mm > 9 ? mm : '0' + mm
       ss = ss > 9 ? ss : '0' + ss
-      return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      // return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
+      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
+      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`
     },
 
     // 重置功能
@@ -1098,15 +1097,12 @@ export default {
           this.clearDialogContent();
         });
       } else {
-
         // 修改接口
-
-        console.log("this.dialogContent.time更新：", this.dialogContent.occurrenceTime);
-        updataEq(this.dialogContent).then(res => {
+        eqEventReassessment(this.dialogContent).then(res => {
           this.getEq();
           this.dialogShow = false;
           this.clearDialogContent();
-        });
+        })
       }
     },
 
@@ -1241,7 +1237,7 @@ export default {
 
     guid(num) {
       return num ?
-          Array.from({ length: num }, () => Math.floor(Math.random() * 10)).join('') :
+          Array.from({length: num}, () => Math.floor(Math.random() * 10)).join('') :
           'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             let r = Math.random() * 16 | 0,
                 v = c == 'x' ? r : (r & 0x3 | 0x8);
