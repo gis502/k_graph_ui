@@ -54,13 +54,6 @@
           </div>
         </div>
       </div>
-
-<!--      &lt;!&ndash; 路径规划 &ndash;&gt;-->
-<!--      <RouterPanel-->
-<!--        :visible="popupVisible"-->
-<!--        :position="popupPosition"-->
-<!--        :popupData="popupData"-->
-<!--      />-->
       <div v-if="isShowMessage"
            style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
         <p style="color: #fff; margin: 0;">请添加受灾点</p>
@@ -475,15 +468,14 @@
     <!--    &lt;!&ndash;    box包裹地图，截图需要&ndash;&gt;-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-
         <eqCenterPanel
           v-show="eqCenterPanelVisible"
-          :position="timelinePopupPosition"
+          :position="PanelPosition"
           :popupData="timelinePopupData"
         />
-        <commonOnlyShowPanel
+        <plotInfoOnlyShowPanel
           v-show="timelinePopupVisible"
-          :position="timelinePopupPosition"
+          :position="PanelPosition"
           :popupData="timelinePopupData"
         />
         <dataSourcePanel
@@ -809,7 +801,7 @@ import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotS
 import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
 
 import eqCenterPanel from "@/components/Panel/eqCenterPanel.vue";
-import commonOnlyShowPanel from "@/components/Panel/commonOnlyShowPanel";
+import plotInfoOnlyShowPanel from "@/components/Panel/plotInfoOnlyShowPanel";
 
 
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
@@ -979,7 +971,8 @@ export default {
     RouterPanel,
 
     eqCenterPanel,
-    commonOnlyShowPanel,
+    plotInfoOnlyShowPanel,
+
     dataSourcePanel,
 
     //--未整理---
@@ -1032,7 +1025,7 @@ export default {
       routerPopupData: {}, // RouterPanel弹窗的数据
 
       timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
-      timelinePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
+      PanelPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
       timelinePopupData: {}, // TimeLinePanel弹窗的数据
       //----------------------------------
 
@@ -1688,116 +1681,6 @@ export default {
       this.plots = plots
     },
     //--处理实体点击事件的弹窗显示逻辑--
-    // entitiesClickPonpHandler() {
-    //   let that = this;
-    //   // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
-    //   window.viewer.screenSpaceEventHandler.setInputAction(async (click) => {
-    //     // 检查点击位置是否拾取到实体
-    //     let pickedEntity = window.viewer.scene.pick(click.position);
-    //     console.log("点击选择的pickedEntity", pickedEntity)
-    //     window.selectedEntity = pickedEntity?.id;
-    //
-    //     // 绑定断裂带信息的 div 元素
-    //     const faultInfoDiv = document.getElementById('faultInfo');
-    //     // 如果拾取到实体
-    //     if (Cesium.defined(pickedEntity)) {
-    //       let entity = window.selectedEntity;
-    //       //console.log(entity, "entity")
-    //       // 计算图标的世界坐标
-    //       this.selectedEntityPosition = this.calculatePosition(click.position);
-    //       this.updatePopupPosition(); // 确保位置已更新
-    //       const pickedObject = window.viewer.scene.pick(click.position);
-    //
-    //       if (entity._layer === "断裂带") {
-    //         //console.log("断裂带")
-    //
-    //         const faultName = pickedObject.id.properties.name._value;
-    //
-    //         if (faultName) {
-    //           // 获取点击位置的地理坐标 (Cartesian3)
-    //           const cartesian = viewer.scene.pickPosition(click.position);
-    //           if (!Cesium.defined(cartesian)) {
-    //             return;
-    //           }
-    //
-    //           // 更新 faultInfo 的位置和内容
-    //           this.updateFaultInfoPosition(faultName);
-    //
-    //           // 显示 faultInfo
-    //           faultInfoDiv.style.display = 'block';
-    //
-    //           // 监听地图变化，动态更新 div 的位置
-    //           window.viewer.scene.postRender.addEventListener(() => {
-    //             this.updateFaultInfoPosition(faultName);
-    //           });
-    //
-    //           //console.log(faultName)
-    //         }
-    //       }
-    //       // 如果点击的是标绘点
-    //       else if (entity._layer === "标绘点"||entity._layer === "震中") {
-    //         this.timelinePopupVisible = true;
-    //         this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
-    //         this.timelinePopupData = {}
-    //         this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-    //         console.log("this.extractDataForRouter(entity);",this.extractDataForRouter(entity))
-    //         this.dataSourcePopupVisible = false
-    //         this.routerPopupVisible = false;
-    //       }
-    //       //聚合图标
-    //       else if (Object.prototype.toString.call(entity) === '[object Array]') {
-    //         if (entity[0].entityCollection.owner.name === "label") {
-    //           this.dataSourcePopupVisible = false
-    //           this.timelinePopupVisible = false
-    //           this.routerPopupVisible = false;
-    //         } else {
-    //           this.dataSourcePopupData = entity
-    //           this.dataSourcePopupVisible = true
-    //           this.timelinePopupVisible = false
-    //           this.routerPopupVisible = false;
-    //
-    //         }
-    //       }
-    //       //救援队伍、避难场所、应急物资
-    //       else if (entity._billboard) {
-    //         this.routerPopupVisible = true;
-    //         this.timelinePopupPosition = this.selectedEntityPosition;
-    //         this.routerPopupData = this.extractDataForRouter(entity);
-    //         this.dataSourcePopupVisible = false
-    //         this.timelinePopupVisible = false;
-    //       }
-    //       //箭头标绘
-    //       else if (entity._polygon) {
-    //         this.timelinePopupVisible = true;
-    //         this.timelinePopupPosition = this.selectedEntityPosition;
-    //         this.timelinePopupData = {}
-    //         this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-    //         this.dataSourcePopupVisible = false
-    //         this.routerPopupVisible = false;
-    //       } else {
-    //         // 如果不是标绘点或路标
-    //         this.routerPopupVisible = false;
-    //         this.timelinePopupVisible = false;
-    //         this.dataSourcePopupVisible = false
-    //       }
-    //     }
-    //     //没有拾取到实体
-    //     else {
-    //       // 没有选中实体时隐藏 faultInfo
-    //       faultInfoDiv.style.display = 'none';
-    //       this.routerPopupVisible = false;
-    //       this.timelinePopupVisible = false;
-    //       this.dataSourcePopupVisible = false
-    //     }
-    //   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-    //   // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
-    //   window.viewer.screenSpaceEventHandler.setInputAction(movement => {
-    //     // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-    //     if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
-    //       this.updatePopupPosition();
-    //     }
-    //   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    // },
 
     entitiesClickPonpHandler() {
       let that = this;
@@ -1848,7 +1731,7 @@ export default {
           // 如果点击的是标绘点
           if(entity._layer === "震中"){
             this.eqCenterPanelVisible=true;
-            this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
+            this.PanelPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
             this.timelinePopupData = this.extractDataForRouter(entity)
             console.log("timelinePopupData 震中",this.timelinePopupData)
@@ -1856,50 +1739,41 @@ export default {
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
           }
-
           else if (entity._layer === "标绘点") {
             this.timelinePopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
+            this.PanelPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
             this.timelinePopupData = this.extractDataForRouter(entity)
-            console.log("timelinePopupData 标绘点",this.timelinePopupData)
+            // console.log("timelinePopupData 标绘点",this.timelinePopupData)
             // console.log("this.extractDataForRouter(entity)标绘点;",this.extractDataForRouter(entity))
             this.eqCenterPanelVisible=false;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
 
           }
-          //箭头标绘
-          // else if (entity._polygon) {
-          //   this.timelinePopupVisible = true;
-          //   this.timelinePopupPosition = this.selectedEntityPosition;
-          //   this.timelinePopupData = {}
-          //   this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-          //   this.dataSourcePopupVisible = false
-          //   this.routerPopupVisible = false;
-          // }
+          //救援队伍、避难场所、应急物资
+          else if (entity._layer === "避难场所"||entity._layer === "救援队伍分布"||entity._layer === "应急物资存储") {
+                this.routerPopupVisible = true;
+                this.PanelPosition = this.selectedEntityPosition;
+                this.routerPopupData = this.extractDataForRouter(entity);
+                this.dataSourcePopupVisible = false
+                this.timelinePopupVisible = false;
+              }
           // //聚合图标
-          // else if (Object.prototype.toString.call(entity) === '[object Array]') {
-          //   if (entity[0].entityCollection.owner.name === "label") {
-          //     this.dataSourcePopupVisible = false
-          //     this.timelinePopupVisible = false
-          //     this.routerPopupVisible = false;
-          //   } else {
-          //     this.dataSourcePopupData = entity
-          //     this.dataSourcePopupVisible = true
-          //     this.timelinePopupVisible = false
-          //     this.routerPopupVisible = false;
-          //
-          //   }
-          // }
-          // //救援队伍、避难场所、应急物资
-          // else if (entity._billboard) {
-          //   this.routerPopupVisible = true;
-          //   this.timelinePopupPosition = this.selectedEntityPosition;
-          //   this.routerPopupData = this.extractDataForRouter(entity);
-          //   this.dataSourcePopupVisible = false
-          //   this.timelinePopupVisible = false;
-          // }
+          else if (Object.prototype.toString.call(entity) === '[object Array]') {
+            if (entity[0].entityCollection.owner.name === "label") {
+              this.dataSourcePopupVisible = false
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+            } else {
+              this.dataSourcePopupData = entity
+              this.dataSourcePopupVisible = true
+              this.timelinePopupVisible = false
+              this.routerPopupVisible = false;
+
+            }
+          }
+         //断裂带
          else {
             // 如果不是标绘点或路标
             this.eqCenterPanelVisible=false;
@@ -1993,11 +1867,11 @@ export default {
           );
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
-            this.routerPopupPosition = {
+            this.PanelPosition = {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
-            this.timelinePopupPosition = {
+            this.routerPopupPosition = {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
@@ -3579,6 +3453,7 @@ export default {
           depthTest: bool ? true : false, // 让 Cesium 正确处理图标的遮挡关系
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
+        layer:tableName,
         properties: {
           tableName: tableName, // 动态传入的表名称
           ...element, // 将element对象展开，自动填充所有属性
