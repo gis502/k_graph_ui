@@ -2,8 +2,10 @@ import * as Cesium from 'cesium'
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
-import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json"
+import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json";
 import {domainName, zaisunimageipLocal} from "../../utils/server.js";
+import hospitalIcon from "../../assets/icons/svg/hospital.svg";
+import villageIcon from "../../assets/icons/svg/village.svg";
 
 // 雅安行政区加载
 export function addYaanLayer() {
@@ -69,29 +71,80 @@ export function addHospitalLayer() {
 
   // 使用fetch加载GeoJSON文件
   fetch(geoJsonUrl)
-      .then((response) => response.json())
-      .then((geoJsonData) => {
-        // 将GeoJSON数据加载到Cesium
-        viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
-          stroke: Cesium.Color.GREEN,
-          fill: Cesium.Color.GREEN.withAlpha(0.5),
-          strokeWidth: 2,
-          clampToGround: true,
-        })).then(function(dataSource) {
-          // 给 dataSource 添加 name 属性
-          dataSource.name = "hospital";
-        })
+    .then((response) => response.json())
+    .then((geoJsonData) => {
+      // 将GeoJSON数据加载到Cesium
+      viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
+        stroke: Cesium.Color.GREEN,
+        fill: Cesium.Color.GREEN.withAlpha(0.5),
+        strokeWidth: 2,
+        clampToGround: true,
+      })).then(function(dataSource) {
+        // 给 dataSource 添加 name 属性
+        dataSource.name = "hospital";
+
+        // 遍历每个实体，添加图片标记
+        dataSource.entities.values.forEach(function(entity) {
+          // entity.properties = new Cesium.PropertyBag();
+          // entity.properties.sourceName = "hospital";
+          entity.properties.sourceName = "hospital";  // 追加自定义的属性
+          entity.billboard = new Cesium.BillboardGraphics({
+            image: hospitalIcon, // 使用导入的图片
+            width: 32, // 图片宽度
+            height: 32, // 图片高度
+            scale: 1, // 图片缩放
+          });
+        });
       })
-      .catch((error) => {
-        console.error("Error loading GeoJSON:", error);
-      });
+    })
+    .catch((error) => {
+      console.error("Error loading GeoJSON:", error);
+    });
 }
+
+// 绘制村庄
+export function addVillageLayer() {
+  // GeoJSON文件路径
+  const geoJsonUrl = new URL("@/assets/geoJson/village.geojson", import.meta.url).href;
+
+  // 使用fetch加载GeoJSON文件
+  fetch(geoJsonUrl)
+    .then((response) => response.json())
+    .then((geoJsonData) => {
+      // 将GeoJSON数据加载到Cesium
+      viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
+        stroke: Cesium.Color.GREEN,
+        fill: Cesium.Color.GREEN.withAlpha(0.5),
+        strokeWidth: 2,
+        clampToGround: true,
+      })).then(function(dataSource) {
+        // 给 dataSource 添加 name 属性
+        dataSource.name = "village";
+
+        // 遍历每个实体，添加图片标记
+        dataSource.entities.values.forEach(function(entity) {
+          entity.properties.sourceName = "village";  // 追加自定义的属性
+          entity.billboard = new Cesium.BillboardGraphics({
+            image: villageIcon, // 使用导入的图片
+            width: 32, // 图片宽度
+            height: 32, // 图片高度
+            scale: 1, // 图片缩放
+          });
+        });
+      })
+    })
+    .catch((error) => {
+      console.error("Error loading GeoJSON:", error);
+    });
+}
+
 
 // 绘制断裂带
 export function addFaultZones(centerPoint) {
 // GeoJSON文件路径
   const geoJsonUrl = new URL("@/assets/geoJson/duanliedai.geojson", import.meta.url).href;
 
+  console.log(1234554321)
   // 使用fetch加载GeoJSON文件
   fetch(geoJsonUrl)
       .then((response) => response.json())

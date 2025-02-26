@@ -1,12 +1,17 @@
 <template>
 
   <div v-if="visiblePanel">
-    <div v-if="!showEqStatus">
+    <div v-if="!showEqStatus && !showAssess">
       <div class="eq-videoMonitorWin" :style="styleObject">
         <div class="earthquake-info-panel">
           <el-card class="eqbox-card">
             <div slot="header" class="clearfix">
-              <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25"><path d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z" fill="#fbf102" p-id="2672"></path></svg>
+              <svg t="1731937475733" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                   xmlns="http://www.w3.org/2000/svg" p-id="2671" width="25" height="25">
+                <path
+                  d="M1001.661867 796.544c48.896 84.906667 7.68 157.013333-87.552 157.013333H110.781867c-97.834667 0-139.050667-69.504-90.112-157.013333l401.664-666.88c48.896-87.552 128.725333-87.552 177.664 0l401.664 666.88zM479.165867 296.533333v341.333334a32 32 0 1 0 64 0v-341.333334a32 32 0 1 0-64 0z m0 469.333334v42.666666a32 32 0 1 0 64 0v-42.666666a32 32 0 1 0-64 0z"
+                  fill="#fbf102" p-id="2672"></path>
+              </svg>
               <span>震中信息</span>
             </div>
             <table class="earthquake-info-table">
@@ -30,6 +35,31 @@
               </tr>
             </table>
           </el-card>
+        </div>
+      </div>
+    </div>
+
+    <div v-else-if="!showEqStatus && showAssess">
+      <div class="videoMonitorWin" :style="styleObject">
+        <div class="header-div">
+        <span>
+          <span>{{ tableName }}</span>
+        </span>
+        </div>
+        <div class="Marking-info-panel">
+          <el-descriptions :column="2" size="default " border>
+            <el-descriptions-item v-for="(value, key) in assessInfo" :key="key">
+              <template #label>
+                <div class="cell-item">{{ key }}</div>
+              </template>
+              <div>
+                <el-text size="large">
+                  {{ value }}
+                </el-text>
+              </div>
+            </el-descriptions-item>
+          </el-descriptions>
+
         </div>
       </div>
     </div>
@@ -64,17 +94,17 @@
                 <div>
                   <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                       ("" + plotInfoNew.starttime).match('-')
-                          ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
-                          : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
+                        ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
+                        : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
                     }}
                   </el-text>
                   <el-date-picker
-                      v-if="!plotInfoNew.aditStatus"
-                      v-model="plotInfoNew.starttime"
-                      type="datetime"
-                      placeholder="选择日期时间"
-                      value-format="x"
-                      size="large">
+                    v-if="!plotInfoNew.aditStatus"
+                    v-model="plotInfoNew.starttime"
+                    type="datetime"
+                    placeholder="选择日期时间"
+                    value-format="x"
+                    size="large">
                   </el-date-picker>
                 </div>
               </el-descriptions-item>
@@ -87,17 +117,17 @@
                 <div>
                   <el-text v-if="plotInfoNew.aditStatus" size="large">{{
                       ("" + plotInfoNew.endtime).match('-')
-                          ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
-                          : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
+                        ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
+                        : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
                     }}
                   </el-text>
                   <el-date-picker
-                      v-if="!plotInfoNew.aditStatus"
-                      v-model="plotInfoNew.endtime"
-                      type="datetime"
-                      placeholder="选择日期时间"
-                      value-format="x"
-                      size="large">
+                    v-if="!plotInfoNew.aditStatus"
+                    v-model="plotInfoNew.endtime"
+                    type="datetime"
+                    placeholder="选择日期时间"
+                    value-format="x"
+                    size="large">
                   </el-date-picker>
                 </div>
               </el-descriptions-item>
@@ -132,9 +162,9 @@
                   <el-text v-if="plotInfoNew.aditStatus" size="large">{{ value.value }}</el-text>
                   <el-select v-if="!plotInfoNew.aditStatus" v-model="value.value" placeholder="" size="large">
                     <el-option
-                        v-for="item in value.content"
-                        :label="item.label"
-                        :value="item.label"/>
+                      v-for="item in value.content"
+                      :label="item.label"
+                      :value="item.label"/>
                   </el-select>
                 </el-descriptions-item>
               </template>
@@ -186,12 +216,15 @@ export default {
         id: null,
         aditStatus: true,
       },
-      earthquakeInfo: {}
+      earthquakeInfo: {},
+      // 灾损预估页面的医院与村庄标题
+      tableName: '',
     }
   },
   props: [
-    'popupData', 'position', 'visible', 'ifedit'
+    'popupData', 'position', 'visible', 'ifedit', 'showAssess', 'tableName', 'assessInfo'
   ],
+
   watch: {
     visible() {
       this.visiblePanel = this.visible
@@ -233,12 +266,13 @@ export default {
   computed: {
     // 调整弹框位置
     styleObject() {
+
       return {
         positionEntity: "absolute",
         left: `${this.positionEntity.x}px`,
         top: `${this.positionEntity.y}px`
       };
-    }
+    },
   },
   methods: {
     // 标绘信息修改按钮
@@ -270,6 +304,7 @@ export default {
       updataPlotInfo({startTime, endTime, plotId, plotType}, typeInfoValues).then(res => {
         that.getPlotInfo(plotId, plotType);
       });
+      this.$emit('updateQuery')
     },
     // 删除标绘信息
     deletePlotInfo(activity) {
@@ -313,16 +348,17 @@ export default {
         }
       }
       deletePlotInfo(data).then(res => {
+        this.$emit('updateQuery')
         // 从 dataSource 中删除点
         window.viewer.entities.removeById(data.plotId)
         window.viewer.entities.removeById(data.plotId + "_polygon")
         if (window.pointDataSource) {
           const entityToRemove = window.pointDataSource.entities.getById(data.plotId);
-          const entityToRemove_base = window.pointDataSource.entities.getById(data.plotId+"_base");
+          const entityToRemove_base = window.pointDataSource.entities.getById(data.plotId + "_base");
           if (entityToRemove) {
             window.viewer.entities.removeById(data.plotId)
             window.pointDataSource.entities.remove(entityToRemove); // 移除点
-            window.viewer.entities.removeById(data.plotId+"_base")
+            window.viewer.entities.removeById(data.plotId + "_base")
             window.pointDataSource.entities.remove(entityToRemove_base); // 移除点
           }
         }
@@ -517,7 +553,7 @@ export default {
     guid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         let r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
+          v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     }
@@ -663,6 +699,7 @@ export default {
   align-items: center; /* 垂直居中 */
   justify-content: center; /* 水平居中 */
 }
+
 svg {
   vertical-align: middle; /* 保持文本和图标对齐 */
   margin-right: 0.5rem; /* 图标和文本间距 */
