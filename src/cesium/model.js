@@ -195,7 +195,7 @@ function initModel(row) {
 
         loadSiblings: true,
         show: true,
-        maximumScreenSpaceError: 64,//默认16，值越大经度越小
+        maximumScreenSpaceError: 16,//默认16，值越大经度越小
         maximumMemoryUsage: 3000,//可用于缓存瓦片的最大GPU内存量（以MB为单位）
         skipLevelOfDetail: true,
         preferLeaves: true,
@@ -217,7 +217,7 @@ function initModel(row) {
         } else {
             const cartographic = Cesium.Cartographic.fromCartesian(tileset.boundingSphere.center);//获取模型高度
             tz.value = 20 - Math.trunc(cartographic.height)//高度取整
-            transferModel(tileset, 0, 0, tz.value, 0, 0, 0, 1, 1)//模型贴地
+            transferModel(tileset, 0, 0, row.tz, 0, 0, 0, 1, 1)//模型贴地
             rotationModel(window.modelObject, row.rz)
             console.log(tz.value, Math.trunc(cartographic.height), 123)
         }
