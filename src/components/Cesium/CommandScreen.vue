@@ -475,19 +475,16 @@
     <!--    &lt;!&ndash;    box包裹地图，截图需要&ndash;&gt;-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
-        <!-- TimeLinePanel 弹窗 -->
+
         <eqCenterPanel
           v-show="eqCenterPanelVisible"
           :position="timelinePopupPosition"
           :popupData="timelinePopupData"
         />
-        <commonPanel
-          :visible="timelinePopupVisible"
+        <commonOnlyShowPanel
+          v-show="timelinePopupVisible"
           :position="timelinePopupPosition"
           :popupData="timelinePopupData"
-          :ifedit="false"
-          @wsSendPoint="wsSendPoint"
-          @closePlotPop="closePlotPop"
         />
         <dataSourcePanel
           :visible="dataSourcePopupVisible"
@@ -811,10 +808,11 @@ import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vu
 import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
 import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
 
-import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-import commonPanel from "@/components/Cesium/CommonPanel";
-import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import eqCenterPanel from "@/components/Panel/eqCenterPanel.vue";
+import commonOnlyShowPanel from "@/components/Panel/commonOnlyShowPanel";
+
+
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
@@ -979,10 +977,11 @@ export default {
     //灾情总览 end
     //弹框
     RouterPanel,
-    TimeLinePanel,
-    commonPanel,
-    dataSourcePanel,
+
     eqCenterPanel,
+    commonOnlyShowPanel,
+    dataSourcePanel,
+
     //--未整理---
     damageThemeAssessment,
     disasterStatistics,
@@ -1814,7 +1813,7 @@ export default {
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
-          //console.log(entity, "entity")
+          console.log(entity, "拾取entity")
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
@@ -1852,20 +1851,23 @@ export default {
             this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
             this.timelinePopupData = this.extractDataForRouter(entity)
+            console.log("timelinePopupData 震中",this.timelinePopupData)
             this.timelinePopupVisible = false;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
           }
 
           else if (entity._layer === "标绘点") {
-            this.eqCenterPanelVisible=false;
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
-            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-            console.log("this.extractDataForRouter(entity);",this.extractDataForRouter(entity))
+            this.timelinePopupData = this.extractDataForRouter(entity)
+            console.log("timelinePopupData 标绘点",this.timelinePopupData)
+            // console.log("this.extractDataForRouter(entity)标绘点;",this.extractDataForRouter(entity))
+            this.eqCenterPanelVisible=false;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
+
           }
           //箭头标绘
           // else if (entity._polygon) {
@@ -2903,10 +2905,7 @@ export default {
     closePlotPop() {
       this.timelinePopupVisible = !this.timelinePopupVisible
     },
-    // ws发送数据（只有点的是在这里）
-    wsSendPoint(data) {
-      this.websock.send(data)
-    },
+
     /**
      * 计算复选框列表的高度
      * 此函数用于动态计算一组复选框堆叠后的总高度，考虑了复选框的高度和它们之间的间距
