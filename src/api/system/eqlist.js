@@ -100,6 +100,16 @@ export function getExcelUploadEqList() {
     })
 }
 
+export function eqEventReassessment(data) {
+
+    return request({
+        url: '/tp/api/open/reassessment',
+        method: 'post',
+        data
+    })
+}
+
+
 // 改
 export function updataEq(data) {
     return request({
