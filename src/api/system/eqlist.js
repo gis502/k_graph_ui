@@ -168,13 +168,7 @@ export function eqEventTrigger(data) {
     })
 }
 
-export function eqEventReassessment(data) {
-    return request({
-        url: '/tp/api/open/reassessment',
-        method: 'post',
-        data
-    })
-}
+
 
 export function eqProgress(data){
     return request({

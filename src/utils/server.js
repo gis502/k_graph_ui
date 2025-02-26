@@ -1,18 +1,18 @@
-//export const domainName = "http://59.213.183.7";
+// export const domainName = "http://59.213.183.7";
 // export const domainName = "http://172.26.86.82";
  export const domainName = "http://10.16.7.69/zaisunimage";
 
 
  export const tianDitulocalApi="http://api.tianditu.gov.cn"
-//export const tianDitulocalApi="http://59.213.183.7/tiandituapi"
+// export const tianDitulocalApi="http://59.213.183.7/tiandituapi"
  export const tianditu="http://t0.tianditu.com"
-//export const tianditu="http://59.255.48.160:81"
+// export const tianditu="http://59.255.48.160:81"
 //
-//export const AmapApiLocal="http://59.213.183.7/restapi/v3"
+// export const AmapApiLocal="http://59.213.183.7/restapi/v3"
  export const AmapApiLocal="https://restapi.amap.com/v3"
-//
+
  export const webSocketLocal ="localhost:8080"
-//export const webSocketLocal ="59.213.183.7/websocket"
+// export const webSocketLocal ="59.213.183.7/websocket"
 //
 //
 export const zaisunipLocal = "http://10.16.7.69/zaisun"
