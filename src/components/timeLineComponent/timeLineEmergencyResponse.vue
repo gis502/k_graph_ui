@@ -12,7 +12,7 @@
               v-for="(item, i) in responseShow"
           >
             <div class="pop_content">
-              <p class="pop_txt"><span>{{ timestampToTimeChina(item.responseTime) }}</span></p>
+              <p class="pop_txt"><span>{{ this.timestampToTimeChina(item.responseTime) }}</span></p>
               <p class="pop_txt"><span>{{ item.unit }}</span></p>
               <p class="pop_responseName">
                 <span>{{ item.level }}</span>
@@ -88,8 +88,10 @@ export default {
           }
         }
       }
-
     },
+    timestampToTimeChina(time){
+      return timeTransfer.timestampToTimeChina(time)
+    }
 
   }
 };
