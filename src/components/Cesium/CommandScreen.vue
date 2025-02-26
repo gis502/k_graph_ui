@@ -55,12 +55,12 @@
         </div>
       </div>
 
-      <!-- 路径规划 -->
-      <RouterPanel
-        :visible="popupVisible"
-        :position="popupPosition"
-        :popupData="popupData"
-      />
+<!--      &lt;!&ndash; 路径规划 &ndash;&gt;-->
+<!--      <RouterPanel-->
+<!--        :visible="popupVisible"-->
+<!--        :position="popupPosition"-->
+<!--        :popupData="popupData"-->
+<!--      />-->
       <div v-if="isShowMessage"
            style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
         <p style="color: #fff; margin: 0;">请添加受灾点</p>
@@ -476,6 +476,11 @@
     <div id="box" ref="box">
       <div id="cesiumContainer">
         <!-- TimeLinePanel 弹窗 -->
+        <eqCenterPanel
+          v-show="eqCenterPanelVisible"
+          :position="timelinePopupPosition"
+          :popupData="timelinePopupData"
+        />
         <commonPanel
           :visible="timelinePopupVisible"
           :position="timelinePopupPosition"
@@ -489,14 +494,13 @@
           :position="dataSourcePopupPosition"
           :popupData="dataSourcePopupData"
         />
+        <RouterPanel
+            :visible="routerPopupVisible"
+            :position="routerPopupPosition"
+            :popupData="routerPopupData"
+        />
       </div>
     </div>
-    <!--    &lt;!&ndash; RouterPanel 弹窗 &ndash;&gt;-->
-    <RouterPanel
-      :visible="routerPopupVisible"
-      :position="routerPopupPosition"
-      :popupData="routerPopupData"
-    />
 
 
     <commandScreenTitle
@@ -807,6 +811,11 @@ import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vu
 import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
 import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
 
+import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
+import commonPanel from "@/components/Cesium/CommonPanel";
+import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import eqCenterPanel from "@/components/Panel/eqCenterPanel.vue";
+import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getAllEqList, getEqById, getEqListById, getExcelUploadEarthquake} from '@/api/system/eqlist'
@@ -820,9 +829,7 @@ import {initWebSocket} from '@/cesium/WS.js'
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
-import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-import commonPanel from "@/components/Cesium/CommonPanel";
-import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+
 import eqTable from '@/components/Home/eqtable.vue'
 import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
@@ -833,7 +840,7 @@ import {getEmergency, getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
-import RouterPanel from "@/components/Cesium/RouterPanel.vue";
+
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {addFaultZones, addHistoryEqPoints, addOvalCircles, handleOutputData} from "../../cesium/plot/eqThemes.js";
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
@@ -970,16 +977,19 @@ export default {
     timeLinePlotStatistics,
     timeLineMiniMap,
     //灾情总览 end
+    //弹框
+    RouterPanel,
+    TimeLinePanel,
+    commonPanel,
+    dataSourcePanel,
+    eqCenterPanel,
     //--未整理---
     damageThemeAssessment,
     disasterStatistics,
     PlotSearch,
     timeLineCasualtyStatisticthd,
     thematicMapPreview,
-    RouterPanel,
-    TimeLinePanel,
-    commonPanel,
-    dataSourcePanel,
+
     eqTable,
     layeredShowPlot,
     earthquakeTable,
@@ -1015,6 +1025,7 @@ export default {
       hasUpdatedPosition:false,
       //------------------未整理-----------------------
 // -----------弹窗们的状态变量-------------
+      eqCenterPanelVisible:false,
       selectedEntityPosition: '', //存储断裂带div的位置
       selectedEntityHighDiy: null, // 存储弹窗的位置
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
@@ -1836,8 +1847,18 @@ export default {
           //   }
           // }
           // 如果点击的是标绘点
+          if(entity._layer === "震中"){
+            this.eqCenterPanelVisible=true;
+            this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
+            this.timelinePopupData = {}
+            this.timelinePopupData = this.extractDataForRouter(entity)
+            this.timelinePopupVisible = false;
+            this.dataSourcePopupVisible = false
+            this.routerPopupVisible = false;
+          }
 
-          if (entity._layer === "标绘点"||entity._layer === "震中") {
+          else if (entity._layer === "标绘点") {
+            this.eqCenterPanelVisible=false;
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
@@ -1879,6 +1900,7 @@ export default {
           // }
          else {
             // 如果不是标绘点或路标
+            this.eqCenterPanelVisible=false;
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
             this.dataSourcePopupVisible = false
@@ -1888,6 +1910,7 @@ export default {
         else {
           // 没有选中实体时隐藏 faultInfo
           // faultInfoDiv.style.display = 'none';
+          this.eqCenterPanelVisible=false;
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
           this.dataSourcePopupVisible = false
@@ -1896,7 +1919,7 @@ export default {
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+        if (this.eqCenterPanelVisible||this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
