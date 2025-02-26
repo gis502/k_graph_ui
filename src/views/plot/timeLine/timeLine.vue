@@ -333,44 +333,64 @@ export default {
           // 如果点击的是标绘点
           if(entity._layer === "震中"){
             this.eqCenterPanelVisible=true;
-            this.PanelPosition = this.selectedEntityPosition; // 更新位置
-            this.timelinePopupData = {}
-            this.timelinePopupData = this.extractDataForRouter(entity)
-            console.log("timelinePopupData 震中",this.timelinePopupData)
-            this.timelinePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
+            this.PanelPosition = this.selectedEntityPosition; // 更新位置
+            this.PanelData = {}
+            this.PanelData = this.extractDataForRouter(entity)
+            console.log("PanelData 震中",this.PanelData)
           }
           else if (entity._layer === "标绘点") {
-            this.timelinePopupVisible = true;
-            this.PanelPosition = this.selectedEntityPosition; // 更新位置
-            this.timelinePopupData = {}
-            this.timelinePopupData = this.extractDataForRouter(entity)
-            // console.log("timelinePopupData 标绘点",this.timelinePopupData)
-            // console.log("this.extractDataForRouter(entity)标绘点;",this.extractDataForRouter(entity))
             this.eqCenterPanelVisible=false;
+            this.plotShowOnlyPanelVisible = true;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
+            this.PanelPosition = this.selectedEntityPosition; // 更新位置
+            this.PanelData = {}
+            this.PanelData = this.extractDataForRouter(entity)
+            // console.log("PanelData 标绘点",this.PanelData)
 
           }
           //救援队伍、避难场所、应急物资
           else if (entity._layer === "避难场所"||entity._layer === "救援队伍分布"||entity._layer === "应急物资存储") {
             this.routerPopupVisible = true;
-            this.PanelPosition = this.selectedEntityPosition;
-            this.routerPopupData = this.extractDataForRouter(entity);
             this.dataSourcePopupVisible = false
-            this.timelinePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
+            this.PanelPosition = this.selectedEntityPosition;
+            this.PanelData = this.extractDataForRouter(entity);
           }
           // //聚合图标
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
             if (entity[0].entityCollection.owner.name === "label") {
               this.dataSourcePopupVisible = false
-              this.timelinePopupVisible = false
+              this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
             } else {
-              this.dataSourcePopupData = entity
+              //----
+
+              let popupPanelDatatmp = entity.filter(item => item.plottype !==undefined);
+
+              const drawTypes = popupPanelDatatmp.map(obj => obj.plottype);
+              console.log(drawTypes)
+              this.data = drawTypes.reduce((acc, type) => {
+                if (acc[type]) {
+                  acc[type] += 1;
+                } else {
+                  acc[type] = 1;
+                }
+
+                return acc;
+              }, {});
+
+              this.dataSourcePopupData = Object.entries(this.data).map(([key, value]) => ({
+                type: key,
+                count: value
+              }));
+
+              // this.dataSourcePopupData = entity
               this.dataSourcePopupVisible = true
-              this.timelinePopupVisible = false
+              this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
 
             }
@@ -380,7 +400,7 @@ export default {
             // 如果不是标绘点或路标
             this.eqCenterPanelVisible=false;
             this.routerPopupVisible = false;
-            this.timelinePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false
           }
         }
@@ -390,14 +410,14 @@ export default {
           // faultInfoDiv.style.display = 'none';
           this.eqCenterPanelVisible=false;
           this.routerPopupVisible = false;
-          this.timelinePopupVisible = false;
+          this.plotShowOnlyPanelVisible = false;
           this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.eqCenterPanelVisible||this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+        if (this.eqCenterPanelVisible||this.plotShowOnlyPanelVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);

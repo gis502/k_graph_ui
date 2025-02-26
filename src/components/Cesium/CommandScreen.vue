@@ -471,22 +471,22 @@
         <eqCenterPanel
           v-show="eqCenterPanelVisible"
           :position="PanelPosition"
-          :popupData="timelinePopupData"
+          :popupData="PanelData"
         />
         <plotInfoOnlyShowPanel
-          v-show="timelinePopupVisible"
+          v-show="plotShowOnlyPanelVisible"
           :position="PanelPosition"
-          :popupData="timelinePopupData"
-        />
-        <dataSourcePanel
-          :visible="dataSourcePopupVisible"
-          :position="dataSourcePopupPosition"
-          :popupData="dataSourcePopupData"
+          :popupData="PanelData"
         />
         <RouterPanel
             :visible="routerPopupVisible"
-            :position="routerPopupPosition"
-            :popupData="routerPopupData"
+            :position="PanelPosition"
+            :popupData="PanelData"
+        />
+        <dataSourcePanel
+            :visible="dataSourcePopupVisible"
+            :position="PanelPosition"
+            :popupData="dataSourcePopupData"
         />
       </div>
     </div>
@@ -802,8 +802,6 @@ import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue"
 
 import eqCenterPanel from "@/components/Panel/eqCenterPanel.vue";
 import plotInfoOnlyShowPanel from "@/components/Panel/plotInfoOnlyShowPanel";
-
-
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
 import RouterPanel from "@/components/Cesium/RouterPanel.vue";
 //前后端接口
@@ -969,7 +967,6 @@ export default {
     //灾情总览 end
     //弹框
     RouterPanel,
-
     eqCenterPanel,
     plotInfoOnlyShowPanel,
 
@@ -1017,25 +1014,19 @@ export default {
       hasUpdatedPosition:false,
       //------------------未整理-----------------------
 // -----------弹窗们的状态变量-------------
+      selectedEntityPosition: '', //拾取的点的弹框位置
       eqCenterPanelVisible:false,
-      selectedEntityPosition: '', //存储断裂带div的位置
-      selectedEntityHighDiy: null, // 存储弹窗的位置
+
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
-      routerPopupPosition: {x: 0, y: 0}, // RouterPanel弹窗的位置
-      routerPopupData: {}, // RouterPanel弹窗的数据
-
-      timelinePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
+      plotShowOnlyPanelVisible: false, // TimeLinePanel弹窗的显示与隐藏
       PanelPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
-      timelinePopupData: {}, // TimeLinePanel弹窗的数据
+      PanelData: {}, // TimeLinePanel弹窗的数据
       //----------------------------------
-
       dataSourcePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
-      dataSourcePopupPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
-      dataSourcePopupData: [], // TimeLinePanel弹窗的数据
+      dataSourcePopupData: {}, // TimeLinePanel弹窗的数据
       //----------------------------------
 
       eqqueueId: '',
-
       store: '',
       //时间轴时间
       timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
@@ -1343,7 +1334,6 @@ export default {
       selectedDataBySupplies: {},
 
       //-----------弹窗部分-------------------
-      // selectedEntityHighDiy: null,
       popupPosition: {x: 0, y: 0}, // 弹窗显示位置，传值给子组件
       popupVisible: false, // 弹窗的显示与隐藏，传值给子组件
       popupData: {}, // 弹窗内容，传值给子组件
@@ -1731,44 +1721,64 @@ export default {
           // 如果点击的是标绘点
           if(entity._layer === "震中"){
             this.eqCenterPanelVisible=true;
-            this.PanelPosition = this.selectedEntityPosition; // 更新位置
-            this.timelinePopupData = {}
-            this.timelinePopupData = this.extractDataForRouter(entity)
-            console.log("timelinePopupData 震中",this.timelinePopupData)
-            this.timelinePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
+            this.PanelPosition = this.selectedEntityPosition; // 更新位置
+            this.PanelData = {}
+            this.PanelData = this.extractDataForRouter(entity)
+            console.log("PanelData 震中",this.PanelData)
           }
           else if (entity._layer === "标绘点") {
-            this.timelinePopupVisible = true;
-            this.PanelPosition = this.selectedEntityPosition; // 更新位置
-            this.timelinePopupData = {}
-            this.timelinePopupData = this.extractDataForRouter(entity)
-            // console.log("timelinePopupData 标绘点",this.timelinePopupData)
-            // console.log("this.extractDataForRouter(entity)标绘点;",this.extractDataForRouter(entity))
             this.eqCenterPanelVisible=false;
+            this.plotShowOnlyPanelVisible = true;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
+            this.PanelPosition = this.selectedEntityPosition; // 更新位置
+            this.PanelData = {}
+            this.PanelData = this.extractDataForRouter(entity)
+            // console.log("PanelData 标绘点",this.PanelData)
 
           }
           //救援队伍、避难场所、应急物资
           else if (entity._layer === "避难场所"||entity._layer === "救援队伍分布"||entity._layer === "应急物资存储") {
                 this.routerPopupVisible = true;
-                this.PanelPosition = this.selectedEntityPosition;
-                this.routerPopupData = this.extractDataForRouter(entity);
                 this.dataSourcePopupVisible = false
-                this.timelinePopupVisible = false;
-              }
+                this.plotShowOnlyPanelVisible = false;
+            this.PanelPosition = this.selectedEntityPosition;
+            this.PanelData = this.extractDataForRouter(entity);
+          }
           // //聚合图标
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
             if (entity[0].entityCollection.owner.name === "label") {
               this.dataSourcePopupVisible = false
-              this.timelinePopupVisible = false
+              this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
             } else {
-              this.dataSourcePopupData = entity
+              //----
+
+              let popupPanelDatatmp = entity.filter(item => item.plottype !==undefined);
+
+                const drawTypes = popupPanelDatatmp.map(obj => obj.plottype);
+                console.log(drawTypes)
+                this.data = drawTypes.reduce((acc, type) => {
+                  if (acc[type]) {
+                    acc[type] += 1;
+                  } else {
+                    acc[type] = 1;
+                  }
+
+                  return acc;
+                }, {});
+
+                this.dataSourcePopupData = Object.entries(this.data).map(([key, value]) => ({
+                  type: key,
+                  count: value
+                }));
+
+              // this.dataSourcePopupData = entity
               this.dataSourcePopupVisible = true
-              this.timelinePopupVisible = false
+              this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
 
             }
@@ -1778,7 +1788,7 @@ export default {
             // 如果不是标绘点或路标
             this.eqCenterPanelVisible=false;
             this.routerPopupVisible = false;
-            this.timelinePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false
           }
         }
@@ -1788,14 +1798,14 @@ export default {
           // faultInfoDiv.style.display = 'none';
           this.eqCenterPanelVisible=false;
           this.routerPopupVisible = false;
-          this.timelinePopupVisible = false;
+          this.plotShowOnlyPanelVisible = false;
           this.dataSourcePopupVisible = false
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.eqCenterPanelVisible||this.timelinePopupVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+        if (this.eqCenterPanelVisible||this.plotShowOnlyPanelVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -1868,14 +1878,6 @@ export default {
           // 如果转换成功，则更新弹窗位置
           if (canvasPosition) {
             this.PanelPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-            this.routerPopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-            this.dataSourcePopupPosition = {
               x: canvasPosition.x + 10,
               y: canvasPosition.y + 10
             };
@@ -2034,10 +2036,7 @@ export default {
     },
 
 
-
-
     // ------------------------------路径规划+物资匹配---------------------------
-
     switchPanel(action) {
       // 更新 panels 的状态，先设置所有为 false
       for (let key in this.panels) {
@@ -2775,10 +2774,7 @@ export default {
       gl.getExtension("WEBGL_lose_context").loseContext();
       gl = null
     },
-    // 关闭弹窗
-    closePlotPop() {
-      this.timelinePopupVisible = !this.timelinePopupVisible
-    },
+
 
     /**
      * 计算复选框列表的高度

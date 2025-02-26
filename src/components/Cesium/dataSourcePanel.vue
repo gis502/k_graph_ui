@@ -41,28 +41,9 @@ export default {
     popupData: {
       deep: true,
       handler() {
-        this.popupPanelData = this.popupData.filter(item => item.plottype !==undefined);
-
-        if (this.visiblePanel) {
-          const drawTypes = this.popupPanelData.map(obj => obj.plottype);
-          console.log(drawTypes)
-          this.data = drawTypes.reduce((acc, type) => {
-            if (acc[type]) {
-              acc[type] += 1;
-            } else {
-              acc[type] = 1;
-            }
-
-            return acc;
-          }, {});
-
-          this.tableData = Object.entries(this.data).map(([key, value]) => ({
-            type: key,
-            count: value
-          }));
-          console.log("data",this.tableData)
+        this.tableData=this.popupData
         }
-      }
+
     },
     position() {
       this.positionEntity = this.position;
