@@ -907,7 +907,6 @@ export default {
         // 使用 Cesium 的函数将 JulianDate 转换为 ISO 字符串
         return Cesium.JulianDate.toIso8601(this.currentTime);
       }
-      return '';
     },
     // 以下方法确保表单字段数据为0时不显示，初始化时数据不为null，不会报错
     displayDisasterTentsCount: {
@@ -991,7 +990,7 @@ export default {
     return {
       //时间轴和时间轴的组件
       eqid: '',
-      currentTime: '',
+      currentTime: new Date(),
       centerPoint: {},
       viewer: '',
       //地震时间年月日-title
@@ -1513,7 +1512,12 @@ export default {
         viewer.clock.multiplier = 3600
         let that = this
         viewer.clock.onTick.addEventListener(function (clock) {
-          that.currentTime = clock.currentTime;
+          console.log(clock.currentTime,"clock.currentTime")
+          if(clock.currentTime){
+            that.currentTime = clock.currentTime;
+          }
+          // if()
+          // console.log("maybe non",this.currentTime)
           if (viewer.clockViewModel.shouldAnimate) {
             that.isTimeRunning = true
           } else {
