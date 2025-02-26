@@ -352,79 +352,6 @@
 
     <!-- 进度条 end-->
 
-    <!--    两侧组件-->
-    <div v-show="showSidebarComponents">
-      <div class="pop_left_background">
-        <!--   应急响应-左上   -->
-        <timeLineEmergencyResponse
-            :eqid="eqid"
-            :currentTime="currentTime"
-            :eqstartTime="eqstartTime"
-            :isfirst="isfirst"
-            @addJumpNodes="addJumpNodes"
-        />
-        <div>
-
-          <!--   人员伤亡-左中   -->
-          <timeLinePersonnelCasualties
-              :eqid="eqid"
-              :currentTime="currentTime"
-              @addJumpNodes="addJumpNodes"
-          />
-        </div>
-
-        <!--   基础信息-左下   -->
-        <timeLineRescueTeam
-            v-if="eqyear"
-            :eqid="eqid"
-            :currentTime="currentTime"
-            @addJumpNodes="addJumpNodes"
-            :eqyear="eqyear"
-            :earthquakeName="centerPoint.earthquakeName"
-        />
-      </div>
-      <div class="pop_right_background">
-        <!--  新闻-右上  -->
-        <div>
-          <news
-              :eqid="eqid"
-              :currentTime="currentTime"
-              @ifShowDialog="ifShowDialog"
-              @detailedNews="detailedNews"
-              @addJumpNodes="addJumpNodes"
-          ></news>
-        </div>
-        <!--      新闻弹框-->
-        <div>
-          <news-dialog
-              :showDetailedNewsDialog="showDetailedNewsDialog"
-              :showingNewsContent="showingNewsContent"
-              @hideNewsDialog="hideNewsDialog"
-          ></news-dialog>
-        </div>
-        <!--      标绘统计-->
-        <div>
-          <plotStatistics
-              :plots="plots"
-              :currentTime="currentTime"
-              :zoomLevel="zoomLevel"
-              :isTimerRunning="isTimerRunning"
-              :viewCenterCoordinate="viewCenterCoordinate"
-              :earthquakeName="centerPoint.earthquakeName"
-          ></plotStatistics>
-        </div>
-        <!--      缩略图-->
-        <div>
-          <mini-map></mini-map>
-        </div>
-      </div>
-      <!--      图例-->
-      <timeLineLegend
-          :activeComponent="activeComponent"
-          @toggleComponent="toggleComponent"
-      ></timeLineLegend>
-    </div>
-    <!--    两侧组件 end-->
     <!--展示弹框伤亡统计-->
     <div id="legend" v-show="isShowYaanRegionLegend"
          style="position: absolute;
@@ -709,14 +636,7 @@ import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
-import newsDialog from "@/components/TimeLine/newsDialog.vue";
-import timeLineEmergencyResponse from "@/components/TimeLine/timeLineEmergencyResponse.vue"
-import timeLinePersonnelCasualties from "@/components/TimeLine/timeLinePersonnelCasualties.vue"
-import timeLineRescueTeam from "@/components/TimeLine/timeLineRescueTeam.vue"
-import MiniMap from "@/components/TimeLine/miniMap.vue";
-import News from "@/components/TimeLine/news.vue";
-import timeLineLegend from "@/components/TimeLine/timeLineLegend.vue";
-import plotStatistics from "@/components/TimeLine/plotStatistics.vue";
+
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
 import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
@@ -793,14 +713,7 @@ export default {
     thematicMapPreview,
     RouterPanel,
     TimeLinePanel,
-    News,
-    MiniMap,
-    plotStatistics,
-    timeLineEmergencyResponse,
-    timeLinePersonnelCasualties,
-    timeLineRescueTeam,
-    timeLineLegend,
-    newsDialog,
+
     commonPanel,
     dataSourcePanel,
     eqTable,
