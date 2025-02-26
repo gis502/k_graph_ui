@@ -227,11 +227,6 @@ export default {
       dataGroups.value.historyModerate = historyData.filter(item => item.magnitude >= 4.5 && item.magnitude < 6);
       dataGroups.value.historyMajor = historyData.filter(item => item.magnitude >= 6);
 
-      // console.log("最新4.5级以下地震:", dataGroups.value.latestSlight);
-      // console.log("最新4.5 - 6级地震:", dataGroups.value.latestModerate);
-      // console.log("最新6级以上地震:", dataGroups.value.latestMajor);
-      // console.log("历史4.5 - 6级地震:", dataGroups.value.historyModerate);
-      // console.log("历史6级以上地震:", dataGroups.value.historyMajor);
 
 
     };
@@ -246,7 +241,7 @@ export default {
 
       mapConfig.value.map = new T.Map('emap');
       // 设置地图的中心点和缩放级别。
-      mapConfig.value.map.centerAndZoom(new T.LngLat(105.00, 30.00), 6);
+      mapConfig.value.map.centerAndZoom(new T.LngLat(103.00, 30.00), 8);
 
 
       // 创建 D3Overlay 实例
@@ -335,8 +330,6 @@ export default {
       const pathGenerator = d3.geo.path(transform.projection);  // 使用投影函数
 
       const upd = sel.selectAll('path.geojson').data(sichuan.features); // 使用四川的 GeoJSON 数据
-      // console.log("sichuan.features1111111111111111111111111111111111",sichuan.features);
-      // console.log("Updating paths2222222222222222222222222222222222222:", upd);
 
       upd.enter()
         .append('path')
@@ -798,7 +791,7 @@ export default {
 /* 自定义 比例尺 */
 
 :deep(.tdt-bottom .tdt-control-scale ) {
-  margin-bottom: 5px;
+  margin-bottom: 25px;
 }
 
 :deep(.tdt-left .tdt-control-scale ) {
@@ -907,7 +900,8 @@ export default {
 
 .legend {
   bottom: 0;
-  left: 36.4%;
+  //left: 36.4%;
+  left: 34%;
   z-index: 35;
   /* margin-top: 5px; */
   background-color: transparent;

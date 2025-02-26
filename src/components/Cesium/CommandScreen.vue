@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!--    地震列表切换-->
+    <!--    灾情预估切换-->
     <div class="thd-listTable" v-if="activeComponent === 'eqList'">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <damageThemeAssessment

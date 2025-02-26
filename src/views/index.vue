@@ -14,7 +14,7 @@
 
 
         <div class="center-body">
-          <e-map :eq-data="CeShiTableData"/>
+          <e-map :eq-data="MapData"/>
         </div>
 
         <div class="left">
@@ -185,6 +185,32 @@ const CeShiTableData = computed(() => {
   }
   return tableData.value;
 });
+const MapData = computed(() => {
+  let filteredData = tableData.value;
+
+  if (activeMode.value === 'Z') {
+    filteredData = filteredData.filter(item => item.eqType === 'Z');
+  } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
+    filteredData = filteredData.filter(item => item.eqType === 'Y' || item.eqType === 'T');
+  }
+  console.log("filterDate0000000000000",filteredData)
+  // 过滤出年份大于等于2000的地震数据
+  filteredData = filteredData.filter(item => item.occurrenceTime && new Date(item.occurrenceTime).getFullYear() >= 2000);
+
+  return filteredData;
+});
+
+
+// 监听 MapData 变化，更新 lastEqData
+watch(MapData, (newVal) => {
+  if (newVal.length > 0) {
+    lastValidEqData.value = newVal[0]; // 存储上一次有值的第一条数据
+    lastEqData.value = newVal[0];
+  } else {
+    lastEqData.value = lastValidEqData.value; // 为空时回退到存储值
+  }
+}, { deep: true, immediate: true });
+
 
 // 监听 CeShiTableData 变化，更新 lastEqData
 watch(CeShiTableData, (newVal) => {
