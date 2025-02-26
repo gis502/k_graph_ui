@@ -279,7 +279,8 @@ export default {
       timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000, 5).then(() => {
         viewer.clockViewModel.shouldAnimate = true;
       });
-      timeLine.addMakerPoint(this.centerPoint, "震中")
+      timeLine.addDataSourceLayer("pointData")
+      timeLine.addCenterPoint(this.centerPoint)
     }
     ,
     toggleComponent(component) {

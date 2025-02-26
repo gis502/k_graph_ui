@@ -24,6 +24,48 @@ let timeLine = {
             });
         });
     },
+    addCenterPoint(item) {
+        //点的属性 震中点统用一一个方法
+        let img = centerstar
+        let labeltext =item.earthquakeName
+        if (window.viewer && window.viewer.entities) {
+            window.viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(
+                    parseFloat(item.longitude),
+                    parseFloat(item.latitude),
+                    parseFloat(item.elevation || 0)
+                ),
+                billboard: {
+                    image: img,
+                    width: 40,
+                    height: 40,
+                    eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+                    scale: 0.8,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    depthTest: false,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    color: Cesium.Color.WHITE.withAlpha(1),//颜色
+                    clampToGround: true,
+                },
+                label: {
+                    text: labeltext,
+                    show: true,
+                    font: '14px sans-serif',
+                    fillColor: Cesium.Color.RED,        //字体颜色
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    outlineWidth: 2,
+                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    pixelOffset: new Cesium.Cartesian2(0, -16),
+                },
+                id: item.plotId,
+                plottype: item.plotType,
+                layer: "震中",
+                properties: {...item}
+            })
+        }
+    },
     MiniMapAddMakerPoint(smallViewer, centerPoint) {
         console.log(smallViewer.entities, "smallViewer.entities")
         smallViewer.entities.add({
@@ -401,59 +443,54 @@ let timeLine = {
 
     addMakerPoint(item, type) {
         //点的属性 震中点统用一一个方法
-        let img = null
         let labeltext = null
-        if (item.plotType == "震中") {
-            img = centerstar
-            labeltext = item.earthquakeName
-        }
-        else {
-            img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
-        }
+        let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
 
-        let pointDataSource=this.addDataSourceLayer("pointData")
-        if(pointDataSource){
-            if (window.pointDataSource.entities.getById(item.plotId)) {
-                window.pointDataSource.entities.removeById(item.plotId);  // 删除已存在的多边形实体
-            }
-            pointDataSource.entities.add({
-                availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
-                    start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
-                    stop: Cesium.JulianDate.fromDate(new Date(item.endTime))
-                })]),
-                position: Cesium.Cartesian3.fromDegrees(
-                    parseFloat(item.longitude),
-                    parseFloat(item.latitude),
-                    parseFloat(item.elevation || 0)
-                ),
-                billboard: {
-                    image: img,
-                    width: 40,
-                    height: 40,
-                    eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-                    scale: 0.8,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                    depthTest: false,
-                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                    color: Cesium.Color.WHITE.withAlpha(1),//颜色
-                    clampToGround: true,
-                },
-                label: {
-                    text: labeltext,
-                    show: true,
-                    font: '14px sans-serif',
-                    fillColor: Cesium.Color.RED,        //字体颜色
-                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                    outlineWidth: 2,
-                    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                    disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    pixelOffset: new Cesium.Cartesian2(0, -16),
-                },
-                id: item.plotId,
-                plottype: item.plotType,
-                layer: type
-            })
+            let pointDataSource=this.addDataSourceLayer("pointData")
+            if(pointDataSource){
+                if (window.pointDataSource.entities.getById(item.plotId)) {
+                    window.pointDataSource.entities.removeById(item.plotId);  // 删除已存在的多边形实体
+                }
+                pointDataSource.entities.add({
+                    availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
+                        start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
+                        stop: Cesium.JulianDate.fromDate(new Date(item.endTime))
+                    })]),
+                    position: Cesium.Cartesian3.fromDegrees(
+                        parseFloat(item.longitude),
+                        parseFloat(item.latitude),
+                        parseFloat(item.elevation || 0)
+                    ),
+                    billboard: {
+                        image: img,
+                        width: 40,
+                        height: 40,
+                        eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+                        scale: 0.8,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                        depthTest: false,
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                        color: Cesium.Color.WHITE.withAlpha(1),//颜色
+                        clampToGround: true,
+                    },
+                    label: {
+                        text: labeltext,
+                        show: true,
+                        font: '14px sans-serif',
+                        fillColor: Cesium.Color.RED,        //字体颜色
+                        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                        outlineWidth: 2,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        pixelOffset: new Cesium.Cartesian2(0, -16),
+                    },
+                    id: item.plotId,
+                    plottype: item.plotType,
+                    layer: type,
+                    properties:{...item}
+                })
+
         }
     },
     addPolyline(item, type) {
@@ -485,7 +522,7 @@ let timeLine = {
                     clampToGround: true,
                 },
                 properties: {
-                    data: item,
+                    ...item,
                 }
             })
         }
@@ -520,7 +557,7 @@ let timeLine = {
                     properties: {
                         // pointPosition: this.positions,
                         // linePoint: this.polygonPointEntity,
-                        data: item //弹出框
+                        ...item //弹出框
                     }
                 });
             } else {
@@ -552,7 +589,7 @@ let timeLine = {
                     properties: {
                         // pointPosition: this.positions,
                         // linePoint: this.polygonPointEntity,
-                        data: item //弹出框
+                        ...item //弹出框
                     }
                 });
 
@@ -594,7 +631,7 @@ let timeLine = {
                     properties: {
                         // pointPosition: this.positions,
                         // linePoint: this.polygonPointEntity,
-                        data: item //弹出框
+                        ...item //弹出框
                     }
                 });
             }
@@ -653,7 +690,7 @@ let timeLine = {
                 }),
                 layer: type,
                 properties: {
-                    item
+                    ...item
                 }
             })
         }
@@ -697,7 +734,7 @@ let timeLine = {
                 }),
                 layer: type,
                 properties: {
-                    item
+                    ...item
                 }
             })
         }
@@ -741,7 +778,7 @@ let timeLine = {
                 }),
                 layer: type,
                 properties: {
-                    item
+                    ...item
                 }
             })
         }

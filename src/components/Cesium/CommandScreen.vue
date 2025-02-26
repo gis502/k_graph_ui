@@ -577,9 +577,9 @@
     </div>
 
     <!--   断裂带名称div   -->
-    <div id="faultInfo"
-         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">
-    </div>
+<!--    <div id="faultInfo"-->
+<!--         style="position: absolute; display: none; background-color: #3d423f; border: 1px solid black; padding: 5px; color: #fff; z-index: 1000; text-align: center;">-->
+<!--    </div>-->
 
     <!--经纬度跳转-->
     <div
@@ -1403,11 +1403,11 @@ export default {
   },
   mounted() {
     this.init()
+    this.initPlot(); // 初始化加载应急数据
+    // // ---------------------------------------------------
     this.initWebSocket()
     this.initModelTable(); // 初始化模型table数据
     this.getEq()
-    this.initPlot(); // 初始化加载应急数据
-    // // ---------------------------------------------------
     this.outputData()
 
   },
@@ -1422,7 +1422,7 @@ export default {
     }
   },
   methods: {
-    //地图
+    //--地图初始化--
     init() {
       let clock;
       getEqListById({id: this.eqid}).then(res => {
@@ -1512,7 +1512,7 @@ export default {
         viewer.clock.multiplier = 3600
         let that = this
         viewer.clock.onTick.addEventListener(function (clock) {
-          console.log(clock.currentTime,"clock.currentTime")
+          // console.log(clock.currentTime,"clock.currentTime")
           if(clock.currentTime){
             that.currentTime = clock.currentTime;
           }
@@ -1581,8 +1581,8 @@ export default {
         this.viewer = viewer
         viewer.clock.shouldAnimate = false;
         this.updateMapAndVariableBeforeInit()
-        this.watchTerrainProviderChanged();
         this.entitiesClickPonpHandler()
+        this.watchTerrainProviderChanged();//地形监听
         this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
 
         const ellipsoid = viewer.scene.globe.ellipsoid;
@@ -1628,7 +1628,8 @@ export default {
       timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000, 5).then(() => {
         viewer.clockViewModel.shouldAnimate = true;
       });
-      timeLine.addMakerPoint(this.centerPoint, "震中")
+      timeLine.addDataSourceLayer("pointData")
+      timeLine.addCenterPoint(this.centerPoint)
     },
     updateZoomLevel(cameraHeight) {
       if (cameraHeight < 50000) {
@@ -1636,6 +1637,40 @@ export default {
       } else {
         this.zoomLevel = '市'
       }
+    },
+    //--请求数据--物资储备--
+    initPlot() {
+      getFeaturesLayer().then(res => {
+        // 解构赋值，从响应数据中提取灾害储备、应急队伍和应急避难所的信息
+        let {disasterReserves, emergencyTeam, emergencyShelters} = res;
+        // 更新组件的灾害储备数据
+        this.disasterReserves = disasterReserves;
+        // 更新组件的应急队伍数据
+        this.emergencyTeam = emergencyTeam;
+        // 更新组件的应急避难所数据
+        this.emergencyShelters = emergencyShelters;
+        // 原注释保留，但实际代码中未调用此方法
+        // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
+      });
+      getEmergency().then(res => {
+        let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
+        console.log('获取到的res', res);
+
+        this.supplyList = disasterReliefSupplies
+        this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
+        this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
+
+        // 调用 `processPoints` 并传递不同的 `tableName`
+        // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+
+        this.listField = 'supplies'
+        this.selectedSuppliesList = this.suppliesList[0]
+        this.showIcon = this.selectedSuppliesList;
+        this.total = this.selectedSuppliesList.length;
+        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      });
     },
     //----时间轴组件传值--
     updatePlots(plots) {
@@ -1653,7 +1688,7 @@ export default {
     //     window.selectedEntity = pickedEntity?.id;
     //
     //     // 绑定断裂带信息的 div 元素
-    //     // const faultInfoDiv = document.getElementById('faultInfo');
+    //     const faultInfoDiv = document.getElementById('faultInfo');
     //     // 如果拾取到实体
     //     if (Cesium.defined(pickedEntity)) {
     //       let entity = window.selectedEntity;
@@ -1663,11 +1698,39 @@ export default {
     //       this.updatePopupPosition(); // 确保位置已更新
     //       const pickedObject = window.viewer.scene.pick(click.position);
     //
-    //     else if (entity._layer === "标绘点") {
+    //       if (entity._layer === "断裂带") {
+    //         //console.log("断裂带")
+    //
+    //         const faultName = pickedObject.id.properties.name._value;
+    //
+    //         if (faultName) {
+    //           // 获取点击位置的地理坐标 (Cartesian3)
+    //           const cartesian = viewer.scene.pickPosition(click.position);
+    //           if (!Cesium.defined(cartesian)) {
+    //             return;
+    //           }
+    //
+    //           // 更新 faultInfo 的位置和内容
+    //           this.updateFaultInfoPosition(faultName);
+    //
+    //           // 显示 faultInfo
+    //           faultInfoDiv.style.display = 'block';
+    //
+    //           // 监听地图变化，动态更新 div 的位置
+    //           window.viewer.scene.postRender.addEventListener(() => {
+    //             this.updateFaultInfoPosition(faultName);
+    //           });
+    //
+    //           //console.log(faultName)
+    //         }
+    //       }
+    //       // 如果点击的是标绘点
+    //       else if (entity._layer === "标绘点"||entity._layer === "震中") {
     //         this.timelinePopupVisible = true;
     //         this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
     //         this.timelinePopupData = {}
     //         this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+    //         console.log("this.extractDataForRouter(entity);",this.extractDataForRouter(entity))
     //         this.dataSourcePopupVisible = false
     //         this.routerPopupVisible = false;
     //       }
@@ -1726,7 +1789,6 @@ export default {
     //   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     // },
 
-
     entitiesClickPonpHandler() {
       let that = this;
       // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
@@ -1737,7 +1799,7 @@ export default {
         window.selectedEntity = pickedEntity?.id;
 
         // 绑定断裂带信息的 div 元素
-        const faultInfoDiv = document.getElementById('faultInfo');
+        // const faultInfoDiv = document.getElementById('faultInfo');
         // 如果拾取到实体
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
@@ -1747,72 +1809,75 @@ export default {
           this.updatePopupPosition(); // 确保位置已更新
           const pickedObject = window.viewer.scene.pick(click.position);
 
-          if (entity._layer === "断裂带") {
-            //console.log("断裂带")
-
-            const faultName = pickedObject.id.properties.name._value;
-
-            if (faultName) {
-              // 获取点击位置的地理坐标 (Cartesian3)
-              const cartesian = viewer.scene.pickPosition(click.position);
-              if (!Cesium.defined(cartesian)) {
-                return;
-              }
-
-              // 更新 faultInfo 的位置和内容
-              this.updateFaultInfoPosition(faultName);
-
-              // 显示 faultInfo
-              faultInfoDiv.style.display = 'block';
-
-              // 监听地图变化，动态更新 div 的位置
-              window.viewer.scene.postRender.addEventListener(() => {
-                this.updateFaultInfoPosition(faultName);
-              });
-
-              //console.log(faultName)
-            }
-          }
+          // if (entity._layer === "断裂带") {
+          //   //console.log("断裂带")
+          //
+          //   const faultName = pickedObject.id.properties.name._value;
+          //
+          //   if (faultName) {
+          //     // 获取点击位置的地理坐标 (Cartesian3)
+          //     const cartesian = viewer.scene.pickPosition(click.position);
+          //     if (!Cesium.defined(cartesian)) {
+          //       return;
+          //     }
+          //
+          //     // 更新 faultInfo 的位置和内容
+          //     this.updateFaultInfoPosition(faultName);
+          //
+          //     // 显示 faultInfo
+          //     faultInfoDiv.style.display = 'block';
+          //
+          //     // 监听地图变化，动态更新 div 的位置
+          //     window.viewer.scene.postRender.addEventListener(() => {
+          //       this.updateFaultInfoPosition(faultName);
+          //     });
+          //
+          //     //console.log(faultName)
+          //   }
+          // }
           // 如果点击的是标绘点
-          else if (entity._layer === "标绘点") {
+
+          if (entity._layer === "标绘点"||entity._layer === "震中") {
             this.timelinePopupVisible = true;
             this.timelinePopupPosition = this.selectedEntityPosition; // 更新位置
             this.timelinePopupData = {}
             this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+            console.log("this.extractDataForRouter(entity);",this.extractDataForRouter(entity))
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
-          }
-          //聚合图标
-          else if (Object.prototype.toString.call(entity) === '[object Array]') {
-            if (entity[0].entityCollection.owner.name === "label") {
-              this.dataSourcePopupVisible = false
-              this.timelinePopupVisible = false
-              this.routerPopupVisible = false;
-            } else {
-              this.dataSourcePopupData = entity
-              this.dataSourcePopupVisible = true
-              this.timelinePopupVisible = false
-              this.routerPopupVisible = false;
-
-            }
-          }
-          //救援队伍、避难场所、应急物资
-          else if (entity._billboard) {
-            this.routerPopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPosition;
-            this.routerPopupData = this.extractDataForRouter(entity);
-            this.dataSourcePopupVisible = false
-            this.timelinePopupVisible = false;
           }
           //箭头标绘
-          else if (entity._polygon) {
-            this.timelinePopupVisible = true;
-            this.timelinePopupPosition = this.selectedEntityPosition;
-            this.timelinePopupData = {}
-            this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
-            this.dataSourcePopupVisible = false
-            this.routerPopupVisible = false;
-          } else {
+          // else if (entity._polygon) {
+          //   this.timelinePopupVisible = true;
+          //   this.timelinePopupPosition = this.selectedEntityPosition;
+          //   this.timelinePopupData = {}
+          //   this.timelinePopupData = window.selectedEntity.properties.data ? window.selectedEntity.properties.data.getValue() : ""
+          //   this.dataSourcePopupVisible = false
+          //   this.routerPopupVisible = false;
+          // }
+          // //聚合图标
+          // else if (Object.prototype.toString.call(entity) === '[object Array]') {
+          //   if (entity[0].entityCollection.owner.name === "label") {
+          //     this.dataSourcePopupVisible = false
+          //     this.timelinePopupVisible = false
+          //     this.routerPopupVisible = false;
+          //   } else {
+          //     this.dataSourcePopupData = entity
+          //     this.dataSourcePopupVisible = true
+          //     this.timelinePopupVisible = false
+          //     this.routerPopupVisible = false;
+          //
+          //   }
+          // }
+          // //救援队伍、避难场所、应急物资
+          // else if (entity._billboard) {
+          //   this.routerPopupVisible = true;
+          //   this.timelinePopupPosition = this.selectedEntityPosition;
+          //   this.routerPopupData = this.extractDataForRouter(entity);
+          //   this.dataSourcePopupVisible = false
+          //   this.timelinePopupVisible = false;
+          // }
+         else {
             // 如果不是标绘点或路标
             this.routerPopupVisible = false;
             this.timelinePopupVisible = false;
@@ -1822,7 +1887,7 @@ export default {
         //没有拾取到实体
         else {
           // 没有选中实体时隐藏 faultInfo
-          faultInfoDiv.style.display = 'none';
+          // faultInfoDiv.style.display = 'none';
           this.routerPopupVisible = false;
           this.timelinePopupVisible = false;
           this.dataSourcePopupVisible = false
@@ -1837,43 +1902,106 @@ export default {
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
 
+    /**
+     * 计算点击位置的经纬度和高度
+     *
+     * @param {Object} clickPosition - 点击位置的屏幕坐标
+     * @returns {Object} - 返回一个对象，包含经度(x)、纬度(y)和高度(z)
+     */
+    calculatePosition(clickPosition) {
+      // 根据点击位置获取射线
+      let ray = viewer.camera.getPickRay(clickPosition);
+      // 用射线在场景中拾取位置
+      let position = viewer.scene.globe.pick(ray, viewer.scene);
+      // 将拾取的位置转换为地理坐标
+      let cartographic = Cesium.Cartographic.fromCartesian(position);
+      // 将地理坐标的经纬度转换为度数
+      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      // 根据地形是否加载来获取高度
+      let height = isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
 
-
-
-   //w物资储备
-    initPlot() {
-      getFeaturesLayer().then(res => {
-        // 解构赋值，从响应数据中提取灾害储备、应急队伍和应急避难所的信息
-        let {disasterReserves, emergencyTeam, emergencyShelters} = res;
-        // 更新组件的灾害储备数据
-        this.disasterReserves = disasterReserves;
-        // 更新组件的应急队伍数据
-        this.emergencyTeam = emergencyTeam;
-        // 更新组件的应急避难所数据
-        this.emergencyShelters = emergencyShelters;
-        // 原注释保留，但实际代码中未调用此方法
-        // this.updateMapLayers(); // 根据当前选中的图层显示或隐藏图层
-      });
-      getEmergency().then(res => {
-        let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
-        console.log('获取到的res', res);
-
-        this.supplyList = disasterReliefSupplies
-        this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
-        this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
-
-        // 调用 `processPoints` 并传递不同的 `tableName`
-        // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-        // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
-
-        this.listField = 'supplies'
-        this.selectedSuppliesList = this.suppliesList[0]
-        this.showIcon = this.selectedSuppliesList;
-        this.total = this.selectedSuppliesList.length;
-        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      // 返回计算得到的经纬度和高度
+      return {
+        x: longitude, // 经度
+        y: latitude,  // 纬度
+        z: height     // 高度
+      };
+    },
+    /**
+     * 更新断裂带信息在画布上的位置
+     * 此方法用于根据选定的实体位置，更新显示断裂带信息的div在画布上的位置
+     * @param {string} faultName - 断裂带的名称，将被显示在故障信息div中
+     */
+    updateFaultInfoPosition(faultName) {
+      this.$nextTick(() => {
+        if (this.selectedEntityPosition) {
+          // //console.log(this.selectedEntityPosition)
+          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+          );
+          if (canvasPosition) {
+            const faultInfoDiv = document.getElementById('faultInfo');
+            faultInfoDiv.style.left = canvasPosition.x + 'px';
+            faultInfoDiv.style.top = canvasPosition.y + 55 + 'px';
+            faultInfoDiv.innerHTML = `${faultName}`;
+            // //console.log(faultInfoDiv)
+          }
+        }
       });
     },
+    /**
+     * 更新弹窗位置
+     * 该方法用于更新路由和时间线弹窗在地图上的位置
+     * 它通过将选中的实体位置转换为屏幕坐标来实现
+     */
+    updatePopupPosition() {
+      // 使用$nextTick确保DOM更新后才执行位置计算
+      this.$nextTick(() => {
+        // 检查是否有选中的实体位置
+        if (this.selectedEntityPosition) {
+          // 将地理坐标转换为窗口坐标
+          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
+              window.viewer.scene,
+              Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
+          );
+          // 如果转换成功，则更新弹窗位置
+          if (canvasPosition) {
+            this.routerPopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
+            this.timelinePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
+            this.dataSourcePopupPosition = {
+              x: canvasPosition.x + 10,
+              y: canvasPosition.y + 10
+            };
+          }
+        }
+      });
+    },
+    /**
+     * 提取实体属性用于路由
+     *
+     * 此函数旨在根据实体的属性名称，动态地从实体对象中提取相应的属性值，
+     * 并将其组织成一个新的对象返回这对于构建动态路由或者进行属性比较等操作非常有用
+     *
+     * @param {Object} entity - 需要提取属性的实体对象，包含properties属性，其中包含可动态提取的属性
+     * @returns {Object} 返回一个新对象，该对象的属性和值根据entity.properties.propertyNames动态生成
+     */
+    extractDataForRouter(entity) {
+      let properties = {};
+      entity.properties.propertyNames.forEach(name => {
+        properties[name] = entity.properties[name].getValue();
+      });
+      return properties;
+    },
+
+
     //------------------未重构----------------------
     //websocket标绘
     initWebSocket() {
@@ -2930,111 +3058,7 @@ export default {
       addOvalCircles(this.centerPoint)
     },
 
-    /**
-     * 计算点击位置的经纬度和高度
-     *
-     * @param {Object} clickPosition - 点击位置的屏幕坐标
-     * @returns {Object} - 返回一个对象，包含经度(x)、纬度(y)和高度(z)
-     */
-    calculatePosition(clickPosition) {
-      // 根据点击位置获取射线
-      let ray = viewer.camera.getPickRay(clickPosition);
-      // 用射线在场景中拾取位置
-      let position = viewer.scene.globe.pick(ray, viewer.scene);
-      // 将拾取的位置转换为地理坐标
-      let cartographic = Cesium.Cartographic.fromCartesian(position);
-      // 将地理坐标的经纬度转换为度数
-      let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      let longitude = Cesium.Math.toDegrees(cartographic.longitude);
-      // 根据地形是否加载来获取高度
-      let height = isTerrainLoaded() ? viewer.scene.globe.getHeight(cartographic) : 0;
 
-      // 返回计算得到的经纬度和高度
-      return {
-        x: longitude, // 经度
-        y: latitude,  // 纬度
-        z: height     // 高度
-      };
-    },
-
-
-    /**
-     * 更新断裂带信息在画布上的位置
-     * 此方法用于根据选定的实体位置，更新显示断裂带信息的div在画布上的位置
-     * @param {string} faultName - 断裂带的名称，将被显示在故障信息div中
-     */
-    updateFaultInfoPosition(faultName) {
-      this.$nextTick(() => {
-        if (this.selectedEntityPosition) {
-          // //console.log(this.selectedEntityPosition)
-          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
-          );
-          if (canvasPosition) {
-            const faultInfoDiv = document.getElementById('faultInfo');
-            faultInfoDiv.style.left = canvasPosition.x + 'px';
-            faultInfoDiv.style.top = canvasPosition.y + 55 + 'px';
-            faultInfoDiv.innerHTML = `${faultName}`;
-            // //console.log(faultInfoDiv)
-          }
-        }
-      });
-    },
-
-
-    /**
-     * 更新弹窗位置
-     * 该方法用于更新路由和时间线弹窗在地图上的位置
-     * 它通过将选中的实体位置转换为屏幕坐标来实现
-     */
-    updatePopupPosition() {
-      // 使用$nextTick确保DOM更新后才执行位置计算
-      this.$nextTick(() => {
-        // 检查是否有选中的实体位置
-        if (this.selectedEntityPosition) {
-          // 将地理坐标转换为窗口坐标
-          const canvasPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
-            window.viewer.scene,
-            Cesium.Cartesian3.fromDegrees(this.selectedEntityPosition.x, this.selectedEntityPosition.y, this.selectedEntityPosition.z)
-          );
-          // 如果转换成功，则更新弹窗位置
-          if (canvasPosition) {
-            this.routerPopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-            this.timelinePopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-            this.dataSourcePopupPosition = {
-              x: canvasPosition.x + 10,
-              y: canvasPosition.y + 10
-            };
-          }
-        }
-      });
-    },
-
-
-
-    /**
-     * 提取实体属性用于路由
-     *
-     * 此函数旨在根据实体的属性名称，动态地从实体对象中提取相应的属性值，
-     * 并将其组织成一个新的对象返回这对于构建动态路由或者进行属性比较等操作非常有用
-     *
-     * @param {Object} entity - 需要提取属性的实体对象，包含properties属性，其中包含可动态提取的属性
-     * @returns {Object} 返回一个新对象，该对象的属性和值根据entity.properties.propertyNames动态生成
-     */
-    extractDataForRouter(entity) {
-      let properties = {};
-      entity.properties.propertyNames.forEach(name => {
-        properties[name] = entity.properties[name].getValue();
-      });
-      return properties;
-    },
 
 
 
