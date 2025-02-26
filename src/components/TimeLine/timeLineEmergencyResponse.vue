@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="pop" :class="{ 'tech-glow': showNewPanel }">
+    <div class="pop">
       <div class="pop_header">
         <h2 class="pop_title">
           应急响应
@@ -12,14 +12,13 @@
               v-for="(item, i) in responseShow"
           >
             <div class="pop_content">
-              <p class="pop_txt"><span>{{ item.time }}</span></p>
-              <p class="pop_txt"><span>{{ item.department }}</span></p>
+              <p class="pop_txt"><span>{{ timestampToTimeChina(item.responseTime) }}</span></p>
+              <p class="pop_txt"><span>{{ item.unit }}</span></p>
               <p class="pop_responseName">
-                <span>{{ item.ResponseName }}</span>
-                <span class="pop_txt">{{ item.state }}</span>
+                <span>{{ item.level }}</span>
+                <span class="pop_txt">{{ item.status }}</span>
               </p>
               <el-divider class="eldriver"></el-divider>
-
             </div>
           </li>
         </ul>
@@ -30,25 +29,28 @@
 
 <script>
 import {getEmergencyResponse} from "../../api/system/timeLine.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 
 export default {
   data() {
     return {
       EmergencyResponseResponsecontent: [],
-      responseHistory: [],
       responseShow:[],
-      responseNewPanelShow: [],
-      recordTime: '',
-      showNewPanel: false,
+      recordTime: timeTransfer.timestampToTimeChina(new Date()),
     };
   },
-  props: ['currentTime', 'eqid', 'isfirst', 'eqstartTime'],
+  props: ['currentTime', 'eqid'],
   mounted() {
     this.init();
   },
+
   watch: {
     currentTime(newVal) {
-      this.updateEmergencyResponse(newVal);
+      if(newVal) {
+        this.updateEmergencyResponse(this.currentTime);
+      }
+    },
+    centerPoint(newVal) {
     }
   },
   computed: {
@@ -63,177 +65,32 @@ export default {
   methods: {
     init() {
       getEmergencyResponse({eqid: this.eqid}).then(res => {
+        console.log("getEmergencyResponse",res)
         this.EmergencyResponseResponsecontent = res;
-        const times = res.map(item => item.responseTime);
-        this.$emit('addJumpNodes', times);
         this.updateEmergencyResponse(this.currentTime);
       });
     },
     async updateEmergencyResponse(currentTime) {
-      const activities = await this.EmergencyResponseResponsecontent.filter(activity => {
-        return new Date(activity.responseTime) <= currentTime;
-      });
-      if (activities.length > 0){
-        activities.sort((a, b) => {
-          if (a.responseTime < b.responseTime) return -1;
-          return 0;
+      if(currentTime){
+        this.responseShow = await this.EmergencyResponseResponsecontent.filter(item => {
+          return new Date(item.responseTime) <= new Date(timeTransfer.timestampToTime(currentTime));
         });
-      }
-      // console.log(activities,"activities")
-      this.responseShow=[]
-      // console.log("this.responseShow clear",this.responseShow)
-      for(let i =0;i<activities.length;i++){
-        // console.log("activities[i]",i,activities[i],activities[i].responseTime)
-        let tmpact = {
-          ResponseName: activities[i].level,
-          state: activities[i].status,
-          department: activities[i].unit,
-          time: this.timestampToTimeChina(activities[i].responseTime),
-        }
-        this.responseShow.unshift(tmpact)
-      }
-      // console.log("this.responseShow",this.responseShow)
-      // this.responseShow
-      if (currentTime === this.eqstartTime) {
-        this.responseNewPanelShow = []
-        this.responseHistory = []
-      }
-      //结束位置也不显示
-      if (this.isfirst) {
-        this.showNewPanel = false
-      }
-      else {
-
-
-        // console.log(activities,"activities.sort")
-        //没有更新
-        if (this.responseHistory.length == activities.length) {
-          this.showNewPanel = false
-        }
-        //回退
-        else if (this.responseHistory.length > activities.length) {
-          this.responseNewPanelShow = []
-          this.responseHistory = []
-          activities.forEach(item => {
-            let tmpact = {
-              ResponseName: item.level,
-              state: item.status,
-              department: item.unit,
-              time: this.timestampToTimeChina(item.responseTime),
-            }
-            this.responseHistory.push(tmpact)
-          })
-
-          // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {
-          //   // 将时间字符串转换为日期对象
-          //   const dateA = new Date(a.time.replace(/年|月|日/g, '-'));
-          //   const dateB = new Date(b.time.replace(/年|月|日/g, '-'));
-          //
-          //   // 比较日期对象
-          //   return dateA - dateB;
-          // });
-          // console.log( responseHistorytmp," this.responseHistory after")
-       }
-        //前进
-        else {
-          this.showNewPanel = true
-          this.responseNewPanelShow = []
-          // let responseNewPanelShowtmp = []
-          // console.log(activities[0],"activities0")
-          // 到目前为止所有
-          // activities
-          for(let i=activities.length-1;i>=0;i--){
-            if (!this.existsInresponseHistory(activities[i])) {
-              let tmpact = {
-                ResponseName: activities[i].level,
-                state: activities[i].status,
-                department: activities[i].unit,
-                time: this.timestampToTimeChina(activities[i].responseTime),
-              }
-              this.responseHistory.push(tmpact)
-              this.responseNewPanelShow.push(tmpact)
-              // responseNewPanelShowtmp.push(tmpact)
-            }
+        if(this.responseShow.length>0){
+          let recordTimetmp=timeTransfer.timestampToTimeChina(this.responseShow[0].responseTime)
+          if( recordTimetmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
+            this.recordTime=recordTimetmp
           }
-          // console.log( this.responseHistory," this.responseHistory before")
-          // 假设this.responseHistory是一个Proxy包装的数组
-          // let arr=[]
-          // let responseHistorytmp=toRaw(this.responseHistory).sort((a, b) => {
-          //   // 将时间字符串转换为日期对象
-          //   const dateA = new Date(a.time.replace(/年|月|日/g, '-'));
-          //   const dateB = new Date(b.time.replace(/年|月|日/g, '-'));
-          //
-          //   // 比较日期对象
-          //   return dateA - dateB;
-          // });
-          // console.log( responseHistorytmp," this.responseHistory after")
-          // console.log(this.responseNewPanelShow,"this.responseNewPanelShow before")
-          // this.responseNewPanelShow.sort((a, b) => {
-          //     if (a.time < b.time) return -1;
-          //     return 0;
-          //   });
-          // // 假设this.responseHistory是您提供的数组
-          // console.log(this.responseNewPanelShow,"this.responseNewPanelShow after")
+        }
+        else{
+          let recordTimetmp=timeTransfer.timestampToTimeChina(this.currentTime)
+          if( recordTimetmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
+            this.recordTime=recordTimetmp
+          }
         }
       }
 
-      //更新时间
-      if (activities.length > 0) {
-        activities.sort((a, b) => {
-          if (a.responseTime < b.responseTime) return -1;
-          if (a.responseTime > b.responseTime) return 1;
-          return 0;
-        });
-        //显示的一个
-        let tmp = activities[activities.length - 1];
-        this.recordTime = this.timestampToTimeChina(tmp.responseTime);
-      } else {
-        this.recordTime = this.timestampToTimeChina(currentTime);
-      }
     },
-    existsInresponseHistory(item) {
-      return this.responseHistory.some(existingItem => {
-        return (
-            existingItem.ResponseName === item.level &&
-            existingItem.state === item.status &&
-            existingItem.department === item.unit &&
-            existingItem.time === this.timestampToTimeChina(item.responseTime)
-        );
-      });
-    },
-    timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp);
-      let year = DateObj.getFullYear();
-      let month = DateObj.getMonth() + 1;
-      let day = DateObj.getDate();
-      let hh = DateObj.getHours();
-      let mm = DateObj.getMinutes();
-      let ss = DateObj.getSeconds();
-      month = month > 9 ? month : '0' + month;
-      day = day > 9 ? day : '0' + day;
-      hh = hh > 9 ? hh : '0' + hh;
-      mm = mm > 9 ? mm : '0' + mm;
-      ss = ss > 9 ? ss : '0' + ss;
-      return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
-    },
-    timestampToTimeChina(timestamp) {
-      let DateObj = new Date(timestamp);
-      let year = DateObj.getFullYear();
-      let month = DateObj.getMonth() + 1;
-      let day = DateObj.getDate();
-      let hh = DateObj.getHours();
-      let mm = DateObj.getMinutes();
-      let ss = DateObj.getSeconds();
-      month = month > 9 ? month : '0' + month;
-      day = day > 9 ? day : '0' + day;
-      hh = hh > 9 ? hh : '0' + hh;
-      mm = mm > 9 ? mm : '0' + mm;
-      ss = ss > 9 ? ss : '0' + ss;
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`;
-    },
-    hideDetailedNews() {
-      this.showNewPanel = false
-    }
+
   }
 };
 </script>
@@ -292,7 +149,7 @@ export default {
 
 .sub-main {
   margin-top: -6%;
-  max-height: 13vh;
+  max-height: 10vh;
   left: -2%;
   overflow-y: auto;
   overflow-x: hidden;
