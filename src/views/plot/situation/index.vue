@@ -342,7 +342,7 @@ import commonPanel from "@/components/Cesium/CommonPanel";
 import {useCesiumStore} from '@/store/modules/cesium.js'
 import centerstar from "@/assets/icons/TimeLine/震中.png";
 import Arrow from "@/cesium/drawArrow/drawPlot.js"
-import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
 import {plotType} from "../../../cesium/plot/plotType.js";
 import {downloadPlotExcel} from "../../../api/system/excel.js";
 import {getToken} from "../../../utils/auth.js";

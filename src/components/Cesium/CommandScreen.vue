@@ -802,8 +802,8 @@ import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue"
 
 import eqCenterPanel from "@/components/Panel/eqCenterPanel.vue";
 import plotInfoOnlyShowPanel from "@/components/Panel/plotInfoOnlyShowPanel";
-import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
-import RouterPanel from "@/components/Cesium/RouterPanel.vue";
+import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
+import RouterPanel from "@/components/Panel/RouterPanel.vue";
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getAllEqList, getEqById, getEqListById, getExcelUploadEarthquake} from '@/api/system/eqlist'

@@ -386,7 +386,7 @@ import * as Cesium from "cesium";
 import "cesium/Source/Widgets/widgets.css";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "@/cesium/tool/initCesium.js";
-import RouterPanel from "@/components/Cesium/RouterPanel.vue";
+import RouterPanel from "@/components/Panel/RouterPanel.vue";
 import cesiumPlot from "@/cesium/plot/cesiumPlot.js";
 import {getEmergency} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo
