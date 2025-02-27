@@ -289,6 +289,7 @@ export default {
           entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
         }
 
+        console.log(plot,plot.plotId,window.pointDataSource.entities.getById(plot.plotId),this.viewer.entities.getById(plot.plotId),entity,"plot.plotId entity")
         if (!entity) {
           console.error("Entity not found:", plot);
           resolve();

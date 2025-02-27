@@ -639,7 +639,7 @@ import TimeLinePanel from "@/components/Cesium/TimeLinePanel.vue";
 
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf"
 import commonPanel from "@/components/Cesium/CommonPanel";
-import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
 import eqTable from '@/components/Home/eqtable.vue'
 import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
@@ -650,7 +650,7 @@ import {getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
-import RouterPanel from "@/components/Cesium/RouterPanel.vue";
+import RouterPanel from "@/components/Panel/RouterPanel.vue";
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {addFaultZones, addHistoryEqPoints, addOvalCircles, handleOutputData} from "../../cesium/plot/eqThemes.js";
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
@@ -1130,6 +1130,7 @@ export default {
     // this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
     // console.log(this.thematicMapitems)
     // this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
+
   },
   mounted() {
     this.init()
@@ -1146,6 +1147,7 @@ export default {
     this.entitiesClickPonpHandler()
     this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
     // this.addSlopeCanvas()
+    console.log("thematicMapitems:", this.thematicMapitems);
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -4712,6 +4714,9 @@ export default {
       this.imgName = item.name
       this.showTypes = 1
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+
+      console.log("showThematicMapPreview",this.imgshowURL, this.imgName)
+
     },
     downloadReport(item) {
       this.$notify({
@@ -5963,7 +5968,7 @@ export default {
         this.showTypes = 1
         // //console.log("11111",this.imgurlFromDate, this.imgName)
         this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
-        // //console.log(this.imgshowURL)
+        console.log("updatethematicMap",this.imgshowURL, this.imgName)
       } else {
         this.ifShowMapPreview = false
       }
@@ -5991,6 +5996,7 @@ export default {
       this.showPositionFlyTo = false
     },
     showThematicMapDialog(item) {
+      console.log("专题图弹窗逻辑",item)
       // 显示专题图弹框逻辑
       this.ifShowMapPreview = true;
       this.imgName = item.name;

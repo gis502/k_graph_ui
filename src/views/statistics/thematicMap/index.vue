@@ -277,7 +277,7 @@ import {getCasualty} from "@/api/system/casualtystats" ;
 import {getTransferInfo} from "@/api/system/relocation";
 import {getPowerSupply} from "@/api/system/powerSupply.js";
 import {TianDiTuToken} from "@/cesium/tool/config.js";
-import dataSourcePanel from "@/components/Cesium/dataSourcePanel.vue";
+import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
 import {getVillagesName} from "@/api/system/ZhongDuanVillage.js";
 import {getHousingSituationList} from "@/api/system/housingSituation.js";
 import {getSupplySituationList} from "@/api/system/supplySituation.js";

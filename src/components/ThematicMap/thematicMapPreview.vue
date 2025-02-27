@@ -266,6 +266,7 @@ import {ElMessage} from "element-plus";
       return new URL(imgshowURL, import.meta.url).href
     },
     async downloadImage() {
+      console.log(this.imgName,this.imgshowURL, this.imgurlFromDate)
       this.$notify({
         title: '专题图下载',
         message: '数据正在解析中...',
