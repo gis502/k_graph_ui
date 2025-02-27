@@ -744,22 +744,42 @@ export default {
         duration: 7000, // 设置持续时间
         zIndex: 9999  // 设置 zIndex 来确保通知在最上层
       });
-      if (imgUrl) {
-        const a = document.createElement('a'); // 创建一个 <a> 元素
-        a.href = imgUrl;                       // 设置 href 为图片的 src 地址
-        a.download = imgUrl.split('/').pop();   // 使用 URL 中的最后一部分作为文件名
-        a.style.display = 'none';               // 隐藏 <a> 标签
-        document.body.appendChild(a);          // 将 <a> 标签添加到页面
-        a.click();                             // 触发点击事件，开始下载
-        document.body.removeChild(a);          // 下载后移除 <a> 标签
+
+      // 如果传入了 imgUrl，则使用传入的 URL，否则使用 this.imgUrl
+      const imageUrl = imgUrl || this.imgUrl;
+
+      if (imageUrl) {
+        // 使用 fetch 获取图片数据
+        fetch(imageUrl)
+            .then(response => response.blob()) // 将响应转换为 Blob 对象
+            .then(blob => {
+              // 创建一个隐藏的 <a> 元素用于下载
+              const a = document.createElement('a');
+              const url = URL.createObjectURL(blob); // 创建 Blob URL
+              a.href = url; // 设置 href 为 Blob URL
+              a.download = imageUrl.split('/').pop(); // 使用 URL 的最后一部分作为文件名
+              a.style.display = 'none'; // 隐藏 <a> 标签
+              document.body.appendChild(a); // 将 <a> 标签添加到页面
+              a.click(); // 触发点击事件，开始下载
+              document.body.removeChild(a); // 下载后移除 <a> 标签
+              URL.revokeObjectURL(url); // 释放 Blob URL
+            })
+            .catch(error => {
+              this.$notify({
+                title: '错误',
+                message: '图片下载失败，请检查 URL 或网络连接',
+                type: 'error',
+                duration: 5000
+              });
+              console.error('下载失败:', error);
+            });
       } else {
-        const a = document.createElement('a'); // 创建一个 <a> 元素
-        a.href = this.imgUrl;                       // 设置 href 为图片的 src 地址
-        a.download = this.imgUrl.split('/').pop();   // 使用 URL 中的最后一部分作为文件名
-        a.style.display = 'none';               // 隐藏 <a> 标签
-        document.body.appendChild(a);          // 将 <a> 标签添加到页面
-        a.click();                             // 触发点击事件，开始下载
-        document.body.removeChild(a);          // 下载后移除 <a> 标签
+        this.$notify({
+          title: '错误',
+          message: '图片 URL 不存在，无法下载',
+          type: 'error',
+          duration: 5000
+        });
       }
     },
 

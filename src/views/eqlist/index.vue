@@ -124,9 +124,34 @@
     <el-dialog :title="dialogTitle" v-model="dialogShow" width="30%">
       <el-form ref="from" :model="dialogContent" :rules="rules">
         <el-row>
-          <el-col :span="13">
-            <el-form-item label="震发位置：" prop="earthquakeName">
-              <el-input v-model="dialogContent.earthquakeName" placeholder="请输入内容"></el-input>
+          <!--          <el-col :span="13">-->
+          <!--            <el-form-item label="震发位置：" prop="earthquakeName">-->
+          <!--              <el-input v-model="dialogContent.earthquakeName" placeholder="请输入内容"></el-input>-->
+          <!--            </el-form-item>-->
+          <!--          </el-col>-->
+          <el-col :span="55">
+            <el-form-item label="震发位置：" prop="eqAddr">
+              <div class="custom-cascader-wrapper">
+                <!-- 输入框 -->
+                <el-input
+                    v-model="customAddress"
+                    placeholder="请选择或输入震发位置"
+                    @blur="handleCustomInput"
+                    @input="handleInputChange"
+                    class="custom-input"
+                />
+                <!-- 下拉框 -->
+                <el-cascader
+                    ref="cascader"
+                    :options="filteredOptions"
+                    v-model="selectedPath"
+                    @change="onLocationChange"
+                    separator=""
+                    :filterable="false"
+                    placeholder="请选择震发位置"
+                    class="custom-cascader"
+                />
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -1088,7 +1113,6 @@ export default {
       this.dialogContent.occurrenceTime = this.formatISODateTimeToBackend(this.dialogContent.occurrenceTime); // 调用方法格式化时间
       console.log("formatDateToBackend“T”->' 'commit：", this.dialogContent.occurrenceTime);
 
-
       if (this.dialogTitle === "新增") {
         console.log("this.dialogContent.time新增：", this.dialogContent.occurrenceTime);
         addEq(this.dialogContent).then(res => {
@@ -1098,12 +1122,27 @@ export default {
         });
       } else {
         // 修改接口
-        eqEventReassessment(this.dialogContent).then(res => {
+        const dataDTO = {
+          event: this.dialogContent.eqid,
+          eqMagnitude: this.dialogContent.magnitude,
+          eqName: this.extractAddress(this.customAddress),
+          longitude: this.dialogContent.longitude,
+          latitude: this.dialogContent.latitude,
+          eqAddr: this.customAddress
+        }
+        eqEventReassessment(dataDTO).then(res => {
           this.getEq();
           this.dialogShow = false;
           this.clearDialogContent();
         })
       }
+      this.dialogShow = false;
+    },
+    // .match('/(.*?[省市区县])/')[1]
+    extractAddress(address) {
+      const regex = /(.*?[省市区县])+/;
+      const match = address.match(regex);
+      return match ? match[0] : address; // 如果匹配成功，返回匹配的部分；否则返回原字符串
     },
 
     // 关闭dialog对话框

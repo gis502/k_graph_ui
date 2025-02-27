@@ -1130,6 +1130,7 @@ export default {
     // this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
     // console.log(this.thematicMapitems)
     // this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
+
   },
   mounted() {
     this.init()
@@ -1146,6 +1147,7 @@ export default {
     this.entitiesClickPonpHandler()
     this.handler = new Cesium.ScreenSpaceEventHandler(window.viewer.scene.canvas); // 初始化
     // this.addSlopeCanvas()
+    console.log("thematicMapitems:", this.thematicMapitems);
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -4712,6 +4714,9 @@ export default {
       this.imgName = item.name
       this.showTypes = 1
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
+
+      console.log("showThematicMapPreview",this.imgshowURL, this.imgName)
+
     },
     downloadReport(item) {
       this.$notify({
@@ -5963,7 +5968,7 @@ export default {
         this.showTypes = 1
         // //console.log("11111",this.imgurlFromDate, this.imgName)
         this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
-        // //console.log(this.imgshowURL)
+        console.log("updatethematicMap",this.imgshowURL, this.imgName)
       } else {
         this.ifShowMapPreview = false
       }
@@ -5991,6 +5996,7 @@ export default {
       this.showPositionFlyTo = false
     },
     showThematicMapDialog(item) {
+      console.log("专题图弹窗逻辑",item)
       // 显示专题图弹框逻辑
       this.ifShowMapPreview = true;
       this.imgName = item.name;
