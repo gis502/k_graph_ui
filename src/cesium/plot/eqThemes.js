@@ -4,8 +4,8 @@ import yaan from "@/assets/geoJson/yaan.json";
 import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json";
 import {domainName, zaisunimageipLocal} from "../../utils/server.js";
-import hospitalIcon from "../../assets/icons/svg/hospital.svg";
-import villageIcon from "../../assets/icons/svg/village.svg";
+import hospitalIcon from "@/assets/icons/svg/hospital.png";
+import villageIcon from "@/assets/icons/svg/village.png";
 
 // 雅安行政区加载
 export function addYaanLayer() {
@@ -125,7 +125,7 @@ export function addVillageLayer() {
         dataSource.entities.values.forEach(function(entity) {
           entity.properties.sourceName = "village";  // 追加自定义的属性
           entity.billboard = new Cesium.BillboardGraphics({
-            image: "villageIcon", // 使用导入的图片
+            image: villageIcon, // 使用导入的图片
             width: 32, // 图片宽度
             height: 32, // 图片高度
             scale: 1, // 图片缩放
