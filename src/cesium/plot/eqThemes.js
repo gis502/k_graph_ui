@@ -125,7 +125,7 @@ export function addVillageLayer() {
         dataSource.entities.values.forEach(function(entity) {
           entity.properties.sourceName = "village";  // 追加自定义的属性
           entity.billboard = new Cesium.BillboardGraphics({
-            image: villageIcon, // 使用导入的图片
+            image: "villageIcon", // 使用导入的图片
             width: 32, // 图片宽度
             height: 32, // 图片高度
             scale: 1, // 图片缩放

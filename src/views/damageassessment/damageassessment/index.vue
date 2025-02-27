@@ -1166,7 +1166,7 @@ export default {
     },
 
     //
-    // 医院
+    // 村委会
     showVillage() {
       this.eqThemes.show.isshowVillage = !this.eqThemes.show.isshowVillage;
       if (this.eqThemes.show.isshowVillage) {
