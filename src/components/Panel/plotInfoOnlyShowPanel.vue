@@ -203,6 +203,12 @@ export default {
 };
 </script>
 <style scoped>
+/* 调整字体大小为原来的 70% */
+* {
+  font-size: 95%;
+}
+
+
 .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
   /*width: 43px!important;*/
 }
@@ -234,8 +240,8 @@ export default {
 
 .videoMonitorWin {
   position: absolute;
-  width: 800px;
-  padding: 20px;
+  width: 563px;
+  padding: 4px;
   z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
@@ -256,7 +262,7 @@ export default {
 }
 
 .info-item :nth-child(2) {
-  width: 60%;
+  width: 50%;
   border-color: #4d5469;
   border-top-style: solid;
   border-top-width: 2px;
@@ -264,11 +270,11 @@ export default {
   margin-bottom: 2px;
 }
 .Marking-info-panel {
-  padding: 20px;
+  padding: 12px;
   background-color: #f9f9f9;
   border-radius: 8px;
   max-width: 100%;
-  margin: 10px 10px;
+  margin: 7px 6px;
 }
 svg {
   vertical-align: middle; /* 保持文本和图标对齐 */
