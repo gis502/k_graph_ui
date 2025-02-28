@@ -13,7 +13,7 @@
             <div class="cell-item">标绘名称</div>
           </template>
           <div>
-            <el-text size="large">
+            <el-text size="large"  class="no-wrap-text">
               {{ plotInfoNew.plotType || "未命名" }}
             </el-text>
           </div>
@@ -25,7 +25,7 @@
             </div>
           </template>
           <div>
-            <el-text size="large">{{
+            <el-text size="large"  class="no-wrap-text">{{
                 ("" + plotInfoNew.starttime).match('-')
                     ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
                     : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
@@ -40,7 +40,7 @@
             </div>
           </template>
           <div>
-            <el-text size="large">{{
+            <el-text size="large"  class="no-wrap-text">{{
                 ("" + plotInfoNew.endtime).match('-')
                     ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
                     : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
@@ -60,11 +60,12 @@
             </el-text>
           </div>
         </el-descriptions-item>
+
         <template v-for="(value,key,index) in plotInfoNew.info">
           <el-descriptions-item v-if="value.type ==='text'">
             <template #label>
               <div class="cell-item">
-                {{ value.name }}
+                {{ value.name }}l2
               </div>
             </template>
             <el-text size="large">{{ value.value }}</el-text>
@@ -72,12 +73,13 @@
           <el-descriptions-item v-if="value.type ==='select'">
             <template #label>
               <div class="cell-item">
-                {{ value.name }}
+                {{ value.name }}k2
               </div>
             </template>
             <el-text size="large">{{ value.value }}</el-text>
           </el-descriptions-item>
         </template>
+
       </el-descriptions>
     </div>
   </div>
@@ -208,6 +210,14 @@ export default {
   font-size: 95%;
 }
 
+.no-wrap-text {
+  white-space: nowrap;  /* 禁止换行 */
+  overflow: hidden;     /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 省略号显示超出部分 */
+}
+
+
+
 
 .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
   /*width: 43px!important;*/
@@ -240,7 +250,7 @@ export default {
 
 .videoMonitorWin {
   position: absolute;
-  width: 563px;
+  width: 600px;
   padding: 4px;
   z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
@@ -262,7 +272,7 @@ export default {
 }
 
 .info-item :nth-child(2) {
-  width: 50%;
+  width: 70%;
   border-color: #4d5469;
   border-top-style: solid;
   border-top-width: 2px;
@@ -276,6 +286,15 @@ export default {
   max-width: 100%;
   margin: 7px 6px;
 }
+
+
+.el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
+  border: var(--el-descriptions-table-border);
+  padding: 7px 7px;
+}
+
+
+
 svg {
   vertical-align: middle; /* 保持文本和图标对齐 */
   margin-right: 0.5rem; /* 图标和文本间距 */
