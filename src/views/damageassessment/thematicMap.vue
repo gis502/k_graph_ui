@@ -113,6 +113,11 @@
                 产出图件管理
               </a>
             </div>
+            <div class="button themes"
+                 style="width: 30%"
+                 :class="{ active: isPanelShow.report }"
+                 @click="handlePanel(`report`); isPreviewShow = false;">辅助决策产出
+            </div>
 
             <div style="height: 10px;background-color: #054576"></div>
             <el-divider content-position="left">大屏展示</el-divider>
