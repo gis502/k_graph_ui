@@ -5,7 +5,7 @@
           <span>态势标绘信息</span>
         </span>
     </div>
-    <div class="Marking-info-panel">
+    <div class="Marking-info-panel" id="">
       <el-descriptions :column="2" size="default " border>
         <!-- 标绘名称 -->
         <el-descriptions-item>
@@ -53,9 +53,9 @@
           <template #label>
             <div class="cell-item">经纬度</div>
           </template>
-          <div>
+          <div ref="coordinateContainer">
             <el-text size="large">
-              经度: {{ plotInfoNew.longitude || "无数据" }}°E,
+              经度: {{ plotInfoNew.longitude || "无数据" }}°E,<br v-if="shouldBreak">
               纬度: {{ plotInfoNew.latitude || "无数据" }}°N
             </el-text>
           </div>
@@ -102,6 +102,7 @@ export default {
         info: null,
         id: null,
       },
+      shouldBreak: false, // 是否换行
     }
   },
   props: [
@@ -130,7 +131,26 @@ export default {
       };
     },
   },
+  mounted() {
+    // 组件挂载时检查宽度
+    this.checkContainerWidth();
+  },
+  updated() {
+    // 组件更新时检查宽度
+    this.checkContainerWidth();
+  },
   methods: {
+
+    // 检查容器宽度
+    checkContainerWidth() {
+      const container = this.$refs.coordinateContainer;
+      if (container) {
+        const width = container.offsetWidth; // 获取容器宽度
+        this.shouldBreak = width <= 210; // 根据宽度设置是否换行
+      }
+    },
+
+
     // 点击标绘点后获取此标绘点的所有标绘信息
     getPlotInfo(plotId, plotType) {
       let that = this;

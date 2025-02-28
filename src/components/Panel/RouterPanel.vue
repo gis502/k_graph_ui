@@ -1,3 +1,4 @@
+<!--指挥大屏  救援队伍、应急物资、避难场所图层标绘点的弹窗-->
 <template>
   <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
     <div class="ponpTitle">{{ this.popupTitle }}</div>
@@ -26,7 +27,7 @@ export default {
     return {
       visiblePanel: null,
       positionEntity: {x: 0, y: 0},
-      popupPanelData: {},
+      popupPanelData: {},  //中文的弹框数据
       popupTitle: '',
       keyMappings: {
         lon: '经度',
@@ -187,10 +188,13 @@ export default {
         }
         this.popupPanelData = translatedData;
 
-        // console.log(" this.popupPanelData RouterPannel", this.popupPanelData)
+        console.log(" this.popupPanelData RouterPannel", this.popupPanelData)
+        console.log("plotId",this.popupData.plotId);  // 打印出来查看是否有 plotId
+
       }
     },
     position() {
+      console.log("plotId2",this.popupData.plotId);  // 打印出来查看是否有 plotId
       this.positionEntity = this.position;
     },
   },
@@ -206,14 +210,17 @@ export default {
   },
   methods: {
     keyToChinese(key) {
+      console.log("plotId3",key);  // 打印出来查看是否有 plotId
       return this.keyMappings[key] || key;
     },
     formatInsertTime(value) {
+      console.log("plotId4",value);  // 打印出来查看是否有 plotId
       // 使用dayjs库进行时间格式转换
       return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
     },
     // 删除标注
     deletePoint() {
+      console.log("plotId5",this.popupData.plotId);  // 打印出来查看是否有 plotId
       this.$emit('closePlotPop');
       this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}));
     }
