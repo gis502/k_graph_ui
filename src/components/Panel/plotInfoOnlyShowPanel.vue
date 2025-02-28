@@ -65,7 +65,7 @@
           <el-descriptions-item v-if="value.type ==='text'">
             <template #label>
               <div class="cell-item">
-                {{ value.name }}l2
+                {{ value.name }}
               </div>
             </template>
             <el-text size="large">{{ value.value }}</el-text>
@@ -73,7 +73,7 @@
           <el-descriptions-item v-if="value.type ==='select'">
             <template #label>
               <div class="cell-item">
-                {{ value.name }}k2
+                {{ value.name }}
               </div>
             </template>
             <el-text size="large">{{ value.value }}</el-text>
