@@ -481,7 +481,7 @@
         <RouterPanel
             :visible="routerPopupVisible"
             :position="PanelPosition"
-            :popupData="PanelData"
+            :popupData="routerPanelData"
         />
         <dataSourcePanel
             :visible="dataSourcePopupVisible"
@@ -1021,6 +1021,7 @@ export default {
       plotShowOnlyPanelVisible: false, // TimeLinePanel弹窗的显示与隐藏
       PanelPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
       PanelData: {}, // TimeLinePanel弹窗的数据
+      routerPanelData: {},
       //----------------------------------
       dataSourcePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       dataSourcePopupData: {}, // TimeLinePanel弹窗的数据
@@ -1741,12 +1742,13 @@ export default {
 
           }
           //救援队伍、避难场所、应急物资
-          else if (entity._layer === "避难场所"||entity._layer === "救援队伍分布"||entity._layer === "应急物资存储") {
-                this.routerPopupVisible = true;
-                this.dataSourcePopupVisible = false
-                this.plotShowOnlyPanelVisible = false;
+          else if (entity._layer === "避难场所" || entity._layer === "救援队伍分布" || entity._layer === "应急物资存储") {
+            this.eqCenterPanelVisible = false;
+            this.routerPopupVisible = true;
+            this.dataSourcePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
             this.PanelPosition = this.selectedEntityPosition;
-            this.PanelData = this.extractDataForRouter(entity);
+            this.routerPanelData = this.extractDataForRouter(entity);
           }
           // //聚合图标
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
