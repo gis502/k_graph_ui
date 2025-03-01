@@ -127,7 +127,7 @@ import {ElMessage} from "element-plus";
       this.$notify({
         title: 'pdf导出',
         message: '数据正在解析中...',
-        duration: 7000, // 设置持续时间
+        duration: 5000, // 设置持续时间
         zIndex: 9999  // 设置 zIndex 来确保通知在最上层
       });
       // 判断是否是遥感影像图
@@ -197,7 +197,7 @@ import {ElMessage} from "element-plus";
 // 独立的生成 PDF 方法
     generatePdf(imageData) {
       // 确定 PDF 文件的动态名称
-      const title = this.imgNameLocal || "生成PDF"; // 默认名称为 "生成PDF"
+      const title = this.imgName || "生成PDF"; // 默认名称为 "生成PDF"
 
       // 初始化 jsPDF 实例
       const PDF = new jsPDF('', 'pt', 'a4');
@@ -266,13 +266,17 @@ import {ElMessage} from "element-plus";
       return new URL(imgshowURL, import.meta.url).href
     },
     async downloadImage() {
-      console.log(this.imgName,this.imgshowURL, this.imgurlFromDate)
+      console.log("imgName:",this.imgName)
+      console.log("imgshowURL",this.imgshowURL)
+      console.log("imgurlFromDate",this.imgurlFromDate)
+
       this.$notify({
         title: '专题图下载',
         message: '数据正在解析中...',
         duration: 7000, // 设置持续时间
         zIndex: 9999  // 设置 zIndex 来确保通知在最上层
       });
+
       console.log('下载图片')
       if (this.imgName === "遥感影像图" || this.imgName === "标绘专题图") {
         // 获取要截取的 DOM 元素
@@ -284,19 +288,19 @@ import {ElMessage} from "element-plus";
           logging: true, // 打开日志以查看可能的错误
           scale: 2, // 提高图像质量
           backgroundColor: null // 使背景透明
-        }).then(canvas => {
+        })
+            .then(canvas => {
           // 将 canvas 转换为图片
           const finalImage = canvas.toDataURL('image/png');
           this.setPictureCreateTime()
-
-
           // 创建下载链接并触发下载
           const link = document.createElement('a');
           link.download = `${this.imgName}.png`; // 设置下载文件名
           link.href = finalImage; // 设置图片来源
           link.click(); // 触发下载
           console.log("1111111111111111")
-        }).catch(error => {
+        })
+            .catch(error => {
           console.error('Error capturing the screenshot:', error);
         });
       }
@@ -310,40 +314,51 @@ import {ElMessage} from "element-plus";
           logging: true, // 打开日志以查看可能的错误
           scale: 2, // 提高图像质量
           backgroundColor: null // 使背景透明
-        }).then(canvas => {
+        })
+            .then(canvas => {
           // 将 canvas 转换为图片
           const finalImage = canvas.toDataURL('image/png');
-          this.setPictureCreateTime()
+          this.setPictureCreateTime();
 
           // 创建下载链接并触发下载
           const link = document.createElement('a');
-          link.download = `${this.imgNameLocal}.png`; // 设置下载文件名
+          link.download = `${this.imgName}.png`; // 设置下载文件名
           link.href = finalImage; // 设置图片来源
           link.click(); // 触发下载
-        }).catch(error => {
+        })
+            .catch(error => {
           console.error('Error capturing the screenshot:', error);
         });
       } else {
         try {
           const link = document.createElement('a'); // 创建下载链接
-          link.download = `${this.imgNameLocal || 'download'}.jpg`; // 设置默认文件名
+          link.download = `${this.imgName || 'download'}.jpg`; // 设置默认文件名
 
           // 判断是否为 Base64 数据
-          const isBase64 = this.imgurlFromDateLocal.startsWith('data:image');
+          const isBase64 = this.imgshowURL.startsWith('data:image');
 
           if (isBase64) {
             // 如果是 Base64 数据，直接使用
-            link.href = this.imgurlFromDateLocal;
-          } else if (this.imgurlFromDateLocal.startsWith('http') || this.imgurlFromDateLocal.startsWith('/')) {
-            // 如果是 URL，直接赋值
-            link.href = this.imgurlFromDateLocal;
+            link.href = this.imgshowURL;
+          } else if (this.imgshowURL.startsWith('http') || this.imgshowURL.startsWith('/')) {
+            // 如果是 URL，使用 fetch 下载文件
+            const response = await fetch(this.imgshowURL);
+            if (!response.ok) {
+              throw new Error(`Failed to fetch image: ${response.statusText}`);
+            }
+            const blob = await response.blob(); // 将响应转换为 Blob
+            const blobUrl = URL.createObjectURL(blob); // 创建 Blob URL
+            link.href = blobUrl; // 设置下载链接的 URL
+            link.click(); // 触发下载
+
+            // 释放 Blob URL
+            URL.revokeObjectURL(blobUrl);
           } else {
             // 如果是模块路径，动态导入
             const imgModule = await import(this.imgurlFromDateLocal);
             link.href = imgModule.default;
+            link.click(); // 触发下载
           }
-
-          link.click(); // 触发下载
         } catch (error) {
           console.error('下载图片失败:', error);
           this.$message && this.$message.error('下载图片失败，请检查图片地址或模块路径是否正确！');
