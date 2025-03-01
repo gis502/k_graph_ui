@@ -108,15 +108,15 @@
 
             <div style="height: 10px;background-color: #054576"></div>
 
-            <div class="eqTheme">
+            <div class="eqTheme" style="margin-top: -15px">
               <a class="button themes" href="http://172.26.86.31:18100" target="_blank">
                 产出图件管理
               </a>
             </div>
             <div class="button themes"
-                 style="width: 30%"
-                 :class="{ active: isPanelShow.report }"
-                 @click="handlePanel(`report`); isPreviewShow = false;">辅助决策产出
+                 :class="{ active: isPanelShow.AssistantDecision }"
+                 style="height: 45px;margin-top: -15px;margin-bottom: 10px"
+                 @click="handlePanel(`AssistantDecision`); isPreviewShow = false;">辅助决策产出
             </div>
 
             <div style="height: 10px;background-color: #054576"></div>
@@ -132,7 +132,7 @@
 
       </div>
 
-      <div class="eqPanel" v-if="isPanelShow.thematicMap || isPanelShow.report || isPanelShow.instrument">
+      <div class="eqPanel" v-if="isPanelShow.thematicMap || isPanelShow.report || isPanelShow.instrument||isPanelShow.AssistantDecision">
         <h2>{{ this.outputData.themeName }}</h2>
         <div style="width: 100%;height: calc(100% - 120px);text-align: center;color: #fff;font-size: 16px" v-if="isNoData">
           该地震暂无评估图件产出
@@ -224,7 +224,8 @@ export default {
       isPanelShow: {
         thematicMap: false,
         report: false,
-        instrument: false
+        instrument: false,
+        AssistantDecision:false
       },
       isPreviewShow: false,
       // 记录当前显示的 panelButtons 索引，默认为 null
@@ -659,6 +660,16 @@ export default {
       }
 
       this.isPanelShow[type] = !this.isPanelShow[type];
+       if (this.isPanelShow.AssistantDecision){
+        //辅助决策报告
+        this.isNoData = false
+        this.outputData.themeData = [
+          {
+            docxUrl: "http://59.213.183.7/image/EqProduct/357a36dd-00b6-4562-90fd-abc66a294f60/1/本地产品/灾情报告/02月28日10时38分四川省雅安市荥经县荥河镇发生6.8级地震（辅助决策信息一）.docx",
+            theme: "灾情报告1"
+          },
+        ]
+      }
       if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
 
         getEqOutputMaps(this.eqid, this.eqqueueId).then((res) => {
@@ -668,6 +679,7 @@ export default {
         getEqOutputReports(this.eqid, this.eqqueueId).then((res) => {
           console.log("灾情报告", res.data)
         })
+
 
         console.log("开始进行评估------------------------")
 
@@ -680,13 +692,7 @@ export default {
           this.outputData.themeData = res.themeData;
           this.outputData.type = type;
 
-          // if (res.themeName.includes("null")) {
-          //   this.outputData.themeName = timestampToTime(this.selectedTabData.occurrenceTime, 'date') + this.selectedTabData.earthquakeName + this.selectedTabData.magnitude + '级地震' + res.themeName.slice(res.themeName.indexOf('-'));
-          // } else {
-          //   this.outputData.themeData = res.themeData;
-          //   console.log(this.outputData.themeData)
-          //   this.outputData.type = type;
-          // }
+
           if (res.themeData.length === 0) {
             this.isNoData = true
           }
