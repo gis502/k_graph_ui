@@ -1,89 +1,115 @@
 <template>
-  <div class="videoMonitorWin" :style="styleObject">
-    <div class="header-div">
+  <div>
+    <div v-if="!eqThemeName" class="videoMonitorWin" :style="styleObject">
+      <div class="header-div">
         <span>
           <span>态势标绘信息</span>
         </span>
-    </div>
-    <div class="Marking-info-panel" id="">
-      <el-descriptions :column="2" size="default " border>
-        <!-- 标绘名称 -->
-        <el-descriptions-item>
-          <template #label>
-            <div class="cell-item">标绘名称</div>
-          </template>
-          <div>
-            <el-text size="large"  class="no-wrap-text">
-              {{ plotInfoNew.plotType || "未命名" }}
-            </el-text>
-          </div>
-        </el-descriptions-item>
-        <el-descriptions-item>
-          <template #label>
-            <div class="cell-item">
-              开始时间
+      </div>
+      <div class="Marking-info-panel">
+        <el-descriptions :column="2" size="default " border>
+          <!-- 标绘名称 -->
+          <el-descriptions-item>
+            <template #label>
+              <div class="cell-item">标绘名称</div>
+            </template>
+            <div>
+              <el-text size="large">
+                {{ plotInfoNew.plotType || "未命名" }}
+              </el-text>
             </div>
-          </template>
-          <div>
-            <el-text size="large"  class="no-wrap-text">{{
-                ("" + plotInfoNew.starttime).match('-')
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>
+              <div class="cell-item">
+                开始时间
+              </div>
+            </template>
+            <div>
+              <el-text size="large">{{
+                  ("" + plotInfoNew.starttime).match('-')
                     ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ")
                     : (plotInfoNew.starttime !== null ? this.timestampToTime(plotInfoNew.starttime).replace("T", " ") : "")
-              }}
-            </el-text>
-          </div>
-        </el-descriptions-item>
-        <el-descriptions-item>
-          <template #label>
-            <div class="cell-item">
-              结束时间
+                }}
+              </el-text>
             </div>
-          </template>
-          <div>
-            <el-text size="large"  class="no-wrap-text">{{
-                ("" + plotInfoNew.endtime).match('-')
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>
+              <div class="cell-item">
+                结束时间
+              </div>
+            </template>
+            <div>
+              <el-text size="large">{{
+                  ("" + plotInfoNew.endtime).match('-')
                     ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ")
                     : (plotInfoNew.endtime !== "" ? this.timestampToTime(plotInfoNew.endtime).replace("T", " ") : "")
-              }}
-            </el-text>
-          </div>
-        </el-descriptions-item>
-        <!-- 经纬度显示 -->
-        <el-descriptions-item v-if="plotInfoNew.drawtype === 'point'">
-          <template #label>
-            <div class="cell-item">经纬度</div>
+                }}
+              </el-text>
+            </div>
+          </el-descriptions-item>
+          <!-- 经纬度显示 -->
+          <el-descriptions-item v-if="plotInfoNew.drawtype === 'point'">
+            <template #label>
+              <div class="cell-item">经纬度</div>
+            </template>
+            <div>
+              <el-text size="large">
+                经度: {{ plotInfoNew.longitude || "无数据" }}°E,
+                纬度: {{ plotInfoNew.latitude || "无数据" }}°N
+              </el-text>
+            </div>
+          </el-descriptions-item>
+          <template v-for="(value,key,index) in plotInfoNew.info">
+            <el-descriptions-item v-if="value.type ==='text'">
+              <template #label>
+                <div class="cell-item">
+                  {{ value.name }}
+                </div>
+              </template>
+              <el-text size="large">{{ value.value }}</el-text>
+            </el-descriptions-item>
+            <el-descriptions-item v-if="value.type ==='select'">
+              <template #label>
+                <div class="cell-item">
+                  {{ value.name }}
+                </div>
+              </template>
+              <el-text size="large">{{ value.value }}</el-text>
+            </el-descriptions-item>
           </template>
-          <div ref="coordinateContainer">
-            <el-text size="large">
-              经度: {{ plotInfoNew.longitude || "无数据" }}°E,<br v-if="shouldBreak">
-              纬度: {{ plotInfoNew.latitude || "无数据" }}°N
-            </el-text>
-          </div>
-        </el-descriptions-item>
+        </el-descriptions>
+      </div>
+    </div>
+    <div>
 
-        <template v-for="(value,key,index) in plotInfoNew.info">
-          <el-descriptions-item v-if="value.type ==='text'">
-            <template #label>
-              <div class="cell-item">
-                {{ value.name }}
+    </div>
+    <div v-if="eqThemeName">
+      <div class="videoMonitorWin" :style="styleObject">
+        <div class="header-div">
+        <span>
+          <span>{{ eqThemeName }}</span>
+        </span>
+        </div>
+        <div class="Marking-info-panel">
+          <el-descriptions :column="2" size="default " border>
+            <el-descriptions-item v-for="(value, key) in eqThemeInfo" :key="key">
+              <template #label>
+                <div class="cell-item">{{ key }}</div>
+              </template>
+              <div>
+                <el-text size="large">
+                  {{ value }}
+                </el-text>
               </div>
-            </template>
-            <el-text size="large">{{ value.value }}</el-text>
-          </el-descriptions-item>
-          <el-descriptions-item v-if="value.type ==='select'">
-            <template #label>
-              <div class="cell-item">
-                {{ value.name }}
-              </div>
-            </template>
-            <el-text size="large">{{ value.value }}</el-text>
-          </el-descriptions-item>
-        </template>
+            </el-descriptions-item>
+          </el-descriptions>
 
-      </el-descriptions>
+        </div>
+      </div>
     </div>
   </div>
-  <!--      </div>-->
 </template>
 <script>
 import {plotType as plotTypeDialog} from '@/cesium/plot/plotType.js'
@@ -102,11 +128,10 @@ export default {
         info: null,
         id: null,
       },
-      shouldBreak: false, // 是否换行
     }
   },
   props: [
-    'popupData', 'position'
+    'popupData', 'position', 'eqThemeName', 'eqThemeInfo'
   ],
   watch: {
     popupData: {
@@ -131,26 +156,7 @@ export default {
       };
     },
   },
-  mounted() {
-    // 组件挂载时检查宽度
-    this.checkContainerWidth();
-  },
-  updated() {
-    // 组件更新时检查宽度
-    this.checkContainerWidth();
-  },
   methods: {
-
-    // 检查容器宽度
-    checkContainerWidth() {
-      const container = this.$refs.coordinateContainer;
-      if (container) {
-        const width = container.offsetWidth; // 获取容器宽度
-        this.shouldBreak = width <= 210; // 根据宽度设置是否换行
-      }
-    },
-
-
     // 点击标绘点后获取此标绘点的所有标绘信息
     getPlotInfo(plotId, plotType) {
       let that = this;
@@ -209,7 +215,7 @@ export default {
             plotType: plotType,
           };
         }
-        that.plotInfoNew=item
+        that.plotInfoNew = item
       });
     },
 
@@ -225,20 +231,6 @@ export default {
 };
 </script>
 <style scoped>
-/* 调整字体大小为原来的 70% */
-* {
-  font-size: 95%;
-}
-
-.no-wrap-text {
-  white-space: nowrap;  /* 禁止换行 */
-  overflow: hidden;     /* 隐藏溢出内容 */
-  text-overflow: ellipsis; /* 省略号显示超出部分 */
-}
-
-
-
-
 .el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
   /*width: 43px!important;*/
 }
@@ -270,8 +262,8 @@ export default {
 
 .videoMonitorWin {
   position: absolute;
-  width: 600px;
-  padding: 4px;
+  width: 800px;
+  padding: 20px;
   z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
@@ -292,28 +284,21 @@ export default {
 }
 
 .info-item :nth-child(2) {
-  width: 70%;
+  width: 60%;
   border-color: #4d5469;
   border-top-style: solid;
   border-top-width: 2px;
   background-color: #4d5469;
   margin-bottom: 2px;
 }
+
 .Marking-info-panel {
-  padding: 12px;
+  padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
   max-width: 100%;
-  margin: 7px 6px;
+  margin: 10px 10px;
 }
-
-
-.el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
-  border: var(--el-descriptions-table-border);
-  padding: 7px 7px;
-}
-
-
 
 svg {
   vertical-align: middle; /* 保持文本和图标对齐 */

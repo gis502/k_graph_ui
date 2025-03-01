@@ -193,12 +193,11 @@
       </div>
     </div>
 
-    <CommonPanel
-      :showAssess="true"
-      :visible="popupVisible"
+    <plotInfoOnlyShowPanel
+      v-show="popupVisible"
       :position="popupPosition"
-      :tableName="tableName"
-      :assessInfo="popupData"
+      :eqThemeName="tableName"
+      :eqThemeInfo="popupData"
     />
 
   </div>
@@ -232,12 +231,12 @@ import {
 } from "../../../api/system/damageassessment.js";
 import EconomicLossPanel from "../../../components/DamageAssessment/economicLossPanel.vue";
 import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
-import CommonPanel from "@/components/Cesium/CommonPanel.vue";
+import plotInfoOnlyShowPanel from "@/components/Panel/plotInfoOnlyShowPanel.vue";
 
 
 export default {
   components: {
-    CommonPanel,
+    plotInfoOnlyShowPanel,
     PersonalCasualtyPanel,
     EconomicLossPanel,
     BuildingDamagePanel,
@@ -594,18 +593,26 @@ export default {
             this.popupData = {
               "名称": properties._name._value,
               "位置": properties._location._value,
-              "等级": properties._grade._value,
+              "医院等级": properties._grade._value,
               "联系电话": properties._tel._value,
-              "经纬度": "经度: " + longitude.toFixed(2) + ", 纬度: " + latitude.toFixed(2),
+              "床铺数量": properties._bed._value,
+              "关系": properties._membership._value,
+              "救护车数量": properties._ambulance._value,
+              "血浆数量": properties._plasma._value,
+              "葡萄糖数量": properties._surgery_dc._value,
+              "医生数量": properties._doctor._value,
+              "麻醉剂数量": properties._anesthetis._value,
+              "护士数量": properties._nurse._value,
+              "经纬度": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
             }
-            console.log(this.popupData)
+            // console.log(this.popupData)
           }
           // 如果是村庄点
           else if (sourceName === "village") {
             this.tableName = "村庄信息";
             this.popupData = {
               "名称": properties._NAME._value,
-              "经纬度": "经度: " + longitude.toFixed(2) + ", 纬度: " + latitude.toFixed(2),
+              "经纬度": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
             }
           }
           this.popupVisible = true;
@@ -1165,8 +1172,7 @@ export default {
       }
     },
 
-    //
-    // 村委会
+    // 村庄
     showVillage() {
       this.eqThemes.show.isshowVillage = !this.eqThemes.show.isshowVillage;
       if (this.eqThemes.show.isshowVillage) {
