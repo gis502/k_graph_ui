@@ -821,15 +821,32 @@ export default {
       // })
       // // console.log("你好：", this.addOrUpdateDTO)
     },
+
     // 进度条
     setInterval() {
       this.interval = setInterval(() => {
         this.getEq();
-        this.updateProgress(this.addOrUpdateDTO.event)
+        const result = this.tableData.find(item =>
+            item.eqid === this.addOrUpdateDTO.event);
+        if (result) {
+          const eqqueueId = result.eqqueueId;
+          // 你可以在这里使用 eqqueueId
+          this.updateProgress(this.addOrUpdateDTO.event, eqqueueId);
+        } else {
+          console.log("未找到匹配的 eqqueueId");
+        }
+
       }, 9000)
     },
-    updateProgress(event) {
-      eqProgress({event}).then(res => {
+
+    updateProgress(event,eqqueueId) {
+      eqProgress({event, eqqueueId}).then(res => {
+
+        if (res.data == null || res.data >= 100) {
+          this.isProgressShow = false;
+          return ;
+        }
+
         this.isProgressShow = true
         this.percentage = Number(res.data).toFixed(2); // 保留两位小数
       })
