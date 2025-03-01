@@ -31,19 +31,20 @@
 
     <div class="panelChart" ref="chart"></div>
 
-  </div>
-
-  <div class="panelEqInfo">
+    <div class="panelEqInfo">
     <span style="color: #409eff;font-size: 18px">{{ selectedTabData.earthquakeName }} {{
         selectedTabData.magnitude
       }}级地震</span>
-    <div style="padding: 1px 20px 10px 20px">
-      <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
-      <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
-      <p>地震震级：{{ selectedTabData.magnitude }}</p>
-      <p>震源深度：{{ selectedTabData.depth }}千米</p>
+      <div style="padding: 1px 20px 10px 20px">
+        <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
+        <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
+        <p>地震震级：{{ selectedTabData.magnitude }}</p>
+        <p>震源深度：{{ selectedTabData.depth }}千米</p>
+      </div>
     </div>
   </div>
+
+
 </template>
 
 <script>
@@ -71,6 +72,7 @@ export default {
       ],
 
       isNoData: false,
+      ifDisplay: true,
     }
   },
 
@@ -90,7 +92,6 @@ export default {
     selectedTabData: {
       handler() {
         this.settleData();
-
       },
       deep: true,
     },
@@ -250,26 +251,23 @@ export default {
 
 <style scoped>
 .economicLossPanel {
+  display: flex;
+  flex-direction: row;
   height: 250px;
-  width: calc(100% - 333px);
   background-color: rgba(45, 61, 81, 0.8);
   z-index: 1;
 }
 
 .panelEqInfo {
-  position: absolute;
-  right: 0;
-  bottom: 0;
   width: 333px;
   height: 250px;
   z-index: 2;
   background-color: rgba(45, 61, 81, 0.8);
-  border-left: #000 2px solid;
+  border-right: #000 2px solid;
 }
 
 .panelTable {
-  float: left;
-  width: calc(100% - 500px - 150px);
+  width: 956px;
 }
 
 .panelAssessment {
@@ -279,14 +277,12 @@ export default {
 }
 
 .panelChart {
-  float: right;
+  border-right: #000 2px solid;
   width: 500px;
   height: 100%;
 }
 
-
 .panelLegend {
-  float: left;
   width: 150px;
   height: 100%;
   padding: 5px 0 0 10px;

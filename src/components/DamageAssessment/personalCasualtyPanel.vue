@@ -33,21 +33,22 @@
       </div>
     </div>
 
-    <div class="panelChart" ref="chart"></div>
+    <div class="panelChart" ref="chart" ></div>
 
-  </div>
-
-  <div class="panelEqInfo">
+    <div class="panelEqInfo">
     <span style="color: #409eff;font-size: 18px">{{ selectedTabData.earthquakeName }} {{
         selectedTabData.magnitude
       }}级地震</span>
-    <div style="padding: 1px 20px 10px 20px">
-      <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
-      <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
-      <p>地震震级：{{ selectedTabData.magnitude }}</p>
-      <p>震源深度：{{ selectedTabData.depth }}千米</p>
+      <div style="padding: 1px 20px 10px 20px">
+        <p>发震时刻：{{ timestampToTime(this.selectedTabData.occurrenceTime, "fullDateTime") }}</p>
+        <p>震中经纬：{{ selectedTabData.longitude }}°E, {{ selectedTabData.latitude }}°N</p>
+        <p>地震震级：{{ selectedTabData.magnitude }}</p>
+        <p>震源深度：{{ selectedTabData.depth }}千米</p>
+      </div>
     </div>
+
   </div>
+
 </template>
 
 <script>
@@ -61,6 +62,8 @@ export default {
       required: true,
     },
     selectedTabData: Object,
+
+    chartDisplay:Boolean,
   },
   data() {
     return {
@@ -76,6 +79,8 @@ export default {
         { color: '(231, 50, 31)', label: '251-500人' },
         { color: '(218, 0, 0)', label: '> 500人' },
       ],
+
+
     };
   },
   mounted() {
@@ -100,7 +105,7 @@ export default {
     timestampToTime,
     initChart() {
       // 检查是否有数据和chart DOM
-      if (!this.personalCasualtyData || !this.$refs.chart) {
+      if ( !this.personalCasualtyData || !this.$refs.chart) {
         return;
       }
 
@@ -211,7 +216,6 @@ export default {
       // 使用刚指定的配置项和数据显示图表
       myChart.setOption(option);
     },
-
     loadTableData() {
       if (this.personalCasualtyData) {
         this.tableData = this.personalCasualtyData;
@@ -221,7 +225,6 @@ export default {
         this.totalCasualtyNum = 0;
       }
     },
-
     convertColor(colorString) {
       return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
     },
@@ -261,39 +264,34 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .personalCasualtyPanel {
+  display: flex;
+  flex-direction: row;
   height: 250px;
-  width: calc(100% - 333px);
   z-index: 1;
 }
 
 .panelEqInfo {
-  position: absolute;
-  right: 0;
-  bottom: 0;
   width: 333px;
   height: 250px;
   z-index: 2;
   background-color: rgba(45, 61, 81, 0.8);
-  border-left: #000 2px solid;
+  border-right: #000 2px solid;
 }
 
 .panelTable {
-  float: left;
-  width: calc(100% - 600px - 150px);
+  width: 712px;
 }
 
 .panelLegend {
-  float: left;
   width: 150px;
   height: 100%;
   padding: 5px 0 0 10px;
 }
 
 .panelChart {
-  float: right;
+  border-right: #000 2px solid;
   width: 600px;
   height: 100%;
 }

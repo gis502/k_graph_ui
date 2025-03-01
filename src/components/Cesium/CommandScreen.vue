@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--    灾情预估切换-->
-    <div class="thd-listTable" v-if="activeComponent === 'eqList'">
+    <div class="thd-listTable" v-if="activeComponent === 'damageThemeAssessment'">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <damageThemeAssessment
           :eqid="eqid"
@@ -639,6 +639,7 @@
         @check="handleCheckChange"
       >
         <template #default="{ node, data }">
+
           <!-- 根节点，显示图标和文字 -->
           <div class="tree-node-content">
                 <span v-if="data.name === '图层要素'" class="node-icon">
@@ -780,6 +781,64 @@
         </div>
       </div>
     </div>
+
+    <!--    指挥大屏-灾损预估-人员伤亡图例-->
+    <div class="people-legend" v-if="showPeopleLegend" style="position: absolute;
+           right: 500px;
+         z-index:20; bottom: 100px;
+         right: 450px; color: #FFFFFF;
+         background-color: rgba(0, 0, 0, 0.5);
+         padding: 10px; border-radius: 5px;text-align: center;"
+    >
+      <div class="legend">
+        <ul>
+          <li v-for="(item, index) in legendItems1" :key="index">
+            <span class="legend-span"
+                :style="{ backgroundColor: `rgb(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
+            {{ item.label }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!--    指挥大屏-灾损预估-经济损失图例-->
+    <div class="economic-legend" v-if="showEconomicLegend" style="position: absolute;
+           right: 500px;
+         z-index:20; bottom: 100px;
+         right: 450px; color: #FFFFFF;
+         background-color: rgba(0, 0, 0, 0.5);
+         padding: 10px; border-radius: 5px;text-align: center;">
+      <div class="legend">
+        <ul>
+          <li v-for="(item, index) in legendItems2" :key="index">
+          <span class="legend-span"
+              :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
+            {{ item.label }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!--    指挥大屏-灾损预估-人员伤亡图例-->
+    <div class="building-legend" v-if="showBuildingLegend" style="position: absolute;
+           right: 500px;
+         z-index:20; bottom: 100px;
+         right: 450px; color: #FFFFFF;
+         background-color: rgba(0, 0, 0, 0.5);
+         padding: 10px; border-radius: 5px;text-align: center;">
+      <div class="legend">
+        <ul>
+          <li v-for="(item, index) in legendItems3" :key="index">
+          <span class="legend-span"
+              :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
+            {{ item.label }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+
+
   </div>
 </template>
 
@@ -830,7 +889,13 @@ import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/re
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
-import {addFaultZones, addHistoryEqPoints, addOvalCircles, handleOutputData} from "../../cesium/plot/eqThemes.js";
+import {
+  addFaultZones,
+  addHistoryEqPoints,
+  addOvalCircles,
+  handleOutputData,
+  handleTownData
+} from "../../cesium/plot/eqThemes.js";
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
@@ -890,6 +955,8 @@ import {
 } from "@/cesium/route.js";
 import {deleteSlopeEntities, toggleSlopeAnalysis} from "@/cesium/slopeAnalysis.js";
 import log from "@/views/monitor/job/log.vue";
+import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
+import {getEqTownResult} from "@/api/system/damageassessment";
 
 export default {
   computed: {
@@ -1135,6 +1202,9 @@ export default {
         {id: '6', name: '应急物资存储要素图层'},
         {id: '7', name: '历史地震要素图层'},
         {id: '8', name: '断裂带要素图层'},
+        {id: '9', name: '灾损预估-人员伤亡要素图层'},
+        {id: '10', name: '灾损预估-经济损失要素图层'},
+        {id: '11', name: '灾损预估-建筑损毁要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
       isMarkingLayerLocal: true,
@@ -1349,6 +1419,12 @@ export default {
       showEqListPanel: false,// 地震列表弹框状态
       showModelPanel: false,// 三维模型弹框状态
       showSlopeAnalysis: false,// 坡面分析弹框状态
+
+      showPeopleLegend:false, // 指挥大屏-图层管理-人员伤亡图层图例状态
+      showBuildingLegend:false, // 指挥大屏-图层管理-建筑损毁图层图例状态
+      showEconomicLegend:false, // 指挥大屏-图层管理-经济损失图层图例状态
+
+
       props: {
         label: 'name',
         children: 'children',
@@ -1386,6 +1462,108 @@ export default {
           ]
         }
       ],
+
+      // 指挥大屏-灾损
+      carouselIndex:0,// 索引
+      layerData:{},// 图层渲染数据
+      // 地震专题
+      eqThemes: {
+        allEles: [
+          'historyEq',
+          'faultZone',
+          'ovalCircle',
+          'economicLoss',
+          'buildingDamage',
+          'personalCasualty',
+        ],
+        layers: [
+          // 'historyEq',
+          'economicLoss',
+          'buildingDamage',
+          'personalCasualty'
+        ],
+        show: {
+          isshowHistoryEqPoints: false,
+          isshowRegion: false,
+          isshowFaultZone: false,
+          isshowOvalCircle: false,
+          isshowPersonalCasualty: false,
+          isshowBuildingDamage: false,
+          isshowEconomicLoss: false,
+          isshowHospital: false,
+        },
+      },
+      // 图层数据
+      //经济损失economicLoss
+      ecoLegendColor: [
+        '(255, 234, 203)',
+        '(255, 216, 173)',
+        '(255, 198, 143)',
+        '(254, 167, 88)',
+        '(250, 148, 64)',
+        '(245, 135, 38)',
+        '(240, 120, 20)',
+      ],
+      //建筑破坏buildingDamage
+      bddLegendColor: [
+        '(232, 236, 248)',
+        '(188, 197, 228)',
+        '(114, 143, 199)',
+        '(84, 127, 195)',
+        '(55, 109, 185)',
+        '(28, 96, 174)',
+        '(0, 84, 165)',
+      ],
+      //人员伤亡personalCasualty
+      pcLegendColor: [
+        '(255, 255, 255, 0)',
+        '(254, 204, 203)',
+        '(255, 177, 167)',
+        '(254, 151, 134)',
+        '(253, 128, 106)',
+        '(245, 101, 75)',
+        '(240, 78, 53)',
+        '(231, 50, 31)',
+        '(218, 0, 0)',
+      ],
+
+      panelData: {
+        buildingDamageData: [],
+        economicLossData: [],
+        personalCasualtyData: [],
+      },
+
+
+      // 指挥大屏-图层管理-灾损预估-图层图例
+      legendItems1: [
+        { color: '(254, 204, 203)', label: '1-5人' },
+        { color: '(255, 177, 167)', label: '6-10人' },
+        { color: '(254, 151, 134)', label: '11-20人' },
+        { color: '(253, 128, 106)', label: '21-50人' },
+        { color: '(245, 101, 75)', label: '51-100人' },
+        { color: '(240, 78, 53)', label: '101-250人' },
+        { color: '(231, 50, 31)', label: '251-500人' },
+        { color: '(218, 0, 0)', label: '> 500人' },
+      ],
+      legendItems2: [
+        {color: '(255, 234, 203)', label: '< 1亿'},
+        {color: '(255, 216, 173)', label: '1~5亿'},
+        {color: '(255, 198, 143)', label: '5~10亿'},
+        {color: '(254, 167, 88)', label: '10~20亿'},
+        {color: '(250, 148, 64)', label: '20~50亿'},
+        {color: '(245, 135, 38)', label: '50~100亿'},
+        {color: '(240, 120, 20)', label: '> 100亿'},
+      ],
+      legendItems3: [
+        {color: '(232, 236, 248)', label: '< 0.1km²'},
+        {color: '(188, 197, 228)', label: '0.1~0.5km²'},
+        {color: '(114, 143, 199)', label: '0.5~1km²'},
+        {color: '(84, 127, 195)', label: '1~2km²'},
+        {color: '(55, 109, 185)', label: '2~5km²'},
+        {color: '(28, 96, 174)', label: '5~10km²'},
+        {color: '(0, 84, 165)', label: '> 10km²'},
+      ],
+
     };
   },
   created() {
@@ -1403,7 +1581,6 @@ export default {
     this.initModelTable(); // 初始化模型table数据
     this.getEq()
     this.outputData()
-
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -1421,6 +1598,7 @@ export default {
       let clock;
       getEqListById({id: this.eqid}).then(res => {
         console.log(res)
+
         //震中标绘点
         this.centerPoint = res
 
@@ -2514,6 +2692,7 @@ export default {
       this.selectedDrive = "backcolor: red";
       this.selectedWalk = "backcolor: white";
     },
+
     driveStyle() {
       this.visibleGuilde = true;
       if (this.cartime.includes("0时0分钟")) {
@@ -2732,6 +2911,7 @@ export default {
       that.showTips = true;
       this.isRouting = false;  // 路径规划完成，设置标志
     },
+
     clearHandler() {
       // 清除所有之前的 LEFT_CLICK 监听器
       if (this.handler) {
@@ -2739,6 +2919,7 @@ export default {
         this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
       }
     },
+
     removeAll() {
       viewer.entities.removeAll();
       this.areas = [];
@@ -2753,17 +2934,13 @@ export default {
       }
       this.showTips = false;
     },
-
-
     // ------------------------------路径规划+物资匹配---------------------------
-
 
     addJumpNodes(val) {
       val.forEach(item => {
         this.jumpTimes.push(item)
       })
     },
-
 
     //----------------------时间轴end
     clearResource(viewer) {
@@ -2776,7 +2953,6 @@ export default {
       gl.getExtension("WEBGL_lose_context").loseContext();
       gl = null
     },
-
 
     /**
      * 计算复选框列表的高度
@@ -2808,9 +2984,6 @@ export default {
       this.isExpanded = !this.isExpanded;
     },
 
-
-
-
     /**
      * 设置组件展开的面板互斥,避免堆叠
      * 切换组件的显示状态
@@ -2834,10 +3007,6 @@ export default {
       // 如果点击的是当前活动组件，则关闭它，否则打开新组件
       this.activeComponent = this.activeComponent === component ? null : component;
 
-      // 如果激活的组件是地震列表，则获取地震数据
-      if (this.activeComponent === 'eqList') {
-
-      }
       if (this.activeComponent === 'layerChoose') {
         this.removethdRegions();
         let defaultTable = null;
@@ -2860,7 +3029,6 @@ export default {
         this.showTips = false;
       }
     },
-
 
     showThematicMapPreview(item) {
       // item 中包含 name, path
@@ -2921,7 +3089,6 @@ export default {
       addFaultZones(this.centerPoint)
     },
 
-
     /**
      * 检查并确定是否添加烈度圈要素图层
      * 此函数通过计算长轴的长度来决定是否需要向图层列表中添加烈度圈要素图层
@@ -2954,10 +3121,6 @@ export default {
       // 在指定的中心点位置添加新的椭圆圈
       addOvalCircles(this.centerPoint)
     },
-
-
-
-
 
     /**
      * 检查地形是否已加载
@@ -2997,6 +3160,42 @@ export default {
         // 建立WS
 
         // //console.log("that.eqtableData", that.eqtableData)
+
+
+        // 灾损预估模块数据获取
+        const eqTownResultDTO = {
+          eqid: this.eqid,
+          eqqueueId: this.eqqueueId,
+        }
+
+        getEqTownResult(eqTownResultDTO).then((res) => {
+          const countyData = handleTownData(res.data)
+          console.log(countyData)
+          // 提取对应专题数据
+          this.panelData.buildingDamageData = countyData.buildingDamageData
+          this.panelData.economicLossData = countyData.economicLossData
+          this.panelData.personalCasualtyData = countyData.personalCasualtyData
+
+          // 人员伤亡图层所需数据格式
+          this.layerData.pcData = JSON.parse(JSON.stringify(
+              this.panelData.personalCasualtyData.reduce((acc, item) => {
+                acc[item.county] = item.partTotal;
+                return acc;
+              }, {})
+          ));
+
+          // 经济损失图层所需数据格式
+          this.layerData.ecoData = this.panelData.economicLossData.reduce((acc, item) => {
+            acc[item.county] = item.amount;
+            return acc;
+          }, {});
+
+          // 建筑损毁图层所需数据格式
+          this.layerData.bddData = this.panelData.buildingDamageData.reduce((acc, item) => {
+            acc[item.county] = item.size;
+            return acc;
+          }, {});
+        });
       })
     },
 
@@ -3359,6 +3558,43 @@ export default {
         this.removeEntitiesByType('ovalCircle');
       }
 
+      // 判断是否选定了灾损预估-人员伤亡要素图层
+      const hasDisasterLossEstimationCasualtyLayer = this.selectedlayersLocal.includes('灾损预估-人员伤亡要素图层');
+      // 如果选定了灾损预估-人员伤亡要素图层，则添加该要素图层
+      if(hasDisasterLossEstimationCasualtyLayer){
+        this.removethdRegions();
+        this.addThemeLayer(this.layerData.pcData, 'personalCasualty');
+        this.showPeopleLegend = true;// 指挥大屏-图层管理-人员伤亡图层图例状态
+      }else {
+        this.removeDataSourcesLayer('personalCasualty');
+        this.showPeopleLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
+      }
+
+      // 判断是否选定了灾损预估-经济损失要素图层
+      const hasDisasterLossEstimationEconomicLossLayer = this.selectedlayersLocal.includes('灾损预估-经济损失要素图层');
+      // 如果选定了灾损预估-人员伤亡要素图层，则添加该要素图层
+      if(hasDisasterLossEstimationEconomicLossLayer){
+        this.removethdRegions();
+        this.addThemeLayer(this.layerData.ecoData,'economicLoss');
+        this.showEconomicLegend = true;// 指挥大屏-图层管理-经济损失图层图例状态
+      }else {
+        this.removeDataSourcesLayer('economicLoss');
+        this.showEconomicLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
+      }
+
+      // 判断是否选定了灾损预估-建筑损毁要素图层
+      const hasDisasterLossEstimationBuildingDamageLayer = this.selectedlayersLocal.includes('灾损预估-建筑损毁要素图层');
+      // 如果选定了灾损预估-建筑损毁要素图层，则添加该要素图层
+      if(hasDisasterLossEstimationBuildingDamageLayer){
+        this.removethdRegions();
+        this.addThemeLayer(this.layerData.bddData,'buildingDamage');
+        this.showBuildingLegend = true; // 指挥大屏-图层管理-建筑损毁图层图例状态
+      }else {
+        this.removeDataSourcesLayer('buildingDamage');
+        this.showBuildingLegend = false; // 指挥大屏-图层管理-建筑损毁图层图例状态
+      }
+
+
       //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
       if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
         // 创建一个Cartesian3对象，用于表示相机将要飞往的经纬度位置
@@ -3715,6 +3951,7 @@ export default {
       if (dataSource) {
         window.viewer.dataSources.remove(dataSource);
       }
+
     },
     //标绘图层清除-->
 
@@ -4085,7 +4322,6 @@ export default {
         this.showSlopeAnalysis = false; // 关闭其他弹框
       }
     },
-
     toggleSlopeAnalysis(websock){
       this.showSlopeAnalysis = !this.showSlopeAnalysis;
       if (this.showSlopeAnalysis) {
@@ -4132,7 +4368,6 @@ export default {
         deleteSlopeEntities();
       }
     },
-
     emergencyClick(contentItem) {
       // 设置选中效果
       this.emergencyTitleProperty.forEach(title => {
@@ -4193,8 +4428,125 @@ export default {
         console.log('其他情况：', action);
       }
     },
-  }
+
+
+    // 10.6 渲染图层
+    addThemeLayer(layerData, type) {
+      this.renderLayer("");
+      if (layerData) {
+        const entries = Object.entries(layerData);
+        const counties = entries.map(([key]) => key);
+        const numbers = entries.map(([, value]) => value);
+        const layerName = `${type}`;
+
+        // 加载 sichuanCounty.json 数据
+        Cesium.GeoJsonDataSource.load(sichuanCounty, {
+              clampToGround: true,
+            }
+        ).then((geoJsonDataSource) => {
+          viewer.dataSources.add(geoJsonDataSource);
+          geoJsonDataSource.name = layerName;
+
+          const entities = geoJsonDataSource.entities.values;
+
+          entities.forEach((entity) => {
+            const countyName = entity.name;
+
+            // 如果县区存在于传入的 layerData 中
+            if (counties.includes(countyName)) {
+              const index = counties.indexOf(countyName);
+              const number = numbers[index];
+
+              let colorIndex, legendColorArray;
+
+              // 根据不同的图层类型计算颜色索引
+              if (type === 'economicLoss') {
+                colorIndex = this.getColorIndex(number, this.ecoLegendColor, [10000, 50000, 100000, 200000, 500000, 1000000]);
+                legendColorArray = this.ecoLegendColor;
+              } else if (type === 'buildingDamage') {
+                colorIndex = this.getColorIndex(number, this.bddLegendColor, [0.1, 0.5, 1, 2, 5, 10]);
+                legendColorArray = this.bddLegendColor;
+              } else if (type === 'personalCasualty') {
+                if (number < 1) {
+                  this.setPolygonTransparent(entity);
+                  return;
+                }
+                colorIndex = this.getColorIndex(number, this.pcLegendColor, [1, 5, 10, 20, 50, 100, 250, 500]);
+                legendColorArray = this.pcLegendColor;
+              }
+
+              // 设置填充颜色和边框
+              this.setPolygonColor(entity, legendColorArray[colorIndex]);
+            } else {
+              // 如果县区不在 layerData 中，设置为透明并隐藏边线
+              this.setPolygonTransparent(entity);
+            }
+          });
+
+          this.renderLayer(type);
+        });
+      }
+    },
+
+    // 专门用来移除指定图层
+    removeLayers(layersToRemove) {
+      // layersToRemove 是一个数组
+      layersToRemove.forEach(layerName => {
+        // 获取所有与 layerName 匹配的 DataSource
+        let matchingLayers = window.viewer.dataSources._dataSources.filter(layer => layer._name === layerName);
+        // 遍历匹配的 DataSource 并删除
+        matchingLayers.forEach(layer => {
+          window.viewer.dataSources.remove(layer);
+        });
+      });
+    },
+
+    // 专门用来渲染指定图层，同时去掉（隐藏/销毁）其他图层
+    renderLayer(layerToRender) {
+      // layerToRender 是一个变量
+      const layersToRemove = this.eqThemes.layers.filter(layer => layer !== layerToRender);
+      this.removeLayers(layersToRemove)
+      this.removeEntitiesByType(layersToRemove)
+    },
+
+    // 设置填充颜色和边框
+    setPolygonColor(entity, colorString) {
+      const rgb = this.getRgbFromColorString(colorString);
+      entity.polygon.material = Cesium.Color.fromBytes(rgb[0], rgb[1], rgb[2], 200);
+      entity.polygon.outline = true;
+      entity.polygon.outlineColor = Cesium.Color.WHITE;
+    },
+
+    // 获取颜色索引
+    getColorIndex(number, legendColor, threshold) {
+      for (let i = 0; i < threshold.length; i++) {
+        if (number < threshold[i]) return i;
+      }
+      // 超过最大阈值，使用最后一个颜色
+      return legendColor.length - 1;
+    },
+
+    // 设置为透明
+    setPolygonTransparent(entity) {
+      entity.polygon.material = Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0);
+      entity.polygon.outline = false;
+    },
+
+    // 将字符串颜色解析为 RGB 数组
+    getRgbFromColorString(colorString) {
+      return colorString
+          .replace('(', '')
+          .replace(')', '')
+          .split(',')
+          .map((c) => parseInt(c.trim()));
+    },
+
+    convertColor(colorString) {
+      return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
+    },
+  },
 }
+
 </script>
 
 <style scoped>
@@ -5198,4 +5550,32 @@ export default {
 }
 
 /* 资源调度样式尾 */
+
+/*指挥大屏-图层管理-灾害预估图例样式*/
+.legend {
+  width: 7rem;
+  padding: 5px 0 0 10px;
+}
+
+ul {
+  padding: 0;
+}
+
+li {
+  display: flex;
+  margin: 3px 0;
+  color: #fff;
+  width: 100%;
+  height: 15px;
+  line-height: 15px;
+  font-size: 12px;
+}
+.legend-span {
+  color: #fff;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+
+
 </style>

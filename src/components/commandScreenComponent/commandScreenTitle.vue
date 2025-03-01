@@ -1,12 +1,13 @@
+<!--
+    指挥大屏顶部导航栏
+  -->
 <template>
-
     <div class="top-header">
       <div class="system-title">
         {{ this.eqyear }}年{{ this.eqmonth }}月{{ this.eqday }}日<br>{{
           this.centerPoint.earthquakeName
         }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
       </div>
-
 
     <div class="logo-menu menue-left">
       <div

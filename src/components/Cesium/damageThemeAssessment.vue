@@ -1,5 +1,5 @@
 <template>
-  <el-carousel trigger="click" height="880px" v-model="carouselIndex" :interval="0" @change="handleIndexChange">
+  <el-carousel trigger="click" height="880px" :interval="0" >
     <el-carousel-item>
       <div class="people-item">
 <!--        人员伤亡统计表格-->
@@ -38,24 +38,6 @@
           </div>
           <div class="panelChart" ref="PCChart"></div>
         </div>
-<!--        人员伤亡地图图例-->
-        <div class="people-legend">
-          <div class="pop">
-            <div class="pop_header">
-              <span class="pop_title">人员伤亡地图图例</span>
-            </div>
-          </div>
-          <div class="legend">
-            <span>图例（人数）</span>
-            <ul>
-              <li v-for="(item, index) in legendItems1" :key="index">
-            <span
-                :style="{ backgroundColor: `rgb(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
-                {{ item.label }}
-              </li>
-            </ul>
-          </div>
-        </div>
       </div>
     </el-carousel-item>
     <el-carousel-item>
@@ -88,72 +70,37 @@
           </div>
           <div class="panelChart" ref="ELChart"></div>
         </div>
-        <div class="economic-legend">
-          <div class="pop">
-            <div class="pop_header">
-              <span class="pop_title">经济损失地图图例</span>
-            </div>
-          </div>
-          <div class="legend">
-            <span>图例（元）</span>
-            <ul>
-              <li v-for="(item, index) in legendItems2" :key="index">
-          <span
-              :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
-                {{ item.label }}
-              </li>
-            </ul>
-          </div>
-        </div>
       </div>
     </el-carousel-item>
     <el-carousel-item>
       <div class="building-item">
-
-      </div>
-      <div class="building-table">
-        <div class="pop">
-          <div class="pop_header">
-            <span class="pop_title">建筑破坏统计表格</span>
+        <div class="building-table">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">建筑破坏统计表格</span>
+            </div>
+          </div>
+          <div class="statistics">
+            <span class="total">地震造成建筑破坏共计约</span>
+            <span class="emphasis"> {{ BDTotal.toFixed(2) }} </span>
+            <span class="total">平方公里</span>
+          </div>
+          <div class="tables">
+            <el-table :data="panelData.buildingDamageData" :height="230" :max-height="230" :row-style="{ height: '46px' }"
+                      :header-cell-style="tableHeaderColor" :cell-style="tableColor">
+              <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
+              <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
+              <el-table-column prop="size" label="建筑破坏 / km²" align="center"></el-table-column>
+            </el-table>
           </div>
         </div>
-        <div class="statistics">
-          <span class="total">地震造成建筑破坏共计约</span>
-          <span class="emphasis"> {{ BDTotal.toFixed(2) }} </span>
-          <span class="total">平方公里</span>
-        </div>
-        <div class="tables">
-          <el-table :data="panelData.buildingDamageData" :height="230" :max-height="230" :row-style="{ height: '46px' }"
-                    :header-cell-style="tableHeaderColor" :cell-style="tableColor">
-            <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-            <el-table-column prop="county" label="区县名称" align="center"></el-table-column>
-            <el-table-column prop="size" label="建筑破坏 / km²" align="center"></el-table-column>
-          </el-table>
-        </div>
-      </div>
-      <div class="building-chart">
-        <div class="pop">
-          <div class="pop_header">
-            <span class="pop_title">建筑破坏</span>
+        <div class="building-chart">
+          <div class="pop">
+            <div class="pop_header">
+              <span class="pop_title">建筑破坏</span>
+            </div>
           </div>
-        </div>
-        <div class="panelChart" ref="BDChart"></div>
-      </div>
-      <div class="building-legend">
-        <div class="pop">
-          <div class="pop_header">
-            <span class="pop_title">建筑破坏地图图例</span>
-          </div>
-        </div>
-        <div class="legend">
-          <span>图例（平方千米）</span>
-          <ul>
-            <li v-for="(item, index) in legendItems3" :key="index">
-          <span
-              :style="{ backgroundColor: `rgba(${convertColor(item.color)}, 1)`, width: '24px', height: '9px' }"></span>
-              {{ item.label }}
-            </li>
-          </ul>
+          <div class="panelChart" ref="BDChart"></div>
         </div>
       </div>
     </el-carousel-item>
@@ -177,7 +124,7 @@ export default {
     eqqueueId: {
       type: String,
       default: null,
-    }
+    },
   },
   name: "",
   data() {
@@ -230,6 +177,13 @@ export default {
 
       // 初始化为子组件的索引
       carouselIndex: 0,
+
+      // 图层专题需要处理的数据
+      layerData: {
+        ecoData: {},
+        bddData: {},
+        pcData: {},
+      },
     }
   },
   mounted() {
@@ -241,12 +195,6 @@ export default {
     convertColor(colorString) {
       return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
     },
-
-
-
-    /**
-     * 缩写：PC-人员伤亡；EL-经济损失；BD-建筑破坏
-     */
     getData() {
       /**
        * 获取数据
@@ -256,6 +204,7 @@ export default {
         eqid: this.eqid,
         eqqueueId: this.eqqueueId,
       }
+
 
       getEqTownResult(eqTownResultDTO).then((res) => {
         const countyData = handleTownData(res.data)
@@ -268,8 +217,12 @@ export default {
         this.loadPCData()
         this.loadELData()
         this.loadBDData()
+
       });
-    },
+    },/**
+     * 缩写：PC-人员伤亡；EL-经济损失；BD-建筑破坏
+     */
+
 
     // 处理人员伤亡表格数据
     loadPCData() {
@@ -280,6 +233,16 @@ export default {
         this.PCTableData = [{name: '暂无数据', num: '0'}];
         this.totalCasualtyNum = 0;
       }
+
+      // 图层所需数据格式
+      this.layerData.pcData = JSON.parse(JSON.stringify(
+          this.panelData.personalCasualtyData.reduce((acc, item) => {
+            acc[item.county] = item.partTotal;
+            return acc;
+          }, {})
+      ));
+      console.log("图层人员伤亡",this.layerData.pcData)
+
       this.initPCChart()
     },
 
@@ -293,6 +256,14 @@ export default {
         acc[cur.county] = cur.amount;
         return acc;
       }, {});
+
+      //图层所需数据格式
+      this.layerData.ecoData = this.panelData.economicLossData.reduce((acc, item) => {
+        acc[item.county] = item.amount;
+        return acc;
+      }, {});
+      console.log("图层经济损失",this.layerData.ecoData)
+
       this.initELChart(countyAmountMap)
     },
 
@@ -306,6 +277,14 @@ export default {
         acc[cur.county] = cur.size;
         return acc;
       }, {});
+
+      //图层所需数据格式
+      this.layerData.bddData = this.panelData.buildingDamageData.reduce((acc, item) => {
+        acc[item.county] = item.size;
+        return acc;
+      }, {});
+      console.log("图层建筑损毁",this.layerData.bddData)
+
       this.initBDChart(countySizeMap)
     },
 
@@ -738,198 +717,12 @@ export default {
     // ----------------------------------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------------------------------
 
-    // 建筑破坏
-    showBuildingDamage() {
-      const tabName = "建筑破坏";
-      const type = "buildingDamage";
-      this.eqThemes.show.isshowBuildingDamage = !this.eqThemes.show.isshowBuildingDamage;
-
-      if (this.eqThemes.show.isshowBuildingDamage) {
-        this.addTab(tabName);
-
-        console.log("建筑破坏数据：", this.panelData.buildingDamageData)
-        this.layerData.bddData = this.panelData.buildingDamageData.reduce((acc, item) => {
-          acc[item.county] = item.size;
-          return acc;
-        }, {});
-        this.addThemeLayer(this.layerData.bddData, type);
-
-        if (this.eqThemes.show.isshowRegion) {
-          this.toggleYaanLayer('none');
-        }
-
-      } else {
-        const index = this.tabs.indexOf(tabName);
-        this.removeTab(tabName, index);
-        this.removeLayers([type]);
-        this.removeEntitiesByType([type]);
-        this.layerData.bddData = {};
-        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
-          this.toggleYaanLayer('colorful');
-        }
-      }
-    },
-
-    // 经济损失
-    showEconomicLoss() {
-      const tabName = "经济损失";
-      const type = "economicLoss";
-      this.eqThemes.show.isshowEconomicLoss = !this.eqThemes.show.isshowEconomicLoss;
-
-      if (this.eqThemes.show.isshowEconomicLoss) {
-        this.addTab(tabName);
-
-        console.log("经济损失数据：", this.panelData.economicLossData)
-
-        // 将经济损失数据整理为适合的格式
-        this.layerData.ecoData = this.panelData.economicLossData.reduce((acc, item) => {
-          acc[item.county] = item.amount;
-          return acc;
-        }, {});
-
-        // 添加主题图层并等待其完成
-        this.addThemeLayer(this.layerData.ecoData, type);
-
-        if (this.eqThemes.show.isshowRegion) {
-          this.toggleYaanLayer('none');
-        }
-      } else {
-        const index = this.tabs.indexOf(tabName);
-        this.removeTab(tabName, index);
-        this.removeLayers([type]);
-        this.removeEntitiesByType([type]);
-        this.layerData.ecoData = {};
-        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
-          this.toggleYaanLayer('colorful');
-        }
-      }
-    },
-
-    // 人员伤亡评估
-    showPersonalCasualty() {
-      const tabName = "人员伤亡";
-      const type = "personalCasualty";
-      this.eqThemes.show.isshowPersonalCasualty = !this.eqThemes.show.isshowPersonalCasualty;
-      if (this.eqThemes.show.isshowPersonalCasualty) {
-        this.addTab(tabName);
-
-        // // 将人员伤亡数据整理为适合的格式
-        this.layerData.pcData = JSON.parse(JSON.stringify(
-            this.panelData.personalCasualtyData.reduce((acc, item) => {
-              acc[item.county] = item.partTotal;
-              return acc;
-            }, {})
-        ));
-
-        console.log(111, this.layerData.pcData);
-
-        // 添加主题图层并等待其完成
-        this.addThemeLayer(this.layerData.pcData, type)
-        if (this.eqThemes.show.isshowRegion) {
-          this.toggleYaanLayer('none');
-        }
-
-      } else {
-        const index = this.tabs.indexOf(tabName);
-        this.removeTab(tabName, index);
-        this.removeLayers([type])
-        this.removeEntitiesByType([type]);
-        this.layerData.pcData = {};
-        if (!this.eqThemes.show.isshowEconomicLoss && !this.eqThemes.show.isshowBuildingDamage && !this.eqThemes.show.isshowPersonalCasualty && this.eqThemes.show.isshowRegion && this.tabs.length > 0) {
-          this.toggleYaanLayer('colorful')
-        }
-      }
-    },
-
-    // 切换选项卡
-    changeTab(tabName) {
-      // 将中文 tab 映射到相应的数据和图层类型
-      const tabMapping = {
-        '经济损失': {data: this.layerData.ecoData, type: "economicLoss"},
-        '建筑破坏': {data: this.layerData.bddData, type: "buildingDamage"},
-        '人员伤亡': {data: this.layerData.pcData, type: "personalCasualty"}
-      };
-
-      this.currentTab = tabName;
-      // 根据 tabName 加载对应的图层数据和类型
-      if (tabMapping[tabName]) {
-        this.addThemeLayer(tabMapping[tabName].data, tabMapping[tabName].type);
-      }
-
-      const tab = this.transferTab(tabName)[0];
-      // 如果 tabs 中包含该 tabName，打开对应面板，否则添加 tab
-      if (this.tabs.includes(tabName)) {
-        this.eqPanel[tab] = true;
-      } else {
-        this.addTab(tabName);
-      }
-
-      // 关闭其他面板，保留当前 tab 面板
-      Object.keys(this.eqPanel).forEach(key => {
-        this.eqPanel[key] = (key === tab);
-      });
-    },
-
-    // 删除选项卡
-    removeTab(tabName, index) {
-      const [panel, info, layerType, dataKey] = this.transferTab(tabName);
-
-      if (tabName in this.tabMapping) {
-        // 通过映射对象清理对应数据
-        this.layerData[dataKey] = {};
-        this.removeEntitiesByType([layerType]);
-        this.removeLayers([layerType]);
-      }
-
-      // 多个：删除当前选项卡
-      if (this.currentTab === this.tabs[index] && this.tabs.length !== 1) {
-
-        this.eqPanel[panel] = false;
-        this.eqThemes.show[info] = false;
-
-        const nextTabIndex = this.tabs[index - 1] ? index - 1 : index + 1;
-        this.currentTab = this.tabs[nextTabIndex];
-        const [nextPanel, , nextLayer, nextData] = this.transferTab(this.currentTab);
-
-        this.eqPanel[nextPanel] = true;
-        this.addThemeLayer(this.layerData[nextData], nextLayer);
-
-      }
-      // 多个：删除的不是当前选项卡
-      else if (this.tabs.length !== 1 && this.currentTab !== this.tabs[index]) {
-
-        this.eqThemes.show[info] = false;
-      }
-      // 单个：删除最后的选项卡
-      else if (this.tabs.length === 1) {
-        this.eqPanel[panel] = false;
-        this.eqThemes.show[info] = false;
-        this.toggleYaanLayer('colorful');
-      }
-
-      // 移除选项卡
-      this.tabs.splice(index, 1);
-    },
-
-    // 专题面板展开
-    unfoldInfo(currentTab) {
-      const tab = this.transferTab(currentTab)[0]
-      this.eqPanel[tab] = true;
-      this.isShow = false;
-    },
-
-    // 将中文转化成对应要用的属性，[0]为控制对应底部面板展示，[1]为控制对应右侧信息展示，[2]为图层专题名，[3]为专题数据
-    // 目前使用映射处理，如果有新增，请先在this.tabMapping处注册
-    transferTab(tabName) {
-      return this.tabMapping[tabName] || [];
-    },
-
-
-
-
     handleIndexChange(newIndex) {
       // 当索引变化时，向父组件传递新的索引
-      this.$emit('update:index', newIndex);
+      this.$emit('update:index', {
+        newIndex: newIndex,
+        layerData: this.layerData
+      });
     }
 
   },

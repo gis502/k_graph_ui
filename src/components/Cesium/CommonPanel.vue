@@ -1,5 +1,4 @@
 <template>
-
   <div v-if="visiblePanel">
     <div v-if="!showEqStatus && !showAssess">
       <div class="eq-videoMonitorWin" :style="styleObject">

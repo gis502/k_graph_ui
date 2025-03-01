@@ -954,7 +954,7 @@ export default {
 
     // 选中图层专题后：选项卡模块
 
-    // 添加新选项卡
+    // 添加新选项卡changeTab
     addTab(panel) {
       this.tabs.push(panel)
       this.changeTab(panel);
