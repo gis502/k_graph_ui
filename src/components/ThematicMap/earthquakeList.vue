@@ -93,7 +93,7 @@
           <div class="eqTheme">
             <div class="button themes history"
                  v-for="(item,index) in reportData"
-                 style="width: 120px;"
+                 style="width: 120px;font-size: 14px;"
                  @click="handleDownloadReport(item.docxUrl)"
             >{{ item.theme }}
             </div>

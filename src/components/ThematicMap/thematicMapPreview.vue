@@ -84,7 +84,8 @@ import {ElMessage} from "element-plus";
     imgurlFromDate() {
       this.imgurlFromDateLocal = this.imgurlFromDate
     },
-    imgName() {
+    imgName(newVal) {
+      console.log('imgName 更新为:', newVal);
       if(this.showTypes === 3){
         this.setPictureCreateTime();
       }

@@ -467,7 +467,7 @@ export default {
           //   调用截图方法
           this.remoteSensingImagePerspectiveJump(() => {
             // this.captureRemoteSensingImage();
-            this.exportCesiumScene(imagData.name)
+            this.exportCesiumScene(imagData.theme)
           });
         }
         if (imagData.theme === "三维模型图") {
@@ -522,7 +522,7 @@ export default {
                   console.log("等高线加载完成，开始截图");
 
                   // 捕捉远程感应图像
-                  await this.captureRemoteSensingImage(imagData.name);
+                  await this.captureRemoteSensingImage(imagData.theme);
                   console.log("截图成功");
 
                 } catch (error) {
@@ -550,6 +550,7 @@ export default {
         }
       }
       else {
+        console.log("imagData:",imagData.theme)
         this.imgurlFromDate = imagData.imgUrl
         this.imgName = imagData.theme
         this.ifShowMapPreview = true

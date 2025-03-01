@@ -893,8 +893,7 @@ import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {
   addFaultZones,
   addHistoryEqPoints,
-  addHospitalLayer,
-  handleTownData,
+  addHospitalLayer , handleTownData,
   addOvalCircles, addVillageLayer,
   handleOutputData, removeDataSourcesLayer
 } from "../../cesium/plot/eqThemes.js";
@@ -1992,14 +1991,14 @@ export default {
                 "医院等级": properties._grade._value,
                 "联系电话": properties._tel._value,
                 "床铺数量": properties._bed._value,
-                "关系": properties._membership._value,
+                "所属单位": properties._membership._value,
                 "救护车数量": properties._ambulance._value,
                 "血浆数量": properties._plasma._value,
                 "葡萄糖数量": properties._surgery_dc._value,
                 "医生数量": properties._doctor._value,
                 "麻醉剂数量": properties._anesthetis._value,
                 "护士数量": properties._nurse._value,
-                "经纬度": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+                "地理位置": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
               }
               console.log(this.eqThemeData)
             }
