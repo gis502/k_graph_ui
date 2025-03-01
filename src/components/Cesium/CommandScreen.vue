@@ -1933,6 +1933,15 @@ export default {
             this.PanelPosition = this.selectedEntityPosition;
             this.routerPanelData = this.extractDataForRouter(entity);
           }
+          //资源调度——救灾物资储备、雅安应急队伍
+          else if (entity._layer === "救灾物资储备" || entity._layer === "雅安应急队伍" ) {
+            this.eqCenterPanelVisible = false;
+            this.routerPopupVisible = true;
+            this.dataSourcePopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
+            this.PanelPosition = this.selectedEntityPosition;
+            this.routerPanelData = this.extractDataForRouter(entity);
+          }
           // //聚合图标
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
             if (entity[0].entityCollection.owner.name === "label") {

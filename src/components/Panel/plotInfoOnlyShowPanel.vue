@@ -255,9 +255,10 @@ export default {
 .header-div {
   color: white;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  font-size: 128%;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 1px;
 }
 
 .videoMonitorWin {
