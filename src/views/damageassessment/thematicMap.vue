@@ -693,9 +693,8 @@ export default {
           this.outputData.type = type;
 
 
-          if (res.themeData.length === 0) {
-            this.isNoData = true
-          }
+
+          this.isNoData = res.themeData.length === 0;
         });
       } else if(this.isPanelShow.instrument) {
         this.isNoData = false

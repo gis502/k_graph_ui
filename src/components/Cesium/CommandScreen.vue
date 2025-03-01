@@ -476,6 +476,8 @@
         <plotInfoOnlyShowPanel
           v-show="plotShowOnlyPanelVisible"
           :position="PanelPosition"
+          :eqThemeName="tableName"
+          :eqThemeInfo="eqThemeData"
           :popupData="PanelData"
         />
         <RouterPanel
@@ -830,7 +832,13 @@ import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/re
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
-import {addFaultZones, addHistoryEqPoints, addOvalCircles, handleOutputData} from "../../cesium/plot/eqThemes.js";
+import {
+  addFaultZones,
+  addHistoryEqPoints,
+  addHospitalLayer,
+  addOvalCircles, addVillageLayer,
+  handleOutputData, removeDataSourcesLayer
+} from "../../cesium/plot/eqThemes.js";
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
@@ -1020,6 +1028,8 @@ export default {
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
       plotShowOnlyPanelVisible: false, // TimeLinePanel弹窗的显示与隐藏
       PanelPosition: {x: 0, y: 0}, // TimeLinePanel弹窗的位置
+      tableName: "", // plotShowOnlyPanel弹窗的表名
+      eqThemeData: {}, // plotShowOnlyPanel弹窗的地震专题数据
       PanelData: {}, // TimeLinePanel弹窗的数据
       routerPanelData: {},
       //----------------------------------
@@ -1135,6 +1145,8 @@ export default {
         {id: '6', name: '应急物资存储要素图层'},
         {id: '7', name: '历史地震要素图层'},
         {id: '8', name: '断裂带要素图层'},
+        {id: '9', name: '医院要素图层'},
+        {id: '10', name: '村庄要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
       isMarkingLayerLocal: true,
@@ -1691,12 +1703,11 @@ export default {
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
-          const pickedObject = window.viewer.scene.pick(click.position);
 
           // if (entity._layer === "断裂带") {
           //   //console.log("断裂带")
           //
-          //   const faultName = pickedObject.id.properties.name._value;
+          //   const faultName = pickedEntity.id.properties.name._value;
           //
           //   if (faultName) {
           //     // 获取点击位置的地理坐标 (Cartesian3)
@@ -1737,6 +1748,8 @@ export default {
             this.routerPopupVisible = false;
             this.PanelPosition = this.selectedEntityPosition; // 更新位置
             this.PanelData = {}
+            this.eqThemeData = {}
+            this.tableName = ""
             this.PanelData = this.extractDataForRouter(entity)
             // console.log("PanelData 标绘点",this.PanelData)
 
@@ -1784,6 +1797,50 @@ export default {
               this.routerPopupVisible = false;
 
             }
+          } else if (Cesium.defined(pickedEntity) && pickedEntity.id.name) {
+            console.log(112211)
+            let ray = viewer.camera.getPickRay(click.position);
+            let position = viewer.scene.globe.pick(ray, viewer.scene);
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+
+            this.PanelPosition = this.selectedEntityPosition;
+
+            const properties = pickedEntity.id._properties;
+            const sourceName = properties.sourceName;
+
+            // 清空标绘数据信息，因为共用一个组件
+            // this.PanelData = {}
+            // 如果是医院点
+            if (sourceName === "hospital") {
+              this.tableName = "医院信息";
+              this.eqThemeData = {
+                "名称": properties._name._value,
+                "位置": properties._location._value,
+                "医院等级": properties._grade._value,
+                "联系电话": properties._tel._value,
+                "床铺数量": properties._bed._value,
+                "关系": properties._membership._value,
+                "救护车数量": properties._ambulance._value,
+                "血浆数量": properties._plasma._value,
+                "葡萄糖数量": properties._surgery_dc._value,
+                "医生数量": properties._doctor._value,
+                "麻醉剂数量": properties._anesthetis._value,
+                "护士数量": properties._nurse._value,
+                "经纬度": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+              }
+              console.log(this.eqThemeData)
+            }
+            // 如果是村庄点
+            else if (sourceName === "village") {
+              this.tableName = "村庄信息";
+              this.eqThemeData = {
+                "名称": properties._NAME._value,
+                "经纬度": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+              }
+            }
+            this.plotShowOnlyPanelVisible = true;
           }
          //断裂带
          else {
@@ -3261,103 +3318,58 @@ export default {
         this.MarkingLayerRemove();
       }
 
-      // 检查是否选定了雅安行政区划要素图层
-      const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
-      // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
-      if (hasYaanRegionLayer) {
-        this.removethdRegions();
-        this.addYaanRegion();
-      } else {
-        // 如果未选定行政区划要素图层，则移除其他区域图层和雅安行政区划图层
-        this.removethdRegions();
-        this.removeDataSourcesLayer('YaanRegionLayer');
-      }
+      // 图层映射：添加与移除图层逻辑
+      // name: 图层名；add：添加图层；remove：移除图层
+      const layerActions = [
+        {
+          name: '行政区划要素图层',
+          add: this.addYaanRegion,
+          remove: () => this.removeDataSourcesLayer('YaanRegionLayer')
+        },
+        {name: '人口密度要素图层', add: this.addPopLayer, remove: () => this.removeImageryLayer('PopLayer')},
+        {
+          name: '交通网络要素图层', add: this.addTrafficLayer, remove: () => {
+            this.removeImageryLayer('TrafficLayer');
+            this.removeImageryLayer('TrafficTxtLayer');
+          }
+        },
+        {
+          name: '应急物资存储要素图层',
+          add: () => this.processPoints(this.disasterReserves, 'reserves', emergencyRescueEquipmentLogo, '应急物资存储'),
+          remove: () => this.removeEntitiesByType('reserves')
+        },
+        {
+          name: '救援队伍分布要素图层',
+          add: () => this.processPoints(this.emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, '救援队伍分布'),
+          remove: () => this.removeEntitiesByType('emergencyTeam')
+        },
+        {
+          name: '避难场所要素图层',
+          add: () => this.processPoints(this.emergencyShelters, 'emergencyShelters', emergencySheltersLogo, '避难场所'),
+          remove: () => this.removeEntitiesByType('emergencyShelters')
+        },
+        {name: '历史地震要素图层', add: this.addHistoryEqPoints, remove: () => this.removeEntitiesByType('historyEq')},
+        {
+          name: '断裂带要素图层', add: this.addFaultZone, remove: () => {
+            if (window.duanliedai) {
+              window.viewer.dataSources.remove(window.duanliedai, true);
+              window.duanliedai = null;
+            }
+            this.removeDataSourcesLayer('duanliedai');
+          }
+        },
+        {name: '医院要素图层', add: addHospitalLayer, remove: () => this.removeDataSourcesLayer('hospital')},
+        {name: '村庄要素图层', add: addVillageLayer, remove: () => this.removeDataSourcesLayer('village')},
+        {name: '烈度圈要素图层', add: this.addOvalCircle, remove: () => this.removeEntitiesByType('ovalCircle')}
+      ];
 
-      // 检查是否选定了人口密度要素图层
-      const hasPopLayer = this.selectedlayersLocal.includes('人口密度要素图层');
-      // 如果选定了人口密度要素图层，则添加人口密度图层
-      if (hasPopLayer) {
-        this.addPopLayer();
-      } else {
-        // 如果未选定人口密度要素图层，则移除人口密度图层
-        this.removeImageryLayer('PopLayer');
-      }
-
-      // 检查是否选中了交通网络要素图层
-      const hasTrafficLayer = this.selectedlayersLocal.includes('交通网络要素图层');
-      // 根据选中情况，添加或移除交通网络要素图层
-      if (hasTrafficLayer) {
-        this.addTrafficLayer();
-      } else {
-        this.removeImageryLayer('TrafficLayer');
-        this.removeImageryLayer('TrafficTxtLayer');
-      }
-
-      // 检查是否选中了应急物资存储要素图层
-      const hasReservesLayer = this.selectedlayersLocal.includes('应急物资存储要素图层');
-      // 根据选中情况，处理或移除应急物资存储要素图层
-      if (hasReservesLayer) {
-        this.processPoints(this.disasterReserves, 'reserves', emergencyRescueEquipmentLogo, '应急物资存储');
-      } else {
-        this.removeEntitiesByType('reserves');
-      }
-
-      // 检查是否选定了救援队伍分布要素图层
-      const hasEmergencyTeamLayer = this.selectedlayersLocal.includes('救援队伍分布要素图层');
-      // 如果选定了救援队伍分布要素图层，则处理救援队伍的点数据
-      if (hasEmergencyTeamLayer) {
-        this.processPoints(this.emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, '救援队伍分布');
-      } else {
-        // 如果没有选定救援队伍分布要素图层，则移除已有的救援队伍分布实体
-        this.removeEntitiesByType('emergencyTeam');
-      }
-
-      // 检查是否选定了避难场所要素图层
-      const hasEmergencySheltersLayer = this.selectedlayersLocal.includes('避难场所要素图层');
-      // 如果选定了避难场所要素图层，则处理避难场所的点数据
-      if (hasEmergencySheltersLayer) {
-        this.processPoints(this.emergencyShelters, 'emergencyShelters', emergencySheltersLogo, '避难场所');
-      } else {
-        // 如果没有选定避难场所要素图层，则移除已有的避难场所实体
-        this.removeEntitiesByType('emergencyShelters');
-      }
-
-      // 检查是否选定了历史地震要素图层
-      const hasHistoryEqLayer = this.selectedlayersLocal.includes('历史地震要素图层');
-      // 如果选定了历史地震要素图层，则添加历史地震的点数据
-      if (hasHistoryEqLayer) {
-        this.addHistoryEqPoints();
-      } else {
-        // 如果没有选定历史地震要素图层，则移除已有的历史地震实体
-        this.removeEntitiesByType('historyEq');
-      }
-
-      // 判断是否选定了断裂带要素图层
-      const hasFaultZoneLayer = this.selectedlayersLocal.includes('断裂带要素图层');
-      // 如果选定了断裂带要素图层，则添加断裂带图层
-      if (hasFaultZoneLayer) {
-        this.addFaultZone();
-      } else {
-        if (window.duanliedai) {
-          // 从viewer的数据源中移除图层，第二个参数为true表示强制移除
-          window.viewer.dataSources.remove(window.duanliedai, true);
-          // 清空regionLayerJump的引用，以便垃圾回收
-          window.duanliedai = null;
-          // //console.log("图层已移除");
+      layerActions.forEach(layer => {
+        if (this.selectedlayersLocal.includes(layer.name)) {
+          layer.add();
+        } else {
+          layer.remove();
         }
-        // 如果未选定断裂带要素图层，则移除断裂带图层
-        this.removeDataSourcesLayer('duanliedai');
-      }
-
-      // 判断是否选定了烈度圈要素图层
-      const hasOvalCircleLayer = this.selectedlayersLocal.includes('烈度圈要素图层');
-      // 如果选定了烈度圈要素图层，则添加烈度圈图层
-      if (hasOvalCircleLayer) {
-        this.addOvalCircle();
-      } else {
-        // 如果未选定烈度圈要素图层，则移除烈度圈图层
-        this.removeEntitiesByType('ovalCircle');
-      }
+      });
 
       //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
       if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
