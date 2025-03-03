@@ -1805,6 +1805,7 @@ export default {
         viewer.clockViewModel.shouldAnimate = true;
       });
       timeLine.addDataSourceLayer("pointData")
+      timeLine.addDataSourceLayer("label")
       timeLine.addCenterPoint(this.centerPoint)
     },
     updateZoomLevel(cameraHeight) {

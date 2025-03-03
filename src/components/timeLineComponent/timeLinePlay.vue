@@ -289,7 +289,7 @@ export default {
           entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
         }
 
-        console.log(plot,plot.plotId,window.pointDataSource.entities.getById(plot.plotId),this.viewer.entities.getById(plot.plotId),entity,"plot.plotId entity")
+        // console.log(plot,plot.plotId,window.pointDataSource.entities.getById(plot.plotId),this.viewer.entities.getById(plot.plotId),entity,"plot.plotId entity")
         if (!entity) {
           console.error("Entity not found:", plot);
           resolve();
@@ -305,8 +305,19 @@ export default {
           count++;
           if (count >= 5) {
             clearInterval(blinkInterval);
+
+            if (plot.plotType === "失踪人员" || plot.plotType === "轻伤人员" || plot.plotType === "重伤人员" || plot.plotType === "危重伤人员" || plot.plotType === "死亡人员" || plot.plotType === "已出发队伍" || plot.plotType === "正在参与队伍" || plot.plotType === "待命队伍") {
+            }
+            else {
+              let entitylabel = window.labeldataSource.entities.getById(plot.plotId + "_label");
+              if (entitylabel) {
+                entitylabel.show = false
+              }
+            }
             entity.show = true;
+
             resolve(); // 完成闪烁，继续后续操作
+
           }
         }, interval);
       });
