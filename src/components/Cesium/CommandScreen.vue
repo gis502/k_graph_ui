@@ -687,16 +687,7 @@
 
     <!--    地震列表切换-->
     <div class="universalPanel" v-if="showEqListPanel">
-      <!-- 顶部标题栏 -->
-      <div class="panelTop">
-        <h2 class="panelName">地震列表</h2>
-      </div>
-      <!-- 内容区域 -->
-      <div class="panelContent">
-        <div class="thd-Table">
-          <eqlistTable :eqData="eqTable"/>
-        </div>
-      </div>
+      <CommandScreenEarthquakeList/>
     </div>
 
     <!-- 三维模型弹框 -->
@@ -888,7 +879,6 @@ import {getEmergency, getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
 import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
-
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {
   addFaultZones,
@@ -958,6 +948,8 @@ import {deleteSlopeEntities, toggleSlopeAnalysis} from "@/cesium/slopeAnalysis.j
 import log from "@/views/monitor/job/log.vue";
 import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
 import {getEqTownResult} from "@/api/system/damageassessment";
+import CommandScreenEarthquakeList from '@/components/commandScreenComponent/CommandScreenEarthquakeList.vue'
+import mapMark from "@/assets/地图标记.png";
 
 export default {
   computed: {
@@ -1051,7 +1043,8 @@ export default {
     layeredShowPlot,
     earthquakeTable,
     modelTable,
-    eqlistTable
+    eqlistTable,
+    CommandScreenEarthquakeList,
   },
   data: function () {
     return {
@@ -1569,6 +1562,10 @@ export default {
         {color: '(0, 84, 165)', label: '> 10km²'},
       ],
 
+      // 行政区划
+      RegionLabels: [],
+
+      flyToMarker:null,// 经纬度跳转时的定位标记
     };
   },
   created() {
@@ -3579,6 +3576,7 @@ export default {
       }else {
         this.removeDataSourcesLayer('personalCasualty');
         this.showPeopleLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
+        this.removeRegionLabels();
       }
 
       // 判断是否选定了灾损预估-经济损失要素图层
@@ -3591,6 +3589,7 @@ export default {
       }else {
         this.removeDataSourcesLayer('economicLoss');
         this.showEconomicLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
+        this.removeRegionLabels();
       }
 
       // 判断是否选定了灾损预估-建筑损毁要素图层
@@ -3603,6 +3602,7 @@ export default {
       }else {
         this.removeDataSourcesLayer('buildingDamage');
         this.showBuildingLegend = false; // 指挥大屏-图层管理-建筑损毁图层图例状态
+        this.removeRegionLabels();
       }
 
 
@@ -4066,19 +4066,44 @@ export default {
       const lat = parseFloat(this.positionFlyTo.lat);
 
       if (!isNaN(lon) && !isNaN(lat)) {
-        window.viewer.camera.flyTo({
+        // 目标位置
+        const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
+
+        // **移除已有的标记（防止重复创建）**
+        if (this.flyToMarker) {
+          viewer.entities.remove(this.flyToMarker);
+        }
+
+        // **添加定位标记**
+        this.flyToMarker = viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(lon, lat, 500), // 确保标记不会被埋
+          billboard: {
+            image: mapMark, // 测试图片
+            width: 50, // 放大标记
+            height: 50,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 贴地显示，避免埋在地下
+            show: true, // 确保可见
+          },
+        });
+
+
+        // **飞行到目标位置**
+        viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(lon, lat, 3000),
           duration: 2, // 飞行时间
         });
       } else {
-        this.$message.error("请输入有效的经度、纬度和高度值！");
+        this.$message.error("请输入有效的经度、纬度值！");
       }
     },
+
 
     clearPositionPanel() {
       this.positionFlyTo.lon = ''
       this.positionFlyTo.lat = ''
       this.showPositionFlyTo = false
+      viewer.entities.remove(this.flyToMarker);
     },
     showThematicMapDialog(item) {
 
@@ -4460,6 +4485,32 @@ export default {
             }
           });
 
+          yaan.features.forEach((feature) => {
+            let center = feature.properties.center;
+
+            if (center && center.length === 2) {
+              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+              let regionlabel = viewer.entities.add(new Cesium.Entity({
+                position: position,
+                label: new Cesium.LabelGraphics({
+                  text: feature.properties.name,
+                  scale: 1,
+                  font: '18px Sans-serif',
+                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                  outlineWidth: 2,
+                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  clampToGround: true,
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
+                })
+              }));
+              this.RegionLabels.push(regionlabel)
+            }
+          });
           this.renderLayer(type);
         });
       }
@@ -4521,6 +4572,14 @@ export default {
     convertColor(colorString) {
       return colorString.replace(/[()]/g, '').split(',').map(c => parseInt(c.trim())).join(', ');
     },
+
+    removeRegionLabels() {
+      this.RegionLabels.forEach((label) => {
+        viewer.entities.remove(label);
+      });
+      this.RegionLabels = []; // 清空数组，防止重复删除
+    }
+
   },
 }
 </script>
@@ -5546,12 +5605,11 @@ li {
   line-height: 15px;
   font-size: 12px;
 }
+
 .legend-span {
   color: #fff;
   font-size: 14px;
   margin-right: 10px;
 }
-
-
 
 </style>

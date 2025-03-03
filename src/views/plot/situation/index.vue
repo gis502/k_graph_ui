@@ -108,40 +108,11 @@
                    width="17%" height="43.3px">
             </el-tooltip>
           </span>
-            <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
-            <!--            <el-button type="primary" @click="drawP">量算面积</el-button>-->
-            <!--            <el-button type="primary" @click="drawN">量算距离</el-button>-->
-            <!--            <el-button style="margin: 10px;" type="danger" @click="deletePolygon"-->
-            <!--                       v-if="this.showPolygon">删除面</el-button>-->
-            <!--            <el-button style="margin: 10px;" type="danger" @click="deletePolyline"-->
-            <!--                       v-if="this.showPolyline">删除线</el-button>-->
-            <!--           <el-row>-->
-            <!--            <br>-->
-            <!--            <el-col :span="24">-->
-            <!--              <span style="color: white;">距离：</span>-->
-            <!--              <span style="color: white;" id="distanceLine">0</span>-->
-            <!--              <span style="color: white;"> 米</span>-->
-            <!--            </el-col>-->
-            <!--          </el-row>-->
-            <!--          <el-row>-->
-            <!--            <el-col :span="24">-->
-            <!--              <span style="color: white;">面积：</span>-->
-            <!--              <span style="color: white;" id="area">0</span>-->
-            <!--              <span style="color: white;"> 平方米</span>-->
-            <!--            </el-col>-->
-            <!--          </el-row>-->
-            <!--          <el-row>-->
-            <!--            <el-col :span="24">-->
-            <!--              <span style="color: white;">区域内标绘个数：</span>-->
-            <!--              <span style="color: white;" id="ispointIcon">0 </span>-->
-            <!--              <span style="color: white;"> 个</span>-->
-            <!--            </el-col>-->
-            <!--          </el-row>-->
-            <!--          </span>-->
           </el-col>
         </el-row>
       </el-form>
       <addMarkCollectionDialog
+          :eqOccurrenceTime="eqOccurrenceTime"
           :addMarkDialogFormVisible="addMarkDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @drawPoints="drawPoints"
@@ -150,12 +121,14 @@
           @sendPlot="sendPlot"
       />
       <addPolylineDialog
+          :eqOccurrenceTime="eqOccurrenceTime"
           :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @clearMarkDialogForm="resetPolyline"
           @sendPlot="sendPlot"
       />
       <addPolygonDialog
+          :eqOccurrenceTime="eqOccurrenceTime"
           :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @clearMarkDialogForm="resetPolygon"
@@ -575,6 +548,8 @@ export default {
       //--------------控制显隐--
       showEqList: true,
       showToolbar: true,
+
+      eqOccurrenceTime:'',
     };
   },
 
@@ -2277,6 +2252,8 @@ export default {
       this.websock.eqid = this.eqid
       this.renderedPlotIds.clear(); // 清空已渲染 ID 集合
       this.initPlot(row.eqid)
+      this.eqOccurrenceTime = row.occurrenceTime.replace('T', ' ') + ':00';
+      console.log("更换地震后的时间",this.eqOccurrenceTime)
       this.title = this.timestampToTimeChina(row.occurrenceTime) + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
@@ -2310,6 +2287,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
+        that.eqOccurrenceTime = that.tableData[0].occurrenceTime.replace("T", " ")
         that.title = this.timestampToTimeChina(that.tableData[0].occurrenceTime.replace("T", " ")) + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
@@ -2647,7 +2625,6 @@ export default {
 
     //--------------点------------------------
 
-    // 打开添加点标绘对话框
     // 打开添加点标绘对话框
     openPointPop(type, img) {
       let that = this;
