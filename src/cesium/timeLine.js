@@ -442,10 +442,10 @@ let timeLine = {
     },
 
     addMakerPoint(item, type) {
+
         //点的属性 震中点统用一一个方法
         let labeltext = null
         let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
-
             let pointDataSource=this.addDataSourceLayer("pointData")
             if(pointDataSource){
                 if (window.pointDataSource.entities.getById(item.plotId)) {
@@ -782,6 +782,46 @@ let timeLine = {
                 }
             })
         }
-    }
+    },
+
+    //显示隐藏
+    showAllMakerPoint(){
+        this.plots.forEach(item=>{
+            if(item.drawtype==="point"){
+                let entity=window.pointDataSource.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = true
+                }
+            }
+            else{
+                let entity=window.viewer.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = true
+                }
+            }
+
+        })
+    },
+    MarkingLayerRemove(){
+        this.plots.forEach(item=>{
+            console.log(item)
+            if(item.drawtype==="point"){
+                let entity=window.pointDataSource.entities.getById(item.plotId)
+                console.log(entity,"entity")
+                if (entity) {
+                    entity.show = false
+                }
+            }
+            else{
+                let entity=window.viewer.entities.getById(item.plotId)
+                console.log(entity,"entity")
+                if (entity) {
+                    entity.show = false
+                }
+            }
+
+        })
+    },
+
 }
 export default timeLine;

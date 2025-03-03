@@ -3080,7 +3080,7 @@ export default {
         }
       }
       if(this.activeComponent !== 'layerChoose') {
-        this.removeAllEmergencySites();
+        // this.removeAllEmergencySites();
         this.showTips = false;
       }
     },
@@ -3417,7 +3417,6 @@ export default {
           // console.log("selectedDataByRegions--------------------", this.selectedDataByRegions)
           this.processPoints(reserves, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
           this.processPoints(supplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-
           this.processPoints(emergencyTeam, 'emergencyTeam', rescueTeamsInfoLogo, "雅安应急队伍");
           this.listField = 'supplies'
           this.changeDataList('supplies')
@@ -3497,7 +3496,9 @@ export default {
         }
       }
     },
+
     updateMapLayers() {
+      console.log(this.selectedlayersLocal,"selectedlayersLocal")
       // 检查选中的图层中是否包含标绘点图层
       const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
       // 如果包含标绘点图层
@@ -3505,14 +3506,13 @@ export default {
         // 确认标绘图层变更，参数为true表示已选中
         this.handleMarkingLayerChange(true);
         // 更新绘图状态
-        // this.updatePlotOnce(true);
+        timeLine.showAllMakerPoint()
       } else {
         // 确认标绘图层变更，参数为false表示未选中
         this.handleMarkingLayerChange(false);
         // 移除所有已存在的椭圆圈实体，以避免重复添加
-        // this.removeEntitiesByType("ovalCircle")
         // 移除标绘图层
-        this.MarkingLayerRemove();
+        timeLine.MarkingLayerRemove();
       }
 
       // 图层映射：添加与移除图层逻辑
@@ -3735,6 +3735,7 @@ export default {
      * @param {string} type - 要删除的实体类型
      */
     removeEntitiesByType(type) {
+      console.log("removeEntitiesByType",type)
       // 获取当前窗口中所有的实体
       let entities = window.viewer.entities.values;
       // 倒序遍历实体数组，以确保删除实体时不会影响遍历
@@ -3963,40 +3964,6 @@ export default {
       }
     },
     //标绘图层清除-->
-
-    /**
-     * 移除标记图层
-     * 遍历plots数组，查找并移除每个plot对应的图层实体
-     */
-    MarkingLayerRemove() {
-      // 遍历所有plot
-      this.plots.forEach(item => {
-        //console.log("item", item)
-        // 从 dataSource 中删除点
-        if (window.pointDataSource) {
-          const entityToRemove = window.pointDataSource.entities.getById(item.plotId);
-          const ellipseEntityToRemove = window.pointDataSource.entities.getById((item.plotId + '_ellipse'));
-
-          //将标绘点实体删除
-          this.plotisshow[item.plotId] = 0;
-          cesiumPlot.deletePointById(item.plotId);
-
-          //console.log("entityToRemove", entityToRemove)
-          if (entityToRemove) {
-            window.pointDataSource.entities.remove(entityToRemove); // 移除点
-          }
-          if (ellipseEntityToRemove) {
-            window.pointDataSource.entities.remove(ellipseEntityToRemove); // 移除标绘点的动画实体
-          }
-        }
-
-        //将标绘点实体删除
-        // viewer.entities.removeById(item.plotId);
-        // // 标记该plotId对应的图层为隐藏状态
-        // this.plotisshow[item.plotId] = 0
-
-      })
-    },
 
     /**
      * 处理标记图层切换
