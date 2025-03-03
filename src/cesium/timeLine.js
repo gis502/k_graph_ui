@@ -787,8 +787,8 @@ let timeLine = {
     },
 
     //显示隐藏
-    showAllMakerPoint() {
-        this.plots.forEach(item => {
+    showAllMakerPoint(plots) {
+        plots.forEach(item => {
             if (item.drawtype === "point") {
                 let entity = window.pointDataSource.entities.getById(item.plotId)
                 if (entity) {
@@ -803,8 +803,8 @@ let timeLine = {
 
         })
     },
-    MarkingLayerRemove() {
-        this.plots.forEach(item => {
+    MarkingLayerRemove(plots) {
+        plots.forEach(item => {
             console.log(item)
             if (item.drawtype === "point") {
                 let entity = window.pointDataSource.entities.getById(item.plotId)
