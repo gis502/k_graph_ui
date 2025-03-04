@@ -129,7 +129,7 @@ export default {
 
 .top-header {
   height: 24vh;
-  width: 100%;
+  width: 101%;
   background: url(@/assets/images/CommandScreen/导航栏底图.png) no-repeat;
   background-size: 100% 100%;
   top: 0%;

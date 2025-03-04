@@ -558,6 +558,7 @@
         @toggleComponent="toggleComponent"
       />
       <div class="pop_right_background">
+        <!--生命线情况-->
         <timeLineLifeLine
           :eqid="eqid"
           :currentTime="currentTimeString"
@@ -4592,12 +4593,14 @@ export default {
 <style scoped>
 /*地图*/
 #box {
-  height: 99vh;
+  position: relative;
+  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  clip-path: inset(0 0 0 0); /* 裁剪超出部分 */
 }
 
 #cesiumContainer {
@@ -4607,6 +4610,8 @@ export default {
   padding: 0;
   overflow: hidden;
 }
+
+
 
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
@@ -4746,6 +4751,7 @@ export default {
 .section {
   margin-bottom: 20px;
   overflow-y: auto; /* 启用垂直滚动条 */
+  overflow-x: hidden;
 }
 
 .section-title {
@@ -5023,6 +5029,7 @@ export default {
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
+  font-size: x-small;
 }
 
 :deep(.el-pagination__total) {
@@ -5303,6 +5310,9 @@ export default {
   border-radius: 5px;
   background-color: rgba(53, 59, 67, 0.8);
   z-index: 100;
+  height: 80.8vh;
+  overflow-y:auto;
+  overflow-x: hidden;
 }
 
 .panelTop {
@@ -5330,6 +5340,7 @@ export default {
   color: #ffffff;
   font-size: 18px;
   font-weight: 500;
+  overflow-x: hidden;
 }
 
 :deep(.checkBotton) {
@@ -5450,6 +5461,8 @@ export default {
 .tree-node-content {
   display: flex;
   align-items: center;
+  height: 80.8vh;
+  overflow: auto;
 }
 
 .node-icon {

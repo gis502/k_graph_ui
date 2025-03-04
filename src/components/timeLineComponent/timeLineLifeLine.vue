@@ -1047,7 +1047,8 @@ const formatDateChina = (dateStr) => {
   padding: 0px;
   background-image: url("@/assets/home/底.png");
   background-repeat: no-repeat; /* 防止图片重复 */
-  background-position: 26px 40px;
+  background-position: 0px 37px;
+  overflow: hidden;
 }
 .time {
   right: 9%;
