@@ -67,7 +67,7 @@
 <script>
 
 import * as Cesium from 'cesium'
-import {getPlotwithStartandEndTime} from '@/api/system/plot.js'
+import {getPlotInfos, getPlotwithStartandEndTime} from '@/api/system/plot.js'
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
 import timeLine from "@/cesium/timeLine.js";
 
@@ -246,6 +246,25 @@ export default {
     async flyToPointsSequentially() {
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
+        //标签
+        let entitylabel=null
+        let plotId = item.plotId
+        let plotType = item.plotType
+        if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+          entitylabel=labeldataSource.entities.getById(item.plotId + '_label');
+          entitylabel.show=true
+        }
+        else {
+          getPlotInfos({plotId, plotType}).then(res => {
+            let labeltext = timeLine.labeltext(plotType, res)
+            entitylabel=timeLine.addPointLabel(item, labeltext)
+          })
+        }
+        let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+        console.log(entity, "entity")
+        if (entity) {
+          entity.show = true
+        }
         console.log(item, "plotArrinOneTime fly");
         console.log(this.endflag, "this.endflag")
         if (this.endflag) {
@@ -266,6 +285,11 @@ export default {
           // 等待3秒
           // await this.wait(3000);
           await this.blinkMarker(item);
+          if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+          }
+          else {
+            labeldataSource.entities.removeById(item.plotId + '_label');
+          }
           console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
         } catch (error) {
           console.error("飞行过程中发生错误:", error);
@@ -281,6 +305,13 @@ export default {
     },
     blinkMarker(plot) {
       return new Promise((resolve) => {
+        // let entitylabel=null
+        // let plotId = plot.plotId
+        // let plotType = plot.plotType
+        // getPlotInfos({plotId, plotType}).then(res => {
+        //   let labeltext = timeLine.labeltext(plotType, res)
+        //   entitylabel=timeLine.addPointLabel(plot, labeltext)
+        // })
         let entity=null
         if(plot.drawtype === 'point'){
           entity =window.pointDataSource.entities.getById(plot.plotId);
@@ -306,14 +337,16 @@ export default {
           if (count >= 5) {
             clearInterval(blinkInterval);
 
-            if (plot.plotType === "失踪人员" || plot.plotType === "轻伤人员" || plot.plotType === "重伤人员" || plot.plotType === "危重伤人员" || plot.plotType === "死亡人员" || plot.plotType === "已出发队伍" || plot.plotType === "正在参与队伍" || plot.plotType === "待命队伍") {
-            }
-            else {
-              let entitylabel = window.labeldataSource.entities.getById(plot.plotId + "_label");
-              if (entitylabel) {
-                entitylabel.show = false
-              }
-            }
+            // if (plot.plotType === "失踪人员" || plot.plotType === "轻伤人员" || plot.plotType === "重伤人员" || plot.plotType === "危重伤人员" || plot.plotType === "死亡人员" || plot.plotType === "已出发队伍" || plot.plotType === "正在参与队伍" || plot.plotType === "待命队伍") {
+            // }
+            // else {
+            //   labeldataSource.entities.removeById(plot.plotId + '_label');
+            //   // entitylabel.show=false
+            //   // let entitylabel = window.labeldataSource.entities.getById(plot.plotId + "_label");
+            //   // if (entitylabel) {
+            //   //   entitylabel.show = false
+            //   // }
+            // }
             entity.show = true;
 
             resolve(); // 完成闪烁，继续后续操作
@@ -334,9 +367,12 @@ export default {
         return
       } else {
         if (this.plotArrinOneTime.length > 0) {
+
           console.log(this.plotArrinOneTime, "this.plotArrinOneTime ")
           window.viewer.clockViewModel.shouldAnimate = false;
+          timeLine.markerLabelsHidden(this.plotArrinOneTime)
           this.flyToPointsSequentially()
+
         }
       }
     },
