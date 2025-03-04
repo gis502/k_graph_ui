@@ -61,6 +61,7 @@ import arrow from "@/cesium/drawArrow/drawPlot.js";
 import {getPlot} from "../../api/system/plot.js";
 import cesiumPlot from '@/cesium/plot/cesiumPlot'
 import generalCompute from "@/cesium/plot/generalCompute.js";
+import dayjs from "dayjs";
 
 export default {
   name: "addPolygonDialog",
@@ -74,16 +75,15 @@ export default {
     }
   },
   props: [
-    'addPolygonDialogFormVisible'
+    'addPolygonDialogFormVisible',
+    "eqOccurrenceTime"
   ],
   watch: {
     addPolygonDialogFormVisible() {
       // 设置默认开始时间为当前时间
-      this.starttime = this.timestampToTime(Date.now());  // 当前时间
-      // 设置默认结束时间为5天后的时间
-      const currentDate = new Date();
-      const fiveDaysLater = currentDate.setDate(currentDate.getDate() + 10); // 5天后
-      this.endtime = this.timestampToTime(fiveDaysLater);
+      this.starttime = this.eqOccurrenceTime;  // 当前时间
+      // 设置默认结束时间为10天后的时间
+      this.endtime = dayjs(this.starttime).add(10, 'day').format('YYYY-MM-DD HH:mm:ss');
       // 1-1 显示弹窗
       this.DialogFormVisible = this.addPolygonDialogFormVisible
       // 2-1 获取pinia中存的经纬度、标绘类型等信息以及生成对应类型的dialog
