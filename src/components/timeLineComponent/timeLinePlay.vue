@@ -181,6 +181,7 @@ export default {
       this.selectedId = id; // 更新选中的按钮ID
     },
     jumpRealTime() {
+      window.viewer.clock.multiplier = this.currentSpeed
       window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
       this.flyflag=false
@@ -281,12 +282,11 @@ export default {
             break; // 终止循环
           }
           // 等待3秒
-          // await this.wait(3000);
-          await this.blinkMarker(item);
+          await timeLine.blinkMarker(item);
           if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
           }
           else {
-            labeldataSource.entities.removeById(item.plotId + '_label');
+            labeldataSource.entities.removeById(item.plotId+"_label");
           }
           console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
         } catch (error) {
@@ -315,10 +315,7 @@ export default {
           resolve();
           return;
         }
-
-        // const duration = 3000; // 总时间3秒
         const interval = 200; // 每次闪烁的时间间隔
-
         let count = 0;
         const blinkInterval = setInterval(() => {
           entity.show = !entity.show
@@ -327,7 +324,6 @@ export default {
             clearInterval(blinkInterval);
             entity.show = true;
             resolve(); // 完成闪烁，继续后续操作
-
           }
         }, interval);
       });

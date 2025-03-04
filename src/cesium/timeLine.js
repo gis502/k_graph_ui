@@ -6,25 +6,43 @@ import {xp} from "@/cesium/drawArrow/algorithm.js";
 import {getPlotInfos} from "@/api/system/plot.js";
 
 let timeLine = {
-    fly(lng, lat, height, time) {
-        return new Promise((resolve, reject) => {
-            window.viewer.scene.camera.flyTo({
-                destination: Cesium.Cartesian3.fromDegrees(
-                    parseFloat(lng),
-                    parseFloat(lat),
-                    height),
-                orientation: {
-                    // 指向
-                    heading: 6.283185307179581,
-                    // 视角
-                    pitch: -1.5688168484696687,
-                    roll: 0.0
-                },
-                duration: time, // 飞行动画持续时间（秒）
-                complete: resolve
-            });
-        });
+    MiniMapAddMakerPoint(smallViewer, centerPoint) {
+        // console.log(smallViewer.entities, "smallViewer.entities")
+        smallViewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(
+                parseFloat(centerPoint.longitude),
+                parseFloat(centerPoint.latitude),
+                parseFloat(0)
+            ),
+            billboard: {
+                image: centerstar,
+                width: 40,
+                height: 40,
+                eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+                scale: 0.8,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                depthTest: false,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                color: Cesium.Color.WHITE.withAlpha(1),//颜色
+            },
+            label: {
+                text: centerPoint.earthquakeName,
+                show: true,
+                font: '14px sans-serif',
+                fillColor: Cesium.Color.RED,        //字体颜色
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                outlineWidth: 2,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -16),
+            },
+            id: centerPoint.plotId,
+            plottype: centerPoint.plotType,
+            layer: "震中"
+        })
     },
+    //--------渲染-------------
     addCenterPoint(item) {
         //点的属性 震中点统用一一个方法
         let img = centerstar
@@ -67,43 +85,6 @@ let timeLine = {
             })
         }
     },
-    MiniMapAddMakerPoint(smallViewer, centerPoint) {
-        // console.log(smallViewer.entities, "smallViewer.entities")
-        smallViewer.entities.add({
-            position: Cesium.Cartesian3.fromDegrees(
-                parseFloat(centerPoint.longitude),
-                parseFloat(centerPoint.latitude),
-                parseFloat(0)
-            ),
-            billboard: {
-                image: centerstar,
-                width: 40,
-                height: 40,
-                eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-                scale: 0.8,
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                depthTest: false,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                color: Cesium.Color.WHITE.withAlpha(1),//颜色
-            },
-            label: {
-                text: centerPoint.earthquakeName,
-                show: true,
-                font: '14px sans-serif',
-                fillColor: Cesium.Color.RED,        //字体颜色
-                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                outlineWidth: 2,
-                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY,
-                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                pixelOffset: new Cesium.Cartesian2(0, -16),
-            },
-            id: centerPoint.plotId,
-            plottype: centerPoint.plotType,
-            layer: "震中"
-        })
-    },
-
     //图层
     addDataSourceLayer(datasourcename) {
         if (datasourcename === "pointData") {
@@ -439,7 +420,6 @@ let timeLine = {
             return labeldataSource
         }
     },
-
     addMakerPoint(item, type) {
         //点的属性 震中点统用一一个方法
         let labeltext = null
@@ -788,65 +768,6 @@ let timeLine = {
             })
         }
     },
-
-    //显示隐藏
-    showAllMakerPoint(plots) {
-        plots.forEach(item => {
-            if (item.drawtype === "point") {
-                let entity = window.pointDataSource.entities.getById(item.plotId)
-                if (entity) {
-                    entity.show = true
-                }
-            } else {
-                let entity = window.viewer.entities.getById(item.plotId)
-                if (entity) {
-                    entity.show = true
-                }
-            }
-
-        })
-    },
-    markerLayerHidden(plots) {
-        plots.forEach(item => {
-            // console.log(item)
-            if (item.drawtype === "point") {
-                let entity = window.pointDataSource.entities.getById(item.plotId)
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-            } else {
-                let entity = window.viewer.entities.getById(item.plotId)
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-            }
-        })
-    },
-    markerLabelsHidden(plots){
-        plots.forEach(item => {
-            // console.log(item)
-                let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-
-        })
-    },
-    makerLabelsShow(plots){
-        plots.forEach(item => {
-            // console.log(item)
-            let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
-            // console.log(entity, "entity")
-            if (entity) {
-                entity.show = true
-            }
-        })
-    },
-
-
     //点标签
     labeltext(plotType, res) {
         // console.log("标签",res)
@@ -932,6 +853,116 @@ let timeLine = {
             //   },
             // });
         }
-    }
+    },
+
+    //--------删除-------------
+
+
+    //--------交互-------
+    //标绘点显示隐藏
+    showAllMakerPoint(plots) {
+        plots.forEach(item => {
+            if (item.drawtype === "point") {
+                let entity = window.pointDataSource.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = true
+                }
+            } else {
+                let entity = window.viewer.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = true
+                }
+            }
+
+        })
+    },
+    markerLayerHidden(plots) {
+        plots.forEach(item => {
+            // console.log(item)
+            if (item.drawtype === "point") {
+                let entity = window.pointDataSource.entities.getById(item.plotId)
+                // console.log(entity, "entity")
+                if (entity) {
+                    entity.show = false
+                }
+            } else {
+                let entity = window.viewer.entities.getById(item.plotId)
+                // console.log(entity, "entity")
+                if (entity) {
+                    entity.show = false
+                }
+            }
+        })
+    },
+    //标签显示隐藏
+    markerLabelsHidden(plots){
+        plots.forEach(item => {
+            // console.log(item)
+                let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+                // console.log(entity, "entity")
+                if (entity) {
+                    entity.show = false
+                }
+
+        })
+    },
+    makerLabelsShow(plots){
+        plots.forEach(item => {
+            // console.log(item)
+            let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+            // console.log(entity, "entity")
+            if (entity) {
+                entity.show = true
+            }
+        })
+    },
+    //闪烁
+    blinkMarker(plot) {
+        return new Promise((resolve) => {
+            let entity=null
+            if(plot.drawtype === 'point'){
+                entity =window.pointDataSource.entities.getById(plot.plotId);
+            }
+            else{
+                entity = window.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
+            }
+            if (!entity) {
+                console.error("Entity not found:", plot);
+                resolve();
+                return;
+            }
+            const interval = 200; // 每次闪烁的时间间隔
+            let count = 0;
+            const blinkInterval = setInterval(() => {
+                entity.show = !entity.show
+                count++;
+                if (count >= 5) {
+                    clearInterval(blinkInterval);
+                    entity.show = true;
+                    resolve(); // 完成闪烁，继续后续操作
+                }
+            }, interval);
+        });
+    },
+
+    fly(lng, lat, height, time) {
+        return new Promise((resolve, reject) => {
+            window.viewer.scene.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(
+                    parseFloat(lng),
+                    parseFloat(lat),
+                    height),
+                orientation: {
+                    // 指向
+                    heading: 6.283185307179581,
+                    // 视角
+                    pitch: -1.5688168484696687,
+                    roll: 0.0
+                },
+                duration: time, // 飞行动画持续时间（秒）
+                complete: resolve
+            });
+        });
+    },
 }
 export default timeLine;
