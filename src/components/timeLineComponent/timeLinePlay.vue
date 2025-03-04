@@ -88,6 +88,7 @@ export default {
       endflag: false, // 控制飞行结束的标志
       flyflag:true,//视角是否跳转？只有依次向前播放时才跳
       currentTimeLocal: this.timestampToTimeChina(new Date()),
+      entitylabel:null,//当前闪烁的点的标签
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
@@ -201,6 +202,7 @@ export default {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
       timeLine.makerLabelsShow(this.plotArrinOneTime)
+      this.entitylabel.show=false
       this.selectButton("playEnd")
     },
     playStart() {
@@ -246,19 +248,19 @@ export default {
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
         //标签
-        let entitylabel=null
+        // let entitylabel=null
         let plotId = item.plotId
         let plotType = item.plotType
         if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍")
         {
-          entitylabel=labeldataSource.entities.getById(item.plotId + '_label');
-          entitylabel.show=true
+          this.entitylabel=labeldataSource.entities.getById(item.plotId + '_label');
+          this.entitylabel.show=true
         }
         else
         {
           getPlotInfos({plotId, plotType}).then(res => {
             let labeltext = timeLine.labeltext(plotType, res)
-            entitylabel=timeLine.addPointLabel(item, labeltext)
+            this.entitylabel=timeLine.addPointLabel(item, labeltext)
           })
         }
 
