@@ -313,6 +313,7 @@ export default {
         legend: {
           data: ['死亡人数', '受伤人数', '失踪人数', '压埋人数'],
           top: '2%',
+          right: '19%',
           textStyle: {
             color: '#fff', // 图例文字颜色
           },
@@ -325,7 +326,7 @@ export default {
         },
         grid: {
           left: '12%',
-          right: '5%',
+          right: '25%',
           bottom: '10%',
           containLabel: true,
         },
@@ -469,8 +470,8 @@ export default {
         tooltip: {},
         grid: {
           left: '15%',
-          right: '5%',
-          bottom: '10%',
+          right: '32%',
+          bottom: '18%',
           containLabel: true
         },
         xAxis: {
@@ -591,8 +592,8 @@ export default {
         tooltip: {},
         grid: {
           left: '15%',
-          right: '5%',
-          bottom: '10%',
+          right: '31%',
+          bottom: '19%',
           containLabel: true,
         },
         xAxis: {
