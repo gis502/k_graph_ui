@@ -323,7 +323,7 @@
             }}</h2>
         </div>
 
-        <div class="panelContent" style="padding: 5px;margin-top: -23px">
+        <div class="panelContent" style="padding: 5px;margin-top: -5px">
           <!--     数据列表     -->
           <el-table
             :data="showSuppliesList"
@@ -5613,7 +5613,7 @@ export default {
 .emergencyPanelTop {
   width: 100%;
   padding: 10px;
-  height: 50px;
+  height: 44px;
   border-radius: 5px;
   background-color: rgba(40, 59, 77, 0.8);
 }
@@ -5634,7 +5634,7 @@ export default {
   border-radius: 5px;
   background-color: rgba(53, 59, 67, 0.8);
   z-index: 100;
-  margin-top: 41px; /* 可调整间距 */
+  margin-top: 58px; /* 可调整间距 */
 }
 
 .emergencyPanelTopRout {
