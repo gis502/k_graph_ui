@@ -2,7 +2,7 @@
   <div>
     <!--    灾情预估切换-->
     <div class="thd-listTable" v-if="activeComponent === 'damageThemeAssessment'">
-      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
+      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;overflow: hidden">
         <damageThemeAssessment
           :eqid="eqid"
           :eqqueueId="eqqueueId"
@@ -25,7 +25,7 @@
         :eqid="eqid"
       ></plotSearch>
     </div>
-    <div v-if="activeComponent === 'layerChoose'" class="thd-listTable">
+    <div v-if="activeComponent === 'layerChoose'" class="thd-listTablePint">
 
       <div class="emergencySelect">
         <div class="emergencyTitles">
@@ -103,6 +103,8 @@
 
       </div>
 
+
+      <!--  路径规划清除实体弹窗    -->
       <div class="emergencyPanel" v-if="panels.showRemove">
         <div class="emergencyPanelTop">
           <h2 class="emergencyPanelName">清除实体</h2>
@@ -321,11 +323,11 @@
             }}</h2>
         </div>
 
-        <div class="panelContent" style="padding: 5px;margin-top: 10px">
+        <div class="panelContent" style="padding: 5px;margin-top: -5px">
           <!--     数据列表     -->
           <el-table
             :data="showSuppliesList"
-            style="margin-bottom: 5px; text-align: center;height: 30vh"
+            style="margin-bottom: 5px; text-align: center;height: 20vh"
             :stripe="true"
             :header-cell-style="tableHeaderColor"
             :cell-style="tableColor"
@@ -383,18 +385,18 @@
 
       </div>
 
-      <div class="emergencyPanel" v-if="showTips" style="top: 500px;">
-        <div class="emergencyPanelTop">
-          <h2 class="emergencyPanelName">路径规划</h2>
+      <div class="emergencyPanelRout" v-if="showTips" style="top: 70%;">
+        <div class="emergencyPanelTopRout">
+          <h2 class="emergencyPanelNameRout">路径规划</h2>
         </div>
 
         <div class="panelContent" style="padding-right: 5px;display: initial;">
-          <el-row style="margin: 20px;">
+          <el-row style="    margin-right: 5%;margin-left: 5%;" class="choose">
             <el-button @click="walkStyle" :style="selectedWalk">步行</el-button>
             <el-button @click="driveStyle" :style="selectedDrive">驾驶</el-button>
           </el-row>
           <div slot="header" class="clearfix"
-               style="color: white;height: 100px;margin: 5% 20px 10px 20px;overflow-y: auto;">
+               style="color: white;height: 84px;    margin: 2% 24px 0px;overflow-y: auto;">
             <div>
               全程约 {{ totalRoute }} 米 {{ RouteWay }} 大概需要 {{ RouteTime }}
             </div>
@@ -1465,7 +1467,8 @@ export default {
           content: [
             {name: "路径规划", action: 'route', active: false},
             {name: "添加障碍区", action: 'addArea', active: false},
-            {name: "清空实体", action: 'panels.showRemove = true', active: false},
+            {name: "清空实体", action: 'removeAll', active: false},
+            // {name: "清空实体", action: 'panels.showRemove = true', active: false},
           ]
         },
         {
@@ -3021,11 +3024,14 @@ export default {
       this.removePolyline(); // 先清除路径规划
       this.removePoint(); // 再清除障碍物
 
-
       // 额外清理数据
       this.areas = [];
       this.propertiesId = [];
       this.showTips = false;
+      this.panels.showRemove = false;
+
+
+
     },
 
     //删除障碍区域
@@ -4963,6 +4969,20 @@ export default {
   left: 20%;
 }
 
+
+
+.thd-listTablePint {
+  width: 26.5%;
+  top: 13%;
+  height: 79%;
+  z-index: 30;
+  right: 0.3%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* 弹窗间距 */
+  position: absolute;
+}
+
 .thd-listTable {
   width: 26.5%;
   top: 13%;
@@ -5334,7 +5354,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 30px 15px;
+  padding-right: 3%;
   width: 100%;
   margin-top: 30px;
 }
@@ -5647,7 +5667,7 @@ export default {
 .emergencyPanelTop {
   width: 100%;
   padding: 10px;
-  height: 50px;
+  height: 44px;
   border-radius: 5px;
   background-color: rgba(40, 59, 77, 0.8);
 }
@@ -5659,6 +5679,40 @@ export default {
   position: relative;
   margin: 0;
 }
+
+
+.emergencyPanelRout {
+  position: absolute;
+  right: 0;
+  width: 35vw;
+  border-radius: 5px;
+  background-color: rgba(53, 59, 67, 0.8);
+  z-index: 100;
+  margin-top: 58px; /* 可调整间距 */
+}
+
+.emergencyPanelTopRout {
+  width: 100%;
+  padding: 10px;
+  height: 39px;
+  border-radius: 5px;
+  background-color: rgba(40, 59, 77, 0.8);
+}
+
+.emergencyPanelNameRout {
+  color: #FFFFFF;
+  font-size: 1.1rem;
+  font-weight: 550;
+  position: relative;
+  margin: 0;
+}
+
+.emergencyPanel,
+.emergencyPanelRout {
+  border-radius: 5px;
+  background-color: rgba(53, 59, 67, 0.8);
+}
+
 
 ::v-deep .panelForm .el-form-item__label {
   color: #FFF;
@@ -5690,6 +5744,21 @@ li {
   font-size: 14px;
   margin-right: 10px;
 }
+
+
+.choose{
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: nowrap;
+  position: relative;
+  flex-direction: row;
+  align-content: space-around;
+  align-items: flex-start;
+
+
+}
+
+
 
 /*路径规划——清楚实体按钮样式*/
 .container {
