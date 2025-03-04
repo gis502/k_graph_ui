@@ -385,9 +385,9 @@
 
       </div>
 
-      <div class="emergencyPanel" v-if="showTips" style="top: 500px;">
-        <div class="emergencyPanelTop">
-          <h2 class="emergencyPanelName">路径规划</h2>
+      <div class="emergencyPanelRout" v-if="showTips" style="top: 70%;">
+        <div class="emergencyPanelTopRout">
+          <h2 class="emergencyPanelNameRout">路径规划</h2>
         </div>
 
         <div class="panelContent" style="padding-right: 5px;display: initial;">
