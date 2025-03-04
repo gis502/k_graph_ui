@@ -491,10 +491,13 @@ let timeLine = {
             console.log(item.plotId, item.plotType, "item.plotId, item.plotType")
             let plotId = item.plotId
             let plotType = item.plotType
-            getPlotInfos({plotId, plotType}).then(res => {
-                let labeltext = this.labeltext(plotType, res)
-                this.addPointLabel(item, labeltext)
-            })
+
+            if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+                getPlotInfos({plotId, plotType}).then(res => {
+                    let labeltext = this.labeltext(plotType, res)
+                    this.addPointLabel(item, labeltext)
+                })
+            }
         }
     },
     addPolyline(item, type) {
@@ -803,7 +806,7 @@ let timeLine = {
 
         })
     },
-    MarkingLayerRemove(plots) {
+    markerLayerHidden(plots) {
         plots.forEach(item => {
             console.log(item)
             if (item.drawtype === "point") {
@@ -819,6 +822,17 @@ let timeLine = {
                     entity.show = false
                 }
             }
+        })
+    },
+    markerLabelsHidden(plots){
+        plots.forEach(item => {
+            console.log(item)
+
+                let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+                console.log(entity, "entity")
+                if (entity) {
+                    entity.show = false
+                }
 
         })
     },

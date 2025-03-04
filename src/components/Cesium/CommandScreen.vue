@@ -3577,7 +3577,7 @@ export default {
         this.handleMarkingLayerChange(false);
         // 移除所有已存在的椭圆圈实体，以避免重复添加
         // 移除标绘图层
-        timeLine.MarkingLayerRemove(this.plots);
+        timeLine.markerLayerHidden(this.plots);
       }
 
       // 图层映射：添加与移除图层逻辑
