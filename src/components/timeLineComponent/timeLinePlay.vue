@@ -474,7 +474,7 @@ export default {
   background-color: #163253;
   border-radius: 20px;
   height: 6%;
-  width: 18%;
+  width: 23%;
   top: 8%;
   position: absolute;
   z-index: 500;
