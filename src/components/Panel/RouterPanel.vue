@@ -3,14 +3,31 @@
   <div class="videoMonitorWin" v-if="visiblePanel" :style="styleObject">
     <div class="ponpTitle">{{ this.popupTitle }}</div>
     <div class="ponpTable">
-      <div class="info-item" v-for="(value, key) in popupPanelData" :key="key">
-        <div class="info-label">{{ keyToChinese(key) }}</div>
-        <div class="info-value">
-          <!-- 如果键是插入时间，则格式化显示 -->
-          <span v-if="key === keyMappings.insertTime">{{ formatInsertTime(value) }}</span>
-          <span v-else>{{ value }}</span>
-        </div>
-      </div>
+
+
+      <el-descriptions :column="2" size="default " border>
+        <template v-for="(value, key) in popupPanelData" :key="key">
+          <!-- 标绘信息 -->
+          <el-descriptions-item >
+            <template #label>
+              <div class="cell-item">
+                {{ keyToChinese(key) }}
+              </div>
+            </template>
+            <div >
+              <el-text size="large">
+                <span v-if="key === keyMappings.insertTime">{{ formatInsertTime(value) }}</span>
+                <span v-else-if="key === keyMappings.longitude"> {{ value || "无数据" }}°E</span>
+                <span v-else-if="key === keyMappings.latitude"> {{ value || "无数据" }}°N</span>
+                <span v-else>{{ value }}</span>
+              </el-text>
+            </div>
+          </el-descriptions-item>
+
+        </template>
+
+
+      </el-descriptions>
     </div>
     <!-- 取消注释按钮以启用删除功能 -->
     <!-- <el-button @click="deletePoint" type="danger" icon="el-icon-delete" circle></el-button> -->
@@ -189,12 +206,12 @@ export default {
         this.popupPanelData = translatedData;
 
         console.log(" this.popupPanelData RouterPannel", this.popupPanelData)
-        console.log("plotId",this.popupData.plotId);  // 打印出来查看是否有 plotId
+
 
       }
     },
     position() {
-      console.log("plotId2",this.popupData.plotId);  // 打印出来查看是否有 plotId
+
       this.positionEntity = this.position;
     },
   },
@@ -210,17 +227,16 @@ export default {
   },
   methods: {
     keyToChinese(key) {
-      console.log("plotId3",key);  // 打印出来查看是否有 plotId
+
       return this.keyMappings[key] || key;
     },
     formatInsertTime(value) {
-      console.log("plotId4",value);  // 打印出来查看是否有 plotId
+
       // 使用dayjs库进行时间格式转换
       return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
     },
     // 删除标注
     deletePoint() {
-      console.log("plotId5",this.popupData.plotId);  // 打印出来查看是否有 plotId
       this.$emit('closePlotPop');
       this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}));
     }
@@ -229,58 +245,95 @@ export default {
 </script>
 
 <style scoped>
-.videoMonitorWin {
-  position: absolute;
-  height: 50vh;
-  width: 789px;
-  padding: 20px;
-  z-index: 80;
-  background-color: rgba(40, 40, 40, 0.7);
-  /*border: 2px solid #18c9dc;*/
-  overflow-y: auto;
+/* 调整字体大小为原来的 70% */
+* {
+  font-size: 95%;
+}
+
+
+
+.el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
+  /*width: 43px!important;*/
+}
+
+.earthquake-info-table th,
+.earthquake-info-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #21c9db;
+  font-size: 0.8rem;
+  font-weight: 550;
+}
+
+.cell-item {
+  width: 100%;
+  text-align: center;
+  white-space: nowrap; /* 避免换行 */
+  overflow: hidden; /* 隐藏溢出的文本 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
 
 .ponpTitle {
-  text-align: center;
-  font-size: 23px;
   color: white;
-  margin-bottom: 10px;
-}
-
-.ponpTable {
   display: flex;
-  flex-wrap: wrap;
-  color: white;
-}
-
-.info-item {
-  font-size: 15px;
-  text-align: center;
+  justify-content: center;
+  font-size: 128%;
   align-items: center;
-  flex: 1 1 calc(50% - 10px); /* 两列布局，减去gap的宽度 */
-  display: flex;
-  justify-content: space-between;
+  margin-bottom: 1px;
+}
+
+.videoMonitorWin {
+  position: absolute;
+  width: 600px;
+  padding: 2px;
+  z-index: 80;
+  background-color: rgba(40, 40, 40, 0.7);
+  border: 2px solid #18c9dc;
+}
+
+.ponpTable td {
   padding: 10px;
+}
+
+.info-item :nth-child(1) {
+  width: 15%;
+  border-color: #293966;
+  border-top-style: solid;
+  border-top-width: 2px;
   background-color: #293966;
-  border: 1px solid #4d5469;
-  border-radius: 4px;
+  margin-bottom: 2px;
+  align-content: center;
 }
 
-.info-label {
-  flex: 1;
-  text-align: center;
-  margin-right: 10px;
+.info-item :nth-child(2) {
+  width: 70%;
+  border-color: #4d5469;
+  border-top-style: solid;
+  border-top-width: 2px;
+  background-color: #4d5469;
+  margin-bottom: 2px;
+}
+.ponpTable {
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 100%;
+  margin: 7px 6px;
+  max-height: 400px; /* 设置最大高度 */
+  overflow-y: auto; /* 当内容超出高度时出现滚动条 */
 }
 
-.info-value {
-  flex: 1;
-  text-align: center;
-  /*background-color: #10344b;*/
+
+.el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
+  border: var(--el-descriptions-table-border);
+  padding: 7px 7px;
 }
 
-el-button {
-  display: block;
-  margin: 20px auto 0;
+
+
+svg {
+  vertical-align: middle; /* 保持文本和图标对齐 */
+  margin-right: 0.5rem; /* 图标和文本间距 */
 }
 
 </style>
