@@ -18,7 +18,7 @@
     <div class="back_start">
       <div class="tooltip" :class="{ 'highlight': selectedId === 'backStart' }" @click="selectButton('backStart'); backToStart()">
         <img class="play-icon" src="../../assets/icons/TimeLine/重播.png" />
-        <span class="tooltiptext">从头播放</span>
+        <span class="tooltiptext">回到开始</span>
       </div>
     </div>
     <div class="play_back">
@@ -88,7 +88,7 @@ export default {
       endflag: false, // 控制飞行结束的标志
       flyflag:true,//视角是否跳转？只有依次向前播放时才跳
       currentTimeLocal: this.timestampToTimeChina(new Date()),
-      entitylabel:null,//当前闪烁的点的标签
+      entitylabelId:null,//当前闪烁的点的标签
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
@@ -103,7 +103,10 @@ export default {
         }
         this.ifstopandflash(newVal, oldVal);
         //到达真实时间，向前播放，1:1流速
-        if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0){
+        if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0&& this.flyflag==true){
+          // if(){
+            viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+          // }
           window.viewer.clock.multiplier=1.0
         }
       }
@@ -120,6 +123,7 @@ export default {
     viewer(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
       window.viewer.timeline.container.onmouseup = (e) => {
+        this.flyflag=false
           this.playEnd()
       }
     }
@@ -181,7 +185,7 @@ export default {
       this.selectedId = id; // 更新选中的按钮ID
     },
     jumpRealTime() {
-      window.viewer.clock.multiplier = this.currentSpeed
+      // window.viewer.clock.multiplier = this.currentSpeed
       window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
       this.flyflag=false
@@ -190,7 +194,8 @@ export default {
       window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
       this.flyflag=true
-      },
+      this.endflag = true;
+    },
     playBack(){
       if(window.viewer.clock.multiplier>0){
         window.viewer.clock.multiplier = this.currentSpeed*(-1.0)
@@ -203,13 +208,26 @@ export default {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
       timeLine.makerLabelsShow(this.plotArrinOneTime)
-      this.entitylabel.show=false
+      console.log(this.entitylabelId,"entitylabelId")
+      let entitytmp=window.labeldataSource.entities.getById(this.entitylabelId+"_label")
+      console.log(entitytmp,"entitytmp11")
+      if(entitytmp ){
+
+        window.labeldataSource.entities.removeById(this.entitylabelId+"_label");
+        // this.entitylabel.show=false
+      }
       this.selectButton("playEnd")
     },
     playStart() {
-      if(window.viewer.clock.multiplier<0){
+      // if(new Date(this.currentTime)>=new Date()&&window.viewer.clock.multiplier>0){
+      //   viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+      //   window.viewer.clock.multiplier=1.0
+      // }
+      // else{
+        // if(window.viewer.clock.multiplier<0){
         window.viewer.clock.multiplier = this.currentSpeed
-      }
+        // }
+      // }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
       this.flyflag=true
@@ -246,22 +264,25 @@ export default {
 
     },
     async flyToPointsSequentially() {
+      // let that=this
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
         //标签
-        // let entitylabel=null
+        let entitylabel=null
         let plotId = item.plotId
+
         let plotType = item.plotType
         if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍")
         {
-          this.entitylabel=labeldataSource.entities.getById(item.plotId + '_label');
-          this.entitylabel.show=true
+          entitylabel=window.labeldataSource.entities.getById(item.plotId + '_label');
+          entitylabel.show=true
         }
         else
         {
           getPlotInfos({plotId, plotType}).then(res => {
             let labeltext = timeLine.labeltext(plotType, res)
-            this.entitylabel=timeLine.addPointLabel(item, labeltext)
+            entitylabel=timeLine.addPointLabel(item, labeltext)
+            this.entitylabelId=plotId
           })
         }
 
@@ -286,7 +307,8 @@ export default {
           if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
           }
           else {
-            labeldataSource.entities.removeById(item.plotId+"_label");
+            let entitytmp=window.labeldataSource.entities.removeById(item.plotId+"_label");
+            console.log(entitytmp,"entitytmp")
           }
           console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
         } catch (error) {
