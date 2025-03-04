@@ -578,24 +578,24 @@
 
     <!--经纬度跳转-->
     <div
-      style="display: flex; align-items: center; position: absolute; top: 95.25%; left: 1%; z-index: 1000; pointer-events: none;">
+      style="display: flex; align-items: center; position: absolute; top: 95.25%; left: 0.5%; z-index: 1000; pointer-events: none;">
       <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
         <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
              style="width: 31px; height: 31px;">
       </div>
-      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+      <div @click="toggleLayerFeatures" class="positionFlyToButton" style="pointer-events: auto; margin-left: 5px;">
         <img src="../../assets/icons/svg/layerFeatures.svg" title="图层要素"
              style="width: 31px; height: 31px;">
       </div>
-      <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+      <div @click="toggleEqListPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 5px;">
         <img src="../../assets/icons/svg/earthquakeList.svg" title="地震列表"
              style="width: 31px; height: 31px;">
       </div>
-      <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;">
+      <div @click="toggleModelPanel" class="positionFlyToButton" style="pointer-events: auto; margin-left: 5px;">
         <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
              style="width: 31px; height: 31px;">
       </div>
-      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton" style="pointer-events: auto; margin-left: 10px;" id="slope">
+      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton" style="pointer-events: auto; margin-left: 5px;" id="slope">
         <img src="../../assets/icons/svg/slopeAnalysis.svg" title="坡面分析"
              style="width: 31px; height: 31px;">
       </div>
@@ -609,18 +609,16 @@
         <div>经度：
           <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
           ></el-input>
-          °
         </div>
         <div style="margin-left: 10px">纬度：
           <el-input v-model="positionFlyTo.lat" class="positionFlyToInput"
                     @keyup.enter="flyToPosition"></el-input>
-          °
         </div>
       </div>
       <div class="panelButton">
-        <el-button class="panelButtons" @click="clearPositionPanel">取消</el-button>
-        <el-button class="panelButtons" type="primary" @click="flyToPosition">
-          跳转
+        <el-button class="panelButtons" @click="clearPositionPanel" ><p style="margin-top:30px">取消</p></el-button>
+        <el-button class="panelButtons" type="primary" @click="flyToPosition" >
+          <p style="margin-top: 30px">跳转</p>
         </el-button>
       </div>
     </div>
@@ -1192,7 +1190,8 @@ export default {
 
 
       activeTab: "thematicMap", // 当前显示的 tab (专题图或报告)
-      showSidebarComponents: true,  // 控制两侧组件显示状态
+      showSidebarComponents: true,
+      // 控制两侧组件显示状态
       //-----------------图层要素---------------------
       isExpanded: false,
       layeritems: [
@@ -4588,11 +4587,11 @@ export default {
   position: absolute;
   width: 94px;
   height: 94px;
-  transform: scale(0.6);
-  z-index: 500;
+  transform: scale(0.7);
+  z-index: 1;
   overflow: hidden;
-  left: 14.5%;
-  top: 91.5%;
+  right: 23%;
+  top: 10%;
 }
 
 /* 更改搜索、切换地形图组件位置*/
@@ -4600,7 +4599,7 @@ export default {
   display: block;
   position: absolute;
   top: 94.5%;
-  left: 11.5%;
+  left: 12.5%;
   z-index: 502;
   width: 5%;
 }
