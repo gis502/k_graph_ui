@@ -68,7 +68,7 @@ let timeLine = {
         }
     },
     MiniMapAddMakerPoint(smallViewer, centerPoint) {
-        console.log(smallViewer.entities, "smallViewer.entities")
+        // console.log(smallViewer.entities, "smallViewer.entities")
         smallViewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(
                 parseFloat(centerPoint.longitude),
@@ -488,7 +488,7 @@ let timeLine = {
                 layer: type,
                 properties: {...item}
             })
-            console.log(item.plotId, item.plotType, "item.plotId, item.plotType")
+            // console.log(item.plotId, item.plotType, "item.plotId, item.plotType")
             let plotId = item.plotId
             let plotType = item.plotType
 
@@ -808,16 +808,16 @@ let timeLine = {
     },
     markerLayerHidden(plots) {
         plots.forEach(item => {
-            console.log(item)
+            // console.log(item)
             if (item.drawtype === "point") {
                 let entity = window.pointDataSource.entities.getById(item.plotId)
-                console.log(entity, "entity")
+                // console.log(entity, "entity")
                 if (entity) {
                     entity.show = false
                 }
             } else {
                 let entity = window.viewer.entities.getById(item.plotId)
-                console.log(entity, "entity")
+                // console.log(entity, "entity")
                 if (entity) {
                     entity.show = false
                 }
@@ -826,14 +826,23 @@ let timeLine = {
     },
     markerLabelsHidden(plots){
         plots.forEach(item => {
-            console.log(item)
-
+            // console.log(item)
                 let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
-                console.log(entity, "entity")
+                // console.log(entity, "entity")
                 if (entity) {
                     entity.show = false
                 }
 
+        })
+    },
+    makerLabelsShow(plots){
+        plots.forEach(item => {
+            // console.log(item)
+            let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+            // console.log(entity, "entity")
+            if (entity) {
+                entity.show = true
+            }
         })
     },
 
@@ -874,7 +883,7 @@ let timeLine = {
         return labeltext
     },
     addPointLabel(data, labeltext) {
-        console.log(data,"data addPointLabel")
+        // console.log(data,"data addPointLabel")
         let labeldataSource = this.addDataSourceLayer("label")
         if (labeldataSource) {
             let id=data.plotId + '_label'

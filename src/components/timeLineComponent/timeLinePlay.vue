@@ -93,8 +93,6 @@ export default {
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
   watch: {
     currentTime(newVal, oldVal) {
-
-
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
         //有时候输入的值不是nan,调用函数读取的参数也不是nan，但是取转换成呢哇Date格式，时间是invalid data
@@ -202,6 +200,7 @@ export default {
     playEnd() {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
+      timeLine.makerLabelsShow(this.plotArrinOneTime)
       this.selectButton("playEnd")
     },
     playStart() {
@@ -250,34 +249,31 @@ export default {
         let entitylabel=null
         let plotId = item.plotId
         let plotType = item.plotType
-        if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+        if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍")
+        {
           entitylabel=labeldataSource.entities.getById(item.plotId + '_label');
           entitylabel.show=true
         }
-        else {
+        else
+        {
           getPlotInfos({plotId, plotType}).then(res => {
             let labeltext = timeLine.labeltext(plotType, res)
             entitylabel=timeLine.addPointLabel(item, labeltext)
           })
         }
-        let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
-        console.log(entity, "entity")
-        if (entity) {
-          entity.show = true
-        }
+
         console.log(item, "plotArrinOneTime fly");
-        console.log(this.endflag, "this.endflag")
+        console.log(this.endflag, "this.endflag111")
         if (this.endflag) {
           console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
           break; // 终止循环
         }
-
         try {
           // 飞到指定点
           await timeLine.fly(item.longitude, item.latitude, 20000);
           console.log(Date.now(), "fly completed");
 
-          console.log(this.endflag, "this.endflag")
+          console.log(this.endflag, "this.endflag222")
           if (this.endflag) {
             console.log(index, this.plotArrinOneTime.length, "终止飞行222");
             break; // 终止循环
@@ -298,20 +294,13 @@ export default {
       }
 
       // 如果所有点都飞完了，重新启动时间轴
-      console.log(this.endflag, "this.endflag")
+      console.log(this.endflag, "this.endflag333")
       if (!this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = true;
       }
     },
     blinkMarker(plot) {
       return new Promise((resolve) => {
-        // let entitylabel=null
-        // let plotId = plot.plotId
-        // let plotType = plot.plotType
-        // getPlotInfos({plotId, plotType}).then(res => {
-        //   let labeltext = timeLine.labeltext(plotType, res)
-        //   entitylabel=timeLine.addPointLabel(plot, labeltext)
-        // })
         let entity=null
         if(plot.drawtype === 'point'){
           entity =window.pointDataSource.entities.getById(plot.plotId);
@@ -319,8 +308,6 @@ export default {
         else{
           entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
         }
-
-        // console.log(plot,plot.plotId,window.pointDataSource.entities.getById(plot.plotId),this.viewer.entities.getById(plot.plotId),entity,"plot.plotId entity")
         if (!entity) {
           console.error("Entity not found:", plot);
           resolve();
@@ -336,19 +323,7 @@ export default {
           count++;
           if (count >= 5) {
             clearInterval(blinkInterval);
-
-            // if (plot.plotType === "失踪人员" || plot.plotType === "轻伤人员" || plot.plotType === "重伤人员" || plot.plotType === "危重伤人员" || plot.plotType === "死亡人员" || plot.plotType === "已出发队伍" || plot.plotType === "正在参与队伍" || plot.plotType === "待命队伍") {
-            // }
-            // else {
-            //   labeldataSource.entities.removeById(plot.plotId + '_label');
-            //   // entitylabel.show=false
-            //   // let entitylabel = window.labeldataSource.entities.getById(plot.plotId + "_label");
-            //   // if (entitylabel) {
-            //   //   entitylabel.show = false
-            //   // }
-            // }
             entity.show = true;
-
             resolve(); // 完成闪烁，继续后续操作
 
           }
@@ -356,19 +331,21 @@ export default {
       });
     },
     ifstopandflash(currentTime, oldCurrentTime) {
-      if(this.flyflag==false){return;}
+      if(this.flyflag==false){
+        return;}
       this.plotArrinOneTime = this.plots.filter(plot => {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });
-      console.log(this.endflag, "this.endflag")
+      console.log(this.endflag, "this.endflag444")
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
+        // timeLine.makerLabelsShow(this.plotArrinOneTime)
         console.log("终止333");
         return
-      } else {
+      }
+      else {
         if (this.plotArrinOneTime.length > 0) {
-
-          console.log(this.plotArrinOneTime, "this.plotArrinOneTime ")
+          // console.log(this.plotArrinOneTime, "this.plotArrinOneTime ")
           window.viewer.clockViewModel.shouldAnimate = false;
           timeLine.markerLabelsHidden(this.plotArrinOneTime)
           this.flyToPointsSequentially()
