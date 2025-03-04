@@ -813,8 +813,8 @@ export default {
 
 .panelChart {
   top: 6px;
-  width: 400px;
-  height: 200px;
+  width: 104%;
+  height: 104%;
 }
 
 /*.people-item{*/
