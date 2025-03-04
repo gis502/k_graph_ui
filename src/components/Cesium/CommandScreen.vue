@@ -103,6 +103,32 @@
 
       </div>
 
+      <div class="emergencyPanel" v-if="panels.showRemove">
+        <div class="emergencyPanelTop">
+          <h2 class="emergencyPanelName">清除实体</h2>
+        </div>
+
+        <div class="container" label-width="120px"    >
+          <a href="#" class="button type--C" @click="removePolyline">
+            <div class="button__line"></div>
+            <div class="button__line"></div>
+            <span class="button__text">清除规划</span>
+          </a>
+          <a href="#" class="button type--A" @click="removePoint">
+            <div class="button__line"></div>
+            <div class="button__line"></div>
+            <span class="button__text">清除障碍</span>
+          </a>
+          <a href="#" class="button type--B" @click="removeAll">
+            <div class="button__line"></div>
+            <div class="button__line"></div>
+            <span class="button__text">全部清除</span>
+          </a>
+        </div>
+
+
+      </div>
+
       <div class="emergencyPanel" v-if="panels.searchEmergencyTeamDialog">
         <div class="emergencyPanelTop">
           <h2 class="emergencyPanelName">救援力量查询</h2>
@@ -532,6 +558,7 @@
         @toggleComponent="toggleComponent"
       />
       <div class="pop_right_background">
+        <!--生命线情况-->
         <timeLineLifeLine
           :eqid="eqid"
           :currentTime="currentTimeString"
@@ -1304,6 +1331,7 @@ export default {
         marchSupplyDialog: false, // 物资匹配dialog是否显示
         searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
         marchRegionsDialog: false,  //行政区划匹配dialog是否显示
+        showRemove: false, //路径规划清除实体框dialog是否显示
       },
 
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
@@ -1438,7 +1466,7 @@ export default {
           content: [
             {name: "路径规划", action: 'route', active: false},
             {name: "添加障碍区", action: 'addArea', active: false},
-            {name: "清空规划", action: 'removeRoute', active: false}
+            {name: "清空实体", action: 'panels.showRemove = true', active: false},
           ]
         },
         {
@@ -1943,6 +1971,7 @@ export default {
           // //聚合图标
           else if (Object.prototype.toString.call(entity) === '[object Array]') {
             if (entity[0].entityCollection.owner.name === "label") {
+              this.eqCenterPanelVisible = false;
               this.dataSourcePopupVisible = false
               this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
@@ -1970,6 +1999,7 @@ export default {
 
               // this.dataSourcePopupData = entity
               this.dataSourcePopupVisible = true
+              this.eqCenterPanelVisible = false;
               this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
 
@@ -2973,12 +3003,46 @@ export default {
         this.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK);
       }
     },
-    removeAll() {
+
+    showRemove(){
+      panels.showRemove = ture;
+    },
+
+
+    //清空地图所有实体（包含标绘点）
+    removes() {
       viewer.entities.removeAll();
       this.areas = [];
     },
 
-    removeRoute() {
+
+    //--------路径规划清除实体
+    //全部清除
+    removeAll(){
+      this.removePolyline(); // 先清除路径规划
+      this.removePoint(); // 再清除障碍物
+
+
+      // 额外清理数据
+      this.areas = [];
+      this.propertiesId = [];
+      this.showTips = false;
+    },
+
+    //删除障碍区域
+    removePoint() {
+      // 遍历存储的障碍物 ID，删除实体
+      this.areas.forEach(area => {
+        viewer.entities.removeById(area.name); // 删除点
+        viewer.entities.removeById(area.name + "a"); // 删除障碍区域
+      });
+
+      // 清空障碍物列表
+      this.areas = [];
+    },
+
+    //移除路径规划
+    removePolyline() {
       let entities = window.viewer.entities.values;
       for (let i = entities.length - 1; i >= 0; i--) {
         if (entities[i].selfType === "route") {
@@ -2987,6 +3051,7 @@ export default {
       }
       this.showTips = false;
     },
+
     // ------------------------------路径规划+物资匹配---------------------------
 
     addJumpNodes(val) {
@@ -3504,13 +3569,13 @@ export default {
         // 确认标绘图层变更，参数为true表示已选中
         this.handleMarkingLayerChange(true);
         // 更新绘图状态
-        timeLine.showAllMakerPoint()
+        timeLine.showAllMakerPoint(this.plots)
       } else {
         // 确认标绘图层变更，参数为false表示未选中
         this.handleMarkingLayerChange(false);
         // 移除所有已存在的椭圆圈实体，以避免重复添加
         // 移除标绘图层
-        timeLine.MarkingLayerRemove();
+        timeLine.markerLayerHidden(this.plots);
       }
 
       // 图层映射：添加与移除图层逻辑
@@ -4587,12 +4652,14 @@ export default {
 <style scoped>
 /*地图*/
 #box {
-  height: 99vh;
+  position: relative;
+  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  clip-path: inset(0 0 0 0); /* 裁剪超出部分 */
 }
 
 #cesiumContainer {
@@ -4602,6 +4669,8 @@ export default {
   padding: 0;
   overflow: hidden;
 }
+
+
 
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
@@ -4741,6 +4810,7 @@ export default {
 .section {
   margin-bottom: 20px;
   overflow-y: auto; /* 启用垂直滚动条 */
+  overflow-x: hidden;
 }
 
 .section-title {
@@ -5018,6 +5088,7 @@ export default {
 .el-pagination {
   margin-top: 10px;
   justify-content: center;
+  font-size: x-small;
 }
 
 :deep(.el-pagination__total) {
@@ -5277,8 +5348,12 @@ export default {
 }
 
 .panelButtons {
-  width: 30%;
-  height: 30px;
+  display: flex;  /* 让按钮横向排列 */
+  justify-content: space-between; /* 按钮左右分布 */
+  align-items: center;
+  width: auto; /* 适应内容 */
+  gap: 12px; /* 按钮之间的间距 */
+  padding: 0 16px 16px 0; /* 保留原来的 padding */
 }
 
 .universalPanel {
@@ -5289,6 +5364,9 @@ export default {
   border-radius: 5px;
   background-color: rgba(53, 59, 67, 0.8);
   z-index: 100;
+  height: 80.8vh;
+  overflow-y:auto;
+  overflow-x: hidden;
 }
 
 .panelTop {
@@ -5316,6 +5394,7 @@ export default {
   color: #ffffff;
   font-size: 18px;
   font-weight: 500;
+  overflow-x: hidden;
 }
 
 :deep(.checkBotton) {
@@ -5436,6 +5515,8 @@ export default {
 .tree-node-content {
   display: flex;
   align-items: center;
+  height: 80.8vh;
+  overflow: auto;
 }
 
 .node-icon {
@@ -5550,9 +5631,8 @@ export default {
   box-shadow: 0 0 15px #007fde, inset 0 0 25px #06b7ff;
 }
 
-.panelButtons {
-  padding: 0 16px 16px 0;
-}
+
+
 
 .emergencyPanel {
   position: absolute;
@@ -5611,5 +5691,128 @@ li {
   font-size: 14px;
   margin-right: 10px;
 }
+
+/*路径规划——清楚实体按钮样式*/
+.container {
+  width: 100%;
+  height: 68px;
+  display: flex;
+  flex-direction: row; /* 改为行布局 */
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* 按钮之间的间距 */
+}
+
+.button:not(:last-child) {
+  margin-bottom: 0; /* 移除按钮之间的垂直间距 */
+}
+
+/* 其他样式保持不变 */
+.type--A {
+  --line_color: #a6a4a4;
+  --back_color: #ffecf6;
+}
+.type--B {
+  --line_color: #a97bc0;
+  --back_color: #e9ecff;
+}
+.type--C {
+  --line_color: #479ecb;
+  --back_color: #defffa;
+}
+.button {
+  position: relative;
+  z-index: 0;
+  width: 240px;
+  height: 56px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--line_color);
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  overflow: hidden; /* 确保背景色不会溢出 */
+  background: transparent; /* 初始背景透明 */
+}
+.button__text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.button::before,
+.button::after,
+.button__text::before,
+.button__text::after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line_color);
+  transition: all 0.5s ease;
+}
+.button::before {
+  top: 0;
+  left: 54px;
+  width: calc(100% - 56px * 2 - 16px);
+}
+.button::after {
+  top: 0;
+  right: 54px;
+  width: 8px;
+}
+.button__text::before {
+  bottom: 0;
+  right: 54px;
+  width: calc(100% - 56px * 2 - 16px);
+}
+.button__text::after {
+  bottom: 0;
+  left: 54px;
+  width: 8px;
+}
+.button__line {
+  position: absolute;
+  top: 0;
+  width: 56px;
+  height: 100%;
+  overflow: hidden;
+  transition: border-width 0.3s ease; /* 添加边框宽度过渡 */
+}
+.button__line::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 150%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 300px;
+  border: solid 3px var(--line_color);
+  border: solid 3px var(--line_color); /* 初始边框宽度 */
+  background: transparent; /* 初始背景透明 */
+  transition: all 0.3s ease; /* 添加过渡效果 */
+}
+.button__line:nth-child(1),
+.button__line:nth-child(1)::before {
+  left: 0;
+}
+.button__line:nth-child(2),
+.button__line:nth-child(2)::before {
+  right: 0;
+}
+.button:hover {
+  letter-spacing: 6px;
+}
+
+.button:hover::before,
+.button:hover .button__text::before {
+  width: 8px;
+}
+.button:hover::after,
+.button:hover .button__text::after {
+  width: calc(100% - 56px * 2 - 16px);
+}
+
 
 </style>

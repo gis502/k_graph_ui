@@ -68,7 +68,7 @@ let timeLine = {
         }
     },
     MiniMapAddMakerPoint(smallViewer, centerPoint) {
-        console.log(smallViewer.entities, "smallViewer.entities")
+        // console.log(smallViewer.entities, "smallViewer.entities")
         smallViewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(
                 parseFloat(centerPoint.longitude),
@@ -230,18 +230,18 @@ let timeLine = {
                     let dataSourcePromise = window.viewer.dataSources.add(labeldataSource)
                     dataSourcePromise.then(function (labeldataSource) {
                         labeldataSource.clustering.enabled = true; // 开启聚合
-                        labeldataSource.clustering.pixelRange = 2000; // 聚合像素范围
+                        labeldataSource.clustering.pixelRange = 100; // 聚合像素范围
                         labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
                         // 监听相机变化事件来动态调整聚合像素范围
-                        let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
-                            const cameraHeight = viewer.camera.positionCartographic.height;
-                            if (cameraHeight < 50000) {
-                                labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
-                            } else {
-                                labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
-                            }
-                        });
+                        // let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
+                        //     const cameraHeight = viewer.camera.positionCartographic.height;
+                        //     if (cameraHeight < 50000) {
+                        //         labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
+                        //     } else {
+                        //         labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
+                        //     }
+                        // });
 
                         let removeListener
 
@@ -406,8 +406,8 @@ let timeLine = {
                                                     // 设置 Billboard 位置：背景图片右下角对齐标绘图标正上方
                                                     cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
                                                     cluster.billboard.pixelOffset = new Cesium.Cartesian2(
-                                                        -(canvasWidth * 0.3), // 调整为右下角更贴近图标
-                                                        -(canvasHeight * 0.1) // 上移贴近图标
+                                                        -(canvasWidth * 0.28), // 调整为右下角更贴近图标
+                                                        -(canvasHeight * 0) // 上移贴近图标
                                                     );
 
                                                     // 隐藏 Cesium 默认的标签
@@ -488,13 +488,16 @@ let timeLine = {
                 layer: type,
                 properties: {...item}
             })
-            console.log(item.plotId, item.plotType, "item.plotId, item.plotType")
+            // console.log(item.plotId, item.plotType, "item.plotId, item.plotType")
             let plotId = item.plotId
             let plotType = item.plotType
-            getPlotInfos({plotId, plotType}).then(res => {
-                let labeltext = this.labeltext(plotType, res)
-                this.addPointLabel(item, labeltext)
-            })
+
+            if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+                getPlotInfos({plotId, plotType}).then(res => {
+                    let labeltext = this.labeltext(plotType, res)
+                    this.addPointLabel(item, labeltext)
+                })
+            }
         }
     },
     addPolyline(item, type) {
@@ -787,8 +790,8 @@ let timeLine = {
     },
 
     //显示隐藏
-    showAllMakerPoint() {
-        this.plots.forEach(item => {
+    showAllMakerPoint(plots) {
+        plots.forEach(item => {
             if (item.drawtype === "point") {
                 let entity = window.pointDataSource.entities.getById(item.plotId)
                 if (entity) {
@@ -803,23 +806,43 @@ let timeLine = {
 
         })
     },
-    MarkingLayerRemove() {
-        this.plots.forEach(item => {
-            console.log(item)
+    markerLayerHidden(plots) {
+        plots.forEach(item => {
+            // console.log(item)
             if (item.drawtype === "point") {
                 let entity = window.pointDataSource.entities.getById(item.plotId)
-                console.log(entity, "entity")
+                // console.log(entity, "entity")
                 if (entity) {
                     entity.show = false
                 }
             } else {
                 let entity = window.viewer.entities.getById(item.plotId)
-                console.log(entity, "entity")
+                // console.log(entity, "entity")
                 if (entity) {
                     entity.show = false
                 }
             }
+        })
+    },
+    markerLabelsHidden(plots){
+        plots.forEach(item => {
+            // console.log(item)
+                let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+                // console.log(entity, "entity")
+                if (entity) {
+                    entity.show = false
+                }
 
+        })
+    },
+    makerLabelsShow(plots){
+        plots.forEach(item => {
+            // console.log(item)
+            let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
+            // console.log(entity, "entity")
+            if (entity) {
+                entity.show = true
+            }
         })
     },
 
@@ -831,7 +854,7 @@ let timeLine = {
         if (res.plotTypeInfo && res.plotTypeInfo.location) {
             labeltext = res.plotTypeInfo.location + labeltext
         }
-        //人员伤亡类文字：新增xxx人员xx人
+        //人员伤亡类文字：xxx人员xx人
         // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
         if (plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员") {
             if (res.plotTypeInfo && res.plotTypeInfo.newCount) {
@@ -854,13 +877,13 @@ let timeLine = {
         if (res.plotTypeInfo && res.plotTypeInfo.casualties) {
             labeltext = labeltext + res.plotTypeInfo.casualties + "人员伤亡"
         }
-        if (res.plotTypeInfo && res.plotTypeInfo.initialDisposalPhase) {
-            labeltext = labeltext + "," + res.plotTypeInfo.initialDisposalPhase
-        }
+        // if (res.plotTypeInfo && res.plotTypeInfo.initialDisposalPhase) {
+        //     labeltext = labeltext + "," + res.plotTypeInfo.initialDisposalPhase
+        // }
         return labeltext
     },
     addPointLabel(data, labeltext) {
-        console.log(data,"data addPointLabel")
+        // console.log(data,"data addPointLabel")
         let labeldataSource = this.addDataSourceLayer("label")
         if (labeldataSource) {
             let id=data.plotId + '_label'

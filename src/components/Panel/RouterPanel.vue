@@ -28,16 +28,6 @@
 
 
       </el-descriptions>
-
-<!--      <div class="info-item" v-for="(value, key) in popupPanelData" :key="key">-->
-<!--        <div class="info-label">{{ keyToChinese(key) }}</div>-->
-<!--        <div class="info-value">-->
-<!--          &lt;!&ndash; 如果键是插入时间，则格式化显示 &ndash;&gt;-->
-<!--          <span v-if="key === keyMappings.insertTime">{{ formatInsertTime(value) }}</span>-->
-<!--          <span v-else>{{ value }}</span>-->
-<!--        </div>-->
-<!--      </div>-->
-
     </div>
     <!-- 取消注释按钮以启用删除功能 -->
     <!-- <el-button @click="deletePoint" type="danger" icon="el-icon-delete" circle></el-button> -->
@@ -216,12 +206,12 @@ export default {
         this.popupPanelData = translatedData;
 
         console.log(" this.popupPanelData RouterPannel", this.popupPanelData)
-        console.log("plotId",this.popupData.plotId);  // 打印出来查看是否有 plotId
+
 
       }
     },
     position() {
-      console.log("plotId2",this.popupData.plotId);  // 打印出来查看是否有 plotId
+
       this.positionEntity = this.position;
     },
   },
@@ -237,17 +227,16 @@ export default {
   },
   methods: {
     keyToChinese(key) {
-      console.log("plotId3",key);  // 打印出来查看是否有 plotId
+
       return this.keyMappings[key] || key;
     },
     formatInsertTime(value) {
-      console.log("plotId4",value);  // 打印出来查看是否有 plotId
+
       // 使用dayjs库进行时间格式转换
       return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
     },
     // 删除标注
     deletePoint() {
-      console.log("plotId5",this.popupData.plotId);  // 打印出来查看是否有 plotId
       this.$emit('closePlotPop');
       this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: window.selectedEntity.id}));
     }
@@ -296,7 +285,7 @@ export default {
 .videoMonitorWin {
   position: absolute;
   width: 600px;
-  padding: 4px;
+  padding: 2px;
   z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
