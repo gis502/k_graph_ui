@@ -469,8 +469,8 @@ export default {
       const option = {
         tooltip: {},
         grid: {
-          left: '15%',
-          right: '32%',
+          left: '12%',
+          right: '25%',
           bottom: '18%',
           containLabel: true
         },
@@ -481,6 +481,7 @@ export default {
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
             interval: 0,
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置X轴名称颜色为白色
@@ -509,9 +510,11 @@ export default {
           interval: 200000,
           axisLabel: {
             color: '#fff', // 设置Y轴标签颜色为白色
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置Y轴名称颜色为白色
+            fontSize: 15,
           },
           axisLine: {
             show: false,
@@ -546,6 +549,7 @@ export default {
                   show: true,
                   position: "top",
                   color: '#fa9440',
+                  fontSize: 13,
                   formatter: function (p) {
                     return p.value > 0 ? (p.value) : '';
                   }
@@ -591,8 +595,8 @@ export default {
       const option = {
         tooltip: {},
         grid: {
-          left: '15%',
-          right: '31%',
+          left: '12%',
+          right: '25%',
           bottom: '19%',
           containLabel: true,
         },
@@ -603,6 +607,7 @@ export default {
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
             interval: 0,
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置X轴名称颜色为白色
@@ -631,9 +636,11 @@ export default {
           interval: 2,
           axisLabel: {
             color: '#fff', // 设置Y轴标签颜色为白色
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置Y轴名称颜色为白色
+            fontSize: 15,
           },
           axisLine: {
             show: false,
