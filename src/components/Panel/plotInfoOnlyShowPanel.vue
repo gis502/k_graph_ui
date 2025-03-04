@@ -54,9 +54,9 @@
             <template #label>
               <div class="cell-item">经纬度</div>
             </template>
-            <div>
+            <div ref="coordinateContainer">
               <el-text size="large">
-                经度: {{ plotInfoNew.longitude || "无数据" }}°E,
+                经度: {{ plotInfoNew.longitude || "无数据" }}°E,<br v-if="shouldBreak">
                 纬度: {{ plotInfoNew.latitude || "无数据" }}°N
               </el-text>
             </div>
@@ -128,6 +128,7 @@ export default {
         info: null,
         id: null,
       },
+      shouldBreak: false, // 是否换行
     }
   },
   props: [
@@ -156,7 +157,26 @@ export default {
       };
     },
   },
+  mounted() {
+    // 组件挂载时检查宽度
+    this.checkContainerWidth();
+  },
+  updated() {
+    // 组件更新时检查宽度
+    this.checkContainerWidth();
+  },
   methods: {
+
+    // 检查容器宽度
+    checkContainerWidth() {
+      const container = this.$refs.coordinateContainer;
+      if (container) {
+        const width = container.offsetWidth; // 获取容器宽度
+        this.shouldBreak = width <= 210; // 根据宽度设置是否换行
+      }
+    },
+
+
     // 点击标绘点后获取此标绘点的所有标绘信息
     getPlotInfo(plotId, plotType) {
       let that = this;
@@ -231,9 +251,12 @@ export default {
 };
 </script>
 <style scoped>
-.el-descriptions__body .el-descriptions__table.is-bordered .el-descriptions__cell {
-  /*width: 43px!important;*/
+/* 调整字体大小为原来的 70% */
+* {
+  font-size: 95%;
 }
+
+
 
 .earthquake-info-table th,
 .earthquake-info-table td {
@@ -255,15 +278,16 @@ export default {
 .header-div {
   color: white;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  font-size: 128%;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 1px;
 }
 
 .videoMonitorWin {
   position: absolute;
-  width: 800px;
-  padding: 20px;
+  width: 600px;
+  padding: 4px;
   z-index: 80;
   background-color: rgba(40, 40, 40, 0.7);
   border: 2px solid #18c9dc;
@@ -284,20 +308,19 @@ export default {
 }
 
 .info-item :nth-child(2) {
-  width: 60%;
+  width: 70%;
   border-color: #4d5469;
   border-top-style: solid;
   border-top-width: 2px;
   background-color: #4d5469;
   margin-bottom: 2px;
 }
-
 .Marking-info-panel {
-  padding: 20px;
+  padding: 12px;
   background-color: #f9f9f9;
   border-radius: 8px;
   max-width: 100%;
-  margin: 10px 10px;
+  margin: 7px 6px;
 }
 
 svg {
