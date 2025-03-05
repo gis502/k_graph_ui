@@ -420,7 +420,7 @@ let timeLine = {
         }
     },
     addMakerPoint(item, type) {
-        console.log(item,"addMakerPoint timeline")
+        console.log(item, "addMakerPoint timeline")
         //点的属性 震中点统用一一个方法
         let labeltext = null
         let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
@@ -481,7 +481,7 @@ let timeLine = {
         }
     },
     addPolyline(item, type) {
-        console.log(item,"addPolyline timeline")
+        console.log(item, "addPolyline timeline")
         if (window.viewer && window.viewer.entities) {
 
             let material = cesiumPlot.getMaterial(item.plotType, import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime())
@@ -518,37 +518,7 @@ let timeLine = {
     addPolygon(item, type) {
         // console.log(item, "item")
         if (window.viewer && window.viewer.entities) {
-            if (item.plotType === "未搜索区域" || item.plotType === "已搜索区域" || item.plotType === "已营救区域" || item.plotType === "正在营救区域" || item.plotType === "未营救区域") {
-                // 1-1 经纬度
-                let polygonPoints = []
-                item.geom.coordinates[0].forEach(e => {
-                    polygonPoints.push(Cesium.Ellipsoid.WGS84.cartographicToCartesian(Cesium.Cartographic.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0))));
-                })
-
-                if (window.viewer.entities.getById(item.plotId)) {
-                    // console.log(window.viewer.entities.getById(item.plotId), "window.viewer.entities.getById(item.plotId)")
-                    window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
-                }
-                window.viewer.entities.add({
-                    availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
-                        start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
-                        stop: Cesium.JulianDate.fromDate(new Date(item.endTime))
-                    })]),
-                    id: item.plotId,
-                    layer: type,
-                    polygon: {
-                        hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(polygonPoints), false),
-                        material: import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime(),
-                        // stRotation: Cesium.Math.toRadians(polygon[0].angle),
-                        clampToGround: true,
-                    },
-                    properties: {
-                        // pointPosition: this.positions,
-                        // linePoint: this.polygonPointEntity,
-                        ...item //弹出框
-                    }
-                });
-            } else {
+            if (item.plotType === "泥石流" || item.plotType === "滑坡" || item.plotType === "地面沉降" || item.plotType === "崩塌" || item.plotType === "地面塌陷") {
                 let polygonPoints = []
                 item.geom.coordinates[0].forEach(e => {
                     polygonPoints.push(Cesium.Ellipsoid.WGS84.cartographicToCartesian(Cesium.Cartographic.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0))));
@@ -615,6 +585,37 @@ let timeLine = {
                         disableDepthTestDistance: Number.POSITIVE_INFINITY,//不再进行深度测试（真神）
                         stRotation: Cesium.Math.toRadians(item.angle), // 图片旋转
                         clampToGround: true
+                    },
+                    properties: {
+                        // pointPosition: this.positions,
+                        // linePoint: this.polygonPointEntity,
+                        ...item //弹出框
+                    }
+                });
+            }
+            else {
+                // 1-1 经纬度
+                let polygonPoints = []
+                item.geom.coordinates[0].forEach(e => {
+                    polygonPoints.push(Cesium.Ellipsoid.WGS84.cartographicToCartesian(Cesium.Cartographic.fromDegrees(parseFloat(e[0]), parseFloat(e[1]), parseFloat(0))));
+                })
+
+                if (window.viewer.entities.getById(item.plotId)) {
+                    // console.log(window.viewer.entities.getById(item.plotId), "window.viewer.entities.getById(item.plotId)")
+                    window.viewer.entities.removeById(item.plotId);  // 删除已存在的多边形实体
+                }
+                window.viewer.entities.add({
+                    availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
+                        start: Cesium.JulianDate.fromDate(new Date(item.startTime)),
+                        stop: Cesium.JulianDate.fromDate(new Date(item.endTime))
+                    })]),
+                    id: item.plotId,
+                    layer: type,
+                    polygon: {
+                        hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(polygonPoints), false),
+                        material: import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime(),
+                        // stRotation: Cesium.Math.toRadians(polygon[0].angle),
+                        clampToGround: true,
                     },
                     properties: {
                         // pointPosition: this.positions,
@@ -857,24 +858,30 @@ let timeLine = {
     },
 
     //--------删除-------------
-    deletePointById(plotId,drawType){
-        if(drawType==="point"){
+    deletePointById(plotId, drawType) {
+        if (drawType === "point") {
             let entity = window.pointDataSource.entities.getById(plotId)
-            console.log(entity,"delete entity window.pointDataSource")
+            console.log(entity, "delete entity window.pointDataSource")
             if (entity) {
                 window.pointDataSource.entities.remove(entity)
             }
-        }
-        else{
+        } else {
             let entity = window.viewer.entities.getById(plotId)
-            console.log(entity,"delete entity window.viewer")
+            console.log(entity, "delete entity window.viewer")
             if (entity) {
                 window.viewer.entities.remove(entity)
+            }
+            console.log(drawType, entity.properties, entity.properties.plotType._value, "entity.properties.plotType")
+            if (drawType === "polygon" && (entity.properties.plotType._value === "泥石流" || entity.properties.plotType._value === "滑坡" || entity.properties.plotType._value === "地面沉降" || entity.properties.plotType._value === "崩塌" || entity.properties.plotType._value === "地面塌陷")) {
+                let polygoncenter = window.viewer.entities.getById(plotId + "_polygon")
+                // console.log(polygoncenter, window.viewer.entities, "polygonbottom")
+                if (polygoncenter) {
+                    window.viewer.entities.remove(polygoncenter)
+                }
             }
         }
         this.deleteMakerLabel(plotId)
     },
-
 
 
     //--------交互-------
@@ -931,14 +938,13 @@ let timeLine = {
         plots.forEach(item => {
             if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
                 let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
-                console.log(entity,"entity show")
+                console.log(entity, "entity show")
                 if (entity) {
                     entity.show = true
                 }
-            }
-            else{
+            } else {
                 let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
-                console.log(item.plotId,entity,"entity not show")
+                console.log(item.plotId, entity, "entity not show")
                 if (entity) {
                     entity.show = false
                 }
@@ -947,7 +953,7 @@ let timeLine = {
         })
     },
     //删除标签
-    deleteMakerLabel(plotId){
+    deleteMakerLabel(plotId) {
         let entity = window.labeldataSource.entities.getById(plotId + '_label')
         if (entity) {
             window.labeldataSource.entities.remove(entity)
