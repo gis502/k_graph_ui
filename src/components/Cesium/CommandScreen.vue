@@ -883,7 +883,6 @@ import eqTable from '@/components/Home/eqtable.vue'
 import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
 import modelTable from '@/components/Home/modelTable.vue'
-// import yaan from '@/assets/geoJson/yaan1.json'
 import siChuanProvince from '@/assets/geoJson/SichuanProvince.json'
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getEmergency, getFeaturesLayer} from "@/api/system/emergency.js";
@@ -3323,10 +3322,9 @@ export default {
     addYaanImageryDistrict() {
       // 移除其他区域图层
       this.removethdRegions()
-      this.removeDataSourcesLayer('siChuanRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      this.removeDataSourcesLayer('YaanRegionLayer');
 
-      let geoPromise = Cesium.GeoJsonDataSource.load(siChuanProvince, {
+      let geoPromise = Cesium.GeoJsonDataSource.load(yaAn, {
         clampToGround: true, //贴地显示
         stroke: Cesium.Color.RED,
         fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
@@ -3854,27 +3852,6 @@ export default {
      * 如果图层已存在，则不会重复添加
      */
     addYaanRegion() {
-      // 检查是否已存在名为'siChuanRegionLayer'的数据源，如果不存在则加载
-      // if (!window.viewer.dataSources.getByName('yaAnRegionLayer')[0]) {
-      //   // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
-      //   let geoPromise = Cesium.GeoJsonDataSource.load(yaAn, {
-      //     clampToGround: false, //贴地显示
-      //     stroke: Cesium.Color.BLUE,
-      //     strokeWidth: 4,
-      //     fill: Cesium.Color.TRANSPARENT, // 让填充透明
-      //   });
-      //   // 当数据源加载成功后，执行以下操作
-      //   geoPromise.then((dataSource) => {
-      //     // 将数据源添加到地图中
-      //     window.viewer.dataSources.add(dataSource);
-      //     // 给图层取名字,以便删除时找到
-      //     dataSource.name = 'yaAnRegionLayer';
-      //   }).catch((error) => {
-      //     // 如果加载数据源失败，则输出错误信息
-      //     console.error("加载GeoJSON数据失败:", error);
-      //   });
-      // }
-
       // 1.加载四川省市·区(州，县)
       // 检查图层是否已经加载
       if (!window.viewer.dataSources.getByName('siChuanRegionLayer')[0]) {
@@ -3947,7 +3924,7 @@ export default {
         // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
         let geoPromise = Cesium.GeoJsonDataSource.load(yaAnVillage, {
           clampToGround: false, // 贴地显示
-          stroke: Cesium.Color.RED, // 轮廓线颜色
+          stroke: Cesium.Color.WHITE, // 轮廓线颜色
           strokeWidth: 4, // 轮廓线宽度
           fill: Cesium.Color.TRANSPARENT, // 填充颜色（透明）
         });
@@ -4008,47 +3985,6 @@ export default {
       } else {
         console.log("yaAnVillageRegionLayer 图层已加载，无需重复加载。");
       }
-
-      // if (!window.viewer.dataSources.getByName('siChuanRegionLayer')[0]) {
-      //   // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
-      //   let geoPromise = Cesium.GeoJsonDataSource.load(siChuanProvince, {
-      //     clampToGround: false, // 贴地显示
-      //     stroke: Cesium.Color.WHITE, // 默认轮廓线颜色
-      //     strokeWidth: 4,
-      //     fill: Cesium.Color.TRANSPARENT, // 让填充透明
-      //   });
-      //
-      //   // 当数据源加载成功后，执行以下操作
-      //   geoPromise.then((dataSource) => {
-      //     // 将数据源添加到地图中
-      //     window.viewer.dataSources.add(dataSource);
-      //     // 给图层取名字,以便删除时找到
-      //     dataSource.name = 'siChuanRegionLayer';
-      //
-      //     // 遍历数据源中的实体
-      //     dataSource.entities.values.forEach((entity) => {
-      //       // 获取实体的属性
-      //       const properties = entity.properties;
-      //       if (properties) {
-      //         // 获取区域名称
-      //         const name = properties.name.getValue();
-      //         // 定义需要修改的区域名称列表
-      //         const targetRegions = ['雨城区', '名山区', '荥经县', '汉源县', '石棉县', '天全县', '芦山县', '宝兴县'];
-      //
-      //         // 如果当前实体在目标区域列表中，则修改其轮廓线颜色为蓝色
-      //         if (targetRegions.includes(name)) {
-      //           entity.polygon.outline = new Cesium.ConstantProperty(true); // 启用轮廓线
-      //           // 使用 Cesium.Color 和 ConstantProperty 包装值
-      //           entity.polygon.outlineColor = new Cesium.ConstantProperty(Cesium.Color.BLUE);
-      //           entity.polygon.outlineWidth = new Cesium.ConstantProperty(100); // 加粗轮廓线，设置为 10 像素
-      //         }
-      //       }
-      //     });
-      //   }).catch((error) => {
-      //     // 如果加载数据源失败，则输出错误信息
-      //     console.error("加载GeoJSON数据失败:", error);
-      //   });
-      // }
     },
 
 
