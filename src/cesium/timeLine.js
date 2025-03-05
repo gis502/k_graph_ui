@@ -420,6 +420,7 @@ let timeLine = {
         }
     },
     addMakerPoint(item, type) {
+        console.log(item,"addMakerPoint timeline")
         //点的属性 震中点统用一一个方法
         let labeltext = null
         let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
@@ -480,6 +481,7 @@ let timeLine = {
         }
     },
     addPolyline(item, type) {
+        console.log(item,"addPolyline timeline")
         if (window.viewer && window.viewer.entities) {
 
             let material = cesiumPlot.getMaterial(item.plotType, import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime())
@@ -767,7 +769,7 @@ let timeLine = {
             })
         }
     },
-    //点标签
+    //标签（点线面）
     labeltext(plotType, res) {
         // console.log("标签",res)
         let labeltext = plotType
@@ -855,10 +857,28 @@ let timeLine = {
     },
 
     //--------删除-------------
+    deletePointById(plotId,drawType){
+        if(drawType==="point"){
+            let entity = window.pointDataSource.entities.getById(plotId)
+            console.log(entity,"delete entity window.pointDataSource")
+            if (entity) {
+                window.pointDataSource.entities.remove(entity)
+            }
+        }
+        else{
+            let entity = window.viewer.entities.getById(plotId)
+            console.log(entity,"delete entity window.viewer")
+            if (entity) {
+                window.viewer.entities.remove(entity)
+            }
+        }
+        this.deleteMakerLabel(plotId)
+    },
+
 
 
     //--------交互-------
-    //标绘点显示隐藏
+    //标绘点线面显示隐藏
     showAllMakerPoint(plots) {
         plots.forEach(item => {
             if (item.drawtype === "point") {
@@ -926,6 +946,14 @@ let timeLine = {
 
         })
     },
+    //删除标签
+    deleteMakerLabel(plotId){
+        let entity = window.labeldataSource.entities.getById(plotId + '_label')
+        if (entity) {
+            window.labeldataSource.entities.remove(entity)
+        }
+    },
+
     //闪烁
     blinkMarker(plot) {
         return new Promise((resolve) => {

@@ -61,7 +61,7 @@ export default {
   mounted() {
     this.init();
     this.initChart(); // 初始化图表
-    this.initWebSocket() //接收人员伤亡websocket消息，初始化
+    // this.initWebSocket() //接收人员伤亡websocket消息，初始化
   },
   watch: {
     currentTime(newVal) {

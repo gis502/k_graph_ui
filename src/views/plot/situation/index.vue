@@ -2625,7 +2625,9 @@ export default {
     wsSendPoint(data) {
       console.log(this.websock,"websock:")
       console.log(data,"wsSendPoint(data)")
-      this.websock.send(data)
+      // this.websock.onopen = () => {
+        this.websock.send(data)
+      // }
     },
 
     //------------线------------

@@ -4,8 +4,8 @@
     <div class="thd-listTable" v-if="activeComponent === 'damageThemeAssessment'">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;overflow: hidden">
         <damageThemeAssessment
-          :eqid="eqid"
-          :eqqueueId="eqqueueId"
+            :eqid="eqid"
+            :eqqueueId="eqqueueId"
         >
         </damageThemeAssessment>
       </div>
@@ -15,14 +15,14 @@
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <div class="list-dialog__content" style="height: calc(100% - 30);">
           <timeLineCasualtyStatisticthd
-            :zoomLevel="zoomLevel"
-            :pointsLayer="pointsLayer"
-            :currentTime="currentTimeString"
+              :zoomLevel="zoomLevel"
+              :pointsLayer="pointsLayer"
+              :currentTime="currentTimeString"
           />
         </div>
       </div>
       <plotSearch
-        :eqid="eqid"
+          :eqid="eqid"
       ></plotSearch>
     </div>
     <div v-if="activeComponent === 'layerChoose'" class="thd-listTablePint">
@@ -37,17 +37,17 @@
 
         <div class="emergencyContents">
           <div
-            v-for="(item, index) in emergencyTitleProperty"
-            :key="index"
-            class="emergencyContent"
+              v-for="(item, index) in emergencyTitleProperty"
+              :key="index"
+              class="emergencyContent"
           >
             <!-- 渲染每个item.content -->
             <div
-              v-for="(contentItem, subIndex) in item.content"
-              :key="subIndex"
-              class="emergencyContentItem"
-              :class="{active: contentItem.active}"
-              @click="emergencyClick(contentItem)"
+                v-for="(contentItem, subIndex) in item.content"
+                :key="subIndex"
+                class="emergencyContentItem"
+                :class="{active: contentItem.active}"
+                @click="emergencyClick(contentItem)"
             >
               {{ contentItem.name }}
             </div>
@@ -110,7 +110,7 @@
           <h2 class="emergencyPanelName">清除实体</h2>
         </div>
 
-        <div class="container" label-width="120px"    >
+        <div class="container" label-width="120px">
           <a href="#" class="button type--C" @click="removePolyline">
             <div class="button__line"></div>
             <div class="button__line"></div>
@@ -154,9 +154,9 @@
               <el-col :span="12">
                 <el-form-item label="队伍人数">
                   <el-input
-                    v-model="displayTeamTotalMembers"
-                    @input="handleTeamTotalMembersInput"
-                    autocomplete="off"/>
+                      v-model="displayTeamTotalMembers"
+                      @input="handleTeamTotalMembersInput"
+                      autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -201,19 +201,19 @@
               <el-col :span="12">
                 <el-form-item label="帐篷">
                   <el-input
-                    v-model="displayDisasterTentsCount"
-                    @input="handleDisasterTentsInput"
-                    placeholder="/件"
-                    autocomplete="off"/>
+                      v-model="displayDisasterTentsCount"
+                      @input="handleDisasterTentsInput"
+                      placeholder="/件"
+                      autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="手电筒">
                   <el-input
-                    v-model="displayFlashlightsCount"
-                    @input="handleFlashlightsInput"
-                    placeholder="/件"
-                    autocomplete="off"/>
+                      v-model="displayFlashlightsCount"
+                      @input="handleFlashlightsInput"
+                      placeholder="/件"
+                      autocomplete="off"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -221,19 +221,19 @@
               <el-col :span="12">
                 <el-form-item label="雨衣">
                   <el-input
-                    v-model="displayRaincoatsCount"
-                    @input="handleRaincoatsInput"
-                    placeholder="/件"
-                    autocomplete="off"/>
+                      v-model="displayRaincoatsCount"
+                      @input="handleRaincoatsInput"
+                      placeholder="/件"
+                      autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="雨鞋">
                   <el-input
-                    v-model="displayRainBootsCount"
-                    @input="handleRainBootsInput"
-                    placeholder="/双"
-                    autocomplete="off"/>
+                      v-model="displayRainBootsCount"
+                      @input="handleRainBootsInput"
+                      placeholder="/双"
+                      autocomplete="off"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -286,9 +286,9 @@
           <div class="district-buttons">
             <div v-for="district in districts" :key="district.adcode" class="district-button">
               <el-button
-                @click="selectRegions(district)"
-                class="district-button"
-                :class="{ 'selected': selectedRegions.includes(district) }">
+                  @click="selectRegions(district)"
+                  class="district-button"
+                  :class="{ 'selected': selectedRegions.includes(district) }">
                 {{ district.name }}
               </el-button>
             </div>
@@ -326,58 +326,58 @@
         <div class="panelContent" style="padding: 5px;margin-top: -5px">
           <!--     数据列表     -->
           <el-table
-            :data="showSuppliesList"
-            style="margin-bottom: 5px; text-align: center;height: 20vh"
-            :stripe="true"
-            :header-cell-style="tableHeaderColor"
-            :cell-style="tableColor"
-            :row-style="{ height: '40px' }"
-            @row-click="showSupplyPoint"
+              :data="showSuppliesList"
+              style="margin-bottom: 5px; text-align: center;height: 20vh"
+              :stripe="true"
+              :header-cell-style="tableHeaderColor"
+              :cell-style="tableColor"
+              :row-style="{ height: '40px' }"
+              @row-click="showSupplyPoint"
           >
             <!--      救援物资      -->
             <el-table-column
-              v-if="listField === 'supplies'"
-              v-for="column in listFieldsOfSupplies"
-              :key="column.prop"
-              :prop="column.prop"
-              :label="column.label"
-              :width="column.width"
-              show-overflow-tooltip
+                v-if="listField === 'supplies'"
+                v-for="column in listFieldsOfSupplies"
+                :key="column.prop"
+                :prop="column.prop"
+                :label="column.label"
+                :width="column.width"
+                show-overflow-tooltip
             ></el-table-column>
             <!--      救援力量      -->
             <el-table-column
-              v-if="listField === 'emergencyTeam'"
-              v-for="column in listFieldOfEmergencyTeam"
-              :key="column.prop"
-              :prop="column.prop"
-              :label="column.label"
-              :width="column.width"
-              show-overflow-tooltip
+                v-if="listField === 'emergencyTeam'"
+                v-for="column in listFieldOfEmergencyTeam"
+                :key="column.prop"
+                :prop="column.prop"
+                :label="column.label"
+                :width="column.width"
+                show-overflow-tooltip
             ></el-table-column>
             <!--      救灾装备      -->
             <el-table-column
-              v-if="listField === 'reserves'"
-              v-for="column in listFieldOfReserves"
-              :key="column.prop"
-              :prop="column.prop"
-              :label="column.label"
-              :width="column.width"
-              show-overflow-tooltip
+                v-if="listField === 'reserves'"
+                v-for="column in listFieldOfReserves"
+                :key="column.prop"
+                :prop="column.prop"
+                :label="column.label"
+                :width="column.width"
+                show-overflow-tooltip
             ></el-table-column>
           </el-table>
           <!--     数据列表end     -->
         </div>
         <div style="width: 100%;display: flex;justify-content: center;align-items: center">
           <el-pagination
-            v-if="panels.tableVisible"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-size="pageSize"
-            layout="total, prev, pager, next, jumper"
-            :total="total"
-            class="pagination1"
-            style="padding: 10px"
+              v-if="panels.tableVisible"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="currentPage"
+              :page-size="pageSize"
+              layout="total, prev, pager, next, jumper"
+              :total="total"
+              class="pagination1"
+              style="padding: 10px"
           >
           </el-pagination>
 
@@ -415,9 +415,9 @@
     <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <disasterStatistics
-          :eqid="eqid"
-          :currentTime="currentTimeString"
-          @addJumpNodes="addJumpNodes"
+            :eqid="eqid"
+            :currentTime="currentTimeString"
+            @addJumpNodes="addJumpNodes"
         />
       </div>
     </div>
@@ -432,14 +432,14 @@
           <!-- 切换按钮 -->
           <div class="toggle-buttons">
             <el-button
-              :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
-              @click="activeTab = 'thematicMap'"
+                :type="activeTab === 'thematicMap' ? 'primary' : 'default'"
+                @click="activeTab = 'thematicMap'"
             >
               专题图预览
             </el-button>
             <el-button
-              :type="activeTab === 'report' ? 'primary' : 'default'"
-              @click="activeTab = 'report'"
+                :type="activeTab === 'report' ? 'primary' : 'default'"
+                @click="activeTab = 'report'"
             >
               报告产出
             </el-button>
@@ -448,10 +448,10 @@
           <div v-if="activeTab === 'thematicMap'" class="section">
             <div class="grid-container">
               <div
-                v-for="(item, index) in thematicMapitems"
-                :key="index"
-                class="grid-item"
-                @click="showThematicMapDialog(item)"
+                  v-for="(item, index) in thematicMapitems"
+                  :key="index"
+                  class="grid-item"
+                  @click="showThematicMapDialog(item)"
               >
                 <el-card shadow="hover">
                   <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
@@ -466,9 +466,9 @@
           <div v-if="activeTab === 'report'" class="section">
             <div class="grid-container-report">
               <div
-                v-for="(item, index) in reportItems"
-                :key="index"
-                class="grid-item"
+                  v-for="(item, index) in reportItems"
+                  :key="index"
+                  class="grid-item"
               >
                 <el-card shadow="hover">
                   <div class="report-preview">
@@ -485,28 +485,28 @@
       </div>
 
       <!-- 专题图预览弹框 -->
-<!--      <thematic-map-preview-->
-<!--        v-if="ifShowMapPreview"-->
-<!--        :img-url="imgshowURL"-->
-<!--        :img-name="imgName"-->
-<!--        @close="ifShowThematicMapDialog(false)"-->
-<!--      />-->
+      <!--      <thematic-map-preview-->
+      <!--        v-if="ifShowMapPreview"-->
+      <!--        :img-url="imgshowURL"-->
+      <!--        :img-name="imgName"-->
+      <!--        @close="ifShowThematicMapDialog(false)"-->
+      <!--      />-->
     </div>
 
     <!--    &lt;!&ndash;    box包裹地图，截图需要&ndash;&gt;-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
         <eqCenterPanel
-          v-show="eqCenterPanelVisible"
-          :position="PanelPosition"
-          :popupData="PanelData"
+            v-show="eqCenterPanelVisible"
+            :position="PanelPosition"
+            :popupData="PanelData"
         />
         <plotInfoOnlyShowPanel
-          v-show="plotShowOnlyPanelVisible"
-          :position="PanelPosition"
-          :eqThemeName="tableName"
-          :eqThemeInfo="eqThemeData"
-          :popupData="PanelData"
+            v-show="plotShowOnlyPanelVisible"
+            :position="PanelPosition"
+            :eqThemeName="tableName"
+            :eqThemeInfo="eqThemeData"
+            :popupData="PanelData"
         />
         <RouterPanel
             :visible="routerPopupVisible"
@@ -523,60 +523,60 @@
 
 
     <commandScreenTitle
-      :eqyear="eqyear"
-      :eqmonth="eqmonth"
-      :eqday="eqday"
-      :centerPoint="centerPoint"
-      @toggle-component="toggleComponent"
+        :eqyear="eqyear"
+        :eqmonth="eqmonth"
+        :eqday="eqday"
+        :centerPoint="centerPoint"
+        @toggle-component="toggleComponent"
     />
 
     <timeLinePlay
-      :viewer="viewer"
-      :eqid="eqid"
-      :centerPoint="centerPoint"
-      :currentTime="currentTimeString"
-      @updatePlots="updatePlots"
+        :viewer="viewer"
+        :eqid="eqid"
+        :centerPoint="centerPoint"
+        :currentTime="currentTimeString"
+        @updatePlots="updatePlots"
     />
 
     <!--   灾情总览-->
     <div v-show="showSidebarComponents">
       <div class="pop_left_background">
         <timeLineEmergencyResponse
-          :eqid="eqid"
-          :currentTime="currentTimeString"
+            :eqid="eqid"
+            :currentTime="currentTimeString"
         />
         <!--   人员伤亡-左中   -->
         <timeLinePersonnelCasualties
-          :eqid="eqid"
-          :currentTime="currentTimeString"
+            :eqid="eqid"
+            :currentTime="currentTimeString"
         />
         <!--        震中信息组件-->
         <timeLineBaseInfo
-          :centerPoint="centerPoint"
+            :centerPoint="centerPoint"
         />
       </div>
       <timeLineLegend
-        :activeComponent="activeComponent"
-        @toggleComponent="toggleComponent"
+          :activeComponent="activeComponent"
+          @toggleComponent="toggleComponent"
       />
       <div class="pop_right_background">
         <!--生命线情况-->
         <timeLineLifeLine
-          :eqid="eqid"
-          :currentTime="currentTimeString"
+            :eqid="eqid"
+            :currentTime="currentTimeString"
         />
         <timeLinePlotStatistics
-          :plots="plots"
-          :currentTime="currentTimeString"
-          :startTime="centerPoint.startTime"
-          :zoomLevel="zoomLevel"
-          :isTimerRunning="isTimeRunning"
-          :viewCenterCoordinate="viewCenterCoordinate"
-          :earthquakeName="centerPoint.earthquakeName"
+            :plots="plots"
+            :currentTime="currentTimeString"
+            :startTime="centerPoint.startTime"
+            :zoomLevel="zoomLevel"
+            :isTimerRunning="isTimeRunning"
+            :viewCenterCoordinate="viewCenterCoordinate"
+            :earthquakeName="centerPoint.earthquakeName"
         />
         <timeLineMiniMap
-          :viewer="viewer"
-          :centerPoint="centerPoint"
+            :viewer="viewer"
+            :centerPoint="centerPoint"
         />
       </div>
     </div>
@@ -894,7 +894,7 @@ import plotInfoOnlyShowPanel from "@/components/Panel/plotInfoOnlyShowPanel";
 import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
 import RouterPanel from "@/components/Panel/RouterPanel.vue";
 //前后端接口
-import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
+
 import {getAllEq, getAllEqList, getEqById, getEqListById, getExcelUploadEarthquake} from '@/api/system/eqlist'
 //前端方法
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
@@ -929,7 +929,7 @@ import {
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {TianDiTuGeocoder} from "../../cesium/tool/geocoder.js";
-import arrowImage from "@/assets/images/arrow.png";
+
 
 import {Edit, Delete} from '@element-plus/icons-vue'
 import {
@@ -948,7 +948,7 @@ import {
   rotationModel,
 } from '@/cesium/model.js';
 
-import Arrow from "@/cesium/drawArrow/drawPlot.js"
+
 import timeLineCasualtyStatisticthd from "@/components/TimeLine/timeLineCasualtyStatisticthd.vue";
 import * as turf from "@turf/turf";
 import {
@@ -965,10 +965,7 @@ import axios from "axios";
 import damageThemeAssessment from "./damageThemeAssessment.vue";
 import disasterStatistics from "./disasterStatistics.vue"
 import PlotSearch from "./plotSearch.vue";
-import start from "@/assets/start.svg";
-import end from "@/assets/end.svg";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
-import arrow from "@/cesium/drawArrow/drawPlot.js";
 import {AmapApiLocal} from "@/utils/server.js";
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf";
 import routePlanningIcon from '../../assets/icons/svg/routePlanning.svg';
@@ -1889,79 +1886,40 @@ export default {
     initWebSocket() {
       let that = this
       this.websock = initWebSocket(this.eqid)
-      // this.websock.eqid = this.eqid
       this.websock.onmessage = function (e) {
         console.log("e commandscreen this.websock.onmessage", e)
         try {
           console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
-          let markType = JSON.parse(e.data).type
+          let drawType = JSON.parse(e.data).type
           let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
           if (markOperate === "add") {
             if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
               let markData = JSON.parse(e.data).data
-              // if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-              //标绘点
-              that.wsAddMakerFunc(markType, markData)
-              // }
-              //播放或播放暂停
-              // else {
-              //   that.wsaddMakers.push({markType: markType, markData: markData})
-              // }
+              markData.plot.longitude = Number(markData.plot.geom.coordinates[0])
+              markData.plot.latitude = Number(markData.plot.geom.coordinates[1])
+              that.plots.push(markData.plot)
+              if (drawType === "point") {
+                timeLine.addMakerPoint(markData.plot, "标绘点")
+              } else if (drawType === "polyline") {
+                timeLine.addPolyline(markData.plot, "标绘点")
+              } else if (drawType === "polygon") {
+                timeLine.addPolygon(markData.plot, "标绘点")
+              } else if (drawType === "arrow") {
+                timeLine.addArrow(markData.plot, "标绘点")
+              }
             }
           } else if (markOperate === "delete") {
-            let id = JSON.parse(e.data).id.toString()
-            // if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-            that.wsDeleteMakerFunc(id, markType)
-            // } else {
-            //   that.wsdeleteMakers.push({id: id, markType: markType})
-            // }
+            let polyId = JSON.parse(e.data).id.toString()
+            that.plots = that.plots.filter(plot => plot.plotId !== polyId);
+            timeLine.deletePointById(polyId,drawType)
           }
         } catch (err) {
           console.log(err, 'ws中catch到错误');
         }
       };
     },
-    wsAddMakerFunc(type, data) {
-      // console.log(data.plot,"data.plot wsadd")
-      data.plot.longitude = Number(data.plot.geom.coordinates[0])
-      data.plot.latitude = Number(data.plot.geom.coordinates[1]),
-          this.plots.push(data.plot)
-      // this.plotisshow[data.plot.plotId] = 1
-      // var jumpnode = Math.ceil((new Date() - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))
-      // console.log(jumpnode,"jumpnode")
-      // this.timelineAdvancesNumber = jumpnode + 1
-      // this.jumpNodes[jumpnode] = 1
 
-      // this.currentNodeIndex = this.timelineAdvancesNumber
-      console.log(data.plot,"data.plot")
-      if (type === "point") {
-        timeLine.addMakerPoint(data.plot,"标绘点")
-      } else if (type === "polyline") {
-        timeLine.addPolyline(data.plot,"标绘点")
-      } else if (type === "polygon") {
-        timeLine.addPolygon(data.plot,"标绘点")
-      } else if (type === "arrow") {
-        timeLine.addArrow(data.plot,"标绘点")
-      }
-    },
-    wsDeleteMakerFunc(id, markType) {
-      // this.plotisshow[id] = 0
-      if (markType === "point") {
-        // console.log('1111111111111111111111111111123123')
-        cesiumPlot.deletePointById(id);
-      } else if (markType === "polyline") {
-        let polyline = window.viewer.entities.getById(id)
-        let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
-        polylinePosition.pointPosition.forEach((item, index) => {
-          window.viewer.entities.remove(item)
-        })
-        window.viewer.entities.remove(polyline)
-      } else if (markType === "polygon") {
-        window.viewer.entities.removeById(id)
-      } else if (markType === "arrow") {
-        Arrow.clearById(id)
-      }
-    },
+
     //----------------数据end---------------
     //----------------处理实体点击事件的弹窗显示逻辑-----------------
     entitiesClickPonpHandler() {
@@ -2153,7 +2111,7 @@ export default {
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.eqCenterPanelVisible||this.plotShowOnlyPanelVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+        if (this.eqCenterPanelVisible || this.plotShowOnlyPanelVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -2252,50 +2210,6 @@ export default {
 
 
     //------------------未重构----------------------
-    //websocket标绘
-    initWebSocket() {
-      let that = this
-      this.websock = initWebSocket(this.eqid)
-      this.websock.eqid = this.eqid
-      this.websock.onmessage = function (e) {
-        console.log("e commandscreen this.websock.onmessage", e)
-        // try {
-        //   console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
-        //   //上传表（）
-        //   // if(JSON.parse(e.data).operateType==="excel"){
-        //   //   let
-        //   // }
-        //   // // 标绘点
-        //   // else{
-        //   let markType = JSON.parse(e.data).type
-        //   let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
-        //   if (markOperate === "add") {
-        //     if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
-        //       let markData = JSON.parse(e.data).data
-        //       if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-        //         //标绘点
-        //         that.wsAddMakerFunc(markType, markData)
-        //       }
-        //       //播放或播放暂停
-        //       else {
-        //         that.wsaddMakers.push({markType: markType, markData: markData})
-        //       }
-        //     }
-        //   } else if (markOperate === "delete") {
-        //     let id = JSON.parse(e.data).id.toString()
-        //     if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-        //       that.wsDeleteMakerFunc(id, markType)
-        //     } else {
-        //       that.wsdeleteMakers.push({id: id, markType: markType})
-        //     }
-        //   }
-        //   // }
-        //
-        // } catch (err) {
-        //   console.log(err, 'ws中catch到错误');
-        // }
-      };
-    },
 
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
@@ -4927,7 +4841,6 @@ export default {
 }
 
 
-
 .thd-listTablePint {
   width: 26.5%;
   top: 13%;
@@ -5706,7 +5619,7 @@ li {
 }
 
 
-.choose{
+.choose {
   box-sizing: border-box;
   display: flex;
   flex-wrap: nowrap;
@@ -5717,7 +5630,6 @@ li {
 
 
 }
-
 
 
 /*路径规划——清楚实体按钮样式*/
