@@ -1476,7 +1476,7 @@ export default {
           content: [
             {name: "物资查询", action: 'panels.searchSupplyDialog = true', active: false},
             {name: "救援力量查询", action: 'panels.searchEmergencyTeamDialog = true', active: false},
-            {name: "震中半径查询", action: 'searchSuppliesByRadius', active: false}
+            {name: "受灾点半径查询", action: 'searchSuppliesByRadius', active: false}
           ]
         },
         {
