@@ -12,7 +12,7 @@
       <div class="tooltip" :class="{ 'highlight': selectedId === 'jumpRealTime' }"
            @click="selectButton('jumpRealTime'); jumpRealTime()">
         <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png"/>
-        <span class="tooltiptext">真实时间</span>
+        <span class="tooltiptext">时间同步</span>
       </div>
     </div>
     <div class="back_start">
@@ -104,10 +104,10 @@ export default {
           this.currentTimeLocal = currentTimeLocaltmp
         }
         this.ifstopandflash(newVal, oldVal);
-        if (new Date(newVal) >= new Date() && this.flyflag==true) {
-          // viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-          window.viewer.clock.multiplier = 1.0
-        }
+        // if (new Date(newVal) >= new Date() && this.flyflag==true) {
+        //   // viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+        //   window.viewer.clock.multiplier = 1.0
+        // }
       }
     },
     centerPoint(newVal) {
@@ -215,7 +215,7 @@ export default {
         window.viewer.clock.multiplier = 1.0
       }
       else{
-        window.viewer.clock.multiplier = this.currentSpeed
+      window.viewer.clock.multiplier = this.currentSpeed
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
