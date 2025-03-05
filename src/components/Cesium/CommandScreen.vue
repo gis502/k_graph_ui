@@ -635,7 +635,7 @@
         <h2 class="panelName">经纬度跳转</h2>
       </div>
       <div class="panelContent">
-        <div>经度：
+        <div style="margin-left: 20px">经度：
           <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
           ></el-input>
         </div>
@@ -645,7 +645,7 @@
         </div>
       </div>
       <div class="panelButton">
-        <el-button class="panelButtons" @click="clearPositionPanel" ><p style="margin-top:30px">取消</p></el-button>
+        <el-button class="panelButtons" @click="clearPositionPanel" ><p style="margin-top:30px;">取消</p></el-button>
         <el-button class="panelButtons" type="primary" @click="flyToPosition" >
           <p style="margin-top: 30px">跳转</p>
         </el-button>
@@ -957,7 +957,7 @@ import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
-import {AmapApiLocal} from "@/utils/server.js";
+import {AmapApiLocal, tianditu} from "@/utils/server.js";
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf";
 import routePlanningIcon from '../../assets/icons/svg/routePlanning.svg';
 import rescueForceMatchingIcon from '../../assets/icons/svg/rescueForceMatching.svg';
@@ -3900,7 +3900,7 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
           new Cesium.WebMapTileServiceImageryProvider({
             // 天地图交通图层的URL模板
-            url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+            url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
             layer: "tdtAnnoLayer",
             style: "default",
             format: "image/jpeg", // 根据实际返回的图像格式调整
@@ -5302,9 +5302,10 @@ export default {
   display: flex; /* 让按钮横向排列 */
   justify-content: space-between; /* 按钮左右分布 */
   align-items: center;
-  width: auto; /* 适应内容 */
+  width: 25%; /* 适应内容 */
   gap: 12px; /* 按钮之间的间距 */
   padding: 0 16px 16px 0; /* 保留原来的 padding */
+  margin-top: 30px;
 }
 
 .universalPanel {
