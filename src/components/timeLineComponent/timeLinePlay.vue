@@ -2,7 +2,7 @@
   <div>
     <div class="topCurrentTimeLabel">
       {{ this.currentTimeLocal }}
-<!--      {{ this.currentTimeLocal }}-->
+      <!--      {{ this.currentTimeLocal }}-->
     </div>
 
     <div class="start-time-info">
@@ -10,32 +10,37 @@
     </div>
 
     <div class="jump_realTime" v-if="ifNewEq">
-      <div class="tooltip" :class="{ 'highlight': selectedId === 'jumpRealTime' }" @click="selectButton('jumpRealTime'); jumpRealTime()">
-        <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png" />
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'jumpRealTime' }"
+           @click="selectButton('jumpRealTime'); jumpRealTime()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/时钟.png"/>
         <span class="tooltiptext">真实时间</span>
       </div>
     </div>
     <div class="back_start">
-      <div class="tooltip" :class="{ 'highlight': selectedId === 'backStart' }" @click="selectButton('backStart'); backToStart()">
-        <img class="play-icon" src="../../assets/icons/TimeLine/重播.png" />
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'backStart' }"
+           @click="selectButton('backStart'); backToStart()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/重播.png"/>
         <span class="tooltiptext">回到开始</span>
       </div>
     </div>
     <div class="play_back">
-      <div class="tooltip" :class="{ 'highlight': selectedId === 'playBack' }" @click="selectButton('playBack'); playBack()">
-        <img class="play-icon" src="../../assets/icons/TimeLine/向后播放.png" />
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'playBack' }"
+           @click="selectButton('playBack'); playBack()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/向后播放.png"/>
         <span class="tooltiptext">向后播放</span>
       </div>
     </div>
     <div class="play_end">
-      <div class="tooltip" :class="{ 'highlight': selectedId === 'playEnd' }" @click="selectButton('playEnd'); playEnd()">
-        <img class="play-icon" src="../../assets/icons/TimeLine/停止.png" />
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'playEnd' }"
+           @click="selectButton('playEnd'); playEnd()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/停止.png"/>
         <span class="tooltiptext">停止</span>
       </div>
     </div>
     <div class="play_start">
-      <div class="tooltip" :class="{ 'highlight': selectedId === 'playStart' }" @click="selectButton('playStart'); playStart()">
-        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png" />
+      <div class="tooltip" :class="{ 'highlight': selectedId === 'playStart' }"
+           @click="selectButton('playStart'); playStart()">
+        <img class="play-icon" src="../../assets/icons/TimeLine/播放.png"/>
         <span class="tooltiptext">播放</span>
       </div>
     </div>
@@ -86,9 +91,9 @@ export default {
       timeRecoard: [],
       plotArrinOneTime: [], // 假设这是你的点数组
       endflag: false, // 控制飞行结束的标志
-      flyflag:true,//视角是否跳转？只有依次向前播放时才跳
+      flyflag: true,//视角是否跳转？只有依次向前播放时才跳
       currentTimeLocal: this.timestampToTimeChina(new Date()),
-      entitylabelId:null,//当前闪烁的点的标签
+      entitylabelId: null,//当前闪烁的点的标签
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
@@ -97,18 +102,17 @@ export default {
       // console.log("newVal:", newVal, "oldVal:", oldVal);
       if (newVal && oldVal && newVal !== oldVal) {
         //有时候输入的值不是nan,调用函数读取的参数也不是nan，但是取转换成呢哇Date格式，时间是invalid data
-        let currentTimeLocaltmp=this.timestampToTimeChina(this.currentTime)
-        if( currentTimeLocaltmp!="NaN年0NaN月0NaN日 0NaN:0NaN:0NaN"){
-          this.currentTimeLocal=currentTimeLocaltmp
+        let currentTimeLocaltmp = this.timestampToTimeChina(this.currentTime)
+        if (currentTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+          this.currentTimeLocal = currentTimeLocaltmp
         }
         this.ifstopandflash(newVal, oldVal);
+        // console.log(this.flyflag, "this.flyflag currentTime")
         //到达真实时间，向前播放，1:1流速
-        if(new Date(newVal)>=new Date()&&window.viewer.clock.multiplier>0&& this.flyflag==true){
-          // if(){
-            viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-          // }
-          window.viewer.clock.multiplier=1.0
-        }
+        // if (new Date(newVal) >= new Date() && window.viewer.clock.multiplier > 0 && this.flyflag == true) {
+        //   viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+        //   window.viewer.clock.multiplier = 1.0
+        // }
       }
     },
     centerPoint(newVal) {
@@ -123,8 +127,9 @@ export default {
     viewer(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
       window.viewer.timeline.container.onmouseup = (e) => {
-        this.flyflag=false
-          this.playEnd()
+        // this.flyflag = false
+        // console.log(this.flyflag, "this.flyflag viewer")
+        this.playEnd()
       }
     }
   },
@@ -185,52 +190,46 @@ export default {
       this.selectedId = id; // 更新选中的按钮ID
     },
     jumpRealTime() {
-      // window.viewer.clock.multiplier = this.currentSpeed
       window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-      this.flyflag=false
+      this.flyflag = false
+      this.endflag = true;
     },
     backToStart() {
       window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
-      this.flyflag=true
+      this.flyflag = true
       this.endflag = true;
     },
-    playBack(){
-      if(window.viewer.clock.multiplier>0){
-        window.viewer.clock.multiplier = this.currentSpeed*(-1.0)
+    playBack() {
+      if (window.viewer.clock.multiplier > 0) {
+        window.viewer.clock.multiplier = this.currentSpeed * (-1.0)
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
-      this.flyflag=false
+      this.flyflag = false
     },
     playEnd() {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
-      timeLine.makerLabelsShow(this.plotArrinOneTime)
-      console.log(this.entitylabelId,"entitylabelId")
-      let entitytmp=window.labeldataSource.entities.getById(this.entitylabelId+"_label")
-      console.log(entitytmp,"entitytmp11")
-      if(entitytmp ){
-
-        window.labeldataSource.entities.removeById(this.entitylabelId+"_label");
-        // this.entitylabel.show=false
-      }
       this.selectButton("playEnd")
+
+      timeLine.makerLabelsShowPersonAndResouce(this.plots)
+      // console.log(this.entitylabelId, "entitylabelId")
+      // console.log(window.labeldataSource.entities,"window.labeldataSource.entities")
+      // let entitytmp = window.labeldataSource.entities.getById(this.entitylabelId + '_label')
+      // let entitytmp = window.labeldataSource.entities.getById('4a64e47c-3bf6-44b7-966b-c7ac62eb25c9_label')
+      // console.log(entitytmp, "entitytmp11")
+      // if (entitytmp) {
+      //   window.labeldataSource.entities.remove(entitytmp);
+      // }
+
     },
     playStart() {
-      // if(new Date(this.currentTime)>=new Date()&&window.viewer.clock.multiplier>0){
-      //   viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-      //   window.viewer.clock.multiplier=1.0
-      // }
-      // else{
-        // if(window.viewer.clock.multiplier<0){
-        window.viewer.clock.multiplier = this.currentSpeed
-        // }
-      // }
+      window.viewer.clock.multiplier = this.currentSpeed
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
-      this.flyflag=true
+      this.flyflag = true
     },
     selectSpeed(speed) {
       // 直接赋值速度选项
@@ -268,49 +267,46 @@ export default {
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
         //标签
-        let entitylabel=null
+        let entitylabel = null
         let plotId = item.plotId
 
         let plotType = item.plotType
-        if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍")
-        {
-          entitylabel=window.labeldataSource.entities.getById(item.plotId + '_label');
-          entitylabel.show=true
-        }
-        else
-        {
+        if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+          entitylabel = window.labeldataSource.entities.getById(item.plotId + '_label');
+          entitylabel.show = true
+        } else {
+          this.entitylabelId = plotId
           getPlotInfos({plotId, plotType}).then(res => {
             let labeltext = timeLine.labeltext(plotType, res)
-            entitylabel=timeLine.addPointLabel(item, labeltext)
-            this.entitylabelId=plotId
+            entitylabel = timeLine.addPointLabel(item, labeltext)
           })
         }
-
+        console.log(this.entitylabelId, "entitylabelId111")
         console.log(item, "plotArrinOneTime fly");
         console.log(this.endflag, "this.endflag111")
         if (this.endflag) {
           console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
+          timeLine.makerLabelsShowPersonAndResouce(this.plots)
           break; // 终止循环
         }
         try {
           // 飞到指定点
           await timeLine.fly(item.longitude, item.latitude, 20000);
           console.log(Date.now(), "fly completed");
-
           console.log(this.endflag, "this.endflag222")
           if (this.endflag) {
             console.log(index, this.plotArrinOneTime.length, "终止飞行222");
+            timeLine.makerLabelsShowPersonAndResouce(this.plots)
             break; // 终止循环
           }
           // 等待3秒
           await timeLine.blinkMarker(item);
           if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+          } else {
+            let entitytmp = window.labeldataSource.entities.removeById(item.plotId + "_label");
+            console.log(entitytmp, "entitytmp")
           }
-          else {
-            let entitytmp=window.labeldataSource.entities.removeById(item.plotId+"_label");
-            console.log(entitytmp,"entitytmp")
-          }
-          console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
+          // console.log(index, this.plotArrinOneTime.length, "等待3秒后继续");
         } catch (error) {
           console.error("飞行过程中发生错误:", error);
           break; // 发生错误时终止循环
@@ -325,11 +321,10 @@ export default {
     },
     blinkMarker(plot) {
       return new Promise((resolve) => {
-        let entity=null
-        if(plot.drawtype === 'point'){
-          entity =window.pointDataSource.entities.getById(plot.plotId);
-        }
-        else{
+        let entity = null
+        if (plot.drawtype === 'point') {
+          entity = window.pointDataSource.entities.getById(plot.plotId);
+        } else {
           entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
         }
         if (!entity) {
@@ -351,21 +346,20 @@ export default {
       });
     },
     ifstopandflash(currentTime, oldCurrentTime) {
-      if(this.flyflag==false){
-        return;}
+      if (this.flyflag == false) {
+        return;
+      }
       this.plotArrinOneTime = this.plots.filter(plot => {
         return this.ifArriveTime(currentTime, oldCurrentTime, plot.startTime);
       });
       console.log(this.endflag, "this.endflag444")
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
-        // timeLine.makerLabelsShow(this.plotArrinOneTime)
+        timeLine.makerLabelsShowPersonAndResouce(this.plots)
         console.log("终止333");
         return
-      }
-      else {
+      } else {
         if (this.plotArrinOneTime.length > 0) {
-          // console.log(this.plotArrinOneTime, "this.plotArrinOneTime ")
           window.viewer.clockViewModel.shouldAnimate = false;
           timeLine.markerLabelsHidden(this.plotArrinOneTime)
           this.flyToPointsSequentially()
@@ -427,7 +421,8 @@ export default {
   bottom: 3%;
   left: 40.5%;
 }
-.play_back{
+
+.play_back {
   position: absolute;
   bottom: 3%;
   left: 42%;
@@ -438,6 +433,7 @@ export default {
   bottom: 3%;
   left: 43.5%;
 }
+
 .play_start {
   position: absolute;
   bottom: 3%;

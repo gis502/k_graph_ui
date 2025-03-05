@@ -200,8 +200,7 @@ let timeLine = {
 
 
             return pointDataSource
-        }
-        else if (datasourcename === "label") {
+        } else if (datasourcename === "label") {
             let labeldataSource = null
             if (window.viewer && window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'label')) {
                 labeldataSource = window.labeldataSource
@@ -807,7 +806,7 @@ let timeLine = {
         // console.log(data,"data addPointLabel")
         let labeldataSource = this.addDataSourceLayer("label")
         if (labeldataSource) {
-            let id=data.plotId + '_label'
+            let id = data.plotId + '_label'
             // if()
             if (labeldataSource.entities.getById(id)) {
                 labeldataSource.entities.removeById(id);  // 删除已存在的多边形实体
@@ -895,35 +894,45 @@ let timeLine = {
         })
     },
     //标签显示隐藏
-    markerLabelsHidden(plots){
+    markerLabelsHidden(plots) {
         plots.forEach(item => {
             // console.log(item)
-                let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
+            let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
+            // console.log(entity, "entity")
+            if (entity) {
+                entity.show = false
+            }
 
         })
     },
-    makerLabelsShow(plots){
+    //只显示人员伤亡和救援队伍
+    makerLabelsShowPersonAndResouce(plots) {
         plots.forEach(item => {
-            // console.log(item)
-            let entity = window.labeldataSource.entities.getById(item.plotId+ '_label')
-            // console.log(entity, "entity")
-            if (entity) {
-                entity.show = true
+            if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+                let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
+                console.log(entity,"entity show")
+                if (entity) {
+                    entity.show = true
+                }
             }
+            else{
+
+                let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
+                console.log(item.plotId,entity,"entity not show")
+                if (entity) {
+                    entity.show = false
+                }
+            }
+
         })
     },
     //闪烁
     blinkMarker(plot) {
         return new Promise((resolve) => {
-            let entity=null
-            if(plot.drawtype === 'point'){
-                entity =window.pointDataSource.entities.getById(plot.plotId);
-            }
-            else{
+            let entity = null
+            if (plot.drawtype === 'point') {
+                entity = window.pointDataSource.entities.getById(plot.plotId);
+            } else {
                 entity = window.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
             }
             if (!entity) {
