@@ -195,6 +195,7 @@ import {Delete, Edit} from '@element-plus/icons-vue'
 import {plotType as plotTypeDialog} from '@/cesium/plot/plotType.js'
 import {getPlotInfos, addPlotInfo, deletePlotAndInfo, deletePlotInfo, updataPlotInfo} from '@/api/system/plot.js'
 import arrow from "@/cesium/drawArrow/drawPlot.js";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 
 export default {
   data() {
@@ -316,37 +317,44 @@ export default {
     // 删除标绘点
     deletePlot() {
       let arraw = false
-
       let data = {
         plotId: null,
-        plotType: null
+        plotType: null,
+        drawType:null,
       }
 
       if (this.popupPanelData.drawtype === 'point') {
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
+        data.drawType='point'
       } else if (this.popupPanelData.drawtype === 'straight') {
-        arraw = true
+        // arraw = true
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
+        data.drawType='arraw'
       } else if (this.popupPanelData.drawtype === 'attack') {
-        arraw = true
+        // arraw = true
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
+        data.drawType='arraw'
       } else if (this.popupPanelData.drawtype === 'pincer') {
-        arraw = true
+        // arraw = true
         data.plotId = this.popupPanelData.plotId
         data.plotType = this.popupPanelData.plotType
+        data.drawType='arraw'
       } else {
         if (this.popupPanelData[0].drawtype === 'polyline') {
           data.plotId = this.popupPanelData[0].plotId
           data.plotType = this.popupPanelData[0].plotType
+          data.drawType='polyline'
         } else {
           data.plotId = this.popupPanelData[0].plotId
           data.plotType = this.popupPanelData[0].plotType
+          data.drawType='polygon'
         }
       }
       deletePlotInfo(data).then(res => {
+
         this.$emit('updateQuery')
         // 从 dataSource 中删除点
         window.viewer.entities.removeById(data.plotId)
@@ -367,9 +375,9 @@ export default {
             window.labeldataSource.entities.remove(entitylabel); // 移除点
           }
         }
-        this.deletePoint(arraw, data.plotId)
+        this.deletePoint(data.drawType, data.plotId)
         console.log("data.plotId----------------", data.plotId)
-        if (arraw) {
+        if (data.drawType==="arraw") {
           arrow.clearById(data.plotId)
           arraw = false
         }
@@ -503,50 +511,22 @@ export default {
 
     },
     // 删除标注
-    deletePoint(bool, id) {
+    deletePoint(drawType, id) {
       // console.log("window.selectedEntity.id-----------------",window.selectedEntity.objId)
       this.$emit('closePlotPop')
-      if (bool) {
-        this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "delete", id: id}))
-      } else {
-        this.$emit('wsSendPoint', JSON.stringify({type: "point", operate: "delete", id: id}))
-      }
+      // if (bool) {
+      //   this.$emit('wsSendPoint', JSON.stringify({type: "arrow", operate: "delete", id: id}))
+      // } else {
+        this.$emit('wsSendPoint', JSON.stringify({type: drawType, operate: "delete", id: id}))
+      // }
     },
     // 时间戳转换成日期格式，将时间戳转换成 xx年xx月xx日xx时xx分xx秒格式，
     // 形参timestamp必须时整型时间戳，字符串类型时间戳得到的时NaN。
     timestampToTime(timestamp) {
-      let DateObj = new Date(timestamp)
-      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}-${month}-${day}T${hh}:${mm}:${ss}`
+      return timeTransfer.timestampToTime(timestamp)
     },
     timestampToTimeChinese(timestamp) {
-      let DateObj = new Date(timestamp)
-      // 将时间转换为 XX年XX月XX日XX时XX分XX秒格式
-      let year = DateObj.getFullYear()
-      let month = DateObj.getMonth() + 1
-      let day = DateObj.getDate()
-      let hh = DateObj.getHours()
-      let mm = DateObj.getMinutes()
-      let ss = DateObj.getSeconds()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      hh = hh > 9 ? hh : '0' + hh
-      mm = mm > 9 ? mm : '0' + mm
-      ss = ss > 9 ? ss : '0' + ss
-      // return `${year}年${month}月${day}日${hh}时${mm}分${ss}秒`
-      return `${year}年${month}月${day}日 ${hh}:${mm}:${ss}`
+      return timeTransfer.timestampToTimeChina(timestamp)
     },
     // 生成uuid
     guid() {

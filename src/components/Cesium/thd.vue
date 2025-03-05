@@ -812,7 +812,7 @@ export default {
       dragStartX: 0,
       jumpTimes: [],
       jumpNodes: {},
-      smallViewer: null,
+      // smallViewer: null,
 
       //-------------ws---------------------
       websock: null,
@@ -1134,7 +1134,6 @@ export default {
   },
   mounted() {
     this.init()
-    this.startRealTimeClock('current-time', 'current-date');//菜单栏左上角实时获取时间
     this.initModelTable(); // 初始化模型table数据
     this.watchTerrainProviderChanged();
     this.getEqInfo(this.eqid)
@@ -1153,10 +1152,6 @@ export default {
     if (window.viewer) {
       this.clearResource(window.viewer)
       window.viewer = null;
-    }
-    if (window.smallViewer) {
-      this.clearResource(window.smallViewer)
-      window.smallViewer = null;
     }
   },
   methods: {
@@ -1271,79 +1266,6 @@ export default {
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 
-      // 创建缩略图视图器实例
-      let smallMapContainer = document.getElementById('smallMapContainer');
-      let smallViewer = initCesium(Cesium, smallMapContainer)
-      window.smallViewer = smallViewer
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none'
-      let smallOptions = {}
-      smallOptions.enableCompass = false
-      smallOptions.enableZoomControls = false
-      smallOptions.enableDistanceLegend = false
-      smallOptions.enableCompassOuterRing = false
-      smallOptions.geocoder = false
-      smallOptions.homeButton = false
-      smallOptions.sceneModePicker = false
-      smallOptions.timeline = false
-      smallOptions.navigationHelpButton = false
-      smallOptions.animation = false
-      smallOptions.infoBox = false
-      smallOptions.fullscreenButton = false
-      smallOptions.showRenderState = false
-      smallOptions.selectionIndicator = false
-      smallOptions.baseLayerPicker = false
-      smallOptions.selectedImageryProviderViewModel = viewer.imageryLayers.selectedImageryProviderViewModel
-      smallOptions.selectedTerrainProviderViewModel = viewer.terrainProviderViewModel
-      window.navigation = new CesiumNavigation(smallViewer, smallOptions)
-      smallMapContainer.getElementsByClassName('cesium-viewer-toolbar')[0].style.display = 'none';
-
-      smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            // url: "http://t0.tianditu.gov.cn/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&tk=" +
-            url: `${tianditu}/vec_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg&&tk=${TianDiTuToken}`,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
-      smallViewer.imageryLayers.addImageryProvider(
-          new Cesium.WebMapTileServiceImageryProvider({
-            url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
-            layer: "tdtAnnoLayer",
-            style: "default",
-            format: "image/jpeg",
-            tileMatrixSetID: "GoogleMapsCompatible"
-          })
-      );
-
-      // 隐藏缩略图视图器的版权信息
-      smallViewer._cesiumWidget._creditContainer.style.display = 'none';
-
-      // 同步主视图器的相机到缩略图视图器
-      function syncCamera() {
-        const camera1 = viewer.scene.camera;
-        let smallPoint = Cesium.Cartesian3.fromRadians(camera1.positionCartographic.longitude, camera1.positionCartographic.latitude, camera1.positionCartographic.height + 2000)
-        const camera2 = smallViewer.scene.camera;
-        camera2.setView({
-          destination: smallPoint,
-          orientation: {
-            heading: camera1.heading,
-            pitch: camera1.pitch,
-            roll: camera1.roll
-          }
-        });
-      }
-
-      // 监听主视图器的相机变化
-      viewer.scene.camera.changed.addEventListener(syncCamera);
-
-      // 每帧渲染时同步缩略图视图
-      viewer.scene.postRender.addEventListener(function () {
-        smallViewer.scene.requestRender(); // 确保缩略图更新
-      });
-      // 初始同步
-      syncCamera();
       this.initWebSocket()
       this.initcesiumPlot()
     },
@@ -3964,37 +3886,6 @@ export default {
 
     // ------------------------------路径规划+物资匹配---------------------------
 
-
-    // bool参数代表是否需要使用标会点动画，若bool为false，则不需要；若调用updatePlot方法不传参则默认需要
-    // 暂停播放切换
-    // toggleTimer() {
-    //   // 如果计时器未运行，则初始化计时器线
-    //   if (!this.isTimerRunning && (this.currentTimePosition >= 100 || this.currentTimePosition <= 0)) {
-    //     this.isTimerRunning = true
-    //     this.initTimerLine();
-    //     let that = this
-    //     setTimeout(() => {
-    //       this.canOperateTimerLine = true
-    //       that.bofang();
-    //     }, 3000);
-    //   } else {
-    //
-    //
-    //     this.canOperateTimerLine = true
-    //     if (!this.isTimerRunning) {
-    //       this.flyToCenter()
-    //       this.isTimerRunning = true
-    //       this.bofang();
-    //     }
-    //     // 如果计时器正在运行，则停止计时器
-    //     else {
-    //       this.stopTimer();
-    //       clearInterval(this.intervalIdcolor)
-    //       this.centerMarkOpacityTo1()
-    //     }
-    //
-    //   }
-    // },
     toggleTimer() {
       if (this.isTimerRunning) {
         this.canOperateTimerLine = true
@@ -4458,7 +4349,6 @@ export default {
     },
     //震中红色中心点闪烁
     flashingCenter() {
-
       //震中点闪烁
       let data = {
         ...this.centerPoint,
@@ -4520,49 +4410,6 @@ export default {
       centerMark.billboard.color = new Cesium.CallbackProperty(() => {
         return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
       }, false)
-
-      //缩略图中心点闪烁
-      let smallcenterMark = smallViewer.entities.getById(this.centerPoint.plotid);
-      if (!smallcenterMark) {
-        smallcenterMark = smallViewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(
-              // parseFloat(this.centerPoint.geom.coordinates[0]),
-              // parseFloat(this.centerPoint.geom.coordinates[1]),
-              parseFloat(this.centerPoint.longitude),
-              parseFloat(this.centerPoint.latitude),
-              parseFloat(this.centerPoint.height || 0)
-          ),
-          billboard: {
-            image: centerstar,
-            width: 40,
-            height: 40,
-            eyeOffset: new Cesium.Cartesian3(0, 0, 0),
-            scale: 0.8,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            depthTest: false,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            color: Cesium.Color.WHITE.withAlpha(1),
-          },
-          label: {
-            text: this.centerPoint.earthquakeName,
-            show: true,
-            font: '10px sans-serif',
-            fillColor: Cesium.Color.RED,        //字体颜色
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            outlineWidth: 2,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(0, -16),
-          },
-          id: this.centerPoint.plotid,
-          plottype: "震中",
-        });
-      }
-      smallcenterMark.billboard.color = new Cesium.CallbackProperty(() => {
-        return Cesium.Color.fromCssColorString(`rgba(255, 255, 255, ${colorFactor})`); // 动态改变颜色
-      }, false)
-
       //震中面板展开+跟随地图移动
       this.timelinePopupShowCenterStrart = true
       let position = centerMark.position.getValue(Cesium.JulianDate.now());
@@ -6118,29 +5965,7 @@ export default {
     /*获取目前相机所属高度*/
 
 
-    //   菜单栏左上角实时获取时间代码
-    startRealTimeClock(timeElementId, dateElementId) {
-      function updateTime() {
-        const now = new Date();
-        const time = now.toLocaleTimeString('zh-CN', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-        const date = now.toLocaleDateString('zh-CN', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          weekday: 'long'
-        });
-        document.getElementById(timeElementId).textContent = time;
-        document.getElementById(dateElementId).textContent = date;
-      }
 
-      updateTime();
-      setInterval(updateTime, 1000);
-    },
 
     // ------------------------------图层要素---------------------------------------------------
     handleCheckChange(data, checked, indeterminate) {

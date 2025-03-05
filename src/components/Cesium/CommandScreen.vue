@@ -658,14 +658,14 @@
         <h2 class="panelName">图层管理</h2>
       </div>
       <el-tree
-        default-expand-all="true"
-        ref="tree"
-        node-key="id"
-        :props="props"
-        :load="loadNode"
-        :default-checked-keys="selectedlayersLocal"
-        lazy
-        @check="handleCheckChange"
+          default-expand-all="true"
+          ref="tree"
+          node-key="id"
+          :props="props"
+          :load="loadNode"
+          :default-checked-keys="selectedlayersLocal"
+          lazy
+          @check="handleCheckChange"
       >
         <template #default="{ node, data }">
           <!-- 根节点，显示图标和文字 -->
@@ -675,8 +675,8 @@
                   <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
                         <path
-                          d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                          p-id="6182" fill="#ffffff"></path>
+                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
+                            p-id="6182" fill="#ffffff"></path>
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
@@ -685,8 +685,8 @@
                   <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
                        xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
                         <path
-                          d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                          fill="#ffffff" p-id="2696"></path>
+                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
+                            fill="#ffffff" p-id="2696"></path>
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
@@ -1093,15 +1093,14 @@ export default {
       isCameraStopped: false,   // 标记相机是否停止
 
       isTimeRunning: true,
-      plots: [],
+      plots: [], //用来控制标绘点图层显示隐藏
       zoomLevel: '市', // 初始化缩放层级
       viewCenterCoordinate: {
         lon: null,
         lat: null
       },//视角中心坐标
-      hasUpdatedPosition:false,
-      //------------------未整理-----------------------
-// -----------弹窗们的状态变量-------------
+      //---信息弹框---
+      hasUpdatedPosition: false,
       selectedEntityPosition: '', //拾取的点的弹框位置
       eqCenterPanelVisible:false,
 
@@ -1447,9 +1446,9 @@ export default {
       showModelPanel: false,// 三维模型弹框状态
       showSlopeAnalysis: false,// 坡面分析弹框状态
 
-      showPeopleLegend:false, // 指挥大屏-图层管理-人员伤亡图层图例状态
-      showBuildingLegend:false, // 指挥大屏-图层管理-建筑损毁图层图例状态
-      showEconomicLegend:false, // 指挥大屏-图层管理-经济损失图层图例状态
+      showPeopleLegend: false, // 指挥大屏-图层管理-人员伤亡图层图例状态
+      showBuildingLegend: false, // 指挥大屏-图层管理-建筑损毁图层图例状态
+      showEconomicLegend: false, // 指挥大屏-图层管理-经济损失图层图例状态
 
 
       props: {
@@ -1467,8 +1466,7 @@ export default {
           content: [
             {name: "路径规划", action: 'route', active: false},
             {name: "添加障碍区", action: 'addArea', active: false},
-            {name: "清空实体", action: 'removeAll', active: false},
-            // {name: "清空实体", action: 'panels.showRemove = true', active: false},
+            {name: "清空实体", action: 'panels.showRemove = true', active: false},
           ]
         },
         {
@@ -1492,8 +1490,8 @@ export default {
       ],
 
       // 指挥大屏-灾损
-      carouselIndex:0,// 索引
-      layerData:{},// 图层渲染数据
+      carouselIndex: 0,// 索引
+      layerData: {},// 图层渲染数据
       // 地震专题
       eqThemes: {
         allEles: [
@@ -1625,7 +1623,7 @@ export default {
     }
   },
   methods: {
-    //--地图初始化--
+    //------------------地图初始化---------------
     init() {
       let clock;
       getEqListById({id: this.eqid}).then(res => {
@@ -1679,7 +1677,7 @@ export default {
           isThirdParty = !isThirdParty;
         };
 
-// 绑定按钮点击事件
+        // 绑定按钮点击事件
         document.getElementById('slope').addEventListener('click', switchToLocalDEM);
         let options = {}
         // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
@@ -1842,7 +1840,10 @@ export default {
         this.zoomLevel = '市'
       }
     },
-    //--请求数据--物资储备--
+    //-----------------地图初始化end------------------
+
+    //-----------------数据请求与传值---------------
+    // ---物资储备--
     initPlot() {
       getFeaturesLayer().then(res => {
         // 解构赋值，从响应数据中提取灾害储备、应急队伍和应急避难所的信息
@@ -1876,13 +1877,51 @@ export default {
         this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
       });
     },
-    //----时间轴组件传值--
+    //----标绘点（来源数据库）----
     updatePlots(plots) {
       console.log(this.plots, "plots updatePlots")
       this.plots = plots
     },
-    //--处理实体点击事件的弹窗显示逻辑--
+    //---标绘点（websocket）---
+    initWebSocket() {
+      let that = this
+      this.websock = initWebSocket(this.eqid)
+      this.websock.onmessage = function (e) {
+        console.log("e commandscreen this.websock.onmessage", e)
+        try {
+          console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
+          let drawType = JSON.parse(e.data).type
+          let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
+          if (markOperate === "add") {
+            if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
+              let markData = JSON.parse(e.data).data
+              markData.plot.longitude = Number(markData.plot.geom.coordinates[0])
+              markData.plot.latitude = Number(markData.plot.geom.coordinates[1])
+              that.plots.push(markData.plot)
+              if (drawType === "point") {
+                timeLine.addMakerPoint(markData.plot, "标绘点")
+              } else if (drawType === "polyline") {
+                timeLine.addPolyline(markData.plot, "标绘点")
+              } else if (drawType === "polygon") {
+                timeLine.addPolygon(markData.plot, "标绘点")
+              } else if (drawType === "arrow") {
+                timeLine.addArrow(markData.plot, "标绘点")
+              }
+            }
+          } else if (markOperate === "delete") {
+            let polyId = JSON.parse(e.data).id.toString()
+            that.plots = that.plots.filter(plot => plot.plotId !== polyId);
+            timeLine.deletePointById(polyId,drawType)
+          }
+        } catch (err) {
+          console.log(err, 'ws中catch到错误');
+        }
+      };
+    },
 
+
+    //----------------数据end---------------
+    //----------------处理实体点击事件的弹窗显示逻辑-----------------
     entitiesClickPonpHandler() {
       let that = this;
       // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
@@ -1962,7 +2001,7 @@ export default {
             this.routerPanelData = this.extractDataForRouter(entity);
           }
           //资源调度——救灾物资储备、雅安应急队伍
-          else if (entity._layer === "救灾物资储备" || entity._layer === "雅安应急队伍" ) {
+          else if (entity._layer === "救灾物资储备" || entity._layer === "雅安应急队伍") {
             this.eqCenterPanelVisible = false;
             this.routerPopupVisible = true;
             this.dataSourcePopupVisible = false;
@@ -1980,24 +2019,24 @@ export default {
             } else {
               //----
 
-              let popupPanelDatatmp = entity.filter(item => item.plottype !==undefined);
+              let popupPanelDatatmp = entity.filter(item => item.plottype !== undefined);
 
-                const drawTypes = popupPanelDatatmp.map(obj => obj.plottype);
-                console.log(drawTypes)
-                this.data = drawTypes.reduce((acc, type) => {
-                  if (acc[type]) {
-                    acc[type] += 1;
-                  } else {
-                    acc[type] = 1;
-                  }
+              const drawTypes = popupPanelDatatmp.map(obj => obj.plottype);
+              console.log(drawTypes)
+              this.data = drawTypes.reduce((acc, type) => {
+                if (acc[type]) {
+                  acc[type] += 1;
+                } else {
+                  acc[type] = 1;
+                }
 
-                  return acc;
-                }, {});
+                return acc;
+              }, {});
 
-                this.dataSourcePopupData = Object.entries(this.data).map(([key, value]) => ({
-                  type: key,
-                  count: value
-                }));
+              this.dataSourcePopupData = Object.entries(this.data).map(([key, value]) => ({
+                type: key,
+                count: value
+              }));
 
               // this.dataSourcePopupData = entity
               this.dataSourcePopupVisible = true
@@ -2051,10 +2090,10 @@ export default {
             }
             this.plotShowOnlyPanelVisible = true;
           }
-         //断裂带
-         else {
+          //断裂带
+          else {
             // 如果不是标绘点或路标
-            this.eqCenterPanelVisible=false;
+            this.eqCenterPanelVisible = false;
             this.routerPopupVisible = false;
             this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false
@@ -2064,7 +2103,7 @@ export default {
         else {
           // 没有选中实体时隐藏 faultInfo
           // faultInfoDiv.style.display = 'none';
-          this.eqCenterPanelVisible=false;
+          this.eqCenterPanelVisible = false;
           this.routerPopupVisible = false;
           this.plotShowOnlyPanelVisible = false;
           this.dataSourcePopupVisible = false
@@ -2073,7 +2112,7 @@ export default {
       // 在屏幕空间事件处理器中添加鼠标移动事件的处理逻辑
       window.viewer.screenSpaceEventHandler.setInputAction(movement => {
         // 如果时间线弹窗或路由弹窗可见，则更新弹窗位置
-        if (this.eqCenterPanelVisible||this.plotShowOnlyPanelVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
+        if (this.eqCenterPanelVisible || this.plotShowOnlyPanelVisible || this.routerPopupVisible || this.dataSourcePopupVisible) {
           this.updatePopupPosition();
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
@@ -3029,9 +3068,6 @@ export default {
       this.propertiesId = [];
       this.showTips = false;
       this.panels.showRemove = false;
-
-
-
     },
 
     //删除障碍区域
@@ -4164,10 +4200,9 @@ export default {
           duration: 2, // 飞行时间
         });
       } else {
-        this.$message.error("请输入有效的经度、纬度值！");
+        this.$message.error("请输入有效的经度、纬度和高度值！");
       }
     },
-
 
     clearPositionPanel() {
       this.positionFlyTo.lon = ''
@@ -4676,7 +4711,6 @@ export default {
 }
 
 
-
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
   bottom: 1% !important;
@@ -4968,7 +5002,6 @@ export default {
   top: 6.3%;
   left: 20%;
 }
-
 
 
 .thd-listTablePint {
@@ -5367,7 +5400,7 @@ export default {
 }
 
 .panelButtons {
-  display: flex;  /* 让按钮横向排列 */
+  display: flex; /* 让按钮横向排列 */
   justify-content: space-between; /* 按钮左右分布 */
   align-items: center;
   width: auto; /* 适应内容 */
@@ -5757,7 +5790,6 @@ li {
 
 
 }
-
 
 
 /*路径规划——清楚实体按钮样式*/
