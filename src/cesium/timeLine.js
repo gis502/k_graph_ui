@@ -894,6 +894,7 @@ let timeLine = {
         })
     },
     //标签显示隐藏
+    //隐藏所有标签
     markerLabelsHidden(plots) {
         plots.forEach(item => {
             // console.log(item)
@@ -916,7 +917,6 @@ let timeLine = {
                 }
             }
             else{
-
                 let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
                 console.log(item.plotId,entity,"entity not show")
                 if (entity) {
