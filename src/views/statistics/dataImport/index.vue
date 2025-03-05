@@ -257,7 +257,7 @@ import {ElMessage} from "element-plus";
 import {ref} from "vue";
 import {getExcelUploadEarthquake, getExcelUploadEqList} from "@/api/system/eqlist.js";
 import * as XLSX from 'xlsx';
-import {initWebSocket, websocketonmessage} from '@/cesium/WS.js'
+import {initWebSocket} from '@/cesium/WS.js'
 import {webSocketLocal} from "@/utils/server.js";
 
 export default {

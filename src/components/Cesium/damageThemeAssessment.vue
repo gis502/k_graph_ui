@@ -41,7 +41,7 @@
       </div>
     </el-carousel-item>
     <el-carousel-item>
-      <div class="economic-item">
+      <div class="economic-item" style="left: -4%;">
         <div class="economic-table">
           <div class="pop">
             <div class="pop_header">
@@ -468,8 +468,9 @@ export default {
       const option = {
         tooltip: {},
         grid: {
-          left: '15%',
+          left: '10%',
           right: '5%',
+          top:'20%',
           bottom: '10%',
           containLabel: true
         },
@@ -590,8 +591,9 @@ export default {
       const option = {
         tooltip: {},
         grid: {
-          left: '15%',
+          left: '10%',
           right: '5%',
+          top:'20%',
           bottom: '10%',
           containLabel: true,
         },
@@ -770,7 +772,6 @@ export default {
 
 .tables {
   height: 280px;
-  padding: 0 30px;
 }
 
 :deep(.el-table tr) {
@@ -811,14 +812,15 @@ export default {
 }
 
 .panelChart {
-  width: 500px;
-  height: 250px;
+  top: 6px;
+  width: 400px;
+  height: 200px;
 }
 
-.people-item{
-  width: 530px;
-  height: 880px;
-}
+/*.people-item{*/
+/*  width: 530px;*/
+/*  height: 880px;*/
+/*}*/
 
 .legend {
   width: 150px;
