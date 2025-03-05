@@ -677,7 +677,6 @@ export default {
 
         yaan.features.forEach((feature) => {
           let center = feature.properties.center;
-
           if (center && center.length === 2) {
             let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
             let regionlabel = viewer.entities.add(new Cesium.Entity({
