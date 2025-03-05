@@ -104,6 +104,10 @@ export default {
           this.currentTimeLocal = currentTimeLocaltmp
         }
         this.ifstopandflash(newVal, oldVal);
+        if (new Date(newVal) >= new Date() && this.flyflag==true) {
+          // viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+          window.viewer.clock.multiplier = 1.0
+        }
       }
     },
     centerPoint(newVal) {
@@ -178,14 +182,16 @@ export default {
       this.selectedId = id; // 更新选中的按钮ID
     },
     jumpRealTime() {
-      window.viewer.clockViewModel.shouldAnimate = false;
+      window.viewer.clockViewModel.shouldAnimate = true;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
       this.flyflag = false
-      this.endflag = true;
+      this.endflag = false;
+      window.viewer.clock.multiplier =1.0
     },
     backToStart() {
       window.viewer.clockViewModel.shouldAnimate = false;
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(this.centerPoint.startTime));
+      window.viewer.clock.multiplier = this.currentSpeed
       this.flyflag = true
       this.endflag = true;
     },
@@ -204,7 +210,13 @@ export default {
       timeLine.makerLabelsShowPersonAndResouce(this.plots)
     },
     playStart() {
-      window.viewer.clock.multiplier = this.currentSpeed
+      if (new Date(this.currentTime) >= new Date()) {
+        viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
+        window.viewer.clock.multiplier = 1.0
+      }
+      else{
+        window.viewer.clock.multiplier = this.currentSpeed
+      }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
       this.flyflag = true
