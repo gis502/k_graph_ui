@@ -1963,7 +1963,6 @@ export default {
       }
     },
     //----------------数据end---------------
-
     //----------------处理实体点击事件的弹窗显示逻辑-----------------
     entitiesClickPonpHandler() {
       let that = this;
