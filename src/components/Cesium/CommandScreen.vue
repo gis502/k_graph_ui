@@ -900,7 +900,7 @@ import eqTable from '@/components/Home/eqtable.vue'
 import eqlistTable from '@/components/Home/eqlistTable.vue'
 import earthquakeTable from "@/components/Home/earthquakeTable.vue";
 import modelTable from '@/components/Home/modelTable.vue'
-import yaan from '@/assets/geoJson/yaan1.json'
+import siChuanProvince from '@/assets/geoJson/SichuanProvince.json'
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getEmergency, getFeaturesLayer} from "@/api/system/emergency.js";
 import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
@@ -977,7 +977,8 @@ import sichuanCounty from "@/assets/geoJson/sichuanCounty.json";
 import {getEqTownResult} from "@/api/system/damageassessment";
 import CommandScreenEarthquakeList from '@/components/commandScreenComponent/CommandScreenEarthquakeList.vue'
 import mapMark from "@/assets/地图标记.png";
-
+import yaAn from "@/assets/geoJson/yaan1.json"
+import yaAnVillage from "@/assets/geoJson/yaan.json"
 export default {
   computed: {
     Edit() {
@@ -3076,9 +3077,9 @@ export default {
         });
         this.emergencyClick(defaultTable)
         this.showTips = false;
-        const hasYaanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
+        const hasSiChuanRegionLayer = this.selectedlayersLocal.includes('行政区划要素图层');
         // 如果选定了行政区划要素图层，则移除其他区域图层并添加雅安行政区划图层
-        if (hasYaanRegionLayer) {
+        if (hasSiChuanRegionLayer) {
           this.addYaanRegion();
         }
       }
@@ -3281,7 +3282,7 @@ export default {
       this.removethdRegions()
       this.removeDataSourcesLayer('YaanRegionLayer');
 
-      let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
+      let geoPromise = Cesium.GeoJsonDataSource.load(yaAn, {
         clampToGround: true, //贴地显示
         stroke: Cesium.Color.RED,
         fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
@@ -3329,10 +3330,11 @@ export default {
       this.selectedDataByRegions = []
       //清除其他实体标签
       this.removethdRegions()
-      this.removeDataSourcesLayer('YaanRegionLayer');
+      this.removeDataSourcesLayer('siChuanRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
       // this.visible = false;
       // 根据区县代码过滤GeoJSON数据
-      let filteredFeatures = yaan.features.filter(feature => {
+      let filteredFeatures = siChuanProvince.features.filter(feature => {
         return feature.properties.adcode === district.adcode;
       });
       if (filteredFeatures.length > 0) {
@@ -3485,7 +3487,8 @@ export default {
     handleDistrictSelect(districtName) {
       // 清除其他实体标签
       this.removethdRegions();
-      this.removeDataSourcesLayer('YaanRegionLayer');
+      this.removeDataSourcesLayer('siChuanRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
 
       // 根据选中的区域进行处理
       if (districtName === '雅安市') {
@@ -3524,11 +3527,18 @@ export default {
         {
           name: '行政区划要素图层',
           add: this.addYaanRegion,
-          remove: () => this.removeDataSourcesLayer('YaanRegionLayer')
+          remove1: () => this.removeDataSourcesLayer('siChuanRegionLayer'),
+          remove2: () => this.removeDataSourcesLayer('yaAnVillageRegionLayer')
         },
-        {name: '人口密度要素图层', add: this.addPopLayer, remove: () => this.removeImageryLayer('PopLayer')},
         {
-          name: '交通网络要素图层', add: this.addTrafficLayer, remove: () => {
+          name: '人口密度要素图层',
+          add: this.addPopLayer,
+          remove: () => this.removeImageryLayer('PopLayer')
+        },
+        {
+          name: '交通网络要素图层',
+          add: this.addTrafficLayer,
+          remove: () => {
             this.removeImageryLayer('TrafficLayer');
             this.removeImageryLayer('TrafficTxtLayer');
           }
@@ -3548,9 +3558,15 @@ export default {
           add: () => this.processPoints(this.emergencyShelters, 'emergencyShelters', emergencySheltersLogo, '避难场所'),
           remove: () => this.removeEntitiesByType('emergencyShelters')
         },
-        {name: '历史地震要素图层', add: this.addHistoryEqPoints, remove: () => this.removeEntitiesByType('historyEq')},
         {
-          name: '断裂带要素图层', add: this.addFaultZone, remove: () => {
+          name: '历史地震要素图层',
+          add: this.addHistoryEqPoints,
+          remove: () => this.removeEntitiesByType('historyEq')
+        },
+        {
+          name: '断裂带要素图层',
+          add: this.addFaultZone,
+          remove: () => {
             if (window.duanliedai) {
               window.viewer.dataSources.remove(window.duanliedai, true);
               window.duanliedai = null;
@@ -3558,16 +3574,30 @@ export default {
             this.removeDataSourcesLayer('duanliedai');
           }
         },
-        {name: '医院要素图层', add: addHospitalLayer, remove: () => this.removeDataSourcesLayer('hospital')},
-        {name: '村庄要素图层', add: addVillageLayer, remove: () => this.removeDataSourcesLayer('village')},
-        {name: '烈度圈要素图层', add: this.addOvalCircle, remove: () => this.removeEntitiesByType('ovalCircle')}
+        {
+          name: '医院要素图层',
+          add: addHospitalLayer,
+          remove: () => this.removeDataSourcesLayer('hospital')},
+        {
+          name: '村庄要素图层',
+          add: addVillageLayer,
+          remove: () => this.removeDataSourcesLayer('village')},
+        {
+          name: '烈度圈要素图层',
+          add: this.addOvalCircle,
+          remove: () => this.removeEntitiesByType('ovalCircle')}
       ];
 
       layerActions.forEach(layer => {
         if (this.selectedlayersLocal.includes(layer.name)) {
           layer.add();
         } else {
-          layer.remove();
+          if(layer.name === "行政区划要素图层"){
+            layer.remove1();
+            layer.remove2();
+          }else{
+            layer.remove();
+          }
         }
       });
 
@@ -3781,78 +3811,138 @@ export default {
      * 如果图层已存在，则不会重复添加
      */
     addYaanRegion() {
-      // 检查是否已存在名为'YaanRegionLayer'的数据源，如果不存在则加载
-      if (!window.viewer.dataSources.getByName('YaanRegionLayer')[0]) {
-        // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
-        let geoPromise = Cesium.GeoJsonDataSource.load(yaan, {
-          clampToGround: true, //贴地显示
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-          strokeWidth: 4,
+      // 1.加载四川省市·区(州，县)
+      // 检查图层是否已经加载
+      if (!window.viewer.dataSources.getByName('siChuanRegionLayer')[0]) {
+        // 加载GeoJSON格式的四川省数据，并设置图层的样式
+        let geoPromise = Cesium.GeoJsonDataSource.load(siChuanProvince, {
+          clampToGround: false, // 贴地显示
+          stroke: Cesium.Color.WHITE, // 轮廓线颜色
+          strokeWidth: 4, // 轮廓线宽度
+          fill: Cesium.Color.TRANSPARENT, // 填充颜色（透明）
         });
 
         // 当数据源加载成功后，执行以下操作
         geoPromise.then((dataSource) => {
           // 将数据源添加到地图中
           window.viewer.dataSources.add(dataSource);
-          // 给图层取名字,以便删除时找到
-          dataSource.name = 'YaanRegionLayer';
+          // 给图层取名字，以便删除时找到
+          dataSource.name = 'siChuanRegionLayer';
 
-          // 定义雅安各区县的颜色和名称
-          const colors = [
-            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-            {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-            {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
-            {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
-            {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
-            {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
-            {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
-            {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
-            {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
-          ];
-          // 为每个区县实体设置颜色
-          dataSource.entities.values.forEach((entity, index) => {
-            // 根据实体索引依次从颜色数组中取颜色
-            const colorIndex = index % colors.length; // 通过模运算确保不会超出颜色数组范围
-            const colorMaterial = new Cesium.ColorMaterialProperty(colors[colorIndex].color); // 使用 ColorMaterialProperty 包装颜色
-            entity.polygon.material = colorMaterial; // 设置填充颜色
-            // //console.log("--------", index, "----------------", entity)
+          // 遍历 GeoJSON 的每个 feature
+          siChuanProvince.features.forEach((feature) => {
+            // 获取第一个多边形的所有顶点
+            const firstPolygon = feature.geometry.coordinates[0]; // 第一个多边形
+            const firstRing = firstPolygon[0]; // 第一个多边形的外环
+
+            // 将经纬度转换为 Cartesian3 数组
+            const positions = firstRing.map(vertex => {
+              return Cesium.Cartesian3.fromDegrees(vertex[0], vertex[1]);
+            });
+
+            // 计算多边形的质心
+            let centroid = Cesium.Cartesian3.ZERO;
+            positions.forEach(pos => {
+              centroid = Cesium.Cartesian3.add(centroid, pos, new Cesium.Cartesian3());
+            });
+            centroid = Cesium.Cartesian3.divideByScalar(centroid, positions.length, new Cesium.Cartesian3());
+
+            // 创建一个新的 Entity 并添加 label
+            let regionLabel = window.viewer.entities.add({
+              position: centroid, // 标签位置
+              label: {
+                text: feature.properties.name || '未命名', // 标签文本（使用区域名称，如果没有则显示“未命名”）
+                font: '18px sans-serif', // 字体
+                fillColor: Cesium.Color.WHITE, // 标签填充颜色
+                outlineColor: Cesium.Color.BLACK, // 标签轮廓颜色
+                outlineWidth: 2, // 标签轮廓宽度
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE, // 标签样式
+                verticalOrigin: Cesium.VerticalOrigin.CENTER, // 垂直对齐
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // 水平对齐
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 贴地显示
+                pixelOffset: new Cesium.Cartesian2(0, 0), // 像素偏移
+              }
+            });
+
+            // 将 regionLabel 添加到数组中（如果需要后续操作）
+            this.RegionLabels.push(regionLabel);
           });
-          // //console.log("dataSource--------------", dataSource.entities.values.length)
 
-          // 生成图例
-          this.isShowYaanRegionLegend = true;
-          // const legend = document.getElementById('legend');
-          // legend.style.display = 'block';
-          // colors.forEach((colorItem, index) => {
-          //     if (index > 0) {
-          //         const colorBox = document.createElement('div');
-          //         colorBox.style.display = 'flex';
-          //         colorBox.style.alignItems = 'center';
-          //         colorBox.style.marginBottom = '5px';
-          //
-          //         // 创建颜色方块
-          //         const colorSquare = document.createElement('div');
-          //         colorSquare.style.width = '20px';
-          //         colorSquare.style.height = '20px';
-          //         colorSquare.style.backgroundColor = colorItem.color.toCssColorString(); // 转换 Cesium 颜色为 CSS 颜色字符串
-          //         colorSquare.style.marginRight = '10px';
-          //
-          //         // 创建颜色名称标签
-          //         const colorLabel = document.createElement('span');
-          //         colorLabel.textContent = colorItem.name;
-          //
-          //         // 将颜色方块和名称加入到图例中
-          //         colorBox.appendChild(colorSquare);
-          //         colorBox.appendChild(colorLabel);
-          //         legend.appendChild(colorBox);
-          //     }
-          //
-          // });
+          console.log("siChuanRegionLayer 图层加载成功，并添加了区域标签！");
         }).catch((error) => {
           // 如果加载数据源失败，则输出错误信息
           console.error("加载GeoJSON数据失败:", error);
         });
+      } else {
+        console.log("siChuanRegionLayer 图层已加载，无需重复加载。");
+      }
+
+      // 1.加载雅安市·乡（镇）
+      // 检查图层是否已经加载
+      if (!window.viewer.dataSources.getByName('yaAnVillageRegionLayer')[0]) {
+        // 加载GeoJSON格式的雅安地区数据，并设置图层的样式
+        let geoPromise = Cesium.GeoJsonDataSource.load(yaAnVillage, {
+          clampToGround: false, // 贴地显示
+          stroke: Cesium.Color.WHITE, // 轮廓线颜色
+          strokeWidth: 4, // 轮廓线宽度
+          fill: Cesium.Color.TRANSPARENT, // 填充颜色（透明）
+        });
+
+
+        // 当数据源加载成功后，执行以下操作
+        geoPromise.then((dataSource) => {
+          // 将数据源添加到地图中
+          window.viewer.dataSources.add(dataSource);
+          // 给图层取名字，以便删除时找到
+          dataSource.name = 'yaAnVillageRegionLayer';
+
+
+          // 遍历 GeoJSON 的每个 feature
+          yaAnVillage.features.forEach((feature) => {
+            // 获取第一个多边形的所有顶点
+            const firstPolygon = feature.geometry.coordinates[0]; // 第一个多边形
+            const firstRing = firstPolygon[0]; // 第一个多边形的外环
+
+            // 将经纬度转换为 Cartesian3 数组
+            const positions = firstRing.map(vertex => {
+              return Cesium.Cartesian3.fromDegrees(vertex[0], vertex[1]);
+            });
+
+            // 计算多边形的质心
+            let centroid = Cesium.Cartesian3.ZERO;
+            positions.forEach(pos => {
+              centroid = Cesium.Cartesian3.add(centroid, pos, new Cesium.Cartesian3());
+            });
+            centroid = Cesium.Cartesian3.divideByScalar(centroid, positions.length, new Cesium.Cartesian3());
+
+            // 创建一个新的 Entity 并添加 label
+            let regionLabel = window.viewer.entities.add({
+              position: centroid, // 标签位置
+              label: {
+                text: feature.properties.name || '未命名', // 标签文本（使用区域名称，如果没有则显示“未命名”）
+                font: '18px sans-serif', // 字体
+                fillColor: Cesium.Color.WHITE, // 标签填充颜色
+                outlineColor: Cesium.Color.BLACK, // 标签轮廓颜色
+                outlineWidth: 2, // 标签轮廓宽度
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE, // 标签样式
+                verticalOrigin: Cesium.VerticalOrigin.CENTER, // 垂直对齐
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER, // 水平对齐
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 贴地显示
+                pixelOffset: new Cesium.Cartesian2(0, 0), // 像素偏移
+              }
+            });
+
+            // 将 regionLabel 添加到数组中（如果需要后续操作）
+            this.RegionLabels.push(regionLabel);
+          });
+
+          console.log("yaAnVillageRegionLayer 图层加载成功，并添加了区域标签！");
+        }).catch((error) => {
+          // 如果加载数据源失败，则输出错误信息
+          console.error("加载GeoJSON数据失败:", error);
+        });
+      } else {
+        console.log("yaAnVillageRegionLayer 图层已加载，无需重复加载。");
       }
     },
 
@@ -4489,7 +4579,7 @@ export default {
             }
           });
 
-          yaan.features.forEach((feature) => {
+          siChuanProvince.features.forEach((feature) => {
             let center = feature.properties.center;
 
             if (center && center.length === 2) {
