@@ -2211,50 +2211,6 @@ export default {
 
 
     //------------------未重构----------------------
-    //websocket标绘
-    initWebSocket() {
-      let that = this
-      this.websock = initWebSocket(this.eqid)
-      this.websock.eqid = this.eqid
-      this.websock.onmessage = function (e) {
-        console.log("e commandscreen this.websock.onmessage", e)
-        // try {
-        //   console.log("从服务器接收到的消息thdtimeline", JSON.parse(e.data))
-        //   //上传表（）
-        //   // if(JSON.parse(e.data).operateType==="excel"){
-        //   //   let
-        //   // }
-        //   // // 标绘点
-        //   // else{
-        //   let markType = JSON.parse(e.data).type
-        //   let markOperate = JSON.parse(e.data).operate // 标绘的（add、delete）
-        //   if (markOperate === "add") {
-        //     if (this.eqid === JSON.parse(e.data).data.plot.earthquakeId) {
-        //       let markData = JSON.parse(e.data).data
-        //       if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-        //         //标绘点
-        //         that.wsAddMakerFunc(markType, markData)
-        //       }
-        //       //播放或播放暂停
-        //       else {
-        //         that.wsaddMakers.push({markType: markType, markData: markData})
-        //       }
-        //     }
-        //   } else if (markOperate === "delete") {
-        //     let id = JSON.parse(e.data).id.toString()
-        //     if (!that.isTimerRunning && that.currentTimePosition >= 100) {
-        //       that.wsDeleteMakerFunc(id, markType)
-        //     } else {
-        //       that.wsdeleteMakers.push({id: id, markType: markType})
-        //     }
-        //   }
-        //   // }
-        //
-        // } catch (err) {
-        //   console.log(err, 'ws中catch到错误');
-        // }
-      };
-    },
 
     outputData() {
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
@@ -2269,66 +2225,9 @@ export default {
 
 
 
-    wsAddMakerFunc(type, data) {
-      console.log("触发了新增")
-      // console.log(data.plot,"data.plot wsadd")
-      data.plot.longitude = Number(data.plot.geom.coordinates[0])
-      data.plot.latitude = Number(data.plot.geom.coordinates[1])
-        this.plots.push(data.plot)
-      this.plotisshow[data.plot.plotId] = 1
-      var jumpnode = Math.ceil((new Date() - new Date(this.eqstartTime.getTime())) / (5 * 60 * 1000))
-      // console.log(jumpnode,"jumpnode")
-      this.timelineAdvancesNumber = jumpnode + 1
-      this.jumpNodes[jumpnode] = 1
 
-      this.currentNodeIndex = this.timelineAdvancesNumber
-      if (type === "point") {
-        cesiumPlot.drawPoints(data.plot, true, 3000);
-      } else if (type === "polyline") {
-        cesiumPlot.getDrawPolyline([data.plot])
-      } else if (type === "polygon") {
-        cesiumPlot.getDrawPolygon([data.plot]);
-      } else if (type === "arrow") {
-        if (data.plot.plotType === "攻击箭头") {
-          arrow.showAttackArrow([data.plot])
-        } else if (data.plot.plotType === "钳击箭头") {
-          arrow.showPincerArrow([data.plot])
-        } else if (data.plot.plotType === "直线箭头") {
-          arrow.showStraightArrow([data.plot])
-        }
-      }
-      let tempEqid = this.eqid;
-      this.$nextTick(() => {
-        this.eqid = tempEqid;
-      })
-    },
-    wsDeleteMakerFunc(id, markType) {
-      console.log("触发了删除")
-      this.plotisshow[id] = 0
-      if (markType === "point") {
-        console.log('1111111111111111111111111111123123')
-        cesiumPlot.deletePointById(id);
-      } else if (markType === "polyline") {
-        let polyline = window.viewer.entities.getById(id)
-        let polylinePosition = polyline.properties.getValue(Cesium.JulianDate.now())//用getvalue时添加时间是不是用来当日志的？
-        polylinePosition.pointPosition.forEach((item, index) => {
-          window.viewer.entities.remove(item)
-        })
-        window.viewer.entities.remove(polyline)
-      } else if (markType === "polygon") {
-        window.viewer.entities.removeById(id)
-      } else if (markType === "arrow") {
-        Arrow.clearById(id)
-      }
-      let tempEqid = this.eqid;
-      this.$nextTick(() => {
-        this.eqid = tempEqid;
-      })
-    },
-    initcesiumPlot() {
-      let cesiumStore = useCesiumStore()
-      cesiumPlot.init(window.viewer, this.websock, cesiumStore)
-    },
+
+
 
     cartographicToGeoJSON(cartographic) {
       // 将 Cesium.Cartographic 弧度转换为 GeoJSON 所需的度
