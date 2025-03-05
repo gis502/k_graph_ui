@@ -2987,6 +2987,7 @@ export default {
     //--------路径规划清除实体
     //全部清除
     removeAll(){
+      this.removeAllEmergencySites(); //删除救援力量的标绘点
       this.removePolyline(); // 先清除路径规划
       this.removePoint(); // 再清除障碍物
 
