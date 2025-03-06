@@ -714,7 +714,11 @@
 
     <!--    地震列表切换-->
     <div class="universalPanel" v-if="showEqListPanel">
-      <CommandScreenEarthquakeList/>
+      <!-- 顶部标题栏 -->
+      <div class="panelTop">
+        <h2 class="panelName">地震列表</h2>
+      </div>
+      <CommandScreenEqList/>
     </div>
 
     <!-- 三维模型弹框 -->
@@ -981,6 +985,7 @@ import CommandScreenEarthquakeList from '@/components/commandScreenComponent/Com
 import mapMark from "@/assets/地图标记.png";
 import yaAn from "@/assets/geoJson/yaan1.json"
 import yaAnVillage from "@/assets/geoJson/yaan.json"
+import CommandScreenEqList from "@/components/Cesium/CommandScreenEqList.vue"
 export default {
   computed: {
     Edit() {
@@ -1044,6 +1049,7 @@ export default {
     }
   },
   components: {
+    CommandScreenEqList,
     commandScreenTitle, //标头
     //灾情总览
     timeLinePlay,
@@ -5265,7 +5271,7 @@ export default {
   background-color: rgba(23, 54, 76, 0);
 }
 
-/* 设置“图层要素”样式 */
+/* 设置"图层要素"样式 */
 :deep(.collapse ) {
   font-size: 16px; /* 标题字号 */
   font-weight: bold; /* 标题加粗 */
@@ -5346,7 +5352,7 @@ export default {
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background-color: #1f9dca; /* 滑块的背景颜色 */
-  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造“边距”的效果 */
+  border: 2px solid #fcfcfc; /* 滑块的边框和轨道相同的颜色，可以制造"边距"的效果 */
 }
 
 .personbutton {
