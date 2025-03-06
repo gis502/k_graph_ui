@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container">
            <span
-               style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: 0px; margin-left: 3%; font-size: 14px; color: #fff;">
+               style="position: absolute;    font-weight: bold; padding-left: 0px;margin-top: -6px; margin-left: 3%; font-size: 13px; color: #fff;">
                   {{ year }}年各区县经济情况
                 </span>
     <div ref="lineChart" class="chart"></div>
@@ -202,6 +202,12 @@ const initChart = () => {
           barWidth: 22,
           barGap: "-50%",
           data: barData,
+          itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    {offset: 0, color: '#12B9DB'},
+                    {offset: 1, color: '#6F8EF2'},
+                ]),
+            },
         },
       ],
     };
@@ -226,9 +232,9 @@ onBeforeUnmount(() => {
 .chart-container {
   position: relative;
   top: 7% !important;
-  width: 98%;
-  height: 98%;
-  min-height: 50px;
+  width: 90%;
+  height: 90%;
+  min-height: 10px;
 }
 
 .chart {

@@ -144,21 +144,21 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   position: absolute;
-  bottom: 15%;
-  width: 91%;
-  left: 3.2%;
+  bottom: 20%;
+  width: 90%;
+  left: 4.5%;
 }
 
 .card.bottom-left {
-  flex: 1;
+  flex: 1.25;
   text-align: left;
-  margin-right: 11%;
+  margin-right: 13%;
 }
 
 .card.bottom-right {
   flex: 1;
   text-align: right;
-  margin-left: 3%;
+  margin-left: 5%;
 }
 
 .card .top-title {
@@ -167,7 +167,7 @@ onMounted(() => {
 }
 
 .card .bottom-title {
-  font-size: 16px;
+  font-size: 15px;
   color: #fff;
 }
 
