@@ -41,7 +41,7 @@
       </div>
     </el-carousel-item>
     <el-carousel-item>
-      <div class="economic-item">
+      <div class="economic-item" style="left: -4%;">
         <div class="economic-table">
           <div class="pop">
             <div class="pop_header">
@@ -819,14 +819,15 @@ export default {
 }
 
 .panelChart {
-  width: 500px;
-  height: 250px;
+  top: 6px;
+  width: 400px;
+  height: 200px;
 }
 
-.people-item{
-  width: 530px;
-  height: 880px;
-}
+/*.people-item{*/
+/*  width: 530px;*/
+/*  height: 880px;*/
+/*}*/
 
 .legend {
   width: 150px;

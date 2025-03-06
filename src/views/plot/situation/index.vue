@@ -108,40 +108,11 @@
                    width="17%" height="43.3px">
             </el-tooltip>
           </span>
-            <!--          <span class="plotTreeItem" v-if="plotTreeClassification.length===0">-->
-            <!--            <el-button type="primary" @click="drawP">量算面积</el-button>-->
-            <!--            <el-button type="primary" @click="drawN">量算距离</el-button>-->
-            <!--            <el-button style="margin: 10px;" type="danger" @click="deletePolygon"-->
-            <!--                       v-if="this.showPolygon">删除面</el-button>-->
-            <!--            <el-button style="margin: 10px;" type="danger" @click="deletePolyline"-->
-            <!--                       v-if="this.showPolyline">删除线</el-button>-->
-            <!--           <el-row>-->
-            <!--            <br>-->
-            <!--            <el-col :span="24">-->
-            <!--              <span style="color: white;">距离：</span>-->
-            <!--              <span style="color: white;" id="distanceLine">0</span>-->
-            <!--              <span style="color: white;"> 米</span>-->
-            <!--            </el-col>-->
-            <!--          </el-row>-->
-            <!--          <el-row>-->
-            <!--            <el-col :span="24">-->
-            <!--              <span style="color: white;">面积：</span>-->
-            <!--              <span style="color: white;" id="area">0</span>-->
-            <!--              <span style="color: white;"> 平方米</span>-->
-            <!--            </el-col>-->
-            <!--          </el-row>-->
-            <!--          <el-row>-->
-            <!--            <el-col :span="24">-->
-            <!--              <span style="color: white;">区域内标绘个数：</span>-->
-            <!--              <span style="color: white;" id="ispointIcon">0 </span>-->
-            <!--              <span style="color: white;"> 个</span>-->
-            <!--            </el-col>-->
-            <!--          </el-row>-->
-            <!--          </span>-->
           </el-col>
         </el-row>
       </el-form>
       <addMarkCollectionDialog
+          :eqOccurrenceTime="eqOccurrenceTime"
           :addMarkDialogFormVisible="addMarkDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @drawPoints="drawPoints"
@@ -150,12 +121,14 @@
           @sendPlot="sendPlot"
       />
       <addPolylineDialog
+          :eqOccurrenceTime="eqOccurrenceTime"
           :addPolylineDialogFormVisible="addPolylineDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @clearMarkDialogForm="resetPolyline"
           @sendPlot="sendPlot"
       />
       <addPolygonDialog
+          :eqOccurrenceTime="eqOccurrenceTime"
           :addPolygonDialogFormVisible="addPolygonDialogFormVisible"
           @wsSendPoint="wsSendPoint"
           @clearMarkDialogForm="resetPolygon"
@@ -575,6 +548,8 @@ export default {
       //--------------控制显隐--
       showEqList: true,
       showToolbar: true,
+
+      eqOccurrenceTime:'',
     };
   },
 
@@ -850,82 +825,6 @@ export default {
         //   fetchData(); // 递归调用以实现长轮询
         // }, 5000); // 设置 5 秒的轮询间隔（可以根据需求调整）
       })
-      // const fetchData = () => {
-      //   getPlot({eqid}).then(res => {
-      //     let data = res
-      //     let pointArr = data.filter(e => e.drawtype === 'point')
-      //     let points = []
-      //     pointArr.forEach(item => {
-      //       if (!that.renderedPlotIds.has(item.plotId)) { // 检查是否已经渲染
-      //         let point = {
-      //           earthquakeId: item.earthquakeId,
-      //           plotId: item.plotId,
-      //           time: item.creationTime.replace("T"," "),
-      //           plotType: item.plotType,
-      //           drawtype: item.drawtype,
-      //           latitude: item.latitude,
-      //           longitude: item.longitude,
-      //           height: item.elevation,
-      //           icon: item.icon,
-      //         }
-      //         points.push(point)
-      //       }
-      //     })
-      //
-      //     that.drawPoints(points)
-      //     let polylineArr = data.filter(e => e.drawtype === 'polyline');
-      //
-      //     // 过滤掉已经渲染的项
-      //     let unrenderedPolylineArr = polylineArr.filter(item => !that.renderedPlotIds.has(item.plotId));
-      //
-      //     // 标记未渲染的项为已渲染
-      //     unrenderedPolylineArr.forEach(item => {
-      //       that.renderedPlotIds.add(item.plotId); // 标记为已渲染
-      //     });
-      //
-      //     // 只绘制未渲染的线条
-      //     if (unrenderedPolylineArr.length > 0) {
-      //       cesiumPlot.getDrawPolyline(unrenderedPolylineArr); // 只绘制当前未渲染的线条
-      //     }
-      //
-      //     let straightArr = data.filter(e => e.drawtype === 'straight');
-      //     Arrow.showStraightArrow(straightArr)
-      //
-      //     let attackArr = data.filter(e => e.drawtype === 'attack');
-      //     Arrow.showAttackArrow(attackArr)
-      //
-      //     let pincerArr = data.filter(e => e.drawtype === 'pincer');
-      //     Arrow.showPincerArrow(pincerArr)
-      //
-      //     // 处理多边形数据
-      //     let polygonArr = data.filter(e => e.drawtype === 'polygon');
-      //     // console.log('index.polygonArr', polygonArr)
-      //     let polygonMap = {};
-      //     polygonArr.forEach(item => {
-      //       if (!polygonMap[item.plotId]) {
-      //         polygonMap[item.plotId] = [];
-      //       }
-      //       polygonMap[item.plotId].push(item);
-      //     });
-      //     Object.keys(polygonMap).forEach(plotId => {
-      //       let polygonData = polygonMap[plotId];
-      //       that.getDrawPolygonInfo(polygonData);
-      //     });
-      //     // 长轮询逻辑：等待一段时间后继续请求
-      //     setTimeout(() => {
-      //       fetchData(); // 递归调用以实现长轮询
-      //     }, 5000); // 设置 5 秒的轮询间隔（可以根据需求调整）
-      //   })
-      //   .catch((error) => {
-      //     console.error("获取数据失败:", error);
-      //     // 如果发生错误，等待一段时间后重新尝试
-      //     setTimeout(() => {
-      //       fetchData();
-      //     }, 10000); // 10 秒后重试
-      //   });
-      // };
-      // // 开始长轮询
-      // fetchData();
     },
 
     showSelect(flag) {
@@ -2277,6 +2176,8 @@ export default {
       this.websock.eqid = this.eqid
       this.renderedPlotIds.clear(); // 清空已渲染 ID 集合
       this.initPlot(row.eqid)
+      this.eqOccurrenceTime = row.occurrenceTime.replace('T', ' ') + ':00';
+      console.log("更换地震后的时间",this.eqOccurrenceTime)
       this.title = this.timestampToTimeChina(row.occurrenceTime) + row.earthquakeName + row.magnitude
       window.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(parseFloat(row.longitude), parseFloat(row.latitude), 60000),
@@ -2310,6 +2211,7 @@ export default {
         that.total = resData.length
         that.tableData = that.getPageArr()
         that.eqid = that.tableData[0].eqid
+        that.eqOccurrenceTime = that.tableData[0].occurrenceTime.replace("T", " ")
         that.title = this.timestampToTimeChina(that.tableData[0].occurrenceTime.replace("T", " ")) + that.tableData[0].earthquakeName + that.tableData[0].magnitude
         window.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(parseFloat(that.tableData[0].longitude), parseFloat(that.tableData[0].latitude), 60000),
@@ -2648,7 +2550,6 @@ export default {
     //--------------点------------------------
 
     // 打开添加点标绘对话框
-    // 打开添加点标绘对话框
     openPointPop(type, img) {
       let that = this;
       let cesiumStore = useCesiumStore();
@@ -2701,7 +2602,9 @@ export default {
     wsSendPoint(data) {
       console.log(this.websock,"websock:")
       console.log(data,"wsSendPoint(data)")
-      this.websock.send(data)
+      // this.websock.onopen = () => {
+        this.websock.send(data)
+      // }
     },
 
     //------------线------------
