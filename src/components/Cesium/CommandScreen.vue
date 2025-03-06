@@ -3952,7 +3952,7 @@ export default {
     loadCountyLayer(viewer) {
       Cesium.GeoJsonDataSource.load(sichuanCounty, {
         clampToGround: false,
-        stroke: Cesium.Color.BLUE,
+        stroke: Cesium.Color.YELLOW,
         strokeWidth: 4,
         fill: Cesium.Color.TRANSPARENT,
       }).then(dataSource => {
@@ -3994,7 +3994,7 @@ export default {
     loadVillageLayer(viewer) {
       Cesium.GeoJsonDataSource.load(yaAnVillage, {
         clampToGround: false,
-        stroke: Cesium.Color.YELLOW,
+        stroke: Cesium.Color.ORANGE,
         strokeWidth: 4,
         fill: Cesium.Color.TRANSPARENT,
       }).then(dataSource => {
