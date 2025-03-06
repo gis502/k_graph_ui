@@ -914,7 +914,7 @@ import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
 import {
   addFaultZones,
   addHistoryEqPoints,
-  addHospitalLayer , handleTownData,
+  addHospitalLayer, handleTownData,
   addOvalCircles, addVillageLayer,
   handleOutputData, removeDataSourcesLayer
 } from "../../cesium/plot/eqThemes.js";
@@ -1681,6 +1681,27 @@ export default {
           // 切换标记，准备下次切换
           isThirdParty = !isThirdParty;
         };
+
+        getModelData().then(res => {
+          console.log("倾斜模型数据，新加的点，", res)
+          // 创建一个数组来保存实体和对应的数据
+          const entities = [];
+
+          for (let i = 0; i < res.length; i++) {
+            var alltiltPhotography = viewer.entities.add({
+              position: Cesium.Cartesian3.fromDegrees(res[i].geom.coordinates[0], res[i].geom.coordinates[1]),
+              layer: "倾斜模型",
+              point: {
+                pixelSize: 20,
+                color: Cesium.Color.WHITE
+              },
+              // 自定义属性，保存对应的数据
+              data: res[i]
+            });
+            // 将实体保存到数组中
+            entities.push(alltiltPhotography);
+          }
+        })
 
         // 绑定按钮点击事件
         document.getElementById('slope').addEventListener('click', switchToLocalDEM);
@@ -4270,6 +4291,7 @@ export default {
       })
     },
     goModel(row) {
+
       this.modelInfo.name = row.name
       this.modelInfo.path = row.path
       this.modelInfo.tz = row.tz
@@ -5811,6 +5833,7 @@ li {
   line-height: 15px;
   font-size: 12px;
 }
+
 .legend-span {
   color: #fff;
   font-size: 14px;
@@ -5932,14 +5955,17 @@ li {
   background: transparent; /* 初始背景透明 */
   transition: all 0.3s ease; /* 添加过渡效果 */
 }
+
 .button__line:nth-child(1),
 .button__line:nth-child(1)::before {
   left: 0;
 }
+
 .button__line:nth-child(2),
 .button__line:nth-child(2)::before {
   right: 0;
 }
+
 .button:hover {
   letter-spacing: 6px;
 }
@@ -5948,6 +5974,7 @@ li {
 .button:hover .button__text::before {
   width: 8px;
 }
+
 .button:hover::after,
 .button:hover .button__text::after {
   width: calc(100% - 56px * 2 - 16px);
