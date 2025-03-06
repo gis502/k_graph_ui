@@ -573,52 +573,57 @@ export default {
           this.popupVisible = false;
         }
         else if (Cesium.defined(pickedObject) && pickedObject.id.name) {
-          let ray = viewer.camera.getPickRay(click.position);
-          let position = viewer.scene.globe.pick(ray, viewer.scene);
-          let cartographic = Cesium.Cartographic.fromCartesian(position);
-          let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-          let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+          if (pickedObject.id._properties.sourceName === "hospital" || pickedObject.id._properties.sourceName === "village") {
+            console.log(pickedObject.id._properties.sourceName);
 
-          // 如果有地形加载，更新高度
-          let height = 0;
-          if (this.isTerrainLoaded()) {
-            height = viewer.scene.globe.getHeight(cartographic);
-          }
-          this.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
+            let ray = viewer.camera.getPickRay(click.position);
+            let position = viewer.scene.globe.pick(ray, viewer.scene);
+            let cartographic = Cesium.Cartographic.fromCartesian(position);
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
 
-          const properties = pickedObject.id._properties;
-          const sourceName = properties.sourceName;
-
-          // 如果是医院点
-          if (sourceName === "hospital") {
-            this.tableName = "医院信息";
-            this.popupData = {
-              "名称": properties._name._value,
-              "位置": properties._location._value,
-              "医院等级": properties._grade._value,
-              "联系电话": properties._tel._value,
-              "床铺数量": properties._bed._value,
-              "所属单位": properties._membership._value,
-              "救护车数量": properties._ambulance._value,
-              "血浆数量": properties._plasma._value,
-              "葡萄糖数量": properties._surgery_dc._value,
-              "医生数量": properties._doctor._value,
-              "麻醉剂数量": properties._anesthetis._value,
-              "护士数量": properties._nurse._value,
-              "地理位置": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+            // 如果有地形加载，更新高度
+            let height = 0;
+            if (this.isTerrainLoaded()) {
+              height = viewer.scene.globe.getHeight(cartographic);
             }
-            // console.log(this.popupData)
-          }
-          // 如果是村庄点
-          else if (sourceName === "village") {
-            this.tableName = "村庄信息";
-            this.popupData = {
-              "名称": properties._NAME._value,
-              "地理位置": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+            this.selectedEntityHighDiy = Cesium.Cartesian3.fromDegrees(longitude, latitude, height);
+
+            const properties = pickedObject.id._properties;
+            const sourceName = properties.sourceName;
+
+            // 如果是医院点
+            if (sourceName === "hospital") {
+              this.tableName = "医院信息";
+              this.popupData = {
+                "名称": properties._name._value,
+                "位置": properties._location._value,
+                "医院等级": properties._grade._value,
+                "联系电话": properties._tel._value,
+                "床铺数量": properties._bed._value,
+                "所属单位": properties._membership._value,
+                "救护车数量": properties._ambulance._value,
+                "血浆数量": properties._plasma._value,
+                "葡萄糖数量": properties._surgery_dc._value,
+                "医生数量": properties._doctor._value,
+                "麻醉剂数量": properties._anesthetis._value,
+                "护士数量": properties._nurse._value,
+                "地理位置": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+              }
+              console.log(this.popupData)
             }
+            // 如果是村庄点
+            else if (sourceName === "village") {
+              this.tableName = "村庄信息";
+              this.popupData = {
+                "名称": properties._NAME._value,
+                "地理位置": "经度: " + longitude.toFixed(2) + "°E, 纬度: " + latitude.toFixed(2) + "°N",
+              }
+              console.log(this.popupData)
+            }
+            this.popupVisible = true;
+            this.updatePopupPosition();
           }
-          this.popupVisible = true;
-          this.updatePopupPosition();
         }
 
         // 如果点击其他位置，隐藏所有地震点的标签，并关闭 faultInfoDiv
