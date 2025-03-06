@@ -313,6 +313,7 @@ export default {
         legend: {
           data: ['死亡人数', '受伤人数', '失踪人数', '压埋人数'],
           top: '2%',
+          right: '19%',
           textStyle: {
             color: '#fff', // 图例文字颜色
           },
@@ -325,7 +326,7 @@ export default {
         },
         grid: {
           left: '12%',
-          right: '5%',
+          right: '25%',
           bottom: '10%',
           containLabel: true,
         },
@@ -468,10 +469,9 @@ export default {
       const option = {
         tooltip: {},
         grid: {
-          left: '10%',
-          right: '5%',
-          top:'20%',
-          bottom: '10%',
+          left: '12%',
+          right: '25%',
+          bottom: '18%',
           containLabel: true
         },
         xAxis: {
@@ -481,6 +481,7 @@ export default {
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
             interval: 0,
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置X轴名称颜色为白色
@@ -509,9 +510,11 @@ export default {
           interval: 200000,
           axisLabel: {
             color: '#fff', // 设置Y轴标签颜色为白色
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置Y轴名称颜色为白色
+            fontSize: 15,
           },
           axisLine: {
             show: false,
@@ -546,6 +549,7 @@ export default {
                   show: true,
                   position: "top",
                   color: '#fa9440',
+                  fontSize: 13,
                   formatter: function (p) {
                     return p.value > 0 ? (p.value) : '';
                   }
@@ -591,10 +595,9 @@ export default {
       const option = {
         tooltip: {},
         grid: {
-          left: '10%',
-          right: '5%',
-          top:'20%',
-          bottom: '10%',
+          left: '12%',
+          right: '25%',
+          bottom: '19%',
           containLabel: true,
         },
         xAxis: {
@@ -604,6 +607,7 @@ export default {
           axisLabel: {
             color: '#fff', // 设置X轴标签颜色为白色
             interval: 0,
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置X轴名称颜色为白色
@@ -632,9 +636,11 @@ export default {
           interval: 2,
           axisLabel: {
             color: '#fff', // 设置Y轴标签颜色为白色
+            fontSize: 15,
           },
           nameTextStyle: {
             color: '#fff', // 设置Y轴名称颜色为白色
+            fontSize: 15,
           },
           axisLine: {
             show: false,
@@ -772,6 +778,7 @@ export default {
 
 .tables {
   height: 280px;
+  padding: 0 30px;
 }
 
 :deep(.el-table tr) {
