@@ -986,6 +986,7 @@ import mapMark from "@/assets/地图标记.png";
 import yaAn from "@/assets/geoJson/yaan1.json"
 import yaAnVillage from "@/assets/geoJson/yaan.json"
 import CommandScreenEqList from "@/components/Cesium/CommandScreenEqList.vue"
+import {getModelData} from "@/api/system/tiltPhotography.js";
 export default {
   computed: {
     Edit() {
@@ -1691,6 +1692,27 @@ export default {
           isThirdParty = !isThirdParty;
         };
 
+        getModelData().then(res => {
+          console.log("倾斜模型数据，新加的点，", res)
+          // 创建一个数组来保存实体和对应的数据
+          const entities = [];
+
+          for (let i = 0; i < res.length; i++) {
+            var alltiltPhotography = viewer.entities.add({
+              position: Cesium.Cartesian3.fromDegrees(res[i].geom.coordinates[0], res[i].geom.coordinates[1]),
+              layer: "倾斜模型",
+              point: {
+                pixelSize: 20,
+                color: Cesium.Color.WHITE
+              },
+              // 自定义属性，保存对应的数据
+              data: res[i]
+            });
+            // 将实体保存到数组中
+            entities.push(alltiltPhotography);
+          }
+        })
+
         // 绑定按钮点击事件
         document.getElementById('slope').addEventListener('click', switchToLocalDEM);
         let options = {}
@@ -1991,6 +2013,18 @@ export default {
             this.PanelData = {}
             this.PanelData = this.extractDataForRouter(entity)
             console.log("PanelData 震中",this.PanelData)
+          } else if(entity._layer === "倾斜模型") {
+            // 获取实体的自定义属性
+            let row = entity.data;
+            this.modelInfo.name = row.name
+            this.modelInfo.path = row.path
+            this.modelInfo.tz = row.tz
+            this.modelInfo.rz = row.rz
+            this.modelInfo.time = row.time
+            this.modelInfo.modelid = row.modelid
+            this.modelInfo.tze = row.tze
+            this.modelInfo.rze = row.rze
+            goModel(row)
           }
           else if (entity._layer === "标绘点") {
             this.eqCenterPanelVisible=false;
