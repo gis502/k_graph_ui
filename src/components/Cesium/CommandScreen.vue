@@ -960,7 +960,7 @@ import start from "@/assets/start.svg";
 import end from "@/assets/end.svg";
 import {gcj02towgs84, wgs84togcj02} from "@/api/tool/wgs_gcj_encrypts.js";
 import arrow from "@/cesium/drawArrow/drawPlot.js";
-import {AmapApiLocal} from "@/utils/server.js";
+import {AmapApiLocal, tianditu} from "@/utils/server.js";
 import fileUrl from "@/assets/json/TimeLine/2020年6月1日四川雅安芦山县6.1级地震灾害报告.pdf";
 import routePlanningIcon from '../../assets/icons/svg/routePlanning.svg';
 import rescueForceMatchingIcon from '../../assets/icons/svg/rescueForceMatching.svg';
@@ -1703,8 +1703,15 @@ export default {
               layer: "倾斜模型",
               point: {
                 pixelSize: 20,
-                color: Cesium.Color.WHITE
+                color: Cesium.Color.fromCssColorString("#e0c79b"),
+                clampToGround:true,
               },
+              // billboard: {
+              //   image: 'path/to/your/icon.png', // 替换为你的图标路径
+              //   width: 40, // 图标的宽度（可选）
+              //   height: 40, // 图标的高度（可选）
+              //   verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // 图标的垂直对齐方式
+              // },
               // 自定义属性，保存对应的数据
               data: res[i]
             });
@@ -3635,7 +3642,7 @@ export default {
               window.viewer.dataSources.remove(window.duanliedai, true);
               window.duanliedai = null;
             }
-            this.removeDataSourcesLayer('duanliedai');
+            this.removeDataSourcesLayer('faultZone');
           }
         },
         {
@@ -4118,7 +4125,7 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              url: "http://t0.tianditu.com/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" + token,
+              url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg", // 根据实际返回的图像格式调整
@@ -4136,8 +4143,7 @@ export default {
         let traffictxtLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通注记图层的URL模板
-              url: "http://t0.tianditu.gov.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=" +
-                  TianDiTuToken,
+              url: `${tianditu}/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${TianDiTuToken}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
@@ -4247,7 +4253,7 @@ export default {
         srs: 'EPSG:4326',
       })
       // 构建完整的请求URL
-      const fullUrl = `${url}?${urlParams.toString()}`;
+      // const fullUrl = `${url}?${urlParams.toString()}`;
       // 打印调试信息
       // //console.log('GetFeatureInfo URL:', fullUrl);
       // 发送HTTP请求，并处理响应
