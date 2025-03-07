@@ -160,7 +160,7 @@ export function addFaultZones(centerPoint) {
           clampToGround: true,
         })).then(function(dataSource) {
           // 给 dataSource 添加 name 属性
-          dataSource.name = "duanliedai";
+          dataSource.name = "faultZone";
         })
 
       })
@@ -632,7 +632,8 @@ export function addOvalCircles(centerPoint) {
   // })
 }
 
-export function addOCTest(eqid, eqqueueId) {
+export function addOCTest(eqid, eqqueueId, centerPosition) {
+  // 用于渲染的烈度圈等级与颜色数组
   let intensityLevels = ["Ⅵ (六度)", "Ⅶ (七度)", "Ⅷ (八度)", "Ⅸ (九度)", "Ⅹ (十度)", "Ⅺ (十一度)", "Ⅻ (十二度)"];
   let intensityColors = [
     "#990000",
@@ -646,48 +647,117 @@ export function addOCTest(eqid, eqqueueId) {
   /**
    * 烈度圈部分
    */
+  // 本地测试请解开↓↓↓
   // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
+  // 真实数据请解开↓↓↓
   fetch(`${zaisunimageipLocal}/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
-    // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
-      console.log(geojsonData);
+      // console.log(geojsonData);
 
+      // 加载 GeoJSON 数据
       let ovalCirclePromise = Cesium.GeoJsonDataSource.load(geojsonData, {
         stroke: true,
         fill: false,
         strokeWidth: 2,
         markerSymbol: "?"
       });
+
+      // 处理加载后的数据
       ovalCirclePromise.then(OCDataSource => {
         window.viewer.dataSources.add(OCDataSource);
         OCDataSource.name = "ovalCircleTest";
+
         // 设置每个实体的样式
         const entities = OCDataSource.entities.values;
-
         entities.forEach((entity, index) => {
-          // 使用索引对颜色数组进行循环
+          // 使用索引循环颜色数组
           const colorIndex = index % intensityColors.length;
           const fillColor = Cesium.Color.fromCssColorString(intensityColors[colorIndex]);
 
-          // 设置实体样式
           if (entity.polygon) {
-            entity.polygon.material = fillColor.withAlpha(0.5); // 设置填充颜色和透明度
-            entity.polygon.outline = false; // 显示边框
-            entity.polygon.outlineWidth = 2.0; // 设置边框宽度
+            entity.polygon.material = fillColor.withAlpha(0.5);
+            entity.polygon.outline = false;
+            entity.polygon.outlineWidth = 2.0;
           }
-
         });
 
-        console.log(entities)
+        // 倒序加载烈度圈等级，最外圈是最低等级，向内升级
+        let i = intensityLevels.length - geojsonData.features.length; // 从 intensityLevels 的最后一个索引开始
 
-      })
+        // 等级渲染计算思路：第一个点以震中为基准，第二个点则是烈度圈geojson中的数组第一个点（最内圈的边界处），渲染等级的位置处于这两个点之间的60%（距外点近），以此类推
+        // 由于geojson存储拟合椭圆的数组顺序是固定的，也就是说方向一致，所以只要取组成每个圈的第一个点即可实现将等级标在理想位置
 
+        // 上一个点的经纬度，初始化为震中经纬度
+        let lastLon = centerPosition[0];
+        let lastLat = centerPosition[1];
+
+        // 绘制
+        geojsonData.features.forEach((feature, index) => {
+          if (feature.geometry.type === "Polygon") {
+
+            // 获取第一个环的坐标点
+            let coordinates = feature.geometry.coordinates[0];
+
+            if (coordinates && coordinates.length > 0) {
+              let firstPoint = coordinates[0];
+              let longitude = firstPoint[0];
+              let latitude = firstPoint[1];
+
+              // 使用 Cesium 计算球面插值，获取新经纬度
+              function interpolateSpherical(lon1, lat1, lon2, lat2, ratio) {
+                let cart1 = Cesium.Cartesian3.fromDegrees(lon1, lat1);
+                let cart2 = Cesium.Cartesian3.fromDegrees(lon2, lat2);
+                let resultCart = new Cesium.Cartesian3();
+                // 进行球面插值
+                Cesium.Cartesian3.lerp(cart1, cart2, ratio, resultCart);
+                let cartographic = Cesium.Cartographic.fromCartesian(resultCart);
+                let newLon = Cesium.Math.toDegrees(cartographic.longitude);
+                let newLat = Cesium.Math.toDegrees(cartographic.latitude);
+                return [newLon, newLat];
+              }
+
+              // 根据第n个点、第n+1个点等依次计算
+              let [newLon, newLat] = interpolateSpherical(lastLon, lastLat, longitude, latitude, 0.6);
+
+              let labelText = intensityLevels[i];
+
+              // 创建等级标签
+              let entity = window.viewer.entities.add({
+                position: Cesium.Cartesian3.fromDegrees(newLon, newLat),
+                label: {
+                  text: labelText,
+                  font: "14px sans-serif",
+                  fillColor: Cesium.Color.WHITE,
+                  backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
+                  showBackground: true,
+                  horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+                  pixelOffset: new Cesium.Cartesian2(10, 0)
+                },
+                properties: {
+                  type: "ovalCircleTest"
+                },
+              });
+
+              // 存储实体
+              entities.push(entity);
+
+              // 更新 lastLon 和 lastLat，确保下次计算使用当前点
+              lastLon = longitude;
+              lastLat = latitude;
+
+              // 倒序递减索引
+              i--;
+            }
+          }
+        });
+      });
     })
     .catch((error) => {
       console.error("加载失败:", error);
     });
 }
+
 
 
 /**

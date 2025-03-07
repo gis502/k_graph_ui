@@ -282,10 +282,12 @@ export default {
           'personalCasualty',
         ],
         layers: [
-          // 'historyEq',
+          'historyEq',
           'economicLoss',
           'buildingDamage',
-          'personalCasualty'
+          'personalCasualty',
+          'ovalCircleTest',
+          'faultZone'
         ],
         show: {
           isshowHistoryEqPoints: false,
@@ -645,7 +647,6 @@ export default {
 
     // 地图渲染查询地震点(根据页码、根据搜索框)
     renderQueryEqPoints() {
-      this.eqThemes.show.isshowOvalCircle = false
 
       this.listEqPoints.forEach(entity => window.viewer.entities.remove(entity));
       this.listEqPoints = [];
@@ -789,7 +790,7 @@ export default {
             entity.polygon.outlineColor = Cesium.Color.WHITE;
           });
           yaanRegion.features.forEach((feature) => {
-            this.RegionLabels.push(regionlabel)
+            this.RegionLabels.push(feature)
           })
           //雅安行政区加载 end
         })
@@ -1053,7 +1054,8 @@ export default {
       const faultInfoDiv = document.getElementById('faultInfo');
       faultInfoDiv.style.display = 'none';
 
-      this.removeEntitiesByType(["historyEq", "faultZone", "ovalCircle"])
+      // this.removeEntitiesByType(["historyEq", "faultZone", "ovalCircleTest"])
+      // this.removeLayers(["ovalCircleTest"]);
       this.renderLayer("")
 
       const setValues = (obj, value) => {
@@ -1156,7 +1158,7 @@ export default {
       if (this.eqThemes.show.isshowFaultZone) {
         addFaultZones(this.selectedTabData)
       } else {
-        removeDataSourcesLayer('duanliedai');
+        removeDataSourcesLayer('faultZone');
         const faultInfoDiv = document.getElementById('faultInfo');
         faultInfoDiv.style.display = 'none';
       }
@@ -1185,9 +1187,11 @@ export default {
     showOvalCircle() {
       this.eqThemes.show.isshowOvalCircle = !this.eqThemes.show.isshowOvalCircle;
       if (this.eqThemes.show.isshowOvalCircle) {
-        addOCTest(this.selectedTabData.eqid, this.selectedTabData.eqqueueId)
+        const centerPosition = [parseFloat(this.selectedTabData.longitude), parseFloat(this.selectedTabData.latitude)];
+        addOCTest(this.selectedTabData.eqid, this.selectedTabData.eqqueueId, centerPosition)
       } else {
         this.removeLayers(["ovalCircleTest"])
+        this.removeEntitiesByType(["ovalCircleTest"]);
       }
     },
 
@@ -1313,7 +1317,9 @@ export default {
     // 10.6 渲染图层
     addThemeLayer(layerData, type) {
 
-      this.renderLayer("");
+      this.removeEntitiesByType([type])
+      this.removeLayers([type])
+      this.renderLayer("", false);
 
       if (layerData) {
         const entries = Object.entries(layerData);
@@ -1367,7 +1373,7 @@ export default {
             }
           });
 
-          this.renderLayer(type);
+          this.renderLayer(type, false);
         });
       }
 
@@ -1512,11 +1518,14 @@ export default {
     },
 
     // 专门用来渲染指定图层，同时去掉（隐藏/销毁）其他图层
-    renderLayer(layerToRender) {
+    renderLayer(layerToRender, flag) {
       // layerToRender 是一个变量
       const layersToRemove = this.eqThemes.layers.filter(layer => layer !== layerToRender);
-      this.removeLayers(layersToRemove)
-      this.removeEntitiesByType(layersToRemove)
+      if (flag) {
+        this.removeLayers(layersToRemove);
+        this.removeEntitiesByType(layersToRemove)
+      }
+
     },
 
     // 更新弹窗的位置
