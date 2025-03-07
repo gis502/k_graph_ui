@@ -2364,19 +2364,19 @@ export default {
 
     // 切换数据列表
     changeDataList(param) {
-      console.log(`调用 changeDataList，参数 param = ${param}`);
+      // console.log(`调用 changeDataList，参数 param = ${param}`);
 
       this.selectedSuppliesList = [];
-      console.log("已清空 this.selectedSuppliesList");
+      // console.log("已清空 this.selectedSuppliesList");
 
       // 计算标志位
       let flag1 = Object.keys(this.selectedDataByRegions).length > 0;
       let flag2 = Object.keys(this.selectedDataByRadius).length > 0;
       let flag3 = Object.keys(this.selectedDataBySupplies).length > 0;
 
-      console.log(`flag1 (selectedDataByRegions 是否有数据) = ${flag1}`);
-      console.log(`flag2 (selectedDataByRadius 是否有数据) = ${flag2}`);
-      console.log(`flag3 (selectedDataBySupplies 是否有数据) = ${flag3}`);
+      // console.log(`flag1 (selectedDataByRegions 是否有数据) = ${flag1}`);
+      // console.log(`flag2 (selectedDataByRadius 是否有数据) = ${flag2}`);
+      // console.log(`flag3 (selectedDataBySupplies 是否有数据) = ${flag3}`);
 
       // 确定数据来源
       let array = flag1 ? 'selectedDataByRegions'
@@ -2384,7 +2384,7 @@ export default {
               : flag3 ? 'selectedDataBySupplies'
                   : null;
 
-      console.log(`确定数据来源 array = ${array}`);
+      // console.log(`确定数据来源 array = ${array}`);
 
       // 确定字段映射
       const paramMap = {
@@ -2394,34 +2394,34 @@ export default {
       };
 
       if (!paramMap[param]) {
-        console.log("无效的参数 param，退出方法");
+        // console.log("无效的参数 param，退出方法");
         return; // 避免无效参数导致的错误
       }
 
       this.listField = paramMap[param].field;
-      console.log(`设置 this.listField = ${this.listField}`);
+      // console.log(`设置 this.listField = ${this.listField}`);
 
       // 选择合适的数据列表
       if (array) {
-        console.log(`尝试从 this.${array} 读取数据`);
-        console.log(`this.${array} 的内容：`, this[array]); // 打印整个对象，检查数据结构
+        // console.log(`尝试从 this.${array} 读取数据`);
+        // console.log(`this.${array} 的内容：`, this[array]); // 打印整个对象，检查数据结构
 
         this.selectedSuppliesList = this[array]?.[paramMap[param].field] ?? this.suppliesList[paramMap[param].defaultIndex];
 
-        console.log(`从 this.${array}.${paramMap[param].field} 读取的数据为：`, this.selectedSuppliesList);
+        // console.log(`从 this.${array}.${paramMap[param].field} 读取的数据为：`, this.selectedSuppliesList);
       } else {
-        console.log("没有匹配的 array，从 this.suppliesList 获取默认值");
+        // console.log("没有匹配的 array，从 this.suppliesList 获取默认值");
         this.selectedSuppliesList = this.suppliesList[paramMap[param].defaultIndex];
       }
 
       // 赋值并打印结果
       this.showIcon = this.selectedSuppliesList;
       this.total = this.selectedSuppliesList.length;
-      console.log(`最终选中的数据列表（this.selectedSuppliesList）：`, this.selectedSuppliesList);
-      console.log(`this.total = ${this.total}`);
+      // console.log(`最终选中的数据列表（this.selectedSuppliesList）：`, this.selectedSuppliesList);
+      // console.log(`this.total = ${this.total}`);
 
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
-      console.log("最终分页后的数据（this.showSuppliesList）：", this.showSuppliesList);
+      // console.log("最终分页后的数据（this.showSuppliesList）：", this.showSuppliesList);
     },
 
 
