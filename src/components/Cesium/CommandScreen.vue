@@ -55,13 +55,50 @@
         </div>
       </div>
       <div v-if="isShowMessage"
-           style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
+           style="position: fixed; top: 210px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
         <p style="color: #fff; margin: 0;">请添加受灾点</p>
       </div>
 
-      <div class="emergencyPanel" v-if="panels.searchSupplyDialog">
+      <!--物资查询-->
+
+      <div class="emergencyPanel" v-if="panels.materialMatching">
         <div class="emergencyPanelTop">
           <h2 class="emergencyPanelName">物资查询</h2>
+        </div>
+
+        <div class="panelContent" style=" gap: 30px;padding-right: 3%;padding-left: 3%;padding-bottom: 5%; width: 100%;display: flex;justify-content: center;align-items: center"  >
+          <el-button @click="searchRescueSupplies" class="cyber-button" >
+            <span class="glow-text">救·援·物·资</span>
+            <div class="gradient-border"></div>
+          </el-button>
+
+          <el-button  @click="searchRescueForces" class="cyber-button">
+            <span class="glow-text">救·援·力·量</span>
+            <div class="gradient-border"></div>
+          </el-button>
+
+          <el-button  @click="searchRescueEquipment" class="cyber-button">
+            <span class="glow-text"> 救·援·装·备</span>
+            <div class="gradient-border"></div>
+          </el-button>
+        </div>
+
+        <div style="width: 100%;display: flex;justify-content: center;align-items: center">
+          <div class="panelButtons" >
+            <el-button @click="panels.materialMatching = false">取消</el-button>
+            <el-button type="primary" @click="searchAll">
+              显示所有物资点
+            </el-button>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!--救援物资查询-->
+      <div class="emergencyPanel" v-if="panels.searchSupplyDialog">
+        <div class="emergencyPanelTop">
+          <h2 class="emergencyPanelName">救援物资查询</h2>
         </div>
 
         <div class="panelContent">
@@ -104,33 +141,53 @@
       </div>
 
 
-      <!--  路径规划清除实体弹窗    -->
-      <div class="emergencyPanel" v-if="panels.showRemove">
+      <!-- 救灾装备查询-->
+      <div class="emergencyPanel" v-if="panels.searchEquipmentDialog">
         <div class="emergencyPanelTop">
-          <h2 class="emergencyPanelName">清除实体</h2>
+          <h2 class="emergencyPanelName">救灾装备查询</h2>
         </div>
 
-        <div class="container" label-width="120px"    >
-          <a href="#" class="button type--C" @click="removePolyline">
-            <div class="button__line"></div>
-            <div class="button__line"></div>
-            <span class="button__text">清除规划</span>
-          </a>
-          <a href="#" class="button type--A" @click="removePoint">
-            <div class="button__line"></div>
-            <div class="button__line"></div>
-            <span class="button__text">清除障碍</span>
-          </a>
-          <a href="#" class="button type--B" @click="removeAll">
-            <div class="button__line"></div>
-            <div class="button__line"></div>
-            <span class="button__text">全部清除</span>
-          </a>
+        <div class="panelContent">
+          <el-form class="panelForm" :model="equipmentSupplyForm" label-width="80px">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="区域">
+                  <el-input v-model="equipmentSupplyForm.county" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="地址">
+                  <el-input v-model="equipmentSupplyForm.address" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item label="联系人">
+                  <el-input v-model="equipmentSupplyForm.contactPerson" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="联系电话">
+                  <el-input v-model="equipmentSupplyForm.contactPhone" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
         </div>
-
+        <div style="width: 100%;display: flex;justify-content: center;align-items: center">
+          <div class="panelButtons">
+            <el-button @click="panels.searchEquipmentDialog = false">取消</el-button>
+            <el-button type="primary" @click="searchEquipment">
+              查询
+            </el-button>
+          </div>
+        </div>
 
       </div>
 
+
+      <!--救援力量查询-->
       <div class="emergencyPanel" v-if="panels.searchEmergencyTeamDialog">
         <div class="emergencyPanelTop">
           <h2 class="emergencyPanelName">救援力量查询</h2>
@@ -187,12 +244,41 @@
             </el-button>
           </div>
         </div>
+      </div>
+
+
+      <!--  路径规划清除实体弹窗    -->
+      <div class="emergencyPanel" v-if="panels.showRemove">
+        <div class="emergencyPanelTop">
+          <h2 class="emergencyPanelName">清除实体</h2>
+        </div>
+
+        <div class="container" label-width="120px"    >
+          <a href="#" class="button type--C" @click="removePolyline">
+            <div class="button__line"></div>
+            <div class="button__line"></div>
+            <span class="button__text">清除规划</span>
+          </a>
+          <a href="#" class="button type--A" @click="removePoint">
+            <div class="button__line"></div>
+            <div class="button__line"></div>
+            <span class="button__text">清除障碍</span>
+          </a>
+          <a href="#" class="button type--B" @click="removeAll">
+            <div class="button__line"></div>
+            <div class="button__line"></div>
+            <span class="button__text">全部清除</span>
+          </a>
+        </div>
+
 
       </div>
 
+
+
       <div class="emergencyPanel" v-if="panels.marchSupplyDialog">
         <div class="emergencyPanelTop">
-          <h2 class="emergencyPanelName">物资匹配</h2>
+          <h2 class="emergencyPanelName">救援物资匹配</h2>
         </div>
 
         <div class="panelContent">
@@ -500,11 +586,13 @@
     <!--    &lt;!&ndash;    box包裹地图，截图需要&ndash;&gt;-->
     <div id="box" ref="box">
       <div id="cesiumContainer">
+        <!--中心标绘信息-->
         <eqCenterPanel
             v-show="eqCenterPanelVisible"
             :position="PanelPosition"
             :popupData="PanelData"
         />
+        <!--态势标绘信息-->
         <plotInfoOnlyShowPanel
             v-show="plotShowOnlyPanelVisible"
             :position="PanelPosition"
@@ -512,11 +600,13 @@
             :eqThemeInfo="eqThemeData"
             :popupData="PanelData"
         />
+        <!--救援队伍、应急物资、避难场所图层标绘点的弹窗-->
         <RouterPanel
             :visible="routerPopupVisible"
             :position="PanelPosition"
             :popupData="routerPanelData"
         />
+        <!--聚合标绘信息-->
         <dataSourcePanel
             :visible="dataSourcePopupVisible"
             :position="PanelPosition"
@@ -628,7 +718,8 @@
         <img src="../../assets/icons/svg/2Dand3Dintegration.svg" title="二三维一体化"
              style="width: 31px; height: 31px;">
       </div>
-      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton" style="pointer-events: auto; margin-left: 5px;" id="slope">
+      <div @click="toggleSlopeAnalysis(websock)" class="positionFlyToButton"
+           style="pointer-events: auto; margin-left: 5px;" id="slope">
         <img src="../../assets/icons/svg/slopeAnalysis.svg" title="坡面分析"
              style="width: 31px; height: 31px;">
       </div>
@@ -649,8 +740,8 @@
         </div>
       </div>
       <div class="panelButton">
-        <el-button class="panelButtons" @click="clearPositionPanel" ><p style="margin-top:30px">取消</p></el-button>
-        <el-button class="panelButtons" type="primary" @click="flyToPosition" >
+        <el-button class="panelButtons" @click="clearPositionPanel"><p style="margin-top:30px">取消</p></el-button>
+        <el-button class="panelButtons" type="primary" @click="flyToPosition">
           <p style="margin-top: 30px">跳转</p>
         </el-button>
       </div>
@@ -910,7 +1001,8 @@ import earthquakeTable from "@/components/Home/earthquakeTable.vue";
 import modelTable from '@/components/Home/modelTable.vue'
 import {TianDiTuToken} from "@/cesium/tool/config";
 import {getEmergency, getFeaturesLayer} from "@/api/system/emergency.js";
-import emergencyRescueEquipmentLogo from '@/assets/images/EmergencyResourceInformation/disasterReliefSuppliesLogo.jpg';
+import emergencyRescueEquipmentLogo
+  from "@/assets/images/EmergencyResourceInformation/emergencyRescueEquipmentLogo.png"; // 抢险救灾设备
 import rescueTeamsInfoLogo from '@/assets/images/EmergencyResourceInformation/rescueTeamsInfoLogo.png';
 import emergencySheltersLogo from '@/assets/images/emergencySheltersLogo.png';
 import layeredShowPlot from '@/components/Cesium/layeredShowPlot.vue'
@@ -1230,8 +1322,7 @@ export default {
 
 
       activeTab: "thematicMap", // 当前显示的 tab (专题图或报告)
-      showSidebarComponents: true,
-      // 控制两侧组件显示状态
+      showSidebarComponents: true,  // 控制两侧组件显示状态
       //-----------------图层要素---------------------
       isExpanded: false,
       layeritems: [
@@ -1345,14 +1436,16 @@ export default {
 
       panels: {
         tableVisible: true, // 显示表格
-        searchSupplyDialog: false, // 物资查询dialog是否显示
-        searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
-        marchSupplyDialog: false, // 物资匹配dialog是否显示
+        materialMatching:false, //物资查询dialog是否显示
+        // searchSupplyDialog: false, // 救援物资查询dialog是否显示
+        // searchEquipmentDialog: false, // 救援装备查询dialog是否显示
+        // searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
+        marchSupplyDialog: false, // 救援物资匹配dialog是否显示
         searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
         marchRegionsDialog: false,  //行政区划匹配dialog是否显示
         showRemove: false, //路径规划清除实体框dialog是否显示
       },
-
+      marchRegion: true, // 行政区划匹配——选定匹配区域
       searchSupplyResultDialog: false, // 物资匹配结果dialog是否显示
 
       ifDrawEllipse: false,
@@ -1379,7 +1472,7 @@ export default {
         raincoats: 0,
         rainBoots: 0,
         flashlights: 0,
-        radius: 0.0,
+        radius: 0.0,  //半径
       },
       // 救援力量表单
       searchEmergencyTeamForm: {
@@ -1389,6 +1482,18 @@ export default {
         address: '',
         personInCharge: '',
         chargePhone: ''
+      },
+      // 救灾装备查询/匹配表单
+      equipmentSupplyForm: {
+        county: "",
+        address: "",
+        contactPerson: "",
+        contactPhone: "",
+        lifeJacket: 0,
+        lifebuoy: 0,
+        walkieTalkie: 0,
+        portableLight: 0,
+        radius: 0.0,  //半径
       },
       inputRadius: "",
       inputData: '',
@@ -1485,15 +1590,16 @@ export default {
           content: [
             {name: "路径规划", action: 'route', active: false},
             {name: "添加障碍区", action: 'addArea', active: false},
-            {name: "清空实体", action: 'panels.showRemove = true', active: false},
+            {name: "清空实体", action: 'removeAll', active: false},
+            // {name: "清空实体", action: 'panels.showRemove = true', active: false},
           ]
         },
         {
           name: "救援力量匹配",
           icon: rescueForceMatchingIcon,
           content: [
-            {name: "物资查询", action: 'panels.searchSupplyDialog = true', active: false},
-            {name: "救援力量查询", action: 'panels.searchEmergencyTeamDialog = true', active: false},
+            {name: "物资查询", action: 'panels.materialMatching = true', active: false},
+            {name: "行政区划匹配", action: 'panels.marchRegionsDialog = true', active: false},
             {name: "震中半径查询", action: 'searchSuppliesByRadius', active: false}
           ]
         },
@@ -1710,7 +1816,9 @@ export default {
                 color: Cesium.Color.WHITE
               },
               // 自定义属性，保存对应的数据
-              data: res[i]
+              data: res[i],
+              // 添加名称属性
+              name: res[i].name + "倾斜模型"
             });
             // 将实体保存到数组中
             entities.push(alltiltPhotography);
@@ -1905,10 +2013,14 @@ export default {
         this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
 
-        // 调用 `processPoints` 并传递不同的 `tableName`
-        // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-        // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-        // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+
+          // 调用 `processPoints` 并传递不同的 `tableName`
+          // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+          // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+          // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+
+
+
 
         this.listField = 'supplies'
         this.selectedSuppliesList = this.suppliesList[0]
@@ -2016,9 +2128,11 @@ export default {
             this.PanelPosition = this.selectedEntityPosition; // 更新位置
             this.PanelData = {}
             this.PanelData = this.extractDataForRouter(entity)
-            console.log("PanelData 震中",this.PanelData)
-          } else if(entity._layer === "倾斜模型") {
+            console.log("PanelData 震中", this.PanelData)
+          } else if (entity._layer === "倾斜模型") {
+
             // 获取实体的自定义属性
+
             let row = entity.data;
             this.modelInfo.name = row.name
             this.modelInfo.path = row.path
@@ -2028,10 +2142,11 @@ export default {
             this.modelInfo.modelid = row.modelid
             this.modelInfo.tze = row.tze
             this.modelInfo.rze = row.rze
+
+            this.tiltphotographymodel(row);
             goModel(row)
-          }
-          else if (entity._layer === "标绘点") {
-            this.eqCenterPanelVisible=false;
+          } else if (entity._layer === "标绘点") {
+            this.eqCenterPanelVisible = false;
             this.plotShowOnlyPanelVisible = true;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
@@ -2053,7 +2168,7 @@ export default {
             this.routerPanelData = this.extractDataForRouter(entity);
           }
           //资源调度——救灾物资储备、雅安应急队伍
-          else if (entity._layer === "救灾物资储备" || entity._layer === "雅安应急队伍") {
+          else if (entity._layer === "救灾物资储备" || entity._layer === "雅安应急队伍" ||entity._layer === "抢险救灾装备") {
             this.eqCenterPanelVisible = false;
             this.routerPopupVisible = true;
             this.dataSourcePopupVisible = false;
@@ -2275,12 +2390,6 @@ export default {
       })
     },
 
-
-
-
-
-
-
     cartographicToGeoJSON(cartographic) {
       // 将 Cesium.Cartographic 弧度转换为 GeoJSON 所需的度
       let lon = Cesium.Math.toDegrees(cartographic.longitude); // 经度
@@ -2345,6 +2454,75 @@ export default {
       } else {
         console.log('其他情况：', action);
       }
+    },
+
+    // 救援物资查询
+    searchRescueSupplies(){
+      this.panels.materialMatching =  false;
+      this.panels.searchSupplyDialog = true;
+
+
+
+    },
+    //救援装备查询
+    searchRescueEquipment(){
+      this.panels.materialMatching =  false;
+      this.panels.searchEquipmentDialog = true;
+
+
+    },
+    // 救援力量查询
+    searchRescueForces(){
+      this.panels.materialMatching =  false;
+      this.panels.searchEmergencyTeamDialog = true;
+
+
+    },
+    searchAll(){
+      this.panels.materialMatching = false;
+      this.panels.tableVisible = true
+
+      //清除半径查询实体标签
+      this.removethdRegions()
+      this.removeAllEmergencySites();
+      //清除其他实体标签
+      // this.removeDataSourcesLayer('siChuanProvinceRegionLayer');
+      this.removeDataSourcesLayer('siChuanCityRegionLayer');
+      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
+        }
+      });
+      this.removePoints(this.showIcon);
+      this.removePoints(this.selectedSuppliesList);
+      this.removethdRegions()
+      this.removeDataSourcesLayer('YaanRegionLayer');
+
+
+      getEmergency().then(res => {
+        let {emergencyRescueEquipment, disasterReliefSupplies, rescueTeamsInfo} = res;
+        console.log('获取到的res', res);
+
+        this.supplyList = disasterReliefSupplies
+        this.all.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo)
+        this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
+
+        // 调用 `processPoints` 并传递不同的 `tableName`
+        this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+
+        // this.fetSupplyPoints();
+        this.listField = 'supplies'
+        this.selectedSuppliesList = this.suppliesList[0]
+        this.showIcon = this.selectedSuppliesList;
+        this.total = this.selectedSuppliesList.length;
+        this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      });
+
     },
 
     //-----------附近资源快速匹配----------
@@ -2481,8 +2659,18 @@ export default {
       }
     },
 
-    // 物资查询
+    // 救援物资查询
     async searchSupply() {
+      //清除其他实体标签
+      this.removethdRegions()
+      this.removeAllEmergencySites();
+
+      this.removeDataSourcesLayer('siChuanCityRegionLayer');
+      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+
+
+
       let that = this;
       this.activeMenuIndex = '2'
 
@@ -2525,12 +2713,85 @@ export default {
         radius: 0.0,
       }
       // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
+
+      this.panels.tableVisible = true
+    },
+
+
+    // 救援装备查询
+    async searchEquipment() {
+
+      //清除其他实体标签
+      this.removethdRegions()
+      this.removeAllEmergencySites();
+
+      this.removeDataSourcesLayer('siChuanCityRegionLayer');
+      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+
+
+      let that = this;
+      this.activeMenuIndex = '2'
+
+      viewer.entities.values.forEach((entity) => {
+        if (entity.ellipse) {
+          viewer.entities.remove(entity);
+        }
+      });
+      this.removePoints(that.showIcon);
+      this.removePoints(that.selectedSuppliesList);
+      this.removeSuppliesList();
+      let result = []
+      this.ifDrawEllipse = false
+      this.selectedSuppliesList = []
+      // 字符串部分到后端查询
+      let obj = {
+        county: this.equipmentSupplyForm.county,
+        address: this.equipmentSupplyForm.address,
+        contactPerson: this.equipmentSupplyForm.contactPerson,
+        contactPhone: this.equipmentSupplyForm.contactPhone,
+      }
+      await searchMaterialData(obj).then(res => {
+        // console.log("search----------",res)
+        result = res
+        this.selectedSuppliesList = result
+      })
+      this.drawSupplyPoint('searchReserves')
+      this.listField = 'reserves'
+      this.activeMenuIndex = '3'
+      this.panels.searchSupplyDialog = false
+      this.equipmentSupplyForm = {
+            county: "",
+            address: "",
+            contactPerson: "",
+            contactPhone: "",
+            lifeJacket: 0,
+            lifebuoy: 0,
+            walkieTalkie: 0,
+            portableLight: 0,
+            radius: 0.0,  //半径
+      }
+      // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
+
+      this.panels.tableVisible = true
     },
 
     // 救援力量查询
     async searchEmergencyTeam() {
+
+
+      //清除其他实体标签
+      this.removethdRegions()
+      this.removeAllEmergencySites();
+
+      this.removeDataSourcesLayer('siChuanCityRegionLayer');
+      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+
+
       let that = this;
       this.activeMenuIndex = '2'
+
       viewer.entities.values.forEach((entity) => {
         if (entity.ellipse) {
           viewer.entities.remove(entity);
@@ -2558,6 +2819,8 @@ export default {
         personInCharge: '',
         chargePhone: ''
       }
+
+      this.panels.tableVisible = true
     },
 
     // 物资匹配dialog能打开
@@ -2611,13 +2874,20 @@ export default {
     // 半径查询
     async searchSuppliesByRadius() {
       this.addDisasterPoint()
-      this.removeAllEmergencySites();
       this.isShowMessage = true
       this.searchSupplyBy = 'RadiusDialog'
     },
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
+      this.panels.tableVisible = true
+      this.removeDataSourcesLayer('siChuanCityRegionLayer');
+      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      //清除其他实体标签
+      this.removethdRegions()
+      this.removeAllEmergencySites();
+      this.panels.marchRegionsDialog = false
       this.ifDrawEllipse = true
       // 移除现有的点
       this.removeSuppliesList();
@@ -3034,6 +3304,7 @@ export default {
     //--------路径规划清除实体
     //全部清除
     removeAll(){
+      // this.addDisasterPoint()
       this.removeAllEmergencySites(); //删除救援力量的标绘点
       this.removePolyline(); // 先清除路径规划
       this.removePoint(); // 再清除障碍物
@@ -3403,8 +3674,10 @@ export default {
     handleDistrictClick() {
       let district = this.selectedRegions[0]
       this.selectedDataByRegions = []
-      //清除其他实体标签
+      //清除半径查询实体标签
       this.removethdRegions()
+      this.removeAllEmergencySites();
+      //清除其他实体标签
       // this.removeDataSourcesLayer('siChuanProvinceRegionLayer');
       this.removeDataSourcesLayer('siChuanCityRegionLayer');
       this.removeDataSourcesLayer('sichuanCountyRegionLayer');
@@ -4398,6 +4671,14 @@ export default {
         this.modelTableData = this.getPageArr(this.modelList)
       })
     },
+    tiltphotographymodel(row) {
+      this.$message({
+        showClose: true,
+        message: "当前正在浏览 " + row.name + " 倾斜模型",
+        duration: 10000,
+        offset: 200
+      });
+    },
     goModel(row) {
       this.modelInfo.name = row.name
       this.modelInfo.path = row.path
@@ -5238,6 +5519,20 @@ export default {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 10px;
+  justify-content: space-between;
+}
+
+.district-button {
+  flex: 0 0 20%; /* 每行5个按钮 */
+  display: flex;
+  justify-content: center;
+  margin: 0 4px 20px 10px; /* 调整按钮之间的间距 */
+}
+
+.district-button.selected {
+  border: none;
+  background-color: #409eff; /* 选中按钮的背景色 */
+  color: white; /* 选中按钮的文字颜色 */
 }
 
 .city-button, .district-button {
@@ -5567,7 +5862,7 @@ export default {
 }
 
 .panelButtons {
-  display: flex; /* 让按钮横向排列 */
+  display: flex;  /* 让按钮横向排列 */
   justify-content: space-between; /* 按钮左右分布 */
   align-items: center;
   width: auto; /* 适应内容 */
@@ -6093,6 +6388,93 @@ li {
 .close-btn:hover {
   color: red; /* 鼠标悬停时颜色变红 */
 }
+
+
+/*物资查询的按钮*/
+.cyber-button {
+  /* 基础样式 */
+  position: relative;
+  background: linear-gradient(135deg, #0a2840 0%, #1a4a6e 50%, #0a2840 100%);
+  color: #7df9ff; /* 科技蓝荧光色 */
+  border: none;
+  padding: 24px 48px;
+  border-radius: 2px;
+  font-size: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 15px;
+  /*box-shadow: 0 0 15px rgba(94, 234, 255, 0.3);*/
+}
+
+/* 荧光文字效果 */
+.glow-text {
+  text-shadow: 0 0 -1px #7df9ff, 0 0 20px #7df9ff;
+  position: relative;
+  z-index: 2;
+}
+
+/* 动态渐变边框 */
+.gradient-border {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg,
+  #7df9ff 0%,
+  rgba(125,249,255,0) 30%,
+  rgba(125,249,255,0) 70%,
+  #7df9ff 100%
+  );
+  border-radius: 4px;
+  animation: borderFlow 3s linear infinite;
+  mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 2px;
+}
+
+/* 悬停特效 */
+.cyber-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+      0 0 25px rgba(94, 234, 255, 0.5),
+      0 4px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg,
+  #0a2840 0%,
+  #1a4a6e 50%,
+  #0a2840 100%
+  );
+}
+
+/* 点击动画 */
+.cyber-button:active {
+  transform: translateY(1px);
+  box-shadow:
+      0 0 10px rgba(94, 234, 255, 0.3),
+      0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 边框流光动画 */
+@keyframes borderFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
+
 
 
 </style>
