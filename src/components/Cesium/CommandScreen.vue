@@ -256,9 +256,12 @@
         </div>
 
         <div class="panelContent">
-          <el-form class="panelForm" :model="searchSupplyForm" label-width="80px">
-            <el-form-item label="匹配半径">
-              <el-input v-model="displayRadius"
+          <el-form class="panelForm" :model="searchSupplyForm" :rules="formRules" label-width="80px">
+            <el-form-item label="匹配半径"
+
+                          prop="radius"
+                         >
+              <el-input v-model="displayRadius.radius"
                         @input="handleRadiusInput"
                         placeholder="请输入匹配的半径/km"
                         autocomplete="off"
@@ -1379,8 +1382,13 @@ export default {
         raincoats: 0,
         rainBoots: 0,
         flashlights: 0,
-        radius: 0.0,
+        radius: '',
       },
+        formRules:{
+          radius: [
+              {required: true,message:'匹配半径不能为空',trigger:'blur'}
+          ]
+        },
       // 救援力量表单
       searchEmergencyTeamForm: {
         levelName: '',
@@ -2618,6 +2626,9 @@ export default {
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
+        const valid = await this.$refs.searchRadiusForm.validate()
+        if (!valid) return
+
       this.ifDrawEllipse = true
       // 移除现有的点
       this.removeSuppliesList();
