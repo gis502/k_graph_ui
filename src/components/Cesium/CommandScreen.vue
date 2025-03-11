@@ -256,12 +256,11 @@
         </div>
 
         <div class="panelContent">
-          <el-form class="panelForm" :model="searchSupplyForm" :rules="formRules" label-width="80px">
+          <el-form class="panelForm" :model="searchSupplyForm" ref="searchSupplyForm" :rules="formRules" label-width="80px">
             <el-form-item label="匹配半径"
-
                           prop="radius"
                          >
-              <el-input v-model="displayRadius.radius"
+              <el-input v-model="searchSupplyForm.radius"
                         @input="handleRadiusInput"
                         placeholder="请输入匹配的半径/km"
                         autocomplete="off"
@@ -1382,11 +1381,37 @@ export default {
         raincoats: 0,
         rainBoots: 0,
         flashlights: 0,
-        radius: '',
+        radius: 0.0,
       },
         formRules:{
           radius: [
-              {required: true,message:'匹配半径不能为空',trigger:'blur'}
+              {
+                  required: true,
+                  message: '匹配半径不能为空',
+                  trigger: ['blur', 'change'] // 同时监听失焦和内容变化
+              },
+
+              // 数字格式 + 数值范围校验
+              {
+                  validator: (rule, value, callback) => {
+                      // 空值校验已在第一条规则处理，此处无需重复
+                      if (value === '') return callback()
+
+                      // 检查是否为有效数字
+                      if (isNaN(value) || !/^-?\d+\.?\d*$/.test(value)) {
+                          return callback(new Error('必须输入有效数字'))
+                      }
+
+                      // 检查是否大于0
+                      if (parseFloat(value) <= 0) {
+                          console.log(parseFloat(value))
+                          return callback(new Error('匹配半径必须大于0'))
+                      }
+
+                      callback()
+                  },
+                  trigger: ['blur', 'change'] // 同时触发
+              }
           ]
         },
       // 救援力量表单
@@ -2626,8 +2651,9 @@ export default {
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
-        const valid = await this.$refs.searchRadiusForm.validate()
-        if (!valid) return
+        const valid = await this.$refs.searchSupplyForm.validate()
+        if (!valid) {return}
+
 
       this.ifDrawEllipse = true
       // 移除现有的点
@@ -2637,7 +2663,8 @@ export default {
       this.selectedDataByRadius = {
         supplies: result[0],
         reserves: result[1],
-        emergencyTeam: result[2]
+        emergencyTeam: result[2],
+
       };
       selectPoints(this.searchSupplyForm.radius, this.addSupplyPointCurrently.lng, this.addSupplyPointCurrently.lat)
       this.processPoints(result[0], 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
