@@ -1437,10 +1437,11 @@ export default {
       panels: {
         tableVisible: true, // 显示表格
         materialMatching:false, //物资查询dialog是否显示
-        // searchSupplyDialog: false, // 救援物资查询dialog是否显示
-        // searchEquipmentDialog: false, // 救援装备查询dialog是否显示
-        // searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
-        marchSupplyDialog: false, // 救援物资匹配dialog是否显示
+        searchSupplyDialog: false, // 救援物资查询dialog是否显示
+        searchEquipmentDialog: false, // 救援装备查询dialog是否显示
+        searchEmergencyTeamDialog: false, // 救援力量查询dialog是否显示
+
+        marchSupplyDialog: false, // 救援物资匹配dialog是否显示__现在的这个页面没用到
         searchSupplyByRadiusDialog: false,  // 半径匹配dialog是否显示
         marchRegionsDialog: false,  //行政区划匹配dialog是否显示
         showRemove: false, //路径规划清除实体框dialog是否显示
@@ -2089,6 +2090,14 @@ export default {
         if (Cesium.defined(pickedEntity)) {
           let entity = window.selectedEntity;
           console.log(entity, "拾取entity")
+
+          // 新增判断：跳过行政区划实体
+          if (entity._layer === '行政区划') {
+            this.plotShowOnlyPanelVisible = false;
+            this.dataSourcePopupVisible = false;
+            return;
+          }
+
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
           this.updatePopupPosition(); // 确保位置已更新
@@ -2184,6 +2193,7 @@ export default {
               this.plotShowOnlyPanelVisible = false
               this.routerPopupVisible = false;
             } else {
+
               //----
 
               let popupPanelDatatmp = entity.filter(item => item.plottype !== undefined);
@@ -2478,18 +2488,16 @@ export default {
 
 
     },
+
+    //显示所有物资点(所有点查询)
     searchAll(){
       this.panels.materialMatching = false;
       this.panels.tableVisible = true
 
       //清除半径查询实体标签
-      this.removethdRegions()
       this.removeAllEmergencySites();
       //清除其他实体标签
-      // this.removeDataSourcesLayer('siChuanProvinceRegionLayer');
-      this.removeDataSourcesLayer('siChuanCityRegionLayer');
-      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      this.removeDistrict();  //清除行政区域
 
       viewer.entities.values.forEach((entity) => {
         if (entity.ellipse) {
@@ -2539,6 +2547,15 @@ export default {
       }
     },
 
+
+    //清除行政区划
+    removeDistrict(){
+      // this.removeDataSourcesLayer('siChuanProvinceRegionLayer');
+      this.removethdRegions() //移除区域图层和相关标签
+      this.removeDataSourcesLayer('siChuanCityRegionLayer');
+      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
+      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+    },
 
     // 切换数据列表
     changeDataList(param) {
@@ -2662,12 +2679,8 @@ export default {
     // 救援物资查询
     async searchSupply() {
       //清除其他实体标签
-      this.removethdRegions()
       this.removeAllEmergencySites();
-
-      this.removeDataSourcesLayer('siChuanCityRegionLayer');
-      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      this.removeDistrict();  //清除行政区域
 
 
 
@@ -2720,14 +2733,10 @@ export default {
 
     // 救援装备查询
     async searchEquipment() {
-
       //清除其他实体标签
-      this.removethdRegions()
       this.removeAllEmergencySites();
 
-      this.removeDataSourcesLayer('siChuanCityRegionLayer');
-      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      this.removeDistrict();  //清除行政区域
 
 
       let that = this;
@@ -2778,15 +2787,10 @@ export default {
 
     // 救援力量查询
     async searchEmergencyTeam() {
-
-
       //清除其他实体标签
-      this.removethdRegions()
       this.removeAllEmergencySites();
 
-      this.removeDataSourcesLayer('siChuanCityRegionLayer');
-      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      this.removeDistrict();  //清除行政区域
 
 
       let that = this;
@@ -2881,11 +2885,8 @@ export default {
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
       this.panels.tableVisible = true
-      this.removeDataSourcesLayer('siChuanCityRegionLayer');
-      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
+      this.removeDistrict();  //清除行政区域
       //清除其他实体标签
-      this.removethdRegions()
       this.removeAllEmergencySites();
       this.panels.marchRegionsDialog = false
       this.ifDrawEllipse = true
@@ -3301,13 +3302,20 @@ export default {
     },
 
 
-    //--------路径规划清除实体
+    //--------路径规划清除实体--------------------
     //全部清除
     removeAll(){
-      // this.addDisasterPoint()
       this.removeAllEmergencySites(); //删除救援力量的标绘点
       this.removePolyline(); // 先清除路径规划
       this.removePoint(); // 再清除障碍物
+      this.removethdRegions() //移除区域图层和相关标签
+      // this.removeAllEmergencySites();
+      this.removeDistrict();  //清除行政区域
+      // 要素图层复选框跟着变化
+      this.selectedlayersLocal = this.selectedlayersLocal.filter(item =>
+          item !== '救援队伍分布要素图层' && item !== '应急物资存储要素图层'
+      );
+      // this.updateMapLayers(); // 确保要素图层同步更新
 
       // 额外清理数据
       this.areas = [];
@@ -3677,12 +3685,6 @@ export default {
       //清除半径查询实体标签
       this.removethdRegions()
       this.removeAllEmergencySites();
-      //清除其他实体标签
-      // this.removeDataSourcesLayer('siChuanProvinceRegionLayer');
-      this.removeDataSourcesLayer('siChuanCityRegionLayer');
-      this.removeDataSourcesLayer('sichuanCountyRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
-      // this.visible = false;
       // 根据区县代码过滤GeoJSON数据
       let filteredFeatures = sichuanCounty.features.filter(feature => {
         return feature.properties.adcode === district.adcode;
@@ -3715,6 +3717,11 @@ export default {
           window.viewer.dataSources.add(dataSource);
           // 保存区域图层以便后续使用
           window.regionLayerJump = dataSource
+
+          // 遍历实体并标记行政区划类型
+          dataSource.entities.values.forEach(entity => {
+            entity._layer = '行政区划'; // 添加标识属性
+          });
 
           // console.log("filteredFeatures-------------", filteredFeatures[0].geometry.coordinates)
           // 遍历每个过滤后的地理特征
@@ -4325,7 +4332,7 @@ export default {
       });
     },
 
-// 加载道路级图层
+    // 加载道路级图层
     loadVillageLayer(viewer) {
       Cesium.GeoJsonDataSource.load(yaAnVillage, {
         clampToGround: false,
