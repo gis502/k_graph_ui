@@ -1,9 +1,14 @@
 import * as Cesium from 'cesium'
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
+import {
+  getEqOutPutJueCe,
+  getEqOutputMap,
+  getEqOutputReport,
+  saveIntensityCircle
+} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json";
-import {domainName, zaisunimageipLocal} from "../../utils/server.js";
+import {domainName, zaiSunFuZhuJueCe, zaisunimageipLocal} from "../../utils/server.js";
 import hospitalIcon from "@/assets/icons/svg/hospital.png";
 import villageIcon from "@/assets/icons/svg/village.png";
 // 雅安行政区加载
@@ -667,10 +672,10 @@ export function addOCTest(eqid, eqqueueId, centerPosition) {
    * 烈度圈部分
    */
   // 本地测试请解开↓↓↓
-  fetch(`/ThematicMap/be3a5ea4-8dfd-a0a2-2510-21845f17960b01_intensity.geojson`)
+  // fetch(`/ThematicMap/be3a5ea4-8dfd-a0a2-2510-21845f17960b01_intensity.geojson`)
   // fetch(`/ThematicMap/5a72f3d7-0546-4fee-a686-627d45e5965f02_intensity.geojson`)
     // 真实数据请解开↓↓↓
-    // fetch(`${zaisunimageipLocal}/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
+    fetch(`${zaisunimageipLocal}/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
       let ovalCirclePromise = Cesium.GeoJsonDataSource.load(geojsonData, {
@@ -952,12 +957,9 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const data = res.data;
         const themeName = eqFullName + "-" + "灾情报告";
         let reportData = [];
-        const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
-        const urlBase = 'http://59.213.183.7/jcpt';  // 设置新的基础 URL
         console.log("报告")
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
-            // docxUrl: `${url}${data[i].localSourceFile}`,
             docxUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
@@ -965,6 +967,25 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
           reportData.push(reportObject);
         }
 
+        returnData.themeName = themeName;
+        returnData.themeData = reportData;
+        resolve(returnData); // 这里也是异步，所以也需要 resolve
+      }).catch(err => {
+        reject(err);
+      });
+    } else if(type==="AssistantDecision"){
+      getEqOutPutJueCe(DTO).then((res) => {
+        console.log("辅助决策数据：", res);
+        const data = res.data;
+        const themeName = eqFullName + "-" + "辅助决策报告";
+        let reportData = [];
+        for (let i = 0; i < res.data.length; i++) {
+          const reportObject = {
+            docxUrl: `${zaiSunFuZhuJueCe}${data[i].sourceFile}`,
+            theme: data[i].fileName,
+          }
+          reportData.push(reportObject);
+        }
         returnData.themeName = themeName;
         returnData.themeData = reportData;
         resolve(returnData); // 这里也是异步，所以也需要 resolve

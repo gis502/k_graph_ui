@@ -189,7 +189,7 @@ import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "../../cesium/tool/initCesium.js";
 import {
-  getEqList,
+  getEqList, getEqOutPutJueCe, getEqOutPutJueCes,
   getEqOutputMaps,
   getEqOutputReports
 } from "../../api/system/damageassessment.js";
@@ -660,17 +660,19 @@ export default {
       }
 
       this.isPanelShow[type] = !this.isPanelShow[type];
-       if (this.isPanelShow.AssistantDecision){
-        //辅助决策报告
-        this.isNoData = false
-        this.outputData.themeData = [
-          {
-            docxUrl: "http://59.213.183.7/image/EqProduct/357a36dd-00b6-4562-90fd-abc66a294f60/1/本地产品/灾情报告/02月28日10时38分四川省雅安市荥经县荥河镇发生6.8级地震（辅助决策信息一）.docx",
-            theme: "灾情报告1"
-          },
-        ]
-      }
-      if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
+      //  if (this.isPanelShow.AssistantDecision){
+      //   //辅助决策报告
+      //   this.isNoData = false
+      //   this.outputData.themeData = [
+      //     {
+      //       docxUrl: "http://59.213.183.7/image" +
+      //           "/EqProduct/357a36dd-00b6-4562-90fd-abc66a294f60" +
+      //           "/1/本地产品/灾情报告/02月28日10时38分四川省雅安市荥经县荥河镇发生6.8级地震（辅助决策信息一）.docx",
+      //       theme: "灾情报告1"
+      //     },
+      //   ]
+      // }
+      if (this.isPanelShow.thematicMap || this.isPanelShow.report|| this.isPanelShow.AssistantDecision) {
 
         getEqOutputMaps(this.eqid, this.eqqueueId).then((res) => {
           console.log("专题图", res.data)
@@ -678,6 +680,10 @@ export default {
 
         getEqOutputReports(this.eqid, this.eqqueueId).then((res) => {
           console.log("灾情报告", res.data)
+        })
+
+        getEqOutPutJueCes(this.eqid, this.eqqueueId).then((res)=>{
+          console.log("决策报告",res.data)
         })
 
 
