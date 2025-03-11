@@ -19,5 +19,5 @@ export const zaisunipLocal = "http://10.16.7.69/zaisun"
 //
 export const zaisunimageipLocal = "http://10.16.7.69/zaisunimage"
 
-// export const SystemIP = "http://59.213.183.7/prod-api"
-// export const SystemIPLocal = "http://localhost:8080"
+export const SystemIP = "http://59.213.183.7/prod-api"
+export const SystemIPLocal = "http://localhost:8080"

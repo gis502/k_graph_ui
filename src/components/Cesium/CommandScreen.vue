@@ -745,6 +745,7 @@
           <p style="margin-top: 30px">跳转</p>
         </el-button>
       </div>
+      <CommandScreenViewJump/>
     </div>
 
     <!--    图层管理弹框-->
@@ -775,16 +776,16 @@
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
-            <span v-else-if="data.name === '视角跳转'" class="node-icon">
-                <!-- 视角跳转的 SVG 图标 -->
-                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">
-                        <path
-                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"
-                            fill="#ffffff" p-id="2696"></path>
-                      </svg>
-                  <span class="node-text">{{ data.name }}</span>
-                </span>
+<!--            <span v-else-if="data.name === '视角跳转'" class="node-icon">-->
+<!--                &lt;!&ndash; 视角跳转的 SVG 图标 &ndash;&gt;-->
+<!--                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"-->
+<!--                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">-->
+<!--                        <path-->
+<!--                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"-->
+<!--                            fill="#ffffff" p-id="2696"></path>-->
+<!--                      </svg>-->
+<!--                  <span class="node-text">{{ data.name }}</span>-->
+<!--                </span>-->
             <!-- 子节点逻辑保持原有 -->
             <el-checkbox
                 v-if="layeritems.some(item => item.name === data.name)"
@@ -794,14 +795,14 @@
             >
               <span>{{ data.name }}</span>
             </el-checkbox>
-            <el-radio-group
-                v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"
-                v-model="selectedDistrict"
-            >
-              <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">
-                <span>{{ data.name }}</span>
-              </el-radio>
-            </el-radio-group>
+<!--            <el-radio-group-->
+<!--              v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"-->
+<!--              v-model="selectedDistrict"-->
+<!--            >-->
+<!--              <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">-->
+<!--                <span>{{ data.name }}</span>-->
+<!--              </el-radio>-->
+<!--            </el-radio-group>-->
           </div>
         </template>
       </el-tree>
@@ -968,6 +969,7 @@ import {getTerrainProviderViewModelsArr, initCesium} from '@/cesium/tool/initCes
 
 //组件
 import commandScreenTitle from "@/components/commandScreenComponent/commandScreenTitle.vue";
+//时间轴组件
 import timeLinePlay from "@/components/timeLineComponent/timeLinePlay.vue";
 import timeLineEmergencyResponse from "@/components/timeLineComponent/timeLineEmergencyResponse.vue";
 import timeLinePersonnelCasualties from "@/components/timeLineComponent/timeLinePersonnelCasualties.vue";
@@ -976,11 +978,16 @@ import timeLineLegend from "@/components/timeLineComponent/timeLineLegend.vue";
 import timeLineLifeLine from "@/components/timeLineComponent/timeLineLifeLine.vue";
 import timeLinePlotStatistics from "@/components/timeLineComponent/timeLinePlotStatistics.vue";
 import timeLineMiniMap from "@/components/timeLineComponent/timeLineMiniMap.vue";
-
+//面板
 import eqCenterPanel from "@/components/Panel/eqCenterPanel.vue";
 import plotInfoOnlyShowPanel from "@/components/Panel/plotInfoOnlyShowPanel";
 import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
 import RouterPanel from "@/components/Panel/RouterPanel.vue";
+//左下工具
+import CommandScreenViewJump from "@/components/commandScreenComponent/CommandScreenViewJump.vue";
+
+
+
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
 import {getAllEq, getAllEqList, getEqById, getEqListById, getExcelUploadEarthquake} from '@/api/system/eqlist'
@@ -1162,8 +1169,9 @@ export default {
     RouterPanel,
     eqCenterPanel,
     plotInfoOnlyShowPanel,
-
     dataSourcePanel,
+    //左下工具
+    CommandScreenViewJump,
 
     //--未整理---
     damageThemeAssessment,
@@ -3933,10 +3941,12 @@ export default {
           add: this.addFaultZone,
           remove: () => {
             if (window.duanliedai) {
-              window.viewer.dataSources.remove(window.duanliedai, true);
+              let removeDuanliedai=window.viewer.dataSources.remove(window.duanliedai, true);
+              console.log(removeDuanliedai,"removeDuanliedai")
               window.duanliedai = null;
             }
-            this.removeDataSourcesLayer('duanliedai');
+            this.removeDataSourcesLayer('faultZone');
+            window.duanliedai = null;
           }
         },
         {
@@ -4483,7 +4493,10 @@ export default {
      */
     removeDataSourcesLayer(layerName) {
       // 通过图层名称获取数据源对象如果存在，则执行移除操作
+
+      console.log(window.viewer.dataSources.getByName(layerName),"removeDataSourcesLayer")
       const dataSource = window.viewer.dataSources.getByName(layerName)[0];
+      console.log(dataSource,"removeDataSourcesLayer")
       if (dataSource) {
         window.viewer.dataSources.remove(dataSource);
       }
@@ -4806,7 +4819,7 @@ export default {
       if (node.level === 0) {
         return resolve([
           {name: '图层要素'},
-          {name: '视角跳转'}
+          // {name: '视角跳转'}
         ]);
       }
 
