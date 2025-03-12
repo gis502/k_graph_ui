@@ -55,7 +55,7 @@
         </div>
       </div>
       <div v-if="isShowMessage"
-           style="position: fixed; top: 210px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
+           style="position: fixed; top: 150px; left: 50%; transform: translate(-50%, -50%); z-index: 9999; display: flex; align-items: center; justify-content: center; width: 200px; height: 50px; background-color: rgba(13, 50, 95, 0.7);border-radius: 10px;">
         <p style="color: #fff; margin: 0;">请添加受灾点</p>
       </div>
 
@@ -342,9 +342,11 @@
         </div>
 
         <div class="panelContent">
-          <el-form class="panelForm" :model="searchSupplyForm" label-width="80px">
-            <el-form-item label="匹配半径">
-              <el-input v-model="displayRadius"
+          <el-form class="panelForm" :model="searchSupplyForm" ref="searchSupplyForm" :rules="formRules" label-width="80px">
+            <el-form-item label="匹配半径"
+                          prop="radius"
+                         >
+              <el-input v-model="searchSupplyForm.radius"
                         @input="handleRadiusInput"
                         placeholder="请输入匹配的半径/km"
                         autocomplete="off"
@@ -1482,6 +1484,37 @@ export default {
         flashlights: 0,
         radius: 0.0,  //半径
       },
+        formRules:{
+          radius: [
+              {
+                  required: true,
+                  message: '匹配半径不能为空',
+                  trigger: ['blur', 'change'] // 同时监听失焦和内容变化
+              },
+
+              // 数字格式 + 数值范围校验
+              {
+                  validator: (rule, value, callback) => {
+                      // 空值校验已在第一条规则处理，此处无需重复
+                      if (value === '') return callback()
+
+                      // 检查是否为有效数字
+                      if (isNaN(value) || !/^-?\d+\.?\d*$/.test(value)) {
+                          return callback(new Error('必须输入有效数字'))
+                      }
+
+                      // 检查是否大于0
+                      if (parseFloat(value) <= 0) {
+                          console.log(parseFloat(value))
+                          return callback(new Error('匹配半径必须大于0'))
+                      }
+
+                      callback()
+                  },
+                  trigger: ['blur', 'change'] // 同时触发
+              }
+          ]
+        },
       // 救援力量表单
       searchEmergencyTeamForm: {
         levelName: '',
@@ -2895,6 +2928,10 @@ export default {
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
+        const valid = await this.$refs.searchSupplyForm.validate()
+        if (!valid) {return}
+
+
       this.panels.tableVisible = true
       this.removeDataSourcesLayer('siChuanCityRegionLayer');
       this.removeDataSourcesLayer('sichuanCountyRegionLayer');
