@@ -104,10 +104,6 @@ export default {
           this.currentTimeLocal = currentTimeLocaltmp
         }
         this.ifstopandflash(newVal, oldVal);
-        // if (new Date(newVal) >= new Date() && this.flyflag==true) {
-        //   // viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
-        //   window.viewer.clock.multiplier = 1.0
-        // }
       }
     },
     centerPoint(newVal) {

@@ -381,17 +381,8 @@
               </el-button>
             </div>
           </div>
-          <!--            <el-button type="primary" @click="confirmSelection">确认选择</el-button>-->
         </div>
 
-        <!-- marchRegionSupplies 供应详情 -->
-        <!--        <div class="panelContent" style="padding-right: 5px" v-if="marchRegionSupplies">-->
-        <!--            <div>-->
-        <!--&lt;!&ndash;                <p>当前选择的区域：{{ selectedRegions.map(r => r.name).join(', ') }}</p>&ndash;&gt;-->
-        <!--                <h1>11111111111111111111111</h1>-->
-        <!--                <el-button type="primary" @click="goBackToRegionSelection">返回重新选择</el-button>-->
-        <!--            </div>-->
-        <!--        </div>-->
 
         <div style="width: 100%;display: flex;justify-content: center;align-items: center">
           <div class="panelButtons">
@@ -509,7 +500,6 @@
         <disasterStatistics
             :eqid="eqid"
             :currentTime="currentTimeString"
-            @addJumpNodes="addJumpNodes"
         />
       </div>
     </div>
@@ -666,7 +656,7 @@
             :currentTime="currentTimeString"
             :startTime="centerPoint.startTime"
             :zoomLevel="zoomLevel"
-            :isTimerRunning="isTimeRunning"
+            :isTimeRunning="isTimeRunning"
             :viewCenterCoordinate="viewCenterCoordinate"
             :earthquakeName="centerPoint.earthquakeName"
         />
@@ -678,23 +668,7 @@
     </div>
 
     <!--    两侧组件 end-->
-    <!--展示弹框伤亡统计-->
-    <div id="legend" v-show="isShowYaanRegionLegend"
-         style="position: absolute;
-               z-index:20; bottom: 100px;
-               right: 450px; color: #FFFFFF;
-               background-color: rgba(0, 0, 0, 0.5);
-               padding: 10px; border-radius: 5px;text-align: center;">
-      <div v-for="(colorItem, index) in YaanLegendcolors" :key="index">
-        <div style="display: flex; align-items: center; margin-bottom: 5px;">
-          <div
-              style="width: 20px; height: 20px; margin-right: 10px;"
-              :style="{ backgroundColor: colorItem.color.toCssColorString() }">
-          </div>
-          <span>{{ colorItem.name }}</span>
-        </div>
-      </div>
-    </div>
+
 
     <!--   断裂带名称div   -->
     <!--    <div id="faultInfo"-->
@@ -747,7 +721,11 @@
           <p style="margin-top: 30px">跳转</p>
         </el-button>
       </div>
-      <CommandScreenViewJump/>
+      <CommandScreenViewJump
+          :centerPoint="centerPoint"
+          @viewJumpSelectedDistrict="viewJumpSelectedDistrict"
+          :selectedDistrict="selectedDistrict"
+      />
     </div>
 
     <!--    图层管理弹框-->
@@ -778,16 +756,6 @@
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
-<!--            <span v-else-if="data.name === '视角跳转'" class="node-icon">-->
-<!--                &lt;!&ndash; 视角跳转的 SVG 图标 &ndash;&gt;-->
-<!--                  <svg t="1730573546101" class="icon" viewBox="0 0 1024 1024" version="1.1"-->
-<!--                       xmlns="http://www.w3.org/2000/svg" p-id="2695" width="28" height="28" style="margin-right: 8px;">-->
-<!--                        <path-->
-<!--                            d="M1023.886285 0.170629v223.921795l-248.549211-224.1493 248.549211 0.227505z m-185.814707 347.286381v2.218173c113.013108 69.900911 185.814708 174.610087 185.814707 292.571429 0 210.555876-229.211286 381.298378-512 381.298378-282.731837 0-511.943124-170.742502-511.943123-381.298378 0-113.297489 66.88647-214.59409 172.164408-284.438125V299.851589L505.231764 117.392579l332.839814 182.45901v47.605421zM63.701438 642.246612c0 174.837592 201.114419 317.085092 448.184847 317.085092 247.184181 0 448.241724-142.247501 448.241724-317.085092 0-83.778716-46.752277-159.651633-122.056431-216.357254v283.016219l-333.067319 181.890246-332.839813-181.947123V437.83337c-66.658965 55.340591-108.463008 126.151522-108.463008 204.413242z m183.141524 5.630749l227.78938 132.180404V515.753832L246.842962 383.573428v264.303933z m258.161297-449.606754L277.214879 330.394135l227.78938 132.180404 227.846257-132.180404-227.846257-132.123528z m258.218174 185.302821L535.433053 515.753832v262.768274l227.78938-130.644745V383.573428z"-->
-<!--                            fill="#ffffff" p-id="2696"></path>-->
-<!--                      </svg>-->
-<!--                  <span class="node-text">{{ data.name }}</span>-->
-<!--                </span>-->
             <!-- 子节点逻辑保持原有 -->
             <el-checkbox
                 v-if="layeritems.some(item => item.name === data.name)"
@@ -797,14 +765,6 @@
             >
               <span>{{ data.name }}</span>
             </el-checkbox>
-<!--            <el-radio-group-->
-<!--              v-else-if="data.name === '回到震中' || data.name === '雅安市' || districts.some(d => d.name === data.name)"-->
-<!--              v-model="selectedDistrict"-->
-<!--            >-->
-<!--              <el-radio :label="data.name" @change="handleDistrictSelect(data.name)">-->
-<!--                <span>{{ data.name }}</span>-->
-<!--              </el-radio>-->
-<!--            </el-radio-group>-->
           </div>
         </template>
       </el-tree>
@@ -1092,6 +1052,7 @@ import yaAn from "@/assets/geoJson/yaan1.json"
 import yaAnVillage from "@/assets/geoJson/yaan.json"
 import CommandScreenEqList from "@/components/Cesium/CommandScreenEqList.vue"
 import {getModelData} from "@/api/system/tiltPhotography.js";
+import layer from "@/cesium/layer.js";
 export default {
   computed: {
     Edit() {
@@ -1232,7 +1193,6 @@ export default {
       eqThemeData: {}, // plotShowOnlyPanel弹窗的地震专题数据
       PanelData: {}, // TimeLinePanel弹窗的数据
       routerPanelData: {},
-      //----------------------------------
       dataSourcePopupVisible: false, // TimeLinePanel弹窗的显示与隐藏
       dataSourcePopupData: {}, // TimeLinePanel弹窗的数据
       //----------------------------------
@@ -1261,17 +1221,12 @@ export default {
       plotisshow: {},
       //包括最早出现时间，最晚结束时间的标绘点信息
 
-      //时间轴暂停播放状态
-      isTimerRunning: false,
-      //时间轴拖拽
-      isDragging: false,
-      dragStartX: 0,
-      jumpTimes: [],
-      jumpNodes: {},
+
       smallViewer: null,
 
       //-------------ws---------------------
       websock: null,
+      //坡面分析
       slopeStatistics: [
         {
           degree: '< 15°',
@@ -1358,17 +1313,6 @@ export default {
       emergencyShelters: [],
       isShowYaanRegionLegend: false, //雅安行政区划图例
 
-      // 定义雅安各区县的颜色和名称
-      YaanLegendcolors: [
-        {color: Cesium.Color.GOLD.withAlpha(0.5), name: '雨城区'},
-        {color: Cesium.Color.LIGHTGREEN.withAlpha(0.5), name: '名山区'},
-        {color: Cesium.Color.LAVENDER.withAlpha(0.5), name: '荥经县'},
-        {color: Cesium.Color.ORANGE.withAlpha(0.5), name: '汉源县'},
-        {color: Cesium.Color.CYAN.withAlpha(0.5), name: '石棉县'},
-        {color: Cesium.Color.TAN.withAlpha(0.5), name: '天全县'},
-        {color: Cesium.Color.SALMON.withAlpha(0.5), name: '芦山县'},
-        {color: Cesium.Color.LIGHTBLUE.withAlpha(0.5), name: '宝兴县'},
-      ],
 
       //专题图下载
       thematicMapitems: [],
@@ -1578,19 +1522,8 @@ export default {
       suppliesList: [],
       supplyList: [],
       all: [],
-      // labels: [],  // 保存标签实体的引用
-      // regionLayerJump: null,
       // 行政区划----------------------------
-      // districts: [
-      //     {adcode: 511802, name: "雨城区"},
-      //     {adcode: 511803, name: "名山区"},
-      //     {adcode: 511822, name: "荥经县"},
-      //     {adcode: 511823, name: "汉源县"},
-      //     {adcode: 511824, name: "石棉县"},
-      //     {adcode: 511825, name: "天全县"},
-      //     {adcode: 511826, name: "芦山县"},
-      //     {adcode: 511827, name: "宝兴县"},
-      // ],
+
       selectedRegions: [],
       selectedDataByRegions: {},
       selectedDataByRadius: {},
@@ -2433,7 +2366,9 @@ export default {
       });
       return properties;
     },
-
+    viewJumpSelectedDistrict(selectedDistrict){
+      this.selectedDistrict=selectedDistrict
+    },
 
     //------------------未重构----------------------
 
@@ -3357,6 +3292,7 @@ export default {
     //--------路径规划清除实体--------------------
     //全部清除
     removeAll(){
+      layer.removeRegionLayerJump()
       this.removeAllEmergencySites(); //删除救援力量的标绘点
       this.removePolyline(); // 先清除路径规划
       this.removePoint(); // 再清除障碍物
@@ -3401,15 +3337,10 @@ export default {
 
     // ------------------------------路径规划+物资匹配---------------------------
 
-    addJumpNodes(val) {
-      val.forEach(item => {
-        this.jumpTimes.push(item)
-      })
-    },
+
 
     //----------------------时间轴end
     clearResource(viewer) {
-      this.isTimerRunning = false;
       let gl = viewer.scene.context._gl
       viewer.entities.removeAll()
       // viewer.scene.primitives.removeAll()
@@ -3678,54 +3609,7 @@ export default {
       this.websock.eqid = this.eqid // 更新WebSocket连接中的设备ID，以便正确地发送和接收数据
     },
 
-    /**
-     *  ------------------行政区划--------------------
-     * 此方法旨在向地图中添加雅安市的行政区划影像图层如果图层已存在，则不会重复添加
-     * 使用Cesium库加载GeoJSON数据，并根据图层是否已存在来设置不同的显示样式
-     */
-    addYaanImageryDistrict() {
-      // 移除其他区域图层
-      this.removethdRegions()
-      this.removeDataSourcesLayer('YaanRegionLayer');
 
-      let geoPromise = Cesium.GeoJsonDataSource.load(yaAn, {
-        clampToGround: true, //贴地显示
-        stroke: Cesium.Color.RED,
-        fill: Cesium.Color.SKYBLUE.withAlpha(0.5),
-        strokeWidth: 4,
-      });
-      // 处理加载成功的GeoJSON数据
-      geoPromise.then((dataSource) => {
-        // 添加 geojson
-        window.regionLayerJump = dataSource;
-        window.viewer.dataSources.add(dataSource);
-        // 给定义好的 geojson 的 name 赋值（这里的 dataSource 就是定义好的geojson）
-        dataSource.name = "thd_yaanregion";
-        // 视角跳转到 geojson
-        viewer.flyTo(dataSource.entities.values);
-
-      }).catch((error) => {
-        // 处理加载失败的情况
-        console.error("加载GeoJSON数据失败:", error);
-      });
-
-      // 添加雅安市的标签
-      let labelData = {lon: 103.003398, lat: 29.981831, name: "雅安市"};
-      let position = Cesium.Cartesian3.fromDegrees(labelData.lon, labelData.lat);
-      let labelEntity = viewer.entities.add(new Cesium.Entity({
-        position: position,
-        label: new Cesium.LabelGraphics({
-          text: labelData.name,
-          scale: 1,
-          font: "bolder 50px sans-serif",
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.fromCssColorString("#ffffff"),
-          pixelOffset: new Cesium.Cartesian2(0, -60)
-        })
-      }));
-      // 保存标签实体的引用
-      this.labels.push(labelEntity);
-    },
 
     /**
      * 处理区县点击事件
@@ -3798,7 +3682,7 @@ export default {
                 })
               }));
               // 保存标签实体的引用，以便后续管理和操作
-              this.labels.push(labelEntity);
+              // this.labels.push(labelEntity);
             } else {
               // 如果中心点未定义或格式不正确，输出警告信息
               console.warn('中心点未定义或格式不正确:', feature);
@@ -3863,54 +3747,13 @@ export default {
       //     legend.removeChild(legend.firstChild);
       // }
       // 遍历标签数组，移除每个标签实体
-      this.labels.forEach(label => {
-        window.viewer.entities.remove(label);
-      });
+      // this.labels.forEach(label => {
+      //   window.viewer.entities.remove(label);
+      // });
       // 清空标签引用数组，以便垃圾回收
-      this.labels = [];
+      // this.labels = [];
     },
 
-    /**
-     * 飞回到地图中心点（发生地震中心）
-     * 该方法首先移除之前绘制的区域，然后计算并飞回到地图中心点的位置
-     */
-    backcenter() {
-      // 移除之前绘制的区域
-      this.removethdRegions()
-
-      // 根据经度和纬度创建一个三维坐标点，Z轴设置为120000，以确保视角高度
-      const position = Cesium.Cartesian3.fromDegrees(
-          parseFloat(this.centerPoint.longitude),
-          parseFloat(this.centerPoint.latitude),
-          120000,
-      );
-
-      // 飞行到计算出的中心点位置
-      viewer.camera.flyTo({destination: position,})
-    },
-
-    /*
-    * 视角跳转互斥复选框
-    * 每次只能选中一个视角，其他复选框默认关闭
-    * */
-    handleDistrictSelect(districtName) {
-      // 清除其他实体标签
-      this.removethdRegions();
-      this.removeDataSourcesLayer('siChuanRegionLayer');
-      this.removeDataSourcesLayer('yaAnVillageRegionLayer');
-
-      // 根据选中的区域进行处理
-      if (districtName === '雅安市') {
-        this.addYaanImageryDistrict();
-      } else if (districtName === '回到震中') {
-        this.backcenter();
-      } else {
-        const district = this.districts.find(d => d.name === districtName);
-        if (district) {
-          this.handleDistrictClick(district);
-        }
-      }
-    },
 
     updateMapLayers() {
       console.log(this.selectedlayersLocal,"selectedlayersLocal")
@@ -4869,7 +4712,6 @@ export default {
       if (node.level === 0) {
         return resolve([
           {name: '图层要素'},
-          // {name: '视角跳转'}
         ]);
       }
 
@@ -4911,6 +4753,7 @@ export default {
       this.showLayerFeatures = !this.showLayerFeatures;
       if (this.showLayerFeatures) {
         this.showPositionFlyTo = false; // 关闭其他弹框
+        // layer.removeRegionLayerJump()
         this.showEqListPanel = false; // 关闭其他弹框
         this.showModelPanel = false; // 关闭其他弹框
         this.showSlopeAnalysis = false; // 关闭其他弹框
@@ -4922,6 +4765,7 @@ export default {
       if (this.showEqListPanel) {
         this.showLayerFeatures = false; // 关闭其他弹框
         this.showPositionFlyTo = false; // 关闭其他弹框
+        // layer.removeRegionLayerJump()
         this.showModelPanel = false; // 关闭其他弹框
         this.showSlopeAnalysis = false; // 关闭其他弹框
       }
@@ -4931,6 +4775,7 @@ export default {
       if (this.showModelPanel) {
         this.showLayerFeatures = false; // 关闭其他弹框
         this.showPositionFlyTo = false; // 关闭其他弹框
+        // layer.removeRegionLayerJump()
         this.showEqListPanel = false; // 关闭其他弹框
         this.showSlopeAnalysis = false; // 关闭其他弹框
       }
@@ -4968,6 +4813,7 @@ export default {
         ];
         this.showLayerFeatures = false; // 关闭其他弹框
         this.showPositionFlyTo = false; // 关闭其他弹框
+        // layer.removeRegionLayerJump()
         this.showEqListPanel = false; // 关闭其他弹框
         this.showModelPanel = false; // 关闭其他弹框
         toggleSlopeAnalysis(websock);

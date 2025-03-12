@@ -46,7 +46,7 @@ export default {
       currentTimeLocal: timeTransfer.timestampToTimeChina(new Date()),
     };
   },
-  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning', 'earthquakeName', 'startTime'],
+  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimeRunning', 'earthquakeName', 'startTime'],
   watch: {
     plots(newVal, oldVal) {
     },
@@ -90,7 +90,7 @@ export default {
       }
     },
     //时间轴停止，标绘统计上下滚动
-    isTimerRunning(newVal) {
+    isTimeRunning(newVal) {
       if (newVal === false) {
         this.scroll()
       } else {
