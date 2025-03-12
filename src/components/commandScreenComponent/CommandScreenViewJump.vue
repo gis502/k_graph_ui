@@ -25,9 +25,9 @@
       </div>
     </div>
     <div class="panelButton">
-      <el-button class="panelButtons" @click="clearPositionPanel"><p style="margin-top:30px">取消</p></el-button>
+      <el-button class="panelButtons" @click="clearPositionPanel"> <p class="panelButtonsText">取消</p></el-button>
       <el-button class="panelButtons" type="primary" @click="flyToPosition">
-        <p style="margin-top: 30px">跳转</p>
+        <p class="panelButtonsText">跳转</p>
       </el-button>
     </div>
 
@@ -213,9 +213,9 @@ export default {
 }
 
 .panelButton {
-  padding: 20px 60px 20px 0;
+  padding: 20px 25px 20px 0;
   display: flex;
-  justify-content: right;
+  justify-content: center;
   align-items: center;
 }
 
@@ -227,10 +227,11 @@ export default {
   gap: 12px; /* 按钮之间的间距 */
   padding: 0 16px 16px 0; /* 保留原来的 padding */
 }
-
-.panelButtons .el-button {
-  margin-right: 16px; /* 为每个按钮添加右边距 */
+.panelButtonsText{
+  margin-top: 30px;    padding: 0px 0px 0px 11px
 }
+
+
 /deep/ .el-radio {
   display: block;
   line-height: 50px;
