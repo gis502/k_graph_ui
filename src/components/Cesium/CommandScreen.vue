@@ -659,6 +659,7 @@
             :isTimeRunning="isTimeRunning"
             :viewCenterCoordinate="viewCenterCoordinate"
             :earthquakeName="centerPoint.earthquakeName"
+            :selectedDistrict="selectedDistrict"
         />
         <timeLineMiniMap
             :viewer="viewer"
@@ -5060,41 +5061,6 @@ export default {
 }
 
 /*未整理*/
-
-
-.pop-dialog .pop-dialog__content {
-  height: 100%;
-  overflow: auto;
-  background-color: #1d3043;
-}
-
-.pop-dialog {
-  height: 5.5rem;
-}
-
-.preview-dialog {
-  position: absolute;
-  top: 50px;
-  right: 20px;
-  width: 300px;
-  height: 300px;
-  background: #333;
-  border: 1px solid #fff;
-  z-index: 1000;
-}
-
-.preview-header {
-  display: flex;
-  justify-content: space-between;
-  background: #1c84c6;
-  color: #fff;
-  padding: 5px 10px;
-}
-
-.preview-content {
-  padding: 10px;
-  text-align: center;
-}
 
 .toggle-buttons {
   display: flex;

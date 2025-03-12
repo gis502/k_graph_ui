@@ -79,7 +79,6 @@ export default {
         lon: "", // 经度
         lat: "", // 纬度
       },
-      // flyToMarker:null,// 经纬度跳转时的定位标记
       selectedDistrictLocal: '', // 用于追踪选中的复选框
       districts: [
         {adcode: 511802, name: "雨城区"},
