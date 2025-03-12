@@ -702,26 +702,11 @@
     </div>
     <!--   经纬度跳转弹框 -->
     <div class="universalPanel" v-if="showPositionFlyTo">
-      <div class="panelTop">
-        <h2 class="panelName">经纬度跳转</h2>
-      </div>
-      <div class="panelContent">
-        <div>经度：
-          <el-input v-model="positionFlyTo.lon" class="positionFlyToInput" @keyup.enter="flyToPosition"
-          ></el-input>
-        </div>
-        <div style="margin-left: 10px">纬度：
-          <el-input v-model="positionFlyTo.lat" class="positionFlyToInput"
-                    @keyup.enter="flyToPosition"></el-input>
-        </div>
-      </div>
-      <div class="panelButton">
-        <el-button class="panelButtons" @click="clearPositionPanel"><p style="margin-top:30px">取消</p></el-button>
-        <el-button class="panelButtons" type="primary" @click="flyToPosition">
-          <p style="margin-top: 30px">跳转</p>
-        </el-button>
-      </div>
+
+
       <CommandScreenViewJump
+          :positionFlyTo="positionFlyTo"
+          @positionFlyTo="viewJumpPositionFlyTo"
           :centerPoint="centerPoint"
           @viewJumpSelectedDistrict="viewJumpSelectedDistrict"
           :selectedDistrict="selectedDistrict"
@@ -1663,7 +1648,7 @@ export default {
       // 行政区划
       RegionLabels: [],
 
-      flyToMarker:null,// 经纬度跳转时的定位标记
+      // flyToMarker:null,// 经纬度跳转时的定位标记
     };
   },
   created() {
@@ -2023,6 +2008,7 @@ export default {
 
     //----------------数据end---------------
     //----------------处理实体点击事件的弹窗显示逻辑-----------------
+    //-------信息面板弹框-----
     entitiesClickPonpHandler() {
       let that = this;
       // 在屏幕空间事件处理器中添加左键点击事件的处理逻辑
@@ -2242,7 +2228,6 @@ export default {
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     },
-
     /**
      * 计算点击位置的经纬度和高度
      *
@@ -2333,10 +2318,16 @@ export default {
       });
       return properties;
     },
+    //-------信息面板弹框end-----
+
+    //----视角跳转----
     viewJumpSelectedDistrict(selectedDistrict){
       this.selectedDistrict=selectedDistrict
     },
-
+    viewJumpPositionFlyTo(positionFlyTo){
+      this.positionFlyTo=positionFlyTo
+    },
+    //----视角跳转end----
     //------------------未重构----------------------
 
     outputData() {
@@ -4446,50 +4437,6 @@ export default {
 
     },
 
-    // 飞到目标位置
-    flyToPosition() {
-      const lon = parseFloat(this.positionFlyTo.lon);
-      const lat = parseFloat(this.positionFlyTo.lat);
-
-      if (!isNaN(lon) && !isNaN(lat)) {
-        // 目标位置
-        const position = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
-
-        // **移除已有的标记（防止重复创建）**
-        if (this.flyToMarker) {
-          viewer.entities.remove(this.flyToMarker);
-        }
-
-        // **添加定位标记**
-        this.flyToMarker = viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(lon, lat, 500), // 确保标记不会被埋
-          billboard: {
-            image: mapMark, // 测试图片
-            width: 50, // 放大标记
-            height: 50,
-            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 贴地显示，避免埋在地下
-            show: true, // 确保可见
-          },
-        });
-
-
-        // **飞行到目标位置**
-        viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(lon, lat, 3000),
-          duration: 2, // 飞行时间
-        });
-      } else {
-        this.$message.error("请输入有效的经度、纬度和高度值！");
-      }
-    },
-
-    clearPositionPanel() {
-      this.positionFlyTo.lon = ''
-      this.positionFlyTo.lat = ''
-      this.showPositionFlyTo = false
-      viewer.entities.remove(this.flyToMarker);
-    },
     showThematicMapDialog(item) {
 
       console.log("专题图item-> ",item)
