@@ -110,6 +110,7 @@ export default {
 
       if (!isNaN(lon) && !isNaN(lat)) {
         this.$emit('viewJumpPositionFlyTo', this.positionFlyToLocal);
+        this.$emit('stopTimePlay');
         let flyToMarker = viewer.entities.getById("flyToMarker")
         // **移除已有的标记（防止重复创建）**
         if (flyToMarker) {
@@ -152,7 +153,7 @@ export default {
       //清除其他实体标签
       layer.removeRegionLayerJump();
       this.$emit('viewJumpSelectedDistrict', districtName);
-
+      this.$emit('stopTimePlay');
       // 根据选中的区域进行处理
       if (districtName === '雅安市') {
         layer.addYaanCityDistrict();

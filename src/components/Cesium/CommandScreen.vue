@@ -622,6 +622,8 @@
         :centerPoint="centerPoint"
         :currentTime="currentTimeString"
         @updatePlots="updatePlots"
+        :stopTimePlay="stopTimePlay"
+        @startTimePlay="handleStartTimePlay"
     />
 
     <!--   灾情总览-->
@@ -703,14 +705,14 @@
     </div>
     <!--   经纬度跳转弹框 -->
     <div class="universalPanel" v-if="showPositionFlyTo">
-
-
       <CommandScreenViewJump
           :positionFlyTo="positionFlyTo"
           @positionFlyTo="viewJumpPositionFlyTo"
           :centerPoint="centerPoint"
           @viewJumpSelectedDistrict="viewJumpSelectedDistrict"
           :selectedDistrict="selectedDistrict"
+          @stopTimePlay="handleStopTimePlay"
+
       />
     </div>
 
@@ -1160,6 +1162,7 @@ export default {
       cameraPosition: null,     // 当前相机的位置
       isCameraStopped: false,   // 标记相机是否停止
 
+      stopTimePlay:false,
       isTimeRunning: true,
       plots: [], //用来控制标绘点图层显示隐藏
       zoomLevel: '市', // 初始化缩放层级
@@ -1800,8 +1803,6 @@ export default {
           if(clock.currentTime){
             that.currentTime = clock.currentTime;
           }
-          // if()
-          // console.log("maybe non",this.currentTime)
           if (viewer.clockViewModel.shouldAnimate) {
             that.isTimeRunning = true
           } else {
@@ -1923,6 +1924,14 @@ export default {
         this.zoomLevel = '市'
       }
     },
+    //子-父-子，控制时间轴暂停与播放
+    handleStopTimePlay() {
+      this.stopTimePlay = true; // 用于控制时间轴停止播放的变量
+      console.log(this.stopTimePlay,"this.stopTimePlay")
+    },
+    handleStartTimePlay(){
+      this.stopTimePlay = false;
+    },
     //-----------------地图初始化end------------------
 
     //-----------------数据请求与传值---------------
@@ -2005,10 +2014,9 @@ export default {
         }
       };
     },
-
-
     //----------------数据end---------------
     //----------------处理实体点击事件的弹窗显示逻辑-----------------
+
     //-------信息面板弹框-----
     entitiesClickPonpHandler() {
       let that = this;
@@ -2322,12 +2330,17 @@ export default {
     //-------信息面板弹框end-----
 
     //----视角跳转----
+
     viewJumpSelectedDistrict(selectedDistrict){
       this.selectedDistrict=selectedDistrict
     },
     viewJumpPositionFlyTo(positionFlyTo){
       this.positionFlyTo=positionFlyTo
     },
+
+    // viewJumpEndFlag(flag){
+    //   this.endFlag=flag
+    // },
     //----视角跳转end----
     //------------------未重构----------------------
 

@@ -94,7 +94,7 @@ export default {
       currentTimeLocal: this.timestampToTimeChina(new Date()),
     }
   },
-  props: ['centerPoint', 'currentTime', 'eqid', 'viewer'],
+  props: ['centerPoint', 'currentTime', 'eqid', 'viewer','stopTimePlay'],
   watch: {
     currentTime(newVal, oldVal) {
       if (newVal && oldVal && newVal !== oldVal) {
@@ -119,6 +119,12 @@ export default {
       this.getPlotwithStartandEndTime(this.eqid)
       window.viewer.timeline.container.onmouseup = (e) => {
         this.playEnd()
+      }
+    },
+    stopTimePlay(newVal) {
+      console.log("stopTimePlay",newVal)
+      if (newVal) {
+        this.playEnd(); // 停止时间轴播放
       }
     }
   },
@@ -173,7 +179,6 @@ export default {
         })
       })
     },
-
     selectButton(id) {
       this.selectedId = id; // 更新选中的按钮ID
     },
@@ -182,6 +187,7 @@ export default {
       viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
       this.flyflag = false
       this.endflag = false;
+      this.$emit('startTimePlay');
       window.viewer.clock.multiplier =1.0
     },
     backToStart() {
@@ -197,6 +203,7 @@ export default {
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
+      this.$emit('startTimePlay');
       this.flyflag = false
     },
     playEnd() {
@@ -215,6 +222,7 @@ export default {
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
+      this.$emit('startTimePlay');
       this.flyflag = true
     },
     selectSpeed(speed) {
