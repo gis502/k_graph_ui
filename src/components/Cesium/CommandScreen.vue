@@ -321,6 +321,10 @@
           <h2 class="emergencyPanelName">{{
               listField === 'supplies' ? '救援物资' : listField === 'emergencyTeam' ? '救援力量' : listField === 'reserves' ? '救援装备' : ''
             }}</h2>
+          <!-- 关闭按钮 -->
+          <span class="close-btn" @click="closePanel" style="position: absolute; right: 10px; top: 10px; cursor: pointer; font-size: 18px;">
+      &times; <!-- 叉号 -->
+    </span>
         </div>
 
         <div class="panelContent" style="padding: 5px;margin-top: -5px">
@@ -2367,44 +2371,67 @@ export default {
 
     // 切换数据列表
     changeDataList(param) {
-      this.selectedSuppliesList = []
+      // console.log(`调用 changeDataList，参数 param = ${param}`);
 
-      // console.log(this.selectedDataByRegions)
-      // console.log(this.selectedDataByRadius)
-      // console.log(this.selectedDataBySupplies)
+      this.selectedSuppliesList = [];
+      // console.log("已清空 this.selectedSuppliesList");
 
-      let flag1 = Object.keys(this.selectedDataByRegions).length === 0 ? false : true
-      let flag2 = Object.keys(this.selectedDataByRadius).length === 0 ? false : true
-      let flag3 = Object.keys(this.selectedDataBySupplies).length === 0 ? false : true
-      let array
+      // 计算标志位
+      let flag1 = Object.keys(this.selectedDataByRegions).length > 0;
+      let flag2 = Object.keys(this.selectedDataByRadius).length > 0;
+      let flag3 = Object.keys(this.selectedDataBySupplies).length > 0;
 
-      if (flag1) {
-        array = 'selectedDataByRegions'
-      } else if (flag2) {
-        array = 'selectedDataByRadius'
-      } else if (flag3) {
-        array = 'selectedDataBySupplies'
+      // console.log(`flag1 (selectedDataByRegions 是否有数据) = ${flag1}`);
+      // console.log(`flag2 (selectedDataByRadius 是否有数据) = ${flag2}`);
+      // console.log(`flag3 (selectedDataBySupplies 是否有数据) = ${flag3}`);
+
+      // 确定数据来源
+      let array = flag1 ? 'selectedDataByRegions'
+          : flag2 ? 'selectedDataByRadius'
+              : flag3 ? 'selectedDataBySupplies'
+                  : null;
+
+      // console.log(`确定数据来源 array = ${array}`);
+
+      // 确定字段映射
+      const paramMap = {
+        supplies: { field: 'supplies', defaultIndex: 0 },
+        emergencyTeam: { field: 'emergencyTeam', defaultIndex: 2 },
+        reserves: { field: 'reserves', defaultIndex: 1 }
+      };
+
+      if (!paramMap[param]) {
+        // console.log("无效的参数 param，退出方法");
+        return; // 避免无效参数导致的错误
       }
-      if (param === 'supplies') {
-        this.listField = 'supplies'
-        // this.selectedSuppliesList = flag ? this.selectedDataByRegions.suppliesArr : this.suppliesList[0]
-        this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].supplies : this.suppliesList[0]
-        // this.selectedSuppliesList = this[array].suppliesArr
-      } else if (param === 'emergencyTeam') {
-        this.listField = 'emergencyTeam'
-        // this.selectedSuppliesList = flag ? this.selectedDataByRegions.emergencyTeamArr : this.suppliesList[2]
-        //   this.selectedSuppliesList = this[array].emergencyTeamArr
-        this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].emergencyTeam : this.suppliesList[2]
+
+      this.listField = paramMap[param].field;
+      // console.log(`设置 this.listField = ${this.listField}`);
+
+      // 选择合适的数据列表
+      if (array) {
+        // console.log(`尝试从 this.${array} 读取数据`);
+        // console.log(`this.${array} 的内容：`, this[array]); // 打印整个对象，检查数据结构
+
+        this.selectedSuppliesList = this[array]?.[paramMap[param].field] ?? this.suppliesList[paramMap[param].defaultIndex];
+
+        // console.log(`从 this.${array}.${paramMap[param].field} 读取的数据为：`, this.selectedSuppliesList);
       } else {
-        this.listField = 'reserves'
-        // this.selectedSuppliesList = flag ? this.selectedDataByRegions.reservesArr : this.suppliesList[1]
-        //   this.selectedSuppliesList = this[array].reservesArr
-        this.selectedSuppliesList = (flag1 || flag2 || flag3) === true ? this[array].reserves : this.suppliesList[1]
+        // console.log("没有匹配的 array，从 this.suppliesList 获取默认值");
+        this.selectedSuppliesList = this.suppliesList[paramMap[param].defaultIndex];
       }
+
+      // 赋值并打印结果
       this.showIcon = this.selectedSuppliesList;
       this.total = this.selectedSuppliesList.length;
+      // console.log(`最终选中的数据列表（this.selectedSuppliesList）：`, this.selectedSuppliesList);
+      // console.log(`this.total = ${this.total}`);
+
       this.showSuppliesList = this.getPageArr(this.selectedSuppliesList);
+      // console.log("最终分页后的数据（this.showSuppliesList）：", this.showSuppliesList);
     },
+
+
 
     // 绘制点
     drawEmergencySite(lat, lng, id, color) {
@@ -3014,6 +3041,7 @@ export default {
     //--------路径规划清除实体
     //全部清除
     removeAll(){
+      this.removeAllEmergencySites(); //删除救援力量的标绘点
       this.removePolyline(); // 先清除路径规划
       this.removePoint(); // 再清除障碍物
 
@@ -4419,31 +4447,48 @@ export default {
       if (rowIndex % 2 == 1) {
         return {
           'background-color': '#ffffff00',
-          'padding': '0',
-          'margin': '1'
+          'padding': '5px 10px',
+          'margin': '1',
+          'textAlign': 'center'
         }
       } else {
         return {
           'background-color': '#ffffff00',
-          'padding': '0',
-          'margin': '1'
+          'padding': '5px 10px',
+          'margin': '1',
+          'textAlign': 'center'
         }
       }
     },
     //数组切片
     getPageArr(data) {
-      let arr = []
-      let start = (this.modelCurrentPage - 1) * this.modelPageSize
-      let end = this.modelCurrentPage * this.modelPageSize
-      if (end > this.ModelTotal) {
-        end = this.ModelTotal
+      console.log("🚀 getPageArr() 调用：", data);
+
+      if (!Array.isArray(data) || data.length === 0) {
+        console.warn("⚠️ getPageArr() 输入数据无效，返回空数组！");
+        return [];
       }
-      for (; start < end; start++) {
-        data[start].show = false
-        arr.push(data[start])
+
+      let arr = [];
+      let total = this.ModelTotal || data.length; // 兼容处理
+      let start = (this.modelCurrentPage - 1) * this.modelPageSize;
+      let end = this.modelCurrentPage * this.modelPageSize;
+      if (end > total) {
+        end = total;
       }
-      return arr
+
+      console.log(`📌 分页信息：start=${start}, end=${end}, 数据总长度=${total}`);
+
+      for (; start < end && start < data.length; start++) {
+        if (!data[start]) continue; // 避免 undefined 访问属性
+        data[start].show = false;
+        arr.push(data[start]);
+      }
+
+      console.log("✅ 最终分页结果：", arr);
+      return arr;
     },
+
     //`每页 ${val} 条`
     handleSizeChange(val) {
       this.modelPageSize = val
@@ -4806,6 +4851,11 @@ export default {
         viewer.entities.remove(label);
       });
       this.RegionLabels = []; // 清空数组，防止重复删除
+    },
+
+    closePanel(){
+      this.panels.tableVisible = false; // 隐藏面板
+
     }
 
   },
@@ -6035,6 +6085,19 @@ li {
 .button:hover::after,
 .button:hover .button__text::after {
   width: calc(100% - 56px * 2 - 16px);
+}
+
+
+/*资源调度--叉形按钮的样式*/
+.close-btn {
+  font-size: 24px;
+  color: #edf4ff;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: red; /* 鼠标悬停时颜色变红 */
 }
 
 
