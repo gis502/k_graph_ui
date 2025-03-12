@@ -46,8 +46,11 @@ export default {
       currentTimeLocal: timeTransfer.timestampToTimeChina(new Date()),
     };
   },
-  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimerRunning', 'earthquakeName', 'startTime'],
+  props: ['plots', 'currentTime', 'zoomLevel', 'viewCenterCoordinate', 'isTimeRunning', 'earthquakeName', 'startTime','selectedDistrict'],
   watch: {
+    selectedDistrict(newVal){
+      this.showZoomStatistic()
+    },
     plots(newVal, oldVal) {
     },
     currentTime(newVal) {
@@ -90,7 +93,7 @@ export default {
       }
     },
     //时间轴停止，标绘统计上下滚动
-    isTimerRunning(newVal) {
+    isTimeRunning(newVal) {
       if (newVal === false) {
         this.scroll()
       } else {
@@ -100,7 +103,6 @@ export default {
   },
   mounted() {
     this.initEcharts() //初始化
-    // this.isInYaan()
   },
   methods: {
     //雅安市的还是其他地方的？
@@ -341,25 +343,36 @@ export default {
       }
       this.dataInTimeAndZoom = []
       const originalArray = Array.from(this.dataIntime);
-      if (this.typeIsYaan) {
-        //雅安市，走json
-        if (this.zoomLevel === "区/县" && this.viewCenterCityNew === "雅安市") {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.viewCenterCountyNew);
-          this.centerPosionName = this.viewCenterCountyNew
-        } else {
+      if(this.selectedDistrict){
+        console.log(this.selectedDistrict,"selectedDistrict")
+        if(this.selectedDistrict==="雅安市"){
           this.dataInTimeAndZoom = originalArray.filter(data => data.belongCity === '雅安市');
           this.centerPosionName = '雅安市'
         }
-      }
-      else {
-        if (this.zoomLevel === "区/县") {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.viewCenterCountyNew);
-          this.centerPosionName = this.viewCenterCountyNew
-        } else {
-          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCity === this.viewCenterCityNew);
-          this.centerPosionName = this.viewCenterCityNew
+        else if(this.selectedDistrict==="回到震中"){
+            if (this.zoomLevel === "区/县") {
+              this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.viewCenterCountyNew);
+              this.centerPosionName = this.viewCenterCountyNew
+            } else {
+              this.dataInTimeAndZoom = originalArray.filter(data => data.belongCity === this.viewCenterCityNew);
+              this.centerPosionName = this.viewCenterCityNew
+            }
+        }
+        else{
+          this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.selectedDistrict);
+          this.centerPosionName = this.selectedDistrict
         }
       }
+      else{
+          if (this.zoomLevel === "区/县") {
+            this.dataInTimeAndZoom = originalArray.filter(data => data.belongCounty === this.viewCenterCountyNew);
+            this.centerPosionName = this.viewCenterCountyNew
+          } else {
+            this.dataInTimeAndZoom = originalArray.filter(data => data.belongCity === this.viewCenterCityNew);
+            this.centerPosionName = this.viewCenterCityNew
+          }
+      }
+
       // console.log( this.dataInTimeAndZoom,this.centerPosionName, " this.dataInTimeAndZoom,this.centerPosionName")
 
       let counts = this.dataInTimeAndZoom.reduce((acc, obj) => {
