@@ -1199,31 +1199,6 @@ export default {
 
       eqqueueId: '',
       store: '',
-      //时间轴时间
-      timelineAdvancesNumber: 2076,  //总分钟数（取5的倍数）/5 =总前进次数  默认值2076（符合芦山） 结束时间2022-06-08 22:00:00
-      eqstartTime: '',
-
-      eqendTime: '',
-      tmpeqendTime: '',//默认的地震结束时间
-      realTime: new Date(),
-      //时间轴当前进度条节点位置
-      currentTimePosition: 0,
-      currentNodeIndex: 0,
-      realtimeinterval: null,
-      eqendtimeinterval: null,
-      // 倍速
-      currentSpeed: 1,
-      showSpeedOptions: false,
-      speedOption: '1X',
-      speedOptions: ['1X', '2X', '4X'],
-
-      //是否记载到view上，已经存在则不再添加
-      plotisshow: {},
-      //包括最早出现时间，最晚结束时间的标绘点信息
-
-
-      smallViewer: null,
-
       //-------------ws---------------------
       websock: null,
       //坡面分析
@@ -1262,7 +1237,6 @@ export default {
       currentPage: 1,
       eqtableData: [],
       //-----------------图层---------------------
-      // iflayerChoose: false,
       isMarkingLayer: true,
       showlayers: [],
       //-----------------图层---------------------
@@ -1349,10 +1323,7 @@ export default {
       },
 
       pointsLayer: [], //传到子组件
-      stopTimeforAddEntityOneIndex: 6000,
-      timelinePopupShowCenterStrart: true,
-      intervalIdcolor: null,
-      isfirst: false,
+
       // 视角输入经纬度高度跳转------------
       showPositionFlyTo: false,
       positionFlyTo: {
@@ -1590,7 +1561,6 @@ export default {
       ],
 
       // 指挥大屏-灾损
-      carouselIndex: 0,// 索引
       layerData: {},// 图层渲染数据
       // 地震专题
       eqThemes: {
@@ -1699,9 +1669,6 @@ export default {
   created() {
     this.eqid = new URLSearchParams(window.location.search).get('eqid')
     this.eqqueueId = new URLSearchParams(window.location.search).get('eqqueueId')
-    // this.thematicMapitems = MapPicUrl.filter(item => item.eqid === this.eqid);
-    // console.log(this.thematicMapitems)
-    // this.reportItems = ReportUrl.filter(item => item.eqid === this.eqid);
   },
   mounted() {
     this.init()
@@ -2383,17 +2350,6 @@ export default {
       })
     },
 
-    cartographicToGeoJSON(cartographic) {
-      // 将 Cesium.Cartographic 弧度转换为 GeoJSON 所需的度
-      let lon = Cesium.Math.toDegrees(cartographic.longitude); // 经度
-      let lat = Cesium.Math.toDegrees(cartographic.latitude);  // 纬度
-
-      // 返回 GeoJSON 格式的 Point 对象
-      return {
-        "type": "Point",
-        "coordinates": [lon, lat]
-      };
-    },
 
 
     // ------------------------------路径规划+物资匹配---------------------------
