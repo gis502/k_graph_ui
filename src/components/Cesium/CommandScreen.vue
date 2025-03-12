@@ -2671,6 +2671,8 @@ export default {
 
     // 救援装备查询
     async searchEquipment() {
+      this.panels.searchEquipmentDialog = false
+
       //清除其他实体标签
       this.removeAllEmergencySites();
 
