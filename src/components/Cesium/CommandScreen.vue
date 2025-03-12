@@ -1897,6 +1897,13 @@ export default {
               this.isShowMessage = false;
               this.canMarkPoint = false;
               if (this.searchSupplyBy === 'RadiusDialog') {
+                this.panels.materialMatching = false;  //物资查询
+                this.panels.searchSupplyDialog = false;// 救援物资查询
+                this.panels.searchEquipmentDialog = false;// 救援装备查询
+                this.panels.searchEmergencyTeamDialog = false;// 救援力量查询
+                this.panels.marchSupplyDialog = false; // 救援物资匹配
+                this.panels.marchRegionsDialog = false; //行政区划匹配
+                this.panels.tableVisible= false;  //表格显示
                 this.panels.searchSupplyByRadiusDialog = true;
               } else if (this.searchSupplyBy === 'RadiusDialog') {
                 this.panels.marchSupplyDialog = true;
@@ -2422,6 +2429,7 @@ export default {
     //显示所有物资点(所有点查询)
     searchAll(){
       this.panels.materialMatching = false;
+      this.panels.marchRegionsDialog = false;
       this.panels.tableVisible = true
 
       //清除半径查询实体标签
