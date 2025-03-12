@@ -31,6 +31,13 @@ export function getEqOutputReport(eqOutputReportDTO) {
     params: eqOutputReportDTO
   })
 }
+export function getEqOutPutJueCe(eqOutputJueCeDTO) {
+    return request({
+        url: '/tp/api/open/eq/output/juece',
+        method: 'get',
+        params: eqOutputJueCeDTO
+    })
+}
 
 export function getEqOutputMaps(eqId,eqqueueId) {
     return request({
@@ -43,6 +50,13 @@ export function getEqOutputMaps(eqId,eqqueueId) {
 export function getEqOutputReports(eqId,eqqueueId) {
     return request({
         url: '/tp/api/open/eq/report/start',
+        method: 'get',
+        params: { eqId, eqqueueId}
+    })
+}
+export function getEqOutPutJueCes(eqId,eqqueueId) {
+    return request({
+        url: '/tp/api/open/eq/juece',
         method: 'get',
         params: { eqId, eqqueueId}
     })

@@ -74,24 +74,25 @@ watch(() => props.lastEq, () => {
 
 const initNewEq = () => {
   console.log("111111111",props.lastEq)
-  eqName.value = props.lastEq.earthquakeName;
+  // 使用 filter 方法过滤掉震级小于3的地震数据
+  const filteredEarthquakes = props.lastEq
+  eqName.value = filteredEarthquakes.earthquakeName;
   // 转换并格式化发震时间
-  const date = new Date(props.lastEq.occurrenceTime);
+  const date = new Date(filteredEarthquakes.occurrenceTime);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
-  // const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
 
   time.value = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-  magnitude.value = props.lastEq.magnitude;
-  longitude.value = props.lastEq.longitude || props.lastEq.geom.coordinates[0];
-  latitude.value = props.lastEq.latitude || props.lastEq.geom.coordinates[1];
-  position.value = props.lastEq.earthquakeName;
-  depth.value = props.lastEq.depth;
-  earthquakeType.value = props.lastEq.eqType;
+  magnitude.value = filteredEarthquakes.magnitude;
+  longitude.value = filteredEarthquakes.longitude || filteredEarthquakes.geom.coordinates[0];
+  latitude.value = filteredEarthquakes.latitude || filteredEarthquakes.geom.coordinates[1];
+  position.value =filteredEarthquakes.earthquakeName;
+  depth.value = filteredEarthquakes.depth;
+  earthquakeType.value = filteredEarthquakes.eqType;
   if (earthquakeType.value === 'Z') {
     // 如果值为 Z，设置为“正式地震”
     earthquakeType.value = '真实地震';

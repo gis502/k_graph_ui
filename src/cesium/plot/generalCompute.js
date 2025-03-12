@@ -1,9 +1,11 @@
 import axios from "axios";
+import {tianDitulocalApi} from "@/utils/server.js";
 
 let generalCompute = {
     async getReverseGeocode(lon, lat) {
         try {
-            const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+            // const response = await axios.get('https://api.tianditu.gov.cn/geocoder', {
+                const response = await axios.get(`${tianDitulocalApi}/geocoder`, {
                 params: {
                     postStr: JSON.stringify({lon, lat, ver: 1}),
                     type: 'geocode',
