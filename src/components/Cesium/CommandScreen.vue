@@ -3404,7 +3404,7 @@ export default {
       this.activeComponent = this.activeComponent === component ? null : component;
 
       if (this.activeComponent === 'layerChoose') {
-        this.removethdRegions();
+        // this.removethdRegions();
         let defaultTable = null;
         this.emergencyTitleProperty.forEach(category => {
           let item = category.content.find(i => i.name === "救援物资");
