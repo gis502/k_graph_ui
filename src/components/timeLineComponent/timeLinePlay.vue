@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div class="topCurrentTimeLabel">
-      {{ this.currentTimeLocal }}
+    <div class="topLastRecordTimeLabel">
+      {{ this.lastRecordTimeLocal }}
+    </div>
+    <div class="topLastRecordContentLabel">
+      <span class="marquee">{{ this.lastRecordContent }}</span>
     </div>
 
     <div class="start-time-info">
@@ -92,6 +95,8 @@ export default {
       endflag: false, // 控制飞行结束的标志
       flyflag: true,//视角是否跳转？只有依次向前播放时才跳
       currentTimeLocal: this.timestampToTimeChina(new Date()),
+      lastRecordTimeLocal: this.timestampToTimeChina(new Date()),
+      lastRecordContent:'',
     }
   },
   props: ['centerPoint', 'currentTime', 'eqid', 'viewer','stopTimePlay'],
@@ -111,6 +116,10 @@ export default {
       if (realTime >= this.centerPoint.startTime && realTime <= this.centerPoint.endTime) {
         this.ifNewEq = true
       }
+      let lastRecordTimeLocaltmp = this.timestampToTimeChina(this.centerPoint.startTime)
+      if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+        this.lastRecordTimeLocal = lastRecordTimeLocaltmp
+      }
     },
     eqid(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
@@ -118,6 +127,7 @@ export default {
     viewer(newVal) {
       this.getPlotwithStartandEndTime(this.eqid)
       window.viewer.timeline.container.onmouseup = (e) => {
+        this.findLastRecordTimeAndContent()
         this.playEnd()
       }
     },
@@ -189,6 +199,7 @@ export default {
       this.endflag = false;
       this.$emit('startTimePlay');
       window.viewer.clock.multiplier =1.0
+      this.findLastRecordTimeAndContent()
     },
     backToStart() {
       window.viewer.clockViewModel.shouldAnimate = false;
@@ -196,6 +207,8 @@ export default {
       window.viewer.clock.multiplier = this.currentSpeed
       this.flyflag = true
       this.endflag = true;
+      this.lastRecordTimeLocal=this.timestampToTimeChina(this.centerPoint.startTime)
+      this.lastRecordContent=''
     },
     playBack() {
       if (window.viewer.clock.multiplier > 0) {
@@ -250,9 +263,14 @@ export default {
         }
       }
     },
+
     async flyToPointsSequentially() {
       for (let index = 0; index < this.plotArrinOneTime.length; index++) {
         const item = this.plotArrinOneTime[index];
+        let lastRecordTimeLocaltmp = this.timestampToTimeChina(item.startTime)
+        if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+          this.lastRecordTimeLocal = lastRecordTimeLocaltmp
+        }
         //标签
         let entitylabel = null
         let plotId = item.plotId
@@ -260,10 +278,13 @@ export default {
         if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
           entitylabel = window.labeldataSource.entities.getById(item.plotId + '_label');
           entitylabel.show = true
+          this.lastRecordContent=entitylabel.labeltext
         } else {
           getPlotInfos({plotId, plotType}).then(res => {
             let labeltext = timeLine.labeltext(plotType, res)
-            entitylabel = timeLine.addPointLabel(item, labeltext)
+            timeLine.addPointLabel(item, labeltext)
+            entitylabel =window.labeldataSource.entities.getById(item.plotId + '_label');
+            this.lastRecordContent=labeltext
           })
         }
 
@@ -280,6 +301,8 @@ export default {
             timeLine.makerLabelsShowPersonAndResouce(this.plots)
             break; // 终止循环
           }
+
+
           // 点闪烁
           await timeLine.blinkMarker(item);
           if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
@@ -342,6 +365,31 @@ export default {
           timeLine.markerLabelsHidden(this.plotArrinOneTime)
           this.flyToPointsSequentially()
         }
+      }
+    },
+    findLastRecordTimeAndContent(){
+      console.log(new Date(this.currentTime),"new Date(currentTime) findLastRecordTimeAndContent")
+      let filteredPlots = this.plots.filter(plot => {
+        return new Date(plot.startTime).getTime() <= new Date(this.currentTime).getTime();
+      });
+      let latestPlot = null;
+      let latestTime =new Date(this.centerPoint.startTime) ;
+      filteredPlots.forEach(plot => {
+        const plotStartTime = new Date(plot.startTime).getTime();
+        if (plotStartTime > latestTime) {
+          latestTime = plotStartTime;
+          latestPlot = plot;
+        }
+      });
+
+      if(latestPlot){
+        this.lastRecordTimeLocal= this.timestampToTimeChina(latestPlot.startTime)
+        let plotId=latestPlot.plotId
+        let plotType=latestPlot.plotType
+        getPlotInfos({plotId, plotType}).then(res => {
+          let labeltext = timeLine.labeltext(plotType, res)
+          this.lastRecordContent=labeltext
+        })
       }
     },
     timestampToTime(time) {
@@ -458,23 +506,73 @@ export default {
   font-size: 12px;
 }
 
-.topCurrentTimeLabel {
+.topLastRecordTimeLabel {
   background-color: #163253;
-  border-radius: 20px;
+  border-radius: 5px;
   height: 6%;
-  width: 23%;
-  top: 8%;
+  width: 7%;
+  top: 12%;
+  position: absolute;
+  z-index: 512;
+  color: #FFFFFF;
+  font-size: 16px;
+  left: 24%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.topLastRecordContentLabel {
+  background-color: #163253;
+  border-radius: 5px;
+  height: 6%;
+  width: 41%;
+  top: 12%;
   position: absolute;
   z-index: 500;
   color: #FFFFFF;
-  font-size: 23px;
-  left: 41%;
-  //text-align: center;
-  display: flex; /* 使用Flexbox布局 */
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
+  font-size: 16px;
+  left: 32%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.topLastRecordContentLabel {
+  background-color: #163253;
+  border-radius: 5px;
+  height: 6%;
+  width: 41%;
+  top: 12%;
+  position: absolute;
+  z-index: 500;
+  color: #FFFFFF;
+  font-size: 16px;
+  left: 32%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* 隐藏超出容器的文本 */
 }
 
+.marquee {
+  display: inline-block;
+  white-space: nowrap; /* 确保文本不会换行 */
+  overflow: hidden;
+  position: relative; /* 相对于父元素定位 */
+}
+
+/* 创建滚动动画 */
+@keyframes marquee {
+  0% { left: 100%; } /* 从右侧开始 */
+  100% { left: -100%; } /* 滚动到左侧 */
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap; /* 确保文本不会换行 */
+  overflow: hidden;
+  position: relative; /* 相对于父元素定位 */
+  width: 100%; /* 宽度与父容器一致 */
+}
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
   bottom: 1% !important;

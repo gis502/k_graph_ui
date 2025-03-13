@@ -712,7 +712,6 @@
           @viewJumpSelectedDistrict="viewJumpSelectedDistrict"
           :selectedDistrict="selectedDistrict"
           @stopTimePlay="handleStopTimePlay"
-
       />
     </div>
 
