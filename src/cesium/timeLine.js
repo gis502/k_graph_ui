@@ -438,7 +438,7 @@ let timeLine = {
         }
     },
     addMakerPoint(item, type) {
-        console.log(item, "addMakerPoint timeline")
+        // console.log(item, "addMakerPoint timeline")
         //点的属性 震中点统用一一个方法
         let labeltext = null
         let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()

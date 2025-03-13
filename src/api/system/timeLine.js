@@ -9,6 +9,13 @@ export function getEmergencyResponse(data) {
         params:data
     })
 }
+export function saveEmergencyResponse(data){
+    return request({
+        url: '/timeLine/saveEmergencyResponse',
+        method: 'post',
+        data:data
+    })
+}
 // 获取 人员伤亡
 export function getRescueActionCasualties(data) {
     return request({

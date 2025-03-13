@@ -630,7 +630,9 @@
     <div v-show="showSidebarComponents">
       <div class="pop_left_background">
         <timeLineEmergencyResponse
+            :edit="false"
             :eqid="eqid"
+            :centerPoint="centerPoint"
             :currentTime="currentTimeString"
         />
         <!--   人员伤亡-左中   -->
@@ -5541,25 +5543,6 @@ export default {
   left: 31%;
 }
 
-.el-button {
-  font-size: 1rem !important; /* 调整按钮字体大小 */
-  width: 60%; /* 使按钮宽度自适应 */
-  height: 3vh;
-}
-
-:deep(.el-button--primary) {
-  border-color: #fff42e; /* 白色边框 */
-  background-color: #1a3749;
-  color: #ffeb02; /* 白色字体 */
-}
-
-:deep(.el-button--primary):hover {
-  background-color: rgba(255, 255, 255, 0.2); /* 可选：鼠标悬浮时的背景色 */
-}
-
-:deep(.el-button--primary):active {
-  background-color: rgba(255, 255, 255, 0.4); /* 可选：鼠标按下时的背景色 */
-}
 
 
 :deep(.new-panel) {
