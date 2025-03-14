@@ -66,25 +66,26 @@
           <h2 class="emergencyPanelName">物资查询</h2>
         </div>
 
-        <div class="panelContent" style=" gap: 30px;padding-right: 3%;padding-left: 3%;padding-bottom: 5%; width: 100%;display: flex;justify-content: center;align-items: center"  >
-          <el-button @click="searchRescueSupplies" class="cyber-button" >
+        <div class="panelContent"
+             style=" gap: 30px;padding-right: 3%;padding-left: 3%;padding-bottom: 5%; width: 100%;display: flex;justify-content: center;align-items: center">
+          <el-button @click="searchRescueSupplies" class="cyber-button">
             <span class="glow-text">救·援·物·资</span>
             <div class="gradient-border"></div>
           </el-button>
 
-          <el-button  @click="searchRescueForces" class="cyber-button">
+          <el-button @click="searchRescueForces" class="cyber-button">
             <span class="glow-text">救·援·力·量</span>
             <div class="gradient-border"></div>
           </el-button>
 
-          <el-button  @click="searchRescueEquipment" class="cyber-button">
+          <el-button @click="searchRescueEquipment" class="cyber-button">
             <span class="glow-text"> 救·援·装·备</span>
             <div class="gradient-border"></div>
           </el-button>
         </div>
 
         <div style="width: 100%;display: flex;justify-content: center;align-items: center">
-          <div class="panelButtons" >
+          <div class="panelButtons">
             <el-button @click="panels.materialMatching = false">取消</el-button>
             <el-button type="primary" @click="searchAll">
               显示所有物资点
@@ -253,7 +254,7 @@
           <h2 class="emergencyPanelName">清除实体</h2>
         </div>
 
-        <div class="container" label-width="120px"    >
+        <div class="container" label-width="120px">
           <a href="#" class="button type--C" @click="removePolyline">
             <div class="button__line"></div>
             <div class="button__line"></div>
@@ -273,7 +274,6 @@
 
 
       </div>
-
 
 
       <div class="emergencyPanel" v-if="panels.marchSupplyDialog">
