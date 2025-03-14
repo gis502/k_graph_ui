@@ -6686,16 +6686,6 @@ export default {
   width: 200px; /* 返回首页的下拉框宽度 */
 }
 
-:deep(.cesium-baseLayerPicker-dropDown-visible) {
-  z-index: 600000 !important;
-  background-color: #2b323a;
-}
-
-:deep(.cesium-baseLayerPicker-dropDown) {
-  right: 9px !important;
-  width: 398px !important;
-  height: 310px !important;
-}
 
 
 .modelAdj {
