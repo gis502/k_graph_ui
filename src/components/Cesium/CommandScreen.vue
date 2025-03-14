@@ -345,7 +345,7 @@
           <el-form class="panelForm" :model="searchSupplyForm" ref="searchSupplyForm" :rules="formRules" label-width="80px">
             <el-form-item label="匹配半径"
                           prop="radius"
-                         >
+            >
               <el-input v-model="searchSupplyForm.radius"
                         @input="handleRadiusInput"
                         placeholder="请输入匹配的半径/km"
@@ -1389,37 +1389,37 @@ export default {
         flashlights: 0,
         radius: 0.0,  //半径
       },
-        formRules:{
-          radius: [
-              {
-                  required: true,
-                  message: '匹配半径不能为空',
-                  trigger: ['blur', 'change'] // 同时监听失焦和内容变化
-              },
+      formRules:{
+        radius: [
+          {
+            required: true,
+            message: '匹配半径不能为空',
+            trigger: ['blur', 'change'] // 同时监听失焦和内容变化
+          },
 
-              // 数字格式 + 数值范围校验
-              {
-                  validator: (rule, value, callback) => {
-                      // 空值校验已在第一条规则处理，此处无需重复
-                      if (value === '') return callback()
+          // 数字格式 + 数值范围校验
+          {
+            validator: (rule, value, callback) => {
+              // 空值校验已在第一条规则处理，此处无需重复
+              if (value === '') return callback()
 
-                      // 检查是否为有效数字
-                      if (isNaN(value) || !/^-?\d+\.?\d*$/.test(value)) {
-                          return callback(new Error('必须输入有效数字'))
-                      }
-
-                      // 检查是否大于0
-                      if (parseFloat(value) <= 0) {
-                          console.log(parseFloat(value))
-                          return callback(new Error('匹配半径必须大于0'))
-                      }
-
-                      callback()
-                  },
-                  trigger: ['blur', 'change'] // 同时触发
+              // 检查是否为有效数字
+              if (isNaN(value) || !/^-?\d+\.?\d*$/.test(value)) {
+                return callback(new Error('必须输入有效数字'))
               }
-          ]
-        },
+
+              // 检查是否大于0
+              if (parseFloat(value) <= 0) {
+                console.log(parseFloat(value))
+                return callback(new Error('匹配半径必须大于0'))
+              }
+
+              callback()
+            },
+            trigger: ['blur', 'change'] // 同时触发
+          }
+        ]
+      },
       // 救援力量表单
       searchEmergencyTeamForm: {
         levelName: '',
@@ -1965,10 +1965,10 @@ export default {
         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
 
 
-          // 调用 `processPoints` 并传递不同的 `tableName`
-          // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-          // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-          // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+        // 调用 `processPoints` 并传递不同的 `tableName`
+        // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
 
 
 
@@ -2752,15 +2752,15 @@ export default {
       this.activeMenuIndex = '3'
       this.panels.searchSupplyDialog = false
       this.equipmentSupplyForm = {
-            county: "",
-            address: "",
-            contactPerson: "",
-            contactPhone: "",
-            lifeJacket: 0,
-            lifebuoy: 0,
-            walkieTalkie: 0,
-            portableLight: 0,
-            radius: 0.0,  //半径
+        county: "",
+        address: "",
+        contactPerson: "",
+        contactPhone: "",
+        lifeJacket: 0,
+        lifebuoy: 0,
+        walkieTalkie: 0,
+        portableLight: 0,
+        radius: 0.0,  //半径
       }
       // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
 
@@ -2866,8 +2866,8 @@ export default {
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
-        const valid = await this.$refs.searchSupplyForm.validate()
-        if (!valid) {return}
+      const valid = await this.$refs.searchSupplyForm.validate()
+      if (!valid) {return}
 
 
       this.panels.tableVisible = true
