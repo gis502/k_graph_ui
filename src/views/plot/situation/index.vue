@@ -90,11 +90,9 @@
             layout="total, prev, pager, next"
             :total="total">
         </el-pagination>
-
       </el-form>
       <el-form v-if="showToolbar" class="noteContainer">
         <div class="modelAdj">态势标绘工具<span style="margin-left: 10px;" @click="showToolbar = false">隐藏工具栏</span></div>
-
         <el-row>
           <el-col :span="13">
             <el-tree class="plotTool" :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick"
@@ -644,7 +642,6 @@ export default {
           })
       )
     },
-
 
     initTree() {
       const highestAndSecondLabels = [];
