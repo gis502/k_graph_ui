@@ -2,7 +2,7 @@ import * as Cesium from 'cesium'
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
 import {
-  getEqOutPutJueCe,
+  getEqOutPutJueCe, getEqOutPutJueCeLocal,
   getEqOutputMap,
   getEqOutputReport,
   saveIntensityCircle
@@ -940,7 +940,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
             imgUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
-          console.log(thematicMapObject)
+          console.log("专题图",thematicMapObject)
           thematicMapData.push(thematicMapObject);
         }
 
@@ -973,26 +973,53 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
       }).catch(err => {
         reject(err);
       });
-    } else if(type==="AssistantDecision"){
-      getEqOutPutJueCe(DTO).then((res) => {
+    }
+    // else if(type==="AssistantDecision"){
+    //   getEqOutPutJueCe(DTO).then((res) => {
+    //     console.log("辅助决策数据：", res);
+    //     const data = res.data;
+    //     const themeName = eqFullName + "-" + "辅助决策报告";
+    //     let reportData = [];
+    //     for (let i = 0; i < res.data.length; i++) {
+    //       const reportObject = {
+    //         docxUrl: `${zaiSunFuZhuJueCe}${data[i].sourceFile}`,
+    //         theme: data[i].fileName,
+    //       }
+    //       reportData.push(reportObject);
+    //     }
+    //     returnData.themeName = themeName;
+    //     returnData.themeData = reportData;
+    //     resolve(returnData); // 这里也是异步，所以也需要 resolve
+    //   }).catch(err => {
+    //     reject(err);
+    //   });
+    // }
+    else if(type==="AssistantDecision"){
+      getEqOutPutJueCeLocal(DTO).then((res) => {
         console.log("辅助决策数据：", res);
         const data = res.data;
         const themeName = eqFullName + "-" + "辅助决策报告";
-        let reportData = [];
+        let jueceData = [];
+
         for (let i = 0; i < res.data.length; i++) {
+          const fullPath = `${zaiSunFuZhuJueCe}${data[i].sourceFile}`;
+          console.log("docxUrl:", fullPath); // 检查路径是否正确
           const reportObject = {
-            docxUrl: `${zaiSunFuZhuJueCe}${data[i].sourceFile}`,
+            docxUrl: fullPath,
             theme: data[i].fileName,
-          }
-          reportData.push(reportObject);
+          };
+          console.log(reportObject)
+          jueceData.push(reportObject);
         }
+
         returnData.themeName = themeName;
-        returnData.themeData = reportData;
+        returnData.themeData = jueceData;
         resolve(returnData); // 这里也是异步，所以也需要 resolve
       }).catch(err => {
         reject(err);
       });
-    } else {
+    }
+    else {
       resolve(returnData); // 如果 type 不是 "thematicMap" 或 "report"，直接返回默认值
     }
   });

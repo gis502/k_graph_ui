@@ -148,7 +148,7 @@ function getImageryProviderArr() {
             creationFunction: function () {
                 return [
                     new Cesium.WebMapTileServiceImageryProvider({
-                         url:`http://localhost:9080/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
+                         url:`http://t0.tianditu.com/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
                         // url: `http://59.255.48.160:81/img_c/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=c&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=${TianDiTuToken}`,
                         format: 'tiles',
                         tileMatrixSetID: 'c',
@@ -162,7 +162,8 @@ function getImageryProviderArr() {
                     }),
                     // 默认添加 GeoServer 提供的 WMS 图层
                     new Cesium.WebMapServiceImageryProvider({
-                        url: 'http://59.213.183.56/localmap/geoserver/yaan/wms',
+                        // url: 'http://59.213.183.56/localmap/geoserver/yaan/wms',
+                        url: 'http://10.16.7.35:9097/geoserver/yaan/wms',
                         layers: 'yaan:fd513a41f7ea47c985bd8b299b4c2695', // GeoServer 的图层名称
                         parameters: {
                             service: 'WMS',
