@@ -1254,26 +1254,31 @@ export default {
       showSidebarComponents: true,  // 控制两侧组件显示状态
       //-----------------图层要素---------------------
       isExpanded: false,
+      ResourceSchedulingLayers:[
+        {id: '0', name: '避难场所要素图层'},
+        {id: '1', name: '救援队伍分布要素图层'},
+        {id: '2', name: '应急物资存储要素图层'},
+      ],
+      DamageAssessmentLayers: [
+        {id: '0', name: '历史地震要素图层'},
+        {id: '1', name: '断裂带要素图层'},
+        {id: '2', name: '烈度圈要素图层'},
+        {id: '3', name: '灾损预估-人员伤亡要素图层'},
+        {id: '4', name: '灾损预估-经济损失要素图层'},
+        {id: '5', name: '灾损预估-建筑损毁要素图层'},
+      ],
       layeritems: [
         {id: '0', name: '标绘点图层'},
-        // {id: '1', name: '人员伤亡标绘点标签'},
-        // {id: '2', name: '救援出队标绘点标签'},
-        {id: '3', name: '行政区划要素图层'},
-        {id: '4', name: '人口密度要素图层'},
-        {id: '5', name: '交通网络要素图层'},
-        {id: '6', name: '避难场所要素图层'},
-        {id: '7', name: '救援队伍分布要素图层'},
-        {id: '8', name: '应急物资存储要素图层'},
-        {id: '9', name: '历史地震要素图层'},
-        {id: '10', name: '断裂带要素图层'},
-        {id: '11', name: '灾损预估-人员伤亡要素图层'},
-        {id: '12', name: '灾损预估-经济损失要素图层'},
-        {id: '13', name: '灾损预估-建筑损毁要素图层'},
-        {id: '14', name: '医院要素图层'},
-        {id: '15', name: '村庄要素图层'},
+        {id: '1', name: '行政区划要素图层'},
+        {id: '2', name: '人口密度要素图层'},
+        {id: '3', name: '交通网络要素图层'},
+        {id: '4', name: '医院要素图层'},
+        {id: '5', name: '村庄要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
-      // selectedlayersLocal: ['标绘点图层','人员伤亡标绘点标签','救援出队标绘点标签'],
+      // 图层允许单选
+      selectedDisasterEstimate: ['灾损预估图层'],
+      selectedResourceScheduling:['资源调度图层'],
       isMarkingLayerLocal: true,
 
       disasterReserves: [],
@@ -3507,10 +3512,13 @@ export default {
     addOvalCircle() {
 
       // 移除所有已存在的椭圆圈实体，以避免重复添加
-      this.removeEntitiesByType("ovalCircle")
+      this.removeEntitiesByType("ovalCircleTest")
+
+      // 地震震中位置(经纬度)
+      let centerPosition = [this.centerPoint.longitude,this.centerPoint.latitude]
 
       // 在指定的中心点位置添加新的椭圆圈
-      addOvalCircles(this.centerPoint)
+      addOCTest(this.eqid,this.eqqueueId,centerPosition)
     },
 
     /**
@@ -3848,22 +3856,23 @@ export default {
         {
           name: '医院要素图层',
           add: addHospitalLayer,
-          remove: () => this.removeDataSourcesLayer('hospital')
-        },
+          remove: () => this.removeDataSourcesLayer('hospital')},
         {
           name: '村庄要素图层',
           add: addVillageLayer,
-          remove: () => this.removeDataSourcesLayer('village')
-        },
+          remove: () => this.removeDataSourcesLayer('village')},
         {
           name: '烈度圈要素图层',
           add: this.addOvalCircle,
-          remove: () => this.removeEntitiesByType('ovalCircle')
-        },
+          remove: () => {
+            this.removeEntitiesByType('ovalCircleTest');
+            this.removeDataSourcesLayer('ovalCircleTest');
+          }
+        }
       ];
 
       layerActions.forEach(layer => {
-        if (this.selectedlayersLocal.includes(layer.name)) {
+        if (this.selectedlayersLocal.includes(layer.name)  || this.selectedResourceScheduling.includes(layer.name) || this.selectedDisasterEstimate.includes(layer.name)) {
           layer.add();
         } else {
           layer.remove();
@@ -4384,25 +4393,25 @@ export default {
      *
      * @param {boolean} isMarkingLayerLocal - 表示是否为本地标记图层
      */
-    // handleMarkingLayerChange(isMarkingLayerLocal) {
-    //   if (isMarkingLayerLocal) {
-    //     // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
-    //     if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
-    //       let newLayer = new Cesium.CustomDataSource('drawingLayer');
-    //       window.viewer.dataSources.add(newLayer);
-    //       newLayer.show = true;
-    //       this.isMarkingLayerLocal = true;
-    //     }
-    //   } else {
-    //     // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
-    //     this.isMarkingLayerLocal = false;
-    //     // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
-    //     let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
-    //     if (dataSource) {
-    //       window.viewer.dataSources.remove(dataSource);
-    //     }
-    //   }
-    // },
+    handleMarkingLayerChange(isMarkingLayerLocal) {
+      if (isMarkingLayerLocal) {
+        // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
+        if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
+          let newLayer = new Cesium.CustomDataSource('drawingLayer');
+          window.viewer.dataSources.add(newLayer);
+          newLayer.show = true;
+          this.isMarkingLayerLocal = true;
+        }
+      } else {
+        // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
+        this.isMarkingLayerLocal = false;
+        // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
+        let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
+        if (dataSource) {
+          window.viewer.dataSources.remove(dataSource);
+        }
+      }
+    },
 
     /**
      * 根据经纬度获取人口密度信息
@@ -4649,6 +4658,8 @@ export default {
       if (node.level === 0) {
         return resolve([
           {name: '图层要素'},
+          {name: '灾损预估'},
+          {name: '资源调度'},
         ]);
       }
 
@@ -4659,15 +4670,16 @@ export default {
         data = this.layeritems.map(item => ({
           name: item.name
         }));
-      } else if (node.data.name === '视角跳转') {
+      } else if (node.data.name === '灾损预估') {
         // 返回视角跳转的选项
-        data = [
-          {name: '回到震中'},
-          {name: '雅安市'},
-          ...this.districts.map(district => ({
-            name: district.name
-          }))
-        ];
+        data = this.DamageAssessmentLayers.map(item => ({
+          name: item.name
+        }))
+      }else if (node.data.name === '资源调度') {
+        // 返回视角跳转的选项
+        data = this.ResourceSchedulingLayers.map(item => ({
+          name: item.name
+        }))
       }
 
       resolve(data);
