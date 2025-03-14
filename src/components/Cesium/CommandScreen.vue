@@ -3754,7 +3754,9 @@ export default {
           },
           remove:()=>{
             this.isMarkingLayerLocal = false;
-            timeLine.markerLayerHidden(this.plots);
+            setTimeout(() => {
+              timeLine.markerLayerHidden(this.plots);
+            }, 2000);
           }
         },
         {
