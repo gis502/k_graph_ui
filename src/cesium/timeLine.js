@@ -106,7 +106,6 @@ let timeLine = {
 
         return lines;
     },
-
     addDataSourceLayer(datasourcename) {
         if (datasourcename === "pointData") {
             let pointDataSource = null
@@ -437,6 +436,7 @@ let timeLine = {
             return labeldataSource
         }
     },
+
     addMakerPoint(item, type) {
         // console.log(item, "addMakerPoint timeline")
         //点的属性 震中点统用一一个方法
@@ -790,7 +790,7 @@ let timeLine = {
     },
     //标签（点线面）
     labeltext(plotType, res) {
-        console.log("标签",res)
+        // console.log("标签",res)
         let labeltext =res.plotInfo.belongCounty+ res.plotInfo.belongTown+"新增"+plotType
         //人员伤亡类文字：xxx人员xx人
         if (plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员") {
@@ -900,6 +900,32 @@ let timeLine = {
 
     //--------交互-------
     //标绘点线面显示隐藏
+    markerLayerShow(plots){
+        this.showAllMakerPoint(plots)
+        this.makerLabelsShowPersonAndResouce(plots)
+    },
+    markerLayerHidden(plots) {
+        console.log("markerLayerHidden")
+        plots.forEach(item => {
+            // console.log(item)
+            if (item.drawtype === "point") {
+                let entity = window.pointDataSource.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = false
+                }
+            } else {
+                let entity = window.viewer.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = false
+                }
+            }
+            let entitylabel=window.labeldataSource.entities.getById(item.plotId+'_label')
+            // console.log(entitylabel,"entitylabel")
+            if (entitylabel) {
+                entitylabel.show = false
+            }
+        })
+    },
     showAllMakerPoint(plots) {
         plots.forEach(item => {
             if (item.drawtype === "point") {
@@ -916,39 +942,19 @@ let timeLine = {
 
         })
     },
-    markerLayerHidden(plots) {
-        plots.forEach(item => {
-            // console.log(item)
-            if (item.drawtype === "point") {
-                let entity = window.pointDataSource.entities.getById(item.plotId)
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-            } else {
-                let entity = window.viewer.entities.getById(item.plotId)
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-            }
-        })
-    },
     //标签显示隐藏
     //隐藏所有标签
     markerLabelsHidden(plots) {
         plots.forEach(item => {
-            // console.log(item)
             let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
-            // console.log(entity, "entity")
             if (entity) {
                 entity.show = false
             }
-
         })
     },
     //只显示人员伤亡和救援队伍
     makerLabelsShowPersonAndResouce(plots) {
+        console.log("makerLabelsShowPersonAndResouce")
         plots.forEach(item => {
             if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
                 let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
@@ -963,7 +969,6 @@ let timeLine = {
                     entity.show = false
                 }
             }
-
         })
     },
     //删除标签
@@ -1001,7 +1006,6 @@ let timeLine = {
             }, interval);
         });
     },
-
     fly(lng, lat, height, time) {
         return new Promise((resolve, reject) => {
             window.viewer.scene.camera.flyTo({

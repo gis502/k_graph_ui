@@ -99,7 +99,7 @@ export default {
       lastRecordContent:'',
     }
   },
-  props: ['centerPoint', 'currentTime', 'eqid', 'viewer','stopTimePlay'],
+  props: ['centerPoint', 'currentTime', 'eqid', 'viewer','stopTimePlay','isMarkingLayer'],
   watch: {
     currentTime(newVal, oldVal) {
       if (newVal && oldVal && newVal !== oldVal) {
@@ -136,7 +136,23 @@ export default {
       if (newVal) {
         this.playEnd(); // 停止时间轴播放
       }
+    },
+    isMarkingLayer(newVal){
+      console.log(newVal,"isMarkingLayerLocal watch")
+      // this.isMarkingLayer=newVal
+      if(!newVal){
+        console.log(this.isMarkingLayer,"isMarkingLayerLocal watch")
+        window.viewer.clockViewModel.shouldAnimate = false;
+        this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
+        // timeLine.markerLayerHidden(this.plots)
+        this.selectButton("playEnd")
+        // this.playEnd()
+      }
+      // else{
+      //   timeLine.markerLayerShow(this.plots)
+      // }
     }
+
   },
   mounted() {
     this.getPlotwithStartandEndTime(this.eqid)
@@ -223,7 +239,13 @@ export default {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
       this.selectButton("playEnd")
-      timeLine.makerLabelsShowPersonAndResouce(this.plots)
+      console.log(this.isMarkingLayer,"this.isMarkingLayer playEnd")
+      if(this.isMarkingLayer){
+        timeLine.makerLabelsShowPersonAndResouce(this.plots)
+      }
+      else{
+        timeLine.markerLayerHidden(this.plots)
+      }
     },
     playStart() {
       if (new Date(this.currentTime) >= new Date()) {
@@ -271,6 +293,7 @@ export default {
         if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
           this.lastRecordTimeLocal = lastRecordTimeLocaltmp
         }
+
         //标签
         let entitylabel = null
         let plotId = item.plotId
@@ -287,10 +310,19 @@ export default {
             this.lastRecordContent=labeltext
           })
         }
-
+        if(!this.isMarkingLayer){
+          entitylabel.show=false
+          break;
+        }
         if (this.endflag) {
           console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
-          timeLine.makerLabelsShowPersonAndResouce(this.plots)
+          if(this.isMarkingLayer){
+            timeLine.makerLabelsShowPersonAndResouce(this.plots)
+          }
+          else{
+            timeLine.markerLayerHidden(this.plots)
+          }
+          // timeLine.makerLabelsShowPersonAndResouce(this.plots)
           break; // 终止循环
         }
         try {
@@ -298,17 +330,35 @@ export default {
           await timeLine.fly(item.longitude, item.latitude, 20000);
           if (this.endflag) {
             console.log(index, this.plotArrinOneTime.length, "终止飞行222");
-            timeLine.makerLabelsShowPersonAndResouce(this.plots)
+            if(this.isMarkingLayer){
+              timeLine.makerLabelsShowPersonAndResouce(this.plots)
+            }
+            else{
+              timeLine.markerLayerHidden(this.plots)
+            }
+            // timeLine.makerLabelsShowPersonAndResouce(this.plots)
             break; // 终止循环
           }
 
 
           // 点闪烁
           await timeLine.blinkMarker(item);
-          if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
-          } else {
+
+          if(!this.isMarkingLayer){
+            console.log("timeLine.markerLabelsHidden(this.plots)")
+            console.log( window.labeldataSource.entities.getById(item.plotId + "_label"),"plot_label_blind")
             window.labeldataSource.entities.removeById(item.plotId + "_label");
+            timeLine.markerLayerHidden(this.plots)
+            // timeLine.markerLayerHidden(this.plots)
           }
+          else{
+            console.log("blinkMarker else")
+            if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
+            } else {
+              window.labeldataSource.entities.removeById(item.plotId + "_label");
+            }
+          }
+
         } catch (error) {
           console.error("飞行过程中发生错误:", error);
           break; // 发生错误时终止循环
@@ -320,32 +370,6 @@ export default {
         window.viewer.clockViewModel.shouldAnimate = true;
       }
     },
-    blinkMarker(plot) {
-      return new Promise((resolve) => {
-        let entity = null
-        if (plot.drawtype === 'point') {
-          entity = window.pointDataSource.entities.getById(plot.plotId);
-        } else {
-          entity = this.viewer.entities.getById(plot.plotId); // 假设每个点都有一个唯一的id
-        }
-        if (!entity) {
-          console.error("Entity not found:", plot);
-          resolve();
-          return;
-        }
-        const interval = 200; // 每次闪烁的时间间隔
-        let count = 0;
-        const blinkInterval = setInterval(() => {
-          entity.show = !entity.show
-          count++;
-          if (count >= 5) {
-            clearInterval(blinkInterval);
-            entity.show = true;
-            resolve(); // 完成闪烁，继续后续操作
-          }
-        }, interval);
-      });
-    },
     ifstopandflash(currentTime, oldCurrentTime) {
       if (this.flyflag == false) {
         return;
@@ -355,7 +379,13 @@ export default {
       });
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
-        timeLine.makerLabelsShowPersonAndResouce(this.plots)
+        if(this.isMarkingLayer){
+          timeLine.makerLabelsShowPersonAndResouce(this.plots)
+        }
+        else{
+          timeLine.markerLayerHidden(this.plots)
+        }
+        // timeLine.makerLabelsShowPersonAndResouce(this.plots)
         console.log("终止333");
         return
       } else {

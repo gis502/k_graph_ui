@@ -623,6 +623,7 @@
         :currentTime="currentTimeString"
         @updatePlots="updatePlots"
         :stopTimePlay="stopTimePlay"
+        :isMarkingLayer="isMarkingLayerLocal"
         @startTimePlay="handleStartTimePlay"
     />
 
@@ -1255,22 +1256,26 @@ export default {
       isExpanded: false,
       layeritems: [
         {id: '0', name: '标绘点图层'},
-        {id: '1', name: '行政区划要素图层'},
-        {id: '2', name: '人口密度要素图层'},
-        {id: '3', name: '交通网络要素图层'},
-        {id: '4', name: '避难场所要素图层'},
-        {id: '5', name: '救援队伍分布要素图层'},
-        {id: '6', name: '应急物资存储要素图层'},
-        {id: '7', name: '历史地震要素图层'},
-        {id: '8', name: '断裂带要素图层'},
+        // {id: '1', name: '人员伤亡标绘点标签'},
+        // {id: '2', name: '救援出队标绘点标签'},
+        {id: '3', name: '行政区划要素图层'},
+        {id: '4', name: '人口密度要素图层'},
+        {id: '5', name: '交通网络要素图层'},
+        {id: '6', name: '避难场所要素图层'},
+        {id: '7', name: '救援队伍分布要素图层'},
+        {id: '8', name: '应急物资存储要素图层'},
+        {id: '9', name: '历史地震要素图层'},
+        {id: '10', name: '断裂带要素图层'},
         {id: '11', name: '灾损预估-人员伤亡要素图层'},
         {id: '12', name: '灾损预估-经济损失要素图层'},
         {id: '13', name: '灾损预估-建筑损毁要素图层'},
-        {id: '9', name: '医院要素图层'},
-        {id: '10', name: '村庄要素图层'},
+        {id: '14', name: '医院要素图层'},
+        {id: '15', name: '村庄要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
+      // selectedlayersLocal: ['标绘点图层','人员伤亡标绘点标签','救援出队标绘点标签'],
       isMarkingLayerLocal: true,
+
       disasterReserves: [],
       emergencyTeam: [],
       emergencyShelters: [],
@@ -3723,24 +3728,35 @@ export default {
     updateMapLayers() {
       console.log(this.selectedlayersLocal, "selectedlayersLocal")
       // 检查选中的图层中是否包含标绘点图层
-      const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
-      // 如果包含标绘点图层
-      if (hasDrawingLayer) {
-        // 确认标绘图层变更，参数为true表示已选中
-        this.handleMarkingLayerChange(true);
-        // 更新绘图状态
-        timeLine.showAllMakerPoint(this.plots)
-      } else {
-        // 确认标绘图层变更，参数为false表示未选中
-        this.handleMarkingLayerChange(false);
-        // 移除所有已存在的椭圆圈实体，以避免重复添加
-        // 移除标绘图层
-        timeLine.markerLayerHidden(this.plots);
-      }
+      // const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
+      // // 如果包含标绘点图层
+      // if (hasDrawingLayer) {
+      //   // 确认标绘图层变更，参数为true表示已选中
+      //   this.handleMarkingLayerChange(true);
+      //   // 更新绘图状态
+      //   timeLine.showAllMakerPoint(this.plots)
+      // } else {
+      //   // 确认标绘图层变更，参数为false表示未选中
+      //   this.handleMarkingLayerChange(false);
+      //   // 移除所有已存在的椭圆圈实体，以避免重复添加
+      //   // 移除标绘图层
+      //   timeLine.markerLayerHidden(this.plots);
+      // }
 
       // 图层映射：添加与移除图层逻辑
       // name: 图层名；add：添加图层；remove：移除图层
       const layerActions = [
+        {
+          name: '标绘点图层',
+          add: () => {
+            this.isMarkingLayerLocal = true;
+            timeLine.markerLayerShow(this.plots)
+          },
+          remove:()=>{
+            this.isMarkingLayerLocal = false;
+            timeLine.markerLayerHidden(this.plots);
+          }
+        },
         {
           name: '行政区划要素图层',
           add: this.addYaanRegion,
@@ -4347,25 +4363,25 @@ export default {
      *
      * @param {boolean} isMarkingLayerLocal - 表示是否为本地标记图层
      */
-    handleMarkingLayerChange(isMarkingLayerLocal) {
-      if (isMarkingLayerLocal) {
-        // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
-        if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
-          let newLayer = new Cesium.CustomDataSource('drawingLayer');
-          window.viewer.dataSources.add(newLayer);
-          newLayer.show = true;
-          this.isMarkingLayerLocal = true;
-        }
-      } else {
-        // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
-        this.isMarkingLayerLocal = false;
-        // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
-        let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
-        if (dataSource) {
-          window.viewer.dataSources.remove(dataSource);
-        }
-      }
-    },
+    // handleMarkingLayerChange(isMarkingLayerLocal) {
+    //   if (isMarkingLayerLocal) {
+    //     // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
+    //     if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
+    //       let newLayer = new Cesium.CustomDataSource('drawingLayer');
+    //       window.viewer.dataSources.add(newLayer);
+    //       newLayer.show = true;
+    //       this.isMarkingLayerLocal = true;
+    //     }
+    //   } else {
+    //     // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
+    //     this.isMarkingLayerLocal = false;
+    //     // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
+    //     let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
+    //     if (dataSource) {
+    //       window.viewer.dataSources.remove(dataSource);
+    //     }
+    //   }
+    // },
 
     /**
      * 根据经纬度获取人口密度信息
@@ -4948,16 +4964,6 @@ export default {
 
 <style scoped>
 /*地图*/
-#box {
-  height: 100vh;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  overflow-x: hidden;
-  clip-path: inset(0 0 0 0); /* 裁剪超出部分 */
-}
-
 #cesiumContainer {
   height: 100vh;
   width: 100%;
@@ -4965,8 +4971,6 @@ export default {
   padding: 0;
   overflow: hidden;
 }
-
-
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
   bottom: 1% !important;
