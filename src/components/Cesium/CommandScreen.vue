@@ -4998,7 +4998,7 @@ export default {
 :deep(.cesium-baseLayerPicker-dropDown) {
   position: absolute;
   bottom: 41px;
-  left: -221px !important;
+  left: -167px !important;
   width: 398px !important;
   height: 310px !important;
 }
@@ -5520,16 +5520,18 @@ export default {
 .universalPanel {
   position: absolute;
   left: 1%;
-  bottom: 6%;
   width: 450px;
   border-radius: 5px;
   background: rgb(0, 195, 255);
   background: linear-gradient(90deg, rgb(22 105 179 / 9%) 25%, rgb(10 33 75 / 76%) 88%);
   color: #fff;
   z-index: 100;
-  top: 110px;
+  top: 130px;
   right: 0;
-  z-index: 100;
+  background-color: rgba(53, 59, 67, 0.8);
+  height: 80.8vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .panelTop {
@@ -5575,18 +5577,6 @@ export default {
   padding: 0 16px 16px 0; /* 保留原来的 padding */
 }
 
-.universalPanel {
-  position: absolute;
-  top: 110px;
-  right: 0;
-  width: 450px;
-  border-radius: 5px;
-  background-color: rgba(53, 59, 67, 0.8);
-  z-index: 100;
-  height: 80.8vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 
 .panelTop {
   width: 100%;

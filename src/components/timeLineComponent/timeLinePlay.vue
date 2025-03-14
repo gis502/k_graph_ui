@@ -3,9 +3,9 @@
     <div class="topLastRecordTimeLabel">
       {{ this.lastRecordTimeLocal }}
     </div>
-    <div class="topLastRecordContentLabel">
-      <span class="marquee">{{ this.lastRecordContent }}</span>
-    </div>
+<!--    <div class="topLastRecordContentLabel">-->
+<!--      <span class="marquee">{{ this.lastRecordContent }}</span>-->
+<!--    </div>-->
 
     <div class="start-time-info">
       <span class="timelabel">开始时间：{{ this.timestampToTimeChina(this.centerPoint.startTime) }}</span>
@@ -493,39 +493,24 @@ export default {
 }
 
 .topLastRecordTimeLabel {
-  background-color: #163253;
-  border-radius: 5px;
+  background-color: rgba(32, 99, 150, 0.8);
+  border-radius: 20px;
   height: 6%;
-  width: 7%;
+  width: 12%;
   top: 12%;
   position: absolute;
   z-index: 512;
   color: #FFFFFF;
   font-size: 16px;
-  left: 24%;
+  left: 45%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.topLastRecordContentLabel {
-  background-color: #163253;
-  border-radius: 5px;
-  height: 6%;
-  width: 41%;
-  top: 12%;
-  position: absolute;
-  z-index: 500;
-  color: #FFFFFF;
-  font-size: 16px;
-  left: 32%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .topLastRecordContentLabel {
-  background-color: #163253;
+  background-color: rgba(32, 99, 150, 0.8);
   border-radius: 5px;
   height: 6%;
   width: 41%;
