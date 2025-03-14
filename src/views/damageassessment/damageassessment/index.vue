@@ -799,8 +799,7 @@ export default {
           })
           //雅安行政区加载 end
         })
-      }
-      else if (require === "remove") {
+      } else if (require === "remove") {
         this.yaanLayerRequire = require
         console.log("1123", this.yaanLayerRequire)
         this.eqThemes.show.isshowRegion = false;
@@ -1049,7 +1048,7 @@ export default {
 
     // 选中地震后返回
     back() {
-      this.toggleYaanLayer( 'remove')
+      this.toggleYaanLayer('remove')
       this.tabs = []
       this.thisTab = '震害事件';
       this.selectedTabData = null;
