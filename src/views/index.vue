@@ -162,7 +162,7 @@ const lastValidEqData = ref(null);
 
 const getEq = () => {
   getEqList().then((res) => {
-    // console.log("地震数据", res.data)
+    console.log("地震数据", res.data)
     EqAll.value = res.data;
     console.log("EqAll.value", EqAll.value)
     tableData.value = res.data;
@@ -213,6 +213,7 @@ watch(MapData, (newVal) => {
 
 // 监听 CeShiTableData 变化，更新 lastEqData
 watch(CeShiTableData, (newVal) => {
+  // console.log(CeShiTableData,"CeShiTableData")
   if (newVal.length > 0&&newVal[0].magnitude>=3) {
     lastValidEqData.value = newVal[0]; // 存储上一次有值的第一条数据
     lastEqData.value = newVal[0];
@@ -318,6 +319,7 @@ const onSubmit = () => {
   console.log("5555555555555555555555555555", queryParams)
 
   fromEqList(queryParams).then((res) => {
+    console.log(tableData,"tableData")
     tableData.value = res;
     lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
   });

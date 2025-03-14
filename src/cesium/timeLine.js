@@ -86,6 +86,26 @@ let timeLine = {
         }
     },
     //图层
+    wrapText(context, text, width) {
+        var words = text.split(' ');
+        var line = '';
+        var lines = [];
+
+        for (var n = 0; n < words.length; n++) {
+            var testLine = line + words[n] + ' ';
+            var metrics = context.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > width && line !== '') {
+                lines.push(line);
+                line = words[n] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+        lines.push(line);
+
+        return lines;
+    },
     addDataSourceLayer(datasourcename) {
         if (datasourcename === "pointData") {
             let pointDataSource = null
@@ -144,11 +164,7 @@ let timeLine = {
                             } else {
                                 removeListener = pointDataSource.clustering.clusterEvent.addEventListener(
                                     function (clusteredEntities, cluster) {
-                                        // if (clusteredEntities.length < 10) {
-                                        //   // 禁用 Billboard 显示
-                                        //   cluster.billboard.show = false;
-                                        //   cluster.label.show = false;
-                                        // } else {
+
                                         cluster.label.show = false;
                                         cluster.billboard.show = true;
                                         cluster.billboard.id = cluster.label.id;
@@ -179,7 +195,6 @@ let timeLine = {
                                             cluster.billboard.image = pin10;
                                         } else {
                                             cluster.billboard.image =
-                                                // singleDigitPins[clusteredEntities.length - 2];
                                                 singleDigitPins[clusteredEntities.length];
                                         }
                                     }
@@ -200,7 +215,8 @@ let timeLine = {
 
 
             return pointDataSource
-        } else if (datasourcename === "label") {
+        }
+        else if (datasourcename === "label") {
             let labeldataSource = null
             if (window.viewer && window.viewer.dataSources._dataSources[0] && window.viewer.dataSources._dataSources.find(ds => ds.name === 'label')) {
                 labeldataSource = window.labeldataSource
@@ -213,15 +229,6 @@ let timeLine = {
                         labeldataSource.clustering.pixelRange = 100; // 聚合像素范围
                         labeldataSource.clustering.minimumClusterSize = 1; // 最小聚合大小
 
-                        // 监听相机变化事件来动态调整聚合像素范围
-                        // let cameraChangeListener = viewer.camera.changed.addEventListener(function () {
-                        //     const cameraHeight = viewer.camera.positionCartographic.height;
-                        //     if (cameraHeight < 50000) {
-                        //         labeldataSource.clustering.pixelRange = 0; // 近距离时，聚合像素范围小
-                        //     } else {
-                        //         labeldataSource.clustering.pixelRange = 100; // 远距离时，聚合像素范围大
-                        //     }
-                        // });
 
                         let removeListener
 
@@ -342,25 +349,35 @@ let timeLine = {
                                                 headerHeight / 2 + padding / 2
                                             ); // 居中绘制标题
 
-                                            // 绘制表格内容
+                                            let currentY = headerHeight + padding;
                                             clusteredEntities.forEach((entity, index) => {
-                                                const yPosition = headerHeight + padding + index * rowHeight;
-
-                                                // 确保内容在背景范围内
-                                                if (yPosition + rowHeight > canvasHeight - padding) {
-                                                    console.warn('内容超出背景范围，跳过绘制');
-                                                    return;
+                                                const text = entity.labeltext || '无信息';
+                                                if (text.length > 10) {
+                                                    const words = text.split('');
+                                                    let line = '';
+                                                    for (let i = 0; i < words.length; i++) {
+                                                        if (context.measureText(line + words[i]).width > canvasWidth - 2 * padding) {
+                                                            context.font = `${contentFontSize}px Arial`; // 内容字体
+                                                            context.fillStyle = '#ffffff'; // 白色字体
+                                                            context.textAlign = 'left';
+                                                            context.fillText(line, padding, currentY + rowHeight / 2);
+                                                            line = words[i];
+                                                            currentY += rowHeight;
+                                                        } else {
+                                                            line += words[i];
+                                                        }
+                                                    }
+                                                    context.font = `${contentFontSize}px Arial`; // 内容字体
+                                                    context.fillStyle = '#ffffff'; // 白色字体
+                                                    context.textAlign = 'left';
+                                                    context.fillText(line, padding, currentY + rowHeight / 2);
+                                                } else {
+                                                    context.font = `${contentFontSize}px Arial`; // 内容字体
+                                                    context.fillStyle = '#ffffff'; // 白色字体
+                                                    context.textAlign = 'left';
+                                                    context.fillText(text, padding, currentY + rowHeight / 2);
                                                 }
-
-                                                // 绘制内容
-                                                context.font = `${contentFontSize}px Arial`; // 内容字体
-                                                context.fillStyle = '#ffffff'; // 白色字体
-                                                context.textAlign = 'left';
-                                                context.fillText(
-                                                    `${entity.labeltext || '无信息'}`,
-                                                    padding, // 左对齐
-                                                    yPosition + rowHeight / 2
-                                                );
+                                                currentY += rowHeight;
                                             });
 
                                             // 将 Canvas 转换为 Billboard 图像
@@ -419,8 +436,9 @@ let timeLine = {
             return labeldataSource
         }
     },
+
     addMakerPoint(item, type) {
-        console.log(item, "addMakerPoint timeline")
+        // console.log(item, "addMakerPoint timeline")
         //点的属性 震中点统用一一个方法
         let labeltext = null
         let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
@@ -773,12 +791,8 @@ let timeLine = {
     //标签（点线面）
     labeltext(plotType, res) {
         // console.log("标签",res)
-        let labeltext = plotType
-        if (res.plotTypeInfo && res.plotTypeInfo.location) {
-            labeltext = res.plotTypeInfo.location + labeltext
-        }
+        let labeltext =res.plotInfo.belongCounty+ res.plotInfo.belongTown+"新增"+plotType
         //人员伤亡类文字：xxx人员xx人
-        // if(plotType==="失踪人员"||plotType==="轻伤人员"||plotType==="重伤人员"||plotType==="危重伤人员"||plotType==="死亡人员"){
         if (plotType === "轻伤人员" || plotType === "重伤人员" || plotType === "危重伤人员" || plotType === "死亡人员") {
             if (res.plotTypeInfo && res.plotTypeInfo.newCount) {
                 labeltext = labeltext + res.plotTypeInfo.newCount + "人"
@@ -886,6 +900,32 @@ let timeLine = {
 
     //--------交互-------
     //标绘点线面显示隐藏
+    markerLayerShow(plots){
+        this.showAllMakerPoint(plots)
+        this.makerLabelsShowPersonAndResouce(plots)
+    },
+    markerLayerHidden(plots) {
+        console.log("markerLayerHidden")
+        plots.forEach(item => {
+            // console.log(item)
+            if (item.drawtype === "point") {
+                let entity = window.pointDataSource.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = false
+                }
+            } else {
+                let entity = window.viewer.entities.getById(item.plotId)
+                if (entity) {
+                    entity.show = false
+                }
+            }
+            let entitylabel=window.labeldataSource.entities.getById(item.plotId+'_label')
+            // console.log(entitylabel,"entitylabel")
+            if (entitylabel) {
+                entitylabel.show = false
+            }
+        })
+    },
     showAllMakerPoint(plots) {
         plots.forEach(item => {
             if (item.drawtype === "point") {
@@ -902,39 +942,19 @@ let timeLine = {
 
         })
     },
-    markerLayerHidden(plots) {
-        plots.forEach(item => {
-            // console.log(item)
-            if (item.drawtype === "point") {
-                let entity = window.pointDataSource.entities.getById(item.plotId)
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-            } else {
-                let entity = window.viewer.entities.getById(item.plotId)
-                // console.log(entity, "entity")
-                if (entity) {
-                    entity.show = false
-                }
-            }
-        })
-    },
     //标签显示隐藏
     //隐藏所有标签
     markerLabelsHidden(plots) {
         plots.forEach(item => {
-            // console.log(item)
             let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
-            // console.log(entity, "entity")
             if (entity) {
                 entity.show = false
             }
-
         })
     },
     //只显示人员伤亡和救援队伍
     makerLabelsShowPersonAndResouce(plots) {
+        console.log("makerLabelsShowPersonAndResouce")
         plots.forEach(item => {
             if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
                 let entity = window.labeldataSource.entities.getById(item.plotId + '_label')
@@ -949,7 +969,6 @@ let timeLine = {
                     entity.show = false
                 }
             }
-
         })
     },
     //删除标签
@@ -987,7 +1006,6 @@ let timeLine = {
             }, interval);
         });
     },
-
     fly(lng, lat, height, time) {
         return new Promise((resolve, reject) => {
             window.viewer.scene.camera.flyTo({

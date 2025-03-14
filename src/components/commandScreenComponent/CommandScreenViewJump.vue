@@ -79,7 +79,6 @@ export default {
         lon: "", // 经度
         lat: "", // 纬度
       },
-      // flyToMarker:null,// 经纬度跳转时的定位标记
       selectedDistrictLocal: '', // 用于追踪选中的复选框
       districts: [
         {adcode: 511802, name: "雨城区"},
@@ -111,6 +110,7 @@ export default {
 
       if (!isNaN(lon) && !isNaN(lat)) {
         this.$emit('viewJumpPositionFlyTo', this.positionFlyToLocal);
+        this.$emit('stopTimePlay');
         let flyToMarker = viewer.entities.getById("flyToMarker")
         // **移除已有的标记（防止重复创建）**
         if (flyToMarker) {
@@ -153,7 +153,7 @@ export default {
       //清除其他实体标签
       layer.removeRegionLayerJump();
       this.$emit('viewJumpSelectedDistrict', districtName);
-
+      this.$emit('stopTimePlay');
       // 根据选中的区域进行处理
       if (districtName === '雅安市') {
         layer.addYaanCityDistrict();

@@ -569,7 +569,7 @@ onMounted(()=>{
         margin-left: 2em;
         color: #a4acc7;
         text-indent: 2em;  /* 首行缩进两个字符 */
-        line-height: 1.8;  /* 增加行间距，可以根据需求调整 */
+        line-height: 1.5;  /* 增加行间距，可以根据需求调整 */
       }
     }
   }

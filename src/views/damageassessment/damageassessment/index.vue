@@ -1062,7 +1062,7 @@ export default {
 
       // this.removeEntitiesByType(["historyEq", "faultZone", "ovalCircleTest"])
       // this.removeLayers(["ovalCircleTest"]);
-      this.renderLayer("")
+      this.renderLayer("", true)
 
       const setValues = (obj, value) => {
         Object.keys(obj).forEach(key => {

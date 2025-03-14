@@ -2596,16 +2596,16 @@ canvas {
 }
 
 .zhts-title {
-  width: 25vw;
+  width: 18vw;
   background-size: 100% 100%;
-  left: 2%;
+  /*left: 2%;*/
   font-weight: 550;
   font-size: 1.8rem;
   position: relative;
   background-repeat: no-repeat;
   color: #fff;
   text-shadow: 0 3px 6px #1973c0;
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .menu-item {
@@ -2622,7 +2622,8 @@ canvas {
 }
 
 .menu-label {
-  padding: 10px;
+  /*padding: 10px;*/
+  width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
