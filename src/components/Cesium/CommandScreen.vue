@@ -3875,30 +3875,6 @@ export default {
         this.showBuildingLegend = false; // 指挥大屏-图层管理-建筑损毁图层图例状态
         this.removeRegionLabels();
       }
-
-
-      //视角转化 如果 只有标绘点或者没有选择图层，视角更近（震中），如果有其他要素图层，视角拉高（雅安市）
-      if ((this.selectedlayersLocal.length == 1 && hasDrawingLayer) || this.selectedlayersLocal.length == 0) {
-        // 创建一个Cartesian3对象，用于表示相机将要飞往的经纬度位置
-        const position = Cesium.Cartesian3.fromDegrees(
-            parseFloat(this.centerPoint.longitude),
-            parseFloat(this.centerPoint.latitude),
-            120000,
-        );
-        // 使用flyTo方法使相机飞往指定的经纬度位置
-        viewer.camera.flyTo({destination: position,})
-      } else {
-        // 当选中的图层数量不满足上述条件时，执行以下逻辑
-        // 创建一个Cartesian3对象，用于表示相机将要飞往的默认经纬度位置
-        const position = Cesium.Cartesian3.fromDegrees(
-            103.0,
-            29.98,
-            500000,
-        );
-        // 使用flyTo方法使相机飞往默认的经纬度位置
-        viewer.camera.flyTo({destination: position,})
-      }
-      //视角跳转 end
     },
 
     /**
