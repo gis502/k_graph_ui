@@ -66,25 +66,26 @@
           <h2 class="emergencyPanelName">物资查询</h2>
         </div>
 
-        <div class="panelContent" style=" gap: 30px;padding-right: 3%;padding-left: 3%;padding-bottom: 5%; width: 100%;display: flex;justify-content: center;align-items: center"  >
-          <el-button @click="searchRescueSupplies" class="cyber-button" >
+        <div class="panelContent"
+             style=" gap: 30px;padding-right: 3%;padding-left: 3%;padding-bottom: 5%; width: 100%;display: flex;justify-content: center;align-items: center">
+          <el-button @click="searchRescueSupplies" class="cyber-button">
             <span class="glow-text">救·援·物·资</span>
             <div class="gradient-border"></div>
           </el-button>
 
-          <el-button  @click="searchRescueForces" class="cyber-button">
+          <el-button @click="searchRescueForces" class="cyber-button">
             <span class="glow-text">救·援·力·量</span>
             <div class="gradient-border"></div>
           </el-button>
 
-          <el-button  @click="searchRescueEquipment" class="cyber-button">
+          <el-button @click="searchRescueEquipment" class="cyber-button">
             <span class="glow-text"> 救·援·装·备</span>
             <div class="gradient-border"></div>
           </el-button>
         </div>
 
         <div style="width: 100%;display: flex;justify-content: center;align-items: center">
-          <div class="panelButtons" >
+          <div class="panelButtons">
             <el-button @click="panels.materialMatching = false">取消</el-button>
             <el-button type="primary" @click="searchAll">
               显示所有物资点
@@ -253,7 +254,7 @@
           <h2 class="emergencyPanelName">清除实体</h2>
         </div>
 
-        <div class="container" label-width="120px"    >
+        <div class="container" label-width="120px">
           <a href="#" class="button type--C" @click="removePolyline">
             <div class="button__line"></div>
             <div class="button__line"></div>
@@ -273,7 +274,6 @@
 
 
       </div>
-
 
 
       <div class="emergencyPanel" v-if="panels.marchSupplyDialog">
@@ -606,6 +606,8 @@
           :popupData="dataSourcePopupData"
       />
     </div>
+
+
     <commandScreenTitle
         :eqyear="eqyear"
         :eqmonth="eqmonth"
@@ -744,26 +746,6 @@
                       </svg>
                   <span class="node-text">{{ data.name }}</span>
                 </span>
-                <span v-if="data.name === '资源调度'" class="node-icon">
-                <!-- 图层要素的 SVG 图标 -->
-                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                       xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
-                        <path
-                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                            p-id="6182" fill="#ffffff"></path>
-                      </svg>
-                  <span class="node-text">{{ data.name }}</span>
-                </span>
-                <span v-if="data.name === '灾损预估'" class="node-icon">
-                <!-- 图层要素的 SVG 图标 -->
-                  <svg t="1730574016632" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                       xmlns="http://www.w3.org/2000/svg" p-id="6181" width="28" height="28" style="margin-right: 8px;">
-                        <path
-                            d="M852.6 462.9l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 764.1c-17.3 10.8-39.2 10.8-56.4 0L159.3 560c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 659c17.3 10.8 39.2 10.8 56.4 0l312.2-196 0.1-0.1z m0 156.1l12.1 7.6c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 920.2c-17.3 10.8-39.2 10.8-56.4 0L159.3 716.1c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l12.1-7.6L483.9 815c17.3 10.8 39.2 10.8 56.4 0l312.2-196h0.1zM540 106.4l324.6 204.1c24.8 15.6 32.3 48.3 16.7 73.2-4.2 6.7-9.9 12.4-16.7 16.7L540.4 604c-17.3 10.8-39.2 10.8-56.4 0L159.3 399.8c-24.8-15.6-32.3-48.3-16.7-73.2 4.2-6.7 9.9-12.4 16.7-16.7l324.4-203.7c17.3-10.8 39.2-10.8 56.4 0l-0.1 0.2z"
-                            p-id="6182" fill="#ffffff"></path>
-                      </svg>
-                  <span class="node-text">{{ data.name }}</span>
-                </span>
             <!-- 子节点逻辑保持原有 -->
             <el-checkbox
                 v-if="layeritems.some(item => item.name === data.name)"
@@ -773,24 +755,6 @@
             >
               <span>{{ data.name }}</span>
             </el-checkbox>
-            <el-checkbox
-                v-if="ResourceSchedulingLayers.some(item => item.name === data.name)"
-                v-model="selectedResourceScheduling"
-                :label="data.name"
-                @change="updateMapLayers"
-            >
-              <span>{{ data.name }}</span>
-            </el-checkbox>
-            <el-radio-group
-                v-if="DamageAssessmentLayers.some(item => item.name === data.name)"
-                v-model="selectedDisasterEstimate"
-                :label="data.name"
-                @click.native.prevent="toggleRadio(data.name)"
-            >
-              <el-radio :label="data.name">
-                <span>{{ data.name }}</span>
-              </el-radio>
-            </el-radio-group>
           </div>
         </template>
       </el-tree>
@@ -1004,7 +968,7 @@ import {
   addHistoryEqPoints,
   addHospitalLayer, handleTownData,
   addOvalCircles, addVillageLayer,
-  handleOutputData, removeDataSourcesLayer, addOCTest
+  handleOutputData, removeDataSourcesLayer
 } from "../../cesium/plot/eqThemes.js";
 import {MapPicUrl, ReportUrl} from "@/assets/json/thematicMap/PicNameandLocal.js"
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
@@ -1177,9 +1141,9 @@ export default {
   },
   data: function () {
     return {
-      siChuanCityEntity:[],
-      siChuanCountyEntity:[],
-      siChuanVillageEntity:[],
+      siChuanCityEntity: [],
+      siChuanCountyEntity: [],
+      siChuanVillageEntity: [],
 
 
       //时间轴和时间轴的组件
@@ -1210,7 +1174,7 @@ export default {
       //---信息弹框---
       hasUpdatedPosition: false,
       selectedEntityPosition: '', //拾取的点的弹框位置
-      eqCenterPanelVisible:false,
+      eqCenterPanelVisible: false,
 
       routerPopupVisible: false, // RouterPanel弹窗的显示与隐藏
       plotShowOnlyPanelVisible: false, // TimeLinePanel弹窗的显示与隐藏
@@ -1290,32 +1254,28 @@ export default {
       showSidebarComponents: true,  // 控制两侧组件显示状态
       //-----------------图层要素---------------------
       isExpanded: false,
-      ResourceSchedulingLayers:[
-        {id: '0', name: '避难场所要素图层'},
-        {id: '1', name: '救援队伍分布要素图层'},
-        {id: '2', name: '应急物资存储要素图层'},
-      ],
-      DamageAssessmentLayers: [
-        {id: '0', name: '历史地震要素图层'},
-        {id: '1', name: '断裂带要素图层'},
-        {id: '2', name: '烈度圈要素图层'},
-        {id: '3', name: '灾损预估-人员伤亡要素图层'},
-        {id: '4', name: '灾损预估-经济损失要素图层'},
-        {id: '5', name: '灾损预估-建筑损毁要素图层'},
-      ],
       layeritems: [
         {id: '0', name: '标绘点图层'},
-        {id: '1', name: '行政区划要素图层'},
-        {id: '2', name: '人口密度要素图层'},
-        {id: '3', name: '交通网络要素图层'},
-        {id: '4', name: '医院要素图层'},
-        {id: '5', name: '村庄要素图层'},
+        // {id: '1', name: '人员伤亡标绘点标签'},
+        // {id: '2', name: '救援出队标绘点标签'},
+        {id: '3', name: '行政区划要素图层'},
+        {id: '4', name: '人口密度要素图层'},
+        {id: '5', name: '交通网络要素图层'},
+        {id: '6', name: '避难场所要素图层'},
+        {id: '7', name: '救援队伍分布要素图层'},
+        {id: '8', name: '应急物资存储要素图层'},
+        {id: '9', name: '历史地震要素图层'},
+        {id: '10', name: '断裂带要素图层'},
+        {id: '11', name: '灾损预估-人员伤亡要素图层'},
+        {id: '12', name: '灾损预估-经济损失要素图层'},
+        {id: '13', name: '灾损预估-建筑损毁要素图层'},
+        {id: '14', name: '医院要素图层'},
+        {id: '15', name: '村庄要素图层'},
       ],
       selectedlayersLocal: ['标绘点图层'],
-      // 图层允许单选
-      selectedDisasterEstimate: ['灾损预估图层'],
-      selectedResourceScheduling:['资源调度图层'],
+      // selectedlayersLocal: ['标绘点图层','人员伤亡标绘点标签','救援出队标绘点标签'],
       isMarkingLayerLocal: true,
+
       disasterReserves: [],
       emergencyTeam: [],
       emergencyShelters: [],
@@ -1698,7 +1658,6 @@ export default {
       RegionLabels: [],
 
       // flyToMarker:null,// 经纬度跳转时的定位标记
-
     };
   },
   created() {
@@ -1846,7 +1805,7 @@ export default {
         let that = this
         viewer.clock.onTick.addEventListener(function (clock) {
           // console.log(clock.currentTime,"clock.currentTime")
-          if(clock.currentTime){
+          if (clock.currentTime) {
             that.currentTime = clock.currentTime;
           }
           if (viewer.clockViewModel.shouldAnimate) {
@@ -2058,7 +2017,7 @@ export default {
           } else if (markOperate === "delete") {
             let polyId = JSON.parse(e.data).id.toString()
             that.plots = that.plots.filter(plot => plot.plotId !== polyId);
-            timeLine.deletePointById(polyId,drawType)
+            timeLine.deletePointById(polyId, drawType)
           }
         } catch (err) {
           console.log(err, 'ws中catch到错误');
@@ -2145,8 +2104,8 @@ export default {
           //   }
           // }
           // 如果点击的是标绘点
-          if(entity._layer === "震中"){
-            this.eqCenterPanelVisible=true;
+          if (entity._layer === "震中") {
+            this.eqCenterPanelVisible = true;
             this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false
             this.routerPopupVisible = false;
@@ -2429,8 +2388,6 @@ export default {
     },
 
 
-
-
     // ------------------------------路径规划+物资匹配---------------------------
     switchPanel(action) {
       // 更新 panels 的状态，先设置所有为 false
@@ -2509,6 +2466,7 @@ export default {
     //显示所有物资点(所有点查询)
     searchAll() {
       this.panels.materialMatching = false;
+      this.panels.marchRegionsDialog = false;
       this.panels.tableVisible = true
 
       //清除半径查询实体标签
@@ -3549,13 +3507,10 @@ export default {
     addOvalCircle() {
 
       // 移除所有已存在的椭圆圈实体，以避免重复添加
-      this.removeEntitiesByType("ovalCircleTest")
-
-      // 地震震中位置(经纬度)
-      let centerPosition = [this.centerPoint.longitude,this.centerPoint.latitude]
+      this.removeEntitiesByType("ovalCircle")
 
       // 在指定的中心点位置添加新的椭圆圈
-      addOCTest(this.eqid,this.eqqueueId,centerPosition)
+      addOvalCircles(this.centerPoint)
     },
 
     /**
@@ -3807,23 +3762,7 @@ export default {
 
 
     updateMapLayers() {
-      console.log(this.selectedlayersLocal,"selectedlayersLocal")
-      // 检查选中的图层中是否包含标绘点图层
-      const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
-      // 如果包含标绘点图层
-      if (hasDrawingLayer) {
-        // 确认标绘图层变更，参数为true表示已选中
-        this.handleMarkingLayerChange(true);
-        // 更新绘图状态
-        timeLine.showAllMakerPoint(this.plots)
-      } else {
-        // 确认标绘图层变更，参数为false表示未选中
-        this.handleMarkingLayerChange(false);
-        // 移除所有已存在的椭圆圈实体，以避免重复添加
-        // 移除标绘图层
-        timeLine.markerLayerHidden(this.plots);
-      }
-
+      console.log(this.selectedlayersLocal, "selectedlayersLocal")
       // 图层映射：添加与移除图层逻辑
       // name: 图层名；add：添加图层；remove：移除图层
       const layerActions = [
@@ -3909,23 +3848,22 @@ export default {
         {
           name: '医院要素图层',
           add: addHospitalLayer,
-          remove: () => this.removeDataSourcesLayer('hospital')},
+          remove: () => this.removeDataSourcesLayer('hospital')
+        },
         {
           name: '村庄要素图层',
           add: addVillageLayer,
-          remove: () => this.removeDataSourcesLayer('village')},
+          remove: () => this.removeDataSourcesLayer('village')
+        },
         {
           name: '烈度圈要素图层',
           add: this.addOvalCircle,
-          remove: () => {
-            this.removeEntitiesByType('ovalCircleTest');
-            this.removeDataSourcesLayer('ovalCircleTest');
-          }
-        }
+          remove: () => this.removeEntitiesByType('ovalCircle')
+        },
       ];
 
       layerActions.forEach(layer => {
-        if (this.selectedlayersLocal.includes(layer.name)  || this.selectedResourceScheduling.includes(layer.name) || this.selectedDisasterEstimate.includes(layer.name)) {
+        if (this.selectedlayersLocal.includes(layer.name)) {
           layer.add();
         } else {
           layer.remove();
@@ -3933,39 +3871,39 @@ export default {
       });
 
       // 判断是否选定了灾损预估-人员伤亡要素图层
-      const hasDisasterLossEstimationCasualtyLayer = this.selectedDisasterEstimate.includes('灾损预估-人员伤亡要素图层');
+      const hasDisasterLossEstimationCasualtyLayer = this.selectedlayersLocal.includes('灾损预估-人员伤亡要素图层');
       // 如果选定了灾损预估-人员伤亡要素图层，则添加该要素图层
-      if(hasDisasterLossEstimationCasualtyLayer){
+      if (hasDisasterLossEstimationCasualtyLayer) {
         this.removethdRegions();
         this.addThemeLayer(this.layerData.pcData, 'personalCasualty');
         this.showPeopleLegend = true;// 指挥大屏-图层管理-人员伤亡图层图例状态
-      }else {
+      } else {
         this.removeDataSourcesLayer('personalCasualty');
         this.showPeopleLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
         this.removeRegionLabels();
       }
 
       // 判断是否选定了灾损预估-经济损失要素图层
-      const hasDisasterLossEstimationEconomicLossLayer = this.selectedDisasterEstimate.includes('灾损预估-经济损失要素图层');
+      const hasDisasterLossEstimationEconomicLossLayer = this.selectedlayersLocal.includes('灾损预估-经济损失要素图层');
       // 如果选定了灾损预估-人员伤亡要素图层，则添加该要素图层
-      if(hasDisasterLossEstimationEconomicLossLayer){
+      if (hasDisasterLossEstimationEconomicLossLayer) {
         this.removethdRegions();
-        this.addThemeLayer(this.layerData.ecoData,'economicLoss');
+        this.addThemeLayer(this.layerData.ecoData, 'economicLoss');
         this.showEconomicLegend = true;// 指挥大屏-图层管理-经济损失图层图例状态
-      }else {
+      } else {
         this.removeDataSourcesLayer('economicLoss');
         this.showEconomicLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
         this.removeRegionLabels();
       }
 
       // 判断是否选定了灾损预估-建筑损毁要素图层
-      const hasDisasterLossEstimationBuildingDamageLayer = this.selectedDisasterEstimate.includes('灾损预估-建筑损毁要素图层');
+      const hasDisasterLossEstimationBuildingDamageLayer = this.selectedlayersLocal.includes('灾损预估-建筑损毁要素图层');
       // 如果选定了灾损预估-建筑损毁要素图层，则添加该要素图层
-      if(hasDisasterLossEstimationBuildingDamageLayer){
+      if (hasDisasterLossEstimationBuildingDamageLayer) {
         this.removethdRegions();
-        this.addThemeLayer(this.layerData.bddData,'buildingDamage');
+        this.addThemeLayer(this.layerData.bddData, 'buildingDamage');
         this.showBuildingLegend = true; // 指挥大屏-图层管理-建筑损毁图层图例状态
-      }else {
+      } else {
         this.removeDataSourcesLayer('buildingDamage');
         this.showBuildingLegend = false; // 指挥大屏-图层管理-建筑损毁图层图例状态
         this.removeRegionLabels();
@@ -4043,7 +3981,7 @@ export default {
           depthTest: bool ? true : false, // 让 Cesium 正确处理图标的遮挡关系
           disableDepthTestDistance: Number.POSITIVE_INFINITY
         },
-        layer:tableName,
+        layer: tableName,
         properties: {
           tableName: tableName, // 动态传入的表名称
           ...element, // 将element对象展开，自动填充所有属性
@@ -4078,7 +4016,7 @@ export default {
      * @param {string} type - 要删除的实体类型
      */
     removeEntitiesByType(type) {
-      console.log("removeEntitiesByType",type)
+      console.log("removeEntitiesByType", type)
       // 获取当前窗口中所有的实体
       let entities = window.viewer.entities.values;
       // 倒序遍历实体数组，以确保删除实体时不会影响遍历
@@ -4223,7 +4161,7 @@ export default {
           this.siChuanCityEntity.push(regionLabel); // 使用 this.RegionLabels
 
         });
-        console.log("1111111111",this.siChuanCityEntity)
+        console.log("1111111111", this.siChuanCityEntity)
         console.log("市级图层加载成功！");
       }).catch(error => {
         console.error("加载市级图层失败:", error);
@@ -4446,25 +4384,25 @@ export default {
      *
      * @param {boolean} isMarkingLayerLocal - 表示是否为本地标记图层
      */
-    handleMarkingLayerChange(isMarkingLayerLocal) {
-      if (isMarkingLayerLocal) {
-        // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
-        if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
-          let newLayer = new Cesium.CustomDataSource('drawingLayer');
-          window.viewer.dataSources.add(newLayer);
-          newLayer.show = true;
-          this.isMarkingLayerLocal = true;
-        }
-      } else {
-        // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
-        this.isMarkingLayerLocal = false;
-        // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
-        let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
-        if (dataSource) {
-          window.viewer.dataSources.remove(dataSource);
-        }
-      }
-    },
+    // handleMarkingLayerChange(isMarkingLayerLocal) {
+    //   if (isMarkingLayerLocal) {
+    //     // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
+    //     if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
+    //       let newLayer = new Cesium.CustomDataSource('drawingLayer');
+    //       window.viewer.dataSources.add(newLayer);
+    //       newLayer.show = true;
+    //       this.isMarkingLayerLocal = true;
+    //     }
+    //   } else {
+    //     // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
+    //     this.isMarkingLayerLocal = false;
+    //     // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
+    //     let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
+    //     if (dataSource) {
+    //       window.viewer.dataSources.remove(dataSource);
+    //     }
+    //   }
+    // },
 
     /**
      * 根据经纬度获取人口密度信息
@@ -4535,7 +4473,7 @@ export default {
 
     showThematicMapDialog(item) {
 
-      console.log("专题图item-> ",item)
+      console.log("专题图item-> ", item)
 
       // 显示专题图弹框逻辑
       this.ifShowMapPreview = true;
@@ -4711,8 +4649,6 @@ export default {
       if (node.level === 0) {
         return resolve([
           {name: '图层要素'},
-          {name: '灾损预估'},
-          {name: '资源调度'},
         ]);
       }
 
@@ -4723,16 +4659,15 @@ export default {
         data = this.layeritems.map(item => ({
           name: item.name
         }));
-      } else if (node.data.name === '灾损预估') {
+      } else if (node.data.name === '视角跳转') {
         // 返回视角跳转的选项
-        data = this.DamageAssessmentLayers.map(item => ({
-          name: item.name
-        }))
-      }else if (node.data.name === '资源调度') {
-        // 返回视角跳转的选项
-        data = this.ResourceSchedulingLayers.map(item => ({
-          name: item.name
-        }))
+        data = [
+          {name: '回到震中'},
+          {name: '雅安市'},
+          ...this.districts.map(district => ({
+            name: district.name
+          }))
+        ];
       }
 
       resolve(data);
@@ -4782,7 +4717,7 @@ export default {
         this.showSlopeAnalysis = false; // 关闭其他弹框
       }
     },
-    toggleSlopeAnalysis(websock){
+    toggleSlopeAnalysis(websock) {
       this.showSlopeAnalysis = !this.showSlopeAnalysis;
       if (this.showSlopeAnalysis) {
         // 还原
@@ -4943,6 +4878,33 @@ export default {
               this.setPolygonTransparent(entity);
             }
           });
+
+          sichuanCounty.features.forEach((feature) => {
+            let center = feature.properties.center;
+
+            if (center && center.length === 2) {
+              let position = Cesium.Cartesian3.fromDegrees(center[0], center[1]);
+              let regionlabel = viewer.entities.add(new Cesium.Entity({
+                position: position,
+                label: new Cesium.LabelGraphics({
+                  text: feature.properties.name,
+                  scale: 1,
+                  font: '18px Sans-serif',
+                  style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                  outlineWidth: 2,
+                  verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                  horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                  fillColor: Cesium.Color.fromCssColorString("#ffffff"),
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  clampToGround: true,
+                  pixelOffset: new Cesium.Cartesian2(0, 0),
+                  eyeOffset: new Cesium.Cartesian3(0, 0, -10000),
+                  // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 800000),
+                })
+              }));
+              this.RegionLabels.push(regionlabel)
+            }
+          });
           this.renderLayer(type);
         });
       }
@@ -5012,26 +4974,11 @@ export default {
       this.RegionLabels = []; // 清空数组，防止重复删除
     },
 
-    closePanel(){
+    closePanel() {
       this.panels.tableVisible = false; // 隐藏面板
 
-    },
+    }
 
-    // 单选框自定义点击选中逻辑，实现单选框可取消选中（组件默认中不包含此功能，所以自定义）
-    toggleRadio(value) {
-      if (this.selectedDisasterEstimate === value) {
-        // 如果当前选中的值等于点击的值，则取消选中
-        this.selectedDisasterEstimate = '';
-      } else {
-        // 否则选中当前值
-        this.selectedDisasterEstimate = value;
-      }
-    },
-  },
-  watch: {
-    selectedDisasterEstimate(newVal, oldVal) {
-      this.updateMapLayers();
-    },
   },
 }
 </script>
@@ -6269,5 +6216,4 @@ li {
     background-position: 0% 50%;
   }
 }
-
 </style>
