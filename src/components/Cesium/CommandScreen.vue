@@ -345,7 +345,7 @@
           <el-form class="panelForm" :model="searchSupplyForm" ref="searchSupplyForm" :rules="formRules" label-width="80px">
             <el-form-item label="匹配半径"
                           prop="radius"
-                         >
+            >
               <el-input v-model="searchSupplyForm.radius"
                         @input="handleRadiusInput"
                         placeholder="请输入匹配的半径/km"
@@ -1389,37 +1389,37 @@ export default {
         flashlights: 0,
         radius: 0.0,  //半径
       },
-        formRules:{
-          radius: [
-              {
-                  required: true,
-                  message: '匹配半径不能为空',
-                  trigger: ['blur', 'change'] // 同时监听失焦和内容变化
-              },
+      formRules:{
+        radius: [
+          {
+            required: true,
+            message: '匹配半径不能为空',
+            trigger: ['blur', 'change'] // 同时监听失焦和内容变化
+          },
 
-              // 数字格式 + 数值范围校验
-              {
-                  validator: (rule, value, callback) => {
-                      // 空值校验已在第一条规则处理，此处无需重复
-                      if (value === '') return callback()
+          // 数字格式 + 数值范围校验
+          {
+            validator: (rule, value, callback) => {
+              // 空值校验已在第一条规则处理，此处无需重复
+              if (value === '') return callback()
 
-                      // 检查是否为有效数字
-                      if (isNaN(value) || !/^-?\d+\.?\d*$/.test(value)) {
-                          return callback(new Error('必须输入有效数字'))
-                      }
-
-                      // 检查是否大于0
-                      if (parseFloat(value) <= 0) {
-                          console.log(parseFloat(value))
-                          return callback(new Error('匹配半径必须大于0'))
-                      }
-
-                      callback()
-                  },
-                  trigger: ['blur', 'change'] // 同时触发
+              // 检查是否为有效数字
+              if (isNaN(value) || !/^-?\d+\.?\d*$/.test(value)) {
+                return callback(new Error('必须输入有效数字'))
               }
-          ]
-        },
+
+              // 检查是否大于0
+              if (parseFloat(value) <= 0) {
+                console.log(parseFloat(value))
+                return callback(new Error('匹配半径必须大于0'))
+              }
+
+              callback()
+            },
+            trigger: ['blur', 'change'] // 同时触发
+          }
+        ]
+      },
       // 救援力量表单
       searchEmergencyTeamForm: {
         levelName: '',
@@ -1965,10 +1965,10 @@ export default {
         this.suppliesList.push(disasterReliefSupplies, emergencyRescueEquipment, rescueTeamsInfo);
 
 
-          // 调用 `processPoints` 并传递不同的 `tableName`
-          // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
-          // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
-          // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
+        // 调用 `processPoints` 并传递不同的 `tableName`
+        // this.processPoints(emergencyRescueEquipment, 'reserves', emergencyRescueEquipmentLogo, "抢险救灾装备");
+        // this.processPoints(disasterReliefSupplies, 'supplies', disasterReliefSuppliesLogo, "救灾物资储备");
+        // this.processPoints(rescueTeamsInfo, 'emergencyTeam', rescueTeamsInfoLogo, "应急救援力量");
 
 
 
@@ -2042,11 +2042,39 @@ export default {
           console.log(entity, "拾取entity")
 
           // 新增判断：跳过行政区划实体
+          if (this.selectedlayersLocal.includes('灾损预估-人员伤亡要素图层')) {
+            this.plotShowOnlyPanelVisible = false;
+            this.dataSourcePopupVisible = false;
+            return;
+          }
+          // 新增判断：跳过行政区划实体
+          if (this.selectedlayersLocal.includes('灾损预估-建筑损毁要素图层')) {
+            this.plotShowOnlyPanelVisible = false;
+            this.dataSourcePopupVisible = false;
+            return;
+          }
+
+          // 新增判断：跳过行政区划实体
+          if (this.selectedlayersLocal.includes('灾损预估-经济损失要素图层')) {
+            this.plotShowOnlyPanelVisible = false;
+            this.dataSourcePopupVisible = false;
+            return;
+          }
+
+
+
+          // 新增判断：跳过行政区划实体
           if (entity._layer === '行政区划') {
             this.plotShowOnlyPanelVisible = false;
             this.dataSourcePopupVisible = false;
             return;
           }
+
+
+
+          // 判断是否选定了灾损预估-人员伤亡要素图层
+          const hasDisasterLossEstimationCasualtyLayer = this.selectedlayersLocal.includes('灾损预估-人员伤亡要素图层');
+          console.log(hasDisasterLossEstimationCasualtyLayer)
 
           // 计算图标的世界坐标
           this.selectedEntityPosition = this.calculatePosition(click.position);
@@ -2724,15 +2752,15 @@ export default {
       this.activeMenuIndex = '3'
       this.panels.searchSupplyDialog = false
       this.equipmentSupplyForm = {
-            county: "",
-            address: "",
-            contactPerson: "",
-            contactPhone: "",
-            lifeJacket: 0,
-            lifebuoy: 0,
-            walkieTalkie: 0,
-            portableLight: 0,
-            radius: 0.0,  //半径
+        county: "",
+        address: "",
+        contactPerson: "",
+        contactPhone: "",
+        lifeJacket: 0,
+        lifebuoy: 0,
+        walkieTalkie: 0,
+        portableLight: 0,
+        radius: 0.0,  //半径
       }
       // console.log("this.activeMenuIndex--------------------------------",this.activeMenuIndex)
 
@@ -2838,8 +2866,8 @@ export default {
 
     // 通过半径匹配物资
     async marchSuppliesByRadius() {
-        const valid = await this.$refs.searchSupplyForm.validate()
-        if (!valid) {return}
+      const valid = await this.$refs.searchSupplyForm.validate()
+      if (!valid) {return}
 
 
       this.panels.tableVisible = true
@@ -3270,6 +3298,8 @@ export default {
       this.removethdRegions() //移除区域图层和相关标签
       // this.removeAllEmergencySites();
       this.removeDistrict();  //清除行政区域
+      this.removeSuppliesList();  //清除行政区域物资点
+      this.removeOldLabels();   // 清除清除行政区域旧的标签
       // 要素图层复选框跟着变化
       this.selectedlayersLocal = this.selectedlayersLocal.filter(item =>
           item !== '救援队伍分布要素图层' && item !== '应急物资存储要素图层'
@@ -3589,6 +3619,9 @@ export default {
     handleDistrictClick() {
       let district = this.selectedRegions[0]
       this.selectedDataByRegions = []
+
+      this.removeOldLabels();
+
       //清除半径查询实体标签
       this.removethdRegions()
       this.removeAllEmergencySites();
@@ -3695,6 +3728,15 @@ export default {
       }
       this.selectedRegions = []
       this.panels.marchRegionsDialog = false
+    },
+
+    // **改进的清除方法**
+    removeOldLabels() {
+      viewer.entities.values.forEach(entity => {
+        if (entity.label) {
+          viewer.entities.remove(entity);  // **只删除区域标签**
+        }
+      });
     },
 
     /**
