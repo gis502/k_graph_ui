@@ -155,6 +155,12 @@
             {{ item.theme }}
           </div>
         </div>
+        <div class="reportItem" v-if="this.outputData.type === `AssistantDecision`">
+          <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleJueCeReport(item.docxUrl)">
+            <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 50px">
+            {{ item.theme }}
+          </div>
+        </div>
 
         <div class="mapItem" v-if="this.outputData.type === `instrument`">
           <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
@@ -682,16 +688,16 @@ export default {
           console.log("灾情报告", res.data)
         })
 
-        getEqOutPutJueCes(this.eqid, this.eqqueueId).then((res)=>{
-          console.log("决策报告",res.data)
-        })
+        // getEqOutPutJueCes(this.eqid, this.eqqueueId).then((res)=>{
+        //   console.log("决策报告",res.data)
+        // })
 
 
         console.log("开始进行评估------------------------")
 
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
-          console.log(res)
+          console.log("评估结果",res)
 
           this.outputData.themeName = res.themeName;
 
@@ -822,10 +828,48 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
+    handleJueCeReport(docxUrl) {
+      this.$notify({
+        title: '辅助决策报告下载',
+        message: '数据正在解析中...',
+        duration: 7000,
+        zIndex: 9999
+      });
 
-    toManagement() {
-
+      // 使用 fetch 获取文件数据
+      fetch(docxUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`, // 如果有 Token，携带身份认证
+        }
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`下载失败: ${response.status}`);
+            }
+            return response.blob(); // 转换为 Blob
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = docxUrl.split('/').pop(); // 设置文件名
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url); // 释放 URL 对象
+          })
+          .catch(error => {
+            this.$notify({
+              title: '下载失败',
+              message: error.message,
+              type: 'error',
+              duration: 5000
+            });
+          });
     },
+
+
 
 
     // -----------------------------------------------------------------------------------------------------------------
