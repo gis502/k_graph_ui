@@ -96,10 +96,10 @@ export default {
       flyflag: true,//视角是否跳转？只有依次向前播放时才跳
       currentTimeLocal: this.timestampToTimeChina(new Date()),
       lastRecordTimeLocal: this.timestampToTimeChina(new Date()),
-      lastRecordContent:'',
+      lastRecordContent: '',
     }
   },
-  props: ['centerPoint', 'currentTime', 'eqid', 'viewer','stopTimePlay','isMarkingLayer'],
+  props: ['centerPoint', 'currentTime', 'eqid', 'viewer', 'stopTimePlay', 'isMarkingLayer'],
   watch: {
     currentTime(newVal, oldVal) {
       if (newVal && oldVal && newVal !== oldVal) {
@@ -132,25 +132,21 @@ export default {
       }
     },
     stopTimePlay(newVal) {
-      console.log("stopTimePlay",newVal)
+      console.log("stopTimePlay", newVal)
       if (newVal) {
         this.playEnd(); // 停止时间轴播放
       }
     },
-    isMarkingLayer(newVal){
-      console.log(newVal,"isMarkingLayerLocal watch")
+    isMarkingLayer(newVal) {
+      console.log(newVal, "isMarkingLayerLocal watch")
       // this.isMarkingLayer=newVal
-      if(!newVal){
-        console.log(this.isMarkingLayer,"isMarkingLayerLocal watch")
+      if (!newVal) {
+        console.log(this.isMarkingLayer, "isMarkingLayerLocal watch")
         window.viewer.clockViewModel.shouldAnimate = false;
         this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
-        // timeLine.markerLayerHidden(this.plots)
         this.selectButton("playEnd")
-        // this.playEnd()
       }
-      // else{
-      //   timeLine.markerLayerShow(this.plots)
-      // }
+
     }
 
   },
@@ -214,7 +210,7 @@ export default {
       this.flyflag = false
       this.endflag = false;
       this.$emit('startTimePlay');
-      window.viewer.clock.multiplier =1.0
+      window.viewer.clock.multiplier = 1.0
       this.findLastRecordTimeAndContent()
     },
     backToStart() {
@@ -223,8 +219,8 @@ export default {
       window.viewer.clock.multiplier = this.currentSpeed
       this.flyflag = true
       this.endflag = true;
-      this.lastRecordTimeLocal=this.timestampToTimeChina(this.centerPoint.startTime)
-      this.lastRecordContent=''
+      this.lastRecordTimeLocal = this.timestampToTimeChina(this.centerPoint.startTime)
+      this.lastRecordContent = ''
     },
     playBack() {
       if (window.viewer.clock.multiplier > 0) {
@@ -239,21 +235,15 @@ export default {
       window.viewer.clockViewModel.shouldAnimate = false;
       this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
       this.selectButton("playEnd")
-      console.log(this.isMarkingLayer,"this.isMarkingLayer playEnd")
-      if(this.isMarkingLayer){
-        timeLine.makerLabelsShowPersonAndResouce(this.plots)
-      }
-      else{
-        timeLine.markerLayerHidden(this.plots)
-      }
+      console.log(this.isMarkingLayer, "this.isMarkingLayer playEnd")
+      timeLine.makerLabelsShowPersonAndResouce(this.plots)
     },
     playStart() {
       if (new Date(this.currentTime) >= new Date()) {
         viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date());
         window.viewer.clock.multiplier = 1.0
-      }
-      else{
-      window.viewer.clock.multiplier = this.currentSpeed
+      } else {
+        window.viewer.clock.multiplier = this.currentSpeed
       }
       window.viewer.clockViewModel.shouldAnimate = true;
       this.endflag = false;
@@ -301,28 +291,20 @@ export default {
         if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
           entitylabel = window.labeldataSource.entities.getById(item.plotId + '_label');
           entitylabel.show = true
-          this.lastRecordContent=entitylabel.labeltext
+          this.lastRecordContent = entitylabel.labeltext
         } else {
           getPlotInfos({plotId, plotType}).then(res => {
             let labeltext = timeLine.labeltext(plotType, res)
             timeLine.addPointLabel(item, labeltext)
-            entitylabel =window.labeldataSource.entities.getById(item.plotId + '_label');
-            this.lastRecordContent=labeltext
+            entitylabel = window.labeldataSource.entities.getById(item.plotId + '_label');
+            this.lastRecordContent = labeltext
           })
         }
-        if(!this.isMarkingLayer){
-          entitylabel.show=false
-          break;
-        }
+
         if (this.endflag) {
           console.log(index, this.plotArrinOneTime.length, "终止飞行1111");
-          if(this.isMarkingLayer){
-            timeLine.makerLabelsShowPersonAndResouce(this.plots)
-          }
-          else{
-            timeLine.markerLayerHidden(this.plots)
-          }
-          // timeLine.makerLabelsShowPersonAndResouce(this.plots)
+          //相同时间有多个点，为了闪烁的效果能看清是哪个点，在判断这一组的时候，把标签隐藏了。这里停止之后，需要把隐藏的人员伤亡、救援出队标签给放出来。
+          timeLine.makerLabelsShowPersonAndResouce(this.plots)
           break; // 终止循环
         }
         try {
@@ -330,13 +312,9 @@ export default {
           await timeLine.fly(item.longitude, item.latitude, 20000);
           if (this.endflag) {
             console.log(index, this.plotArrinOneTime.length, "终止飞行222");
-            if(this.isMarkingLayer){
-              timeLine.makerLabelsShowPersonAndResouce(this.plots)
-            }
-            else{
-              timeLine.markerLayerHidden(this.plots)
-            }
-            // timeLine.makerLabelsShowPersonAndResouce(this.plots)
+            timeLine.makerLabelsShowPersonAndResouce(this.plots)
+
+
             break; // 终止循环
           }
 
@@ -344,14 +322,12 @@ export default {
           // 点闪烁
           await timeLine.blinkMarker(item);
 
-          if(!this.isMarkingLayer){
+          if (!this.isMarkingLayer) {
             console.log("timeLine.markerLabelsHidden(this.plots)")
-            console.log( window.labeldataSource.entities.getById(item.plotId + "_label"),"plot_label_blind")
+            console.log(window.labeldataSource.entities.getById(item.plotId + "_label"), "plot_label_blind")
             window.labeldataSource.entities.removeById(item.plotId + "_label");
             timeLine.markerLayerHidden(this.plots)
-            // timeLine.markerLayerHidden(this.plots)
-          }
-          else{
+          } else {
             console.log("blinkMarker else")
             if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
             } else {
@@ -379,13 +355,8 @@ export default {
       });
       if (this.endflag) {
         window.viewer.clockViewModel.shouldAnimate = false;
-        if(this.isMarkingLayer){
-          timeLine.makerLabelsShowPersonAndResouce(this.plots)
-        }
-        else{
-          timeLine.markerLayerHidden(this.plots)
-        }
-        // timeLine.makerLabelsShowPersonAndResouce(this.plots)
+        timeLine.makerLabelsShowPersonAndResouce(this.plots)
+
         console.log("终止333");
         return
       } else {
@@ -397,13 +368,13 @@ export default {
         }
       }
     },
-    findLastRecordTimeAndContent(){
-      console.log(new Date(this.currentTime),"new Date(currentTime) findLastRecordTimeAndContent")
+    findLastRecordTimeAndContent() {
+      console.log(new Date(this.currentTime), "new Date(currentTime) findLastRecordTimeAndContent")
       let filteredPlots = this.plots.filter(plot => {
         return new Date(plot.startTime).getTime() <= new Date(this.currentTime).getTime();
       });
       let latestPlot = null;
-      let latestTime =new Date(this.centerPoint.startTime) ;
+      let latestTime = new Date(this.centerPoint.startTime);
       filteredPlots.forEach(plot => {
         const plotStartTime = new Date(plot.startTime).getTime();
         if (plotStartTime > latestTime) {
@@ -412,13 +383,13 @@ export default {
         }
       });
 
-      if(latestPlot){
-        this.lastRecordTimeLocal= this.timestampToTimeChina(latestPlot.startTime)
-        let plotId=latestPlot.plotId
-        let plotType=latestPlot.plotType
+      if (latestPlot) {
+        this.lastRecordTimeLocal = this.timestampToTimeChina(latestPlot.startTime)
+        let plotId = latestPlot.plotId
+        let plotType = latestPlot.plotType
         getPlotInfos({plotId, plotType}).then(res => {
           let labeltext = timeLine.labeltext(plotType, res)
-          this.lastRecordContent=labeltext
+          this.lastRecordContent = labeltext
         })
       }
     },
@@ -551,6 +522,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
 .topLastRecordContentLabel {
   background-color: #163253;
   border-radius: 5px;
@@ -566,6 +538,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
 .topLastRecordContentLabel {
   background-color: #163253;
   border-radius: 5px;
@@ -592,8 +565,14 @@ export default {
 
 /* 创建滚动动画 */
 @keyframes marquee {
-  0% { left: 100%; } /* 从右侧开始 */
-  100% { left: -100%; } /* 滚动到左侧 */
+  0% {
+    left: 100%;
+  }
+  /* 从右侧开始 */
+  100% {
+    left: -100%;
+  }
+  /* 滚动到左侧 */
 }
 
 .marquee {
@@ -603,6 +582,7 @@ export default {
   position: relative; /* 相对于父元素定位 */
   width: 100%; /* 宽度与父容器一致 */
 }
+
 /* 更改比例尺位置 */
 :deep(.distance-legend) {
   bottom: 1% !important;

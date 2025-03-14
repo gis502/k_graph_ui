@@ -3727,22 +3727,6 @@ export default {
 
     updateMapLayers() {
       console.log(this.selectedlayersLocal, "selectedlayersLocal")
-      // 检查选中的图层中是否包含标绘点图层
-      // const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
-      // // 如果包含标绘点图层
-      // if (hasDrawingLayer) {
-      //   // 确认标绘图层变更，参数为true表示已选中
-      //   this.handleMarkingLayerChange(true);
-      //   // 更新绘图状态
-      //   timeLine.showAllMakerPoint(this.plots)
-      // } else {
-      //   // 确认标绘图层变更，参数为false表示未选中
-      //   this.handleMarkingLayerChange(false);
-      //   // 移除所有已存在的椭圆圈实体，以避免重复添加
-      //   // 移除标绘图层
-      //   timeLine.markerLayerHidden(this.plots);
-      // }
-
       // 图层映射：添加与移除图层逻辑
       // name: 图层名；add：添加图层；remove：移除图层
       const layerActions = [
@@ -3763,7 +3747,6 @@ export default {
           name: '行政区划要素图层',
           add: this.addYaanRegion,
           remove: () => {
-            // this.removeDataSourcesLayer('siChuanProvinceRegionLayer');
             this.removeDataSourcesLayer('siChuanCityRegionLayer');
             this.removeDataSourcesLayer('sichuanCountyRegionLayer');
             this.removeDataSourcesLayer('yaAnVillageRegionLayer');
