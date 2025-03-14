@@ -3740,7 +3740,7 @@ export default {
             this.isMarkingLayerLocal = false;
             setTimeout(() => {
               timeLine.markerLayerHidden(this.plots);
-            }, 2000);
+            }, 1000);
           }
         },
         {
@@ -3823,7 +3823,7 @@ export default {
           name: '烈度圈要素图层',
           add: this.addOvalCircle,
           remove: () => this.removeEntitiesByType('ovalCircle')
-        }
+        },
       ];
 
       layerActions.forEach(layer => {

@@ -146,9 +146,7 @@ export default {
         this.endflag = true; //设置的flag，避免与自动播放的动效暂停播放冲突
         this.selectButton("playEnd")
       }
-
     }
-
   },
   mounted() {
     this.getPlotwithStartandEndTime(this.eqid)
@@ -259,7 +257,6 @@ export default {
       this.showSpeedOptions = false
     },
 
-
     //视角跳转
     ifArriveTime(currentTime, oldCurrentTime, itemTime) {
       const startTime = Cesium.JulianDate.fromDate(new Date(itemTime));
@@ -313,28 +310,16 @@ export default {
           if (this.endflag) {
             console.log(index, this.plotArrinOneTime.length, "终止飞行222");
             timeLine.makerLabelsShowPersonAndResouce(this.plots)
-
-
             break; // 终止循环
           }
 
-
           // 点闪烁
           await timeLine.blinkMarker(item);
-
-          if (!this.isMarkingLayer) {
-            console.log("timeLine.markerLabelsHidden(this.plots)")
-            console.log(window.labeldataSource.entities.getById(item.plotId + "_label"), "plot_label_blind")
-            window.labeldataSource.entities.removeById(item.plotId + "_label");
-            timeLine.markerLayerHidden(this.plots)
+          console.log("blinkMarker else")
+          if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
           } else {
-            console.log("blinkMarker else")
-            if (item.plotType === "失踪人员" || item.plotType === "轻伤人员" || item.plotType === "重伤人员" || item.plotType === "危重伤人员" || item.plotType === "死亡人员" || item.plotType === "已出发队伍" || item.plotType === "正在参与队伍" || item.plotType === "待命队伍") {
-            } else {
-              window.labeldataSource.entities.removeById(item.plotId + "_label");
-            }
+            window.labeldataSource.entities.removeById(item.plotId + "_label");
           }
-
         } catch (error) {
           console.error("飞行过程中发生错误:", error);
           break; // 发生错误时终止循环
