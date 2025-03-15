@@ -155,6 +155,12 @@
             {{ item.theme }}
           </div>
         </div>
+        <div class="reportItem" v-if="this.outputData.type === `AssistantDecision`">
+          <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleJueCeReport(item.docxUrl)">
+            <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 20px">
+            {{ item.theme }}
+          </div>
+        </div>
 
         <div class="mapItem" v-if="this.outputData.type === `instrument`">
           <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
@@ -189,7 +195,7 @@ import * as Cesium from "cesium";
 import CesiumNavigation from "cesium-navigation-es6";
 import {initCesium} from "../../cesium/tool/initCesium.js";
 import {
-  getEqList,
+  getEqList, getEqOutPutJueCe, getEqOutPutJueCes,
   getEqOutputMaps,
   getEqOutputReports
 } from "../../api/system/damageassessment.js";
@@ -660,17 +666,19 @@ export default {
       }
 
       this.isPanelShow[type] = !this.isPanelShow[type];
-       if (this.isPanelShow.AssistantDecision){
-        //辅助决策报告
-        this.isNoData = false
-        this.outputData.themeData = [
-          {
-            docxUrl: "http://59.213.183.7/image/EqProduct/357a36dd-00b6-4562-90fd-abc66a294f60/1/本地产品/灾情报告/02月28日10时38分四川省雅安市荥经县荥河镇发生6.8级地震（辅助决策信息一）.docx",
-            theme: "灾情报告1"
-          },
-        ]
-      }
-      if (this.isPanelShow.thematicMap || this.isPanelShow.report) {
+      //  if (this.isPanelShow.AssistantDecision){
+      //   //辅助决策报告
+      //   this.isNoData = false
+      //   this.outputData.themeData = [
+      //     {
+      //       docxUrl: "http://59.213.183.7/image" +
+      //           "/EqProduct/357a36dd-00b6-4562-90fd-abc66a294f60" +
+      //           "/1/本地产品/灾情报告/02月28日10时38分四川省雅安市荥经县荥河镇发生6.8级地震（辅助决策信息一）.docx",
+      //       theme: "灾情报告1"
+      //     },
+      //   ]
+      // }
+      if (this.isPanelShow.thematicMap || this.isPanelShow.report|| this.isPanelShow.AssistantDecision) {
 
         getEqOutputMaps(this.eqid, this.eqqueueId).then((res) => {
           console.log("专题图", res.data)
@@ -680,12 +688,16 @@ export default {
           console.log("灾情报告", res.data)
         })
 
+        // getEqOutPutJueCes(this.eqid, this.eqqueueId).then((res)=>{
+        //   console.log("决策报告",res.data)
+        // })
+
 
         console.log("开始进行评估------------------------")
 
         handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
 
-          console.log(res)
+          console.log("评估结果",res)
 
           this.outputData.themeName = res.themeName;
 
@@ -816,10 +828,48 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
+    handleJueCeReport(docxUrl) {
+      this.$notify({
+        title: '辅助决策报告下载',
+        message: '数据正在解析中...',
+        duration: 7000,
+        zIndex: 9999
+      });
 
-    toManagement() {
-
+      // 使用 fetch 获取文件数据
+      fetch(docxUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`, // 如果有 Token，携带身份认证
+        }
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`下载失败: ${response.status}`);
+            }
+            return response.blob(); // 转换为 Blob
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = docxUrl.split('/').pop(); // 设置文件名
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url); // 释放 URL 对象
+          })
+          .catch(error => {
+            this.$notify({
+              title: '下载失败',
+              message: error.message,
+              type: 'error',
+              duration: 5000
+            });
+          });
     },
+
+
 
 
     // -----------------------------------------------------------------------------------------------------------------

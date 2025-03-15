@@ -694,7 +694,7 @@ export default {
 
         // 提交请求，根据操作类型区分新增或更新
         const action = this.dialogTitle === "新增" ? addDisasterReserves : updateDisasterReserves;
-
+        console.log(this.dialogContent,"this.dialogContent before 操作")
         action(this.dialogContent).then(() => {
           console.log(`${this.dialogTitle === "新增" ? "新增" : "修改"}操作完成：`, this.dialogContent);
           this.getDate();

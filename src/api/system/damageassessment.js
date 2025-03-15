@@ -28,8 +28,23 @@ export function getEqOutputReport(eqOutputReportDTO) {
   return request({
     url: '/tp/api/open/eq/output/report',
     method: 'get',
+
     params: eqOutputReportDTO
   })
+}
+export function getEqOutPutJueCe(eqOutputJueCeDTO) {
+    return request({
+        url: '/tp/api/open/eq/output/juece',
+        method: 'get',
+        params: eqOutputJueCeDTO
+    })
+}
+export function getEqOutPutJueCeLocal(eqOutputJueCeDTO) {
+    return request({
+        url: '/tp/api/open/eq/output/jueceLocal',
+        method: 'get',
+        params: eqOutputJueCeDTO
+    })
 }
 
 export function getEqOutputMaps(eqId,eqqueueId) {
@@ -43,6 +58,13 @@ export function getEqOutputMaps(eqId,eqqueueId) {
 export function getEqOutputReports(eqId,eqqueueId) {
     return request({
         url: '/tp/api/open/eq/report/start',
+        method: 'get',
+        params: { eqId, eqqueueId}
+    })
+}
+export function getEqOutPutJueCes(eqId,eqqueueId) {
+    return request({
+        url: '/tp/api/open/eq/juece/start',
         method: 'get',
         params: { eqId, eqqueueId}
     })

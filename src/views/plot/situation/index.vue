@@ -90,11 +90,9 @@
             layout="total, prev, pager, next"
             :total="total">
         </el-pagination>
-
       </el-form>
       <el-form v-if="showToolbar" class="noteContainer">
         <div class="modelAdj">态势标绘工具<span style="margin-left: 10px;" @click="showToolbar = false">隐藏工具栏</span></div>
-
         <el-row>
           <el-col :span="13">
             <el-tree class="plotTool" :data="plotTreeData" :props="defaultProps" @node-click="handleNodeClick"
@@ -242,7 +240,7 @@
                 style="width: 100%">
         <el-table-column label="图标" width="50">
           <template v-slot="scope">
-<!--                        <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()">-->
+<!--        <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()">-->
             <img :src="'http://localhost:8080'+'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
                  alt="icon" style="width: 20px; height: 20px;"/>
           </template>
@@ -644,7 +642,6 @@ export default {
           })
       )
     },
-
 
     initTree() {
       const highestAndSecondLabels = [];

@@ -1,12 +1,16 @@
 import * as Cesium from 'cesium'
 import eqMark from '@/assets/images/DamageAssessment/eqMark.png';
 import yaan from "@/assets/geoJson/yaan.json";
-import {getEqOutputMap, getEqOutputReport, saveIntensityCircle} from "../../api/system/damageassessment.js";
+import {
+  getEqOutPutJueCe, getEqOutPutJueCeLocal,
+  getEqOutputMap,
+  getEqOutputReport,
+  saveIntensityCircle
+} from "../../api/system/damageassessment.js";
 import countyCodeMap from "../../assets/json/DamageAssessment/countyCodeMap.json";
-import {domainName, zaisunimageipLocal} from "../../utils/server.js";
-import hospitalIcon from "../../assets/icons/svg/hospital.svg";
-import villageIcon from "../../assets/icons/svg/village.svg";
-
+import {domainName, zaiSunFuZhuJueCe, zaisunimageipLocal} from "../../utils/server.js";
+import hospitalIcon from "@/assets/icons/svg/hospital.png";
+import villageIcon from "@/assets/icons/svg/village.png";
 // 雅安行政区加载
 export function addYaanLayer() {
   //雅安行政区加载
@@ -79,12 +83,12 @@ export function addHospitalLayer() {
           fill: Cesium.Color.GREEN.withAlpha(0.5),
           strokeWidth: 2,
           clampToGround: true,
-        })).then(function(dataSource) {
+        })).then(function (dataSource) {
           // 给 dataSource 添加 name 属性
           dataSource.name = "hospital";
 
           // 遍历每个实体，添加图片标记
-          dataSource.entities.values.forEach(function(entity) {
+          dataSource.entities.values.forEach(function (entity) {
             // entity.properties = new Cesium.PropertyBag();
             // entity.properties.sourceName = "hospital";
             entity.properties.sourceName = "hospital";  // 追加自定义的属性
@@ -119,12 +123,12 @@ export function addVillageLayer() {
           fill: Cesium.Color.GREEN.withAlpha(0.5),
           strokeWidth: 2,
           clampToGround: true,
-        })).then(function(dataSource) {
+        })).then(function (dataSource) {
           // 给 dataSource 添加 name 属性
           dataSource.name = "village";
 
           // 遍历每个实体，添加图片标记
-          dataSource.entities.values.forEach(function(entity) {
+          dataSource.entities.values.forEach(function (entity) {
             entity.properties.sourceName = "village";  // 追加自定义的属性
             entity.billboard = new Cesium.BillboardGraphics({
               image: villageIcon, // 使用导入的图片
@@ -150,24 +154,23 @@ export function addFaultZones(centerPoint) {
   console.log(1234554321)
   // 使用fetch加载GeoJSON文件
   fetch(geoJsonUrl)
-      .then((response) => response.json())
-      .then((geoJsonData) => {
-        // 将GeoJSON数据加载到Cesium
-        viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
-          stroke: Cesium.Color.RED,
-          fill: Cesium.Color.RED.withAlpha(0.5),
-          strokeWidth: 2,
-          clampToGround: true,
-        })).then(function(dataSource) {
-          // 给 dataSource 添加 name 属性
-          dataSource.name = "duanliedai";
-        })
-
+    .then((response) => response.json())
+    .then((geoJsonData) => {
+      // 将GeoJSON数据加载到Cesium
+      viewer.dataSources.add(Cesium.GeoJsonDataSource.load(geoJsonData, {
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.RED.withAlpha(0.5),
+        strokeWidth: 2,
+        clampToGround: true,
+      })).then(function (dataSource) {
+        // 给 dataSource 添加 name 属性
+        dataSource.name = "faultZone";
       })
-      .catch((error) => {
-        console.error("Error loading GeoJSON:", error);
-      });
 
+    })
+    .catch((error) => {
+      console.error("Error loading GeoJSON:", error);
+    });
 
 
   //以下为加载全国断裂带line_fault_zone.json
@@ -632,57 +635,148 @@ export function addOvalCircles(centerPoint) {
   // })
 }
 
-export function addOCTest(eqid, eqqueueId) {
-  let intensityLevels = ["Ⅵ (六度)", "Ⅶ (七度)", "Ⅷ (八度)", "Ⅸ (九度)", "Ⅹ (十度)", "Ⅺ (十一度)", "Ⅻ (十二度)"];
-  let intensityColors = [
-    "#990000",
-    "#cc0000",
-    "#ff0000",
-    "#ff6600",
-    "#FF9900",
-    "#ffcc00",
+export function addOCTest(eqid, eqqueueId, centerPosition) {
+  // 自定义的烈度圈等级与颜色渲染
+  let intensityLabel = [
+    {
+      level: "Ⅵ (六度)",
+      color: "#ff6600"
+    },
+    {
+      level: "Ⅶ (七度)",
+      color: "#ff3300"
+    },
+    {
+      level: "Ⅷ (八度)",
+      color: "#ff0000"
+    },
+    {
+      level: "Ⅸ (九度)",
+      color: "#aa0000"
+    },
+    {
+      level: "Ⅹ (十度)",
+      color: "#660000"
+    },
+    {
+      level: "Ⅺ (十一度)",
+      color: "#330000"
+    },
+    {
+      level: "Ⅻ (十二度)",
+      color: "#330000"
+    }
   ];
 
   /**
    * 烈度圈部分
    */
-  // console.log(`/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
-  fetch(`${zaisunimageipLocal}/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
-    // fetch(`http://xxxx/assessmentTest/${eqFullName}/${batch}/geojson/${eqqueueId}_intensity.geojson`)
+  // 本地测试请解开↓↓↓
+  // fetch(`/ThematicMap/be3a5ea4-8dfd-a0a2-2510-21845f17960b01_intensity.geojson`)
+  // fetch(`/ThematicMap/5a72f3d7-0546-4fee-a686-627d45e5965f02_intensity.geojson`)
+    // 真实数据请解开↓↓↓
+    fetch(`${zaisunimageipLocal}/profile/upload/yxcdown/${eqqueueId}/${eqqueueId}_intensity.geojson`)
     .then((response) => response.json())
     .then((geojsonData) => {
-      console.log(geojsonData);
-
       let ovalCirclePromise = Cesium.GeoJsonDataSource.load(geojsonData, {
         stroke: true,
         fill: false,
         strokeWidth: 2,
         markerSymbol: "?"
       });
+
+      // 渲染烈度圈图层
       ovalCirclePromise.then(OCDataSource => {
         window.viewer.dataSources.add(OCDataSource);
         OCDataSource.name = "ovalCircleTest";
-        // 设置每个实体的样式
-        const entities = OCDataSource.entities.values;
 
-        entities.forEach((entity, index) => {
-          // 使用索引对颜色数组进行循环
-          const colorIndex = index % intensityColors.length;
-          const fillColor = Cesium.Color.fromCssColorString(intensityColors[colorIndex]);
+        // 计算两个点之间的距离
+        function getDistance(lon1, lat1, lon2, lat2) {
+          let geodesic = new Cesium.EllipsoidGeodesic();
+          geodesic.setEndPoints(
+            Cesium.Cartographic.fromDegrees(lon1, lat1),
+            Cesium.Cartographic.fromDegrees(lon2, lat2)
+          );
+          return geodesic.surfaceDistance;
+        }
 
-          // 设置实体样式
-          if (entity.polygon) {
-            entity.polygon.material = fillColor.withAlpha(0.5); // 设置填充颜色和透明度
-            entity.polygon.outline = false; // 显示边框
-            entity.polygon.outlineWidth = 2.0; // 设置边框宽度
+        // 插值球面坐标
+        function interpolateSpherical(lon1, lat1, lon2, lat2, ratio) {
+          let cart1 = Cesium.Cartesian3.fromDegrees(lon1, lat1);
+          let cart2 = Cesium.Cartesian3.fromDegrees(lon2, lat2);
+          let resultCart = new Cesium.Cartesian3();
+          Cesium.Cartesian3.lerp(cart1, cart2, ratio, resultCart);
+          let cartographic = Cesium.Cartographic.fromCartesian(resultCart);
+          return [Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude)];
+        }
+
+        // 计算两个点之间的距离和球面坐标，确保geojson从内到外渲染
+        let distanceArray = geojsonData.features
+          .map((feature, index) => {
+            if (feature.geometry.type === "Polygon") {
+              let coordinates = feature.geometry.coordinates[0];
+              if (coordinates && coordinates.length > 0) {
+                let firstPoint = coordinates[0];
+                let longitude = firstPoint[0];
+                let latitude = firstPoint[1];
+                let distance = getDistance(centerPosition[0], centerPosition[1], longitude, latitude);
+                return {index, longitude, latitude, distance, feature};
+              }
+            }
+            return null;
+          })
+          .filter((item) => item !== null)
+          .sort((a, b) => a.distance - b.distance);
+
+        // 初始化第一个点为震中，后续则往外计算，确保烈度等级与烈度圈边缘的距离
+        let lastLon = centerPosition[0];
+        let lastLat = centerPosition[1];
+
+        let i = geojsonData.features.length - 1;
+
+        // 渲染顺序按照距离排序
+        distanceArray.forEach((item, sortedIndex) => {
+          let {longitude, latitude, feature, index} = item;
+
+          // let colorIndex = sortedIndex % intensityLabel.length;
+          let fillColor = Cesium.Color.fromCssColorString(intensityLabel[i].color);
+
+          // **获取对应的实体**
+          let entity = OCDataSource.entities.values[index];
+
+          if (entity && entity.polygon) {
+            entity.polygon.material = fillColor.withAlpha(0.5);
+            entity.polygon.outline = false;
+            entity.polygon.outlineWidth = 2.0;
           }
 
+          // 计算新的经纬度
+          let [newLon, newLat] = interpolateSpherical(lastLon, lastLat, longitude, latitude, 0.6);
+          let labelText = intensityLabel[i].level;
+
+          window.viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(newLon, newLat),
+            label: {
+              text: labelText,
+              font: "18px sans-serif",
+              fillColor: Cesium.Color.WHITE,
+              backgroundColor: Cesium.Color.BLACK.withAlpha(0.7),
+              showBackground: true,
+              horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+              pixelOffset: new Cesium.Cartesian2(10, 0),
+              eyeOffset: new Cesium.Cartesian3(0, 0, -1000) // 确保标签在最上层
+            },
+            properties: {
+              type: "ovalCircleTest"
+            },
+          });
+
+          lastLon = longitude;
+          lastLat = latitude;
+          // 倒序等级
+          i--;
         });
-
-        console.log(entities)
-
-      })
-
+      });
     })
     .catch((error) => {
       console.error("加载失败:", error);
@@ -846,7 +940,7 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
             imgUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
-          console.log(thematicMapObject)
+          console.log("专题图",thematicMapObject)
           thematicMapData.push(thematicMapObject);
         }
 
@@ -863,12 +957,9 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
         const data = res.data;
         const themeName = eqFullName + "-" + "灾情报告";
         let reportData = [];
-        const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/灾情报告`;
-        const urlBase = 'http://59.213.183.7/jcpt';  // 设置新的基础 URL
         console.log("报告")
         for (let i = 0; i < res.data.length; i++) {
           const reportObject = {
-            // docxUrl: `${url}${data[i].localSourceFile}`,
             docxUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
             theme: data[i].fileName,
           };
@@ -882,7 +973,53 @@ export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
       }).catch(err => {
         reject(err);
       });
-    } else {
+    }
+    // else if(type==="AssistantDecision"){
+    //   getEqOutPutJueCe(DTO).then((res) => {
+    //     console.log("辅助决策数据：", res);
+    //     const data = res.data;
+    //     const themeName = eqFullName + "-" + "辅助决策报告";
+    //     let reportData = [];
+    //     for (let i = 0; i < res.data.length; i++) {
+    //       const reportObject = {
+    //         docxUrl: `${zaiSunFuZhuJueCe}${data[i].sourceFile}`,
+    //         theme: data[i].fileName,
+    //       }
+    //       reportData.push(reportObject);
+    //     }
+    //     returnData.themeName = themeName;
+    //     returnData.themeData = reportData;
+    //     resolve(returnData); // 这里也是异步，所以也需要 resolve
+    //   }).catch(err => {
+    //     reject(err);
+    //   });
+    // }
+    else if(type==="AssistantDecision"){
+      getEqOutPutJueCeLocal(DTO).then((res) => {
+        console.log("辅助决策数据：", res);
+        const data = res.data;
+        const themeName = eqFullName + "-" + "辅助决策报告";
+        let jueceData = [];
+
+        for (let i = 0; i < res.data.length; i++) {
+          const fullPath = `${zaiSunFuZhuJueCe}${data[i].sourceFile}`;
+          console.log("docxUrl:", fullPath); // 检查路径是否正确
+          const reportObject = {
+            docxUrl: fullPath,
+            theme: data[i].fileName,
+          };
+          console.log(reportObject)
+          jueceData.push(reportObject);
+        }
+
+        returnData.themeName = themeName;
+        returnData.themeData = jueceData;
+        resolve(returnData); // 这里也是异步，所以也需要 resolve
+      }).catch(err => {
+        reject(err);
+      });
+    }
+    else {
       resolve(returnData); // 如果 type 不是 "thematicMap" 或 "report"，直接返回默认值
     }
   });
@@ -1025,6 +1162,7 @@ export function timestampToTime(timestamp, format = "full") {
     return `${year}-${month}-${day} ${hh}:${mm}:${ss}`;
   }
 }
+
 export function removeDataSourcesLayer(layerName) {
   // 通过图层名称获取数据源对象如果存在，则执行移除操作
   const dataSource = window.viewer.dataSources.getByName(layerName)[0];
