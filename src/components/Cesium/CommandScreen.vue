@@ -2105,6 +2105,17 @@ export default {
           let entity = window.selectedEntity;
           console.log(entity, "拾取entity")
 
+          // 如果 entity 没有 _layer 字段，且当前选中图层是特定图层时跳过
+          if (!entity._layer &&!pickedEntity.id._properties.sourceName) {
+            this.eqCenterPanelVisible = false;
+            this.routerPopupVisible = false;
+            this.plotShowOnlyPanelVisible = false;
+            this.dataSourcePopupVisible = false
+              return;
+          }
+
+
+
           // 新增判断：跳过行政区划实体
           if (entity._layer === '行政区划') {
             this.plotShowOnlyPanelVisible = false;
@@ -3333,6 +3344,8 @@ export default {
       this.removethdRegions() //移除区域图层和相关标签
       // this.removeAllEmergencySites();
       this.removeDistrict();  //清除行政区域
+      this.removeSuppliesList();  //清除行政区域物资点
+      this.removeOldLabels();   // 清除清除行政区域旧的标签
       // 要素图层复选框跟着变化
       this.selectedlayersLocal = this.selectedlayersLocal.filter(item =>
           item !== '救援队伍分布要素图层' && item !== '应急物资存储要素图层'
@@ -3653,6 +3666,9 @@ export default {
     handleDistrictClick() {
       let district = this.selectedRegions[0]
       this.selectedDataByRegions = []
+
+      this.removeOldLabels();
+
       //清除半径查询实体标签
       this.removethdRegions()
       this.removeAllEmergencySites();
@@ -3759,6 +3775,15 @@ export default {
       }
       this.selectedRegions = []
       this.panels.marchRegionsDialog = false
+    },
+
+    // **改进的清除方法**
+    removeOldLabels() {
+      viewer.entities.values.forEach(entity => {
+        if (entity.label) {
+          viewer.entities.remove(entity);  // **只删除区域标签**
+        }
+      });
     },
 
     /**
@@ -3931,7 +3956,7 @@ export default {
 
       // 判断是否选定了灾损预估-经济损失要素图层
       const hasDisasterLossEstimationEconomicLossLayer = this.selectedDisasterEstimate.includes('灾损预估-经济损失要素图层');
-      // 如果选定了灾损预估-人员伤亡要素图层，则添加该要素图层
+      // 如果选定了灾损预估-经济损失要素图层，则添加该要素图层
       if(hasDisasterLossEstimationEconomicLossLayer){
         this.removethdRegions();
         this.addThemeLayer(this.layerData.ecoData,'economicLoss');
