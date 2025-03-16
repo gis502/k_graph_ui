@@ -1959,7 +1959,7 @@ export default {
       // 用于启用或禁用比例尺。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
       options.enableDistanceLegend = true
       // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
-      options.enableCompassOuterRing = false
+      options.enableCompassOuterRing = true
       // 重置按钮
       options.defaultResetView = new Cartographic(CesiumMath.toRadians(longitude), CesiumMath.toRadians(latitude), 200000)
       options.resetTooltip = "重置视图";
@@ -1968,7 +1968,7 @@ export default {
       //新版必须new CesiumNavigation ,可以查看作者github
       window.navigation = new CesiumNavigation(viewer, options)
       let compass = document.getElementsByClassName('compass')[0]
-      compass.addEventListener('click', function () {
+      compass.addEventListener('dblclick', function () {
         // 设置相机飞行到指北视角
         viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, viewer.camera.positionCartographic.height), // 目标位置
