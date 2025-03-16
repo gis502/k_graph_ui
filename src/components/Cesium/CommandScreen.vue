@@ -680,8 +680,7 @@
     <!--    </div>-->
 
     <!--经纬度跳转-->
-    <div
-        style="display: flex; align-items: center; position: absolute; top: 95.25%; left: 0.5%; z-index: 1000; pointer-events: none;">
+    <div style="display: flex; align-items: center; position: absolute; top: 95.25%; left: 0.5%; z-index: 1000; pointer-events: none;">
       <div @click="togglePositionFlyTo" class="positionFlyToButton" style="pointer-events: auto;">
         <img src="../../assets/icons/svg/positionFlyTo.svg" title="经纬度跳转"
              style="width: 31px; height: 31px;">
@@ -1077,6 +1076,7 @@ import yaAnVillage from "@/assets/geoJson/yaan.json"
 import CommandScreenEqList from "@/components/Cesium/CommandScreenEqList.vue"
 import {getModelData} from "@/api/system/tiltPhotography.js";
 import layer from "@/cesium/layer.js";
+import modelicon from '@/assets/icons/svg/3dmodel04.svg';
 
 export default {
   computed: {
@@ -1758,6 +1758,45 @@ export default {
         const terrainProviderViewModels = getTerrainProviderViewModelsArr();
         let isThirdParty = true; // 标记当前是否为第三方地形
 
+        // 倾斜模型加载
+        getModelData().then(res => {
+          console.log("倾斜模型数据，新加的点，", res)
+          // 创建一个数组来保存实体和对应的数据
+          const entities = [];
+
+          for (let i = 0; i < res.length; i++) {
+            let alltiltPhotography = viewer.entities.add({
+              position: Cesium.Cartesian3.fromDegrees(res[i].geom.coordinates[0], res[i].geom.coordinates[1]),
+              layer: "倾斜模型",
+              // point: {
+              //   pixelSize: 20,
+              //   color: Cesium.Color.fromCssColorString("#e0c79b"),
+              //   clampToGround: true,
+              // },
+              billboard: {
+                image: modelicon,
+                width: 40,
+                height: 40,
+                // eyeOffset: new Cesium.Cartesian3(0, 0, 0),
+                // color: Cesium.Color.WHITE.withAlpha(1),
+                // scale: 0.8,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, // 禁用，导致图标在高度计算或与地形交互时出现闪烁。 原作用：绑定到地形高度,让billboard贴地
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
+              },
+              // 自定义属性，保存对应的数据
+              data: res[i],
+              // 添加名称属性
+              name: res[i].name + "倾斜模型"
+            });
+            // 将实体保存到数组中
+            entities.push(alltiltPhotography);
+          }
+        })
+
+        // 设置cesium的指南针、比例尺、放大缩小重置
+        this.init_cesium_navigation(this.centerPoint.longitude,this.centerPoint.latitude,viewer)
+
+        // 坡度分析绑定地形自动加载地形
         const switchToLocalDEM = () => {
           // 切换地形提供者
           if (isThirdParty) {
@@ -1778,43 +1817,9 @@ export default {
           // 切换标记，准备下次切换
           isThirdParty = !isThirdParty;
         };
-
-        // 倾斜模型加载
-        getModelData().then(res => {
-          console.log("倾斜模型数据，新加的点，", res)
-          // 创建一个数组来保存实体和对应的数据
-          const entities = [];
-
-          for (let i = 0; i < res.length; i++) {
-            let alltiltPhotography = viewer.entities.add({
-              position: Cesium.Cartesian3.fromDegrees(res[i].geom.coordinates[0], res[i].geom.coordinates[1]),
-              layer: "倾斜模型",
-              point: {
-                pixelSize: 20,
-                color: Cesium.Color.fromCssColorString("#e0c79b"),
-                clampToGround: true,
-              },
-              // billboard: {
-              //   image: 'path/to/your/icon.png', // 替换为你的图标路径
-              //   width: 40, // 图标的宽度（可选）
-              //   height: 40, // 图标的高度（可选）
-              //   verticalOrigin: Cesium.VerticalOrigin.BOTTOM, // 图标的垂直对齐方式
-              // },
-              // 自定义属性，保存对应的数据
-              data: res[i],
-              // 添加名称属性
-              name: res[i].name + "倾斜模型"
-            });
-            // 将实体保存到数组中
-            entities.push(alltiltPhotography);
-          }
-        })
-
-        // 设置cesium的指南针、比例尺、放大缩小重置
-        this.init_cesium_navigation(this.centerPoint.longitude,this.centerPoint.latitude,viewer)
+        document.getElementById('slope').addEventListener('click', switchToLocalDEM);
 
         // 绑定按钮点击事件
-        document.getElementById('slope').addEventListener('click', switchToLocalDEM);
         document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
@@ -2165,6 +2170,13 @@ export default {
             console.log("PanelData 震中", this.PanelData)
           } else if (entity._layer === "倾斜模型") {
 
+            const terrainProviderViewModels = getTerrainProviderViewModelsArr()
+            window.viewer.scene.terrainProvider = terrainProviderViewModels[1].creationCommand();
+            window.viewer.baseLayerPicker.viewModel.selectedTerrain = terrainProviderViewModels[1];
+            const currentLayer = document.querySelector(`[title="${true ? '第三方地形' : 'WGS84标准球体'}"]`);
+            if (currentLayer) {
+              currentLayer.classList.add('cesium-baseLayerPicker-selectedItem');
+            }
             // 获取实体的自定义属性
 
             let row = entity.data;
@@ -4792,6 +4804,7 @@ export default {
       }
     },
     toggleSlopeAnalysis(websock){
+
       this.showSlopeAnalysis = !this.showSlopeAnalysis;
       if (this.showSlopeAnalysis) {
         // 还原
