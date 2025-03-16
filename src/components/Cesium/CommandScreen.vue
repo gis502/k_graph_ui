@@ -1728,11 +1728,11 @@ export default {
     //------------------地图初始化---------------
     init() {
       let clock;
+      let that = this
       getEqListById({id: this.eqid}).then(res => {
         console.log(res)
         //震中标绘点
         this.centerPoint = res
-
 
         // 设置中心点的标识和时间信息
         this.centerPoint.plotId = res.eqid
@@ -1779,13 +1779,14 @@ export default {
           isThirdParty = !isThirdParty;
         };
 
+        // 倾斜模型加载
         getModelData().then(res => {
           console.log("倾斜模型数据，新加的点，", res)
           // 创建一个数组来保存实体和对应的数据
           const entities = [];
 
           for (let i = 0; i < res.length; i++) {
-            var alltiltPhotography = viewer.entities.add({
+            let alltiltPhotography = viewer.entities.add({
               position: Cesium.Cartesian3.fromDegrees(res[i].geom.coordinates[0], res[i].geom.coordinates[1]),
               layer: "倾斜模型",
               point: {
@@ -1809,24 +1810,11 @@ export default {
           }
         })
 
+        // 设置cesium的指南针、比例尺、放大缩小重置
+        this.init_cesium_navigation(this.centerPoint.longitude,this.centerPoint.latitude,viewer)
+
         // 绑定按钮点击事件
         document.getElementById('slope').addEventListener('click', switchToLocalDEM);
-        let options = {}
-        // 用于在使用重置导航重置地图视图时设置默认视图控制。接受的值是Cesium.Cartographic 和 Cesium.Rectangle.
-        // options.defaultResetView = Cesium.Cartographic.fromDegrees(103.00, 29.98, 1000, new Cesium.Cartographic)
-        // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
-        options.enableCompass = true
-        // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
-        options.enableZoomControls = true
-        // 用于启用或禁用距离图例。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
-        options.enableDistanceLegend = true
-        // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
-        options.enableCompassOuterRing = true
-        options.resetTooltip = "重置视图";
-        options.zoomInTooltip = "放大";
-        options.zoomOutTooltip = "缩小";
-        //新版必须new  CesiumNavigation ,可以查看作者github
-        window.navigation = new CesiumNavigation(viewer, options)
         document.getElementsByClassName('cesium-geocoder-input')[0].placeholder = '请输入地名进行搜索'
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[0].innerHTML = '影像服务'
         document.getElementsByClassName('cesium-baseLayerPicker-sectionTitle')[1].innerHTML = '地形服务'
@@ -1843,7 +1831,7 @@ export default {
         });
 
         viewer.clock.multiplier = 3600
-        let that = this
+
         viewer.clock.onTick.addEventListener(function (clock) {
           // console.log(clock.currentTime,"clock.currentTime")
           if(clock.currentTime){
@@ -1961,6 +1949,38 @@ export default {
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
       })
 
+    },
+    init_cesium_navigation(longitude,latitude,viewer){
+      let options = {}
+      // 用于启用或禁用罗盘。true是启用罗盘，false是禁用罗盘。默认值为true。如果将选项设置为false，则罗盘将不会添加到地图中。
+      options.enableCompass = true
+      // 用于启用或禁用缩放控件。true是启用，false是禁用。默认值为true。如果将选项设置为false，则缩放控件将不会添加到地图中。
+      options.enableZoomControls = true
+      // 用于启用或禁用比例尺。true是启用，false是禁用。默认值为true。如果将选项设置为false，距离图例将不会添加到地图中。
+      options.enableDistanceLegend = true
+      // 用于启用或禁用指南针外环。true是启用，false是禁用。默认值为true。如果将选项设置为false，则该环将可见但无效。
+      options.enableCompassOuterRing = false
+      // 重置按钮
+      options.defaultResetView = new Cartographic(CesiumMath.toRadians(longitude), CesiumMath.toRadians(latitude), 200000)
+      options.resetTooltip = "重置视图";
+      options.zoomInTooltip = "放大";
+      options.zoomOutTooltip = "缩小";
+      //新版必须new CesiumNavigation ,可以查看作者github
+      window.navigation = new CesiumNavigation(viewer, options)
+      let compass = document.getElementsByClassName('compass')[0]
+      compass.addEventListener('click', function () {
+        // 设置相机飞行到指北视角
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, viewer.camera.positionCartographic.height), // 目标位置
+          orientation: {
+            heading: Cesium.Math.toRadians(0), // 朝向正北
+            pitch: Cesium.Math.toRadians(-90), // 向下俯视
+            roll: 0 // 不倾斜
+          },
+          duration: 3, // 动画持续时间，单位为秒
+          easingFunction: Cesium.EasingFunction.LINEAR // 动画缓动函数
+        });
+      }, false);
     },
     updateMapAndVariableBeforeInit() {
       timeLine.fly(this.centerPoint.longitude, this.centerPoint.latitude, 60000, 5).then(() => {
