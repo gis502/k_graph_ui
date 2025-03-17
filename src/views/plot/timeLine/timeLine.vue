@@ -38,7 +38,7 @@
     <div>
       <div class="pop_left_background">
         <timeLineEmergencyResponse
-            :edit="false"
+            :edit="true"
             :eqid="eqid"
             :centerPoint="centerPoint"
             :currentTime="currentTimeString"
