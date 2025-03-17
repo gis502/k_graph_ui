@@ -1754,7 +1754,11 @@ export default {
         })
         let viewer = initCesium(Cesium, "cesiumContainer", clock)
         viewer._cesiumWidget._creditContainer.style.display = 'none' // 隐藏版权信息
-
+        //取消双击视角定位
+        viewer.trackedEntity =undefined;
+        viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+            Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK
+        );
         const terrainProviderViewModels = getTerrainProviderViewModelsArr();
         let isThirdParty = true; // 标记当前是否为第三方地形
 
