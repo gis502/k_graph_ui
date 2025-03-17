@@ -43,14 +43,14 @@
                       </svg>
                   <span class="node-text">行政区划跳转</span>
     </span>
-
       <el-radio-group v-model="selectedDistrictLocal">
-        <el-radio label="回到震中" @change="handleDistrictSelect('回到震中')">
-          回到震中
+        <el-radio
+            label="回到震中"
+            @click.native.prevent="handleDistrictSelect('回到震中')">回到震中
         </el-radio>
-        <!-- 额外选项：雅安市 -->
-        <el-radio label="雅安市" @change="handleDistrictSelect('雅安市')">
-          雅安市
+        <el-radio
+            label="雅安市"
+            @click.native.prevent="handleDistrictSelect('雅安市')">雅安市
         </el-radio>
         <el-radio
             v-for="district in districts"
@@ -61,7 +61,6 @@
           {{ district.name }}
         </el-radio>
       </el-radio-group>
-
     </div>
   </div>
 
@@ -91,7 +90,6 @@ export default {
         {adcode: 511826, name: "芦山县"},
         {adcode: 511827, name: "宝兴县"},
       ],
-      isCancelSelect: false, // 标志变量，用于标记是否取消选中
     }
   },
   props: ["centerPoint", "selectedDistrict", "positionFlyTo"],
@@ -152,13 +150,13 @@ export default {
     },
 
     handleDistrictSelect(districtName) {
-      console.log(this.selectedDistrictLocal,"11111 handleDistrictSelect")
+      console.log(this.selectedDistrictLocal,districtName,"11111 handleDistrictSelect")
       if (this.selectedDistrictLocal === districtName) {
-        this.selectedDistrictLocal = ''; // 清空选中值
-        this.$emit('viewJumpSelectedDistrict', districtName);
+        this.selectedDistrictLocal='';
         layer.removeRegionLayerJump();
+        this.$emit('viewJumpSelectedDistrict', districtName);
       } else {
-        this.selectedDistrictLocal = districtName;
+        this.selectedDistrictLocal=districtName;
         //清除其他实体标签
         layer.removeRegionLayerJump();
         this.$emit('viewJumpSelectedDistrict', districtName);
