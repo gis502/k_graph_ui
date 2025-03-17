@@ -5506,7 +5506,6 @@ export default {
 }
 
 :deep(.el-checkbox__label ) {
-  background-color: rgba(22, 53, 77, 0.9); /* 背景色 */
   color: white; /* 内容文字颜色 */
   font-size: 14px; /* 内容字号 */
   padding: 10px; /* 内容内边距 */
