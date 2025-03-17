@@ -16,7 +16,7 @@
         <div class="list-dialog__content" style="height: calc(100% - 30);">
           <timeLineCasualtyStatisticthd
               :zoomLevel="zoomLevel"
-              :pointsLayer="pointsLayer"
+              :pointsLayer="plots"
               :currentTime="currentTimeString"
           />
         </div>
@@ -1355,8 +1355,6 @@ export default {
         time: null,
         modelid: null
       },
-
-      pointsLayer: [], //传到子组件
 
       // 视角输入经纬度高度跳转------------
       showPositionFlyTo: false,
