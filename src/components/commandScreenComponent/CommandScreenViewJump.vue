@@ -56,7 +56,8 @@
             v-for="district in districts"
             :key="district.adcode"
             :label="district.name"
-            @change="handleDistrictSelect(district.name)">
+            @click.native.prevent="handleDistrictSelect(district.name)"
+        >
           {{ district.name }}
         </el-radio>
       </el-radio-group>
@@ -90,6 +91,7 @@ export default {
         {adcode: 511826, name: "芦山县"},
         {adcode: 511827, name: "宝兴县"},
       ],
+      isCancelSelect: false, // 标志变量，用于标记是否取消选中
     }
   },
   props: ["centerPoint", "selectedDistrict", "positionFlyTo"],
@@ -150,19 +152,27 @@ export default {
     },
 
     handleDistrictSelect(districtName) {
-      //清除其他实体标签
-      layer.removeRegionLayerJump();
-      this.$emit('viewJumpSelectedDistrict', districtName);
-      this.$emit('stopTimePlay');
-      // 根据选中的区域进行处理
-      if (districtName === '雅安市') {
-        layer.addYaanCityDistrict();
-      } else if (districtName === '回到震中') {
-        this.backcenter();
+      console.log(this.selectedDistrictLocal,"11111 handleDistrictSelect")
+      if (this.selectedDistrictLocal === districtName) {
+        this.selectedDistrictLocal = ''; // 清空选中值
+        this.$emit('viewJumpSelectedDistrict', districtName);
+        layer.removeRegionLayerJump();
       } else {
-        const district = this.districts.find(d => d.name === districtName);
-        if (district) {
-          layer.addCountyLayerJump(district);
+        this.selectedDistrictLocal = districtName;
+        //清除其他实体标签
+        layer.removeRegionLayerJump();
+        this.$emit('viewJumpSelectedDistrict', districtName);
+        this.$emit('stopTimePlay');
+        // 根据选中的区域进行处理
+        if (districtName === '雅安市') {
+          layer.addYaanCityDistrict();
+        } else if (districtName === '回到震中') {
+          this.backcenter();
+        } else {
+          const district = this.districts.find(d => d.name === districtName);
+          if (district) {
+            layer.addCountyLayerJump(district);
+          }
         }
       }
     },

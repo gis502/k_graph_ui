@@ -3944,9 +3944,47 @@ export default {
             this.removeEntitiesByType('ovalCircleTest');
             this.removeDataSourcesLayer('ovalCircleTest');
           }
-        }
+        },
+        {
+          name: '灾损预估-人员伤亡要素图层',
+          add: () => {
+            this.removethdRegions();
+            this.addThemeLayer(this.layerData.pcData, 'personalCasualty');
+            this.showPeopleLegend = true;// 指挥大屏-图层管理-人员伤亡图层图例状态
+          },
+          remove: () => {
+            this.removeDataSourcesLayer('personalCasualty');
+            this.showPeopleLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
+            this.removeRegionLabels();
+          }
+        },
+        {
+          name: '灾损预估-经济损失要素图层',
+          add: () => {
+            this.removethdRegions();
+            this.addThemeLayer(this.layerData.ecoData,'economicLoss');
+            this.showEconomicLegend = true;// 指挥大屏-图层管理-经济损失图层图例状态
+          },
+          remove: () => {
+            this.removeDataSourcesLayer('economicLoss');
+            this.showEconomicLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
+            this.removeRegionLabels();
+          }
+        },
+        {
+          name: '灾损预估-建筑损毁要素图层',
+          add: () => {
+            this.removethdRegions();
+            this.addThemeLayer(this.layerData.bddData,'buildingDamage');
+            this.showBuildingLegend = true; // 指挥大屏-图层管理-建筑损毁图层图例状态
+          },
+          remove: () => {
+            this.removeDataSourcesLayer('buildingDamage');
+            this.showBuildingLegend = false; // 指挥大屏-图层管理-建筑损毁图层图例状态
+            this.removeRegionLabels();
+          }
+        },
       ];
-
       layerActions.forEach(layer => {
         if (this.selectedlayersLocal.includes(layer.name)  || this.selectedResourceScheduling.includes(layer.name) || this.selectedDisasterEstimate.includes(layer.name)) {
           layer.add();
@@ -3954,47 +3992,7 @@ export default {
           layer.remove();
         }
       });
-
-      // 判断是否选定了灾损预估-人员伤亡要素图层
-      const hasDisasterLossEstimationCasualtyLayer = this.selectedDisasterEstimate.includes('灾损预估-人员伤亡要素图层');
-      // 如果选定了灾损预估-人员伤亡要素图层，则添加该要素图层
-      if(hasDisasterLossEstimationCasualtyLayer){
-        this.removethdRegions();
-        this.addThemeLayer(this.layerData.pcData, 'personalCasualty');
-        this.showPeopleLegend = true;// 指挥大屏-图层管理-人员伤亡图层图例状态
-      }else {
-        this.removeDataSourcesLayer('personalCasualty');
-        this.showPeopleLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
-        this.removeRegionLabels();
-      }
-
-      // 判断是否选定了灾损预估-经济损失要素图层
-      const hasDisasterLossEstimationEconomicLossLayer = this.selectedDisasterEstimate.includes('灾损预估-经济损失要素图层');
-      // 如果选定了灾损预估-经济损失要素图层，则添加该要素图层
-      if(hasDisasterLossEstimationEconomicLossLayer){
-        this.removethdRegions();
-        this.addThemeLayer(this.layerData.ecoData,'economicLoss');
-        this.showEconomicLegend = true;// 指挥大屏-图层管理-经济损失图层图例状态
-      }else {
-        this.removeDataSourcesLayer('economicLoss');
-        this.showEconomicLegend = false;// 指挥大屏-图层管理-经济损失图层图例状态
-        this.removeRegionLabels();
-      }
-
-      // 判断是否选定了灾损预估-建筑损毁要素图层
-      const hasDisasterLossEstimationBuildingDamageLayer = this.selectedDisasterEstimate.includes('灾损预估-建筑损毁要素图层');
-      // 如果选定了灾损预估-建筑损毁要素图层，则添加该要素图层
-      if(hasDisasterLossEstimationBuildingDamageLayer){
-        this.removethdRegions();
-        this.addThemeLayer(this.layerData.bddData,'buildingDamage');
-        this.showBuildingLegend = true; // 指挥大屏-图层管理-建筑损毁图层图例状态
-      }else {
-        this.removeDataSourcesLayer('buildingDamage');
-        this.showBuildingLegend = false; // 指挥大屏-图层管理-建筑损毁图层图例状态
-        this.removeRegionLabels();
-      }
     },
-
     /**
      * 处理并添加点数据为实体
      *
