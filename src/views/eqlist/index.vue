@@ -922,7 +922,7 @@ export default {
         this.dialogTitle = title
         console.log("修改回来的数据",row);
         this.dialogContent = {
-          earthquakeName: row.eqAddr,
+          earthquakeName: row.earthquakeName,
           occurrenceTime: this.formatDateToBackend(row.occurrenceTime), // 初始化为当前时间的时间戳
           magnitude: row.magnitude,
           longitude: row.longitude,
