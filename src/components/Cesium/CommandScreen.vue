@@ -1257,8 +1257,6 @@ export default {
         }
       ],
       //-----------------地震列表---------------------
-      // eqListShow: false,
-      //-地震列表---------------------------------
       total: 0,
       pageSize: 6,
       currentPage: 1,
@@ -1267,11 +1265,10 @@ export default {
       //-----------------图层---------------------
       isMarkingLayer: true,
       showlayers: [],
-      //-----------------图层---------------------
+      timeoutlayerActions:null,
       LRDLStatus: false, // 路网
-      // districtLayer: null,
+
       //------------------按钮下拉框------
-      // visible: false,
       selectedDistrict: '', // 用于追踪选中的复选框
       districts: [
         {adcode: 511802, name: "雨城区"},
@@ -3953,13 +3950,14 @@ export default {
           name: '标绘点图层',
           add: () => {
             this.isMarkingLayerLocal = true;
-            timeLine.markerLayerShow(this.plots)
+            clearTimeout(this.timeoutlayerActions); // 取消之前的setTimeout
+            this.timeoutlayerActions=null
           },
           remove: () => {
             this.isMarkingLayerLocal = false;
-            setTimeout(() => {
+            this.timeoutlayerActions = setTimeout(() => {
               timeLine.markerLayerHidden(this.plots);
-            }, 1000);
+            }, 1000); // 延迟1秒后隐藏图层
           }
         },
         {
