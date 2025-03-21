@@ -1265,7 +1265,7 @@ export default {
       //-----------------图层---------------------
       isMarkingLayer: true,
       showlayers: [],
-      timeoutlayerActions:null,
+      timeoutlayerActions: null,
       LRDLStatus: false, // 路网
 
       //------------------按钮下拉框------
@@ -2225,8 +2225,7 @@ export default {
             this.plotShowOnlyPanelVisible = false;
             this.PanelPosition = this.selectedEntityPosition;
             this.routerPanelData = this.extractDataForRouter(entity);
-          }
-          else if (entity._layer === "历史地震") {
+          } else if (entity._layer === "历史地震") {
             this.eqCenterPanelVisible = false;
             this.dataSourcePopupVisible = false
             this.plotShowOnlyPanelVisible = false
@@ -2399,7 +2398,7 @@ export default {
           if (canvasPosition) {
             const pointLabelDiv = document.getElementById('pointLabel');
             pointLabelDiv.style.left = canvasPosition.x + 'px';
-            pointLabelDiv.style.top = canvasPosition.y  + 'px';
+            pointLabelDiv.style.top = canvasPosition.y + 'px';
             pointLabelDiv.innerHTML = `${faultName}`;
             // //console.log(pointLabelDiv)
           }
@@ -3909,49 +3908,20 @@ export default {
         // //console.log("图层已移除");
       }
       this.isShowYaanRegionLegend = false;
-      // 获取图例容器，准备清空其内容
-      // const legend = document.getElementById('legend');
-      // 循环移除图例容器中的所有子元素
-      // while (legend.firstChild) {
-      //     legend.removeChild(legend.firstChild);
-      // }
-      // 遍历标签数组，移除每个标签实体
-      // this.labels.forEach(label => {
-      //   window.viewer.entities.remove(label);
-      // });
-      // 清空标签引用数组，以便垃圾回收
-      // this.labels = [];
-    }
-    ,
+    },
 
 
     updateMapLayers() {
       console.log(this.selectedlayersLocal, "selectedlayersLocal")
-      // 检查选中的图层中是否包含标绘点图层
-      const hasDrawingLayer = this.selectedlayersLocal.includes('标绘点图层');
-      // 如果包含标绘点图层
-      if (hasDrawingLayer) {
-        // 确认标绘图层变更，参数为true表示已选中
-        this.handleMarkingLayerChange(true);
-        // 更新绘图状态
-        timeLine.showAllMakerPoint(this.plots)
-      } else {
-        // 确认标绘图层变更，参数为false表示未选中
-        this.handleMarkingLayerChange(false);
-        // 移除所有已存在的椭圆圈实体，以避免重复添加
-        // 移除标绘图层
-        timeLine.markerLayerHidden(this.plots);
-      }
 
-      // 图层映射：添加与移除图层逻辑
-      // name: 图层名；add：添加图层；remove：移除图层
       const layerActions = [
         {
           name: '标绘点图层',
           add: () => {
             this.isMarkingLayerLocal = true;
+            timeLine.markerLayerShow(this.plots)
             clearTimeout(this.timeoutlayerActions); // 取消之前的setTimeout
-            this.timeoutlayerActions=null
+            this.timeoutlayerActions = null
           },
           remove: () => {
             this.isMarkingLayerLocal = false;
@@ -4582,26 +4552,26 @@ export default {
      *
      * @param {boolean} isMarkingLayerLocal - 表示是否为本地标记图层
      */
-    handleMarkingLayerChange(isMarkingLayerLocal) {
-      if (isMarkingLayerLocal) {
-        // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
-        if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
-          let newLayer = new Cesium.CustomDataSource('drawingLayer');
-          window.viewer.dataSources.add(newLayer);
-          newLayer.show = true;
-          this.isMarkingLayerLocal = true;
-        }
-      } else {
-        // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
-        this.isMarkingLayerLocal = false;
-        // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
-        let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
-        if (dataSource) {
-          window.viewer.dataSources.remove(dataSource);
-        }
-      }
-    }
-    ,
+    // handleMarkingLayerChange(isMarkingLayerLocal) {
+    //   if (isMarkingLayerLocal) {
+    //     // 如果视图中不存在名为'drawingLayer'的图层，则创建一个新的自定义图层并添加到视图中
+    //     if (!window.viewer.dataSources.getByName('drawingLayer')[0]) {
+    //       let newLayer = new Cesium.CustomDataSource('drawingLayer');
+    //       window.viewer.dataSources.add(newLayer);
+    //       newLayer.show = true;
+    //       this.isMarkingLayerLocal = true;
+    //     }
+    //   } else {
+    //     // 当切换到非本地标记图层时，将isMarkingLayerLocal设置为false
+    //     this.isMarkingLayerLocal = false;
+    //     // 如果视图中存在名为'drawingLayer'的图层，则从视图中移除该图层
+    //     let dataSource = window.viewer.dataSources.getByName('drawingLayer')[0];
+    //     if (dataSource) {
+    //       window.viewer.dataSources.remove(dataSource);
+    //     }
+    //   }
+    // }
+    // ,
 
     /**
      * 根据经纬度获取人口密度信息
