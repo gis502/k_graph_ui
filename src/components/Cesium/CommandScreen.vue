@@ -11,7 +11,7 @@
       </div>
     </div>
     <!--  态势标绘  -->
-    <div class="thd-listTable-cesium" v-if="activeComponent === 'model'">
+    <div class="thd-listTable-cesium" v-if="activeComponent === 'cartographicStatistics'">
       <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
         <div class="list-dialog__content" style="height: calc(100% - 30);">
           <timeLineCasualtyStatisticthd
