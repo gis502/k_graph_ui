@@ -3910,24 +3910,25 @@ export default {
       this.isShowYaanRegionLegend = false;
     },
 
-
     updateMapLayers() {
       console.log(this.selectedlayersLocal, "selectedlayersLocal")
 
+      // 图层映射：添加与移除图层逻辑
+      // name: 图层名；add：添加图层；remove：移除图层
       const layerActions = [
         {
           name: '标绘点图层',
           add: () => {
             this.isMarkingLayerLocal = true;
             timeLine.markerLayerShow(this.plots)
-            clearTimeout(this.timeoutlayerActions); // 取消之前的setTimeout
-            this.timeoutlayerActions = null
+            clearTimeout(this.timeoutlayerActions)
+            this.timeoutlayerActions=null
           },
           remove: () => {
             this.isMarkingLayerLocal = false;
-            this.timeoutlayerActions = setTimeout(() => {
+            this.timeoutlayerActions=setTimeout(() => {
               timeLine.markerLayerHidden(this.plots);
-            }, 1000); // 延迟1秒后隐藏图层
+            }, 1000);
           }
         },
         {
