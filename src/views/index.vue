@@ -24,16 +24,6 @@
               <img src="@/assets/latestEarthquake.png" alt="最新地震" style="width: 127%; height: auto;">
               <new-info :last-eq="lastEqData"/>
             </div>
-
-            <div class="left-con public-bg" ref="leftCon">
-              <!--              <div class="public-title">最新地震受灾人员统计</div>-->
-              <img src="@/assets/disasterStats.png" alt="最新地震受灾人员统计" style="width: 125%; height: auto;">
-              <chart3 :last-eq="lastEqData"/>
-            </div>
-
-            <div class="left-bottom public-bg" ref="leftBottom">
-              <chart2 :last-eq="lastEqData"/>
-            </div>
           </div>
         </div>
 
@@ -41,12 +31,12 @@
         <div class="right">
           <div class="right-body">
             <div class="right-top public-bg" ref="rightTop">
-              <div style="position: relative; width: 100%; height: auto;">
+              <div style="position: relative; width: 100%;">
                 <!-- 图片 -->
                 <img
                   src="@/assets/earthquakeList.png"
                   alt="地震列表"
-                  style="width: 90%; height: auto; display: block;"
+                  style="   width: 90%; height: auto; display: block;"
                 >
 
                 <!-- 输入框和按钮 -->
@@ -91,15 +81,8 @@
               </div>
               <eq-table :eq-data="CeShiTableData"/>
             </div>
-
-            <div class="right-bottom public-bg" ref="rightBottom">
-              <img src="@/assets/historyEarthquake.png" alt="历史地震" style="width: 80%; height: auto;">
-              <!--              <div class="public-title">历史地震统计(次)</div>-->
-              <chart1 :eq-data="EqAll"/>
-            </div>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -622,16 +605,12 @@ onMounted(() => {
 }
 
 
-.right-body {
+.right-body,.right-top {
   width: 98%;
   height: 100%;
   margin: 0 0.3%;
 }
 
-.right-body .right-top {
-  width: 100%;
-  height: 54%;
-}
 
 .title-nav .top5-ul {
   width: calc(100% - 20px);
@@ -709,13 +688,6 @@ onMounted(() => {
   display: inline-block;
   text-align: center;
 }
-
-.right-body .right-bottom {
-  width: 100%;
-  height: 45%;
-  margin-top: 1%;
-}
-
 
 /* 新增样式 */
 .content-body {

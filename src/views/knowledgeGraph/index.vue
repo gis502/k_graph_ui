@@ -612,7 +612,7 @@ onMounted(()=>{
       .search-input{
         border-radius: 0 12px 12px 0;
         color: whitesmoke;
-        width: 220px;
+        width: 180px;
       }
     }
     .list{

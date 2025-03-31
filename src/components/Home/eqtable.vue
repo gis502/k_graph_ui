@@ -2,7 +2,7 @@
   <div class="table">
     <el-table
         :data="tableData"
-        style="width: 98%; margin-bottom: 2px;height: 18vw"
+        style="width: 98%; margin-bottom: 2px;"
         :header-cell-style="tableHeaderColor"
         :cell-style="tableColor"
         :row-style="{ height: '37.5px', fontSize: '13px'}"
@@ -49,7 +49,6 @@
         </template>
       </el-table-column>
     </el-table>
-
     <div class="pagination-wrapper">
       <el-pagination
           @size-change="handleSizeChange"
@@ -74,7 +73,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(6);
+const pageSize = ref(15);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
