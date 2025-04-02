@@ -2,7 +2,7 @@
   <div class="content-body">
     <div class="header">
       <div class="header-center">
-        <span>地震灾害应急技术支撑能力提升项目</span>
+        <span>灾链智控--基于大语言模型与知识图谱的地震应急信息平台</span>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>
