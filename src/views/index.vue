@@ -144,7 +144,6 @@
 </template>
 
 <script setup>
-import { BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5 } from '@kjgl77/datav-vue3';
 import { onMounted, ref, reactive, nextTick, watch } from 'vue';
 import EMap from '@/components/Home/emap.vue';
 import EqTable from '@/components/Home/eqtable.vue';
