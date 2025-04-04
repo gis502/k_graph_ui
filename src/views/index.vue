@@ -49,24 +49,27 @@
         <div class="right">
           <div class="right-body">
             <div class="right-top public-bg" ref="rightTop">
-              <div style="position: relative; width: 100%; height: auto;">
-                <!-- 图片 -->
-                <img
-                  src="@/assets/earthquakeList.png"
-                  alt="地震列表"
-                  style="width: 90%; height: auto; display: block;"
-                >
-
+              <div style="position: relative; width: 100%; height: 110px;">
+                <div class="right-title">地震列表</div>
                 <!-- 输入框和按钮 -->
                 <div
-                  style="position: absolute; top: 5px; left: 120px; display: flex; align-items: center; z-index: 1;"
+                  style="position: absolute; top: 70px; left: 40px; display: flex; align-items: center; z-index: 1;"
                 >
-                  <el-input
-                    size="small"
-                    style="width: 5vw; font-size: 16px;margin-right: 5px;margin-left: 7px"
-                    v-model="requestParams"
-                    @keyup.enter="query()"
-                  ></el-input>
+                    <input type="text"
+                           placeholder="搜索"
+                           style="width: 11vw;
+                                  font-size: 16px;
+                                  margin-right: 6px;
+                                  background-color: transparent;
+                                  border: none ;
+                                  outline: none ; /* 移除聚焦时的外边框 */
+                                  box-shadow: none; /* 移除可能的阴影 */
+                                  color: white;"
+                           v-model="requestParams"
+                           @keyup.enter="query()">
+<!--                  <el-input-->
+<!--                   -->
+<!--                  ></el-input>-->
                   <el-button
                     size="small"
                     style="font-size: 14px;"
@@ -97,16 +100,14 @@
                   </el-button>
                 </div>
               </div>
-              <eq-table :eq-data="CeShiTableData"/>
+              <div style="flex:1">
+                <eq-table :eq-data="CeShiTableData"/>
+              </div>
             </div>
-
-
           </div>
         </div>
-
       </div>
     </div>
-
     <el-dialog v-model="queryFormVisible" title="筛选" width="28vw" style="top:20vh">
       <el-form :inline="true" :model="formValue">
         <el-form-item label="地震位置">
@@ -435,7 +436,6 @@ onMounted(() => {
 
 </script>
 
-
 <style scoped>
 .public-bg {
   /*background: rgba(12, 26, 63, 0.3);*/
@@ -621,21 +621,23 @@ onMounted(() => {
   height: 97.8%;
   float: right;
   margin: 0 0.3%;
-  /*background-image: url("@/assets/home/黑色遮罩右.png");*/
-  background: rgb(0, 195, 255);
-  background: linear-gradient(81deg, rgb(51 145 229 / 9%) 25%, rgb(0 9 26 / 86%) 88%);
+  background-image: url("@/assets/home/黑色遮罩右.png");
+  /*background: linear-gradient(81deg, rgb(51 145 229 / 9%) 25%, rgb(0 9 26 / 86%) 88%);*/
 }
-
 
 .right-body {
   width: 98%;
   height: 100%;
   margin: 0 0.3%;
 }
+.right-top{
+  height: 700px;
+  display: flex;
+  flex-direction: column;
+}
 
 .right-body .right-top {
   width: 100%;
-  height: 54%;
 }
 
 .title-nav .top5-ul {
@@ -837,5 +839,22 @@ onMounted(() => {
   text-shadow: 0 0 5px #00eaff;
 }
 
+.right-title{
+  position: absolute;
+  top:30px;
+  left: 60px;
+  font-size: 28px;
+  font-weight: 40000;
+  letter-spacing: 0px;
+  line-height: 40px;
+  /* 文字自下向上渐变 */
+  background-image: linear-gradient(to top, #0ff , #e0e0e0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 
 </style>
+
+

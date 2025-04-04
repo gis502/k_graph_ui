@@ -1,28 +1,15 @@
 <template>
   <div class="navbar">
-    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"
-               @toggleClick="toggleSideBar"/>
+<!--    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"-->
+<!--               @toggleClick="toggleSideBar"/>-->
     <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-if="!settingsStore.topNav"/>
     <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav"/>
 
     <div class="right-menu">
       <template v-if="appStore.device !== 'mobile'">
-        {{ userStore.deptName + ' / ' + userStore.name + ' / ' + userStore.roles[0].roleName }}
-        <!--        <header-search id="header-search" class="right-menu-item" />-->
-
-        <!--        <el-tooltip content="源码地址" effect="dark" placement="bottom">-->
-        <!--          <ruo-yi-git id="yaan-git" class="right-menu-item hover-effect" />-->
-        <!--        </el-tooltip>-->
-
-        <!--        <el-tooltip content="文档地址" effect="dark" placement="bottom">-->
-        <!--          <ruo-yi-doc id="yaan-doc" class="right-menu-item hover-effect" />-->
-        <!--        </el-tooltip>-->
-
-        <!--        <screenfull id="screenfull" class="right-menu-item hover-effect" />-->
-
-        <!--        <el-tooltip content="布局大小" effect="dark" placement="bottom">-->
-        <!--          <size-select id="size-select" class="right-menu-item hover-effect" />-->
-        <!--        </el-tooltip>-->
+        <span style="color: #00eaff;">
+          {{ userStore.deptName + ' / ' + userStore.name + ' / ' + userStore.roles[0].roleName }}
+        </span>
       </template>
       <div class="avatar-container">
         <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
@@ -112,7 +99,7 @@ function setLayout() {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
+  background:#0e172b;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
   .hamburger-container {

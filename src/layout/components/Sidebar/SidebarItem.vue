@@ -9,7 +9,7 @@
           >
             <div class="icon">
               <div class="imageBox">
-  <!--              <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)"/>-->
+                <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" style="margin-left: 13px" />
               </div>
             </div>
             <div class="text">{{ onlyOneChild.meta.title }}</div>
@@ -22,7 +22,7 @@
       <template v-if="item.meta" #title>
         <div class="icon">
           <div class="imageBox">
-<!--            <svg-icon :icon-class="item.meta && item.meta.icon" />-->
+            <svg-icon :icon-class="item.meta && item.meta.icon" />
           </div>
         </div>
         <span class="menu-title">{{ item.meta.title }}</span>

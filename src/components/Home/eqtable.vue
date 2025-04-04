@@ -10,7 +10,7 @@
       <el-table-column label=" " min-width="20px" show-overflow-tooltip>
         <template #default="scope">
           <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-            <img :src="arrowImage" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
+            <img :src="leftArrowImage" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
           </div>
         </template>
       </el-table-column>
@@ -32,7 +32,7 @@
       <el-table-column
           prop="magnitude"
           align="center"
-          min-width="38px"
+          min-width="45px"
           label="震级(级)">
         <template #default="scope">
           {{ Number(scope.row.magnitude).toFixed(1) }}
@@ -41,11 +41,18 @@
       <el-table-column
           prop="depth"
           align="center"
-          min-width="47px"
+          min-width="55px"
           label="深度(千米)"
           show-overflow-tooltip>
         <template #default="scope">
           {{scope.row.depth}}
+        </template>
+      </el-table-column>
+      <el-table-column label=" " min-width="20px" show-overflow-tooltip>
+        <template #default="scope">
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+            <img :src="rightArrowImage" alt="统一图片" style="width: 18px; height: 20px;" class="arrow-icon">
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -65,7 +72,8 @@
 </template>
 
 <script setup>
-import arrowImage from '@/assets/images/arrow.png';
+import leftArrowImage from '@/assets/images/leftArrow.png';
+import rightArrowImage from '@/assets/images/rightArrow.png';
 import {ref, watch} from 'vue';
 import {useRouter} from 'vue-router';
 
@@ -73,7 +81,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(15);
+const pageSize = ref(13);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
@@ -95,8 +103,8 @@ const go = (row) => {
 };
 
 const tableHeaderColor = () => ({
-  'background': 'linear-gradient(180deg, rgba(27,60,108,0.09) 0%, rgba(20,83,174,1) 100%)',
-  'color': '#fff',
+  'background': 'rgba(32, 214, 214, 1)',
+  'color': 'rgba(19, 27, 64, 1)',
   'text-align': 'center',
   'font-size': '13px',
   'padding': '0',
@@ -234,12 +242,15 @@ const formatTime = (time) => {
 }
 
 :deep(.el-table tr:hover) {
-  background: linear-gradient(0deg, rgba(38, 166, 221, 0.9) 30%, rgba(230, 247, 255, 1) 100%);
+  /*background: linear-gradient(0deg, rgba(38, 166, 221, 0.9) 30%, rgba(230, 247, 255, 1) 100%);*/
   font-weight: 1000;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
-  box-shadow: 0 0 8px 2px rgba(48, 140, 255, 1); /* 使用渐变阴影 */
+  color: rgba(32, 214, 214, 1);
+  box-shadow:
+      inset 2px 0 0 rgba(32, 214, 214, 1),  /* 左侧阴影 */
+      0 -2px 0 rgba(32, 214, 214, 1), /* 上侧阴影 */
+      0 2px 0 rgba(32, 214, 214, 1);  /* 下侧阴影 */
 }
 
 /* 添加样式来控制箭头图标显示与隐藏 */
@@ -250,6 +261,7 @@ const formatTime = (time) => {
 /* 鼠标悬浮在行上时，显示箭头图标 */
 :deep(.el-table tr:hover) .arrow-icon {
   display: inline-block; /* 显示箭头 */
+  margin-left: -20px;
 }
 
 </style>
