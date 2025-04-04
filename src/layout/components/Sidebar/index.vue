@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'has-logo': showLogo }" :style="{ backgroundColor: sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground }">
+  <div >
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar :class="sideTheme" wrap-class="scrollbar-wrapper">
       <el-menu
@@ -20,10 +20,12 @@
         />
       </el-menu>
     </el-scrollbar>
+    <BubbleAnimation></BubbleAnimation>
   </div>
 </template>
 
 <script setup>
+import BubbleAnimation from "@/layout/components/Sidebar/BubbleAnimation.vue"
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
 import variables from '@/assets/styles/variables.module.scss'
@@ -52,3 +54,4 @@ const activeMenu = computed(() => {
 })
 
 </script>
+
