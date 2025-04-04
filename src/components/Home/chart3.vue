@@ -1,202 +1,113 @@
 <template>
   <div class="container">
-    <span
-        style="padding-left: 5px;background: linear-gradient(to right, rgb(218,45,45) 3%, rgba(254, 254, 254, 0) 90%); ">
-      更新时间：{{ updateTime }}
-    </span>
-    <div class="row death">
-      <span class="label">遇难人数</span>
-      <span class="count">{{ deathCount }}</span>
-      <span class="suffix">人</span>
-    </div>
-    <div class="row injury">
-      <span class="label">受伤人数</span>
-      <span class="count">{{ injuryCount }}</span>
-      <span class="suffix">人</span>
-    </div>
-    <div class="row missing">
-      <span class="label">失联人数</span>
-      <span class="count">{{ missingCount }}</span>
-      <span class="suffix">人</span>
-    </div>
-    <div class="row affectedPopulation">
-      <span class="label">累计受灾人数</span>
-      <span class="affected_count">{{ affectedPopulationCount }}</span>
-      <span class="suffix">人</span>
+    <h2><strong>重点关注</strong><sub>Focus on the indicators</sub><b class="logoline"></b><b class="logoline1"></b><b class="logoline2"></b><b class="logoline3"></b><b class="logoline4"></b></h2>
+    时间区
+    <div class="date-timer">
+      <p>
+        <strong>{{ hours }}</strong>
+        <strong>:</strong>
+        <strong>{{ minutes }}</strong>
+<!--        <strong class="hide">{{ seconds }}</strong>-->
+      </p>
+      <em>{{ weekday }}</em>
+      <ul>
+        <li>{{ year }}</li>
+        <li>{{ month }}</li>
+        <li>{{ day }}</li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, watch } from 'vue';
-// import { getCasualtyStats } from '@/api/system/casualtystats.js'; // 引入之前定义的 API 方法
-import {gettotal} from '@/api/system/casualtystats.js'
-import {getOneData} from"@/api/system/casualtystats.js"
-const props = defineProps(['lastEq'])
+import { ref, onMounted, onUnmounted } from "vue";
 
+// 定义响应式时间变量
+const year = ref("");
+const month = ref("");
+const day = ref("");
+const weekday = ref("");
+const hours = ref("");
+const minutes = ref("");
+const seconds = ref("");
 
-const injuryCount = ref(0);
-const missingCount = ref(0);
-const deathCount = ref(0);
-const affectedPopulationCount = ref(0);
-const updateTime = ref('')
-watch(() => props.lastEq, () => {
-  if (props.lastEq){
-    getOneData(props.lastEq.eqid).then((res) => {
-      // 确保返回的结果包含 data 且是数组类型
-      if (res && res.data && Array.isArray(res.data)) {
-        let totalAffectedPopulation = 0;
+// 定时器 ID
+let timerId = null;
 
-        // 遍历返回的所有记录，累加 affectedPopulation
-        res.data.forEach((item) => {
-          totalAffectedPopulation += item.affectedPopulation || 0;
-        });
+// 更新时间的方法
+const updateTime = () => {
+  const today = new Date();
+  const weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
 
-        // 更新 affectedPopulationCount
-        affectedPopulationCount.value = totalAffectedPopulation;
+  year.value = today.getFullYear() + "年";
+  month.value = (today.getMonth() + 1) + "月";
+  day.value = today.getDate() + "日";
+  weekday.value = weekdays[today.getDay() - 1] || "星期日"; // 防止数组越界
 
-        // 打印调试信息，确保数据正确
-        console.log("Returned data:", res.data);
-        console.log("Total affected population:", totalAffectedPopulation);
-      } else {
-        console.error("Invalid response data:", res);
-      }
-    }).catch((error) => {
-      // 捕获请求失败时的错误
-      console.error("Error fetching data:", error);
-    });
+  let h = today.getHours();
+  let m = today.getMinutes();
+  let s = today.getSeconds();
 
-    gettotal(props.lastEq.eqid).then((res) => {
+  hours.value = h < 10 ? "0" + h : h;
+  minutes.value = m < 10 ? "0" + m : m;
+  seconds.value = s < 10 ? "0" + s : s;
+};
 
-      if (res && Array.isArray(res)) {
-        // 初始化计数器
-        let totalInjury = 0;
-        let totalMissing = 0;
-        let totalDeath = 0;
-
-        // 遍历后端返回的数组，累加各个字段的值
-        res.forEach((item) => {
-          //由于此处处于监听所以对于每次变化的数据都要打印让数据真正被获取到
-          console.log("Item:", item);
-          console.log("Injury count for this item:", item.injuryCount);
-          console.log("Missing count for this item:", item.missingCount);
-          console.log("Death count for this item:", item.deathCount);
-          console.log("最新地震人员伤亡和余震",res)
-          // 确保 item 中的字段存在，并进行累加
-          totalInjury += item.totalInjured || 0;  // 使用 || 以防 item.injuryCount 为 null 或 undefined
-          totalMissing += item.totalMissing || 0;
-          totalDeath += item.totalDeceased || 0;
-        });
-
-        // 更新到前端显示的变量
-        injuryCount.value = totalInjury;
-        missingCount.value = totalMissing;
-        deathCount.value = totalDeath;
-
-        // 更新最新时间
-        // 使用可选链和默认值，防止latestInsertTime为undefined时报错
-        // 检查时间字段并安全访问
-        const firstItem = res[0];
-        console.log("firstItem",firstItem)
-        const submissionDeadlines = res.map(item => item.submissionDeadline).filter(Boolean);
-        console.log("提交时间",submissionDeadlines)
-        if (firstItem && firstItem.submissionDeadline) {
-          // const latestSubmissionDeadline = new Date(Math.max(...submissionDeadlines.map(date => new Date(date))));
-          // updateTime.value = latestSubmissionDeadline.toISOString().replace('T', ' ').substring(0, 19); // 转换为字符串格式
-          updateTime.value = formatDate(firstItem.submissionDeadline);
-          console.log("最新时间",updateTime)
-        } else {
-          updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ');
-          updateTime.value = formatDate( updateTime.value);  // 使用传入的时间字段
-
-
-        }
-
-      }
-
-// 格式化日期为 "2024年09月14日 09:16:36"
-      function formatDate(date) {
-        const d = new Date(date);
-        const year = d.getFullYear();
-        const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
-        const day = d.getDate().toString().padStart(2, '0');
-        const hours = d.getHours().toString().padStart(2, '0');
-        const minutes = d.getMinutes().toString().padStart(2, '0');
-        const seconds = d.getSeconds().toString().padStart(2, '0');
-        return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-      }
-
-
-  //     if (res) {
-  //       injuryCount.value = res.injuryCount
-  //       missingCount.value = res.missingCount
-  //       deathCount.value = res.deathCount
-  //       updateTime.value = res.latestInsertTime.replace('T', ' ')
-  //     } else {
-  //       updateTime.value = props.lastEq.occurrenceTime.replace('T', ' ')
-  //     }
-    })
-
-
-
-  }
+// 组件挂载后启动定时器
+onMounted(() => {
+  updateTime(); // 先执行一次
+  timerId = setInterval(updateTime, 1000);
 });
 
+// 组件卸载时清除定时器
+onUnmounted(() => {
+  clearInterval(timerId);
+});
 </script>
 
+
 <style scoped>
-.container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  font-size: 13px;
-  padding: 2px 10px;
+.container{height: 88%;
+  width: 87%;}
+/*时间区*/
+.date-timer{ text-align: center; position: absolute; left:165px; top:76px;}
+.date-timer strong { display:inline-block; font-family:'electronicFont';font-size:36px; padding-bottom:7px; margin-top:-3px;}
+.date-timer em {display: block; }
+.date-timer ul {font-family:'electronicFont'; font-size: 12px; margin-top:4px;}
+.date-timer ul li { display:inline-block;}
+
+/*淡入*/
+.date-timer{ -webkit-animation:fadeInUp 2.2s .2s ease both;}
+@-webkit-keyframes fadeInUp{
+  0%{opacity:0;
+    -webkit-transform:translateY(20px)}
+  100%{opacity:1;
+    -webkit-transform:translateY(0)}
 }
 
-.row {
-  margin: 0.65vh 0;
-  height: 3.2vh;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  padding-left: 5px; /* Move text 10px to the right */
-  border-left-width: 0.1vw; /* Add a border on the left */
-  border-left-style: solid; /* Style the left border */
-  position: relative;
+
+/* 系统LOGO - 主LOGO - 副LOGO - 动画 */
+h1 { font-family: "microsoft yahei"; font-size: 18px; text-align: center;  padding: 12px 0 16px 0; display: block; background: url("@/assets/front_page/bg01top.png") center bottom no-repeat;}
+h2 { font-size:24px; font-weight: normal;position: absolute; left:60px; top:81px; padding-bottom: 20px; }
+h2 sub { position: absolute; left: 5px; bottom: -27px; z-index: 2; display: block;  width: 92px; height: 8px; background: url("@/assets/front_page/logofont.png") 50% 50% no-repeat; text-indent: -500px;}
+.logoline { position: absolute; left: 15%; z-index: 2;top: 35px; width: 206px; height:2px; background: url("@/assets/front_page/logoline.png") 50% 50% no-repeat; display: block;}
+.logoline1 { position: absolute; z-index: 3; left: -30px; top: -34px; width: 41px; height:29px; background: url("@/assets/front_page/logoline1.png") 50% 50% no-repeat; display: block;}
+.logoline2 { position: absolute; z-index: 3; left: 55px; top:58px; width: 152px; height:26px; background: url("@/assets/front_page/logoline2.png") 50% 50% no-repeat; display: block;}
+.logoline3 { position: absolute; z-index: 1; left: -10px; top: -41px; width: 121px; height:121px; background: url("@/assets/front_page/logoline3.png") 50% 50% no-repeat; display: block;}
+h2 strong { font-weight:normal; z-index: 3; position: absolute; writing-mode: vertical-lr;-webkit-animation-iteration-count: infinite;  -webkit-animation-name: bluePulse; -webkit-animation-duration:2s;}
+
+
+/*旋转*/
+.logoline3{-webkit-animation-duration: 2s; -webkit-animation-iteration-count: infinite;  -webkit-animation-name:forotate ; -webkit-animation-duration: 6000ms; }
+@-webkit-keyframes forotate{
+  from{
+    -webkit-transform:rotate(-360deg);
+    opacity: .9;
+  }
+  to{
+    -webkit-transform:rotate(0);
+    opacity: 1;
+  }
 }
 
-.count {
-  font-size: 25px; /* Larger font size for the numbers */
-  color: rgb(248, 150, 150);
-  margin-left: 4vw; /* Pushes count to the right */
-}
-
-.affected_count {
-  font-size: 25px; /* Larger font size for the numbers */
-  color: rgb(248, 150, 150);
-  margin-left: 2.5vw; /* Pushes count to the right */
-}
-.suffix {
-  margin-left: 10px; /* Space between count and suffix */
-}
-
-.injury {
-  background: linear-gradient(to right, rgba(142, 7, 7, 0.5) 0%, rgba(254, 254, 254, 0) 70%);
-  border-left-color: rgba(251, 71, 71, 0.5); /* Red border */
-}
-
-.missing {
-  background: linear-gradient(to right, rgba(145, 131, 12, 0.5) 30%, rgba(255, 235, 47, 0) 70%);
-  border-left-color: rgba(252, 230, 5, 0.5); /* Yellow border */
-}
-
-.death {
-  background: linear-gradient(to right, rgba(24, 8, 8, 0.5) 30%, rgba(0, 0, 0, 0) 70%);
-  border-left-color: rgba(9, 0, 0, 0.5); /* Black border */
-}
-.affectedPopulation{
-  background: linear-gradient(to right, rgba(13, 72, 129, 0.5) 30%, rgba(0, 0, 0, 0) 70%);
-  border-left-color: rgba(20, 135, 227, 0.5);
-}
 </style>

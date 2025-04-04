@@ -1,781 +1,518 @@
 <template>
-  <div>
-    <el-carousel :autoplay="false" :interval="5000" :initial-index="initialIndex" style="height: 100%;   left: 4px;" indicator-position="none" :key="carouselKey">
-      <!-- 余震数量图表 -->
-      <el-carousel-item style="height: 100%;">
-        <div class="chart-container" style="height: 90%;">
-          <img src="@/assets/最新地震余震情况.png" alt="最新地震余震情况" style="width: 127%; height: auto;">
-          <span
-              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
-            更新时间：{{ updateTime }}
-          </span>
-
-          <div ref="aftershockChart" class="chart"></div> <!-- 余震数量图表容器 -->
-        </div>
-      </el-carousel-item>
-
-      <!-- 各区县人口总数表 -->
-      <el-carousel-item>
-        <div class="chart-container population-chart-container" >
-          <img src="@/assets/各区县人口.png" alt="各区县人口" style="width: 127%; height: auto;">
-          <span
-              style="padding-left: 5px;margin-left: 3%; background: linear-gradient(to right, rgb(218, 45, 45) 0%, rgba(254, 254, 254, 0) 90%); color: white; font-size: 13px;">
-            更新时间：{{ populationDataChartUpdateTime }}
-          </span>
-          <div ref="populationDataChart" class="chart"></div> <!-- 人口数据图表容器 -->
-        </div>
-      </el-carousel-item>
-
-      <el-carousel-item>
-        <div class="chart-container">
-          <img src="@/assets/隐患点.png" alt="隐患点" style="width: 127%; height: auto;">
-
-          <!-- 风险点信息 -->
-          <div v-if="riskPointData.length > 0" class="riskPoint" @mouseenter="pauseSlide" @mouseleave="resumeSlide" style="margin-top: -20px">
-            <div class="button-top" style="margin-bottom: 5px;">
-              <span @click="slideUp" class="white-text">▲</span>
-            </div>
-
-            <div class="container" :style="{ transform: `translateY(${translateY.value}px)`, transition: 'transform 0.5s ease' }">
-              <el-col>
-                <div class="newColCommon">
-                  <span class="label">隐患点地点：</span>{{ location || '暂无数据' }}
-                </div>
-              </el-col>
-              <el-col>
-                <div class="newColCommon">
-                  <span class="label">隐患点类型：</span>{{ riskPointType || '暂无数据' }}
-                </div>
-              </el-col>
-              <el-col>
-                <div class="newColCommon">
-                  <span class="label">与震中距离：</span>{{ distance ? distance + ' 千米' : '暂无数据' }}
-                </div>
-              </el-col>
-              <el-col>
-                <div class="newColCommon">
-                  <span class="label">险情等级：</span>{{ riskLevel || '暂无数据' }}
-                </div>
-              </el-col>
-              <el-col>
-                <div class="newColCommon">
-                  <span class="label">稳定性：</span>{{ stability || '暂无数据' }}
-                </div>
-              </el-col>
-            </div>
-
-            <div class="button-bottom" style="margin-top: 5px;">
-              <span @click="slideDown" class="white-text">▼</span>
-            </div>
-          </div>
-
-          <!-- 如果没有数据，显示暂无数据 -->
-          <div v-else class="no-data">
-            <div>与震中距离：暂无数据</div>
-            <div>隐患点地点：暂无数据</div>
-            <div>隐患点类型：暂无数据</div>
-            <div>险情等级：暂无数据</div>
-            <div>稳定性：暂无数据</div>
+  <div class="big-data-view">
+    <!-- Hot Topics and Keyword Cloud Section -->
+    <div class="box">
+      <div class="box-container">
+        <!-- Left: Hot Topics List -->
+        <div class="topics-container">
+          <div class="tit02 text-b">热门话题榜</div>
+          <div class="huati">
+            <ul>
+              <li v-for="(topic, index) in topics" :key="index">
+                <span class="rank">{{ index + 1 }}.</span>
+                <span class="topic-name">{{ topic.name }}</span>
+                <span class="change" :class="{ 'up': topic.change.startsWith('↑'), 'down': topic.change.startsWith('↓') }">
+                  {{ topic.change }}
+                </span>
+              </li>
+            </ul>
           </div>
         </div>
-      </el-carousel-item>
 
+        <!-- Right: Keyword Cloud -->
+        <div class="cloud-container">
+          <div class="text-b tit02 cloud-title">关键词 — 云</div>
+          <div class="tagcloud" ref="tagcloud">
+            <a v-for="(keyword, index) in keywords"
+               :key="index"
+               :class="keyword.class"
+               href="#"
+               @mouseenter="handleMouseEnter(index)"
+               @mouseleave="handleMouseLeave"
+               :style="{
+           transform: `translate(${keyword.x}px, ${keyword.y}px) scale(${keyword.scale})`,
+           opacity: keyword.opacity,
+           zIndex: keyword.zIndex,
+           transition: hoveredIndex === index ? 'transform 0.3s ease-out' : 'all 0.3s ease'
+         }">
+              {{ keyword.text }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    </el-carousel>
+    <!-- 在模板底部添加调试信息 -->
+    <div v-if="false" class="debug-info">
+      <div v-for="(pos, index) in ballPositions" :key="index">
+        球{{ index }}: X={{ Math.round(pos.x) }}, Y={{ Math.round(pos.y) }}
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { onMounted, ref, watch, onBeforeUnmount } from 'vue';
-import * as echarts from 'echarts';
-import { getAftershockMagnitude, getPopulationData, getRiskPoint } from "@/api/system/statistics.js";
+<script>
+import { ref, onMounted, onUnmounted } from "vue";
 
-const props = defineProps(['lastEq']);
-const aftershockChart = ref(null);
-const populationDataChart = ref(null);
-const updateTime = ref('');
-const eqoccurrenceTime = ref('');
-const populationDataChartUpdateTime = ref('')
+export default {
+  setup() {
+    const topics = ref([
+      { name: "数据分析", change: "↑2167" },
+      { name: "云存储", change: "↑2167" },
+      { name: "视觉分析", change: "↓2167" },
+      { name: "海量词库", change: "↓2167" },
+      { name: "云词典", change: "↓2167" },
+    ]);
 
-// 避难点
-const location = ref('');
-const riskPointType = ref('');
-const distance = ref('');
-const riskLevel = ref('');
-const stability = ref('');
-const translateY = ref(0); // 用于动画
-const currentIndex = ref(0); // 当前显示的隐患点索引
-const riskPointData = ref([]); // 存储从 API 获取的隐患点数据
-const carouselKey = ref(0)
-let myAftershockChart = null; // 余震图表实例
-let myPopulationDataChart = null; // 人口数据图表实例
-
-// 控制初始展示的索引
-const initialIndex = ref(0); // 当前展示的隐患点索引
+    const tagcloud = ref(null);
 
 
-// 初始化余震图表
-// 注册一个自定义图形（斜角柱状图）
-const myShape = {
-  x: 0,
-  y: 0,
-  width: 10, //柱宽
-};
+    // 初始化关键词数据
+    const keywords = ref([
+      { text: "大数据", class: "b01 co01", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "云计算", class: "b02 co02", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "数据分析", class: "b03 co05", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "人工智能", class: "b04 co02", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "机器学习", class: "b03 co05", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "深度学习", class: "b02 co03", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "神经网络", class: "b01 co04", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "数据挖掘", class: "b04 co01", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "自然语言", class: "b03 co02", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+      { text: "计算机视觉", class: "b02 co05", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
+    ]);
 
-// 绘制斜角柱状图的左侧面
-const InclinedRoofColumn = echarts.graphic.extendShape({
-  shape: myShape,
-  buildPath: function (ctx, shape) {
-    const xAxisPoint = shape.xAxisPoint;
-    const c0 = [shape.x, shape.y - 6]; // 降低柱状图左侧高度，以控制倾斜角度与方向
-    const c1 = [shape.x - 10, shape.y];
-    const c2 = [xAxisPoint[0] - 10, xAxisPoint[1]];
-    const c3 = [xAxisPoint[0], xAxisPoint[1]];
-    ctx
-        .moveTo(c0[0], c0[1])
-        .lineTo(c1[0], c1[1])
-        .lineTo(c2[0], c2[1])
-        .lineTo(c3[0], c3[1])
-        .closePath();
-  },
-});
+    // 初始化粒子位置和速度
+    const initParticles = () => {
+      if (!tagcloud.value) return;
 
-// 注册斜角柱状图形
-echarts.graphic.registerShape('InclinedRoofColumn', InclinedRoofColumn);
+      const containerWidth = tagcloud.value.clientWidth;
+      const containerHeight = tagcloud.value.clientHeight;
 
-// 初始化余震图表
-const initAftershockChart = () => {
-  if (!aftershockChart.value) return; // 检查图表容器是否存在
+      keywords.value.forEach((particle, index) => {
+        // 随机初始位置
+        particle.x = Math.random() * (containerWidth - 100);
+        particle.y = Math.random() * (containerHeight - 100);
 
-  const option = {
-    tooltip: {
-      textStyle:{
-        color: '#15ecf4'
-      },
-      trigger: 'axis',
-      axisPointer: {
-        lineStyle: {
-          color: '#15ecf4'
-        }
-      },
-      backgroundColor: 'rgba(0,0,0,.8)',
-      extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
-      formatter: (params) => {
-        return params.map(item => `${item.marker}${item.name}: ${(item.value).toFixed(2)} 次`).join('<br/>');
-      },
-    },
-    grid: {
-      left: 20,
-      right: 20,
-      top: 50,
-      bottom: 40,
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      data: ['3-3.9级', '4-4.9级', '5-5.9级', '     6.0级及以上'],
-      axisLabel: {
-        color: '#ffffff',
-        interval: 0, // 显示所有标签
+        // 随机初始速度
+        particle.vx = (Math.random() - 0.5) * 0.5;
+        particle.vy = (Math.random() - 0.5) * 0.5;
 
-      },
-      axisLine: {
-        lineStyle: {
-          color: '#8AC4FF',
-        },
-      },
-      axisTick: {
-        show: true,
-        inside: true,
-        length: 2,
-      },
-      splitLine: {
-        show: false,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        fontSize: 11,
-        color: '#8AC4FF',
-        formatter: (value) => value.toFixed(0) + ' 次',
-      },
-      axisTick: {
-        show: true,
-        inside: true,
-        length: 2,
-        lineStyle: {
-          color: '#8AC4FF',
-        },
-      },
-      splitLine: {
-        show: false,
-      },
-    },
-    series: [
-      {
-        type: 'custom', // 使用自定义图形
-        renderItem: (params, api) => {
-          const location = api.coord([api.value(0), api.value(1)]);
-          const point = api.coord([api.value(0), 0]);
-          return {
-            type: 'group',
-            children: [
-              {
-                type: 'InclinedRoofColumn', // 使用刚才注册的自定义图形
-                shape: {
-                  api,
-                  xValue: api.value(0),
-                  yValue: api.value(1),
-                  x: location[0] + 5, // 控制柱状图顶部偏移位置，使其居中
-                  y: location[1],
-                  xAxisPoint: [point[0] + 5, point[1]], // 控制柱状图底部偏移位置，使其居中
-                },
-                style: {
-                  fill: echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: '#438BFD' },
-                    { offset: 0.5, color: '#13B0D7' },
-                    { offset: 1, color: '#13B0D7' },
-                  ]),
-                },
-              },
-              {
-                type: 'image',
-                x: location[0] - 16, // 控制图片位置，将其添加到柱状图正中间
-                scaleX: 1,
-                y: location[1] - 21, // 控制图片位置，将其添加到柱状图最顶端
-                style: {
-                  image: '', // barHeader 为 UI 给出的发光源切图
-                },
-              },
-            ],
-          };
-        },
-        data: [0, 0, 0, 0], // 初始数据
-      },
-    ],
-  };
-
-  // 初始化 ECharts 实例
-  myAftershockChart = echarts.init(aftershockChart.value);
-  myAftershockChart.setOption(option);
-};
-
-
-// 更新余震图表
-const updateAftershockChart = (data) => {
-  if (!myAftershockChart) return; // 检查图表实例是否存在
-
-  // 确保传入的 data 中的每个值都具有默认值，防止 undefined 或 null
-  const updatedData = [
-    data.magnitude_3_3_9 || 0, // 3-3.9级余震数量
-    data.magnitude_4_4_9 || 0, // 4-4.9级余震数量
-    data.magnitude_5_5_9 || 0, // 5-5.9级余震数量
-    data.magnitude_6_plus || 0 // 6.0级及以上余震数量
-  ];
-
-  // 只更新 series 中的数据
-  myAftershockChart.setOption({
-    series: [{
-      name: '余震数量',
-      data: updatedData
-    }]
-  });
-};
-
-
-// 处理余震数据
-
-const handleAftershockData = () => {
-  if (props.lastEq) {
-    getAftershockMagnitude(props.lastEq.eqid).then((res) => {
-      // 更新余震图表
-      updateAftershockChart(res);
-      // console.log("getAftershockMagnitude", res);
-
-      if(res.submission_deadline) {
-        updateTime.value = res.submission_deadline; // 更新时间
-      }
-      else{
-        updateTime.value =eqoccurrenceTime.value; //地震时间
-
-      }
-      updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
-
-      // 判断是否有有效余震数据
-      const hasAftershockData = !!(res.magnitude_3_3_9 || res.magnitude_4_4_9 || res.magnitude_5_5_9);
-
-      // 设置初始展示的图表
-      initialIndex.value = hasAftershockData ? 0 : 1;
-      // console.log("initialIndex 值:", initialIndex.value);
-
-      carouselKey.value++; // 更新轮播图
-
-      nextTick(() => {
-        // 初始化图表
-        initAftershockChart();
-        initPopulationDataChart();
-        // 更新余震图表并同步更新流光柱状图
-        updateAftershockChart(res);
-
+        // 初始目标位置就是当前位置
+        particle.targetX = particle.x;
+        particle.targetY = particle.y;
       });
-    });
-  } else {
-    updateTime.value = new Date().toLocaleString(); // 设置当前时间
-    updateTime.value = formatDate(  updateTime.value);  // 更改时间格式
-    initialIndex.value = 1; // 如果没有lastEq，默认展示静态图
-  }
-};
+    };
+
+    const hoveredIndex = ref(null);
+    const hoverStartTime = ref(0);
+    const isAttracting = ref(false);
+    const animationFrame = ref(null);
 
 
-// 存储人口数据
-const populationData = ref({});
+    // 存储每个球的位置信息
+    const ballPositions = ref([]);
 
-// 处理人口数据
-const handlePopulationData = () => {
-  getPopulationData().then((res) => {
-    // console.log("后端返回的人口数据:", res); // 查看实际返回的数据
+    // 更新球的位置信息
+    const updateBallPositions = () => {
+      if (!tagcloud.value) return;
 
-    // 确保返回数据是有效的，并且 data 字段存在
-    if (res && res.data && Array.isArray(res.data) && res.data.length > 0) {
-      // 提取 `area` 和 `totalPopulation`
-      const xAxisData = res.data.map(item => item.area);  // 存储区域名
-      const seriesData = res.data.map(item => item.totalPopulation);  // 存储人口数
+      const containerRect = tagcloud.value.getBoundingClientRect();
+      ballPositions.value = keywords.value.map(ball => {
+        return {
+          x: ball.x + containerRect.left,
+          y: ball.y + containerRect.top,
+          width: ball.width,
+          height: ball.height
+        };
+      });
+    };
 
-      populationData.value = { xAxisData, seriesData }; // 格式化存储数据
-      // console.log("提取后的数据:", populationData.value);
+    // 更新粒子位置
+    const updateParticles = () => {
+      if (!tagcloud.value) return;
 
-      populationDataChartUpdateTime.value = res.data[0].updateTime; // 更新时间
-      populationDataChartUpdateTime.value = formatDate(  populationDataChartUpdateTime.value);  // 更改时间格式
-      initPopulationDataChart(); // 数据加载完成后初始化图表
-    } else {
-      console.error("返回的数据格式不正确或数据为空", res);
-    }
-  }).catch(error => {
-    console.error("获取人口数据时出错:", error); // 捕获并处理错误
-  });
-};
+      const containerWidth = tagcloud.value.clientWidth;
+      const containerHeight = tagcloud.value.clientHeight;
+      const attractionForce = 0.03; // 吸引力系数
+      const repulsionForce = 30;    // 排斥力系数
+      const damping = 0.95;         // 阻尼系数
+      const attractionDuration = 3000; // 3秒吸引时间
 
+      // 如果有悬停的元素
+      if (hoveredIndex.value !== null) {
+        const hoveredParticle = keywords.value[hoveredIndex.value];
+        const currentTime = Date.now();
 
-// 初始化人口数据图表
-const initPopulationDataChart = () => {
-  // console.log("人口数据图表容器:", populationDataChart.value); // 调试容器是否存在
-  // console.log("人口数据:", populationData.value); // 调试人口数据
-
-  if (!populationDataChart.value || !populationData.value) return;
-
-  const { xAxisData, seriesData } = populationData.value; // 解构提取数据
-
-  // 注册自定义的倾斜屋顶柱状图
-  const myShape = {
-    x: 0,
-    y: 0,
-    width: 10, // 柱宽
-  };
-
-  const InclinedRoofColumn = echarts.graphic.extendShape({
-    shape: myShape,
-    buildPath: function (ctx, shape) {
-      const xAxisPoint = shape.xAxisPoint;
-      const c0 = [shape.x, shape.y - 6]; // 降低柱状图左侧高度以控制倾斜角度与倾斜方向
-      const c1 = [shape.x - 10, shape.y];
-      const c2 = [xAxisPoint[0] - 10, xAxisPoint[1]];
-      const c3 = [xAxisPoint[0], xAxisPoint[1]];
-      ctx
-          .moveTo(c0[0], c0[1])
-          .lineTo(c1[0], c1[1])
-          .lineTo(c2[0], c2[1])
-          .lineTo(c3[0], c3[1])
-          .closePath();
-    },
-  });
-  echarts.graphic.registerShape('InclinedRoofColumn', InclinedRoofColumn);
-
-  // 初始化echarts实例
-  const myPopulationDataChart = echarts.init(populationDataChart.value);
-
-  // 定义固定的渐变色
-  const gradient = echarts.graphic.LinearGradient(0, 0, 0, 1, [
-    { offset: 0, color: '#438BFD' }, // 上端颜色
-    { offset: 0.5, color: '#13B0D7' }, // 中间颜色
-    { offset: 1, color: '#13B0D7' },  // 下端颜色
-  ]);
-
-  const option = {
-    tooltip: {
-      textStyle:{
-        color: '#15ecf4'
-      },
-      trigger: 'axis',
-      axisPointer: {
-        lineStyle: {
-          color: '#15ecf4'
+        // 如果是刚开始悬停，记录时间
+        if (hoverStartTime.value === 0) {
+          hoverStartTime.value = currentTime;
+          isAttracting.value = true;
         }
-      },
-      backgroundColor: 'rgba(0,0,0,.8)',
-      extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
-      formatter: (params) => {
-        // 在 tooltip 中为每个数据值前添加颜色圆点，以万人为单位
-        return params.map(item => `${item.marker}${item.name}: ${(item.value / 10000).toFixed(2)} 万人`).join('<br/>');
+
+        // 计算已经吸引的时间
+        const elapsedTime = currentTime - hoverStartTime.value;
+
+        keywords.value.forEach((particle, index) => {
+          if (index === hoveredIndex.value) {
+            // 悬停的元素保持原位并放大
+            particle.targetX = particle.x;
+            particle.targetY = particle.y;
+            particle.vx = 0;
+            particle.vy = 0;
+            particle.scale = 1.3; // 放大30%
+            particle.opacity = 1;
+            particle.zIndex = 10;
+          } else if (isAttracting.value && elapsedTime < attractionDuration) {
+            // 其他元素在3秒内缓慢靠拢
+            const progress = elapsedTime / attractionDuration;
+            const easeProgress = Math.sin(progress * Math.PI / 2); // 缓动效果
+
+            // 计算与悬停元素的方向
+            const dx = hoveredParticle.x - particle.x;
+            const dy = hoveredParticle.y - particle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // 设置目标位置为悬停元素周围的位置（形成圆形布局）
+            const angle = Math.atan2(dy, dx);
+            const targetDistance = 150 + (index % 3) * 30; // 不同距离形成层次
+            const targetAngle = angle + (index % 5) * 0.2; // 稍微分散角度
+
+            particle.targetX = hoveredParticle.x - Math.cos(targetAngle) * targetDistance;
+            particle.targetY = hoveredParticle.y - Math.sin(targetAngle) * targetDistance;
+
+            // 应用缓动效果
+            particle.targetX = particle.x + (particle.targetX - particle.x) * easeProgress * 0.1;
+            particle.targetY = particle.y + (particle.targetY - particle.y) * easeProgress * 0.1;
+
+            particle.scale = 1 - 0.2 * easeProgress; // 稍微缩小
+            particle.opacity = 0.8;
+            particle.zIndex = 1;
+          } else {
+            // 3秒后或不再吸引时恢复随机运动
+            isAttracting.value = false;
+            if (Math.random() < 0.01) {
+              particle.targetX = Math.random() * (containerWidth - 100);
+              particle.targetY = Math.random() * (containerHeight - 100);
+            }
+            particle.scale = 1;
+            particle.opacity = 0.8;
+            particle.zIndex = 1;
+          }
+        });
+
+        // 如果超过3秒，停止吸引状态
+        if (elapsedTime >= attractionDuration) {
+          isAttracting.value = false;
+        }
+      } else {
+        // 没有悬停元素时，恢复随机运动
+        hoverStartTime.value = 0;
+        isAttracting.value = false;
+
+        keywords.value.forEach((particle, index) => {
+          // 随机改变目标位置
+          if (Math.random() < 0.01) {
+            particle.targetX = Math.random() * (containerWidth - 100);
+            particle.targetY = Math.random() * (containerHeight - 100);
+          }
+
+          particle.scale = 1;
+          particle.opacity = 0.8;
+          particle.zIndex = 1;
+        });
       }
-    },
-    grid: {
-      left: 13,
-      right: 30,
-      top: 30,
-      bottom: 50,
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      data: xAxisData,
-      axisLabel: {
-        color: '#ffffff', // 设置 X 轴标签的颜色为白色
-        formatter: (value) => value.split("").join("\n")
-      },
-      axisTick: {
-        alignWithLabel: true,
-        inside: true,
-        length: 2,
-      },
-      splitLine: {
-        show: false,
-      },
-      axisLine: {
-        lineStyle: {
-          fontSize: 6,
-          color: '#8AC4FF',
-        },
-      },
-    },
-    yAxis: {
-      type: 'value',
-      axisTick: {
-        show: true,
-        inside: true,
-        length: 2,
-        lineStyle: {
-          color: '#8AC4FF',
-        },
-      },
-      axisLabel: {
-        fontSize: 11,
-        color: '#8AC4FF',
-        formatter: function(value) {
-          return (value / 10000).toFixed(0) + ' 万人'; // 转换为万人单位并保留两位小数
-        },
-      },
-      splitLine: {
-        show: false,
-      },
-    },
-    series: [
-      {
-        type: 'custom',
-        renderItem: (params, api) => {
-          const location = api.coord([api.value(0), api.value(1)]);
-          const point = api.coord([api.value(0), 0]);
 
-          return {
-            type: 'group',
-            children: [
-              {
-                type: 'InclinedRoofColumn', // 使用自定义图形
-                shape: {
-                  api,
-                  xValue: api.value(0),
-                  yValue: api.value(1),
-                  x: location[0] + 5, // 控制柱状图顶部偏移位置，使居中
-                  y: location[1],
-                  xAxisPoint: [point[0] + 5, point[1]], // 控制柱状图底部偏移位置，使居中
-                },
-                style: {
-                  fill: gradient,  // 设置静态渐变色
-                  shadowColor: 'rgba(0, 0, 0, 0.3)', // 设置阴影效果
-                  shadowBlur: 10, // 模糊阴影
-                  shadowOffsetX: 3,
-                  shadowOffsetY: 3,
-                },
-              },
-              // 添加发光效果（如果需要）
-              {
-                type: 'image',
-                x: location[0] - 16, // 控制图片位置，将其添加到柱状图正中间
-                scaleX: 1,
-                y: location[1] - 21, // 控制图片位置，将其添加到柱状图最顶端
-                style: {
-                  image: "", // 替换成实际的图片路径
-                },
-              },
-            ],
-          };
-        },
-        data: seriesData, // 使用原数据
-        animationDuration: 2000, // 设置动画的时长，单位是毫秒
-        animationEasing: 'easeOutQuart', // 设置动画的缓动效果
-        animationDelay: (idx) => idx * 300, // 设置每个柱状图动画延迟，形成逐一上升的效果
-      },
-    ],
-  };
+      // 碰撞检测和响应（保持原有代码）
+      for (let i = 0; i < keywords.value.length; i++) {
+        for (let j = i + 1; j < keywords.value.length; j++) {
+          const p1 = keywords.value[i];
+          const p2 = keywords.value[j];
 
-  myPopulationDataChart.setOption(option);
+          const dx = p2.x - p1.x;
+          const dy = p2.y - p1.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          const radius1 = Math.max(p1.width, p1.height) / 2;
+          const radius2 = Math.max(p2.width, p2.height) / 2;
+          const minDist = radius1 + radius2;
+
+          if (distance < minDist) {
+            const angle = Math.atan2(dy, dx);
+            const force = (minDist - distance) * 0.5;
+
+            const fx = Math.cos(angle) * force;
+            const fy = Math.sin(angle) * force;
+
+            p1.vx -= fx;
+            p1.vy -= fy;
+            p2.vx += fx;
+            p2.vy += fy;
+          }
+        }
+      }
+
+      // 更新所有粒子的位置
+      keywords.value.forEach(particle => {
+        // 如果不是悬停的球或者不在吸引状态，才计算移动
+        if (!isAttracting.value || hoveredIndex.value === null ||
+            keywords.value.indexOf(particle) !== hoveredIndex.value) {
+          // 计算朝向目标位置的力
+          const dx = particle.targetX - particle.x;
+          const dy = particle.targetY - particle.y;
+
+          // 应用力
+          particle.vx += dx * 0.01;
+          particle.vy += dy * 0.01;
+
+          // 应用阻尼
+          particle.vx *= damping;
+          particle.vy *= damping;
+
+          // 边界检查
+          const radius = Math.max(particle.width, particle.height) / 2;
+          if (particle.x < radius) {
+            particle.x = radius;
+            particle.vx *= -0.5;
+          }
+          if (particle.x > containerWidth - radius) {
+            particle.x = containerWidth - radius;
+            particle.vx *= -0.5;
+          }
+          if (particle.y < radius) {
+            particle.y = radius;
+            particle.vy *= -0.5;
+          }
+          if (particle.y > containerHeight - radius) {
+            particle.y = containerHeight - radius;
+            particle.vy *= -0.5;
+          }
+
+          // 更新位置
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+        }
+      });
+
+      updateBallPositions();
+
+      animationFrame.value = requestAnimationFrame(updateParticles);
+    };
+
+    // 鼠标进入处理
+    const handleMouseEnter = (index) => {
+      hoveredIndex.value = index;
+
+      // 立即停止被悬停球的运动
+      if (keywords.value[index]) {
+        keywords.value[index].vx = 0;
+        keywords.value[index].vy = 0;
+        keywords.value[index].targetX = keywords.value[index].x;
+        keywords.value[index].targetY = keywords.value[index].y;
+      }
+    };
+
+    // 鼠标离开处理
+    const handleMouseLeave = () => {
+      hoveredIndex.value = null;
+      hoverStartTime.value = 0;
+      isAttracting.value = false;
+    };
+
+    onMounted(() => {
+      initParticles();
+      animationFrame.value = requestAnimationFrame(updateParticles);
+
+      // 窗口大小改变时重新初始化
+      window.addEventListener('resize', initParticles);
+    });
+
+    onUnmounted(() => {
+      cancelAnimationFrame(animationFrame.value);
+      window.removeEventListener('resize', initParticles);
+    });
+
+    return {
+      topics,
+      keywords,
+      tagcloud,
+      handleMouseEnter,
+      handleMouseLeave,
+      ballPositions // 暴露位置信息供调试
+    };
+  },
 };
-
-
-// 避难点
-// 获取隐患点数据
-const handleRiskPoint = () => {
-  getRiskPoint(props.lastEq.eqid).then((res) => {
-    // console.log("handleRiskPoint", res); // 打印整个响应数据
-
-    if (res && res.data && res.data.length > 0) {
-      riskPointData.value = res.data; // 将数据存入数组
-      updateRiskPointInfo(); // 更新初始隐患点数据
-    } else {
-      console.warn("没有找到隐患点数据", res.data);
-    }
-  }).catch((error) => {
-    console.error("获取隐患点数据时出错:", error);
-  });
-};
-
-// 更新显示的隐患点信息
-const updateRiskPointInfo = () => {
-  const currentRiskPoint = riskPointData.value[currentIndex.value];
-
-  if (currentRiskPoint) {
-    location.value = currentRiskPoint.location;
-    riskPointType.value = currentRiskPoint.riskPointType;
-    distance.value = currentRiskPoint.distance;
-    riskLevel.value = currentRiskPoint.riskLevel;
-    stability.value = currentRiskPoint.stability;
-  }
-};
-
-// 滑动显示下一个隐患点
-const slideRiskPoints = () => {
-  const totalPoints = riskPointData.value.length;
-  if (totalPoints > 0) {
-    translateY.value = -(currentIndex.value * 70); // 每个隐患点占用 70px 高度
-
-    // 更新当前隐患点数据
-    updateRiskPointInfo();
-
-    // 如果到了最后一条数据，重置为第一条
-    if (currentIndex.value === totalPoints - 1) {
-      setTimeout(() => {
-        currentIndex.value = 0;
-        translateY.value = 0;
-        updateRiskPointInfo();
-      }, 500);
-    } else {
-      currentIndex.value++;
-    }
-  }
-};
-
-function getEqInfo(eqid) {
-  getEqListById({id: eqid}).then(res => {
-    eqoccurrenceTime.value=res.occurrenceTime
-  })
-}
-// 控制滚动的定时器
-let slideInterval = null;
-
-// 启动轮播
-const startSlide = () => {
-  slideInterval = setInterval(slideRiskPoints, 4000);
-};
-
-// 暂停滚动
-const pauseSlide = () => {
-  clearInterval(slideInterval);
-};
-
-// 恢复滚动
-const resumeSlide = () => {
-  startSlide();
-};
-
-const slideUp = () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value--;
-  } else {
-    currentIndex.value = riskPointData.value.length - 1; // 到达顶部后回到最后一个
-  }
-  updateRiskPointInfo();
-};
-
-const slideDown = () => {
-  if (currentIndex.value < riskPointData.value.length - 1) {
-    currentIndex.value++;
-  } else {
-    currentIndex.value = 0; // 到达底部后回到第一个
-  }
-  updateRiskPointInfo();
-};
-
-// 监听lastEq属性的变化，调用处理余震数据的函数
-watch(() => props.lastEq,() => {
-  handleAftershockData();
-  handleRiskPoint();
-  getEqInfo(props.lastEq.eqid)
-});
-
-// 窗口大小调整时重新调整图表大小
-const resizeChart = () => {
-  if (myAftershockChart) {
-    myAftershockChart.resize(); // 调整余震图表大小
-  }
-  if (myPopulationDataChart) {
-    myPopulationDataChart.resize(); // 调整人口数据图表大小
-  }
-};
-
-// 组件挂载后执行初始化
-import { nextTick } from 'vue';
-import {getEqById, getEqListById} from "@/api/system/eqlist.js";
-
-onMounted(async () => {
-  await nextTick(); // 等待 DOM 更新
-  initAftershockChart(); // 初始化余震图表
-  initPopulationDataChart(); // 初始化人口数据图表
-  handleAftershockData(); // 处理余震数据
-  handlePopulationData(); // 处理人口数据
-  window.addEventListener('resize', resizeChart); // 监听窗口大小变化
-  resumeSlide();
-  // console.log(props.lastEq.eqid,"props.lastEq.eqid")
-  console.log(props.lastEq)
-  // getEqInfo(props.lastEq.eqid)
-  // getEqInfo()
-});
-
-// 组件卸载前移除监听器
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', resizeChart); // 移除监听器
-  clearInterval(slideInterval); // 组件卸载前清除定时器
-});
-
-
-function formatDate(date) {
-  // 如果 date 为 null 或空字符串，返回 null 或其他适合的空值
-  if (!date) {
-    return null;  // 或者返回 ''，取决于你需要的返回值
-  }
-
-  const d = new Date(date);
-
-  // 如果 date 无法解析为有效日期，返回 null 或其他默认值
-  if (isNaN(d.getTime())) {
-    return null;  // 或者返回 '无效日期'
-  }
-
-  const year = d.getFullYear();
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');  // 月份从0开始，因此要加1
-  const day = d.getDate().toString().padStart(2, '0');
-  const hours = d.getHours().toString().padStart(2, '0');
-  const minutes = d.getMinutes().toString().padStart(2, '0');
-  const seconds = d.getSeconds().toString().padStart(2, '0');
-  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-}
 </script>
 
 <style scoped>
-
-/* 通用图表容器 */
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 252px;
-  left: 1%;
-  /*height: 400px; !* 明确设置图表高度 *!*/
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.chart {
-  height: 100%; /* 图表占满容器高度 */
-  margin-top: -20px; /* 向上调整图表位置 */
-}
 
-.population-chart-container {
-  width: 100%;
-  height: 90%; /* 确保人口图表占满容器 */
-  margin-top: 0x;
-}
 
-/* 标题样式 */
-.public-title {
-  position: relative;
-  width: calc(100% - 30px);
-  height: 30px;
+.big-data-view {
   color: #fff;
-  padding-left: 16px;
-  line-height: 30px;
-  font-size: 15px;
-  left: 5px;
+  font-family: "微软雅黑";
 }
 
-.public-title:before {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 20px;
-  top: 10px;
-  left: 5px;
-  background: #2997e4;
-  border-radius: 2px;
+.box {
+  margin-bottom: 12px;
+  position: relative;
 }
 
-/* 字体样式 */
-.newColCommon {
+.box-container {
+  display: flex;
+  height: 227px;
+  gap: 20px;
+}
+
+.topics-container {
+  flex: 0 0 41%;
+  margin-left: 5%;
+  padding: 1px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cloud-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.text-b {
+  color: #07e5ff;
   font-size: 16px;
-  line-height: 1.5;
-  color: #f5f5f5; /* 近似白色的字体颜色 */
+  margin-bottom: 10px;
 }
 
-/* 标签字体 */
-.label {
-  font-weight: bold; /* 标签加粗 */
-}
-
-/* 风险点容器 */
-.riskPoint .container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0; /* Ensure no margin is applied */
-
-}
-
-.button-top {
-  text-align: center;
-  margin: 5px 0;
-}
-.button-bottom {
+.cloud-title {
   text-align: center;
 }
-.white-text {
-  color: white;
-}
-/* 3. 没有数据时的显示样式 */
-.no-data {
-  margin-top: -7px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+
+.tagcloud {
+  position: relative;
+  width: 100%;
   height: 100%;
-  color: #ffffff;
-  font-size: 16px;
-  text-align: center;
-  padding: 20px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  gap: 15px; /* 增加行与行之间的间距 */
-
 }
 
-
-.no-data div {
-  margin: 5px 0;
+.tagcloud a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 50%;
+  text-align: center;
+  transition: all 0.3s ease;
+  will-change: transform, opacity;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  user-select: none;
 }
 
+.tagcloud a {
+  will-change: transform, opacity;
+  transform-origin: center center;
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+  opacity 0.2s ease;
+}
+
+.b01 {
+  width: 50px;
+  height: 50px;
+  background: rgba(5, 118, 254, 0.6);
+  font-size: 12px;
+}
+
+.b02 {
+  width: 80px;
+  height: 80px;
+  background: rgba(238, 255, 65, 0.6);
+  font-size: 16px;
+}
+
+.b03 {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 138, 0, 0.6);
+  font-size: 14px;
+}
+
+.b04 {
+  width: 70px;
+  height: 70px;
+  background: rgba(1, 187, 181, 0.6);
+  font-size: 15px;
+}
+
+.co01 { color: #fff; }
+.co02 { color: #333; }
+.co03 { color: #fff; }
+.co04 { color: #333; }
+.co05 { color: #fff; }
+
+.huati ul {
+  list-style: none;
+  padding: 0;
+}
+
+.huati li {
+  display: flex;
+  align-items: center;
+  margin: 14px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rank {
+  margin-right: 8px;
+  color: #07e5ff;
+  width: 20px;
+}
+
+.topic-name {
+  flex: 1;
+  color: #fff;
+}
+
+.change {
+  margin-left: 10px;
+  font-size: 12px;
+  width: 50px;
+  text-align: right;
+}
+
+.change.up {
+  color: #14e144;
+}
+
+.change.down {
+  color: #ff4d4f;
+}
+
+/* 悬停效果 */
+.tagcloud a:hover {
+  transform: scale(1.2) !important;
+  opacity: 1 !important;
+  z-index: 100 !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.debug-info {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 10px;
+  font-family: monospace;
+}
 </style>
