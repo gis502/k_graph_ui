@@ -6193,6 +6193,7 @@ li {
   justify-content: center;
   align-items: center;
   gap: 20px; /* 按钮之间的间距 */
+
 }
 
 .button:not(:last-child) {

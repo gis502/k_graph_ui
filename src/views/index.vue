@@ -2,7 +2,7 @@
   <div class="content-body">
     <div class="header">
       <div class="header-center">
-        <span>灾链智控--基于大语言模型与知识图谱的地震应急信息平台</span>
+        <span style="text-shadow: -1px 1px 0 #f6f1f1, 1px 1px 0 #939191;font-size: 28px;">灾链智控--基于大语言模型与知识图谱的地震应急信息平台</span>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>
@@ -21,8 +21,26 @@
           <div class="left-body">
             <div class="left-top public-bg" ref="leftTop">
               <!--              <div class="public-title">最新地震</div>-->
-              <img src="@/assets/latestEarthquake.png" alt="最新地震" style="width: 127%; height: auto;">
+              <chart3 />
+            </div>
+
+            <div class="left-con public-bg" ref="leftCon">
+              <span style="  position: absolute;  top: 33%; /* 让文字居中 */left:32%;transform: translate(-50%, -50%); /* 精确居中 */ font-size: 22px;font-weight: bold;color: white;
+              /* 黑色阴影从上到下加深 */text-shadow:
+              0px -1px 3px rgba(0, 0, 0, 0.2),
+              0px -2px 6px rgba(0, 0, 0, 0.4),
+              0px -3px 9px rgba(0, 0, 0, 0.6),
+              0px -4px 12px rgba(0, 0, 0, 0.8);
+              z-index: 2; /* 确保文字在图片上 */white-space: nowrap; /* 防止换行 */">最新地震</span>
+              <!--              <div class="public-title">最新地震受灾人员统计</div>-->
+              <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: auto;">
               <new-info :last-eq="lastEqData"/>
+
+            </div>
+
+            <div class="left-bottom public-bg" ref="leftBottom">
+              <img src="@/assets/front_page/ranking.png" alt="区域地震排行榜" style="width: 102%; height: auto;">
+              <chart2 :last-eq="lastEqData"/>
             </div>
           </div>
         </div>
@@ -31,12 +49,12 @@
         <div class="right">
           <div class="right-body">
             <div class="right-top public-bg" ref="rightTop">
-              <div style="position: relative; width: 100%;">
+              <div style="position: relative; width: 100%; height: auto;">
                 <!-- 图片 -->
                 <img
                   src="@/assets/earthquakeList.png"
                   alt="地震列表"
-                  style="   width: 90%; height: auto; display: block;"
+                  style="width: 90%; height: auto; display: block;"
                 >
 
                 <!-- 输入框和按钮 -->
@@ -81,8 +99,11 @@
               </div>
               <eq-table :eq-data="CeShiTableData"/>
             </div>
+
+
           </div>
         </div>
+
       </div>
     </div>
 
@@ -127,6 +148,7 @@
 </template>
 
 <script setup>
+import { BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5 } from '@kjgl77/datav-vue3';
 import { onMounted, ref, reactive, nextTick, watch } from 'vue';
 import EMap from '@/components/Home/emap.vue';
 import EqTable from '@/components/Home/eqtable.vue';
@@ -445,7 +467,7 @@ onMounted(() => {
 .content-body {
   width: 100%;
   height: 100%;
-  background-image: url("@/assets/bg3.png");
+  background-image: url("@/assets/bg2.png");
   background-size: 100% 100%;
   position: absolute;
 }
@@ -476,7 +498,7 @@ onMounted(() => {
   top: 13px;
   position: absolute;
   color: #73FFFA; /* 使用给定的颜色 */
-  right: 7.5vw;
+  right: 4vw;
   font-size: 12px; /* 字体稍微变小，提升精致感 */
   font-weight: 300; /* 使用较细的字体粗细 */
   font-family: 'Source Han Sans', '思源黑体', sans-serif; /* 使用思源黑体字体 */
@@ -506,7 +528,8 @@ onMounted(() => {
   float: left;
   /*background-image: url("@/assets/home/黑色遮罩左.png");*/
   background: rgb(2, 0, 36);
-  background: linear-gradient(90deg, rgb(4 33 65 / 56%) 32%, rgb(64 106 171 / 6%) 89%);
+  background: linear-gradient(90deg, rgb(13 17 42 / 96%) 0%, rgb(5 43 70) 40%, rgb(25 51 81 / 33%) 60%, rgba(17, 36, 82, 0.2704541289171919) 100%);
+
 }
 
 .left-body {
@@ -600,16 +623,20 @@ onMounted(() => {
   margin: 0 0.3%;
   /*background-image: url("@/assets/home/黑色遮罩右.png");*/
   background: rgb(0, 195, 255);
-  background: linear-gradient(90deg, rgb(22 105 179 / 9%) 25%, rgb(10 33 75 / 76%) 88%);
+  background: linear-gradient(81deg, rgb(51 145 229 / 9%) 25%, rgb(0 9 26 / 86%) 88%);
 }
 
 
-.right-body,.right-top {
+.right-body {
   width: 98%;
   height: 100%;
   margin: 0 0.3%;
 }
 
+.right-body .right-top {
+  width: 100%;
+  height: 54%;
+}
 
 .title-nav .top5-ul {
   width: calc(100% - 20px);
@@ -687,6 +714,13 @@ onMounted(() => {
   display: inline-block;
   text-align: center;
 }
+
+.right-body .right-bottom {
+  width: 100%;
+  height: 45%;
+  margin-top: 1%;
+}
+
 
 /* 新增样式 */
 .content-body {

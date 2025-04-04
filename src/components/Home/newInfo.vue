@@ -115,8 +115,8 @@ const initNewEq = () => {
 }
 
 .eqName {
-  margin-bottom: -0.6%;
-  font-size: 13px;
+  margin-bottom: 1.4%;
+  font-size: 18px;
   font-weight: bold;
   text-align: center;/* 字体水平居中 */
   color: white;
