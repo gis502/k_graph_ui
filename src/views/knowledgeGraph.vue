@@ -1,7 +1,7 @@
 <template>
   <div class="content-body">
     <div class="catalog">
-      <div class="titleName">
+      <div class="titleName" @click="checkInfo()">
         知识图谱
       </div>
       <div class="search">
@@ -58,6 +58,7 @@
 import { Search } from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
 import { ref,onMounted} from 'vue';
+import {getGraphData} from "@/api/system/knowledgeGraph.js";
 
 // 搜索框内容
 const inputValue = ref('');
@@ -324,6 +325,12 @@ const echartsOption = ref({
     ],
   }]
 });
+
+const checkInfo = () => {
+  const data = getGraphData()
+  console.log(data)
+}
+
 // 定义点击事件的处理函数
 const handleClick = (echartsInstance, echartsOption) => {
   echartsInstance.on('click', function (params) {
