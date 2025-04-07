@@ -39,7 +39,7 @@ export default defineConfig(({ mode, command }) => {
           target: 'http://t0.tianditu.com/',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/tdtproxy/, ''),
-        }
+        },
       }
     },
     //fix:error:stdin>:7356:1: warning: "@charset" must be the first rule in the file
