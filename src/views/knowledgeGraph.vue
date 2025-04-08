@@ -30,12 +30,6 @@
     <div class="knowledgeGraph">
       <div class="chartContainer" ref="chart"></div>
     </div>
-<!--      <iframe-->
-<!--        src="http://172.17.130.189/chat/share?shared_id=c42fb59a128a11f09b130242ac130006&from=chat&auth=c3NTdhMWYwMTI4YjExZjBhNTA3MDI0Mm"-->
-<!--        style="width: 100%; height: 100%; min-height: 600px"-->
-<!--        frameborder="0"-->
-<!--      >-->
-<!--      </iframe>-->
     <div class="chat-panel" v-if="showChat">
       <div class="chat-title">小助手</div>
       <div class="close-button" @click="updateChartData">
@@ -97,91 +91,54 @@
 </template>
 
 <script setup>
-import {Search} from "@element-plus/icons-vue";
+import { Search } from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
-import {ref, onMounted, getCurrentInstance, nextTick} from 'vue';
-import {getGraphData} from "@/api/system/knowledgeGraph.js";
-import {MdPreview} from "md-editor-v3";
-import {ElMessage} from "element-plus";
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { getGraphData } from "@/api/system/knowledgeGraph.js";
+import { MdPreview } from "md-editor-v3";
+import { ElMessage } from "element-plus";
 
-
-const { proxy } = getCurrentInstance();
-
+// 响应式数据
+const inputValue = ref('');
+const currentIndex = ref(null);
+const showChat = ref(true);
 const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
-
-const showChat = ref(true);
-
-// 搜索框内容
-const inputValue = ref('');
-// 关系图echarts
 const chart = ref(null);
 const chartData = ref([]);
 const chartLinks = ref([]);
-// 左侧用于存储当前被点击的 li 的索引
-const currentIndex = ref(null);
-// 左侧列表标准数据
+const echartsInstance = ref(null);
+
+// 左侧列表数据
 const list = [
-  {
-    value: "基础背景信息",
-  },
-  {
-    value: "地震灾害和救灾背景信息",
-  },
-  {
-    value: "地震台网信息",
-  },
-  {
-    value: "救灾能力储备信息",
-  },
-  {
-    value: "应急联络信息",
-  },
-  {
-    value: "预案与规划信息",
-  },
-  {
-    value: "防震减灾示范与演习经验信息",
-  },
-  {
-    value: "地震震情信息",
-  },
-  {
-    value: "地震灾情信息",
-  },
-  {
-    value: "应急指挥协调信息",
-  },
-  {
-    value: "应急决策信息",
-  },
-  {
-    value: "应急处置信息",
-  },
-  {
-    value: "态势标绘信息",
-  },
-  {
-    value: "灾害现场动态信息",
-  },
-  {
-    value: "社会反应动态信息",
-  },
-  {
-    value: "救援物资信息",
-  }
+  { value: "基础背景信息" },
+  { value: "地震灾害和救灾背景信息" },
+  { value: "地震台网信息" },
+  { value: "救灾能力储备信息" },
+  { value: "应急联络信息" },
+  { value: "预案与规划信息" },
+  { value: "防震减灾示范与演习经验信息" },
+  { value: "地震震情信息" },
+  { value: "地震灾情信息" },
+  { value: "应急指挥协调信息" },
+  { value: "应急决策信息" },
+  { value: "应急处置信息" },
+  { value: "态势标绘信息" },
+  { value: "灾害现场动态信息" },
+  { value: "社会反应动态信息" },
+  { value: "救援物资信息" }
 ];
 const newList = ref([]);
-// 关系图配置项
-let echartsInstance;
+
+// ECharts 配置
 const echartsOption = ref({
   backgroundColor: {
-    image: 'https://pic.52112.com/180408/180408_203/ZOvUpabmkG_small.jpg', // 支持 base64/网络URL
-    repeat: 'repeat', // 不重复
-    width: '100%',      // 宽度适配
-    height: '100%',     // 高度适配
-    opacity: 0.8        // 透明度（可选）
+    image: 'https://pic.52112.com/180408/180408_203/ZOvUpabmkG_small.jpg',
+    repeat: 'repeat',
+    width: '100%',
+    height: '100%',
+    opacity: 0.8
   },
   grid: {
     left: '10%',
@@ -203,64 +160,49 @@ const echartsOption = ref({
       layoutAnimation: true,
     },
     symbolSize: 70,
-    nodeScaleRatio: 1, //图标大小是否随鼠标滚动而变
-    roam: true, //缩放
+    nodeScaleRatio: 1,
+    roam: true,
     zoom: 1,
-    draggable: true, //节点是否可以拖拽
-    focusNodeAdjacency: false, //是否在鼠标移到节点上的时候突出显示节点以及节点的边和邻接节点
-    edgeSymbol: ['circle', 'arrow'], //线两头标记
+    draggable: true,
+    focusNodeAdjacency: false,
+    edgeSymbol: ['circle', 'arrow'],
     label: {
-      normal: {
-        show: true,
-        position: 'inside',
-        color: 'gold'
-      }
+      show: true,
+      position: 'inside',
+      color: 'gold'
     },
     edgeLabel: {
-      normal: {
-        show: true,
-        textStyle: {
-          fontSize: 12,
-          color: '#fff'
-        },
-        formatter: "{c}"
-      }
+      show: true,
+      fontSize: 12,
+      color: '#fff',
+      formatter: "{c}"
     },
-    categories: [{
-      name: '属性',
-    }, {
-      name: '关系',
-      symbol: 'rect'
-    }],
+    categories: [
+      { name: '属性' },
+      { name: '关系', symbol: 'rect' }
+    ],
     itemStyle: {
-      normal: {
-        borderColor: '#04f2a7',
-        borderWidth: 2,
-        shadowBlur: 10,
-        shadowColor: '#04f2a7',
-        color: '#001c43',
-      }
+      borderColor: '#04f2a7',
+      borderWidth: 2,
+      shadowBlur: 10,
+      shadowColor: '#04f2a7',
+      color: '#001c43',
     },
     lineStyle: {
-      normal: {
-        opacity: 0.9,
-        width: 2,
-        curveness: 0,
-        color: {
-          type: 'linear',
-          x: 0,
-          y: 0,
-          x2: 0,
-          y2: 1,
-          colorStops: [{
-            offset: 0,
-            color: '#e0f55a' // 0% 处的颜色
-          }, {
-            offset: 1,
-            color: '#639564' // 100% 处的颜色
-          }],
-          globalCoord: false // 缺省为 false
-        }
+      opacity: 0.9,
+      width: 2,
+      curveness: 0,
+      color: {
+        type: 'linear',
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [
+          { offset: 0, color: '#e0f55a' },
+          { offset: 1, color: '#639564' }
+        ],
+        globalCoord: false
       }
     },
     symbolKeepAspect: false,
@@ -269,9 +211,11 @@ const echartsOption = ref({
   }]
 });
 
-// 获取数据
-const getData = () => {
-  getGraphData().then(res => {
+// 获取数据并初始化图表
+const getData = async () => {
+  try {
+    const res = await getGraphData();
+
     chartLinks.value = res.map(item => ({
       source: item.source.name,
       target: item.target.name,
@@ -284,20 +228,19 @@ const getData = () => {
       nodeSet.add(item.target);
     });
 
-    chartData.value = Array.from(nodeSet).map(name => ({name}));
+    chartData.value = Array.from(nodeSet).map(name => ({ name }));
 
-    // newList数据处理
+    // 处理 newList 数据
     const validValues = new Set(list.map(item => item.value));
     newList.value = chartData.value
-      .filter(item => validValues.has(item.name))
-      .map((item, index) => ({
-        id: index + 1,
-        value: item.name
-      }));
+        .filter(item => validValues.has(item.name))
+        .map((item, index) => ({
+          id: index + 1,
+          value: item.name
+        }));
 
-
-    echartsOption.value.series[0].data = chartData.value.map((item, index) => {
-      // 设置基础背景信息节点为红色
+    // 特殊节点样式
+    echartsOption.value.series[0].data = chartData.value.map(item => {
       item.symbolSize = 60;
       if (item.name === '地震参数') {
         item.itemStyle = {
@@ -318,38 +261,93 @@ const getData = () => {
         };
       }
       return item;
-    })
-    echartsOption.value.series[0].links = chartLinks.value
+    });
 
-    echartsInstance = echarts.init(chart.value);
-    echartsInstance.setOption(echartsOption.value);
+    echartsOption.value.series[0].links = chartLinks.value;
 
-    // handleClick(echartsInstance, echartsOption);
+    initChart();
+  } catch (error) {
+    console.error('获取图表数据失败:', error);
+  }
+};
 
-  });
-}
+// 初始化图表
+const initChart = () => {
+  if (!chart.value) return;
 
+  echartsInstance.value = echarts.init(chart.value);
+  echartsInstance.value.setOption(echartsOption.value);
+
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', handleResize);
+};
+
+// 处理窗口大小变化
+const handleResize = () => {
+  if (echartsInstance.value) {
+    echartsInstance.value.resize();
+  }
+};
+
+// 关闭助手并调整图表大小
 const updateChartData = () => {
   showChat.value = false;
+  nextTick(() => {
+    handleResize();
+  });
 };
 
-const keySend = (event) => {
-  if (!(event.ctrlKey && event.key === 'Enter')) {
+// 搜索节点并聚焦
+const focusNode = (nodeName) => {
+  if (!nodeName?.trim()) {
+    inputValue.value = '';
     return;
   }
-  sendMessage();
-};
 
-const sendMessage = () => {
-  const message = formData.value.content;
-  if (!message) {
-    ElMessage({
-      type: 'warning',
-      message: '请输入内容',
-      duration: 2000,
+  const index = findNodeIndex(nodeName);
+  if (index === -1) {
+    ElMessage.warning(`节点 "${nodeName}" 不存在`);
+    inputValue.value = '';
+    return;
+  }
+
+  if (echartsInstance.value) {
+    echartsInstance.value.dispatchAction({
+      type: 'highlight',
+      name: nodeName
     });
+
+    echartsInstance.value.dispatchAction({
+      type: 'focusNodeAdjacency',
+      seriesIndex: 0,
+      dataIndex: index
+    });
+  }
+
+  inputValue.value = '';
+};
+
+// 查找节点索引
+const findNodeIndex = (name) => {
+  return echartsOption.value.series[0].data.findIndex(
+      node => node.name.toLowerCase() === name.toLowerCase()
+  );
+};
+
+// 显示描述并聚焦节点
+const showDescription = (item, value) => {
+  currentIndex.value = item.id;
+  focusNode(value);
+};
+
+// 发送消息
+const sendMessage = () => {
+  const message = formData.value.content?.trim();
+  if (!message) {
+    ElMessage.warning('请输入内容');
     return;
   }
+
   messageList.value.push({
     type: 0,
     content: message,
@@ -360,236 +358,64 @@ const sendMessage = () => {
     content: [],
     loading: true,
   });
-  loading.value = true;
 
-  const eventSource = new EventSource(`http://localhost:8080/seek/stream?message=${message}`);
-  console.log(eventSource)
+  loading.value = true;
   formData.value.content = '';
+
+  // 模拟 SSE 连接
+  const eventSource = new EventSource(`http://localhost:8080/seek/stream?message=${encodeURIComponent(message)}`);
+
   eventSource.onmessage = (event) => {
-    let response = event.data;
-    console.log(response);
-    if (response === 'end') {
-      close();
+    if (event.data === 'end') {
+      closeEventSource();
       return;
     }
-    response = JSON.parse(response).content;
-    messageList.value[messageList.value.length - 1].content.push(response);
-    //滚动到底部
-    nextTick(() => {
-      const content = document.getElementById('message-panel');
-      content.scrollTop = content.scrollHeight;
-    });
+
+    try {
+      const response = JSON.parse(event.data).content;
+      const lastMsg = messageList.value[messageList.value.length - 1];
+      lastMsg.content.push(response);
+
+      nextTick(() => {
+        const panel = document.getElementById('message-panel');
+        if (panel) panel.scrollTop = panel.scrollHeight;
+      });
+    } catch (e) {
+      console.error('解析消息失败:', e);
+    }
   };
 
   eventSource.onerror = (error) => {
-    close();
+    console.error('SSE 错误:', error);
+    closeEventSource();
   };
 
-  const close = () => {
+  const closeEventSource = () => {
     eventSource.close();
-    messageList.value[messageList.value.length - 1].loading = false;
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (lastMsg) lastMsg.loading = false;
     loading.value = false;
   };
 };
 
-// echarts搜索后自动聚焦功能
-function focusNode(nodeName) {
-  // 1. 检查空输入
-  if (!nodeName || !nodeName.trim()) {
-    inputValue.value = ''; // 清空输入框
-    return;
+// 快捷键发送
+const keySend = (event) => {
+  if (event.ctrlKey && event.key === 'Enter') {
+    sendMessage();
   }
-
-  // 2. 检查节点是否存在
-  const index = findNodeIndex(nodeName);
-  if (index === -1) {
-    console.warn(`节点 "${nodeName}" 不存在`);
-    inputValue.value = ''; // 清空输入框
-    return;
-  }
-
-  // 3. 执行聚焦操作
-  echartsInstance.dispatchAction({
-    type: 'highlight',
-    name: nodeName
-  });
-
-  echartsInstance.dispatchAction({
-    type: 'focusNodeAdjacency',
-    seriesIndex: 0,
-    dataIndex: index
-  });
-
-  // 4. 清空输入框（无论成功与否）
-  inputValue.value = '';
-}
-
-// 辅助函数：查找节点索引（兼容大小写）
-function findNodeIndex(name) {
-  return echartsOption.value.series[0].data.findIndex(
-    node => node.name.toLowerCase() === name.toLowerCase()
-  );
-}
-
-// 定义点击事件的处理函数
-// const handleClick = (echartsInstance, echartsOption) => {
-//   echartsInstance.on('click', function (params) {
-//     if (params.dataType === 'node') {
-//       const clickedNode = params.data.name;
-//
-//       // 定义一个用于更新节点和边数据的函数
-//       const updateChartData = (newNodes, newLinks) => {
-//         echartsOption.value.series[0].data = newNodes;
-//         echartsOption.value.series[0].links = newLinks;
-//         echartsInstance.setOption(echartsOption.value);
-//       };
-//
-//       let newNodes = [];
-//       let newLinks = [];
-//
-//       // 根据点击的节点更新新的节点和边数据
-//       if (clickedNode === '震前准备') {
-//         newNodes = [
-//           { name: '震前准备' },
-//           { name: '基础背景信息' },
-//           { name: '历史自然灾害信息' },
-//           { name: '地震灾害和救灾背景信息' },
-//           { name: '地震台网信息' },
-//           { name: '救灾能力储备信息' },
-//           { name: '应急联络信息' },
-//           { name: '已有地震对策信息' },
-//           { name: '法律法规信息' },
-//           { name: '预案与规划信息' },
-//           { name: '防震减灾示范与演习经验信息' }
-//         ];
-//         newLinks = [
-//           { source: '震前准备', target: '基础背景信息', value: '分类' },
-//           { source: '震前准备', target: '历史自然灾害信息', value: '分类' },
-//           { source: '震前准备', target: '地震灾害和救灾背景信息', value: '分类' },
-//           { source: '震前准备', target: '地震台网信息', value: '分类' },
-//           { source: '震前准备', target: '救灾能力储备信息', value: '分类' },
-//           { source: '震前准备', target: '应急联络信息', value: '分类' },
-//           { source: '震前准备', target: '已有地震对策信息', value: '分类' },
-//           { source: '震前准备', target: '法律法规信息', value: '分类' },
-//           { source: '震前准备', target: '预案与规划信息', value: '分类' },
-//           { source: '震前准备', target: '防震减灾示范与演习经验信息', value: '分类' }
-//         ];
-//       } else if (clickedNode === '震后生成') {
-//         newNodes = [
-//           { name: '震后生成' },
-//           { name: '地震震情信息' },
-//           { name: '地震灾情信息' },
-//           { name: '应急指挥协调信息' },
-//           { name: '应急响应信息' },
-//           { name: '应急决策信息' },
-//           { name: '应急处置信息' },
-//           { name: '态势标绘' },
-//           { name: '灾害现场动态信息' },
-//           { name: '社会反应动态信息' }
-//         ];
-//         newLinks = [
-//           { source: '震后生成', target: '地震震情信息', value: '分类' },
-//           { source: '震后生成', target: '地震灾情信息', value: '分类' },
-//           { source: '震后生成', target: '应急指挥协调信息', value: '分类' },
-//           { source: '震后生成', target: '应急响应信息', value: '分类' },
-//           { source: '震后生成', target: '应急决策信息', value: '分类' },
-//           { source: '震后生成', target: '应急处置信息', value: '分类' },
-//           { source: '震后生成', target: '态势标绘', value: '分类' },
-//           { source: '震后生成', target: '灾害现场动态信息', value: '分类' },
-//           { source: '震后生成', target: '社会反应动态信息', value: '分类' }
-//         ];
-//       } else if (clickedNode === '基础背景信息详细1') {
-//         newNodes = [
-//           { name: '呵呵' },
-//           { name: '哈哈' }
-//         ];
-//         newLinks = [
-//           { source: '哈哈', target: '呵呵', value: '关系' }
-//         ];
-//       } else if (clickedNode === '地震参数') {
-//         let relatedNodes = [];
-//
-//         // 查找与“地震参数”相关的节点
-//         echartsOption.value.series[0].links.forEach(link => {
-//           if (link.source === '地震参数' && link.value === '属性') {
-//             relatedNodes.push(link.target);
-//           } else if (link.target === '地震参数' && link.value === '属性') {
-//             relatedNodes.push(link.source);
-//           }
-//         });
-//
-//         // 切换相关节点的可见性
-//         const updatedNodes = echartsOption.value.series[0].data.map(item => {
-//           // 如果该节点与“地震参数”相关，切换显示状态
-//           if (relatedNodes.includes(item.name)) {
-//             // 通过 itemStyle 来控制节点的显示和隐藏
-//             item.itemStyle = item.itemStyle || {}; // 防止 itemStyle 未定义
-//             item.itemStyle.opacity = item.itemStyle.opacity === 0 ? 1 : 0; // 切换节点透明度，0 为隐藏，1 为显示
-//
-//             // 也可以通过 label.show 来控制标签显示
-//             item.label = item.label || {};  // 防止 label 未定义
-//             item.label.show = item.label.show === false ? true : false;  // 切换标签显示
-//           }
-//
-//           return item;
-//         })
-//       }else {
-//         // 默认情况，展示其他节点
-//         newNodes = [
-//           { name: '基础背景信息' },
-//           { name: '地震灾害和救灾背景信息' },
-//           { name: '地震台网信息' },
-//           { name: '救灾能力储备信息' },
-//           { name: '应急联络信息' },
-//           { name: '预案与规划信息' },
-//           { name: '防震减灾示范与演习经验信息' },
-//           { name: '地震震情信息'  },
-//           { name: '地震灾情信息' },
-//           { name: '应急指挥协调信息' },
-//           { name: '应急决策信息' },
-//           { name: '应急处置信息' },
-//           { name: '态势标绘信息' },
-//           { name: '灾害现场动态信息' },
-//           { name: '社会反应动态信息' },
-//           { name: '法律法规信息' }
-//         ];
-//         newLinks = [
-//           { source: 0, target: 1, value: '支持' },
-//           { source: 0, target: 2, value: '支持' },
-//           { source: 0, target: 3, value: '支持' },
-//           { source: 1, target: 3, value: '影响' },
-//           { source: 1, target: 4, value: '影响' },
-//           { source: 2, target: 7, value: '支持' },
-//           { source: 2, target: 10, value: '支持' },
-//           { source: 3, target: 11, value: '支持' },
-//           { source: 4, target: 9, value: '支持' },
-//           { source: 4, target: 12, value: '影响' },
-//           { source: 5, target: 10, value: '指导' },
-//           { source: 5, target: 13, value: '支持' },
-//           { source: 6, target: 8, value: '影响' },
-//           { source: 6, target: 14, value: '支持' },
-//           { source: 7, target: 8, value: '影响' },
-//           { source: 7, target: 10, value: '影响' },
-//           { source: 8, target: 13, value: '提供' },
-//           { source: 8, target: 15, value: '提供' }
-//         ];
-//       }
-//
-//       // 更新图表数据
-//       updateChartData(newNodes, newLinks);
-//     }
-//   });
-// };
-// 右侧内容标题与左侧列表点击关联函数
-const showDescription = (item, value) => {
-  currentIndex.value = item.id;
-  focusNode(value);
 };
 
-// 关系图生成时机
+// 生命周期钩子
 onMounted(() => {
   getData();
-})
+});
+
+onBeforeUnmount(() => {
+  if (echartsInstance.value) {
+    echartsInstance.value.dispose();
+    window.removeEventListener('resize', handleResize);
+  }
+});
 </script>
 
 <style scoped lang="less">
@@ -601,91 +427,116 @@ onMounted(() => {
   display: flex;
   flex-direction: row; /* 使元素横向排列 */
 
+  // 确保 flex 容器允许子元素增长和收缩
+  > *{
+    flex-shrink:1;
+  }
+
   .knowledgeGraph {
-    flex: 32;
+    flex: 1;
     height: 100%;
     background-color: #1a4377;
-    flex-shrink: 0; /* 防止盒子宽度缩小 */
 
     .chartContainer {
       width: 100%;
       height: 100%;
+      min-width: 0; // 防止 flex 项目溢出
     }
   }
 
-  .details {
-
-    .details-description {
+  .chat-panel {
+    background: #eff0f6;
+    height: calc(100vh);
+    .chat-title {
       text-align: center;
-      width: 300px;
-      white-space: nowrap; /* 防止换行 */
-      overflow: hidden; /* 隐藏溢出文本 */
-      text-overflow: ellipsis; /* 使用省略号代替溢出部分 */
-      height: 100px;
-      line-height: 100px;
-      color: white;
-      font-size: 30px;
-      user-select: none; /* 禁用文本选择 */
+      font-size: 20px;
+      font-weight: bold;
     }
-
-    .img-box {
-      margin-left: 23px;
-      width: 85%;
-
-      img {
-        max-width: 100%;
-        height: auto;
+    .message-panel {
+      position: relative;
+      height: calc(100vh - 200px);
+      overflow: auto;
+      padding-bottom: 10px;
+      .message-list {
+        margin: 0px auto;
+        width: 450px;
+        .message-item {
+          margin: 10px 0px;
+          display: flex;
+          .user-icon {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: #535353;
+            color: #fff;
+            text-align: center;
+            margin-left: 10px;
+          }
+          .message-content {
+            flex: 1;
+            margin-left: 10px;
+            align-items: center;
+            display: flex;
+            justify-content: flex-end;
+          }
+          .content-inner {
+            background: #2d65f7;
+            border-radius: 5px;
+            padding: 10px;
+            color: #fff;
+          }
+        }
+        .ai-item {
+          line-height: 23px;
+          .message-content {
+            display: block;
+            background: #fff;
+            border-radius: 5px;
+          }
+          .user-icon {
+            background: #64018f;
+            margin-left: 0px;
+          }
+          :deep(.md-editor-previewOnly) {
+            border-radius: 5px;
+            background: #fff;
+          }
+          :deep(.md-editor-preview-wrapper) {
+            padding: 10px;
+          }
+          .loading {
+            text-align: center;
+          }
+        }
       }
     }
-
-    .basic-info {
-      .basic {
-        width: 90%;
-        color: white;
-        margin-left: 1em;
-        font-size: 20px;
-        user-select: none; /* 禁用文本选择 */
+    .send-panel {
+      position: relative;
+      margin: 5px auto 0px;
+      width: 450px;
+      background: #fff;
+      border-radius: 5px;
+      padding: 10px;
+      .send-btn {
+        text-align: right;
+        margin-bottom: 0px;
+        padding: 5px;
+        :deep(.el-form-item__content) {
+          justify-content: flex-end;
+        }
       }
-
-      p {
-        margin-left: 2em;
-        color: #a4acc7;
-      }
-    }
-
-    .divider::before {
-      content: '';
-      display: block;
-      width: 250px;
-      height: 1px;
-      background-color: #34467f;
-      margin-left: 25px;
-    }
-
-    .entry-overview {
-      .entry-overview-basic {
-        width: 90%;
-        color: white;
-        margin-left: 1em;
-        font-size: 20px;
-        user-select: none; /* 禁用文本选择 */
-      }
-
-      .text {
-        margin-left: 2em;
-        color: #a4acc7;
-        text-indent: 2em; /* 首行缩进两个字符 */
-        line-height: 1.5; /* 增加行间距，可以根据需求调整 */
+      :deep(.el-textarea__inner) {
+        border: 0 !important;
+        resize: none !important;
+        box-shadow: none;
       }
     }
-  }
-
-  .catalog, .details {
-    background-color: #0e172b;
-    height: 100%;
   }
 
   .catalog {
+    background-color: #0e172b;
+    height: 100%;
     display: flex;
     flex-direction: column;
 
@@ -763,102 +614,13 @@ onMounted(() => {
     }
 
     /* 隐藏滚动条 */
-
     .list::-webkit-scrollbar {
       display: none;
     }
   }
 }
 
-.chat-panel {
-  background: #eff0f6;
-  height: calc(100vh);
-  .chat-title {
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-  }
-  .message-panel {
-    position: relative;
-    height: calc(100vh - 200px);
-    overflow: auto;
-    padding-bottom: 10px;
-    .message-list {
-      margin: 0px auto;
-      width: 450px;
-      .message-item {
-        margin: 10px 0px;
-        display: flex;
-        .user-icon {
-          width: 40px;
-          height: 40px;
-          line-height: 40px;
-          border-radius: 20px;
-          background: #535353;
-          color: #fff;
-          text-align: center;
-          margin-left: 10px;
-        }
-        .message-content {
-          flex: 1;
-          margin-left: 10px;
-          align-items: center;
-          display: flex;
-          justify-content: flex-end;
-        }
-        .content-inner {
-          background: #2d65f7;
-          border-radius: 5px;
-          padding: 10px;
-          color: #fff;
-        }
-      }
-      .ai-item {
-        line-height: 23px;
-        .message-content {
-          display: block;
-          background: #fff;
-          border-radius: 5px;
-        }
-        .user-icon {
-          background: #64018f;
-          margin-left: 0px;
-        }
-        :deep(.md-editor-previewOnly) {
-          border-radius: 5px;
-          background: #fff;
-        }
-        :deep(.md-editor-preview-wrapper) {
-          padding: 10px;
-        }
-        .loading {
-          text-align: center;
-        }
-      }
-    }
-  }
-  .send-panel {
-    position: relative;
-    margin: 5px auto 0px;
-    width: 450px;
-    background: #fff;
-    border-radius: 5px;
-    padding: 10px;
-    .send-btn {
-      text-align: right;
-      margin-bottom: 0px;
-      padding: 5px;
-      :deep(.el-form-item__content) {
-        justify-content: flex-end;
-      }
-    }
-    :deep(.el-textarea__inner) {
-      border: 0 !important;
-      resize: none !important;
-      box-shadow: none;
-    }
-  }
-}
+
 
 .no-data {
   text-align: center;

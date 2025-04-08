@@ -97,7 +97,7 @@ watch(() => props.eqData, () => {
 });
 
 const go = (row) => {
-  const route = router.resolve({path: '/knowledgeGraph', query: {eqid: row.eqid}}).href;
+  const route = router.resolve({path: '/knowledgeGraph', query: {eqName: row.earthquakeFullName}}).href;
   // console.log("row.eqid----------------",row.eqid)
   window.open(route, '_blank');
 };
