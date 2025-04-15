@@ -11,7 +11,7 @@
           </el-icon>
         </el-button>
         <input
-          v-model="inputValue"
+          v-model="testInput"
           class="search-input"
           placeholder="搜索图谱中的词条"
           @keydown.enter="focusNode(inputValue)"
@@ -30,19 +30,20 @@
     <div class="knowledgeGraph">
       <div class="chartContainer" ref="chart"></div>
     </div>
+    <div class="toggle-button open" @click="updateChartData">问答助手</div>
     <div class="chat-panel" v-if="showChat">
       <div class="chat-title">小助手</div>
-      <div class="close-button" @click="updateChartData">
+      <div class="toggle-button close" @click="updateChartData">
         关闭助手
       </div>
       <div class="message-panel" id="message-panel">
         <div class="message-list">
           <div
-            :class="['message-item', item.type == 1 ? 'ai-item' : '']"
+            :class="['message-item', item.type === 1 ? 'ai-item' : '']"
             v-for="(item, index) in messageList"
             :id="'item' + index"
           >
-            <template v-if="item.type == 0">
+            <template v-if="item.type === 0">
               <div class="message-content">
                 <div class="content-inner">{{ item.content }}</div>
               </div>
@@ -94,14 +95,15 @@
 import { Search } from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { getGraphData } from "@/api/system/knowledgeGraph.js";
+import {getGraphData} from "@/api/system/knowledgeGraph.js";
 import { MdPreview } from "md-editor-v3";
 import { ElMessage } from "element-plus";
 
 // 响应式数据
+const testInput = ref('');
 const inputValue = ref('');
 const currentIndex = ref(null);
-const showChat = ref(true);
+const showChat = ref(false);
 const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
@@ -216,6 +218,8 @@ const getData = async () => {
   try {
     const res = await getGraphData();
 
+    console.log(res)
+
     chartLinks.value = res.map(item => ({
       source: item.source.name,
       target: item.target.name,
@@ -291,7 +295,7 @@ const handleResize = () => {
 
 // 关闭助手并调整图表大小
 const updateChartData = () => {
-  showChat.value = false;
+  showChat.value = !showChat.value;
   nextTick(() => {
     handleResize();
   });
@@ -513,15 +517,15 @@ onBeforeUnmount(() => {
     }
     .send-panel {
       position: relative;
-      margin: 5px auto 0px;
+      margin: auto 0;
       width: 450px;
       background: #fff;
       border-radius: 5px;
-      padding: 10px;
+      padding: 5px;
       .send-btn {
         text-align: right;
-        margin-bottom: 0px;
-        padding: 5px;
+        margin-bottom: 0;
+        padding: 3px;
         :deep(.el-form-item__content) {
           justify-content: flex-end;
         }
@@ -620,17 +624,8 @@ onBeforeUnmount(() => {
   }
 }
 
-
-
-.no-data {
-  text-align: center;
-  color: #5f5f5f;
-}
-
-.close-button {
-  position: relative;
+.toggle-button {
   background-color: #6897bb;
-  left: 10px;
   border-radius: 5px;
   padding: 5px;
   color: white;
@@ -641,6 +636,17 @@ onBeforeUnmount(() => {
   width: 100px;
   height: 30px;
   text-align: center;
+}
+
+.close {
+  position: relative;
+  left: 10px;
+}
+
+.open {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
 }
 
 </style>
