@@ -35,43 +35,43 @@ const data = ref([
 
 // ECharts 配置
 const echartsOption = ref({
-  backgroundColor: 'rgba(0, 0, 0, 0)',
-  tooltip: {
-    show: false,
-  },
-  series: [
-    {
-      type: 'wordCloud',
-      gridSize: 5,
-      sizeRange: [10, 30],
-      width: '100%',
-      height: '70%',
-      // rotationRange: [-45, 0, 45, 90],
-      // maskImage: maskImage,
-      textStyle: {
-        color: () => {
-          // 方案1：从预定义的一组美观颜色中随机选择
-          const colors = [
-            '#37A2FF', '#32C5E9', '#67E0E3', '#9FE6B8',
-            '#FFDB5C', '#FF9F7F', '#FB7293', '#E062AE',
-            '#E690D1', '#E7BCF3', '#9D96F5', '#8378EA'
-          ];
-          return colors[Math.floor(Math.random() * colors.length)];
-        },
-        emphasis: {             // 鼠标悬停效果
-          shadowBlur: 5,
-          shadowColor: '#333'
-        }
+      backgroundColor: 'rgba(0, 0, 0, 0)',
+      tooltip: {
+        show: false,
       },
-      left: 'center',
-      top: 'center',
-      right: null,
-      bottom: null,
-      data: data,
-      shape: 'circle',
-    },
-  ],
-}
+      series: [
+        {
+          type: 'wordCloud',
+          gridSize: 5,
+          sizeRange: [10, 30],
+          width: '100%',
+          height: '70%',
+          // rotationRange: [-45, 0, 45, 90],
+          // maskImage: maskImage,
+          textStyle: {
+            color: () => {
+              // 方案1：从预定义的一组美观颜色中随机选择
+              const colors = [
+                '#37A2FF', '#32C5E9', '#67E0E3', '#9FE6B8',
+                '#FFDB5C', '#FF9F7F', '#FB7293', '#E062AE',
+                '#E690D1', '#E7BCF3', '#9D96F5', '#8378EA'
+              ];
+              return colors[Math.floor(Math.random() * colors.length)];
+            },
+            emphasis: {             // 鼠标悬停效果
+              shadowBlur: 5,
+              shadowColor: '#333'
+            }
+          },
+          left: 'center',
+          top: 'center',
+          right: null,
+          bottom: null,
+          data: data,
+          shape: 'circle',
+        },
+      ],
+    }
 );
 
 const initChart = () => {
@@ -108,13 +108,12 @@ onBeforeUnmount(() => {
 <style scoped lang="less">
 .container{
   position: relative;
-  height: 100%;
-  width: 80%;
+  height: 90%;
+  width: 90%;
 
   .chartContainer {
     position: absolute;
-    bottom: 40px;
-    left: 10px;
+    bottom: 10px;
     width: 100%;
     height: 100%;
   }

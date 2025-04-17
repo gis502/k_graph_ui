@@ -497,12 +497,24 @@
     </div>
 
     <!-- 灾情统计 -->
-    <div v-if="activeComponent === 'thematicMapDownload'" class="thd-listTable ">
-      <div class="pop_right_background" style="width: 100%; height: 100%; z-index: 100;top: 0;">
-        <disasterStatistics
-            :eqid="eqid"
-            :currentTime="currentTimeString"
+    <div v-if="activeComponent === 'knowledgeGraph'" class="knowledgeGraphContainer ">
+      <div class="knowledgeGraph_background"
+           style="
+                  width: 98%;
+                  height: 80%;
+                  z-index: 100;
+                  top: 110px;
+                  border-radius: 20px;
+">
+<!--        <disasterStatistics-->
+<!--            :eqid="eqid"-->
+<!--            :currentTime="currentTimeString"-->
+<!--        />-->
+        <knowledgeGraph
+            :eqMagnitude = "eqMagnitude"
+            :currentTime = "currentTimeString"
         />
+
       </div>
     </div>
 
@@ -953,7 +965,6 @@
 import * as Cesium from 'cesium'
 import CesiumNavigation from "cesium-navigation-es6";
 import {getTerrainProviderViewModelsArr, initCesium} from '@/cesium/tool/initCesium.js'
-
 //组件
 import commandScreenTitle from "@/components/commandScreenComponent/commandScreenTitle.vue";
 //时间轴组件
@@ -1078,6 +1089,7 @@ import CommandScreenEqList from "@/components/Cesium/CommandScreenEqList.vue"
 import {getModelData} from "@/api/system/tiltPhotography.js";
 import layer from "@/cesium/layer.js";
 import modelicon from '@/assets/icons/svg/3dmodel04.svg';
+import knowledgeGraph from '@/views/knowledgeGraph.vue';
 
 export default {
   computed: {
@@ -1141,7 +1153,8 @@ export default {
       }
     }
   },
-  components: {
+  components:{
+    knowledgeGraph,
     CommandScreenEqList,
     commandScreenTitle, //标头
     //灾情总览
@@ -1192,6 +1205,8 @@ export default {
       eqyear: '',
       eqmonth: '',
       eqday: '',
+      //地震大小
+      eqMagnitude:'',
       //组件选中展开收起
       activeComponent: 'dataStats',// 默认为数据统计
       //标绘统计组件传值
@@ -1729,6 +1744,9 @@ export default {
       let that = this
       getEqListById({id: this.eqid}).then(res => {
         console.log(res)
+
+        this.eqMagnitude = res.magnitude
+
         //震中标绘点
         this.centerPoint = res
 
@@ -5458,6 +5476,16 @@ export default {
   position: absolute;
 }
 
+
+knowledgeGraphContainer{
+  width: 30%;
+  top: 13%;
+  height: 79%;
+  z-index: 30;
+  right: 0.3%;
+  position: relative;
+}
+
 :deep(.thd-Table ) {
   top: 8%;
   z-index: 30;
@@ -6414,6 +6442,15 @@ li {
   100% {
     background-position: 0% 50%;
   }
+}
+
+.knowledgeGraph_background{
+  top: 13%;
+  right: 1%;
+  height: 80.8vh;
+  width: 22%;
+  position: absolute;
+  z-index: 100;
 }
 
 </style>

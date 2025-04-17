@@ -21,24 +21,56 @@
           <div class="left-body">
             <div class="left-top public-bg" ref="leftTop">
               <!--              <div class="public-title">最新地震</div>-->
+              <span style=" position: absolute;
+                            top: 7%; /* 让文字居中 */
+                            left:32%;transform: translate(-50%, -50%); /* 精确居中 */
+                            font-size:18px;
+                            font-weight: bold;
+                            color: white;
+                             /* 黑色阴影从上到下加深 */
+                            text-shadow:
+                              0px -1px 3px rgba(0, 0, 0, 0.2),
+                              0px -2px 6px rgba(0, 0, 0, 0.4),
+                              0px -3px 9px rgba(0, 0, 0, 0.6),
+                              0px -4px 12px rgba(0, 0, 0, 0.8);
+                            z-index: 2; /* 确保文字在图片上 */white-space: nowrap; /* 防止换行 */">最新地震词云图</span>
+              <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: auto;">
               <chart3 />
             </div>
 
             <div class="left-con public-bg" ref="leftCon">
-              <span style="  position: absolute;  top: 33%; /* 让文字居中 */left:32%;transform: translate(-50%, -50%); /* 精确居中 */ font-size: 22px;font-weight: bold;color: white;
-              /* 黑色阴影从上到下加深 */text-shadow:
-              0px -1px 3px rgba(0, 0, 0, 0.2),
-              0px -2px 6px rgba(0, 0, 0, 0.4),
-              0px -3px 9px rgba(0, 0, 0, 0.6),
-              0px -4px 12px rgba(0, 0, 0, 0.8);
-              z-index: 2; /* 确保文字在图片上 */white-space: nowrap; /* 防止换行 */">最新地震</span>
-              <!--              <div class="public-title">最新地震受灾人员统计</div>-->
+              <span style="position: absolute;
+                           top: 32.8%; /* 让文字居中 */
+                           left: 24%;transform: translate(-50%, -50%); /* 精确居中 */
+                           font-size: 18px;
+                           font-weight: bold;
+                           color: white;
+                           /* 黑色阴影从上到下加深 */
+                           text-shadow:
+                             0px -1px 3px rgba(0, 0, 0, 0.2),
+                             0px -2px 6px rgba(0, 0, 0, 0.4),
+                             0px -3px 9px rgba(0, 0, 0, 0.6),
+                             0px -4px 12px rgba(0, 0, 0, 0.8);
+                           z-index: 2; /* 确保文字在图片上 */
+                           white-space: nowrap; /* 防止换行 */">最新地震</span>
               <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: auto;">
               <new-info :last-eq="lastEqData"/>
-
             </div>
-
             <div class="left-bottom public-bg" ref="leftBottom">
+              <span style="position: absolute;
+                           top: 63.5%; /* 让文字居中 */
+                           left: 24%;transform: translate(-50%, -50%); /* 精确居中 */
+                           font-size: 18px;
+                           font-weight: bold;
+                           color: white;
+                           /* 黑色阴影从上到下加深 */
+                           text-shadow:
+                             0px -1px 3px rgba(0, 0, 0, 0.2),
+                             0px -2px 6px rgba(0, 0, 0, 0.4),
+                             0px -3px 9px rgba(0, 0, 0, 0.6),
+                             0px -4px 12px rgba(0, 0, 0, 0.8);
+                           z-index: 2; /* 确保文字在图片上 */
+                           white-space: nowrap; /* 防止换行 */">热门话题</span>
               <img src="@/assets/front_page/ranking.png" alt="区域地震排行榜" style="width: 102%; height: auto;">
               <chart2 :last-eq="lastEqData"/>
             </div>
@@ -104,6 +136,24 @@
                 <eq-table :eq-data="CeShiTableData"/>
               </div>
             </div>
+            <div class="right-bottom">
+              <span style="position: absolute;
+                           top: 61.8%; /* 让文字居中 */
+                           left: 19%;transform: translate(-50%, -50%); /* 精确居中 */
+                           font-size: 18px;
+                           font-weight: bold;
+                           color: white;
+                           /* 黑色阴影从上到下加深 */
+                           text-shadow:
+                             0px -1px 3px rgba(0, 0, 0, 0.2),
+                             0px -2px 6px rgba(0, 0, 0, 0.4),
+                             0px -3px 9px rgba(0, 0, 0, 0.6),
+                             0px -4px 12px rgba(0, 0, 0, 0.8);
+                           z-index: 2; /* 确保文字在图片上 */
+                           white-space: nowrap; /* 防止换行 */">舆情分析</span>
+              <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: 35px;">
+              <SentimentAnalysisChart></SentimentAnalysisChart>
+            </div>
           </div>
         </div>
       </div>
@@ -154,7 +204,7 @@ import { onMounted, ref, reactive, nextTick, watch } from 'vue';
 import EMap from '@/components/Home/emap.vue';
 import EqTable from '@/components/Home/eqtable.vue';
 import NewInfo from '@/components/Home/newInfo.vue';
-import Chart1 from '@/components/Home/chart1.vue';
+import SentimentAnalysisChart from '@/components/Home/SentimentAnalysisChart.vue';
 import Chart2 from '@/components/Home/chart2.vue';
 import Chart3 from '@/components/Home/chart3.vue';
 import {fromEq, fromEqList, getAllEq, queryEq, queryEqList} from '@/api/system/eqlist';
@@ -540,6 +590,7 @@ onMounted(() => {
 }
 
 .left-body .left-top {
+  position: relative;
   width: 100%;
   height: 30%;
   overflow: hidden;
@@ -631,7 +682,7 @@ onMounted(() => {
   margin: 0 0.3%;
 }
 .right-top{
-  height: 700px;
+  height: 440px;
   display: flex;
   flex-direction: column;
 }
@@ -717,10 +768,14 @@ onMounted(() => {
   text-align: center;
 }
 
-.right-body .right-bottom {
+.right-body {
   width: 100%;
-  height: 45%;
+  height: 100%;
   margin-top: 1%;
+}
+
+.right-bottom{
+  height: 40%;
 }
 
 

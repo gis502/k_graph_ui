@@ -97,8 +97,9 @@ export const constantRoutes = [
     ]
   },
   {
-    path:'/knowledgeGraph',
-    component: () =>import('@/views/knowledgeGraph.vue'),
+    path:'/thd',
+    // component: () =>import('@/components/Cesium/thd.vue'),
+    component: () =>import('@/components/Cesium/CommandScreen.vue'),
     hidden: true
   },
   {

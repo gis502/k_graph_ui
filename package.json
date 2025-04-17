@@ -16,10 +16,9 @@
     "url": "https://gitee.com/y_project/RuoYi-Vue.git"
   },
   "dependencies": {
-    "@kousum/semi-ui-vue": "^0.25.0",
-    "md-editor-v3": "^5.1.1",
     "@element-plus/icons-vue": "2.3.1",
     "@kjgl77/datav-vue3": "^1.7.3",
+    "@kousum/semi-ui-vue": "^0.25.0",
     "@turf/turf": "^7.2.0",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "10.11.0",
@@ -32,6 +31,7 @@
     "docxtemplater": "^3.52.0",
     "echarts": "5.5.1",
     "echarts-gl": "^2.0.9",
+    "echarts-wordcloud": "^2.1.0",
     "element-plus": "2.7.6",
     "exceljs": "^4.4.0",
     "express": "^4.21.2",
@@ -44,6 +44,7 @@
     "js-cookie": "3.0.5",
     "jsencrypt": "3.3.2",
     "jspdf": "^2.5.2",
+    "md-editor-v3": "^5.1.1",
     "nprogress": "0.2.0",
     "pinia": "^2.2.0",
     "pizzip": "^3.1.7",

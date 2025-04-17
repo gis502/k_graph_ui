@@ -81,7 +81,7 @@ import {useRouter} from 'vue-router';
 const props = defineProps(['eqData']);
 
 const total = ref(0);
-const pageSize = ref(13);
+const pageSize = ref(7);
 const currentPage = ref(1);
 const getEqData = ref([]);
 const tableData = ref([]);
@@ -97,8 +97,9 @@ watch(() => props.eqData, () => {
 });
 
 const go = (row) => {
-  const route = router.resolve({path: '/knowledgeGraph', query: {eqName: row.earthquakeFullName}}).href;
-  // console.log("row.eqid----------------",row.eqid)
+  const route = router.resolve({path: '/thd', query: {eqid: row.eqid, eqqueueId: row.eqqueueId}}).href;
+  // const route = router.resolve({path: '/knowledgeGraph', query: {eqName: row.earthquakeFullName}}).href;
+  // console.log("row.eqid----------------",row.eqid) n0b+
   window.open(route, '_blank');
 };
 

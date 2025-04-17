@@ -8,7 +8,6 @@
           this.centerPoint.earthquakeName
         }}{{ Number(this.centerPoint.magnitude).toFixed(1) }}级地震
       </div>
-
     <div class="logo-menu menue-left">
       <div
           v-for="item in menuItems"
@@ -78,7 +77,7 @@ export default {
       ],
       rightMenuItems: [
         {title: '资源调度', component: 'layerChoose'},
-        {title: '灾情统计', component: 'thematicMapDownload'},
+        {title: '知识图谱', component: 'knowledgeGraph'},
         {title: '图件产出', component: 'reportDownload'},
         {title: '返回首页', component: 'frontPage'},
       ],

@@ -1,6 +1,6 @@
 <template>
-  <div class="content-body">
-    <div class="catalog">
+  <div class="content-body"  :class="{'bg-option1': ifShowCatalog, 'bg-option2': !ifShowCatalog}">
+    <div class="catalog" v-show="ifShowCatalog && ifShow === 0">
       <div class="titleName">
         知识图谱
       </div>
@@ -27,22 +27,38 @@
         </li>
       </div>
     </div>
-    <div class="knowledgeGraph">
+    <div class="observationWindow" v-show="ifShowCatalog"></div>
+
+    <div class="knowledgeGraph" v-show="ifShow === 0">
       <div class="chartContainer" ref="chart"></div>
     </div>
+
+    <div class="sentimentAnalysis" v-show="ifShow === 1">
+        <div class="sentimentAnalysis-title">
+          <span>舆情分析</span>
+        </div>
+        <div class="sentimentAnalysisChart1">
+          <AnalysisChart1/>
+        </div>
+        <div class="sentimentAnalysisChart2">
+          <AnalysisChart2/>
+        </div>
+    </div>
+
+    <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
     <div class="chat-panel" v-if="showChat">
       <div class="chat-title">小助手</div>
-      <div class="close-button" @click="updateChartData">
+      <div class="toggle-button close" @click="updateChartData">
         关闭助手
       </div>
       <div class="message-panel" id="message-panel">
         <div class="message-list">
           <div
-            :class="['message-item', item.type == 1 ? 'ai-item' : '']"
+            :class="['message-item', item.type === 1 ? 'ai-item' : '']"
             v-for="(item, index) in messageList"
             :id="'item' + index"
           >
-            <template v-if="item.type == 0">
+            <template v-if="item.type === 0">
               <div class="message-content">
                 <div class="content-inner">{{ item.content }}</div>
               </div>
@@ -91,17 +107,29 @@
 </template>
 
 <script setup>
-import { Search } from "@element-plus/icons-vue";
+import {Position, Search} from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { getGraphData } from "@/api/system/knowledgeGraph.js";
+import {getGraphData} from "@/api/system/knowledgeGraph.js";
 import { MdPreview } from "md-editor-v3";
 import { ElMessage } from "element-plus";
+import AnalysisChart1 from '@/views/AnalysisChart1.vue';
+import AnalysisChart2 from '@/views/AnalysisChart2.vue';
 
+
+
+const props = defineProps({
+  eqMagnitude:{
+    type:String,
+  },
+  currentTime:{
+    type:String,
+  }
+})
 // 响应式数据
 const inputValue = ref('');
 const currentIndex = ref(null);
-const showChat = ref(true);
+const showChat = ref(false);
 const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
@@ -109,6 +137,10 @@ const chart = ref(null);
 const chartData = ref([]);
 const chartLinks = ref([]);
 const echartsInstance = ref(null);
+// 根据地震大小控制展示，0：展示知识图谱；1：展示舆情分析
+const ifShow = ref(null);
+// 控制左侧列表是否隐藏
+const ifShowCatalog = ref(true);
 
 // 左侧列表数据
 const list = [
@@ -133,13 +165,7 @@ const newList = ref([]);
 
 // ECharts 配置
 const echartsOption = ref({
-  backgroundColor: {
-    image: 'https://pic.52112.com/180408/180408_203/ZOvUpabmkG_small.jpg',
-    repeat: 'repeat',
-    width: '100%',
-    height: '100%',
-    opacity: 0.8
-  },
+  backgroundColor: 'rgba(0,0,0,0)',
   grid: {
     left: '10%',
     top: 60,
@@ -214,58 +240,38 @@ const echartsOption = ref({
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    const res = await getGraphData();
+    if(props.eqMagnitude >= 6){
+      ifShow.value = 0;
 
-    chartLinks.value = res.map(item => ({
-      source: item.source.name,
-      target: item.target.name,
-      value: item.value.type
-    }));
+      const res = await getGraphData();
 
-    const nodeSet = new Set();
-    chartLinks.value.forEach(item => {
-      nodeSet.add(item.source);
-      nodeSet.add(item.target);
-    });
+      chartLinks.value = res.map(item => ({
+        source: item.source.name,
+        target: item.target.name,
+        value: item.value.type
+      }));
 
-    chartData.value = Array.from(nodeSet).map(name => ({ name }));
+      const nodeSet = new Set();
+      chartLinks.value.forEach(item => {
+        nodeSet.add(item.source);
+        nodeSet.add(item.target);
+      });
 
-    // 处理 newList 数据
-    const validValues = new Set(list.map(item => item.value));
-    newList.value = chartData.value
-        .filter(item => validValues.has(item.name))
-        .map((item, index) => ({
-          id: index + 1,
-          value: item.name
-        }));
+      chartData.value = Array.from(nodeSet).map(name => ({ name }));
 
-    // 特殊节点样式
-    echartsOption.value.series[0].data = chartData.value.map(item => {
-      item.symbolSize = 60;
-      if (item.name === '地震参数') {
-        item.itemStyle = {
-          borderColor: '#f20404',
-          borderWidth: 2,
-          shadowBlur: 10,
-          shadowColor: '#f20404',
-          color: '#001c43',
-        };
-        item.symbolSize = 100;
-      } else if (item.name === '地震震情信息s') {
-        item.itemStyle = {
-          borderColor: '#e2f204',
-          borderWidth: 2,
-          shadowBlur: 10,
-          shadowColor: '#e2f204',
-          color: '#001c43',
-        };
-      }
-      return item;
-    });
+      // 处理 newList 数据
+      const validValues = new Set(list.map(item => item.value));
+      newList.value = chartData.value
+          .filter(item => validValues.has(item.name))
+          .map((item, index) => ({
+            id: index + 1,
+            value: item.name
+          }));
 
-    echartsOption.value.series[0].links = chartLinks.value;
-
-    initChart();
+      initChart();
+    }else{
+      ifShow.value = 1;
+    }
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -275,6 +281,31 @@ const getData = async () => {
 const initChart = () => {
   if (!chart.value) return;
 
+  // 特殊节点样式
+  echartsOption.value.series[0].data = chartData.value.map(item => {
+    item.symbolSize = 60;
+    if (item.name === '地震参数') {
+      item.itemStyle = {
+        borderColor: '#f20404',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#f20404',
+        color: '#001c43',
+      };
+      item.symbolSize = 100;
+    } else if (item.name === '地震震情信息s') {
+      item.itemStyle = {
+        borderColor: '#e2f204',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#e2f204',
+        color: '#001c43',
+      };
+    }
+    return item;
+  });
+  echartsOption.value.series[0].links = chartLinks.value;
+
   echartsInstance.value = echarts.init(chart.value);
   echartsInstance.value.setOption(echartsOption.value);
 
@@ -283,15 +314,16 @@ const initChart = () => {
 };
 
 // 处理窗口大小变化
+
 const handleResize = () => {
   if (echartsInstance.value) {
     echartsInstance.value.resize();
   }
 };
-
 // 关闭助手并调整图表大小
 const updateChartData = () => {
-  showChat.value = false;
+  showChat.value = !showChat.value;
+  ifShowCatalog.value = !ifShowCatalog.value;
   nextTick(() => {
     handleResize();
   });
@@ -299,6 +331,10 @@ const updateChartData = () => {
 
 // 搜索节点并聚焦
 const focusNode = (nodeName) => {
+
+  console.log(inputValue.value,"输入框的内容")
+  console.log(nodeName,"节点名称")
+
   if (!nodeName?.trim()) {
     inputValue.value = '';
     return;
@@ -405,6 +441,80 @@ const keySend = (event) => {
   }
 };
 
+watch(() => props.currentTime, (newTime) => {
+      console.log('currentTime changed:', new Date(newTime));
+
+      const time1 = new Date("2022-06-02 00:00:00");
+      const time2 = new Date("2022-06-05 00:00:00");
+      const time3 = new Date("2022-06-08 00:00:00");
+      const time4 = new Date("2022-06-10 00:00:00")
+
+      switch (true) {
+        case new Date(newTime) < time1:
+          console.log("时间早于 2022-06-02");
+          echartsInstance.value.dispose();
+          chartData.value = [
+            {name: '项目',symbolSize: 80},
+            {name: '聂天宇', symbolSize: 60},
+          ]
+          chartLinks.value = [
+            {source: '项目', target: '聂天宇', value: '项目负责人'},
+          ]
+          initChart();
+          break;
+        case new Date(newTime) >= time1 && new Date(newTime) < time2:
+          console.log("时间在 2022-06-01 到 2022-06-05 之间");
+          echartsInstance.value.dispose();
+          chartData.value = [
+            {name: '项目',symbolSize: 80},
+            {name: '聂天宇', symbolSize: 60},
+            {name: '江立珂', symbolSize: 60},
+          ]
+          chartLinks.value = [
+            {source: '项目', target: '聂天宇', value: '项目负责人'},
+            {source: '项目', target: '江立珂', value: '项目成员'},
+          ]
+          initChart();
+          break;
+        case new Date(newTime) >= time2 && new Date(newTime) < time3:
+          console.log("时间在 2022-06-05 到 2022-06-08 之间");
+          echartsInstance.value.dispose();
+          chartData.value = [
+            {name: '项目',symbolSize: 80},
+            {name: '聂天宇', symbolSize: 60},
+            {name: '江立珂', symbolSize: 60},
+            {name: '白颜诺', symbolSize: 60},
+          ]
+          chartLinks.value = [
+            {source: '项目', target: '聂天宇', value: '项目负责人'},
+            {source: '项目', target: '江立珂', value: '项目成员'},
+            {source: '项目', target: '白颜诺', value: '项目成员'},
+          ]
+          initChart();
+          break;
+        case new Date(newTime) >= time3 && new Date(newTime) < time4:
+          console.log("时间在 2022-06-08 到 2022-06-10 之间");
+          echartsInstance.value.dispose();
+          chartData.value = [
+            {name: '项目',symbolSize: 80},
+            {name: '聂天宇', symbolSize: 60},
+            {name: '江立珂', symbolSize: 60},
+            {name: '白颜诺', symbolSize: 60},
+            {name: '李涌鑫', symbolSize: 60},
+          ]
+          chartLinks.value = [
+            {source: '项目', target: '聂天宇', value: '项目负责人'},
+            {source: '项目', target: '江立珂', value: '项目成员'},
+            {source: '项目', target: '白颜诺', value: '项目成员'},
+            {source: '项目', target: '李涌鑫', value: '项目牛马'},
+          ]
+          initChart();
+        default:
+          console.log("时间晚于或等于 2022-06-08");
+      }
+    }
+);
+
 // 生命周期钩子
 onMounted(() => {
   getData();
@@ -420,14 +530,25 @@ onBeforeUnmount(() => {
 
 <style scoped lang="less">
 // 采用css嵌套语法书写
+.bg-option1{
+  /* 背景板1 */
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 31%, rgba(26, 54, 77, 0) 56%, rgba(42, 89, 135, 0) 78%, rgba(47, 82, 117, 0.3) 85%, rgba(44, 69, 94, 0.2) 100%);
+}
+
+.bg-option2{
+  /* 背景板2 */
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+}
+
 .content-body {
   width: 100%;
   height: 100%;
   position: absolute;
   display: flex;
   flex-direction: row; /* 使元素横向排列 */
-
   // 确保 flex 容器允许子元素增长和收缩
+  border-radius: 20px;
+
   > *{
     flex-shrink:1;
   }
@@ -435,7 +556,6 @@ onBeforeUnmount(() => {
   .knowledgeGraph {
     flex: 1;
     height: 100%;
-    background-color: #1a4377;
 
     .chartContainer {
       width: 100%;
@@ -444,22 +564,59 @@ onBeforeUnmount(() => {
     }
   }
 
+  .sentimentAnalysis{
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .sentimentAnalysis-title {
+      width: 100%;
+      height: 50px;
+      line-height: 50px;
+      color: whitesmoke;
+      text-align: center;
+      font-size: 30px;
+    }
+
+    .sentimentAnalysisChart1,.sentimentAnalysisChart2{
+      flex:1;
+      border: 1px solid red;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
   .chat-panel {
-    background: #eff0f6;
-    height: calc(100vh);
+    //background: #eff0f6;
+    height: 100%;
+    border-top-right-radius: 20px;    /* 右上角圆角 */
+    border-bottom-right-radius: 20px;  /* 左下角圆角 */
+
     .chat-title {
       text-align: center;
       font-size: 20px;
       font-weight: bold;
+      color: whitesmoke;
     }
+
     .message-panel {
       position: relative;
-      height: calc(100vh - 200px);
+      height: calc(100% - 200px);
       overflow: auto;
       padding-bottom: 10px;
+      /* 隐藏滚动条 */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+
+    /* Chrome/Safari/Opera */
+    .message-panel::-webkit-scrollbar {
+      display: none;
+    }
+
       .message-list {
-        margin: 0px auto;
-        width: 450px;
+        margin: 0 auto;
+        width: 440px;
         .message-item {
           margin: 10px 0px;
           display: flex;
@@ -513,15 +670,16 @@ onBeforeUnmount(() => {
     }
     .send-panel {
       position: relative;
-      margin: 5px auto 0px;
+      margin: auto 0;
       width: 450px;
       background: #fff;
-      border-radius: 5px;
-      padding: 10px;
+      border-radius: 20px;
+      padding: 5px;
+
       .send-btn {
         text-align: right;
-        margin-bottom: 0px;
-        padding: 5px;
+        margin-bottom: 0;
+        padding: 3px;
         :deep(.el-form-item__content) {
           justify-content: flex-end;
         }
@@ -535,10 +693,12 @@ onBeforeUnmount(() => {
   }
 
   .catalog {
-    background-color: #0e172b;
+    background-color: rgba(0,0,0,0);
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
 
     .titleName {
       height: 100px;
@@ -553,10 +713,11 @@ onBeforeUnmount(() => {
       text-align: center;
       margin-bottom: 10px;
       flex-shrink: 0; /* 防止盒子宽度缩小 */
+      width: 200px;
 
       .search-button, .search-input {
-        background-color: #0c1c50;
-        box-shadow: inset 0 -1px 1px 0 #2e4a91;
+        background-color: rgba(0,0,0,0);
+        box-shadow: inset 0 -1px 1px 0 #0453fc;
         border-color: #FFFFFF00;
         height: 44px;
       }
@@ -568,7 +729,7 @@ onBeforeUnmount(() => {
       .search-input {
         border-radius: 0 12px 12px 0;
         color: whitesmoke;
-        width: 180px;
+        width: 140px;
       }
     }
 
@@ -618,29 +779,81 @@ onBeforeUnmount(() => {
       display: none;
     }
   }
+
+  .observationWindow{
+    height: 100%;
+    width: 48%;
+  }
 }
 
-
-
-.no-data {
-  text-align: center;
-  color: #5f5f5f;
-}
-
-.close-button {
-  position: relative;
-  background-color: #6897bb;
-  left: 10px;
+.toggle-button {
+  // 基础样式
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 5px;
-  padding: 5px;
+  padding: 5px 12px;
   color: white;
   cursor: pointer;
-  &:hover {
-    background-color: #4f6abf;
-  }
   width: 100px;
   height: 30px;
-  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.3s ease;
+  user-select: none;
+
+  // 悬停时的流动边框
+  &:hover {
+    border-color: transparent; // 隐藏原始边框
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 6px;
+      padding: 1px; // 边框厚度
+      background: linear-gradient(
+          90deg,
+          #0453fc,
+          #00f7ff,
+          #0453fc,
+      );
+      background-size: 200% auto;
+      -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: borderFlow 1.5s linear infinite;
+      z-index: 0;
+    }
+  }
+}
+
+@keyframes borderFlow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.close {
+  position: relative;
+  left: 10px;
+}
+
+.open {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
 }
 
 </style>
