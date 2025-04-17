@@ -135,6 +135,7 @@ const messageList = ref([]);
 const loading = ref(false);
 const chart = ref(null);
 const chartData = ref([]);
+const lastChartData = ref([]);
 const chartLinks = ref([]);
 const echartsInstance = ref(null);
 // 根据地震大小控制展示，0：展示知识图谱；1：展示舆情分析
@@ -280,6 +281,21 @@ const getData = async () => {
 // 初始化图表
 const initChart = () => {
   if (!chart.value) return;
+
+  // 检查 chartData 是否发生变化
+  const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
+
+  if (!isDataChanged) {
+    console.log('数据未变化，跳过渲染');
+    return; // 直接返回，不执行后续渲染逻辑
+  }
+
+  // 更新 lastChartData
+  lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
+
+  if(echartsInstance.value !== null ){
+    echartsInstance.value.dispose();
+  }
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartData.value.map(item => {
@@ -452,7 +468,6 @@ watch(() => props.currentTime, (newTime) => {
       switch (true) {
         case new Date(newTime) < time1:
           console.log("时间早于 2022-06-02");
-          echartsInstance.value.dispose();
           chartData.value = [
             {name: '项目',symbolSize: 80},
             {name: '聂天宇', symbolSize: 60},
@@ -464,7 +479,6 @@ watch(() => props.currentTime, (newTime) => {
           break;
         case new Date(newTime) >= time1 && new Date(newTime) < time2:
           console.log("时间在 2022-06-01 到 2022-06-05 之间");
-          echartsInstance.value.dispose();
           chartData.value = [
             {name: '项目',symbolSize: 80},
             {name: '聂天宇', symbolSize: 60},
@@ -478,7 +492,6 @@ watch(() => props.currentTime, (newTime) => {
           break;
         case new Date(newTime) >= time2 && new Date(newTime) < time3:
           console.log("时间在 2022-06-05 到 2022-06-08 之间");
-          echartsInstance.value.dispose();
           chartData.value = [
             {name: '项目',symbolSize: 80},
             {name: '聂天宇', symbolSize: 60},
@@ -494,7 +507,6 @@ watch(() => props.currentTime, (newTime) => {
           break;
         case new Date(newTime) >= time3 && new Date(newTime) < time4:
           console.log("时间在 2022-06-08 到 2022-06-10 之间");
-          echartsInstance.value.dispose();
           chartData.value = [
             {name: '项目',symbolSize: 80},
             {name: '聂天宇', symbolSize: 60},
@@ -581,7 +593,7 @@ onBeforeUnmount(() => {
 
     .sentimentAnalysisChart1,.sentimentAnalysisChart2{
       flex:1;
-      border: 1px solid red;
+      //border: 1px solid red;
       width: 100%;
       height: 100%;
     }

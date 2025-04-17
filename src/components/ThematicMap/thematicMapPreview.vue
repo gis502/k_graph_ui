@@ -46,7 +46,7 @@
       <img :src="imgshowURL" alt="导出图片" style="width: 100%;height: 100%">
     </div>
     <div class="preview-buttons">
-      <button @click="downloadPdf" class="download-button">导出为PDF</button>
+<!--      <button @click="downloadPdf" class="download-button">导出为PDF</button>-->
       <button @click="downloadImage" class="download-button" >下载图片</button>
       <button @click="closePreview" class="cancel-button">取消</button>
     </div>

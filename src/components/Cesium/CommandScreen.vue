@@ -533,12 +533,12 @@
             >
               专题图预览
             </el-button>
-            <el-button
-                :type="activeTab === 'report' ? 'primary' : 'default'"
-                @click="activeTab = 'report'"
-            >
-              报告产出
-            </el-button>
+<!--            <el-button-->
+<!--                :type="activeTab === 'report' ? 'primary' : 'default'"-->
+<!--                @click="activeTab = 'report'"-->
+<!--            >-->
+<!--              报告产出-->
+<!--            </el-button>-->
           </div>
           <!-- 专题图 -->
           <div v-if="activeTab === 'thematicMap'" class="section">
@@ -558,35 +558,35 @@
               </div>
             </div>
           </div>
-          <!-- 报告 -->
-          <div v-if="activeTab === 'report'" class="section">
-            <div class="grid-container-report">
-              <div
-                  v-for="(item, index) in reportItems"
-                  :key="index"
-                  class="grid-item"
-              >
-                <el-card shadow="hover">
-                  <div class="report-preview">
-                    <p class="report-name">{{ item.theme }}</p>
-                    <div class="report-bottom" @click="downloadReport(item)">
-                      下载报告
-                    </div>
-                  </div>
-                </el-card>
-              </div>
-            </div>
-          </div>
+<!--            报告-->
+<!--          <div v-if="activeTab === 'report'" class="section">-->
+<!--            <div class="grid-container-report">-->
+<!--              <div-->
+<!--                  v-for="(item, index) in reportItems"-->
+<!--                  :key="index"-->
+<!--                  class="grid-item"-->
+<!--              >-->
+<!--                <el-card shadow="hover">-->
+<!--                  <div class="report-preview">-->
+<!--                    <p class="report-name">{{ item.theme }}</p>-->
+<!--                    <div class="report-bottom" @click="downloadReport(item)">-->
+<!--                      下载报告-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--                </el-card>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
       </div>
 
-      <!-- 专题图预览弹框 -->
-      <!--      <thematic-map-preview-->
-      <!--        v-if="ifShowMapPreview"-->
-      <!--        :img-url="imgshowURL"-->
-      <!--        :img-name="imgName"-->
-      <!--        @close="ifShowThematicMapDialog(false)"-->
-      <!--      />-->
+<!--       专题图预览弹框-->
+<!--            <thematic-map-preview-->
+<!--              v-if="ifShowMapPreview"-->
+<!--              :img-url="imgshowURL"-->
+<!--              :img-name="imgName"-->
+<!--              @close="ifShowThematicMapDialog(false)"-->
+<!--            />-->
     </div>
 
 
@@ -2490,10 +2490,10 @@ export default {
         this.thematicMapitems = res.themeData
         console.log("专题图：", this.thematicMapitems, "diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
       })
-      handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
-        this.reportItems = res.themeData
-        console.log("报告：", this.reportItems)
-      })
+      // handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
+      //   this.reportItems = res.themeData
+      //   console.log("报告：", this.reportItems)
+      // })
     },
 
 
@@ -5312,7 +5312,7 @@ export default {
   margin-bottom: 10px;
   width: 60%;
   margin-top: 10px;
-  left: 19%;
+  left: 39%;
   position: relative;
 }
 

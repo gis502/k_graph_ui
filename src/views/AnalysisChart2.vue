@@ -119,60 +119,366 @@ const data = ref([
   {name: '祈福', value: 180},
   {name: '烛光悼念', value: 150}
 ]);
-
-// ECharts 配置
-const maskImage = new Image();
-maskImage.src = 'data:image/png;base64,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'
-const echartsOption = ref({
-  backgroundColor: 'rgba(0, 0, 0, 0)',
-  title: {
-    text: '词云图',  // 标题文字
-    left: 'left',   // 水平居中
-    top: 40,          // 距离顶部 20px
-    textStyle: {
-      color: 'white',  // 标题颜色
-      fontSize: 24,   // 字体大小
-      fontWeight: 'bold' // 加粗
-    }
-  },
-  tooltip: {
-    show: false,
-  },
-  series: [{
-    maskImage: maskImage, //自定义形状
-    type: 'wordCloud',
-    gridSize: 5,
-    sizeRange: [10, 30],
-    width: '50%',
-    height: '100%',
-    // rotationRange: [-45, 0, 45, 90],
-    // maskImage: maskImage,
-    textStyle: {
-      color: () => {
-        // 方案1：从预定义的一组美观颜色中随机选择
-        const colors = [
-          '#37A2FF', '#32C5E9', '#67E0E3', '#9FE6B8',
-          '#FFDB5C', '#FF9F7F', '#FB7293', '#E062AE',
-          '#E690D1', '#E7BCF3', '#9D96F5', '#8378EA'
-        ];
-        return colors[Math.floor(Math.random() * colors.length)];
-      },
-      emphasis: {             // 鼠标悬停效果
-        shadowBlur: 5,
-        shadowColor: '#333'
-      }
-    },
-    left: 'center',
-    top: 'center',
-    right: null,
-    bottom: null,
-    data: data,
-  },
-  ],
-});
+const echartsOption = ref();
 
 const initChart = () => {
   if (!chart.value) return;
+
+  const currentYear = new Date().getFullYear();
+  const analysis = {
+    "消极": [9, 8, 2, 13, 15, 6, 20, 23, 20, 8, 6],
+    "积极": [27, 60, 71, 74, 74, 88, 130, 50, 86, 51, 57],
+    "中立": [2, 4, 6, 7, 3, 5, 14, 2, 6, 3, 2],
+    "未知": [3, 1, 0, 3, 1, 0, 1, 0, 1, 0, 0]
+  }
+
+  // 以下是流光折线图的一些配置的
+  var data1 = analysis['消极'];
+  var data2 = analysis['积极'];
+  var data3 = analysis['中立'];
+  var data4 = analysis['未知'];
+
+  var json = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data1,
+      lowLine: [],
+    }
+  };
+  var json2 = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data2,
+      lowLine: [],
+    }
+  };
+  var json3 = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data3,
+      lowLine: [],
+    }
+  };
+  var json4 = {
+    chart0: {
+      xcategory: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()),
+      low: data4,
+      lowLine: [],
+    }
+  };
+
+  var zrUtil = echarts.util;
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json.chart0.lowLine.push([{
+      coord: [index, json.chart0.low[index]]
+    }, {
+      coord: [index + 1, json.chart0.low[index + 1]]
+    }]);
+  });
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json2.chart0.lowLine.push([{
+      coord: [index, json2.chart0.low[index]]
+    }, {
+      coord: [index + 1, json2.chart0.low[index + 1]]
+    }]);
+  });
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json3.chart0.lowLine.push([{
+      coord: [index, json3.chart0.low[index]]
+    }, {
+      coord: [index + 1, json3.chart0.low[index + 1]]
+    }]);
+  });
+  zrUtil.each(json.chart0.xcategory, function(item, index) {
+    json4.chart0.lowLine.push([{
+      coord: [index, json4.chart0.low[index]]
+    }, {
+      coord: [index + 1, json4.chart0.low[index + 1]]
+    }]);
+  });
+
+  echartsOption.value = {
+        title: {
+          text: '评论分析',
+          left: 'left',
+          top:'10%',
+          textStyle: {
+            color: 'white',
+            fontSize: 24,
+            fontWeight: 'bold',
+            textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
+          },
+        },
+        tooltip: {
+          textStyle:{
+            color: '#15ecf4'
+          },
+          trigger: 'axis',
+          axisPointer: {
+            lineStyle: {
+              color: '#15ecf4'
+            }
+          },
+          backgroundColor: 'rgba(0,0,0,.8)',
+          extraCssText: 'box-shadow: 4px 4px 10px rgba(21, 250, 255,.6);',
+          formatter: function(params) {
+            var result = params[0].name + '年<br>';
+            params.forEach(function(item) {
+              result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + item.color + '"></span>';
+              // 直接展示数据，并添加单位（次）
+              result += item.seriesName + ": " + item.data + " 次<br>";
+            });
+            return result;
+          }
+        },
+        legend: {
+          data: ['消极', '积极', '中立', '未知'],
+          textStyle: {
+            fontSize: 10,
+            color: 'rgb(0,253,255,0.6)'
+          },
+          top: '10%',
+          right: '0%'
+        },
+        grid: {
+          bottom: 65,
+          left: 60,
+          right: 25,
+        },
+        xAxis: {
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: '#15faff',
+            },
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: {
+            show: true
+          },
+          data: Array.from({ length: 10 }, (_, i) => (currentYear - i).toString()).reverse(),
+        },
+        yAxis: {
+          axisLine: {
+            show: false,
+          },
+          axisTick: {
+            show: false
+          },
+          splitLine: {
+            lineStyle: {
+              type: 'dashed',
+              color: '#4b4d64'
+            }
+          },
+          axisLabel: {
+            formatter: '{value} ',
+            textStyle: { //改变刻度字体样式
+              color: '#ffffff'
+            }
+          },
+        },
+        series: [
+          {
+            name: '消极',
+            type: 'line',
+            // smooth: true,
+            symbol: 'circle',
+            symbolSize: 10,
+            areaStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(255, 204,1, .9)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(6, 8, 41,.1)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: '#ffcb00'
+              }
+            },
+            data: data1
+          },
+          {
+            name: '消极',
+            type: 'lines',
+            coordinateSystem: 'cartesian2d',
+            zlevel: 1,
+            smooth: true,
+            symbol: 'circle',
+            effect: {
+              show: true,
+              smooth: true,
+              period: 2,
+              symbolSize: 8
+            },
+            lineStyle: {
+              normal: {
+                color: '#ffcb00',
+                width: 0,
+                opacity: 0,
+                curveness: 0,
+              }
+            },
+            data: json.chart0.lowLine
+          },
+          {
+            name: '积极',
+            type: 'line',
+            // smooth: true,
+            symbol: 'circle',
+            symbolSize: 10,
+            areaStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(21, 250, 255,.9)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(6, 8, 41,.1)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: '#15faff'
+              }
+            },
+            data: data2
+          },
+          {
+            name: '积极',
+            type: 'lines',
+            coordinateSystem: 'cartesian2d',
+            zlevel: 1,
+            smooth: true,
+            symbol: 'circle',
+            effect: {
+              show: true,
+              smooth: true,
+              period: 2,
+              symbolSize: 8
+            },
+            lineStyle: {
+              normal: {
+                color: '#15faff',
+                width: 0,
+                opacity: 0,
+                curveness: 0,
+              }
+            },
+            data: json2.chart0.lowLine
+          },
+          {
+            name: '中立',
+            type: 'line',
+            // smooth: true,
+            symbol: 'circle',
+            symbolSize: 10,
+            areaStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgb(255, 160, 122)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(6, 8, 41,.1)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: '#FFA07A'
+              }
+            },
+            data: data3
+          },
+          {
+            name: '中立',
+            type: 'lines',
+            coordinateSystem: 'cartesian2d',
+            zlevel: 1,
+            smooth: true,
+            symbol: 'circle',
+            effect: {
+              show: true,
+              smooth: true,
+              period: 2,
+              symbolSize: 8
+            },
+            lineStyle: {
+              normal: {
+                color: '#FFA07A',
+                width: 0,
+                opacity: 0,
+                curveness: 0,
+              }
+            },
+            data: json3.chart0.lowLine
+          },
+          {
+            name: '未知',
+            type: 'line',
+            // smooth: true,
+            symbol: 'circle',
+            symbolSize: 10,
+            areaStyle: {
+              normal: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                  offset: 0,
+                  color: 'rgba(255, 99, 71)'
+                }, {
+                  offset: 0.8,
+                  color: 'rgba(6, 8, 41,.1)'
+                }], false),
+                shadowColor: 'rgba(0, 0, 0, 0.1)',
+                shadowBlur: 10
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: '#FF6A4D'
+              }
+            },
+            data: data4
+          },
+          {
+            name: '未知',
+            type: 'lines',
+            coordinateSystem: 'cartesian2d',
+            zlevel: 1,
+            smooth: true,
+            symbol: 'circle',
+            effect: {
+              show: true,
+              smooth: true,
+              period: 2,
+              symbolSize: 8
+            },
+            lineStyle: {
+              normal: {
+                color: '#FF6A4D',
+                width: 0,
+                opacity: 0,
+                curveness: 0,
+              }
+            },
+            data: json4.chart0.lowLine
+          },
+        ]
+  };
 
   echartsInstance.value = echarts.init(chart.value);
   echartsInstance.value.setOption(echartsOption.value);
@@ -190,14 +496,13 @@ const handleResize = () => {
 const getData = async () => {
   try {
     const res = await getSentimentAnalysisChartData();
-
     console.log(res, "这个结果是什么")
+
     initChart();
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
 };
-
 
 // 生命周期钩子
 onMounted(() => {
