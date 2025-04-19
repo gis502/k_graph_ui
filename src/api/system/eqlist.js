@@ -171,7 +171,7 @@ export function eqEventTrigger(data) {
 export function addNewEq(data) {
   return request({
     url: '/system/trigger',
-    method: 'get',
+    method: 'post',
     data
   })
 }

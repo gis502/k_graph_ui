@@ -313,6 +313,8 @@ const cancelPanel = () => {
 const commitPanel = () => {
   addPanel.value = !addPanel.value
   addDTO.value.eqAddr = simplifyLocation(addDTO.value.eqAddr);
+  addDTO.value.eqName = simplifyEqName(addDTO.value.eqAddr);
+  addDTO.value.eqName += addDTO.value.eqMagnitude + '级地震';
   // addDTO.value.event = guid();
   addDTO.value.eqType = 'Z';
   addDTO.value.eqTime = addDTO.value.eqTime.replace(/T/, ' ')
@@ -325,30 +327,40 @@ const commitPanel = () => {
 
   })
 
+  function simplifyEqName(fullName) {
+    // 匹配“X省X市X县”或“X省X市X区”等结构
+    const match = fullName.match(/([\u4e00-\u9fa5]+省)?([\u4e00-\u9fa5]+市)?([\u4e00-\u9fa5]+(县|区))?/);
+
+    if (match) {
+      // 提取各级地名并去掉“省市县区”等字
+      const province = match[1] ? match[1].replace('省', '') : '';
+      const city = match[2] ? match[2].replace('市', '') : '';
+      const county = match[3] ? match[3].replace(/(县|区)/, '') : '';
+      return province + city + county;
+    }
+
+    // fallback：去除“省市县区乡镇”等字样，仅保留核心地名
+    return fullName.replace(/(省|市|县|区|乡|镇)/g, '');
+  }
+
+
 
   console.log("新增成功！")
 
 }
 
 const simplifyLocation = (eqAddr) => {
-  const match = eqAddr.match(/^(\S*省)?(\S*市|\S*州)?(\S*区|\S*县)/);
-  if (!match) return eqAddr; // 无法匹配返回原始地名
+  const match = eqAddr.match(/^(\S*省)?(\S*市|\S*州)?(\S*区|\S*县)?(\S*镇)?/);
+  if (!match) return eqAddr;
 
-  // 提取省、市/州、区/县
-  // const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
-  // const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
-  const province = match[1];
-  const cityOrState = match[2]
-  const county = match[3];
+  const province = match[1] || '';
+  const cityOrState = match[2] || '';
+  const county = match[3] || '';
+  const town = match[4] || '';
 
-  // 如果市/州与区/县之间只有一个字，连带区/县返回
-  // if (county.length === 1) {
-  //   return `${province}${match[3]}`;
-  // }
-
-  // 正常返回省、市/州简化结果
-  return `${province}${cityOrState}${county}`;
+  return `${province}${cityOrState}${county}${town}`;
 }
+
 
 const guid =(num) => {
   return num ?
