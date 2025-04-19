@@ -84,30 +84,83 @@
                   <!-- 正式和测试按钮，固定不切换 -->
                   <el-button
                     size="small"
-                    :type="activeMode === 'Z' ? 'danger' : 'default'"
                     style="font-size: 14px;"
-                    @click="activeMode = 'Z'"
+                    @click="addEq"
                   >
-                    真实
-                  </el-button>
-                  <el-button
-                    size="small"
-                    :type="activeMode === 'Y' || activeMode === 'T' ? 'primary' : 'default'"
-                    style="font-size: 14px;"
-                    @click="activeMode = 'Y'"
-                  >
-                    测试
+                    新增
                   </el-button>
                 </div>
               </div>
               <div style="flex:1">
-                <eq-table :eq-data="CeShiTableData"/>
+                <eq-table :eq-data="tableData"/>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <el-dialog title="新增地震" v-model="addPanel" width="30%">
+      <el-form ref="panel" :model="addDTO">
+        <el-row>
+          <el-col :span="55">
+            <el-form-item label="震发位置：" prop="eqAddr">
+              <div class="custom-cascader-wrapper">
+                <!-- 输入框 -->
+                <el-input
+                  v-model="addDTO.eqAddr"
+                  placeholder="请选择或输入震发位置"
+                  class="custom-input"
+                />
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="18">
+            <el-form-item label="发震时间：" prop="eqTime">
+              <el-date-picker
+                v-model="addDTO.eqTime"
+                type="datetime"
+                placeholder="选择日期时间"
+                value-format="YYYY-MM-DDTHH:mm:ss"
+                size="large">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="震级(级)：" prop="eqMagnitude">
+              <el-input v-model="addDTO.eqMagnitude" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="深度(千米)：" prop="eqDepth">
+              <el-input v-model="addDTO.eqDepth" placeholder="请输入内容"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="10">
+          <el-col :span="12">
+            <el-form-item label="经度(度分)：" prop="longitude">
+              <el-input v-model="addDTO.longitude" placeholder="请输入内容" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="纬度(度分)：" prop="latitude">
+              <el-input v-model="addDTO.latitude" placeholder="请输入内容" type="number"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="cancelPanel">取 消</el-button>
+          <el-button type="primary" @click="commitPanel">确 定</el-button>
+        </span>
+      </el-form>
+    </el-dialog>
+
     <el-dialog v-model="queryFormVisible" title="筛选" width="28vw" style="top:20vh">
       <el-form :inline="true" :model="formValue">
         <el-form-item label="地震位置">
@@ -149,54 +202,123 @@
 </template>
 
 <script setup>
-import { BorderBox7 as DvBorderBox7, Decoration5 as DvDecoration5 } from '@kjgl77/datav-vue3';
 import { onMounted, ref, reactive, nextTick, watch } from 'vue';
 import EMap from '@/components/Home/emap.vue';
 import EqTable from '@/components/Home/eqtable.vue';
 import NewInfo from '@/components/Home/newInfo.vue';
-import Chart1 from '@/components/Home/chart1.vue';
 import Chart2 from '@/components/Home/chart2.vue';
 import Chart3 from '@/components/Home/chart3.vue';
-import {fromEq, fromEqList, getAllEq, queryEq, queryEqList} from '@/api/system/eqlist';
+import {addNewEq, fromEqList, queryEqList} from '@/api/system/eqlist';
 import {getEqList} from "@/api/system/damageassessment.js";
 
 const nowTime = ref(null);
 const tableData = ref([]);
 const EqAll = ref([]);
 const lastValidEqData = ref(null);
+let addPanel = ref(false);
+let addDTO = ref({
+    event: '',
+    eqName: '',
+    eqTime: '',
+    eqAddr: '',
+    longitude: '',
+    latitude: '',
+    eqMagnitude: '',
+    eqDepth: '',
+    eqType: ''
+})
+
 
 const getEq = () => {
   getEqList().then((res) => {
     console.log("地震数据", res.data)
     EqAll.value = res.data;
     console.log("EqAll.value", EqAll.value)
-    tableData.value = res.data;
+    tableData.value = res.data.filter(item => item.eqType === 'Z');
 
     lastEqData.value = tableData.value[0];
 
   });
 };
 
+const addEq = () => {
+  addPanel.value = true;
+}
+
+const cancelPanel = () => {
+  addDTO = {
+    event: '',
+    eqName: '',
+    eqTime: '',
+    eqAddr: '',
+    longitude: '',
+    latitude: '',
+    eqMagnitude: '',
+    eqDepth: '',
+    eqType: '',
+  }
+}
+
+const commitPanel = () => {
+  addPanel.value = !addPanel.value
+  addDTO.value.eqAddr = simplifyLocation(addDTO.value.eqAddr);
+  addDTO.value.event = guid();
+  addDTO.value.eqType = 'Z';
+  addDTO.value.eqTime = addDTO.value.eqTime.replace(/T/, ' ')
+  console.log(addDTO.value);
+  setTimeout(() => {
+    getEq();
+    console.log("新增成功！")
+  }, 1000)
+  addNewEq(addDTO.value).then(() => {
+  })
+
+
+  console.log("新增成功！")
+
+}
+
+const simplifyLocation = (eqAddr) => {
+  const match = eqAddr.match(/^(\S*省)?(\S*市|\S*州)?(\S*区|\S*县)/);
+  if (!match) return eqAddr; // 无法匹配返回原始地名
+
+  // 提取省、市/州、区/县
+  // const province = match[1] ? match[1].replace("省", "") : ""; // 省份去掉“省”
+  // const county = match[3] ? match[3].replace(/[区县]/, "") : ""; // 区/县去掉后缀
+  const province = match[1];
+  const cityOrState = match[2]
+  const county = match[3];
+
+  // 如果市/州与区/县之间只有一个字，连带区/县返回
+  // if (county.length === 1) {
+  //   return `${province}${match[3]}`;
+  // }
+
+  // 正常返回省、市/州简化结果
+  return `${province}${cityOrState}${county}`;
+}
+
+const guid =(num) => {
+  return num ?
+    Array.from({length: num}, () => Math.floor(Math.random() * 10)).join('') :
+    'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      let r = Math.random() * 16 | 0,
+        v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+}
+
+
 let lastEqData = ref(null);
 
 const requestParams = ref('');
 // 当前模式，初始为正式
 const activeMode = ref('Z');
-const CeShiTableData = computed(() => {
-  if (activeMode.value === 'Z') {
-    return tableData.value.filter(item => item.eqType === 'Z');
-  } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
-    return tableData.value.filter(item => item.eqType === 'Y' || item.eqType === 'T');
-  }
-  return tableData.value;
-});
 const MapData = computed(() => {
   let filteredData = tableData.value;
 
   if (activeMode.value === 'Z') {
     filteredData = filteredData.filter(item => item.eqType === 'Z');
-  } else if (activeMode.value === 'Y' || activeMode.value === 'T') {
-    filteredData = filteredData.filter(item => item.eqType === 'Y' || item.eqType === 'T');
   }
   // 过滤出年份大于等于2000的地震数据
   filteredData = filteredData.filter(item => item.occurrenceTime && new Date(item.occurrenceTime).getFullYear() >= 2000&&item.magnitude >= 3);
@@ -207,18 +329,6 @@ const MapData = computed(() => {
 
 // 监听 MapData 变化，更新 lastEqData
 watch(MapData, (newVal) => {
-  if (newVal.length > 0&&newVal[0].magnitude>=3) {
-    lastValidEqData.value = newVal[0]; // 存储上一次有值的第一条数据
-    lastEqData.value = newVal[0];
-  } else {
-    lastEqData.value = lastValidEqData.value; // 为空时回退到存储值
-  }
-}, { deep: true, immediate: true });
-
-
-// 监听 CeShiTableData 变化，更新 lastEqData
-watch(CeShiTableData, (newVal) => {
-  // console.log(CeShiTableData,"CeShiTableData")
   if (newVal.length > 0&&newVal[0].magnitude>=3) {
     lastValidEqData.value = newVal[0]; // 存储上一次有值的第一条数据
     lastEqData.value = newVal[0];
@@ -326,7 +436,8 @@ const onSubmit = () => {
   fromEqList(queryParams).then((res) => {
     console.log(tableData,"tableData")
     tableData.value = res;
-    lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
+    console.log(res)
+    lastEqData.value = tableData.value.length > 0 ? tableData.value[0] : null;
   });
   queryFormVisible.value = false;
 };
@@ -338,14 +449,14 @@ const openQueryFrom = () => {
 const query = () => {
   if (requestParams.value === '') {
     tableData.value = EqAll.value;
-    lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
+    lastEqData.value = tableData.value.length > 0 ? tableData.value[0] : null;
     return;
   }
   // queryEq({ queryValue: requestParams.value }).then((res) => {
   queryEqList({queryValue: requestParams.value}).then((res) => {
     console.log(requestParams.value)
     tableData.value = res;
-    lastEqData.value = CeShiTableData.value.length > 0 ? CeShiTableData.value[0] : null;
+    lastEqData.value = tableData.value.length > 0 ? tableData.value[0] : null;
   });
 };
 
