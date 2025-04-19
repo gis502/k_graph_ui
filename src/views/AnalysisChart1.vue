@@ -126,7 +126,7 @@ maskImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtW
 const echartsOption = ref({
       backgroundColor: 'rgba(0, 0, 0, 0)',
       title: {
-        text: '词云图',  // 标题文字
+        text: '地震词云图',  // 标题文字
         left: 'left',   // 水平居中
         top: 40,          // 距离顶部 20px
         textStyle: {
@@ -217,10 +217,6 @@ onBeforeUnmount(() => {
   position: relative;
   height: 100%;
   width: 80%;
-
-  .title{
-
-  }
 
   .chartContainer {
     position: absolute;

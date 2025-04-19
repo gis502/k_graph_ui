@@ -591,13 +591,13 @@
 
 
     <div id="cesiumContainer">
-      <!--中心标绘信息-->
+<!--      中心标绘信息-->
       <eqCenterPanel
           v-show="eqCenterPanelVisible"
           :position="PanelPosition"
           :popupData="PanelData"
       />
-      <!--态势标绘信息-->
+<!--      态势标绘信息-->
       <plotInfoOnlyShowPanel
           v-show="plotShowOnlyPanelVisible"
           :position="PanelPosition"
@@ -605,13 +605,13 @@
           :eqThemeInfo="eqThemeData"
           :popupData="PanelData"
       />
-      <!--救援队伍、应急物资、避难场所图层标绘点的弹窗-->
+<!--      救援队伍、应急物资、避难场所图层标绘点的弹窗-->
       <RouterPanel
           :visible="routerPopupVisible"
           :position="PanelPosition"
           :popupData="routerPanelData"
       />
-      <!--聚合标绘信息-->
+<!--      聚合标绘信息-->
       <dataSourcePanel
           :visible="dataSourcePopupVisible"
           :position="PanelPosition"
@@ -5207,6 +5207,7 @@ export default {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  z-index:1;
 }
 
 /* 更改比例尺位置 */
@@ -5481,7 +5482,7 @@ knowledgeGraphContainer{
   width: 30%;
   top: 13%;
   height: 79%;
-  z-index: 30;
+  z-index: 2;
   right: 0.3%;
   position: relative;
 }

@@ -12,7 +12,7 @@
       <div
           v-for="item in menuItems"
           :key="item.title"
-          class="logo-menu-tittle"
+          class="logo-menu-tittle-left"
           :class="{ 'logo-menu-active': isActive(item.component) }"
           :title="item.title"
           @click="toggleComponent(item.component)"
@@ -24,7 +24,7 @@
       <div
           v-for="item in rightMenuItems"
           :key="item.title"
-          class="logo-menu-tittle"
+          class="logo-menu-tittle-right"
           :class="{ 'logo-menu-active': isActive(item.component) }"
           :title="item.title"
           @click="item.component === 'frontPage' ? navigateToFrontPage() : toggleComponent(item.component)"
@@ -72,14 +72,14 @@ export default {
       eqday:'',
       menuItems: [
         {title: '灾情总览', component: 'dataStats'},
-        {title: '灾损预估', component: 'damageThemeAssessment'},
+        // {title: '灾损预估', component: 'damageThemeAssessment'},
         {title: '标绘统计', component: 'cartographicStatistics'},
       ],
       rightMenuItems: [
-        {title: '资源调度', component: 'layerChoose'},
+        // {title: '资源调度', component: 'layerChoose'},
         {title: '知识图谱', component: 'knowledgeGraph'},
         {title: '图件产出', component: 'reportDownload'},
-        {title: '返回首页', component: 'frontPage'},
+        // {title: '返回首页', component: 'frontPage'},
       ],
     };
   },
@@ -160,12 +160,28 @@ export default {
   right: 3%;
 }
 
-.logo-menu-tittle {
+.logo-menu-tittle-left {
   color: #fff;
   height: 3.5vh;
-  width: 4.5vw;
-  margin-right: 12px;
+  width:  4.5vw;
+  /*margin-right: 12px;*/
   margin-top: 26px;
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(/src/assets/images/CommandScreen/发光框.png);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.logo-menu-tittle-right{
+  color: #fff;
+  height: 3.5vh;
+  width:  4.5vw;
+  margin-right: 40px;
+  margin-top: 26px;
+  /*margin-left: 20px;*/
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,14 +195,27 @@ export default {
 }
 
 @media screen and (max-width: 1490px) {
-  .logo-menu-tittle {
+  .logo-menu-tittle-left {
     width: 92px !important;
   }
 }
 
+@media screen and (max-width: 1490px) {
+  .logo-menu-tittle-right {
+    width: 120px !important;
+  }
+}
+
 @media screen and (max-width: 1835px) {
-  .logo-menu-tittle {
-    width: 86px !important;
+  .logo-menu-tittle-left {
+    width: 120px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media screen and (max-width: 1835px) {
+  .logo-menu-tittle-right {
+    width: 120px !important;
     font-size: 16px !important;
   }
 }

@@ -322,6 +322,7 @@ const commitPanel = () => {
     console.log("新增成功！")
   }, 1000)
   addNewEq(addDTO.value).then(() => {
+
   })
 
 

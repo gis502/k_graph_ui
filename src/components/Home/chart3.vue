@@ -8,30 +8,39 @@
 import * as echarts from 'echarts';
 import {onBeforeUnmount, onMounted, ref} from "vue";
 import 'echarts-wordcloud';
+import {useRouter} from 'vue-router';
+const router = useRouter();
 
 // 响应式数据
 const chart = ref(null);
 const echartsInstance = ref(null);
 const data = ref([
-  { name: '缅甸地震', value: 500 },      // 核心事件
-  { name: '震级6.8', value: 400 },      // 地震强度
-  { name: '仰光', value: 350 },         // 影响城市
-  { name: '曼德勒', value: 300 },       // 影响城市
-  { name: '震源深度10公里', value: 280 }, // 地震参数
-  { name: '余震', value: 250 },         // 次生灾害
-  { name: '救援', value: 220 },         // 应急响应
-  { name: '伤亡', value: 200 },          // 人员影响
-  { name: '建筑物倒塌', value: 180 },    // 直接破坏
-  { name: '国际援助', value: 150 },      // 外部支援
-  { name: '地震带', value: 120 },        // 地理背景
-  { name: '红十字会', value: 100 },      // 救援组织
-  { name: '避难所', value: 90},         // 灾后安置
-  { name: '电力中断', value: 80 },       // 基础设施影响
-  { name: '通讯中断', value: 70 },       // 基础设施影响
-  { name: '地质活动', value: 60 },       // 科学分析
-  { name: '预警系统', value: 50 },       // 防灾措施
-  { name: '板块运动', value: 40 },       // 地震原因
+  { name: '缅甸地震', value: 500, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '震级6.8', value: 400, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '仰光', value: 350, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '曼德勒', value: 300, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '震源深度10公里', value: 280, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '余震', value: 250, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '救援', value: 220, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '伤亡', value: 200, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '建筑物倒塌', value: 180, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '国际援助', value: 150, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '地震带', value: 120, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '红十字会', value: 100, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '避难所', value: 90, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '电力中断', value: 80, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '通讯中断', value: 70, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '地质活动', value: 60, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '预警系统', value: 50, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' },
+  { name: '板块运动', value: 40, eqid: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b', eqqueueId: 'be3a5ea4-8dfd-a0a2-2510-21845f17960b01c' }
 ]);
+
+const go = (row) => {
+  const route = router.resolve({path: '/thd', query: {eqid: row.eqid, eqqueueId: row.eqqueueId}}).href;
+  // const route = router.resolve({path: '/knowledgeGraph', query: {eqName: row.earthquakeFullName}}).href;
+  // console.log("row.eqid----------------",row.eqid) n0b+
+  window.open(route, '_blank');
+};
 
 // ECharts 配置
 const echartsOption = ref({
@@ -79,6 +88,20 @@ const initChart = () => {
 
   echartsInstance.value = echarts.init(chart.value);
   echartsInstance.value.setOption(echartsOption.value);
+
+
+  // 添加点击事件监听
+  echartsInstance.value.on('click', function (params) {
+    // 获取点击的词条数据
+    const clickedItem = params.data;
+    if (clickedItem && clickedItem.eqid && clickedItem.eqqueueId) {
+      go(clickedItem);
+    } else {
+      console.warn('缺少必要参数：eqid 或 eqqueueId');
+    }
+  });
+
+
 
   // 添加窗口大小变化监听
   window.addEventListener('resize', handleResize);

@@ -130,7 +130,7 @@ const props = defineProps({
 // 响应式数据
 const inputValue = ref('');
 const currentIndex = ref(null);
-const showChat = ref(true);
+const showChat = ref(false);
 const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
@@ -561,6 +561,7 @@ onBeforeUnmount(() => {
   flex-direction: row; /* 使元素横向排列 */
   // 确保 flex 容器允许子元素增长和收缩
   border-radius: 20px;
+  z-index: 2;
 
   > *{
     flex-shrink:1;
@@ -794,6 +795,7 @@ onBeforeUnmount(() => {
   }
 
   .observationWindow{
+    pointer-events: none;
     height: 100%;
     width: 48%;
   }

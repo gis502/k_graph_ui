@@ -14,111 +14,6 @@ import 'echarts-wordcloud';
 // 响应式数据
 const chart = ref(null);
 const echartsInstance = ref(null);
-const data = ref([
-  // === 地震核心信息（高权重）===
-  {name: '缅甸地震', value: 1000},
-  {name: '6.8级强震', value: 950},
-  {name: '浅源地震', value: 900},
-  {name: '震中仰光', value: 880},
-  {name: '主震', value: 850},
-  {name: '余震频发', value: 830},
-  {name: '震源深度10km', value: 800},
-  {name: '北纬19.5°', value: 780},
-  {name: '东经96.0°', value: 760},
-  {name: '地震序列', value: 740},
-
-  // === 受灾地区（按影响程度分级）===
-  {name: '曼德勒', value: 850},
-  {name: '内比都', value: 820},
-  {name: '勃固省', value: 800},
-  {name: '伊洛瓦底', value: 780},
-  {name: '掸邦', value: 760},
-  {name: '克钦邦', value: 740},
-  {name: '若开邦', value: 720},
-  {name: '仰光市区', value: 700},
-  {name: '毛淡棉', value: 680},
-  {name: '卑谬', value: 660},
-  {name: '东枝', value: 640},
-  {name: '腊戍', value: 620},
-  {name: '实皆', value: 600},
-  {name: '密支那', value: 580},
-  {name: '丹老群岛', value: 550},
-
-  // === 灾害直接后果（高关注度）===
-  {name: '房屋倒塌', value: 900},
-  {name: '人员伤亡', value: 880},
-  {name: '失踪人员', value: 850},
-  {name: '道路中断', value: 830},
-  {name: '桥梁损毁', value: 810},
-  {name: '山体滑坡', value: 790},
-  {name: '电力瘫痪', value: 770},
-  {name: '通讯中断', value: 750},
-  {name: '水源污染', value: 730},
-  {name: '医院超载', value: 710},
-  {name: '学校损毁', value: 690},
-  {name: '古迹受损', value: 670},
-  {name: '工厂停工', value: 650},
-  {name: '农田被毁', value: 630},
-  {name: '牲畜死亡', value: 610},
-
-  // === 救援与应急响应 ===
-  {name: '国际救援队', value: 800},
-  {name: '红十字会', value: 780},
-  {name: '搜救犬', value: 760},
-  {name: '生命探测仪', value: 740},
-  {name: '临时避难所', value: 720},
-  {name: '救灾物资', value: 700},
-  {name: '帐篷发放', value: 680},
-  {name: '医疗队', value: 660},
-  {name: '直升机转运', value: 640},
-  {name: '卫星电话', value: 620},
-  {name: '灾民安置', value: 600},
-  {name: '心理援助', value: 580},
-  {name: '儿童保护', value: 560},
-  {name: '应急供水', value: 540},
-  {name: '防疫消杀', value: 520},
-
-  // === 地质与科学分析 ===
-  {name: '印澳板块', value: 600},
-  {name: '欧亚板块', value: 580},
-  {name: '俯冲带', value: 560},
-  {name: '断裂带活动', value: 540},
-  {name: '地震预警', value: 520},
-  {name: 'P波检测', value: 500},
-  {name: '烈度分布图', value: 480},
-  {name: '地质调查', value: 460},
-  {name: '次生灾害', value: 440},
-  {name: '土壤液化', value: 420},
-
-  // === 国际反应 ===
-  {name: '中国援助', value: 700},
-  {name: '联合国评估', value: 680},
-  {name: '东盟合作', value: 660},
-  {name: '日本专家', value: 640},
-  {name: '美国USAR', value: 620},
-  {name: '欧盟救援', value: 600},
-  {name: '印度支援', value: 580},
-  {name: '泰国医疗队', value: 560},
-  {name: '新加坡物资', value: 540},
-  {name: '世界银行拨款', value: 520},
-
-  // === 时间线关键词 ===
-  {name: '黄金72小时', value: 600},
-  {name: '首日救援', value: 550},
-  {name: '灾后重建', value: 500},
-  {name: '周年纪念', value: 450},
-  {name: '地震演练', value: 400},
-
-  // === 其他补充词汇（按需调整）===
-  {name: '志愿者', value: 300},
-  {name: '捐款通道', value: 280},
-  {name: '社交媒体', value: 260},
-  {name: '新闻直播', value: 240},
-  {name: '专家解读', value: 220},
-  {name: '地震云', value: 200}, // 伪科学词，用于舆情对比
-  {name: '祈福', value: 180},
-  {name: '烛光悼念', value: 150}
-]);
 const echartsOption = ref();
 
 const initChart = () => {
@@ -127,7 +22,7 @@ const initChart = () => {
   const currentYear = new Date().getFullYear();
   const analysis = {
     "消极": [9, 8, 2, 13, 15, 6, 20, 23, 20, 8, 6],
-    "积极": [27, 60, 71, 74, 74, 88, 130, 50, 86, 51, 57],
+    "积极": [1, 2, 3, 7, 10, 2, 5, 9, 2, 5, 7],
     "中立": [2, 4, 6, 7, 3, 5, 14, 2, 6, 3, 2],
     "未知": [3, 1, 0, 3, 1, 0, 1, 0, 1, 0, 0]
   }
@@ -199,7 +94,7 @@ const initChart = () => {
 
   echartsOption.value = {
         title: {
-          text: '评论分析',
+          text: '评论趋势图',
           left: 'left',
           top:'10%',
           textStyle: {
@@ -232,7 +127,8 @@ const initChart = () => {
           }
         },
         legend: {
-          data: ['消极', '积极', '中立', '未知'],
+          data: ['消极', '积极','中立','未知'],
+          selectedMode: true, // 启用点击交互
           textStyle: {
             fontSize: 10,
             color: 'rgb(0,253,255,0.6)'
@@ -308,7 +204,7 @@ const initChart = () => {
             data: data1
           },
           {
-            name: '消极',
+            name: '消极-流光',
             type: 'lines',
             coordinateSystem: 'cartesian2d',
             zlevel: 1,
@@ -357,7 +253,7 @@ const initChart = () => {
             data: data2
           },
           {
-            name: '积极',
+            name: '积极-流光',
             type: 'lines',
             coordinateSystem: 'cartesian2d',
             zlevel: 1,
@@ -406,7 +302,7 @@ const initChart = () => {
             data: data3
           },
           {
-            name: '中立',
+            name: '中立-流光',
             type: 'lines',
             coordinateSystem: 'cartesian2d',
             zlevel: 1,
@@ -455,7 +351,7 @@ const initChart = () => {
             data: data4
           },
           {
-            name: '未知',
+            name: '未知-流光',
             type: 'lines',
             coordinateSystem: 'cartesian2d',
             zlevel: 1,
