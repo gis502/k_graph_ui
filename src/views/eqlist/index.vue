@@ -632,9 +632,9 @@ export default {
     this.filteredOptions = this.locationOptions;
     setInterval(this.updateTime, 500)
     this.getEq()
-    console.log(this.simplifyLocation("四川省雅安市雨城区某某镇", 5))
-    console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
-    console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
+    // console.log(this.simplifyLocation("四川省雅安市雨城区某某镇", 5))
+    // console.log(this.simplifyLocation("四川省雅安市石棉县安顺场镇", 5.5))
+    // console.log(this.simplifyLocation("甘肃省陇南市文县", "6.5"))
   },
 
 

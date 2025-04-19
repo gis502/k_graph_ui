@@ -32,6 +32,7 @@
     <div class="knowledgeGraph" v-show="ifShow === 0">
       <div class="chartContainer" ref="chart"></div>
     </div>
+    <div class="toggle-button open" @click="updateChartData">问答助手</div>
 
     <div class="sentimentAnalysis" v-show="ifShow === 1">
         <div class="sentimentAnalysis-title">
@@ -129,7 +130,7 @@ const props = defineProps({
 // 响应式数据
 const inputValue = ref('');
 const currentIndex = ref(null);
-const showChat = ref(false);
+const showChat = ref(true);
 const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
@@ -682,7 +683,7 @@ onBeforeUnmount(() => {
     }
     .send-panel {
       position: relative;
-      margin: auto 0;
+      margin: 5px auto 0px;
       width: 450px;
       background: #fff;
       border-radius: 20px;
@@ -690,8 +691,8 @@ onBeforeUnmount(() => {
 
       .send-btn {
         text-align: right;
-        margin-bottom: 0;
-        padding: 3px;
+        margin-bottom: 0px;
+        padding: 5px;
         :deep(.el-form-item__content) {
           justify-content: flex-end;
         }

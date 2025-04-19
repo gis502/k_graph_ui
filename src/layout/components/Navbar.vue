@@ -2,15 +2,15 @@
   <div class="navbar">
 <!--    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"-->
 <!--               @toggleClick="toggleSideBar"/>-->
-    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-if="!settingsStore.topNav"/>
+<!--    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-if="!settingsStore.topNav"/>-->
     <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav"/>
 
     <div class="right-menu">
-      <template v-if="appStore.device !== 'mobile'">
-        <span style="color: #00eaff;">
-          {{ userStore.deptName + ' / ' + userStore.name + ' / ' + userStore.roles[0].roleName }}
-        </span>
-      </template>
+<!--      <template v-if="appStore.device !== 'mobile'">-->
+<!--        <span style="color: #00eaff;">-->
+<!--          {{ userStore.deptName + ' / ' + userStore.name + ' / ' + userStore.roles[0].roleName }}-->
+<!--        </span>-->
+<!--      </template>-->
       <div class="avatar-container">
         <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
           <div class="avatar-wrapper">

@@ -168,7 +168,13 @@ export function eqEventTrigger(data) {
     })
 }
 
-
+export function addNewEq(data) {
+  return request({
+    url: '/system/addNewEq',
+    method: 'post',
+    data
+  })
+}
 
 export function eqProgress(data){
     return request({
