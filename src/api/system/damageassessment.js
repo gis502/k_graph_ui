@@ -18,7 +18,7 @@ export function getEqTownResult(eqTownResultDTO) {
 
 export function getEqOutputMap(eqOutputMapDTO) {
   return request({
-        url: '/tp/api/open/eq/output/map',
+        url: '/system/getMap',
         method: 'get',
         params: eqOutputMapDTO
     })

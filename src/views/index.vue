@@ -268,7 +268,7 @@ const EqAll = ref([]);
 const lastValidEqData = ref(null);
 let addPanel = ref(false);
 let addDTO = ref({
-    event: '',
+    // event: '',
     eqName: '',
     eqTime: '',
     eqAddr: '',
@@ -313,7 +313,7 @@ const cancelPanel = () => {
 const commitPanel = () => {
   addPanel.value = !addPanel.value
   addDTO.value.eqAddr = simplifyLocation(addDTO.value.eqAddr);
-  addDTO.value.event = guid();
+  // addDTO.value.event = guid();
   addDTO.value.eqType = 'Z';
   addDTO.value.eqTime = addDTO.value.eqTime.replace(/T/, ' ')
   console.log(addDTO.value);

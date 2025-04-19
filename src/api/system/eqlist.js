@@ -170,8 +170,8 @@ export function eqEventTrigger(data) {
 
 export function addNewEq(data) {
   return request({
-    url: '/system/addNewEq',
-    method: 'post',
+    url: '/system/trigger',
+    method: 'get',
     data
   })
 }
