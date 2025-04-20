@@ -97,6 +97,7 @@ watch(() => props.eqData, () => {
 });
 
 const go = (row) => {
+  console.log("row.eqid----------------",row)
   const route = router.resolve({path: '/thd', query: {eqid: row.eqid, eqqueueId: row.eqqueueId}}).href;
   // const route = router.resolve({path: '/knowledgeGraph', query: {eqName: row.earthquakeFullName}}).href;
   // console.log("row.eqid----------------",row.eqid) n0b+

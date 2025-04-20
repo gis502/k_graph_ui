@@ -272,10 +272,10 @@ let addDTO = ref({
     eqName: '',
     eqTime: '',
     eqAddr: '',
-    longitude: '',
-    latitude: '',
-    eqMagnitude: '',
-    eqDepth: '',
+    longitude: 0.0,
+    latitude: 0.0,
+    magnitude: 0.0,
+    eqDepth: 0.0,
     eqType: ''
 })
 
@@ -298,15 +298,15 @@ const addEq = () => {
 
 const cancelPanel = () => {
   addDTO = {
-    event: '',
+    // event: '',
     eqName: '',
     eqTime: '',
     eqAddr: '',
-    longitude: '',
-    latitude: '',
-    eqMagnitude: '',
-    eqDepth: '',
-    eqType: '',
+    longitude: 0.0,
+    latitude: 0.0,
+    magnitude: 0.0,
+    eqDepth: 0.0,
+    eqType: ''
   }
 }
 
@@ -315,6 +315,11 @@ const commitPanel = () => {
   addDTO.value.eqAddr = simplifyLocation(addDTO.value.eqAddr);
   addDTO.value.eqName = simplifyEqName(addDTO.value.eqAddr);
   addDTO.value.eqName += addDTO.value.eqMagnitude + '级地震';
+  // 确保 longitude、latitude 和 eqMagnitude 是浮点数
+  addDTO.value.longitude = parseFloat(addDTO.value.longitude);
+  addDTO.value.latitude = parseFloat(addDTO.value.latitude);
+  addDTO.value.magnitude = parseFloat(addDTO.value.eqMagnitude);
+  addDTO.value.eqDepth = parseFloat(addDTO.value.eqDepth);
   // addDTO.value.event = guid();
   addDTO.value.eqType = 'Z';
   addDTO.value.eqTime = addDTO.value.eqTime.replace(/T/, ' ')
@@ -329,7 +334,7 @@ const commitPanel = () => {
 
   function simplifyEqName(fullName) {
     // 匹配“X省X市X县”或“X省X市X区”等结构
-    const match = fullName.match(/([\u4e00-\u9fa5]+省)?([\u4e00-\u9fa5]+市)?([\u4e00-\u9fa5]+(县|区))?/);
+    const match = fullName.match(/([\u4e00-\u9fa5]+省)?([\u4e00-\u9fa5]+市)?([\u4e00-\u4e00-\u9fa5]+(县|区))?/);
 
     if (match) {
       // 提取各级地名并去掉“省市县区”等字
@@ -350,15 +355,25 @@ const commitPanel = () => {
 }
 
 const simplifyLocation = (eqAddr) => {
+  // 使用正则表达式匹配省、市、区、镇
   const match = eqAddr.match(/^(\S*省)?(\S*市|\S*州)?(\S*区|\S*县)?(\S*镇)?/);
+
+  // 如果没有匹配到任何内容，直接返回原始地址
   if (!match) return eqAddr;
 
-  const province = match[1] || '';
-  const cityOrState = match[2] || '';
-  const county = match[3] || '';
-  const town = match[4] || '';
+  // 提取匹配到的省、市、区、镇
+  const province = match[1] || ''; // 省份
+  const cityOrState = match[2] || ''; // 市或州
+  const county = match[3] || ''; // 区或县
+  const town = match[4] || ''; // 镇
 
-  return `${province}${cityOrState}${county}${town}`;
+  // 如果省、市、区、镇中至少有一个有值，就返回简化后的地址
+  if (province || cityOrState || county || town) {
+    return `${province}${cityOrState}${county}${town}`;
+  }
+
+  // 如果省、市、区、镇都没有匹配到，直接返回原始地址
+  return eqAddr;
 }
 
 

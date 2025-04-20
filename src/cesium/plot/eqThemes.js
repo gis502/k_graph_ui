@@ -909,9 +909,9 @@ export function handleTownData(town) {
  * @param eqFullName
  * @param type
  */
-export function handleOutputData(eqid, eqqueueId, eqFullName, type) {
+export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
   const DTO = {
-    eqid: eqid,
+    eqId: eqId,
     eqqueueId: eqqueueId,
   };
 
