@@ -583,6 +583,7 @@ onBeforeUnmount(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding: 20px;
 
     .sentimentAnalysis-title {
       width: 100%;
@@ -591,13 +592,14 @@ onBeforeUnmount(() => {
       color: whitesmoke;
       text-align: center;
       font-size: 30px;
+      margin-bottom: 20px;
     }
 
     .sentimentAnalysisChart1,.sentimentAnalysisChart2{
-      flex:1;
-      //border: 1px solid red;
+      flex: 1;
       width: 100%;
-      height: 100%;
+      height: calc(50% - 20px);
+      margin-bottom: 20px;
     }
   }
 

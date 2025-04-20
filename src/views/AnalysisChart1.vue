@@ -126,9 +126,9 @@ maskImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtW
 const echartsOption = ref({
       backgroundColor: 'rgba(0, 0, 0, 0)',
       title: {
-        text: '地震词云图',  // 标题文字
-        left: 'left',   // 水平居中
-        top: 40,          // 距离顶部 20px
+        text: '地震词云图',
+        left: '60px',   // 设置固定的左侧距离
+        top: 40,
         textStyle: {
           color: 'white',  // 标题颜色
           fontSize: 24,   // 字体大小
@@ -162,8 +162,8 @@ const echartsOption = ref({
               shadowColor: '#333'
             }
           },
-          left: 'center',
-          top: 'center',
+          left: 300,
+          top: 25,
           right: null,
           bottom: null,
           data: data,
@@ -221,7 +221,7 @@ onBeforeUnmount(() => {
   .chartContainer {
     position: absolute;
     bottom: 40px;
-    left: 10px;
+    left: 100px;  // 增加左侧距离，使图表更靠右
     width: 100%;
     height: 100%;
   }
