@@ -1,16 +1,9 @@
 <template>
   <div class="navbar">
-<!--    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container"-->
-<!--               @toggleClick="toggleSideBar"/>-->
-<!--    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-if="!settingsStore.topNav"/>-->
+    <!-- 隐藏汉堡菜单和面包屑 -->
     <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav"/>
 
     <div class="right-menu">
-<!--      <template v-if="appStore.device !== 'mobile'">-->
-<!--        <span style="color: #00eaff;">-->
-<!--          {{ userStore.deptName + ' / ' + userStore.name + ' / ' + userStore.roles[0].roleName }}-->
-<!--        </span>-->
-<!--      </template>-->
       <div class="avatar-container">
         <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
           <div class="avatar-wrapper">
@@ -93,7 +86,6 @@ function setLayout() {
   emits('setLayout');
 }
 </script>
-
 <style lang='scss' scoped>
 .navbar {
   height: 50px;
@@ -103,7 +95,7 @@ function setLayout() {
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
   .hamburger-container {
-    line-height: 46px;
+    line-height: 30px;
     height: 100%;
     float: left;
     cursor: pointer;
@@ -158,25 +150,25 @@ function setLayout() {
     }
 
     .avatar-container {
-      margin-right: 40px;
+      margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
+        margin-top: 2px;
         position: relative;
 
         .user-avatar {
           cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
         }
 
         i {
           cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
+          right: -16px;
+          top: 5px;
+          font-size: 18px;
         }
       }
     }
