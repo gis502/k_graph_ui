@@ -95,7 +95,7 @@ const initChart = () => {
   echartsOption.value = {
         title: {
           text: '评论趋势图',
-          left: 'left',
+          left: '60px',
           top:'10%',
           textStyle: {
             color: 'white',
@@ -103,6 +103,7 @@ const initChart = () => {
             fontWeight: 'bold',
             textShadow: '2px 2px 10px rgba(0, 255, 255, 0.5)',
           },
+          padding: [0, 0, 10, 0]
         },
         tooltip: {
           textStyle:{
@@ -127,7 +128,8 @@ const initChart = () => {
           }
         },
         legend: {
-          data: ['消极', '积极','中立','未知'],
+          // data: ['消极', '积极','中立','未知'],
+          data: ['消极', '积极','中立'],
           selectedMode: true, // 启用点击交互
           textStyle: {
             fontSize: 10,
@@ -137,8 +139,9 @@ const initChart = () => {
           right: '0%'
         },
         grid: {
+          top: '25%',
           bottom: 65,
-          left: 60,
+          left: 180,
           right: 25,
         },
         xAxis: {
@@ -324,55 +327,55 @@ const initChart = () => {
             },
             data: json3.chart0.lowLine
           },
-          {
-            name: '未知',
-            type: 'line',
-            // smooth: true,
-            symbol: 'circle',
-            symbolSize: 10,
-            areaStyle: {
-              normal: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                  offset: 0,
-                  color: 'rgba(255, 99, 71)'
-                }, {
-                  offset: 0.8,
-                  color: 'rgba(6, 8, 41,.1)'
-                }], false),
-                shadowColor: 'rgba(0, 0, 0, 0.1)',
-                shadowBlur: 10
-              }
-            },
-            itemStyle: {
-              normal: {
-                color: '#FF6A4D'
-              }
-            },
-            data: data4
-          },
-          {
-            name: '未知-流光',
-            type: 'lines',
-            coordinateSystem: 'cartesian2d',
-            zlevel: 1,
-            smooth: true,
-            symbol: 'circle',
-            effect: {
-              show: true,
-              smooth: true,
-              period: 2,
-              symbolSize: 8
-            },
-            lineStyle: {
-              normal: {
-                color: '#FF6A4D',
-                width: 0,
-                opacity: 0,
-                curveness: 0,
-              }
-            },
-            data: json4.chart0.lowLine
-          },
+          // {
+          //   name: '未知',
+          //   type: 'line',
+          //   // smooth: true,
+          //   symbol: 'circle',
+          //   symbolSize: 10,
+          //   areaStyle: {
+          //     normal: {
+          //       color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+          //         offset: 0,
+          //         color: 'rgba(255, 99, 71)'
+          //       }, {
+          //         offset: 0.8,
+          //         color: 'rgba(6, 8, 41,.1)'
+          //       }], false),
+          //       shadowColor: 'rgba(0, 0, 0, 0.1)',
+          //       shadowBlur: 10
+          //     }
+          //   },
+          //   itemStyle: {
+          //     normal: {
+          //       color: '#FF6A4D'
+          //     }
+          //   },
+          //   data: data4
+          // },
+          // {
+          //   name: '未知-流光',
+          //   type: 'lines',
+          //   coordinateSystem: 'cartesian2d',
+          //   zlevel: 1,
+          //   smooth: true,
+          //   symbol: 'circle',
+          //   effect: {
+          //     show: true,
+          //     smooth: true,
+          //     period: 2,
+          //     symbolSize: 8
+          //   },
+          //   lineStyle: {
+          //     normal: {
+          //       color: '#FF6A4D',
+          //       width: 0,
+          //       opacity: 0,
+          //       curveness: 0,
+          //     }
+          //   },
+          //   data: json4.chart0.lowLine
+          // },
         ]
   };
 
@@ -425,8 +428,8 @@ onBeforeUnmount(() => {
 
   .chartContainer {
     position: absolute;
-    bottom: 40px;
-    left: 10px;
+    bottom: 10px;
+    left: 100px;
     width: 100%;
     height: 100%;
   }
