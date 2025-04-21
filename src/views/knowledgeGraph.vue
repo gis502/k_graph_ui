@@ -1,5 +1,6 @@
 <template>
   <div class="content-body"  :class="{'bg-option1': ifShowCatalog, 'bg-option2': !ifShowCatalog}">
+
     <div class="catalog" v-show="ifShowCatalog && ifShow === 0">
       <div class="titleName">
         知识图谱
@@ -27,11 +28,13 @@
         </li>
       </div>
     </div>
+
     <div class="observationWindow" v-show="ifShowCatalog"></div>
 
     <div class="knowledgeGraph" v-show="ifShow === 0">
       <div class="chartContainer" ref="chart"></div>
     </div>
+
     <div class="toggle-button open" @click="updateChartData">问答助手</div>
 
     <div class="sentimentAnalysis" v-show="ifShow === 1">
@@ -47,6 +50,7 @@
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
+
     <div class="chat-panel" v-if="showChat">
       <div class="chat-title">小助手</div>
       <div class="toggle-button close" @click="updateChartData">
@@ -117,8 +121,6 @@ import { ElMessage } from "element-plus";
 import AnalysisChart1 from '@/views/AnalysisChart1.vue';
 import AnalysisChart2 from '@/views/AnalysisChart2.vue';
 
-
-
 const props = defineProps({
   eqMagnitude:{
     type:String,
@@ -143,7 +145,6 @@ const echartsInstance = ref(null);
 const ifShow = ref(null);
 // 控制左侧列表是否隐藏
 const ifShowCatalog = ref(true);
-
 // 左侧列表数据
 const list = [
   { value: "基础背景信息" },
@@ -238,7 +239,6 @@ const echartsOption = ref({
     links: chartLinks.value
   }]
 });
-
 // 获取数据并初始化图表
 const getData = async () => {
   try {
@@ -278,7 +278,6 @@ const getData = async () => {
     console.error('获取图表数据失败:', error);
   }
 };
-
 // 初始化图表
 const initChart = () => {
   if (!chart.value) return;
@@ -329,9 +328,7 @@ const initChart = () => {
   // 添加窗口大小变化监听
   window.addEventListener('resize', handleResize);
 };
-
 // 处理窗口大小变化
-
 const handleResize = () => {
   if (echartsInstance.value) {
     echartsInstance.value.resize();
@@ -442,7 +439,6 @@ const sendMessage = () => {
     console.error('SSE 错误:', error);
     closeEventSource();
   };
-
   const closeEventSource = () => {
     eventSource.close();
     const lastMsg = messageList.value[messageList.value.length - 1];
@@ -460,12 +456,10 @@ const keySend = (event) => {
 
 watch(() => props.currentTime, (newTime) => {
       console.log('currentTime changed:', new Date(newTime));
-
       const time1 = new Date("2022-06-02 00:00:00");
       const time2 = new Date("2022-06-05 00:00:00");
       const time3 = new Date("2022-06-08 00:00:00");
       const time4 = new Date("2022-06-10 00:00:00")
-
       switch (true) {
         case new Date(newTime) < time1:
           console.log("时间早于 2022-06-02");
@@ -539,6 +533,7 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', handleResize);
   }
 });
+
 </script>
 
 <style scoped lang="less">
