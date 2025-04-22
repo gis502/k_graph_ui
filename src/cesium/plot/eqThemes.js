@@ -912,7 +912,7 @@ export function handleTownData(town) {
 export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
   const DTO = {
     eqId: eqId,
-    eqqueueId: eqqueueId,
+    eqqueueId: eqId+"01",
   };
 
   const batch = eqqueueId.slice(-1);
@@ -929,15 +929,15 @@ export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
     if (type === "thematicMap") {
       getEqOutputMap(DTO).then((res) => {
         const data = res.data;
+        console.log("1111111")
+        console.log(res.data)
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
-        const url = `${domainName}/jcpt/profile/EqProduct/${eqid}/${batch}/本地产品/专题图`;
-        const urlBase = 'http://59.213.183.7/jcpt';  // 设置新的基础 URL
         console.log("专题图")
         for (let i = 0; i < res.data.length; i++) {
           const thematicMapObject = {
-            // imgUrl: `${url}${data[i].localSourceFile}`,
-            imgUrl: `${zaisunimageipLocal}${data[i].sourceFile}`,
+            imgUrl: data[i].sourceFile,
+            // imgUrl: `E:/GIS小组专题图产出/专题图模板/upload/专题图/T20250420145019511800/1/震中位置分布图（行政区划底图）.jpg`,
             theme: data[i].fileName,
           };
           console.log("专题图",thematicMapObject)
