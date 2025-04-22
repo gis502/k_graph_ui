@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="content-body">
     <div class="eqtitle">
       <span class="eqtitle-text_eqname">{{ this.title.replace("T", " ") }}级地震</span>
       <div v-for="(menu, index) in menus" :key="index" class="menu-item" @mouseover="showDropdown(index)"
@@ -3021,6 +3021,11 @@ export default {
 </script>
 
 <style scoped>
+.content-body {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
 
 .eqtitle {
   position: absolute;
@@ -3066,7 +3071,7 @@ export default {
 }
 
 .situation_cesiumContainer {
-  height: calc(100vh - 50px) !important;
+  height: 100vh !important;
   width: 100%;
   margin: 0;
   padding: 0;

@@ -510,11 +510,10 @@
 <!--            :eqid="eqid"-->
 <!--            :currentTime="currentTimeString"-->
 <!--        />-->
-        <knowledgeGraph
-            :eqMagnitude = "eqMagnitude"
-            :currentTime = "currentTimeString"
-        />
-
+<!--        <knowledgeGraph-->
+<!--            :eqMagnitude = "eqMagnitude"-->
+<!--            :currentTime = "currentTimeString"-->
+<!--        />-->
       </div>
     </div>
 
@@ -660,28 +659,48 @@
           :activeComponent="activeComponent"
           @toggleComponent="toggleComponent"
       />
-      <div class="pop_right_background">
+      <div class="pop_right_background-chart">
         <!--生命线情况-->
-        <timeLineLifeLine
-            :eqid="eqid"
-            :currentTime="currentTimeString"
-        />
-        <timeLinePlotStatistics
-            :plots="plots"
-            :currentTime="currentTimeString"
-            :startTime="centerPoint.startTime"
-            :zoomLevel="zoomLevel"
-            :isTimeRunning="isTimeRunning"
-            :viewCenterCoordinate="viewCenterCoordinate"
-            :earthquakeName="centerPoint.earthquakeName"
-            :selectedDistrict="selectedDistrict"
-        />
+<!--        <timeLineLifeLine-->
+<!--            :eqid="eqid"-->
+<!--            :currentTime="currentTimeString"-->
+<!--        />-->
+<!--        <timeLinePlotStatistics-->
+<!--            :plots="plots"-->
+<!--            :currentTime="currentTimeString"-->
+<!--            :startTime="centerPoint.startTime"-->
+<!--            :zoomLevel="zoomLevel"-->
+<!--            :isTimeRunning="isTimeRunning"-->
+<!--            :viewCenterCoordinate="viewCenterCoordinate"-->
+<!--            :earthquakeName="centerPoint.earthquakeName"-->
+<!--            :selectedDistrict="selectedDistrict"-->
+<!--        />-->
+        <SmallGraph @samllGraphShow="handleToggleShow"/>
         <timeLineMiniMap
             :viewer="viewer"
             :centerPoint="centerPoint"
         />
       </div>
     </div>
+
+<!--    放大后的详细知识图谱-->
+    <div class="knowledgeGraphContainer" v-show="ifShowSmallGraph">
+      <div class="knowledgeGraph_background"
+           style="
+                  width: 98%;
+                  height: 80%;
+                  z-index: 100;
+                  top: 110px;
+                  border-radius: 20px;
+">
+        <knowledgeGraph
+            @bigGraphShow="handleToggleShow"
+            :eqMagnitude = "eqMagnitude"
+            :currentTime = "currentTimeString"
+        />
+      </div>
+    </div>
+
 
     <!--    两侧组件 end-->
 
@@ -983,7 +1002,7 @@ import dataSourcePanel from "@/components/Panel/dataSourcePanel.vue";
 import RouterPanel from "@/components/Panel/RouterPanel.vue";
 //左下工具
 import CommandScreenViewJump from "@/components/commandScreenComponent/CommandScreenViewJump.vue";
-
+import SmallGraph from "@/components/timeLineComponent/SmallGraph.vue";
 
 //前后端接口
 import {getPlotBelongCounty, getPlotwithStartandEndTime} from '@/api/system/plot'
@@ -1154,6 +1173,7 @@ export default {
     }
   },
   components:{
+    SmallGraph,
     knowledgeGraph,
     CommandScreenEqList,
     commandScreenTitle, //标头
@@ -1191,6 +1211,9 @@ export default {
   },
   data: function () {
     return {
+
+      ifShowSmallGraph:false,
+
       siChuanCityEntity: [],
       siChuanCountyEntity: [],
       siChuanVillageEntity: [],
@@ -3542,6 +3565,7 @@ export default {
       if (component === 'dataStats') {
         // 切换 showSidebarComponents 以显示/隐藏两侧组件
         this.showSidebarComponents = !this.showSidebarComponents;
+
       } else if (component !== 'legend') {
         // 点击其他按钮时隐藏侧边栏组件，但图例按钮不会触发隐藏
         this.showSidebarComponents = false;
@@ -5190,6 +5214,13 @@ export default {
       }
     }
     ,
+
+    handleToggleShow(value){
+      console.log(value,"是否接受到传值")
+      this.ifShowSmallGraph = value;
+      this.showSidebarComponents = !this.showSidebarComponents;
+    },
+
   },
   watch: {
     selectedDisasterEstimate(newVal, oldVal) {
@@ -5286,6 +5317,17 @@ export default {
   right: 1%;
   height: 80.8vh;
   width: 22%;
+  position: absolute;
+  background: rgb(4, 20, 34);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  z-index: 100;
+}
+
+.pop_right_background-chart {
+  top: 13%;
+  right: 1%;
+  height: 80.8vh;
+  width: 25%;
   position: absolute;
   background: rgb(4, 20, 34);
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);

@@ -1,5 +1,11 @@
 <template>
-  <div class="contentBody">
+  <div class="content-body">
+    <div class="smallGraph-title">
+      <h2 class="sub-title">
+        知识图谱
+        <button @click="handleClick">详情</button>
+      </h2>
+    </div>
     <div class="chartContainer" ref="chart"></div>
   </div>
 </template>
@@ -15,6 +21,8 @@ const chartData = ref([]);
 const lastChartData = ref([]);
 const chartLinks = ref([]);
 const newList = ref([]);
+// 定义要触发的事件
+const emit = defineEmits(['samllGraphShow'])
 
 // ECharts 配置
 const echartsOption = ref({
@@ -27,7 +35,7 @@ const echartsOption = ref({
   },
   toolbox: {
     feature: {
-      saveAsImage: false,
+      saveAsImage: {}
     }
   },
   series: [{
@@ -112,33 +120,33 @@ const list = [
 
 const getData = async () => {
   try {
-    const res = await getGraphData();
+      const res = await getGraphData();
 
-    chartLinks.value = res.map(item => ({
-      source: item.source.name,
-      target: item.target.name,
-      value: item.value.type
-    }));
+      chartLinks.value = res.map(item => ({
+        source: item.source.name,
+        target: item.target.name,
+        value: item.value.type
+      }));
 
-    const nodeSet = new Set();
+      const nodeSet = new Set();
 
-    chartLinks.value.forEach(item => {
-      nodeSet.add(item.source);
-      nodeSet.add(item.target);
-    });
+      chartLinks.value.forEach(item => {
+        nodeSet.add(item.source);
+        nodeSet.add(item.target);
+      });
 
-    chartData.value = Array.from(nodeSet).map(name => ({ name }));
+      chartData.value = Array.from(nodeSet).map(name => ({ name }));
 
-    // 处理 newList 数据
-    const validValues = new Set(list.map(item => item.value));
-    newList.value = chartData.value
-        .filter(item => validValues.has(item.name))
-        .map((item, index) => ({
-          id: index + 1,
-          value: item.name
-        }));
+      // 处理 newList 数据
+      const validValues = new Set(list.map(item => item.value));
+      newList.value = chartData.value
+          .filter(item => validValues.has(item.name))
+          .map((item, index) => ({
+            id: index + 1,
+            value: item.name
+          }));
 
-    initChart();
+      initChart();
 
   } catch (error) {
     console.error('获取图表数据失败:', error);
@@ -202,6 +210,12 @@ const handleResize = () => {
   }
 };
 
+// 展开详细的页面
+const handleClick = () => {
+  // 触发事件通知父组件
+  emit('samllGraphShow', true)
+};
+
 // 生命周期钩子
 onMounted(() => {
   getData();
@@ -217,19 +231,95 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="less">
-.contentBody{
+.content-body{
+  width: 100%;
+  height: 42vh;
   position: relative;
-  height: 90%;
-  width: 98%;
+
+  .smallGraph-title{
+    height: 3.8vh;
+    position: relative;
+    background-image: url("@/assets/images/CommandScreen/标题底图.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    top:-4%;
+
+    .sub-title{
+      color: #FFFFFF;
+      font-size: 1.1rem;
+      font-weight: 550;
+      top: 20%;
+      position: relative;
+      left: 7%;
+      width: 93%;
+
+
+      button {
+        /* 基础样式 */
+        background: linear-gradient(135deg, #1a3a8f 0%, #0a2840 100%);
+        color: whitesmoke;
+        font-size: 0.8rem;
+        font-weight: 550;
+        padding: 2px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        float: right;
+        margin-right: 10px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        top: -1px;
+
+        /* 边框光效（可选） */
+        border: 1px solid rgba(74, 144, 226, 0.3);
+      }
+
+      /* 悬浮效果 */
+      button:hover {
+        background: linear-gradient(135deg, #2451b5 0%, #123456 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
+      /* 点击效果 */
+      button:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 光效动画（高级效果） */
+      button::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to bottom right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0) 30%,
+            rgba(255, 255, 255, 0.15) 45%,
+            rgba(255, 255, 255, 0) 60%
+        );
+        transform: rotate(30deg);
+        transition: all 0.5s ease;
+      }
+
+      button:hover::after {
+        left: 100%;
+        top: 100%;
+      }
+    }
+  }
 
   .chartContainer{
-    position: absolute;
-    bottom: 10px;
+    position:absolute;
     width: 100%;
-    height: 100%;
+    height: 95%;
+    top: 20px;
   }
 }
 </style>
-
-
-

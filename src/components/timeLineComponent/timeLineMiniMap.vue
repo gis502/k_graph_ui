@@ -139,31 +139,32 @@ export default {
   width: 100%; /* 调整宽度 */
   z-index: 20; /* 提高层级 */
   position: absolute;
-  top: 65%;
+  top: 52%;
 }
 
 .pop_header {
-  top: -10%;
+  top: 10%;
   height: 3.8vh;
   position: relative;
   background-image: url("@/assets/images/CommandScreen/标题底图.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
+
 }
 
 .sub-title {
   color: #FFFFFF;
   font-size: 1.1rem;
   font-weight: 550;
-  top: 26%;
+  top: 30%;
   position: relative;
   left: 7%;
   width: 93%;
 }
 
 #smallMapContainer {
-  width: 95%;
-  height: 20vh;
+  width: 97%;
+  height: 32vh;
   margin-top: 6%;
   margin-left: 2.5%;
 }

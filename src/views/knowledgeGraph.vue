@@ -1,6 +1,10 @@
 <template>
-  <div class="content-body"  :class="{'bg-option1': ifShowCatalog, 'bg-option2': !ifShowCatalog}">
-    <div class="catalog" v-show="ifShowCatalog && ifShow === 0">
+  <div class="content-body">
+    <div class="closeAll">
+      <button @click="handleClick">×</button>
+    </div>
+
+    <div class="catalog" v-show="ifShowCatalog">
       <div class="titleName">
         知识图谱
       </div>
@@ -27,26 +31,13 @@
         </li>
       </div>
     </div>
-    <div class="observationWindow" v-show="ifShowCatalog"></div>
 
-    <div class="knowledgeGraph" v-show="ifShow === 0">
+    <div class="knowledgeGraph" >
       <div class="chartContainer" ref="chart"></div>
-    </div>
-    <div class="toggle-button open" @click="updateChartData">问答助手</div>
-
-    <div class="sentimentAnalysis" v-show="ifShow === 1">
-        <div class="sentimentAnalysis-title">
-          <span>舆情分析</span>
-        </div>
-        <div class="sentimentAnalysisChart1">
-          <AnalysisChart1/>
-        </div>
-        <div class="sentimentAnalysisChart2">
-          <AnalysisChart2/>
-        </div>
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
+
     <div class="chat-panel" v-if="showChat">
       <div class="chat-title">小助手</div>
       <div class="toggle-button close" @click="updateChartData">
@@ -118,6 +109,8 @@ import AnalysisChart1 from '@/views/AnalysisChart1.vue';
 import AnalysisChart2 from '@/views/AnalysisChart2.vue';
 
 
+// 定义要触发的事件
+const emit = defineEmits(['bigGraphShow'])
 
 const props = defineProps({
   eqMagnitude:{
@@ -139,11 +132,9 @@ const chartData = ref([]);
 const lastChartData = ref([]);
 const chartLinks = ref([]);
 const echartsInstance = ref(null);
-// 根据地震大小控制展示，0：展示知识图谱；1：展示舆情分析
-const ifShow = ref(null);
+
 // 控制左侧列表是否隐藏
 const ifShowCatalog = ref(true);
-
 // 左侧列表数据
 const list = [
   { value: "基础背景信息" },
@@ -176,7 +167,7 @@ const echartsOption = ref({
   },
   toolbox: {
     feature: {
-      saveAsImage: {}
+      saveAsImage: false,
     }
   },
   series: [{
@@ -242,9 +233,6 @@ const echartsOption = ref({
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    if(props.eqMagnitude >= 6){
-      ifShow.value = 0;
-
       const res = await getGraphData();
 
       chartLinks.value = res.map(item => ({
@@ -271,9 +259,6 @@ const getData = async () => {
           }));
 
       initChart();
-    }else{
-      ifShow.value = 1;
-    }
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -331,12 +316,12 @@ const initChart = () => {
 };
 
 // 处理窗口大小变化
-
 const handleResize = () => {
   if (echartsInstance.value) {
     echartsInstance.value.resize();
   }
 };
+
 // 关闭助手并调整图表大小
 const updateChartData = () => {
   showChat.value = !showChat.value;
@@ -442,7 +427,6 @@ const sendMessage = () => {
     console.error('SSE 错误:', error);
     closeEventSource();
   };
-
   const closeEventSource = () => {
     eventSource.close();
     const lastMsg = messageList.value[messageList.value.length - 1];
@@ -458,14 +442,18 @@ const keySend = (event) => {
   }
 };
 
+// 向父组件传值不展示大知识图谱
+const handleClick = () => {
+  // 触发事件通知父组件
+  emit('bigGraphShow', false)
+};
+
 watch(() => props.currentTime, (newTime) => {
       console.log('currentTime changed:', new Date(newTime));
-
       const time1 = new Date("2022-06-02 00:00:00");
       const time2 = new Date("2022-06-05 00:00:00");
       const time3 = new Date("2022-06-08 00:00:00");
       const time4 = new Date("2022-06-10 00:00:00")
-
       switch (true) {
         case new Date(newTime) < time1:
           console.log("时间早于 2022-06-02");
@@ -539,19 +527,10 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', handleResize);
   }
 });
+
 </script>
 
 <style scoped lang="less">
-// 采用css嵌套语法书写
-.bg-option1{
-  /* 背景板1 */
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 31%, rgba(26, 54, 77, 0) 56%, rgba(42, 89, 135, 0) 78%, rgba(47, 82, 117, 0.3) 85%, rgba(44, 69, 94, 0.2) 100%);
-}
-
-.bg-option2{
-  /* 背景板2 */
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
-}
 
 .content-body {
   width: 100%;
@@ -562,6 +541,61 @@ onBeforeUnmount(() => {
   // 确保 flex 容器允许子元素增长和收缩
   border-radius: 20px;
   z-index: 2;
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+
+  .closeAll{
+    button{
+      position: absolute;
+      left:calc(95vw + 6px);
+      top:8px;
+      z-index:1;
+      // 基础样式
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 5px;
+      padding: 5px 12px;
+      color: white;
+      cursor: pointer;
+      height: 30px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      user-select: none;
+
+      // 悬停时的流动边框
+      &:hover {
+        border-color: transparent; // 隐藏原始边框
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          border-radius: 6px;
+          padding: 1px; // 边框厚度
+          background: linear-gradient(
+              90deg,
+              #0453fc,
+              #00f7ff,
+              #0453fc,
+          );
+          background-size: 200% auto;
+          -webkit-mask:
+              linear-gradient(#fff 0 0) content-box,
+              linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          animation: borderFlow 1.5s linear infinite;
+          z-index: 0;
+        }
+      }
+    }
+  }
 
   > *{
     flex-shrink:1;
@@ -583,6 +617,7 @@ onBeforeUnmount(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding: 20px;
 
     .sentimentAnalysis-title {
       width: 100%;
@@ -591,13 +626,14 @@ onBeforeUnmount(() => {
       color: whitesmoke;
       text-align: center;
       font-size: 30px;
+      margin-bottom: 20px;
     }
 
     .sentimentAnalysisChart1,.sentimentAnalysisChart2{
-      flex:1;
-      //border: 1px solid red;
+      flex: 1;
       width: 100%;
-      height: 100%;
+      height: calc(50% - 20px);
+      margin-bottom: 20px;
     }
   }
 
@@ -862,6 +898,7 @@ onBeforeUnmount(() => {
 
 .close {
   position: relative;
+  top:-20px;
   left: 10px;
 }
 
