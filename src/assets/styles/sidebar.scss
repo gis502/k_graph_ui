@@ -23,8 +23,8 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
-    -webkit-box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
-    box-shadow: 2px 0 6px rgba(0, 21, 41, .35);
+    -webkit-box-shadow: 2px 0 6px rgba(99, 167, 232, 0.35);
+    box-shadow: 2px 0 6px rgb(0, 0, 0);
 
     // reset element-ui css
     .horizontal-collapse-transition {
@@ -89,7 +89,7 @@
     }
 
     & .theme-dark .is-active > .el-sub-menu__title {
-      color: #ffa117 !important;
+      color: #fffcf8 !important;
     }
 
     & .nest-menu .el-sub-menu > .el-sub-menu__title,
@@ -117,16 +117,16 @@
       align-items: center;
       padding: 10px 20px;
       transition: all 0.3s;
-      color: #333;
+      color: #ffffff;
 
       .icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 35px; /* 主体尺寸 */
+        width: 36px; /* 主体尺寸 */
         height: 35px;
         border-radius: 50%;
-        background: #000000;
+        background: #869eee;
         margin-right: 10px;
         position: relative; /* 伪元素基准 */
       }
@@ -138,17 +138,16 @@
       }
 
       .text {
-        color: #ffad32c1;
+        color: #b6e9f0d1;
         font-size: 16px;
         font-weight: bold;
       }
     }
 
     .el-menu-item.is-active {
-      background: #e4e9f5 !important;
+      background: #98b5eab6 !important;
       border-top-left-radius: 50px;
       border-bottom-left-radius: 50px;
-
 
       //&::before {
       //  content: "";
@@ -183,7 +182,7 @@
         height: 40px;
         background: transparent; /* 让内容透明，只显示边框 */
         border-radius: 50%;
-        border: 7px solid #ffa117; /* 黄色外轮廓 */
+        border: 7px solid #79c1ff; /* 黄色外轮廓 */
         box-sizing: border-box;
       }
     }

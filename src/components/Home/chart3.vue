@@ -61,15 +61,46 @@ const echartsOption = ref({
         color: () => {
           // 方案1：从预定义的一组美观颜色中随机选择
           const colors = [
-            '#37A2FF', '#32C5E9', '#67E0E3', '#9FE6B8',
-            '#FFDB5C', '#FF9F7F', '#FB7293', '#E062AE',
-            '#E690D1', '#E7BCF3', '#9D96F5', '#8378EA'
+            // '#37A2FF', '#32C5E9', '#67E0E3', '#9FE6B8',
+            // '#FFDB5C', '#FF9F7F', '#FB7293', '#E062AE',
+            // '#E690D1', '#E7BCF3', '#9D96F5', '#8378EA'
+            '#1E88E5', // 亮蓝色
+            '#42A5F5', // 天蓝色
+            '#64B5F6', // 浅天蓝
+            '#90CAF9', // 淡天蓝
+            '#BBDEFB', // 极淡天蓝
+            '#2196F3', // 标准蓝
+            '#1565C0', // 更深的蓝
+            '#0D47A1', // 最深的蓝
+            '#64B5F6', // 浅天蓝
+            '#90CAF9', // 淡天蓝
+            '#BBDEFB', // 极淡天蓝
+            '#4FC3F7', // 明亮的蓝
+            '#4FC3F7', // 明亮的蓝
+            '#D6EAF8', // 极淡蓝
+            '#C5E1A5', // 极淡绿
+            '#FFE082', // 更淡的黄
+            '#FFECB3', // 极淡黄
+            '#FFE082', // 更淡的黄
+            '#FFECB3', // 极淡黄
+            '#FFECB3', // 极淡黄
+            '#FFECB3', // 极淡黄
           ];
           return colors[Math.floor(Math.random() * colors.length)];
         },
         emphasis: {             // 鼠标悬停效果
-          shadowBlur: 5,
-          shadowColor: '#333'
+          // shadowBlur: 5,
+          // shadowColor: '#333'
+          shadowBlur: 10,
+          shadowColor: '#333',
+          fontWeight: 'bolder',
+          fontSize: 'larger',
+          textBorderColor: '#fff',
+          textBorderWidth: 2,
+          textShadowBlur: 10,
+          textShadowColor: 'rgba(0, 0, 0, 0.5)',
+          textShadowOffsetX: 2,
+          textShadowOffsetY: 2
         }
       },
       left: 'center',
