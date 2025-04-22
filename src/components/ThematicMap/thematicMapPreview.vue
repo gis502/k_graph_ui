@@ -29,6 +29,7 @@
         <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
       </div>
     </div>
+
     <div class="export-model-image" v-show="showTypes === 3">
       <div class="export-info">
         <h2>{{ formattedImgName() }}</h2>
@@ -42,9 +43,11 @@
         <p style="flex: 1; text-align: right; margin-right: 10px;">版本：专业版</p>
       </div>
     </div>
+
     <div v-show="showTypes === 1">
       <img :src="imgshowURL" alt="导出图片" style="width: 100%;height: 100%">
     </div>
+
     <div class="preview-buttons">
 <!--      <button @click="downloadPdf" class="download-button">导出为PDF</button>-->
       <button @click="downloadImage" class="download-button" >下载图片</button>
@@ -553,6 +556,7 @@ import {ElMessage} from "element-plus";
   }
 }
 </script>
+
 <style scoped>
 
 .preview-container {
