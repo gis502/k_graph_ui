@@ -1,81 +1,192 @@
 <template>
-  <div class="container">
+  <div class="contentBody">
     <div class="chartContainer" ref="chart"></div>
   </div>
 </template>
 
 <script setup>
-import * as echarts from 'echarts';
 import {onBeforeUnmount, onMounted, ref} from "vue";
-import 'echarts-wordcloud';
+import {getGraphData} from "@/api/system/knowledgeGraph.js";
+import * as echarts from "echarts";
 
-// 响应式数据
 const chart = ref(null);
 const echartsInstance = ref(null);
-const data = ref([
-  { name: '缅甸地震', value: 500 },      // 核心事件
-  { name: '震级6.8', value: 400 },      // 地震强度
-  { name: '仰光', value: 350 },         // 影响城市
-  { name: '曼德勒', value: 300 },       // 影响城市
-  { name: '震源深度10公里', value: 280 }, // 地震参数
-  { name: '余震', value: 250 },         // 次生灾害
-  { name: '救援', value: 220 },         // 应急响应
-  { name: '伤亡', value: 200 },          // 人员影响
-  { name: '建筑物倒塌', value: 180 },    // 直接破坏
-  { name: '国际援助', value: 150 },      // 外部支援
-  { name: '地震带', value: 120 },        // 地理背景
-  { name: '红十字会', value: 100 },      // 救援组织
-  { name: '避难所', value: 90},         // 灾后安置
-  { name: '电力中断', value: 80 },       // 基础设施影响
-  { name: '通讯中断', value: 70 },       // 基础设施影响
-  { name: '地质活动', value: 60 },       // 科学分析
-  { name: '预警系统', value: 50 },       // 防灾措施
-  { name: '板块运动', value: 40 },       // 地震原因
-]);
+const chartData = ref([]);
+const lastChartData = ref([]);
+const chartLinks = ref([]);
+const newList = ref([]);
 
 // ECharts 配置
 const echartsOption = ref({
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      tooltip: {
-        show: false,
-      },
-      series: [
-        {
-          type: 'wordCloud',
-          gridSize: 5,
-          sizeRange: [10, 30],
-          width: '100%',
-          height: '70%',
-          // rotationRange: [-45, 0, 45, 90],
-          // maskImage: maskImage,
-          textStyle: {
-            color: () => {
-              // 方案1：从预定义的一组美观颜色中随机选择
-              const colors = [
-                '#37A2FF', '#32C5E9', '#67E0E3', '#9FE6B8',
-                '#FFDB5C', '#FF9F7F', '#FB7293', '#E062AE',
-                '#E690D1', '#E7BCF3', '#9D96F5', '#8378EA'
-              ];
-              return colors[Math.floor(Math.random() * colors.length)];
-            },
-            emphasis: {             // 鼠标悬停效果
-              shadowBlur: 5,
-              shadowColor: '#333'
-            }
-          },
-          left: 'center',
-          top: 'center',
-          right: null,
-          bottom: null,
-          data: data,
-          shape: 'circle',
-        },
-      ],
+  backgroundColor: 'rgba(0,0,0,0)',
+  grid: {
+    left: '10%',
+    top: 60,
+    right: '10%',
+    bottom: 60,
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: false,
     }
-);
+  },
+  series: [{
+    type: 'graph',
+    layout: 'force',
+    force: {
+      repulsion: 600,
+      edgeLength: [100, 400],
+      layoutAnimation: true,
+    },
+    symbolSize: 70,
+    nodeScaleRatio: 1,
+    roam: true,
+    zoom: 1,
+    draggable: true,
+    focusNodeAdjacency: false,
+    edgeSymbol: ['circle', 'arrow'],
+    label: {
+      show: true,
+      position: 'inside',
+      color: 'gold'
+    },
+    edgeLabel: {
+      show: true,
+      fontSize: 12,
+      color: '#fff',
+      formatter: "{c}"
+    },
+    categories: [
+      { name: '属性' },
+      { name: '关系', symbol: 'rect' }
+    ],
+    itemStyle: {
+      borderColor: '#04f2a7',
+      borderWidth: 2,
+      shadowBlur: 10,
+      shadowColor: '#04f2a7',
+      color: '#001c43',
+    },
+    lineStyle: {
+      opacity: 0.9,
+      width: 2,
+      curveness: 0,
+      color: {
+        type: 'linear',
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [
+          { offset: 0, color: '#e0f55a' },
+          { offset: 1, color: '#639564' }
+        ],
+        globalCoord: false
+      }
+    },
+    symbolKeepAspect: false,
+    data: chartData.value,
+    links: chartLinks.value
+  }]
+});
+
+// 左侧列表数据
+const list = [
+  { value: "基础背景信息" },
+  { value: "地震灾害和救灾背景信息" },
+  { value: "地震台网信息" },
+  { value: "救灾能力储备信息" },
+  { value: "应急联络信息" },
+  { value: "预案与规划信息" },
+  { value: "防震减灾示范与演习经验信息" },
+  { value: "地震震情信息" },
+  { value: "地震灾情信息" },
+  { value: "应急指挥协调信息" },
+  { value: "应急决策信息" },
+  { value: "应急处置信息" },
+  { value: "态势标绘信息" },
+  { value: "灾害现场动态信息" },
+  { value: "社会反应动态信息" },
+  { value: "救援物资信息" }
+];
+
+const getData = async () => {
+  try {
+    const res = await getGraphData();
+
+    chartLinks.value = res.map(item => ({
+      source: item.source.name,
+      target: item.target.name,
+      value: item.value.type
+    }));
+
+    const nodeSet = new Set();
+
+    chartLinks.value.forEach(item => {
+      nodeSet.add(item.source);
+      nodeSet.add(item.target);
+    });
+
+    chartData.value = Array.from(nodeSet).map(name => ({ name }));
+
+    // 处理 newList 数据
+    const validValues = new Set(list.map(item => item.value));
+    newList.value = chartData.value
+        .filter(item => validValues.has(item.name))
+        .map((item, index) => ({
+          id: index + 1,
+          value: item.name
+        }));
+
+    initChart();
+
+  } catch (error) {
+    console.error('获取图表数据失败:', error);
+  }
+};
 
 const initChart = () => {
   if (!chart.value) return;
+
+  // 检查 chartData 是否发生变化
+  const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
+
+  if (!isDataChanged) {
+    console.log('数据未变化，跳过渲染');
+    return; // 直接返回，不执行后续渲染逻辑
+  }
+
+  // 更新 lastChartData
+  lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
+
+  if(echartsInstance.value !== null ){
+    echartsInstance.value.dispose();
+  }
+
+  // 特殊节点样式
+  echartsOption.value.series[0].data = chartData.value.map(item => {
+    item.symbolSize = 60;
+    if (item.name === '地震参数') {
+      item.itemStyle = {
+        borderColor: '#f20404',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#f20404',
+        color: '#001c43',
+      };
+      item.symbolSize = 100;
+    } else if (item.name === '地震震情信息s') {
+      item.itemStyle = {
+        borderColor: '#e2f204',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#e2f204',
+        color: '#001c43',
+      };
+    }
+    return item;
+  });
+  echartsOption.value.series[0].links = chartLinks.value;
 
   echartsInstance.value = echarts.init(chart.value);
   echartsInstance.value.setOption(echartsOption.value);
@@ -93,7 +204,7 @@ const handleResize = () => {
 
 // 生命周期钩子
 onMounted(() => {
-  initChart();
+  getData();
 });
 
 onBeforeUnmount(() => {
@@ -102,16 +213,16 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', handleResize);
   }
 });
+
 </script>
 
-
 <style scoped lang="less">
-.container{
+.contentBody{
   position: relative;
   height: 90%;
-  width: 90%;
+  width: 98%;
 
-  .chartContainer {
+  .chartContainer{
     position: absolute;
     bottom: 10px;
     width: 100%;
@@ -119,3 +230,6 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+
+
+

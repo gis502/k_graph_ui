@@ -510,11 +510,10 @@
 <!--            :eqid="eqid"-->
 <!--            :currentTime="currentTimeString"-->
 <!--        />-->
-        <knowledgeGraph
-            :eqMagnitude = "eqMagnitude"
-            :currentTime = "currentTimeString"
-        />
-
+<!--        <knowledgeGraph-->
+<!--            :eqMagnitude = "eqMagnitude"-->
+<!--            :currentTime = "currentTimeString"-->
+<!--        />-->
       </div>
     </div>
 
@@ -676,13 +675,32 @@
 <!--            :earthquakeName="centerPoint.earthquakeName"-->
 <!--            :selectedDistrict="selectedDistrict"-->
 <!--        />-->
-        <SmallGraph/>
+        <SmallGraph @samllGraphShow="handleToggleShow"/>
         <timeLineMiniMap
             :viewer="viewer"
             :centerPoint="centerPoint"
         />
       </div>
     </div>
+
+<!--    放大后的详细知识图谱-->
+    <div class="knowledgeGraphContainer" v-show="ifShowSmallGraph">
+      <div class="knowledgeGraph_background"
+           style="
+                  width: 98%;
+                  height: 80%;
+                  z-index: 100;
+                  top: 110px;
+                  border-radius: 20px;
+">
+        <knowledgeGraph
+            @bigGraphShow="handleToggleShow"
+            :eqMagnitude = "eqMagnitude"
+            :currentTime = "currentTimeString"
+        />
+      </div>
+    </div>
+
 
     <!--    两侧组件 end-->
 
@@ -1193,6 +1211,9 @@ export default {
   },
   data: function () {
     return {
+
+      ifShowSmallGraph:false,
+
       siChuanCityEntity: [],
       siChuanCountyEntity: [],
       siChuanVillageEntity: [],
@@ -3544,6 +3565,7 @@ export default {
       if (component === 'dataStats') {
         // 切换 showSidebarComponents 以显示/隐藏两侧组件
         this.showSidebarComponents = !this.showSidebarComponents;
+
       } else if (component !== 'legend') {
         // 点击其他按钮时隐藏侧边栏组件，但图例按钮不会触发隐藏
         this.showSidebarComponents = false;
@@ -5192,6 +5214,13 @@ export default {
       }
     }
     ,
+
+    handleToggleShow(value){
+      console.log(value,"是否接受到传值")
+      this.ifShowSmallGraph = value;
+      this.showSidebarComponents = !this.showSidebarComponents;
+    },
+
   },
   watch: {
     selectedDisasterEstimate(newVal, oldVal) {

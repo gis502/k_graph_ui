@@ -77,7 +77,7 @@ export default {
       ],
       rightMenuItems: [
         // {title: '资源调度', component: 'layerChoose'},
-        {title: '知识图谱', component: 'knowledgeGraph'},
+        // {title: '知识图谱', component: 'knowledgeGraph'},
         {title: '图件产出', component: 'reportDownload'},
         // {title: '返回首页', component: 'frontPage'},
       ],
@@ -157,7 +157,7 @@ export default {
 }
 
 .menue-right {
-  right: 3%;
+  left: 84vw;
 }
 
 .logo-menu-tittle-left {

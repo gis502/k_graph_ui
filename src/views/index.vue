@@ -35,7 +35,7 @@
                               0px -4px 12px rgba(0, 0, 0, 0.8);
                             z-index: 2; /* 确保文字在图片上 */white-space: nowrap; /* 防止换行 */">最新地震词云图</span>
               <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: auto;">
-              <chart3 />
+              <chart3/>
             </div>
 
             <div class="left-con public-bg" ref="leftCon">
@@ -112,7 +112,6 @@
                     style="font-size: 14px;"
                     @click="openQueryFrom()"
                   >筛选</el-button>
-
                   <!-- 正式和测试按钮，固定不切换 -->
                   <el-button
                     size="small"
@@ -129,7 +128,7 @@
             </div>
             <div class="right-bottom">
               <span style="position: absolute;
-                           top: 61.8%; /* 让文字居中 */
+                           top: 58%; /* 让文字居中 */
                            left: 19%;transform: translate(-50%, -50%); /* 精确居中 */
                            font-size: 18px;
                            font-weight: bold;
@@ -158,7 +157,7 @@
                 <!-- 输入框 -->
                 <el-input
                   v-model="addDTO.eqAddr"
-                  placeholder="请选择或输入震发位置"
+                  placeholder="请输入具体省市区（县）"
                   class="custom-input"
                 />
               </div>
@@ -276,7 +275,8 @@ let addDTO = ref({
     latitude: '',
     eqMagnitude: '',
     eqDepth: '',
-    eqType: ''
+    eqType: '',
+    fullName:'',
 })
 
 
@@ -316,13 +316,24 @@ const commitPanel = () => {
   addDTO.value.event = guid();
   addDTO.value.eqType = 'Z';
   addDTO.value.eqTime = addDTO.value.eqTime.replace(/T/, ' ')
-  console.log(addDTO.value);
+
+  // 处理 eqTime，提取出 '4月22日'
+  const date = new Date(addDTO.value.eqTime)
+  const formattedDate = `${date.getMonth() + 1}月${date.getDate()}日`
+  // 处理 eqAddr，拼接 '地震'
+  const formattedAddr = `${addDTO.value.eqAddr}地震`
+  // 拼接成 fullName
+  addDTO.value.fullName = `${formattedDate}${formattedAddr}`
+
+
   setTimeout(() => {
     getEq();
     console.log("新增成功！")
   }, 1000)
-  addNewEq(addDTO.value).then(() => {
 
+
+
+  addNewEq(addDTO.value).then(() => {
   })
 
 

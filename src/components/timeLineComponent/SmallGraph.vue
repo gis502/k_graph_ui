@@ -3,7 +3,7 @@
     <div class="smallGraph-title">
       <h2 class="sub-title">
         知识图谱
-        <button @click="showDetails">详情</button>
+        <button @click="handleClick">详情</button>
       </h2>
     </div>
     <div class="chartContainer" ref="chart"></div>
@@ -22,13 +22,8 @@ const lastChartData = ref([]);
 const chartLinks = ref([]);
 const newList = ref([]);
 // 定义要触发的事件
-const emit = defineEmits(['showDetails'])
+const emit = defineEmits(['samllGraphShow'])
 
-// 2. 触发事件的函数
-const sendDataToParent = () => {
-  const data = { message: 'Hello from child' }
-  emit('eventName', data) // 触发事件并传数据
-}
 // ECharts 配置
 const echartsOption = ref({
   backgroundColor: 'rgba(0,0,0,0)',
@@ -216,8 +211,9 @@ const handleResize = () => {
 };
 
 // 展开详细的页面
-const showDetails = () => {
-
+const handleClick = () => {
+  // 触发事件通知父组件
+  emit('samllGraphShow', true)
 };
 
 // 生命周期钩子
