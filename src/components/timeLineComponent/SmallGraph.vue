@@ -12,7 +12,7 @@
 
 <script setup>
 import {onBeforeUnmount, onMounted, ref} from "vue";
-import {getGraphData} from "@/api/system/knowledgeGraph.js";
+import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import * as echarts from "echarts";
 
 const chart = ref(null);
@@ -24,6 +24,11 @@ const newList = ref([]);
 // 定义要触发的事件
 const emit = defineEmits(['samllGraphShow'])
 
+const props = defineProps({
+  eqid: {
+    type: String,
+  },
+})
 // ECharts 配置
 const echartsOption = ref({
   backgroundColor: 'rgba(0,0,0,0)',
@@ -65,8 +70,8 @@ const echartsOption = ref({
       formatter: "{c}"
     },
     categories: [
-      { name: '属性' },
-      { name: '关系', symbol: 'rect' }
+      {name: '属性'},
+      {name: '关系', symbol: 'rect'}
     ],
     itemStyle: {
       borderColor: '#04f2a7',
@@ -86,8 +91,8 @@ const echartsOption = ref({
         x2: 0,
         y2: 1,
         colorStops: [
-          { offset: 0, color: '#e0f55a' },
-          { offset: 1, color: '#639564' }
+          {offset: 0, color: '#e0f55a'},
+          {offset: 1, color: '#639564'}
         ],
         globalCoord: false
       }
@@ -100,53 +105,53 @@ const echartsOption = ref({
 
 // 左侧列表数据
 const list = [
-  { value: "基础背景信息" },
-  { value: "地震灾害和救灾背景信息" },
-  { value: "地震台网信息" },
-  { value: "救灾能力储备信息" },
-  { value: "应急联络信息" },
-  { value: "预案与规划信息" },
-  { value: "防震减灾示范与演习经验信息" },
-  { value: "地震震情信息" },
-  { value: "地震灾情信息" },
-  { value: "应急指挥协调信息" },
-  { value: "应急决策信息" },
-  { value: "应急处置信息" },
-  { value: "态势标绘信息" },
-  { value: "灾害现场动态信息" },
-  { value: "社会反应动态信息" },
-  { value: "救援物资信息" }
+  {value: "基础背景信息"},
+  {value: "地震灾害和救灾背景信息"},
+  {value: "地震台网信息"},
+  {value: "救灾能力储备信息"},
+  {value: "应急联络信息"},
+  {value: "预案与规划信息"},
+  {value: "防震减灾示范与演习经验信息"},
+  {value: "地震震情信息"},
+  {value: "地震灾情信息"},
+  {value: "应急指挥协调信息"},
+  {value: "应急决策信息"},
+  {value: "应急处置信息"},
+  {value: "态势标绘信息"},
+  {value: "灾害现场动态信息"},
+  {value: "社会反应动态信息"},
+  {value: "救援物资信息"}
 ];
 
 const getData = async () => {
   try {
-      const res = await getGraphData();
+    //const res = await getGraphData();
+    const res = await getChartDataBy(props.eqid)
+    chartLinks.value = res.map(item => ({
+      source: item.source.name,
+      target: item.target.name,
+      value: item.value.type
+    }));
 
-      chartLinks.value = res.map(item => ({
-        source: item.source.name,
-        target: item.target.name,
-        value: item.value.type
-      }));
+    const nodeSet = new Set();
 
-      const nodeSet = new Set();
+    chartLinks.value.forEach(item => {
+      nodeSet.add(item.source);
+      nodeSet.add(item.target);
+    });
 
-      chartLinks.value.forEach(item => {
-        nodeSet.add(item.source);
-        nodeSet.add(item.target);
-      });
+    chartData.value = Array.from(nodeSet).map(name => ({name}));
 
-      chartData.value = Array.from(nodeSet).map(name => ({ name }));
+    // 处理 newList 数据
+    const validValues = new Set(list.map(item => item.value));
+    newList.value = chartData.value
+        .filter(item => validValues.has(item.name))
+        .map((item, index) => ({
+          id: index + 1,
+          value: item.name
+        }));
 
-      // 处理 newList 数据
-      const validValues = new Set(list.map(item => item.value));
-      newList.value = chartData.value
-          .filter(item => validValues.has(item.name))
-          .map((item, index) => ({
-            id: index + 1,
-            value: item.name
-          }));
-
-      initChart();
+    initChart();
 
   } catch (error) {
     console.error('获取图表数据失败:', error);
@@ -167,7 +172,7 @@ const initChart = () => {
   // 更新 lastChartData
   lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
 
-  if(echartsInstance.value !== null ){
+  if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
 
@@ -183,7 +188,7 @@ const initChart = () => {
         color: '#001c43',
       };
       item.symbolSize = 100;
-    } else if (item.name === '地震震情信息s') {
+    } else if (item.name === '地震震情信息') {
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -231,20 +236,20 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="less">
-.content-body{
+.content-body {
   width: 100%;
   height: 42vh;
   position: relative;
 
-  .smallGraph-title{
+  .smallGraph-title {
     height: 3.8vh;
     position: relative;
     background-image: url("@/assets/images/CommandScreen/标题底图.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    top:-4%;
+    top: -4%;
 
-    .sub-title{
+    .sub-title {
       color: #FFFFFF;
       font-size: 1.1rem;
       font-weight: 550;
@@ -277,6 +282,7 @@ onBeforeUnmount(() => {
       }
 
       /* 悬浮效果 */
+
       button:hover {
         background: linear-gradient(135deg, #2451b5 0%, #123456 100%);
         transform: translateY(-2px);
@@ -284,12 +290,14 @@ onBeforeUnmount(() => {
       }
 
       /* 点击效果 */
+
       button:active {
         transform: translateY(1px);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
 
       /* 光效动画（高级效果） */
+
       button::after {
         content: "";
         position: absolute;
@@ -297,13 +305,11 @@ onBeforeUnmount(() => {
         left: -50%;
         width: 200%;
         height: 200%;
-        background: linear-gradient(
-            to bottom right,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0) 30%,
-            rgba(255, 255, 255, 0.15) 45%,
-            rgba(255, 255, 255, 0) 60%
-        );
+        background: linear-gradient(to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0.15) 45%,
+        rgba(255, 255, 255, 0) 60%);
         transform: rotate(30deg);
         transition: all 0.5s ease;
       }
@@ -315,8 +321,8 @@ onBeforeUnmount(() => {
     }
   }
 
-  .chartContainer{
-    position:absolute;
+  .chartContainer {
+    position: absolute;
     width: 100%;
     height: 95%;
     top: 20px;

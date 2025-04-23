@@ -15,24 +15,24 @@
           </el-icon>
         </el-button>
         <input
-          v-model="inputValue"
-          class="search-input"
-          placeholder="搜索图谱中的词条"
-          @keydown.enter="focusNode(inputValue)"
+            v-model="inputValue"
+            class="search-input"
+            placeholder="搜索图谱中的词条"
+            @keydown.enter="focusNode(inputValue)"
         />
       </div>
       <div class="list">
         <li
-          v-for="item in newList"
-          :key="item.id"
-          :class="{'clicked': currentIndex === item.id}"
-          @click="showDescription(item,item.value)"
+            v-for="item in newList"
+            :key="item.id"
+            :class="{'clicked': currentIndex === item.id}"
+            @click="showDescription(item,item.value)"
         >{{ item.value }}
         </li>
       </div>
     </div>
 
-    <div class="knowledgeGraph" >
+    <div class="knowledgeGraph">
       <div class="chartContainer" ref="chart"></div>
     </div>
 
@@ -46,9 +46,9 @@
       <div class="message-panel" id="message-panel">
         <div class="message-list">
           <div
-            :class="['message-item', item.type === 1 ? 'ai-item' : '']"
-            v-for="(item, index) in messageList"
-            :id="'item' + index"
+              :class="['message-item', item.type === 1 ? 'ai-item' : '']"
+              v-for="(item, index) in messageList"
+              :id="'item' + index"
           >
             <template v-if="item.type === 0">
               <div class="message-content">
@@ -60,13 +60,13 @@
               <div class="user-icon">AI</div>
               <div class="message-content ai-item">
                 <MdPreview
-                  previewTheme="vuepress"
-                  :codeFoldable="false"
-                  editorId="preview"
-                  :modelValue="item.content.join('')"
+                    previewTheme="vuepress"
+                    :codeFoldable="false"
+                    editorId="preview"
+                    :modelValue="item.content.join('')"
                 />
                 <div class="loading" v-if="item.loading">
-                  <img src="../assets/loading.gif" />
+                  <img src="../assets/loading.gif"/>
                 </div>
               </div>
             </template>
@@ -78,18 +78,19 @@
           <!--input输入-->
           <el-form-item label="" prop="content">
             <el-input
-              type="textarea"
-              :rows="3"
-              clearable
-              placeholder="请输入你想问的问题"
-              v-model="formData.content"
-              @keyup="keySend"
+                type="textarea"
+                :rows="3"
+                clearable
+                placeholder="请输入你想问的问题"
+                v-model="formData.content"
+                @keyup="keySend"
             ></el-input>
           </el-form-item>
           <!--input输入-->
           <el-form-item label="" prop="" class="send-btn">
             <el-button type="primary" @click="sendMessage" :disabled="loading"
-            >发送(ctrl+enter)</el-button
+            >发送(ctrl+enter)
+            </el-button
             >
           </el-form-item>
         </el-form>
@@ -101,10 +102,10 @@
 <script setup>
 import {Position, Search} from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import {getGraphData} from "@/api/system/knowledgeGraph.js";
-import { MdPreview } from "md-editor-v3";
-import { ElMessage } from "element-plus";
+import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
+import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
+import {MdPreview} from "md-editor-v3";
+import {ElMessage} from "element-plus";
 import AnalysisChart1 from '@/views/AnalysisChart1.vue';
 import AnalysisChart2 from '@/views/AnalysisChart2.vue';
 
@@ -113,11 +114,14 @@ import AnalysisChart2 from '@/views/AnalysisChart2.vue';
 const emit = defineEmits(['bigGraphShow'])
 
 const props = defineProps({
-  eqMagnitude:{
-    type:String,
+  eqMagnitude: {
+    type: String,
   },
-  currentTime:{
-    type:String,
+  eqid: {
+    type: String,
+  },
+  currentTime: {
+    type: String,
   }
 })
 // 响应式数据
@@ -137,22 +141,22 @@ const echartsInstance = ref(null);
 const ifShowCatalog = ref(true);
 // 左侧列表数据
 const list = [
-  { value: "基础背景信息" },
-  { value: "地震灾害和救灾背景信息" },
-  { value: "地震台网信息" },
-  { value: "救灾能力储备信息" },
-  { value: "应急联络信息" },
-  { value: "预案与规划信息" },
-  { value: "防震减灾示范与演习经验信息" },
-  { value: "地震震情信息" },
-  { value: "地震灾情信息" },
-  { value: "应急指挥协调信息" },
-  { value: "应急决策信息" },
-  { value: "应急处置信息" },
-  { value: "态势标绘信息" },
-  { value: "灾害现场动态信息" },
-  { value: "社会反应动态信息" },
-  { value: "救援物资信息" }
+  {value: "基础背景信息"},
+  {value: "地震灾害和救灾背景信息"},
+  {value: "地震台网信息"},
+  {value: "救灾能力储备信息"},
+  {value: "应急联络信息"},
+  {value: "预案与规划信息"},
+  {value: "防震减灾示范与演习经验信息"},
+  {value: "地震震情信息"},
+  {value: "地震灾情信息"},
+  {value: "应急指挥协调信息"},
+  {value: "应急决策信息"},
+  {value: "应急处置信息"},
+  {value: "态势标绘信息"},
+  {value: "灾害现场动态信息"},
+  {value: "社会反应动态信息"},
+  {value: "救援物资信息"}
 ];
 const newList = ref([]);
 
@@ -197,8 +201,8 @@ const echartsOption = ref({
       formatter: "{c}"
     },
     categories: [
-      { name: '属性' },
-      { name: '关系', symbol: 'rect' }
+      {name: '属性'},
+      {name: '关系', symbol: 'rect'}
     ],
     itemStyle: {
       borderColor: '#04f2a7',
@@ -218,8 +222,8 @@ const echartsOption = ref({
         x2: 0,
         y2: 1,
         colorStops: [
-          { offset: 0, color: '#e0f55a' },
-          { offset: 1, color: '#639564' }
+          {offset: 0, color: '#e0f55a'},
+          {offset: 1, color: '#639564'}
         ],
         globalCoord: false
       }
@@ -233,32 +237,32 @@ const echartsOption = ref({
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-      const res = await getGraphData();
+//const res = await getGraphData();
+    const res = await getChartDataBy(props.eqid)
+    chartLinks.value = res.map(item => ({
+      source: item.source.name,
+      target: item.target.name,
+      value: item.value.type
+    }));
 
-      chartLinks.value = res.map(item => ({
-        source: item.source.name,
-        target: item.target.name,
-        value: item.value.type
-      }));
+    const nodeSet = new Set();
+    chartLinks.value.forEach(item => {
+      nodeSet.add(item.source);
+      nodeSet.add(item.target);
+    });
 
-      const nodeSet = new Set();
-      chartLinks.value.forEach(item => {
-        nodeSet.add(item.source);
-        nodeSet.add(item.target);
-      });
+    chartData.value = Array.from(nodeSet).map(name => ({name}));
 
-      chartData.value = Array.from(nodeSet).map(name => ({ name }));
+    // 处理 newList 数据
+    const validValues = new Set(list.map(item => item.value));
+    newList.value = chartData.value
+        .filter(item => validValues.has(item.name))
+        .map((item, index) => ({
+          id: index + 1,
+          value: item.name
+        }));
 
-      // 处理 newList 数据
-      const validValues = new Set(list.map(item => item.value));
-      newList.value = chartData.value
-          .filter(item => validValues.has(item.name))
-          .map((item, index) => ({
-            id: index + 1,
-            value: item.name
-          }));
-
-      initChart();
+    initChart();
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -279,7 +283,7 @@ const initChart = () => {
   // 更新 lastChartData
   lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
 
-  if(echartsInstance.value !== null ){
+  if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
 
@@ -334,8 +338,8 @@ const updateChartData = () => {
 // 搜索节点并聚焦
 const focusNode = (nodeName) => {
 
-  console.log(inputValue.value,"输入框的内容")
-  console.log(nodeName,"节点名称")
+  console.log(inputValue.value, "输入框的内容")
+  console.log(nodeName, "节点名称")
 
   if (!nodeName?.trim()) {
     inputValue.value = '';
@@ -448,73 +452,72 @@ const handleClick = () => {
   emit('bigGraphShow', false)
 };
 
-watch(() => props.currentTime, (newTime) => {
-      console.log('currentTime changed:', new Date(newTime));
-      const time1 = new Date("2022-06-02 00:00:00");
-      const time2 = new Date("2022-06-05 00:00:00");
-      const time3 = new Date("2022-06-08 00:00:00");
-      const time4 = new Date("2022-06-10 00:00:00")
-      switch (true) {
-        case new Date(newTime) < time1:
-          console.log("时间早于 2022-06-02");
-          chartData.value = [
-            {name: '项目',symbolSize: 80},
-            {name: '聂天宇', symbolSize: 60},
-          ]
-          chartLinks.value = [
-            {source: '项目', target: '聂天宇', value: '项目负责人'},
-          ]
-          initChart();
-          break;
-        case new Date(newTime) >= time1 && new Date(newTime) < time2:
-          console.log("时间在 2022-06-01 到 2022-06-05 之间");
-          chartData.value = [
-            {name: '项目',symbolSize: 80},
-            {name: '聂天宇', symbolSize: 60},
-            {name: '江立珂', symbolSize: 60},
-          ]
-          chartLinks.value = [
-            {source: '项目', target: '聂天宇', value: '项目负责人'},
-            {source: '项目', target: '江立珂', value: '项目成员'},
-          ]
-          initChart();
-          break;
-        case new Date(newTime) >= time2 && new Date(newTime) < time3:
-          console.log("时间在 2022-06-05 到 2022-06-08 之间");
-          chartData.value = [
-            {name: '项目',symbolSize: 80},
-            {name: '聂天宇', symbolSize: 60},
-            {name: '江立珂', symbolSize: 60},
-            {name: '白颜诺', symbolSize: 60},
-          ]
-          chartLinks.value = [
-            {source: '项目', target: '聂天宇', value: '项目负责人'},
-            {source: '项目', target: '江立珂', value: '项目成员'},
-            {source: '项目', target: '白颜诺', value: '项目成员'},
-          ]
-          initChart();
-          break;
-        case new Date(newTime) >= time3 && new Date(newTime) < time4:
-          console.log("时间在 2022-06-08 到 2022-06-10 之间");
-          chartData.value = [
-            {name: '项目',symbolSize: 80},
-            {name: '聂天宇', symbolSize: 60},
-            {name: '江立珂', symbolSize: 60},
-            {name: '白颜诺', symbolSize: 60},
-            {name: '李涌鑫', symbolSize: 60},
-          ]
-          chartLinks.value = [
-            {source: '项目', target: '聂天宇', value: '项目负责人'},
-            {source: '项目', target: '江立珂', value: '项目成员'},
-            {source: '项目', target: '白颜诺', value: '项目成员'},
-            {source: '项目', target: '李涌鑫', value: '项目牛马'},
-          ]
-          initChart();
-        default:
-          console.log("时间晚于或等于 2022-06-08");
-      }
-    }
-);
+// watch(() => props.currentTime, (newTime) => {
+//       console.log('currentTime changed:', new Date(newTime));
+//       const time1 = new Date("2022-06-02 00:00:00");
+//       const time2 = new Date("2022-06-05 00:00:00");
+//       const time3 = new Date("2022-06-08 00:00:00");
+//       const time4 = new Date("2022-06-10 00:00:00")
+//       switch (true) {
+//         case new Date(newTime) < time1:
+//           console.log("时间早于 2022-06-02");
+//           chartData.value = [
+//             {name: '项目', symbolSize: 80},
+//             {name: '聂天宇', symbolSize: 60},
+//           ]
+//           chartLinks.value = [
+//             {source: '项目', target: '聂天宇', value: '项目负责人'},
+//           ]
+//           initChart();
+//           break;
+//         case new Date(newTime) >= time1 && new Date(newTime) < time2:
+//           console.log("时间在 2022-06-01 到 2022-06-05 之间");
+//           chartData.value = [
+//             {name: '项目', symbolSize: 80},
+//             {name: '聂天宇', symbolSize: 60},
+//             {name: '江立珂', symbolSize: 60},
+//           ]
+//           chartLinks.value = [
+//             {source: '项目', target: '聂天宇', value: '项目负责人'},
+//             {source: '项目', target: '江立珂', value: '项目成员'},
+//           ]
+//           initChart();
+//           break;
+//         case new Date(newTime) >= time2 && new Date(newTime) < time3:
+//           console.log("时间在 2022-06-05 到 2022-06-08 之间");
+//           chartData.value = [
+//             {name: '项目', symbolSize: 80},
+//             {name: '聂天宇', symbolSize: 60},
+//             {name: '江立珂', symbolSize: 60},
+//             {name: '白颜诺', symbolSize: 60},
+//           ]
+//           chartLinks.value = [
+//             {source: '项目', target: '聂天宇', value: '项目负责人'},
+//             {source: '项目', target: '江立珂', value: '项目成员'},
+//             {source: '项目', target: '白颜诺', value: '项目成员'},
+//           ]
+//           initChart();
+//           break;
+//         case new Date(newTime) >= time3 && new Date(newTime) < time4:
+//           console.log("时间在 2022-06-08 到 2022-06-10 之间");
+//           chartData.value = [
+//             {name: '项目', symbolSize: 80},
+//             {name: '聂天宇', symbolSize: 60},
+//             {name: '江立珂', symbolSize: 60},
+//             {name: '白颜诺', symbolSize: 60},
+//             {name: '李涌鑫', symbolSize: 60},
+//           ]
+//           chartLinks.value = [
+//             {source: '项目', target: '聂天宇', value: '项目负责人'},
+//             {source: '项目', target: '江立珂', value: '项目成员'},
+//             {source: '项目', target: '白颜诺', value: '项目成员'},
+//             {source: '项目', target: '李涌鑫', value: '项目牛马'},
+//           ]
+//           initChart();
+//         default:
+//           console.log("时间晚于或等于 2022-06-08");
+//       }
+//     });
 
 // 生命周期钩子
 onMounted(() => {
@@ -543,12 +546,12 @@ onBeforeUnmount(() => {
   z-index: 2;
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 
-  .closeAll{
-    button{
+  .closeAll {
+    button {
       position: absolute;
-      left:calc(95vw + 6px);
-      top:8px;
-      z-index:1;
+      left: calc(95vw + 6px);
+      top: 8px;
+      z-index: 1;
       // 基础样式
       display: inline-flex;
       align-items: center;
@@ -578,16 +581,13 @@ onBeforeUnmount(() => {
           bottom: -2px;
           border-radius: 6px;
           padding: 1px; // 边框厚度
-          background: linear-gradient(
-              90deg,
-              #0453fc,
-              #00f7ff,
-              #0453fc,
-          );
+          background: linear-gradient(90deg,
+          #0453fc,
+          #00f7ff,
+          #0453fc,);
           background-size: 200% auto;
-          -webkit-mask:
-              linear-gradient(#fff 0 0) content-box,
-              linear-gradient(#fff 0 0);
+          -webkit-mask: linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
           -webkit-mask-composite: xor;
           mask-composite: exclude;
           animation: borderFlow 1.5s linear infinite;
@@ -597,8 +597,8 @@ onBeforeUnmount(() => {
     }
   }
 
-  > *{
-    flex-shrink:1;
+  > * {
+    flex-shrink: 1;
   }
 
   .knowledgeGraph {
@@ -612,7 +612,7 @@ onBeforeUnmount(() => {
     }
   }
 
-  .sentimentAnalysis{
+  .sentimentAnalysis {
     flex: 1;
     height: 100%;
     display: flex;
@@ -629,7 +629,7 @@ onBeforeUnmount(() => {
       margin-bottom: 20px;
     }
 
-    .sentimentAnalysisChart1,.sentimentAnalysisChart2{
+    .sentimentAnalysisChart1, .sentimentAnalysisChart2 {
       flex: 1;
       width: 100%;
       height: calc(50% - 20px);
@@ -640,8 +640,8 @@ onBeforeUnmount(() => {
   .chat-panel {
     //background: #eff0f6;
     height: 100%;
-    border-top-right-radius: 20px;    /* 右上角圆角 */
-    border-bottom-right-radius: 20px;  /* 左下角圆角 */
+    border-top-right-radius: 20px; /* 右上角圆角 */
+    border-bottom-right-radius: 20px; /* 左下角圆角 */
 
     .chat-title {
       text-align: center;
@@ -659,17 +659,20 @@ onBeforeUnmount(() => {
       scrollbar-width: none; /* Firefox */
       -ms-overflow-style: none; /* IE/Edge */
 
-    /* Chrome/Safari/Opera */
-    .message-panel::-webkit-scrollbar {
-      display: none;
-    }
+      /* Chrome/Safari/Opera */
+
+      .message-panel::-webkit-scrollbar {
+        display: none;
+      }
 
       .message-list {
         margin: 0 auto;
         width: 440px;
+
         .message-item {
           margin: 10px 0px;
           display: flex;
+
           .user-icon {
             width: 40px;
             height: 40px;
@@ -680,6 +683,7 @@ onBeforeUnmount(() => {
             text-align: center;
             margin-left: 10px;
           }
+
           .message-content {
             flex: 1;
             margin-left: 10px;
@@ -687,6 +691,7 @@ onBeforeUnmount(() => {
             display: flex;
             justify-content: flex-end;
           }
+
           .content-inner {
             background: #2d65f7;
             border-radius: 5px;
@@ -694,30 +699,37 @@ onBeforeUnmount(() => {
             color: #fff;
           }
         }
+
         .ai-item {
           line-height: 23px;
+
           .message-content {
             display: block;
             background: #fff;
             border-radius: 5px;
           }
+
           .user-icon {
             background: #64018f;
             margin-left: 0px;
           }
+
           :deep(.md-editor-previewOnly) {
             border-radius: 5px;
             background: #fff;
           }
+
           :deep(.md-editor-preview-wrapper) {
             padding: 10px;
           }
+
           .loading {
             text-align: center;
           }
         }
       }
     }
+
     .send-panel {
       position: relative;
       margin: 5px auto 0px;
@@ -730,10 +742,12 @@ onBeforeUnmount(() => {
         text-align: right;
         margin-bottom: 0px;
         padding: 5px;
+
         :deep(.el-form-item__content) {
           justify-content: flex-end;
         }
       }
+
       :deep(.el-textarea__inner) {
         border: 0 !important;
         resize: none !important;
@@ -743,7 +757,7 @@ onBeforeUnmount(() => {
   }
 
   .catalog {
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -766,7 +780,7 @@ onBeforeUnmount(() => {
       width: 200px;
 
       .search-button, .search-input {
-        background-color: rgba(0,0,0,0);
+        background-color: rgba(0, 0, 0, 0);
         box-shadow: inset 0 -1px 1px 0 #0453fc;
         border-color: #FFFFFF00;
         height: 44px;
@@ -825,12 +839,13 @@ onBeforeUnmount(() => {
     }
 
     /* 隐藏滚动条 */
+
     .list::-webkit-scrollbar {
       display: none;
     }
   }
 
-  .observationWindow{
+  .observationWindow {
     pointer-events: none;
     height: 100%;
     width: 48%;
@@ -869,16 +884,13 @@ onBeforeUnmount(() => {
       bottom: -2px;
       border-radius: 6px;
       padding: 1px; // 边框厚度
-      background: linear-gradient(
-          90deg,
-          #0453fc,
-          #00f7ff,
-          #0453fc,
-      );
+      background: linear-gradient(90deg,
+      #0453fc,
+      #00f7ff,
+      #0453fc,);
       background-size: 200% auto;
-      -webkit-mask:
-          linear-gradient(#fff 0 0) content-box,
-          linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       animation: borderFlow 1.5s linear infinite;
@@ -898,7 +910,7 @@ onBeforeUnmount(() => {
 
 .close {
   position: relative;
-  top:-20px;
+  top: -20px;
   left: 10px;
 }
 

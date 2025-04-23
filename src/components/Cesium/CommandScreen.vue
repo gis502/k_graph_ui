@@ -675,7 +675,10 @@
 <!--            :earthquakeName="centerPoint.earthquakeName"-->
 <!--            :selectedDistrict="selectedDistrict"-->
 <!--        />-->
-        <SmallGraph @samllGraphShow="handleToggleShow"/>
+        <SmallGraph
+            @samllGraphShow="handleToggleShow"
+            :eqid = "eqid"
+        />
         <timeLineMiniMap
             :viewer="viewer"
             :centerPoint="centerPoint"
@@ -697,6 +700,7 @@
             @bigGraphShow="handleToggleShow"
             :eqMagnitude = "eqMagnitude"
             :currentTime = "currentTimeString"
+            :eqid = "eqid"
         />
       </div>
     </div>
@@ -1109,6 +1113,7 @@ import {getModelData} from "@/api/system/tiltPhotography.js";
 import layer from "@/cesium/layer.js";
 import modelicon from '@/assets/icons/svg/3dmodel04.svg';
 import knowledgeGraph from '@/views/knowledgeGraph.vue';
+import {getChartDataBy} from "@/api/system/knowledgeGraph.js";
 
 export default {
   computed: {
@@ -1749,6 +1754,7 @@ export default {
     this.getEq()
     this.getEqList()
     this.outputData()
+    this.getchartdata(this.eqid)
   },
   beforeUnmount() {
     if (window.viewer) {
@@ -2519,6 +2525,12 @@ export default {
       // })
     },
 
+    getchartdata(){
+      getChartDataBy(this.eqid).then((res) => {
+        console.log("根据id查询的专题图是：：：：",res)
+
+      })
+    },
 
     // ------------------------------路径规划+物资匹配---------------------------
     switchPanel(action) {
