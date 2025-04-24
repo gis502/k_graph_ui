@@ -159,6 +159,13 @@ export function getGeomByEqListId(data) {
         params: {id: data}
     })
 }
+export function getCloud(data) {
+    return request({
+        url: '/system/cloudword',
+        method: 'get',
+        params: {eqid: data}
+    })
+}
 
 export function eqEventTrigger(data) {
     return request({

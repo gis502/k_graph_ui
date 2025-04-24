@@ -8,11 +8,11 @@
           <div class="tit02 text-b">热门话题榜</div>
           <div class="huati">
             <ul>
-              <li v-for="(topic, index) in topics" :key="index">
+              <li v-for="(topic, index) in topTopics" :key="index">
                 <span class="rank">{{ index + 1 }}.</span>
                 <span class="topic-name">{{ topic.name }}</span>
-                <span class="change" :class="{ 'up': topic.change.startsWith('↑'), 'down': topic.change.startsWith('↓') }">
-                  {{ topic.change }}
+                <span class="change" :class="{ 'up': topic.value > 0, 'down': topic.value < 0 }">
+                  {{ topic.value > 0 ? `${topic.value}` : `${Math.abs(topic.value)}` }}
                 </span>
               </li>
             </ul>
@@ -35,7 +35,7 @@
            zIndex: keyword.zIndex,
            transition: hoveredIndex === index ? 'transform 0.3s ease-out' : 'all 0.3s ease'
          }">
-              {{ keyword.text }}
+              {{ keyword.name }}
             </a>
           </div>
         </div>
@@ -53,33 +53,61 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from "vue";
+import {getCloud} from "@/api/system/eqlist.js";
 
 export default {
   setup() {
-    const topics = ref([
-      { name: "数据分析", change: "↑2167" },
-      { name: "云存储", change: "↑2167" },
-      { name: "视觉分析", change: "↓2167" },
-      { name: "海量词库", change: "↓2167" },
-      { name: "云词典", change: "↓2167" },
-    ]);
+    const topics = ref([]);
+    // 计算前 5 个 value 最大的 topics
+    const topTopics = ref([]);
 
     const tagcloud = ref(null);
+    const eqid = ref('');
+    const eqqueueId = ref('');
 
 
     // 初始化关键词数据
-    const keywords = ref([
-      { text: "大数据", class: "b01 co01", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "云计算", class: "b02 co02", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "数据分析", class: "b03 co05", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "人工智能", class: "b04 co02", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "机器学习", class: "b03 co05", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "深度学习", class: "b02 co03", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "神经网络", class: "b01 co04", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "数据挖掘", class: "b04 co01", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "自然语言", class: "b03 co02", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-      { text: "计算机视觉", class: "b02 co05", x: 0, y: 0, vx: 0, vy: 0, scale: 1, opacity: 0.8, zIndex: 1, targetX: 0, targetY: 0 },
-    ]);
+    const keywords = ref([]);
+
+    const initCloud = () => {
+      eqid.value = 'T20250424193518511800'; // 示例 eqid
+      eqqueueId.value = 'T2025042419351851180001'; // 示例 eqqueueId
+      getCloud(eqid.value)
+          .then(res => {
+            console.log('查询结果-云：', res.data);
+            try {
+              // 假设 res.data[0].result 是一个 JSON 格式的字符串
+              const parsedData = JSON.parse(res.data[0].result);
+              // 确保解析后的数据是一个数组
+              if (Array.isArray(parsedData)) {
+                keywords.value = parsedData; // 更新 keywords 的值
+                // 更新 topics 的值并排序
+                topics.value = parsedData.sort((a, b) => b.value - a.value);
+                // 只取前 5 个
+                topTopics.value = topics.value.slice(0, 5);
+                console.log('topics 更新后的值：', topics.value);
+                console.log('topTopics 更新后的值：', topTopics.value);
+                console.log('keywords 更新后的值：', keywords.value);
+                console.log('topics 更新后的值：', topics.value)
+                // 重新初始化粒子位置和速度
+                initParticles();
+
+                // 重新启动动画
+                if (animationFrame.value) {
+                  cancelAnimationFrame(animationFrame.value);
+                }
+                animationFrame.value = requestAnimationFrame(updateParticles);
+              } else {
+                console.error('解析后的数据不是数组');
+              }
+            } catch (error) {
+              console.error('解析 JSON 失败：', error);
+            }
+          })
+          .catch(error => {
+            console.error('查询失败：', error);
+          });
+    };
 
     // 初始化粒子位置和速度
     const initParticles = () => {
@@ -319,6 +347,7 @@ export default {
     };
 
     onMounted(() => {
+      initCloud();
       initParticles();
       animationFrame.value = requestAnimationFrame(updateParticles);
 
@@ -333,6 +362,7 @@ export default {
 
     return {
       topics,
+      topTopics,
       keywords,
       tagcloud,
       handleMouseEnter,
