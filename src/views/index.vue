@@ -2,7 +2,7 @@
   <div class="content-body">
     <div class="header">
       <div class="header-center">
-        <span style="text-shadow: -1px 1px 0 #f6f1f1, 1px 1px 0 #939191;font-size: 28px;">灾链智控--基于大语言模型与知识图谱的地震应急信息平台</span>
+        <span style="text-shadow: -1px 1px 0 #f6f1f1, 1px 1px 0 #939191;font-size: 24px;">智链穹眸——基于智能语义引擎的震后灾害链研判与应急决策系统</span>
       </div>
       <div class="header-time">
         <span id="time">{{ nowTime }}</span>

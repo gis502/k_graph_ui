@@ -1,0 +1,156 @@
+[
+  {
+    "id": 1,
+    "value": "地震震情信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 11,
+        "value": "地震参数",
+        "sonCount": 0
+      },
+      {
+        "id": 12,
+        "value": "强震检测信息",
+        "sonCount": 0
+      },
+      {
+        "id": 13,
+        "value": "测震监测信息",
+        "sonCount": 0
+      },
+      {
+        "id": 14,
+        "value": "预报信息",
+        "sonCount": 0
+      },
+      {
+        "id": 15,
+        "value": "余震情况",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 5
+  },
+  {
+    "id": 2,
+    "value": "地震灾情信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 21,
+        "value": "人员伤亡",
+        "sonCount": 0
+      },
+      {
+        "id": 22,
+        "value": "房屋破坏",
+        "sonCount": 0
+      },
+      {
+        "id": 23,
+        "value": "生命线震害信息",
+        "sonCount": 0
+      },
+      {
+        "id": 24,
+        "value": "次生灾害信息",
+        "sonCount": 0
+      },
+      {
+        "id": 25,
+        "value": "人员伤亡",
+        "sonCount": 0
+      },
+      {
+        "id": 26,
+        "value": "灾区灾情简报",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 6
+  },
+  {
+    "id": 3,
+    "value": "应急指挥协调信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 31,
+        "value": "用户上传会议信息",
+        "sonCount": 0
+      },
+      {
+        "id": 32,
+        "value": "应急响应信息",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 2
+  },
+  {
+    "id": 4,
+    "value": "应急决策信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 41,
+        "value": "应急决策基础信息",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 1
+  },
+  {
+    "id": 5,
+    "value": "应急处置信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 51,
+        "value": "应急处置基础信息",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 1
+  },
+  {
+    "id": 6,
+    "value": "态势标绘信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 61,
+        "value": "态势标绘基础信息",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 1
+  },
+  {
+    "id": 7,
+    "value": "灾害现场动态信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 71,
+        "value": "灾害现场动态基础信息",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 1
+  },
+  {
+    "id": 8,
+    "value": "社会反应动态信息",
+    "isOpen": false,
+    "children": [
+      {
+        "id": 81,
+        "value": "社会反应动态基础信息",
+        "sonCount": 0
+      }
+    ],
+    "fatherCount": 1
+  }
+]

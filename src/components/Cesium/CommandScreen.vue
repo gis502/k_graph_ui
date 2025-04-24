@@ -687,7 +687,7 @@
     </div>
 
 <!--    放大后的详细知识图谱-->
-    <div class="knowledgeGraphContainer" v-show="ifShowSmallGraph">
+    <div class="knowledgeGraphContainer" v-if="ifShowSmallGraph">
       <div class="knowledgeGraph_background"
            style="
                   width: 98%;
@@ -4705,6 +4705,7 @@ export default {
       this.ifShowMapPreview = true;
       this.imgName = item.theme;
       this.imgshowURL = item.imgUrl;
+
     }
     ,
     ifShowThematicMapDialog(val) {

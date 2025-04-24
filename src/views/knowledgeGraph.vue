@@ -1,5 +1,6 @@
 <template>
   <div class="content-body">
+
     <div class="closeAll">
       <button @click="handleClick">×</button>
     </div>
@@ -23,17 +24,31 @@
       </div>
       <div class="list">
         <li
-            v-for="item in newList"
+            v-for="item in list"
             :key="item.id"
             :class="{'clicked': currentIndex === item.id}"
             @click="showDescription(item,item.value)"
-        >{{ item.value }}
+        >{{ item.value }}({{item.fatherCount}})
+<!--          如果有子项展开子项-->
+          <ul v-if="item.isOpen">
+            <li
+                v-for="child in item.children"
+                :key="child.id"
+                :class="{'clicked': currentIndex === child.id}"
+                @click.stop="handleChildClick(child)"
+            >
+              {{ child.value}}({{child.sonCount}})
+            </li>
+          </ul>
         </li>
       </div>
     </div>
 
     <div class="knowledgeGraph">
       <div class="chartContainer" ref="chart"></div>
+      <div class="restart">
+      <button @click="getData">一键复原</button>
+    </div>
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
@@ -96,20 +111,18 @@
         </el-form>
       </div>
     </div>
+
   </div>
+
 </template>
 
 <script setup>
-import {Position, Search} from "@element-plus/icons-vue";
+import {Search} from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
 import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
-import AnalysisChart1 from '@/views/AnalysisChart1.vue';
-import AnalysisChart2 from '@/views/AnalysisChart2.vue';
-
-
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
 
@@ -132,34 +145,155 @@ const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
 const chart = ref(null);
+// 永远不会改变的初始值（这里有BUG，不知道为什么变化了）
+const StartData = ref([]);
+const StartLinks = ref([]);
+const firstData = [
+    {
+      name:"地震震情信息"
+    },
+    {
+      name:"地震灾情信息"
+    },
+    {
+      name:"应急指挥协调信息"
+    },
+    {
+      name:"应急决策信息"
+    },
+    {
+      name:"态势标绘信息"
+    },
+    {
+      name:"社会反应动态信息"
+    },
+    {
+      name:"灾害现场动态信息"
+    },
+    {
+      name:"应急处置信息"
+    }
+ ]
+const secondData = [
+  { "name": "地震参数" },
+  { "name": "强震检测信息" },
+  { "name": "测震监测信息" },
+  { "name": "预报信息" },
+  { "name": "余震情况" },
+  { "name": "人员伤亡" },
+  { "name": "房屋破坏" },
+  { "name": "生命线震害信息" },
+  { "name": "次生灾害信息" },
+  { "name": "人员伤亡" },
+  { "name": "灾区灾情简报" },
+  { "name": "用户上传会议信息" },
+  { "name": "应急响应信息" },
+  { "name": "应急决策基础信息" },
+  { "name": "应急处置基础信息" },
+  { "name": "态势标绘基础信息" },
+  { "name": "灾害现场动态基础信息" },
+  { "name": "社会反应动态基础信息" }
+]
+// 一开始展示的信息（后续处理过程发生了改变）
+const chartStartData = ref([]);
+const chartStartLinks = ref([]);
+// 不断变化的信息
+const chartChangeData = ref([]);
+const chartChangeLinks = ref([]);
+// 所有的数据信息
 const chartData = ref([]);
-const lastChartData = ref([]);
 const chartLinks = ref([]);
+// 用于检查随着时间轴变化是否更新
+const lastChartData = ref([]);
 const echartsInstance = ref(null);
-
 // 控制左侧列表是否隐藏
 const ifShowCatalog = ref(true);
 // 左侧列表数据
-const list = [
-  {value: "基础背景信息"},
-  {value: "地震灾害和救灾背景信息"},
-  {value: "地震台网信息"},
-  {value: "救灾能力储备信息"},
-  {value: "应急联络信息"},
-  {value: "预案与规划信息"},
-  {value: "防震减灾示范与演习经验信息"},
-  {value: "地震震情信息"},
-  {value: "地震灾情信息"},
-  {value: "应急指挥协调信息"},
-  {value: "应急决策信息"},
-  {value: "应急处置信息"},
-  {value: "态势标绘信息"},
-  {value: "灾害现场动态信息"},
-  {value: "社会反应动态信息"},
-  {value: "救援物资信息"}
-];
+const list = ref([
+  {
+    id: 1,
+    value: '地震震情信息',
+    isOpen: false,
+    children: [
+      { id: 11, value: '地震参数' },
+      { id: 12, value: '强震检测信息'},
+      { id: 13, value: '测震监测信息' },
+      { id: 14, value: '预报信息'},
+      { id: 15, value: '余震情况' },
+    ],
+    fatherCount:5,
+  },
+  {
+    id: 2,
+    value: '地震灾情信息',
+    isOpen: false,
+    children: [
+      { id: 21, value: '人员伤亡'},
+      { id: 22, value: '房屋破坏'},
+      { id: 23, value: '生命线震害信息'},
+      { id: 24, value: '次生灾害信息'},
+      { id: 25, value: '人员伤亡'},
+      { id: 26, value: '灾区灾情简报'},
+    ],
+    fatherCount:6,
+  },
+  {
+    id: 3,
+    value: '应急指挥协调信息',
+    isOpen: false,
+    children: [
+      { id: 31, value: '用户上传会议信息' },
+      { id: 32, value: '应急响应信息' },
+    ],
+    fatherCount:2,
+  },
+  {
+    id: 4,
+    value: '应急决策信息',
+    isOpen: false,
+    children: [
+      { id: 41, value: '应急决策基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 5,
+    value: '应急处置信息',
+    isOpen: false,
+    children: [
+      { id: 51, value: '应急处置基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 6,
+    value: '态势标绘信息',
+    isOpen: false,
+    children: [
+      { id: 61, value: '态势标绘基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 7,
+    value: '灾害现场动态信息',
+    isOpen: false,
+    children: [
+      { id: 71, value: '灾害现场动态基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 8,
+    value: '社会反应动态信息',
+    isOpen: false,
+    children: [
+      { id: 81, value: '社会反应动态基础信息' },
+    ],
+    fatherCount:1,
+  },
+]);
 const newList = ref([]);
-
 // ECharts 配置
 const echartsOption = ref({
   backgroundColor: 'rgba(0,0,0,0)',
@@ -178,8 +312,8 @@ const echartsOption = ref({
     type: 'graph',
     layout: 'force',
     force: {
-      repulsion: 600,
-      edgeLength: [100, 400],
+      repulsion: 1000,
+      edgeLength: [100, 200],
       layoutAnimation: true,
     },
     symbolSize: 70,
@@ -233,12 +367,14 @@ const echartsOption = ref({
     links: chartLinks.value
   }]
 });
-
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-//const res = await getGraphData();
-    const res = await getChartDataBy(props.eqid)
+    const res = await getGraphData();
+
+//     const res = await getChartDataBy(props.eqid)
+    console.log("res的结果",res)
+
     chartLinks.value = res.map(item => ({
       source: item.source.name,
       target: item.target.name,
@@ -250,47 +386,121 @@ const getData = async () => {
       nodeSet.add(item.source);
       nodeSet.add(item.target);
     });
-
     chartData.value = Array.from(nodeSet).map(name => ({name}));
 
-    // 处理 newList 数据
-    const validValues = new Set(list.map(item => item.value));
-    newList.value = chartData.value
-        .filter(item => validValues.has(item.name))
-        .map((item, index) => ({
-          id: index + 1,
-          value: item.name
-        }));
+    // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
+    const validValues = new Set(list.value.map(item => item.value));
+    chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
+    chartStartLinks.value = chartStartData.value.map(item => (
+          {
+            source: "震后生成",
+            target: item.name,
+            value: "包含"
+        }
+      )
+    )
+    chartStartData.value.push({ name: "震后生成" });
+
+    // 给每个子项计算 sonCount
+    list.value.forEach(item => {
+      item.children.forEach(child => {
+        const sonCount = chartLinks.value.filter(link => link.source === child.value).length;
+        child.sonCount = sonCount;
+      });
+    });
+    console.log(list.value,"跟新后的数据")
+
+    StartData.value = chartStartData.value;
+    StartLinks.value =  chartStartLinks.value;
+
+    console.log(StartData.value,"开始数据")
+    console.log("newList",newList.value)
+    console.log("chartData",chartStartData.value)
+    console.log("chartLinks",chartStartLinks.value)
 
     initChart();
+
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
 };
 
+// 计算所有的节点数量（递归），但是有点问题
+// function calculateCounts(list, chartLinks) {
+//   // 构建一个关系图，source 为父节点，target 为子节点
+//   const relationMap = {};
+//   chartLinks.forEach(link => {
+//     if (!relationMap[link.source]) {
+//       relationMap[link.source] = new Set();
+//     }
+//     relationMap[link.source].add(link.target);
+//   });
+//
+//   // 计算父节点下属数量，包括直接子节点及通过关系图连接的节点
+//   function getFatherCount(node) {
+//     let count = 0;
+//
+//     // 先计算所有直接子节点的下属数量
+//     if (node.children && node.children.length > 0) {
+//       node.children.forEach(child => {
+//         count += 1 + getFatherCount(child); // 计算子项的下属数量
+//       });
+//     }
+//
+//     // 通过关系图连接的子节点也需要计算
+//     if (relationMap[node.value]) {
+//       relationMap[node.value].forEach(child => {
+//         count += 1 + getFatherCount({ value: child, children: [] }); // 递归计算通过关系图连接的项
+//       });
+//     }
+//     return count;
+//   }
+//
+//   // 计算子节点的下属数量（包括递归计算下属）
+//   function getSonCount(node) {
+//     let count = 0;
+//     if (node.children && node.children.length > 0) {
+//       node.children.forEach(child => {
+//         count += 1 + getSonCount(child); // 递归计算所有子项的下属
+//       });
+//     }
+//     return count;
+//   }
+//
+//   // 更新每个节点的父项和子项数量
+//   list.forEach(parent => {
+//     parent.fatherCount = getFatherCount(parent); // 计算父项的下属数量
+//     parent.children.forEach(child => {
+//       child.sonCount = getSonCount(child); // 计算子项的下属数量
+//     });
+//   });
+//
+//   return list;
+// }
 // 初始化图表
+
 const initChart = () => {
+
   if (!chart.value) return;
 
-  // 检查 chartData 是否发生变化
-  const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
-
-  if (!isDataChanged) {
-    console.log('数据未变化，跳过渲染');
-    return; // 直接返回，不执行后续渲染逻辑
-  }
-
-  // 更新 lastChartData
-  lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
+  // // 检查 chartData 是否发生变化
+  // const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
+  //
+  // if (!isDataChanged) {
+  //   console.log('数据未变化，跳过渲染');
+  //   return; // 直接返回，不执行后续渲染逻辑
+  // }
+  //
+  // // 更新 lastChartData
+  // lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
 
   if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
 
   // 特殊节点样式
-  echartsOption.value.series[0].data = chartData.value.map(item => {
-    item.symbolSize = 60;
-    if (item.name === '地震参数') {
+  echartsOption.value.series[0].data = chartStartData.value.map(item => {
+    if (item.name === '震后生成') {
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -298,8 +508,7 @@ const initChart = () => {
         shadowColor: '#f20404',
         color: '#001c43',
       };
-      item.symbolSize = 100;
-    } else if (item.name === '地震震情信息s') {
+    } else if (firstData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -307,17 +516,165 @@ const initChart = () => {
         shadowColor: '#e2f204',
         color: '#001c43',
       };
+    } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.itemStyle = {
+        borderColor: '#04f2c6',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f2c6',
+        color: '#001c43',
+      };
+    }else{
+      item.itemStyle = {
+        borderColor: '#04f218',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f218',
+        color: '#001c43',
+      };
+    }
+
+    return item;
+  });
+
+  echartsOption.value.series[0].links = chartStartLinks.value;
+
+  echartsInstance.value = echarts.init(chart.value);
+
+  echartsInstance.value.setOption(echartsOption.value);
+
+  // 强制调整大小，确保初始渲染时的大小正确
+  echartsInstance.value.resize();
+
+  // 监听 click 事件
+  echartsInstance.value.on('click', function (params) {
+    // 判断点击的是节点还是边
+    if (params.componentType === 'series' && params.seriesType === 'graph') {
+      if (params.dataType === 'node') {
+        // 处理节点点击
+        handleNodeClick(params.data);
+      } else if (params.dataType === 'edge') {
+        // 处理边点击
+      }
+    }
+  });
+
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', handleResize);
+
+};
+
+// 点击节点触发函数
+const handleNodeClick = (value) => {
+  // value:{name:"地震灾情信息",symbolSize:60}
+
+  // 打印被点击的节点信息
+  console.log(value, "这个节点被点击了");
+
+  // 获取节点的名称 (name)
+  const nodeName = value.name;
+
+  // 从 chartLinks 中查找所有 source 等于 nodeName 的对象
+  const relatedLinks = chartLinks.value.filter(link => link.source === nodeName);
+
+  // 将相关的链接对象添加到 chartStartLinks 中
+  relatedLinks.forEach(link => {
+    // 如果 chartStartLinks 中没有该链接对象，则添加
+    if (!chartStartLinks.value.some(item => item.source === link.source && item.target === link.target)) {
+      chartStartLinks.value.push(link);
+    }
+  });
+
+  // 将更新后的 chartStartLinks 存入 chartChangeLinks
+  chartChangeLinks.value = [...chartStartLinks.value];
+
+  // 打印更新后的 chartChangeLinks
+  console.log("更新后的 chartChangeLinks:", chartChangeLinks.value);
+
+  // 提取所有 target 值
+  const newTargets = relatedLinks.map(link => link.target);
+
+  // 把这些 target 值添加到 chartStartData 中
+  newTargets.forEach(target => {
+    // 如果 chartStartData 中没有这个 target 名称的节点，则添加
+    if (!chartStartData.value.some(item => item.name === target)) {
+      chartStartData.value.push({ name: target });
+    }
+  });
+
+  // 将 chartStartData 存入 chartChangeData
+  chartChangeData.value = [...chartStartData.value];
+
+  // 打印更新后的 chartChangeData
+  console.log("更新后的 chartChangeData:", chartChangeData.value);
+
+  updateEchart(chartChangeData.value,chartChangeLinks.value)
+};
+
+const updateEchart = (data,link) =>{
+  if (echartsInstance.value !== null) {
+    echartsInstance.value.dispose();
+  }
+
+  console.log("data数据",data)
+  console.log("link数据",link)
+
+
+  // 特殊节点样式
+  echartsOption.value.series[0].data = data.map(item => {
+    if (item.name === '震后生成') {
+      item.itemStyle = {
+        borderColor: '#f20404',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#f20404',
+        color: '#001c43',
+      };
+    } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.itemStyle = {
+        borderColor: '#e2f204',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#e2f204',
+        color: '#001c43',
+      };
+    }else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.itemStyle = {
+        borderColor: '#04f2c6',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f2c6',
+        color: '#001c43',
+      };
+    }else{
+      item.itemStyle = {
+        borderColor: '#04f218',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f218',
+        color: '#001c43',
+      };
     }
     return item;
   });
-  echartsOption.value.series[0].links = chartLinks.value;
+  echartsOption.value.series[0].links = link;
 
   echartsInstance.value = echarts.init(chart.value);
   echartsInstance.value.setOption(echartsOption.value);
 
-  // 添加窗口大小变化监听
-  window.addEventListener('resize', handleResize);
-};
+  // 监听 click 事件
+  echartsInstance.value.on('click', function (params) {
+    // 判断点击的是节点还是边
+    if (params.componentType === 'series' && params.seriesType === 'graph') {
+      if (params.dataType === 'node') {
+        // 处理节点点击
+        handleNodeClick(params.data);
+      } else if (params.dataType === 'edge') {
+        // 处理边点击
+      }
+    }
+  });
+}
 
 // 处理窗口大小变化
 const handleResize = () => {
@@ -378,23 +735,96 @@ const findNodeIndex = (name) => {
 
 // 显示描述并聚焦节点
 const showDescription = (item, value) => {
-  currentIndex.value = item.id;
+  item.isOpen = !item.isOpen;
+
+  // 如果展开了，更新 currentIndex，表示当前项被选中
+  if (item.isOpen) {
+    currentIndex.value = item.id;
+  } else {
+    // 如果收起了，清除 currentIndex
+    if (currentIndex.value === item.id) {
+      currentIndex.value = null;
+    }
+  }
+
   focusNode(value);
 };
 
 // 发送消息
+// const sendMessage = () => {
+//
+//   const message = formData.value.content?.trim();
+//
+//   if (!message) {
+//     ElMessage.warning('请输入内容');
+//     return;
+//   }
+//
+//   messageList.value.push({
+//     type: 0,
+//     content: message,
+//   });
+//
+//   messageList.value.push({
+//     type: 1,
+//     content: [],
+//     loading: true,
+//   });
+//
+//   loading.value = true;
+//
+//   formData.value.content = '';
+//
+//   // 模拟 SSE 连接
+//   const eventSource = new EventSource(`http://localhost:8080/seek/stream?message=${encodeURIComponent(message)}`);
+//
+//   eventSource.onmessage = (event) => {
+//     if (event.data === 'end') {
+//       closeEventSource();
+//       return;
+//     }
+//
+//     try {
+//       const response = JSON.parse(event.data).content;
+//       const lastMsg = messageList.value[messageList.value.length - 1];
+//       lastMsg.content.push(response);
+//
+//       nextTick(() => {
+//         const panel = document.getElementById('message-panel');
+//         if (panel) panel.scrollTop = panel.scrollHeight;
+//       });
+//     } catch (e) {
+//       console.error('解析消息失败:', e);
+//     }
+//   };
+//
+//   eventSource.onerror = (error) => {
+//     console.error('SSE 错误:', error);
+//     closeEventSource();
+//   };
+//   const closeEventSource = () => {
+//     eventSource.close();
+//     const lastMsg = messageList.value[messageList.value.length - 1];
+//     if (lastMsg) lastMsg.loading = false;
+//     loading.value = false;
+//   };
+// };
+
 const sendMessage = () => {
   const message = formData.value.content?.trim();
+
   if (!message) {
     ElMessage.warning('请输入内容');
     return;
   }
 
+  // 添加消息到消息列表
   messageList.value.push({
     type: 0,
     content: message,
   });
 
+  // 添加加载中的消息项
   messageList.value.push({
     type: 1,
     content: [],
@@ -402,46 +832,60 @@ const sendMessage = () => {
   });
 
   loading.value = true;
+
+  // 清空输入框
   formData.value.content = '';
 
-  // 模拟 SSE 连接
-  const eventSource = new EventSource(`http://localhost:8080/seek/stream?message=${encodeURIComponent(message)}`);
+  // 使用 fetch 发送 POST 请求
+  fetch('/conversation_gpt', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      content: message, // 传递动态的 message
+      prompt: StartLinks.value, // 固定的 prompt
+    }),
+  })
+      .then(response => response.json())
+      .then(data => {
+        // 假设数据是数组类型，获取并更新最后一条消息
+        const lastMsg = messageList.value[messageList.value.length - 1];
 
-  eventSource.onmessage = (event) => {
-    if (event.data === 'end') {
-      closeEventSource();
-      return;
-    }
+        // 检查 lastMsg.content 是否是数组
+        if (data.content) {
+          // 如果 lastMsg.content 不是数组，先将其转换成数组
+          if (!Array.isArray(lastMsg.content)) {
+            lastMsg.content = [lastMsg.content];
+          }
 
-    try {
-      const response = JSON.parse(event.data).content;
-      const lastMsg = messageList.value[messageList.value.length - 1];
-      lastMsg.content.push(response);
+          // 将新的 content 添加到 content 数组中
+          lastMsg.content.push(data.content);
+        }
 
-      nextTick(() => {
-        const panel = document.getElementById('message-panel');
-        if (panel) panel.scrollTop = panel.scrollHeight;
+        // 滚动到消息列表底部
+        nextTick(() => {
+          const panel = document.getElementById('message-panel');
+          if (panel) panel.scrollTop = panel.scrollHeight;
+        });
+      })
+      .catch(error => {
+        console.error('请求失败:', error);
+        const lastMsg = messageList.value[messageList.value.length - 1];
+        if (lastMsg) lastMsg.loading = false;
+        loading.value = false;
+      })
+      .finally(() => {
+        // 关闭加载状态
+        const lastMsg = messageList.value[messageList.value.length - 1];
+        if (lastMsg) lastMsg.loading = false;
+        loading.value = false;
       });
-    } catch (e) {
-      console.error('解析消息失败:', e);
-    }
-  };
-
-  eventSource.onerror = (error) => {
-    console.error('SSE 错误:', error);
-    closeEventSource();
-  };
-  const closeEventSource = () => {
-    eventSource.close();
-    const lastMsg = messageList.value[messageList.value.length - 1];
-    if (lastMsg) lastMsg.loading = false;
-    loading.value = false;
-  };
 };
 
 // 快捷键发送
 const keySend = (event) => {
-  if (event.ctrlKey && event.key === 'Enter') {
+  if (event.ctrlKey && event.key === 'Enter')   {
     sendMessage();
   }
 };
@@ -450,6 +894,14 @@ const keySend = (event) => {
 const handleClick = () => {
   // 触发事件通知父组件
   emit('bigGraphShow', false)
+};
+
+const handleChildClick = (child) => {
+  // child:{id: 12, value: '强震检测信息'}
+  console.log(child,"我看看怎么个事")
+  const newChild = { name: child.value }; // 转换成 {name: "强震检测信息"}
+  handleNodeClick(newChild);
+  focusNode(newChild.name);
 };
 
 // watch(() => props.currentTime, (newTime) => {
@@ -521,7 +973,7 @@ const handleClick = () => {
 
 // 生命周期钩子
 onMounted(() => {
-  getData();
+    getData()
 });
 
 onBeforeUnmount(() => {
@@ -597,43 +1049,65 @@ onBeforeUnmount(() => {
     }
   }
 
-  > * {
-    flex-shrink: 1;
-  }
-
   .knowledgeGraph {
     flex: 1;
     height: 100%;
+    width:100%;
+    position:relative;
 
     .chartContainer {
       width: 100%;
       height: 100%;
-      min-width: 0; // 防止 flex 项目溢出
-    }
-  }
-
-  .sentimentAnalysis {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-
-    .sentimentAnalysis-title {
-      width: 100%;
-      height: 50px;
-      line-height: 50px;
-      color: whitesmoke;
-      text-align: center;
-      font-size: 30px;
-      margin-bottom: 20px;
     }
 
-    .sentimentAnalysisChart1, .sentimentAnalysisChart2 {
-      flex: 1;
-      width: 100%;
-      height: calc(50% - 20px);
-      margin-bottom: 20px;
+    .restart{
+      button {
+        position: absolute;
+        top: 8px;
+        z-index: 1;
+        // 基础样式
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        padding: 5px 12px;
+        color: white;
+        cursor: pointer;
+        height: 30px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        user-select: none;
+
+        // 悬停时的流动边框
+        &:hover {
+          border-color: transparent; // 隐藏原始边框
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 6px;
+            padding: 1px; // 边框厚度
+            background: linear-gradient(90deg,
+            #0453fc,
+            #00f7ff,
+            #0453fc,);
+            background-size: 200% auto;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 1.5s linear infinite;
+            z-index: 0;
+          }
+        }
+      }
     }
   }
 
@@ -764,6 +1238,7 @@ onBeforeUnmount(() => {
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
 
+
     .titleName {
       height: 100px;
       text-align: center;
@@ -776,8 +1251,6 @@ onBeforeUnmount(() => {
     .search {
       text-align: center;
       margin-bottom: 10px;
-      flex-shrink: 0; /* 防止盒子宽度缩小 */
-      width: 200px;
 
       .search-button, .search-input {
         background-color: rgba(0, 0, 0, 0);
@@ -793,7 +1266,7 @@ onBeforeUnmount(() => {
       .search-input {
         border-radius: 0 12px 12px 0;
         color: whitesmoke;
-        width: 140px;
+        width: 170px;
       }
     }
 
@@ -806,17 +1279,56 @@ onBeforeUnmount(() => {
         position: relative; /* 为了定位伪元素 */
         margin-left: 40px;
         font-size: 20px;
-        height: 60px;
+        //height: 60px;
         line-height: 60px;
         color: #fff;
         user-select: none; /* 禁用文本选择 */
+
+        ul{
+          margin-top: 0px;
+          margin-bottom: 0px;
+          margin-right: 20px;
+
+          li{x
+            line-height: 40px;
+            margin-left: 0px;
+            white-space: nowrap;  /* 防止换行 */
+            text-overflow: ellipsis; /* 使用省略号显示超出部分 */
+          }
+
+          li::before {
+            content: ''; /* 空内容 */
+            position: absolute; /* 定位 */
+            right: 10px; /* 左偏移，调整圆点位置 */
+            top: 20px; /* 垂直居中 */
+            transform: translateY(-50%); /* 垂直居中 */
+            width: 8px; /* 圆点的宽度 */
+            height: 8px; /* 圆点的高度 */
+            border-radius: 50%; /* 使其变成圆形 */
+            background-color: #fff; /* 圆点颜色 */
+            user-select: none; /* 禁用文本选择 */
+          }
+
+          //li.clicked {
+          //  color: #9ed5ff;
+          //  font-weight: 500;
+          //  border-right: 2px solid transparent; /* 透明的边框，使border-image起作用 */
+          //  border-image: linear-gradient(to top, #192a63, #7196ff, #192a63); /* 渐变从 #192a63 到更亮的颜色 #4f6abf */
+          //  border-image-slice: 1; /* 使渐变充满整个边框 */
+          //}
+        }
+
+        li.clicked::before {
+          background-image: linear-gradient(151deg, #66c8f2, #35f 66%);
+        }
+
       }
 
       li::before {
         content: ''; /* 空内容 */
         position: absolute; /* 定位 */
         left: -20px; /* 左偏移，调整圆点位置 */
-        top: 50%; /* 垂直居中 */
+        top: 30px; /* 垂直居中 */
         transform: translateY(-50%); /* 垂直居中 */
         width: 8px; /* 圆点的宽度 */
         height: 8px; /* 圆点的高度 */
@@ -825,13 +1337,13 @@ onBeforeUnmount(() => {
         user-select: none; /* 禁用文本选择 */
       }
 
-      li.clicked {
-        color: #9ed5ff;
-        font-weight: 500;
-        border-right: 2px solid transparent; /* 透明的边框，使border-image起作用 */
-        border-image: linear-gradient(to top, #192a63, #7196ff, #192a63); /* 渐变从 #192a63 到更亮的颜色 #4f6abf */
-        border-image-slice: 1; /* 使渐变充满整个边框 */
-      }
+      //li.clicked {
+      //  color: #9ed5ff;
+      //  font-weight: 500;
+      //  border-right: 2px solid transparent; /* 透明的边框，使border-image起作用 */
+      //  border-image: linear-gradient(to top, #192a63, #7196ff, #192a63); /* 渐变从 #192a63 到更亮的颜色 #4f6abf */
+      //  border-image-slice: 1; /* 使渐变充满整个边框 */
+      //}
 
       li.clicked::before {
         background-image: linear-gradient(151deg, #66c8f2, #35f 66%);
@@ -845,11 +1357,6 @@ onBeforeUnmount(() => {
     }
   }
 
-  .observationWindow {
-    pointer-events: none;
-    height: 100%;
-    width: 48%;
-  }
 }
 
 .toggle-button {
