@@ -35,7 +35,7 @@
                               0px -4px 12px rgba(0, 0, 0, 0.8);
                             z-index: 2; /* 确保文字在图片上 */white-space: nowrap; /* 防止换行 */">最新地震词云图</span>
               <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: auto;">
-              <chart3/>
+              <chart3 :last-eq="lastEqData"/>
             </div>
 
             <div class="left-con public-bg" ref="leftCon">
