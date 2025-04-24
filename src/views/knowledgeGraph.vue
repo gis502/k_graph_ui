@@ -370,9 +370,9 @@ const echartsOption = ref({
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    const res = await getGraphData();
+    //const res = await getGraphData();
 
-//     const res = await getChartDataBy(props.eqid)
+    const res = await getChartDataBy(props.eqid)
     console.log("res的结果",res)
 
     chartLinks.value = res.map(item => ({
@@ -837,7 +837,7 @@ const sendMessage = () => {
   formData.value.content = '';
 
   // 使用 fetch 发送 POST 请求
-  fetch('/conversation_gpt', {
+  fetch('http://localhost:5000/conversation_gpt', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -140,7 +140,7 @@
                              0px -3px 9px rgba(0, 0, 0, 0.6),
                              0px -4px 12px rgba(0, 0, 0, 0.8);
                            z-index: 2; /* 确保文字在图片上 */
-                           white-space: nowrap; /* 防止换行 */">舆情分析</span>
+                           white-space: nowrap; /* 防止换行 */">知识图谱</span>
               <img src="@/assets/front_page/latestEarthquake3.png" alt="最新地震" style="width: 102%; height: 35px;">
               <SentimentAnalysisChart></SentimentAnalysisChart>
             </div>
