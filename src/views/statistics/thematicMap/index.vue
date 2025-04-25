@@ -16,164 +16,178 @@
           <i class="el-icon-zoom-out">-</i>
         </div>
       </div>
-      <!-- 图例 -->
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'EarthquakeCasualties'">
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <p style="color: white; text-align: left; margin: 5px 0; font-size: 15px;">余震次数累计：</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <p style="color: white; text-align: left; margin: 5px 0; padding: 0;font-size: 15px">累积受伤人数：</p>
-        <div class="legend_item" v-for="(item, index) in getColorsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <p style="color: white; text-align: left; margin: 5px 0; padding: 0;">转移安置人数：</p>
-        <div class="legend_item" v-for="(item, index) in earthquakeCasualtiesLegendData" :key="index">
-          <img :src="item.img" class="block-img" alt="icon" style="height: 20px;margin-right: 7px;margin-left: 5px"/>
-          {{ item.name }}
-        </div>
-      </el-form>
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'TransportationElectricity'">
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <div class="legend_item" v-for="(item, index) in this.transportationElectricityLegendData" :key="index">
-  <span class="block"
-        :style="{
-          backgroundImage: 'url(' + item.img + ')',
-          backgroundSize: 'cover',
-          height: '30px',
-          width: '30px',
-          marginLeft: '5px',
-        }">
-  </span>
-          {{ item.name }}
-        </div>
-      </el-form>
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'BuildingDamageInformation'">
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <div class="legend_item" v-for="(item, index) in this.buildingDamageInformationLegendData" :key="index">
-  <span class="block"
-        :style="{
-          backgroundImage: 'url(' + item.img + ')',
-          backgroundSize: 'cover',
-          height: '30px',
-          width: '30px',
-          marginLeft: '5px',
-        }">
-  </span>
-          {{ item.name }}
-        </div>
-      </el-form>
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'SecondaryDisaster'">
+
+<!--       图例 -->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'EarthquakeCasualties'">-->
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <p style="color: white; text-align: left; margin: 5px 0; font-size: 15px;">余震次数累计：</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <p style="color: white; text-align: left; margin: 5px 0; padding: 0;font-size: 15px">累积受伤人数：</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getColorsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <p style="color: white; text-align: left; margin: 5px 0; padding: 0;">转移安置人数：</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in earthquakeCasualtiesLegendData" :key="index">-->
+<!--          <img :src="item.img" class="block-img" alt="icon" style="height: 20px;margin-right: 7px;margin-left: 5px"/>-->
+<!--          {{ item.name }}-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'TransportationElectricity'">-->
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <div class="legend_item" v-for="(item, index) in this.transportationElectricityLegendData" :key="index">-->
+<!--  <span class="block"-->
+<!--        :style="{-->
+<!--          backgroundImage: 'url(' + item.img + ')',-->
+<!--          backgroundSize: 'cover',-->
+<!--          height: '30px',-->
+<!--          width: '30px',-->
+<!--          marginLeft: '5px',-->
+<!--        }">-->
+<!--  </span>-->
+<!--          {{ item.name }}-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'BuildingDamageInformation'">-->
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <div class="legend_item" v-for="(item, index) in this.buildingDamageInformationLegendData" :key="index">-->
+<!--  <span class="block"-->
+<!--        :style="{-->
+<!--          backgroundImage: 'url(' + item.img + ')',-->
+<!--          backgroundSize: 'cover',-->
+<!--          height: '30px',-->
+<!--          width: '30px',-->
+<!--          marginLeft: '5px',-->
+<!--        }">-->
+<!--  </span>-->
+<!--          {{ item.name }}-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'SecondaryDisaster'">-->
 
 
 
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
 
 
-        <div class="legend_container" style="display: flex; flex-direction: column; gap: 0px;">
-          <div class="legend_group" v-for="(legend, legendIndex) in this.secondaryDisasterLegendData"
-               :key="legendIndex">
+<!--        <div class="legend_container" style="display: flex; flex-direction: column; gap: 0px;">-->
+<!--          <div class="legend_group" v-for="(legend, legendIndex) in this.secondaryDisasterLegendData"-->
+<!--               :key="legendIndex">-->
 
-            <p style="color: white; font-weight: bold; margin: 5px 0 ">{{ legend.name }}</p>
+<!--            <p style="color: white; font-weight: bold; margin: 5px 0 ">{{ legend.name }}</p>-->
 
-            <div class="legend_item1" v-for="(item, itemIndex) in legend.data" :key="itemIndex"
-                 style="display: flex; align-items: center; ">
-              <span class="block"
-                    :style="{
-                      backgroundImage: 'url(' + item.img + ')',
-                      backgroundSize: 'cover',
-                      height: item.height + 'px',
-                      width: item.width + 'px',
-                      marginRight: '10px',
-                      marginLeft:item.marginLeft + 'px',
-                      marginBottom: '2px',
-                    }">
-              </span>
-              <span style="color: white;" :style="{marginLeft:item.marginLeft + 'px',}">{{ item.name }}</span>
-            </div>
-          </div>
-        </div>
+<!--            <div class="legend_item1" v-for="(item, itemIndex) in legend.data" :key="itemIndex"-->
+<!--                 style="display: flex; align-items: center; ">-->
+<!--              <span class="block"-->
+<!--                    :style="{-->
+<!--                      backgroundImage: 'url(' + item.img + ')',-->
+<!--                      backgroundSize: 'cover',-->
+<!--                      height: item.height + 'px',-->
+<!--                      width: item.width + 'px',-->
+<!--                      marginRight: '10px',-->
+<!--                      marginLeft:item.marginLeft + 'px',-->
+<!--                      marginBottom: '2px',-->
+<!--                    }">-->
+<!--              </span>-->
+<!--              <span style="color: white;" :style="{marginLeft:item.marginLeft + 'px',}">{{ item.name }}</span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
 
 
-      </el-form>
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'ResourceStrength'">
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <div class="legend_item" v-for="(item, index) in this.resourceStrengthLegendData" :key="index">
-  <span class="block"
-        :style="{
-          backgroundImage: 'url(' + item.img + ')',
-          backgroundSize: 'cover',
-          height: '30px',
-          width: '30px',
-          marginLeft: '5px',
-        }">
-  </span>
-          {{ item.name }}
-        </div>
-      </el-form>
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'MaterialDonation'">
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <div class="legend_item" v-for="(item, index) in this.materialDonationLegendData" :key="index">
-  <span class="block"
-        :style="{
-          backgroundImage: 'url(' + item.img + ')',
-          backgroundSize: 'cover',
-          height: '30px',
-          width: '30px',
-          marginLeft: '5px',
-        }">
-  </span>
-          {{ item.name }}
-        </div>
-      </el-form>
-      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'PublicSentiment'">
-        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
-        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
-          <span class="block" :style="{ backgroundColor: item.color }"
-                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
-        </div>
-        <div class="legend_item" v-for="(item, index) in this.publicSentimentLegendData" :key="index">
-  <span class="block"
-        :style="{
-          backgroundImage: 'url(' + item.img + ')',
-          backgroundSize: 'cover',
-          height: '30px',
-          width: '30px',
-          marginLeft: '5px',
-        }">
-  </span>
-          {{ item.name }}
-        </div>
-      </el-form>
+<!--      </el-form>-->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'ResourceStrength'">-->
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <div class="legend_item" v-for="(item, index) in this.resourceStrengthLegendData" :key="index">-->
+<!--  <span class="block"-->
+<!--        :style="{-->
+<!--          backgroundImage: 'url(' + item.img + ')',-->
+<!--          backgroundSize: 'cover',-->
+<!--          height: '30px',-->
+<!--          width: '30px',-->
+<!--          marginLeft: '5px',-->
+<!--        }">-->
+<!--  </span>-->
+<!--          {{ item.name }}-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'MaterialDonation'">-->
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <div class="legend_item" v-for="(item, index) in this.materialDonationLegendData" :key="index">-->
+<!--  <span class="block"-->
+<!--        :style="{-->
+<!--          backgroundImage: 'url(' + item.img + ')',-->
+<!--          backgroundSize: 'cover',-->
+<!--          height: '30px',-->
+<!--          width: '30px',-->
+<!--          marginLeft: '5px',-->
+<!--        }">-->
+<!--  </span>-->
+<!--          {{ item.name }}-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <el-form class="noteContainer" v-if="this.selectedComponentKey === 'PublicSentiment'">-->
+<!--        <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>-->
+<!--        <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">-->
+<!--          <span class="block" :style="{ backgroundColor: item.color }"-->
+<!--                style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}-->
+<!--        </div>-->
+<!--        <div class="legend_item" v-for="(item, index) in this.publicSentimentLegendData" :key="index">-->
+<!--  <span class="block"-->
+<!--        :style="{-->
+<!--          backgroundImage: 'url(' + item.img + ')',-->
+<!--          backgroundSize: 'cover',-->
+<!--          height: '30px',-->
+<!--          width: '30px',-->
+<!--          marginLeft: '5px',-->
+<!--        }">-->
+<!--  </span>-->
+<!--          {{ item.name }}-->
+<!--        </div>-->
+<!--      </el-form>-->
       <!-- ECharts 图表容器 -->
       <div v-for="(location, index) in locations" :key="index" class="echarts-container" ref="echartsContainer"
            :id="'echartsContainer' + index"></div>
     </div>
 
+    <div class="imgContainer">
+      <h3>地震影响图多次展示</h3>
+      <div class="imgGrid">
+        <img
+            v-for="(img, index) in 15"
+            :key="index"
+            :src="sample"
+            :alt="'地震图' + index"
+            class="earthquake-image"
+        />
+      </div>
+    </div>
+
     <!-- 添加一个按钮用于导出 -->
-    <button @click="exportCesiumScene" class="export-button">导出专题图</button>
+<!--    <button @click="exportCesiumScene" class="export-button">导出专题图</button>-->
     <!-- 加载中的提示 -->
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
@@ -197,22 +211,22 @@
           />
         </el-select>
       </el-col>
-      <el-col :span="1.5">
-        <el-select
-            v-model="selectedComponentKey"
-            placeholder="请选择模块"
-            size="large"
-            @change="handleComponentChange"
-            style="width: 220px"
-        >
-          <el-option
-              v-for="option in this.options"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value"
-          />
-        </el-select>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-select-->
+<!--            v-model="selectedComponentKey"-->
+<!--            placeholder="请选择模块"-->
+<!--            size="large"-->
+<!--            @change="handleComponentChange"-->
+<!--            style="width: 220px"-->
+<!--        >-->
+<!--          <el-option-->
+<!--              v-for="option in this.options"-->
+<!--              :key="option.value"-->
+<!--              :label="option.label"-->
+<!--              :value="option.value"-->
+<!--          />-->
+<!--        </el-select>-->
+<!--      </el-col>-->
       <!-- 动态组件显示 -->
     </el-row>
     <!-- 预览图片的 div -->
@@ -296,7 +310,7 @@ import {getPublicOpinion} from "@/api/system/publicOpinion.js";
 import {getSocialOrder} from "@/api/system/socialOrder.js";
 import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.js";
 import {AmapApiLocal, tianditu} from "@/utils/server.js";
-
+import sample from "@/assets/地震影响估计范围分布图.jpg"
 export default {
   components: {dataSourcePanel},
   data() {
@@ -405,9 +419,9 @@ export default {
         },
         TransportationElectricity: {
           locationKey: 'areaName',
-          dataKeys: ['totalOutOfServiceSubstations', 'restoredSubstations', 'restoredBaseStations','totalDisabledBaseStations'],
+          dataKeys: ['totalOutOfServiceSubstations', 'restoredSubstations', 'restoredBaseStations', 'totalDisabledBaseStations'],
           legendName: 'TransportationElectricity',
-          labels: ['累计停运变电站(座)', '已恢复变电站(座)', '抢通恢复基站(个)','累计退服基站(个)']
+          labels: ['累计停运变电站(座)', '已恢复变电站(座)', '抢通恢复基站(个)', '累计退服基站(个)']
         },
         BuildingDamageInformation: {
           locationKey: 'affectedAreaName',
@@ -536,17 +550,17 @@ export default {
         {
           name: '受威胁群众(户或人)',
           data: [
-            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity],marginLeft: 0},
-            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200],marginLeft: 5},
-            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50],marginLeft: 7.5},
+            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity], marginLeft: 0},
+            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200], marginLeft: 5},
+            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50], marginLeft: 7.5},
           ]
         },
         {
           name: '避险转移(户或人)',
           data: [
-            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity],marginLeft: 0},
-            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200],marginLeft: 5},
-            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50],marginLeft: 7.5},
+            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity], marginLeft: 0},
+            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200], marginLeft: 5},
+            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50], marginLeft: 7.5},
           ]
         },
       ],
@@ -563,6 +577,8 @@ export default {
         {name: '接报救助信息(起)', img: damagedWaterSupply},
         {name: '投入警力(人)', img: guaranteeWaterSupply},
       ],
+
+      sample
     };
   },
   mounted() {
@@ -572,7 +588,7 @@ export default {
     this.startPolling();
     // 加载雅安边界线
     this.loadYaAnBoundary();
-
+    this.fetchImageData();
   },
   beforeDestroy() {
     // 在组件销毁时清除轮询
@@ -634,6 +650,13 @@ export default {
 
       // 禁用双击后的视角锁定功能
       this.viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+    },
+
+    fetchImageData() {
+      const eqId = "T20250425084130511800"
+
+      const eqqueueId = eqId + "01"
+      console.log(eqId,eqqueueId)
     },
 
     // 启动轮询
@@ -770,7 +793,7 @@ export default {
       const camera = this.viewer.camera;
       const currentHeight = camera.positionCartographic.height;
       const newHeight = currentHeight * 0.63; // 放大
-      if (newHeight > 5000){
+      if (newHeight > 5000) {
         // 获取当前屏幕中心的经纬度
         const center = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
         const longitude = Cesium.Math.toDegrees(center.longitude);
@@ -787,7 +810,7 @@ export default {
       const camera = this.viewer.camera;
       const currentHeight = camera.positionCartographic.height;
       const newHeight = currentHeight * 1.37; // 放大
-      if (newHeight < 500000){
+      if (newHeight < 500000) {
         // 获取当前屏幕中心的经纬度
         const center = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
         const longitude = Cesium.Math.toDegrees(center.longitude);
@@ -834,7 +857,6 @@ export default {
     getEarthQuakeCenter(eqid) {
       // getGeomById(eqid).then(res => {
       getGeomByEqListId(eqid).then(res => {
-        console.log(res)
         this.updateEarthQuakeCenter(res[0])
       })
     },
@@ -853,7 +875,7 @@ export default {
         function findOrCreateEntry(data, areaName) {
           let entry = data.find(item => item.areaName === areaName);
           if (!entry) {
-            entry = { areaName: areaName }; // 统一使用 areaName 作为字段名
+            entry = {areaName: areaName}; // 统一使用 areaName 作为字段名
             data.push(entry);
           }
           return entry;
@@ -879,7 +901,7 @@ export default {
 
         // 获取数据并处理
         Promise.all([
-          getPowerSupply(eqid).then(res =>{
+          getPowerSupply(eqid).then(res => {
             processPowerSupply(res)
             this.getPoints(res)
           }),
@@ -1114,7 +1136,7 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              url:`${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
+              url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
@@ -1450,7 +1472,7 @@ export default {
           });
         });
       }
-      if (this.selectedComponentKey === 'TransportationElectricity'){
+      if (this.selectedComponentKey === 'TransportationElectricity') {
         const locations = [
           {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
           {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
@@ -1465,7 +1487,7 @@ export default {
           let img = null;
           if (item.emergencyPowerUsers) {
             let location = locations.find(location => location.name === item.affectedArea);
-            if (location){
+            if (location) {
               img = this.transportationElectricityLegendData[0].img
               addLocationEntity(location, item.emergencyPowerUsers, img, 35, 35)
             }
@@ -1749,8 +1771,8 @@ export default {
         position: Cesium.Cartesian3.fromDegrees(data.geom.coordinates[0], data.geom.coordinates[1]),
         billboard: {
           image: earthQuakeCenterImg, // 图标
-          width:40,
-          height:40,
+          width: 40,
+          height: 40,
           eyeOffset: new Cesium.Cartesian3(0.0, 0.0, -10000.0) // 设置图标偏移，让其显示在最上层
         }
       });
@@ -2549,6 +2571,45 @@ export default {
 </script>
 
 <style scoped>
+.imgContainer {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.imgContainer h3 {
+  margin-bottom: 20px;
+  text-align: center;
+  flex-shrink: 0; /* 防止标题被压缩 */
+}
+
+.imgGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 20px;
+  overflow: hidden; /* 防止内容溢出 */
+  flex-grow: 1; /* 填充剩余空间 */
+}
+
+.earthquake-image {
+  width: auto; /* 4列，4个gap：20px × 4 */
+  height: calc((100% - 60px) / 4); /* 固定高度，4行 */
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
 .noteContainer {
   position: absolute;
   padding: 5px;
@@ -2588,7 +2649,7 @@ export default {
 .listContainer {
   position: absolute;
   top: 20px;
-  left: 100px;
+  left: 30px;
 }
 
 .export-button:hover {
