@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <div id="exportContainer">
       <!-- Cesium 地图容器 -->
       <div id="cesiumContainer" class="situation_cesiumContainer"></div>
@@ -171,7 +172,6 @@
       <div v-for="(location, index) in locations" :key="index" class="echarts-container" ref="echartsContainer"
            :id="'echartsContainer' + index"></div>
     </div>
-
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出专题图</button>
     <!-- 加载中的提示 -->
@@ -253,6 +253,7 @@
         <button @click="closePreview" class="cancel-button">取消</button>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -2549,6 +2550,7 @@ export default {
 </script>
 
 <style scoped>
+
 .noteContainer {
   position: absolute;
   padding: 5px;
@@ -2638,7 +2640,7 @@ export default {
 
 
 .situation_cesiumContainer {
-  height: calc(100vh - 50px) !important;
+  height: 100vh  !important;
   width: 100%;
   margin: 0;
   padding: 0;

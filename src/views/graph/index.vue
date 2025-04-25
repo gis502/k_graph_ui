@@ -29,7 +29,7 @@
             :class="{'clicked': currentIndex === item.id}"
             @click="showDescription(item,item.value)"
         >{{ item.value }}({{item.fatherCount}})
-<!--          如果有子项展开子项-->
+          <!--          如果有子项展开子项-->
           <ul v-if="item.isOpen">
             <li
                 v-for="child in item.children"
@@ -47,8 +47,11 @@
     <div class="knowledgeGraph">
       <div class="chartContainer" ref="chart"></div>
       <div class="restart">
-      <button @click="getData">一键复原</button>
-    </div>
+        <button @click="getData">一键复原</button>
+      </div>
+      <div class="go">
+        <button @click="go">跳转指挥大屏</button>
+      </div>
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
@@ -122,19 +125,10 @@ import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
+import {getEqList} from "@/api/system/damageassessment.js";
+import {useRouter} from "vue-router";
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
-const props = defineProps({
-  eqMagnitude: {
-    type: String,
-  },
-  eqid: {
-    type: String,
-  },
-  currentTime: {
-    type: String,
-  }
-})
 // 响应式数据
 const inputValue = ref('');
 const currentIndex = ref(null);
@@ -147,31 +141,31 @@ const chart = ref(null);
 const StartData = ref([]);
 const StartLinks = ref([]);
 const firstData = [
-    {
-      name:"地震震情信息"
-    },
-    {
-      name:"地震灾情信息"
-    },
-    {
-      name:"应急指挥协调信息"
-    },
-    {
-      name:"应急决策信息"
-    },
-    {
-      name:"态势标绘信息"
-    },
-    {
-      name:"社会反应动态信息"
-    },
-    {
-      name:"灾害现场动态信息"
-    },
-    {
-      name:"应急处置信息"
-    }
- ]
+  {
+    name:"地震震情信息"
+  },
+  {
+    name:"地震灾情信息"
+  },
+  {
+    name:"应急指挥协调信息"
+  },
+  {
+    name:"应急决策信息"
+  },
+  {
+    name:"态势标绘信息"
+  },
+  {
+    name:"社会反应动态信息"
+  },
+  {
+    name:"灾害现场动态信息"
+  },
+  {
+    name:"应急处置信息"
+  }
+]
 const secondData = [
   { "name": "地震参数" },
   { "name": "强震监测信息" },
@@ -365,13 +359,48 @@ const echartsOption = ref({
     links: chartLinks.value
   }]
 });
+// 地震列表数据
+const tableData = ref([])
+// 最新的地震数据
+const lastEqData = ref([])
+// 最新的地震的eqid
+const lastEqid = ref()
+const lastEqqueueId = ref()
+
+const router = useRouter();
+
+// 跳转至指挥大屏函数
+const go = () => {
+  const route = router.resolve({path: '/thd', query: {eqid: lastEqid.value, eqqueueId: lastEqqueueId.value}}).href;
+  // const route = router.resolve({path: '/knowledgeGraph', query: {eqName: row.earthquakeFullName}}).href;
+  // console.log("row.eqid----------------",row.eqid) n0b+
+  window.open(route, '_blank');
+};
 
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    //const res = await getGraphData();
+    // 获取最新地震的eqid
+    getEqList().then((res) => {
+      console.log("地震数据", res.data)
 
-    const res = await getChartDataBy(props.eqid)
+      tableData.value = res.data.filter(item => item.eqType === 'Z');
+      tableData.value = tableData.value.filter(item => item.magnitude >= 6);
+      tableData.value = tableData.value.filter(item => item.earthquakeName.includes("四川"));
+
+      console.log("处理后的地震列表",tableData.value)
+
+      lastEqData.value = tableData.value[0];
+
+      lastEqid.value = lastEqData.value.eqid;
+      lastEqqueueId.value = lastEqData.value.eqqueueId;
+
+    });
+
+    // const res = await getGraphData();
+
+    const res = await getChartDataBy(lastEqid.value)
+
     console.log("res的结果",res)
 
     chartLinks.value = res.map(item => ({
@@ -391,12 +420,12 @@ const getData = async () => {
     const validValues = new Set(list.value.map(item => item.value));
     chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
     chartStartLinks.value = chartStartData.value.map(item => (
-          {
-            source: "震后生成",
-            target: item.name,
-            value: "包含"
-        }
-      )
+            {
+              source: "震后生成",
+              target: item.name,
+              value: "包含"
+            }
+        )
     )
 
     chartStartLinks.value.push({
@@ -764,7 +793,7 @@ const showDescription = (item, value) => {
 //   };
 // };
 
-const sendMessage = async () => {
+const sendMessage = () => {
   const message = formData.value.content?.trim();
 
   if (!message) {
@@ -772,81 +801,69 @@ const sendMessage = async () => {
     return;
   }
 
-  // 添加用户消息
+  // 添加消息到消息列表
   messageList.value.push({
-    type: 0,  // 用户消息
+    type: 0,
     content: message,
   });
 
-  // 添加AI的"正在输入"占位消息
-  const loadingMessage = {
-    type: 1,  // AI消息
+  // 添加加载中的消息项
+  messageList.value.push({
+    type: 1,
     content: [],
     loading: true,
-  };
-  messageList.value.push(loadingMessage);
+  });
 
-  formData.value.content = ''; // 清空输入框
   loading.value = true;
 
-  try {
-    const response = await fetch('http://localhost:5000/conversation_gpt', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json', // 明确要求返回JSON
-      },
-      body: JSON.stringify({
-        content: message,
-        prompt: StartLinks.value,
-      }),
-    });
+  // 清空输入框
+  formData.value.content = '';
 
-    // 先检查HTTP状态码
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+  // 使用 fetch 发送 POST 请求
+  fetch('http://localhost:5000/conversation_gpt', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      content: message, // 传递动态的 message
+      prompt: StartLinks.value, // 固定的 prompt
+    }),
+  })
+      .then(response => response.json())
+      .then(data => {
+        // 假设数据是数组类型，获取并更新最后一条消息
+        const lastMsg = messageList.value[messageList.value.length - 1];
 
-    // 尝试解析响应（兼容非JSON情况）
-    let data;
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json')) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      // 如果返回的是纯文本，包装成统一结构
-      data = { content: text };
-    }
+        // 检查 lastMsg.content 是否是数组
+        if (data.content) {
+          // 如果 lastMsg.content 不是数组，先将其转换成数组
+          if (!Array.isArray(lastMsg.content)) {
+            lastMsg.content = [lastMsg.content];
+          }
 
-    // 更新最后一条消息
-    const lastMsg = messageList.value[messageList.value.length - 1];
-    if (data.content) {
-      lastMsg.content = Array.isArray(lastMsg.content)
-          ? [...lastMsg.content, data.content]
-          : [data.content];
-    }
+          // 将新的 content 添加到 content 数组中
+          lastMsg.content.push(data.content);
+        }
 
-    // 滚动到底部
-    nextTick(() => {
-      const panel = document.getElementById('message-panel');
-      if (panel) panel.scrollTop = panel.scrollHeight;
-    });
-  } catch (error) {
-    console.error('请求失败:', error);
-
-    // 显示错误提示
-    const lastMsg = messageList.value[messageList.value.length - 1];
-    if (lastMsg) {
-      lastMsg.content = ["AI 响应失败，请稍后重试"];
-      lastMsg.loading = false;
-    }
-
-    ElMessage.error('请求失败: ' + error.message);
-  } finally {
-    loading.value = false;
-    const lastMsg = messageList.value[messageList.value.length - 1];
-    if (lastMsg) lastMsg.loading = false;
-  }
+        // 滚动到消息列表底部
+        nextTick(() => {
+          const panel = document.getElementById('message-panel');
+          if (panel) panel.scrollTop = panel.scrollHeight;
+        });
+      })
+      .catch(error => {
+        console.error('请求失败:', error);
+        const lastMsg = messageList.value[messageList.value.length - 1];
+        if (lastMsg) lastMsg.loading = false;
+        loading.value = false;
+      })
+      .finally(() => {
+        // 关闭加载状态
+        const lastMsg = messageList.value[messageList.value.length - 1];
+        if (lastMsg) lastMsg.loading = false;
+        loading.value = false;
+      });
 };
 
 // 快捷键发送
@@ -939,7 +956,7 @@ const handleChildClick = (child) => {
 
 // 生命周期钩子
 onMounted(() => {
-    getData()
+  getData()
 });
 
 onBeforeUnmount(() => {
@@ -960,9 +977,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: row; /* 使元素横向排列 */
   // 确保 flex 容器允许子元素增长和收缩
-  border-radius: 20px;
   z-index: 2;
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
+  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.9) 88%, rgba(47, 82, 117, 0.9) 95%, rgba(44, 69, 94, 0.9) 100%);
 
   .closeAll {
     button {
@@ -1031,6 +1047,57 @@ onBeforeUnmount(() => {
         position: absolute;
         top: 8px;
         z-index: 1;
+        // 基础样式
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        padding: 5px 12px;
+        color: white;
+        cursor: pointer;
+        height: 30px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        user-select: none;
+
+        // 悬停时的流动边框
+        &:hover {
+          border-color: transparent; // 隐藏原始边框
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 6px;
+            padding: 1px; // 边框厚度
+            background: linear-gradient(90deg,
+            #0453fc,
+            #00f7ff,
+            #0453fc,);
+            background-size: 200% auto;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 1.5s linear infinite;
+            z-index: 0;
+          }
+        }
+      }
+    }
+
+    .go{
+      button {
+        position: absolute;
+        top: 8px;
+        z-index: 1;
+        right:0.3vw;
         // 基础样式
         display: inline-flex;
         align-items: center;
@@ -1256,7 +1323,7 @@ onBeforeUnmount(() => {
           margin-right: 20px;
 
           li{x
-            line-height: 40px;
+          line-height: 40px;
             margin-left: 0px;
             white-space: nowrap;  /* 防止换行 */
             text-overflow: ellipsis; /* 使用省略号显示超出部分 */
