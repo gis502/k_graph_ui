@@ -113,7 +113,6 @@
     </div>
 
   </div>
-
 </template>
 
 <script setup>
@@ -125,7 +124,6 @@ import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
-
 const props = defineProps({
   eqMagnitude: {
     type: String,
@@ -176,7 +174,7 @@ const firstData = [
  ]
 const secondData = [
   { "name": "地震参数" },
-  { "name": "强震检测信息" },
+  { "name": "强震监测信息" },
   { "name": "测震监测信息" },
   { "name": "预报信息" },
   { "name": "余震情况" },
@@ -367,6 +365,7 @@ const echartsOption = ref({
     links: chartLinks.value
   }]
 });
+
 // 获取数据并初始化图表
 const getData = async () => {
   try {
@@ -399,6 +398,12 @@ const getData = async () => {
         }
       )
     )
+
+    chartStartLinks.value.push({
+      source: "地震震情信息",
+      target: "地震参数",
+      value: "包含"
+    })
     chartStartData.value.push({ name: "震后生成" });
 
     // 给每个子项计算 sonCount
@@ -424,61 +429,7 @@ const getData = async () => {
     console.error('获取图表数据失败:', error);
   }
 };
-
-// 计算所有的节点数量（递归），但是有点问题
-// function calculateCounts(list, chartLinks) {
-//   // 构建一个关系图，source 为父节点，target 为子节点
-//   const relationMap = {};
-//   chartLinks.forEach(link => {
-//     if (!relationMap[link.source]) {
-//       relationMap[link.source] = new Set();
-//     }
-//     relationMap[link.source].add(link.target);
-//   });
-//
-//   // 计算父节点下属数量，包括直接子节点及通过关系图连接的节点
-//   function getFatherCount(node) {
-//     let count = 0;
-//
-//     // 先计算所有直接子节点的下属数量
-//     if (node.children && node.children.length > 0) {
-//       node.children.forEach(child => {
-//         count += 1 + getFatherCount(child); // 计算子项的下属数量
-//       });
-//     }
-//
-//     // 通过关系图连接的子节点也需要计算
-//     if (relationMap[node.value]) {
-//       relationMap[node.value].forEach(child => {
-//         count += 1 + getFatherCount({ value: child, children: [] }); // 递归计算通过关系图连接的项
-//       });
-//     }
-//     return count;
-//   }
-//
-//   // 计算子节点的下属数量（包括递归计算下属）
-//   function getSonCount(node) {
-//     let count = 0;
-//     if (node.children && node.children.length > 0) {
-//       node.children.forEach(child => {
-//         count += 1 + getSonCount(child); // 递归计算所有子项的下属
-//       });
-//     }
-//     return count;
-//   }
-//
-//   // 更新每个节点的父项和子项数量
-//   list.forEach(parent => {
-//     parent.fatherCount = getFatherCount(parent); // 计算父项的下属数量
-//     parent.children.forEach(child => {
-//       child.sonCount = getSonCount(child); // 计算子项的下属数量
-//     });
-//   });
-//
-//   return list;
-// }
 // 初始化图表
-
 const initChart = () => {
 
   if (!chart.value) return;
@@ -746,6 +697,9 @@ const showDescription = (item, value) => {
       currentIndex.value = null;
     }
   }
+
+  const nodeName = {name:item.value}
+  handleNodeClick(nodeName);
 
   focusNode(value);
 };
