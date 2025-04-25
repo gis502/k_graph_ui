@@ -283,9 +283,14 @@ let addDTO = ref({
 const getEq = () => {
   getEqList().then((res) => {
     console.log("地震数据", res.data)
+
     EqAll.value = res.data;
     console.log("EqAll.value", EqAll.value)
+
     tableData.value = res.data.filter(item => item.eqType === 'Z');
+    tableData.value = tableData.value.filter(item => item.magnitude >= 6);
+    tableData.value = tableData.value.filter(item => item.earthquakeName.includes("四川"));
+    console.log("处理后的地震列表",tableData.value)
 
     lastEqData.value = tableData.value[0];
 

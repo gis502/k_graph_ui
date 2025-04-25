@@ -44,8 +44,12 @@
       </div>
     </div>
 
-    <div v-show="showTypes === 1">
-      <img :src="imgshowURL" alt="导出图片" style="width: 100%;height: 100%">
+<!--    专题图-->
+<!--    <div v-show="showTypes === 1" class="thematicMapPreview">-->
+<!--      <img :src="imgUrl" alt="导出图片">-->
+<!--    </div>-->
+    <div v-show="showTypes === 1" class="thematicMapPreview">
+      <img :src="imgshowURL" alt="导出图片" >
     </div>
 
     <div class="preview-buttons">
@@ -61,6 +65,7 @@ import {jsPDF} from 'jspdf';
 import html2canvas from "html2canvas";
 import {handleOutputData, timestampToTime} from "../../cesium/plot/eqThemes.js";
 import {ElMessage} from "element-plus";
+
 
   export default {
     data() {
@@ -561,10 +566,9 @@ import {ElMessage} from "element-plus";
 
 .preview-container {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  transform: translate(-50%, -50%);
+  top:18.5%;
+  left: 18%;
+  width: 50% !important;
   background-color: white;
   padding: 0px 20px 20px;
   border-radius: 10px;
@@ -654,5 +658,10 @@ import {ElMessage} from "element-plus";
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+
+.thematicMapPreview img{
+  height: 66vh;
 }
 </style>

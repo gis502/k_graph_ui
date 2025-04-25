@@ -113,7 +113,6 @@
     </div>
 
   </div>
-
 </template>
 
 <script setup>
@@ -125,7 +124,6 @@ import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
-
 const props = defineProps({
   eqMagnitude: {
     type: String,
@@ -176,7 +174,7 @@ const firstData = [
  ]
 const secondData = [
   { "name": "地震参数" },
-  { "name": "强震检测信息" },
+  { "name": "强震监测信息" },
   { "name": "测震监测信息" },
   { "name": "预报信息" },
   { "name": "余震情况" },
@@ -367,6 +365,7 @@ const echartsOption = ref({
     links: chartLinks.value
   }]
 });
+
 // 获取数据并初始化图表
 const getData = async () => {
   try {
@@ -399,6 +398,12 @@ const getData = async () => {
         }
       )
     )
+
+    chartStartLinks.value.push({
+      source: "地震震情信息",
+      target: "地震参数",
+      value: "包含"
+    })
     chartStartData.value.push({ name: "震后生成" });
 
     // 给每个子项计算 sonCount
@@ -424,61 +429,7 @@ const getData = async () => {
     console.error('获取图表数据失败:', error);
   }
 };
-
-// 计算所有的节点数量（递归），但是有点问题
-// function calculateCounts(list, chartLinks) {
-//   // 构建一个关系图，source 为父节点，target 为子节点
-//   const relationMap = {};
-//   chartLinks.forEach(link => {
-//     if (!relationMap[link.source]) {
-//       relationMap[link.source] = new Set();
-//     }
-//     relationMap[link.source].add(link.target);
-//   });
-//
-//   // 计算父节点下属数量，包括直接子节点及通过关系图连接的节点
-//   function getFatherCount(node) {
-//     let count = 0;
-//
-//     // 先计算所有直接子节点的下属数量
-//     if (node.children && node.children.length > 0) {
-//       node.children.forEach(child => {
-//         count += 1 + getFatherCount(child); // 计算子项的下属数量
-//       });
-//     }
-//
-//     // 通过关系图连接的子节点也需要计算
-//     if (relationMap[node.value]) {
-//       relationMap[node.value].forEach(child => {
-//         count += 1 + getFatherCount({ value: child, children: [] }); // 递归计算通过关系图连接的项
-//       });
-//     }
-//     return count;
-//   }
-//
-//   // 计算子节点的下属数量（包括递归计算下属）
-//   function getSonCount(node) {
-//     let count = 0;
-//     if (node.children && node.children.length > 0) {
-//       node.children.forEach(child => {
-//         count += 1 + getSonCount(child); // 递归计算所有子项的下属
-//       });
-//     }
-//     return count;
-//   }
-//
-//   // 更新每个节点的父项和子项数量
-//   list.forEach(parent => {
-//     parent.fatherCount = getFatherCount(parent); // 计算父项的下属数量
-//     parent.children.forEach(child => {
-//       child.sonCount = getSonCount(child); // 计算子项的下属数量
-//     });
-//   });
-//
-//   return list;
-// }
 // 初始化图表
-
 const initChart = () => {
 
   if (!chart.value) return;
@@ -747,6 +698,9 @@ const showDescription = (item, value) => {
     }
   }
 
+  const nodeName = {name:item.value}
+  handleNodeClick(nodeName);
+
   focusNode(value);
 };
 
@@ -810,7 +764,7 @@ const showDescription = (item, value) => {
 //   };
 // };
 
-const sendMessage = () => {
+const sendMessage = async () => {
   const message = formData.value.content?.trim();
 
   if (!message) {
@@ -818,69 +772,81 @@ const sendMessage = () => {
     return;
   }
 
-  // 添加消息到消息列表
+  // 添加用户消息
   messageList.value.push({
-    type: 0,
+    type: 0,  // 用户消息
     content: message,
   });
 
-  // 添加加载中的消息项
-  messageList.value.push({
-    type: 1,
+  // 添加AI的"正在输入"占位消息
+  const loadingMessage = {
+    type: 1,  // AI消息
     content: [],
     loading: true,
-  });
+  };
+  messageList.value.push(loadingMessage);
 
+  formData.value.content = ''; // 清空输入框
   loading.value = true;
 
-  // 清空输入框
-  formData.value.content = '';
+  try {
+    const response = await fetch('http://localhost:5000/conversation_gpt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json', // 明确要求返回JSON
+      },
+      body: JSON.stringify({
+        content: message,
+        prompt: StartLinks.value,
+      }),
+    });
 
-  // 使用 fetch 发送 POST 请求
-  fetch('http://localhost:5000/conversation_gpt', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      content: message, // 传递动态的 message
-      prompt: StartLinks.value, // 固定的 prompt
-    }),
-  })
-      .then(response => response.json())
-      .then(data => {
-        // 假设数据是数组类型，获取并更新最后一条消息
-        const lastMsg = messageList.value[messageList.value.length - 1];
+    // 先检查HTTP状态码
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-        // 检查 lastMsg.content 是否是数组
-        if (data.content) {
-          // 如果 lastMsg.content 不是数组，先将其转换成数组
-          if (!Array.isArray(lastMsg.content)) {
-            lastMsg.content = [lastMsg.content];
-          }
+    // 尝试解析响应（兼容非JSON情况）
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      // 如果返回的是纯文本，包装成统一结构
+      data = { content: text };
+    }
 
-          // 将新的 content 添加到 content 数组中
-          lastMsg.content.push(data.content);
-        }
+    // 更新最后一条消息
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (data.content) {
+      lastMsg.content = Array.isArray(lastMsg.content)
+          ? [...lastMsg.content, data.content]
+          : [data.content];
+    }
 
-        // 滚动到消息列表底部
-        nextTick(() => {
-          const panel = document.getElementById('message-panel');
-          if (panel) panel.scrollTop = panel.scrollHeight;
-        });
-      })
-      .catch(error => {
-        console.error('请求失败:', error);
-        const lastMsg = messageList.value[messageList.value.length - 1];
-        if (lastMsg) lastMsg.loading = false;
-        loading.value = false;
-      })
-      .finally(() => {
-        // 关闭加载状态
-        const lastMsg = messageList.value[messageList.value.length - 1];
-        if (lastMsg) lastMsg.loading = false;
-        loading.value = false;
-      });
+    // 滚动到底部
+    nextTick(() => {
+      const panel = document.getElementById('message-panel');
+      if (panel) panel.scrollTop = panel.scrollHeight;
+    });
+  } catch (error) {
+    console.error('请求失败:', error);
+
+    // 显示错误提示
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (lastMsg) {
+      lastMsg.content = ["AI 响应失败，请稍后重试"];
+      lastMsg.loading = false;
+    }
+
+    ElMessage.error('请求失败: ' + error.message);
+  } finally {
+    loading.value = false;
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (lastMsg) lastMsg.loading = false;
+  }
 };
 
 // 快捷键发送
