@@ -930,7 +930,7 @@ export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
       getEqOutputMap(DTO).then((res) => {
         const data = res.data;
         console.log("1111111")
-        console.log(res.data)
+        console.log(res)
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
         console.log("专题图")

@@ -174,8 +174,45 @@
     </div>
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
-    <button  class="superMap">展示灾情专题图</button>
-    <!-- 加载中的提示 -->
+    <button  class="superMap" @click="activeComponent = true">展示灾情专题图</button>
+    <!-- 默认隐藏，点击按钮后展示 -->
+    <div v-if="activeComponent" class="dialog-overlay">
+      <div class="dialog-content">
+        <!-- 固定头部 -->
+        <div class="dialog-header">
+          <span class="dialog-title">图件产出</span>
+          <span class="dialog-close" @click="activeComponent = false">×</span>
+        </div>
+
+        <!-- 滚动区域（按钮 + 内容） -->
+        <div class="dialog-scroll-body">
+          <div class="toggle-buttons">
+            <!-- 按钮区域 -->
+          </div>
+
+          <div v-if="activeTab === 'thematicMap'" class="section">
+            <div class="grid-container">
+              <div
+                  v-for="(item, index) in thematicMapitems"
+                  :key="index"
+                  class="grid-item"
+                  @click="showThematicMapDialog(item)"
+              >
+                <el-card shadow="hover" class="grid-small">
+                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img" />
+                  <div class="item-info">
+                    <p class="item-title">{{ item.theme }}</p>
+                  </div>
+                </el-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+          <!-- 加载中的提示 -->
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
@@ -334,14 +371,39 @@ import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue"
 import {handleOutputData} from "@/cesium/plot/eqThemes.js";
 
 export default {
+
   components: {
     dataSourcePanel,
     thematicMapPreview
   },
   data() {
     return {
+      eqIdValue:'',
+      activeComponent:false, // 控制显示隐藏
+      activeTab: 'thematicMap', // 当前选中的 tab
       // 灾情专题图存放信息
-      thematicMapitems:[],
+      thematicMapitems: [
+        {
+          theme: "震后道路损毁情况",
+          imgUrl: ""
+        },
+        {
+          theme: "震后建筑物倒塌分析",
+          imgUrl: ""
+        },
+        {
+          theme: "震后水灾影响图",
+          imgUrl: "C:/Users/Smile/Desktop/profile/震区地震动峰值加速度区划图.jpg"
+        },
+        {
+          theme: "震后疏散路线图",
+          imgUrl: "https://via.placeholder.com/300x200.png?text=Evacuation+Routes"
+        },
+        {
+          theme: "震后医疗资源分布",
+          imgUrl: "https://via.placeholder.com/300x200.png?text=Medical+Resources+Map"
+        }
+      ],
       imgshowURL: '',
       imgurlFromDate: '',
       imgName: '',
@@ -492,6 +554,7 @@ export default {
       eqlists: [],
       eqlistName: '',
       eqid: '',
+      eqqueueId:'',
       tableNameOptions: [],
       selectedComponentKey: 'EarthquakeCasualties',
       options: [
@@ -620,7 +683,7 @@ export default {
     // 加载雅安边界线
     this.loadYaAnBoundary();
     // 获取灾情专题图的地图
-    // this.outputData();
+    this.outputData();
   },
   beforeDestroy() {
     // 在组件销毁时清除轮询
@@ -701,6 +764,7 @@ export default {
     handleEqListChange(value) {
       // 获取选择的 eqid
       this.eqid = value;
+      this.eqIdValue=value
       this.viewer.entities.removeAll();
       this.getEarthQuakeCenter(value)
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
@@ -2597,9 +2661,14 @@ export default {
 
     // 获取灾情专题图的接口
     outputData() {
+      // 给 eqid 和 eqqueueId 赋固定值
+      this.eqid = '51333320250403112800';
+      this.eqqueueId = '5133332025040311280001';
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
+        console.log(res)
         this.thematicMapitems = res.themeData
-        console.log("专题图：", this.thematicMapitems, "diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
+        console.log("专题图：")
+        console.log(this.thematicMapitems)
       })
       // handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
       //   this.reportItems = res.themeData
@@ -2656,6 +2725,7 @@ export default {
 
 .export-button:hover {
   background-color: #2980b9;
+
 }
 
 .loading-container {
@@ -2940,4 +3010,103 @@ img {
 .superMap:hover {
   background-color: #2980b9;
 }
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.dialog-close {
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+  gap: 16px; /* Adjust the gap between items */
+  width: 100%; /* Ensure the container takes full width */
+  height: 100%; /* Ensure the container takes full height */
+
+}
+
+.grid-item {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* This ensures the items are square (aspect ratio 1:1) */
+}
+.grid-small{
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  background-color: transparent; /* 去掉白底 */;
+}
+
+.preview-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the square area */
+}
+
+.item-info {
+  padding: 8px;
+  text-align: center;
+  background-color: transparent; /* 去掉白底 */
+  border: none; /* 去掉边框 */
+}
+
+.item-title {
+  font-size: 14px;
+  font-weight: bold;
+  background-color: transparent; /* 去掉白底 */
+  margin-bottom: 30px;
+  margin-top: -10px;
+
+}
+.dialog-content {
+  background-color: rgba(255, 255, 255, 0.7);
+  width: 80%;
+  max-width: 1000px;
+  height: 80%;
+  border-radius: 8px;
+  overflow: hidden; /* 关键：避免外部滚动条 */
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0 20px;
+  font-size: 18px;
+  font-weight: bold;
+  /*background-color: rgba(255, 255, 255, 0.8); !* 可选：半透明背景 *!*/
+  border-bottom: 2px solid #ccc;
+}
+
+.dialog-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+
+
 </style>
