@@ -173,7 +173,8 @@
            :id="'echartsContainer' + index"></div>
     </div>
     <!-- 添加一个按钮用于导出 -->
-    <button @click="exportCesiumScene" class="export-button">导出专题图</button>
+    <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
+    <button  class="superMap">展示灾情专题图</button>
     <!-- 加载中的提示 -->
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
@@ -254,6 +255,38 @@
       </div>
     </div>
 
+    <!--灾情专题图展示容器-->
+
+    <!--    <div class="grid-container">-->
+    <!--      -->
+    <!--    </div>-->
+
+    <!--    <div class="grid-containe">-->
+    <!--      <div-->
+    <!--          v-for="(item, index) in thematicMapitems"-->
+    <!--          :key="index"-->
+    <!--          class="grid-item"-->
+    <!--          @click="showThematicMapDialog(item)"-->
+    <!--      >-->
+    <!--        <el-card shadow="hover">-->
+    <!--          <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>-->
+    <!--          <div class="item-info">-->
+    <!--            <p class="item-title">{{ item.theme }}</p>-->
+    <!--          </div>-->
+    <!--        </el-card>-->
+    <!--      </div>-->
+    <!--    </div>-->
+
+    <!--    <thematicMapPreview-->
+    <!--        @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
+    <!--        :imgshowURL="imgshowURL"-->
+    <!--        :imgurlFromDate="imgurlFromDate"-->
+    <!--        :imgName="imgName"-->
+    <!--        :ifShowMapPreview="ifShowMapPreview"-->
+    <!--        :showTypes="showTypes"-->
+    <!--        style="width: 40%"-->
+    <!--    ></thematicMapPreview>-->
+
   </div>
 </template>
 
@@ -297,11 +330,24 @@ import {getPublicOpinion} from "@/api/system/publicOpinion.js";
 import {getSocialOrder} from "@/api/system/socialOrder.js";
 import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.js";
 import {AmapApiLocal, tianditu} from "@/utils/server.js";
+import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
+import {handleOutputData} from "@/cesium/plot/eqThemes.js";
 
 export default {
-  components: {dataSourcePanel},
+  components: {
+    dataSourcePanel,
+    thematicMapPreview
+  },
   data() {
     return {
+      // 灾情专题图存放信息
+      thematicMapitems:[],
+      imgshowURL: '',
+      imgurlFromDate: '',
+      imgName: '',
+      ifShowMapPreview: false, // 是否预览专题图
+      showTypes: 1,
+
       viewer: null, // 保存 Cesium Viewer
       pollingInterval: null, // 保存轮询定时器的引用
 
@@ -573,7 +619,8 @@ export default {
     this.startPolling();
     // 加载雅安边界线
     this.loadYaAnBoundary();
-
+    // 获取灾情专题图的地图
+    // this.outputData();
   },
   beforeDestroy() {
     // 在组件销毁时清除轮询
@@ -2545,6 +2592,38 @@ export default {
 
       return `${degrees}°${minutes}'${seconds}"${direction}`;
     },
+
+    //--------------------------------------------------下面是灾情专题图代码部分------------------------------------------
+
+    // 获取灾情专题图的接口
+    outputData() {
+      handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
+        this.thematicMapitems = res.themeData
+        console.log("专题图：", this.thematicMapitems, "diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
+      })
+      // handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
+      //   this.reportItems = res.themeData
+      //   console.log("报告：", this.reportItems)
+      // })
+    },
+
+    // 打开展示用户选择的灾情专题图的组件页面，传值
+    showThematicMapDialog(item) {
+      console.log("专题图item-> ", item)
+      // 显示专题图弹框逻辑
+      this.ifShowMapPreview = true;
+      this.imgName = item.theme;
+      this.imgshowURL = item.imgUrl;
+    },
+
+    // 专题图弹框逻辑防止无数据报错
+    ifShowThematicMapDialog(val) {
+      this.ifShowMapPreview = val;
+      if (!val) {
+        this.imgName = "";
+        this.imgshowURL = "";
+      }
+    }
   }
 };
 </script>
@@ -2575,6 +2654,10 @@ export default {
   cursor: pointer;
 }
 
+.export-button:hover {
+  background-color: #2980b9;
+}
+
 .loading-container {
   position: fixed;
   top: 50%;
@@ -2590,11 +2673,7 @@ export default {
 .listContainer {
   position: absolute;
   top: 20px;
-  left: 100px;
-}
-
-.export-button:hover {
-  background-color: #2980b9;
+  left: 230px;
 }
 
 .legend_item {
@@ -2829,5 +2908,36 @@ img {
   color: #ffffff;  /* 灰色文字 */
 }
 
+.superMap {
+  position: absolute;
+  top: 20px;
+  left: 120px;
+  z-index: 20; /* 确保按钮显示在最前面 */
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
+.grid-container {
+  pposition: absolute;
+  top: 20px;
+  left: 120px;
+  z-index: 20; /* 确保按钮显示在最前面 */
+  height: 400px;
+  width: 500px;
+
+  /*flex-wrap: wrap;*/
+  /*height: 69vh;*/
+  /*display: grid;*/
+  /*grid-template-columns: repeat(2, 1fr); !* 创建2列，等宽 *!*/
+  /*gap: 8px; !* 列间距 *!*/
+  /*padding: 5px;*/
+}
+
+.superMap:hover {
+  background-color: #2980b9;
+}
 </style>

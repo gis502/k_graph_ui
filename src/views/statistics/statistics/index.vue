@@ -200,6 +200,18 @@ const getEarthquake = () => {
   getExcelUploadEqList().then(res => {
 
     eqlists.value = res
+
+    eqlists.value = eqlists.value.filter(item => {
+      // 提取震级数值
+      const magnitude = parseFloat(item.split('震级：')[1]);
+      // 检查是否包含"四川省"
+      const isSichuan = item.includes('四川');
+      // 同时满足两个条件
+      return magnitude >= 5.0 && isSichuan;
+    });
+
+    console.log(eqlists.value,"这是地震数据")
+
     if (res.data === null) {
       ElMessage.error("地震列表无数据")
     }
@@ -271,7 +283,7 @@ const clearSelection = () => {
 <style lang="scss" scoped>
 .style-container {
   width: 100%;
-  height: calc(100vh - 50px);
+  height: 100vh;
   background-image: url("@/assets/bg1.png");
   background-size: 100% 100%;
   position: absolute;
