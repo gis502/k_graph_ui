@@ -234,28 +234,17 @@ const echartsOption = ref({
 
 const getData = async () => {
   try {
-    // 获取最新地震的eqid
-    getEqList().then((res) => {
-      console.log("地震数据", res.data)
+    // 1. 先获取地震列表
+    const eqListRes = await getEqList(); // 等待完成
+    console.log("地震数据", eqListRes.data);
 
-      tableData.value = res.data.filter(item => item.eqType === 'Z');
-      tableData.value = tableData.value.filter(item => item.magnitude >= 6);
-      tableData.value = tableData.value.filter(item => item.earthquakeName.includes("四川"));
+    // 2. 过滤数据
+    tableData.value = eqListRes.data.filter(item => item.eqType === 'Z' && item.magnitude >= 6 && item.earthquakeName.includes("四川"));
 
-      console.log("处理后的地震列表",tableData.value)
-
-      lastEqData.value = tableData.value[0];
-
-      lastEqid.value = lastEqData.value.eqid;
-      lastEqqueueId.value = lastEqData.value.eqqueueId;
-
-      console.log(lastEqid.value,"最新地震的eqid")
-
-    });
-
+    lastEqData.value = tableData.value[0];
+    lastEqid.value = lastEqData.value.eqid; // 确保这里已赋值
 
     // const res = await getGraphData();
-
 
     const res = await getChartDataBy(lastEqid.value)
     console.log("res的结果",res)
@@ -292,7 +281,6 @@ const getData = async () => {
     chartStartData.value.push({ name: "震后生成" });
 
     initChart();
-
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }

@@ -380,27 +380,19 @@ const go = () => {
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    // 获取最新地震的eqid
-    getEqList().then((res) => {
-      console.log("地震数据", res.data)
+    // 1. 先获取地震列表
+    const eqListRes = await getEqList(); // 等待完成
+    console.log("地震数据", eqListRes.data);
 
-      tableData.value = res.data.filter(item => item.eqType === 'Z');
-      tableData.value = tableData.value.filter(item => item.magnitude >= 6);
-      tableData.value = tableData.value.filter(item => item.earthquakeName.includes("四川"));
+    // 2. 过滤数据
+    tableData.value = eqListRes.data.filter(item => item.eqType === 'Z' && item.magnitude >= 6 && item.earthquakeName.includes("四川"));
 
-      console.log("处理后的地震列表",tableData.value)
-
-      lastEqData.value = tableData.value[0];
-
-      lastEqid.value = lastEqData.value.eqid;
-      lastEqqueueId.value = lastEqData.value.eqqueueId;
-
-    });
+    lastEqData.value = tableData.value[0];
+    lastEqid.value = lastEqData.value.eqid; // 确保这里已赋值
 
     // const res = await getGraphData();
 
     const res = await getChartDataBy(lastEqid.value)
-
     console.log("res的结果",res)
 
     chartLinks.value = res.map(item => ({
@@ -427,7 +419,6 @@ const getData = async () => {
             }
         )
     )
-
     chartStartLinks.value.push({
       source: "地震震情信息",
       target: "地震参数",
@@ -435,25 +426,7 @@ const getData = async () => {
     })
     chartStartData.value.push({ name: "震后生成" });
 
-    // 给每个子项计算 sonCount
-    list.value.forEach(item => {
-      item.children.forEach(child => {
-        const sonCount = chartLinks.value.filter(link => link.source === child.value).length;
-        child.sonCount = sonCount;
-      });
-    });
-    console.log(list.value,"跟新后的数据")
-
-    StartData.value = chartStartData.value;
-    StartLinks.value =  chartStartLinks.value;
-
-    console.log(StartData.value,"开始数据")
-    console.log("newList",newList.value)
-    console.log("chartData",chartStartData.value)
-    console.log("chartLinks",chartStartLinks.value)
-
     initChart();
-
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
