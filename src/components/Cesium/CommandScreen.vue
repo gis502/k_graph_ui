@@ -506,14 +506,14 @@
                   top: 110px;
                   border-radius: 20px;
 ">
-<!--        <disasterStatistics-->
-<!--            :eqid="eqid"-->
-<!--            :currentTime="currentTimeString"-->
-<!--        />-->
-<!--        <knowledgeGraph-->
-<!--            :eqMagnitude = "eqMagnitude"-->
-<!--            :currentTime = "currentTimeString"-->
-<!--        />-->
+        <!--        <disasterStatistics-->
+        <!--            :eqid="eqid"-->
+        <!--            :currentTime="currentTimeString"-->
+        <!--        />-->
+        <!--        <knowledgeGraph-->
+        <!--            :eqMagnitude = "eqMagnitude"-->
+        <!--            :currentTime = "currentTimeString"-->
+        <!--        />-->
       </div>
     </div>
 
@@ -532,12 +532,12 @@
             >
               专题图预览
             </el-button>
-<!--            <el-button-->
-<!--                :type="activeTab === 'report' ? 'primary' : 'default'"-->
-<!--                @click="activeTab = 'report'"-->
-<!--            >-->
-<!--              报告产出-->
-<!--            </el-button>-->
+            <!--            <el-button-->
+            <!--                :type="activeTab === 'report' ? 'primary' : 'default'"-->
+            <!--                @click="activeTab = 'report'"-->
+            <!--            >-->
+            <!--              报告产出-->
+            <!--            </el-button>-->
           </div>
           <!-- 专题图 -->
           <div v-if="activeTab === 'thematicMap'" class="section">
@@ -546,57 +546,58 @@
                   v-for="(item, index) in thematicMapitems"
                   :key="index"
                   class="grid-item"
-                  @click="showThematicMapDialog(item)"
-              >
+                  @click="showThematicMapDialog(item)">
+
                 <el-card shadow="hover">
                   <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
                   <div class="item-info">
                     <p class="item-title">{{ item.theme }}</p>
                   </div>
                 </el-card>
+
               </div>
             </div>
           </div>
-<!--            报告-->
-<!--          <div v-if="activeTab === 'report'" class="section">-->
-<!--            <div class="grid-container-report">-->
-<!--              <div-->
-<!--                  v-for="(item, index) in reportItems"-->
-<!--                  :key="index"-->
-<!--                  class="grid-item"-->
-<!--              >-->
-<!--                <el-card shadow="hover">-->
-<!--                  <div class="report-preview">-->
-<!--                    <p class="report-name">{{ item.theme }}</p>-->
-<!--                    <div class="report-bottom" @click="downloadReport(item)">-->
-<!--                      下载报告-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </el-card>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
+          <!--            报告-->
+          <!--          <div v-if="activeTab === 'report'" class="section">-->
+          <!--            <div class="grid-container-report">-->
+          <!--              <div-->
+          <!--                  v-for="(item, index) in reportItems"-->
+          <!--                  :key="index"-->
+          <!--                  class="grid-item"-->
+          <!--              >-->
+          <!--                <el-card shadow="hover">-->
+          <!--                  <div class="report-preview">-->
+          <!--                    <p class="report-name">{{ item.theme }}</p>-->
+          <!--                    <div class="report-bottom" @click="downloadReport(item)">-->
+          <!--                      下载报告-->
+          <!--                    </div>-->
+          <!--                  </div>-->
+          <!--                </el-card>-->
+          <!--              </div>-->
+          <!--            </div>-->
+          <!--          </div>-->
         </div>
       </div>
 
-<!--       专题图预览弹框-->
-<!--            <thematic-map-preview-->
-<!--              v-if="ifShowMapPreview"-->
-<!--              :img-url="imgshowURL"-->
-<!--              :img-name="imgName"-->
-<!--              @close="ifShowThematicMapDialog(false)"-->
-<!--            />-->
+      <!--       专题图预览弹框-->
+      <!--            <thematic-map-preview-->
+      <!--              v-if="ifShowMapPreview"-->
+      <!--              :img-url="imgshowURL"-->
+      <!--              :img-name="imgName"-->
+      <!--              @close="ifShowThematicMapDialog(false)"-->
+      <!--            />-->
     </div>
 
 
     <div id="cesiumContainer">
-<!--      中心标绘信息-->
+      <!--      中心标绘信息-->
       <eqCenterPanel
           v-show="eqCenterPanelVisible"
           :position="PanelPosition"
           :popupData="PanelData"
       />
-<!--      态势标绘信息-->
+      <!--      态势标绘信息-->
       <plotInfoOnlyShowPanel
           v-show="plotShowOnlyPanelVisible"
           :position="PanelPosition"
@@ -604,13 +605,13 @@
           :eqThemeInfo="eqThemeData"
           :popupData="PanelData"
       />
-<!--      救援队伍、应急物资、避难场所图层标绘点的弹窗-->
+      <!--      救援队伍、应急物资、避难场所图层标绘点的弹窗-->
       <RouterPanel
           :visible="routerPopupVisible"
           :position="PanelPosition"
           :popupData="routerPanelData"
       />
-<!--      聚合标绘信息-->
+      <!--      聚合标绘信息-->
       <dataSourcePanel
           :visible="dataSourcePopupVisible"
           :position="PanelPosition"
@@ -661,23 +662,23 @@
       />
       <div class="pop_right_background-chart">
         <!--生命线情况-->
-<!--        <timeLineLifeLine-->
-<!--            :eqid="eqid"-->
-<!--            :currentTime="currentTimeString"-->
-<!--        />-->
-<!--        <timeLinePlotStatistics-->
-<!--            :plots="plots"-->
-<!--            :currentTime="currentTimeString"-->
-<!--            :startTime="centerPoint.startTime"-->
-<!--            :zoomLevel="zoomLevel"-->
-<!--            :isTimeRunning="isTimeRunning"-->
-<!--            :viewCenterCoordinate="viewCenterCoordinate"-->
-<!--            :earthquakeName="centerPoint.earthquakeName"-->
-<!--            :selectedDistrict="selectedDistrict"-->
-<!--        />-->
+        <!--        <timeLineLifeLine-->
+        <!--            :eqid="eqid"-->
+        <!--            :currentTime="currentTimeString"-->
+        <!--        />-->
+        <!--        <timeLinePlotStatistics-->
+        <!--            :plots="plots"-->
+        <!--            :currentTime="currentTimeString"-->
+        <!--            :startTime="centerPoint.startTime"-->
+        <!--            :zoomLevel="zoomLevel"-->
+        <!--            :isTimeRunning="isTimeRunning"-->
+        <!--            :viewCenterCoordinate="viewCenterCoordinate"-->
+        <!--            :earthquakeName="centerPoint.earthquakeName"-->
+        <!--            :selectedDistrict="selectedDistrict"-->
+        <!--        />-->
         <SmallGraph
             @samllGraphShow="handleToggleShow"
-            :eqid = "eqid"
+            :eqid="eqid"
         />
         <timeLineMiniMap
             :viewer="viewer"
@@ -686,7 +687,7 @@
       </div>
     </div>
 
-<!--    放大后的详细知识图谱-->
+    <!--    放大后的详细知识图谱-->
     <div class="knowledgeGraphContainer" v-if="ifShowSmallGraph">
       <div class="knowledgeGraph_background"
            style="
@@ -698,9 +699,9 @@
 ">
         <knowledgeGraph
             @bigGraphShow="handleToggleShow"
-            :eqMagnitude = "eqMagnitude"
-            :currentTime = "currentTimeString"
-            :eqid = "eqid"
+            :eqMagnitude="eqMagnitude"
+            :currentTime="currentTimeString"
+            :eqid="eqid"
         />
       </div>
     </div>
@@ -1176,7 +1177,7 @@ export default {
       }
     }
   },
-  components:{
+  components: {
     SmallGraph,
     knowledgeGraph,
     CommandScreenEqList,
@@ -1216,7 +1217,7 @@ export default {
   data: function () {
     return {
 
-      ifShowSmallGraph:false,
+      ifShowSmallGraph: false,
 
       siChuanCityEntity: [],
       siChuanCountyEntity: [],
@@ -1233,7 +1234,7 @@ export default {
       eqmonth: '',
       eqday: '',
       //地震大小
-      eqMagnitude:'',
+      eqMagnitude: '',
       //组件选中展开收起
       activeComponent: 'dataStats',// 默认为数据统计
       //标绘统计组件传值
@@ -2524,9 +2525,9 @@ export default {
       // })
     },
 
-    getchartdata(){
+    getchartdata() {
       getChartDataBy(this.eqid).then((res) => {
-        console.log("根据id查询的专题图是：：：：",res)
+        console.log("根据id查询的专题图是：：：：", res)
 
       })
     },
@@ -3974,11 +3975,11 @@ export default {
             this.isMarkingLayerLocal = true;
             timeLine.markerLayerShow(this.plots)
             clearTimeout(this.timeoutlayerActions)
-            this.timeoutlayerActions=null
+            this.timeoutlayerActions = null
           },
           remove: () => {
             this.isMarkingLayerLocal = false;
-            this.timeoutlayerActions=setTimeout(() => {
+            this.timeoutlayerActions = setTimeout(() => {
               timeLine.markerLayerHidden(this.plots);
             }, 1000);
           }
@@ -4668,9 +4669,7 @@ export default {
         // 错误处理，打印错误信息
         // console.error('There was an error!', error);
       });
-    }
-    ,
-
+    },
 
     /**
      * 专题图下载
@@ -4704,8 +4703,8 @@ export default {
       this.imgName = item.theme;
       this.imgshowURL = item.imgUrl;
 
-    }
-    ,
+    },
+
     ifShowThematicMapDialog(val) {
       this.ifShowMapPreview = val;
       if (!val) {
@@ -5226,8 +5225,8 @@ export default {
     }
     ,
 
-    handleToggleShow(value){
-      console.log(value,"是否接受到传值")
+    handleToggleShow(value) {
+      console.log(value, "是否接受到传值")
       this.ifShowSmallGraph = value;
       this.showSidebarComponents = !this.showSidebarComponents;
     },
@@ -5249,7 +5248,7 @@ export default {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  z-index:1;
+  z-index: 1;
 }
 
 /* 更改比例尺位置 */
@@ -5531,7 +5530,7 @@ export default {
 }
 
 
-knowledgeGraphContainer{
+knowledgeGraphContainer {
   width: 30%;
   top: 13%;
   height: 79%;
@@ -6498,7 +6497,7 @@ li {
   }
 }
 
-.knowledgeGraph_background{
+.knowledgeGraph_background {
   top: 13%;
   right: 1%;
   height: 80.8vh;

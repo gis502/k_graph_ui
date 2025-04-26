@@ -190,6 +190,7 @@
             <!-- 按钮区域 -->
           </div>
 
+
           <div v-if="activeTab === 'thematicMap'" class="section">
             <div class="grid-container">
               <div
@@ -2991,22 +2992,6 @@ img {
   cursor: pointer;
 }
 
-.grid-container {
-  pposition: absolute;
-  top: 20px;
-  left: 120px;
-  z-index: 20; /* 确保按钮显示在最前面 */
-  height: 400px;
-  width: 500px;
-
-  /*flex-wrap: wrap;*/
-  /*height: 69vh;*/
-  /*display: grid;*/
-  /*grid-template-columns: repeat(2, 1fr); !* 创建2列，等宽 *!*/
-  /*gap: 8px; !* 列间距 *!*/
-  /*padding: 5px;*/
-}
-
 .superMap:hover {
   background-color: #2980b9;
 }
@@ -3023,6 +3008,9 @@ img {
   justify-content: center;
 }
 
+.grid-item {
+  width: calc(100% - 7px);
+}
 
 .dialog-close {
   cursor: pointer;
@@ -3051,12 +3039,10 @@ img {
 }
 
 .preview-img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensures the image covers the square area */
+  object-fit: contain; /* 确保图片显示完整 */
+  border-radius: 5px;
 }
 
 .item-info {
