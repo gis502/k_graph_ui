@@ -318,7 +318,7 @@ const echartsOption = ref({
     label: {
       show: true,
       position: 'inside',
-      color: 'gold'
+      color: 'white'
     },
     edgeLabel: {
       show: true,
@@ -335,7 +335,7 @@ const echartsOption = ref({
       borderWidth: 2,
       shadowBlur: 10,
       shadowColor: '#04f2a7',
-      color: '#001c43',
+      color: '#71b8ed',
     },
     lineStyle: {
       opacity: 0.9,
@@ -397,9 +397,9 @@ const getData = async () => {
 
     });
 
-    // const res = await getGraphData();
+    const res = await getGraphData();
 
-    const res = await getChartDataBy(lastEqid.value)
+    // const res = await getChartDataBy(lastEqid.value)
 
     console.log("res的结果",res)
 
@@ -486,7 +486,7 @@ const initChart = () => {
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color: '#001c43',
+        color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
@@ -494,7 +494,7 @@ const initChart = () => {
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color: '#001c43',
+        color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
@@ -502,7 +502,7 @@ const initChart = () => {
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f2c6',
-        color: '#001c43',
+        color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
       item.itemStyle = {
@@ -510,7 +510,7 @@ const initChart = () => {
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f218',
-        color: '#001c43',
+        color:'rgba(4, 242, 24, 0.7)'
       };
     }
 
@@ -601,14 +601,14 @@ const updateEchart = (data,link) =>{
 
 
   // 特殊节点样式
-  echartsOption.value.series[0].data = data.map(item => {
+  echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === '震后生成') {
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color: '#001c43',
+        color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
@@ -616,15 +616,15 @@ const updateEchart = (data,link) =>{
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color: '#001c43',
+        color:'rgba(226, 242, 4, 0.6)',
       };
-    }else if (secondData.some(dataItem => dataItem.name === item.name)) {
+    } else if (secondData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f2c6',
-        color: '#001c43',
+        color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
       item.itemStyle = {
@@ -632,9 +632,10 @@ const updateEchart = (data,link) =>{
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f218',
-        color: '#001c43',
+        color:'rgba(4, 242, 24, 0.7)'
       };
     }
+
     return item;
   });
   echartsOption.value.series[0].links = link;

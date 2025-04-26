@@ -18,8 +18,143 @@ import * as echarts from "echarts";
 const chart = ref(null);
 const echartsInstance = ref(null);
 const chartData = ref([]);
-const lastChartData = ref([]);
 const chartLinks = ref([]);
+const chartStartData = ref([]);
+const chartStartLinks = ref([]);
+const firstData = [
+  {
+    name:"地震震情信息"
+  },
+  {
+    name:"地震灾情信息"
+  },
+  {
+    name:"应急指挥协调信息"
+  },
+  {
+    name:"应急决策信息"
+  },
+  {
+    name:"态势标绘信息"
+  },
+  {
+    name:"社会反应动态信息"
+  },
+  {
+    name:"灾害现场动态信息"
+  },
+  {
+    name:"应急处置信息"
+  }
+]
+const secondData = [
+  { "name": "地震参数" },
+  { "name": "强震监测信息" },
+  { "name": "测震监测信息" },
+  { "name": "预报信息" },
+  { "name": "余震情况" },
+  { "name": "人员伤亡" },
+  { "name": "房屋破坏" },
+  { "name": "生命线震害信息" },
+  { "name": "次生灾害信息" },
+  { "name": "人员伤亡" },
+  { "name": "灾区灾情简报" },
+  { "name": "用户上传会议信息" },
+  { "name": "应急响应信息" },
+  { "name": "应急决策基础信息" },
+  { "name": "应急处置基础信息" },
+  { "name": "态势标绘基础信息" },
+  { "name": "灾害现场动态基础信息" },
+  { "name": "社会反应动态基础信息" }
+]
+// 地震列表数据
+const tableData = ref([])
+// 左侧列表数据
+const list = ref([
+  {
+    id: 1,
+    value: '地震震情信息',
+    isOpen: false,
+    children: [
+      { id: 11, value: '地震参数' },
+      { id: 12, value: '强震检测信息'},
+      { id: 13, value: '测震监测信息' },
+      { id: 14, value: '预报信息'},
+      { id: 15, value: '余震情况' },
+    ],
+    fatherCount:5,
+  },
+  {
+    id: 2,
+    value: '地震灾情信息',
+    isOpen: false,
+    children: [
+      { id: 21, value: '人员伤亡'},
+      { id: 22, value: '房屋破坏'},
+      { id: 23, value: '生命线震害信息'},
+      { id: 24, value: '次生灾害信息'},
+      { id: 25, value: '人员伤亡'},
+      { id: 26, value: '灾区灾情简报'},
+    ],
+    fatherCount:6,
+  },
+  {
+    id: 3,
+    value: '应急指挥协调信息',
+    isOpen: false,
+    children: [
+      { id: 31, value: '用户上传会议信息' },
+      { id: 32, value: '应急响应信息' },
+    ],
+    fatherCount:2,
+  },
+  {
+    id: 4,
+    value: '应急决策信息',
+    isOpen: false,
+    children: [
+      { id: 41, value: '应急决策基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 5,
+    value: '应急处置信息',
+    isOpen: false,
+    children: [
+      { id: 51, value: '应急处置基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 6,
+    value: '态势标绘信息',
+    isOpen: false,
+    children: [
+      { id: 61, value: '态势标绘基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 7,
+    value: '灾害现场动态信息',
+    isOpen: false,
+    children: [
+      { id: 71, value: '灾害现场动态基础信息' },
+    ],
+    fatherCount:1,
+  },
+  {
+    id: 8,
+    value: '社会反应动态信息',
+    isOpen: false,
+    children: [
+      { id: 81, value: '社会反应动态基础信息' },
+    ],
+    fatherCount:1,
+  },
+]);
+
 const newList = ref([]);
 // 定义要触发的事件
 const emit = defineEmits(['samllGraphShow'])
@@ -61,7 +196,7 @@ const echartsOption = ref({
     label: {
       show: true,
       position: 'inside',
-      color: 'gold'
+      color: 'white'
     },
     edgeLabel: {
       show: true,
@@ -103,29 +238,10 @@ const echartsOption = ref({
   }]
 });
 
-// 左侧列表数据
-const list = [
-  {value: "基础背景信息"},
-  {value: "地震灾害和救灾背景信息"},
-  {value: "地震台网信息"},
-  {value: "救灾能力储备信息"},
-  {value: "应急联络信息"},
-  {value: "预案与规划信息"},
-  {value: "防震减灾示范与演习经验信息"},
-  {value: "地震震情信息"},
-  {value: "地震灾情信息"},
-  {value: "应急指挥协调信息"},
-  {value: "应急决策信息"},
-  {value: "应急处置信息"},
-  {value: "态势标绘信息"},
-  {value: "灾害现场动态信息"},
-  {value: "社会反应动态信息"},
-  {value: "救援物资信息"}
-];
 
 const getData = async () => {
   try {
-    //const res = await getGraphData();
+    // const res = await getGraphData();
     const res = await getChartDataBy(props.eqid)
     chartLinks.value = res.map(item => ({
       source: item.source.name,
@@ -134,22 +250,29 @@ const getData = async () => {
     }));
 
     const nodeSet = new Set();
-
     chartLinks.value.forEach(item => {
       nodeSet.add(item.source);
       nodeSet.add(item.target);
     });
-
     chartData.value = Array.from(nodeSet).map(name => ({name}));
 
-    // 处理 newList 数据
-    const validValues = new Set(list.map(item => item.value));
-    newList.value = chartData.value
-        .filter(item => validValues.has(item.name))
-        .map((item, index) => ({
-          id: index + 1,
-          value: item.name
-        }));
+    // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
+    const validValues = new Set(list.value.map(item => item.value));
+    chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
+    chartStartLinks.value = chartStartData.value.map(item => (
+            {
+              source: "震后生成",
+              target: item.name,
+              value: "包含"
+            }
+        )
+    )
+    chartStartLinks.value.push({
+      source: "地震震情信息",
+      target: "地震参数",
+      value: "包含"
+    })
+    chartStartData.value.push({ name: "震后生成" });
 
     initChart();
 
@@ -161,45 +284,49 @@ const getData = async () => {
 const initChart = () => {
   if (!chart.value) return;
 
-  // 检查 chartData 是否发生变化
-  const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
-
-  if (!isDataChanged) {
-    console.log('数据未变化，跳过渲染');
-    return; // 直接返回，不执行后续渲染逻辑
-  }
-
-  // 更新 lastChartData
-  lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
-
   if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
 
   // 特殊节点样式
-  echartsOption.value.series[0].data = chartData.value.map(item => {
-    item.symbolSize = 60;
-    if (item.name === '地震参数') {
+  echartsOption.value.series[0].data = chartStartData.value.map(item => {
+    if (item.name === '震后生成') {
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color: '#001c43',
+        color:'rgba(242, 4, 4, 0.7)',
       };
-      item.symbolSize = 100;
-    } else if (item.name === '地震震情信息') {
+    } else if (firstData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color: '#001c43',
+        color:'rgba(226, 242, 4, 0.6)',
+      };
+    } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.itemStyle = {
+        borderColor: '#04f2c6',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f2c6',
+        color:'rgba(4, 242, 198, 0.7)'
+      };
+    }else{
+      item.itemStyle = {
+        borderColor: '#04f218',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f218',
+        color:'rgba(4, 242, 24, 0.7)'
       };
     }
+
     return item;
   });
-  echartsOption.value.series[0].links = chartLinks.value;
+  echartsOption.value.series[0].links = chartStartLinks.value;
 
   echartsInstance.value = echarts.init(chart.value);
   echartsInstance.value.setOption(echartsOption.value);

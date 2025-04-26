@@ -3615,8 +3615,7 @@ export default {
       this.imgName = item.theme
       this.showTypes = 1
       this.imgshowURL = new URL(this.imgurlFromDate, import.meta.url).href
-    }
-    ,
+    },
 
     downloadReport(item) {
 

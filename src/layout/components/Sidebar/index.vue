@@ -20,7 +20,7 @@
         />
       </el-menu>
     </el-scrollbar>
-    <BubbleAnimation></BubbleAnimation>
+<!--    <BubbleAnimation></BubbleAnimation>-->
   </div>
 </template>
 
