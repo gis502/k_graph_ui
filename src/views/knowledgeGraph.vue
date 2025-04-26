@@ -47,8 +47,11 @@
     <div class="knowledgeGraph">
       <div class="chartContainer" ref="chart"></div>
       <div class="restart">
-      <button @click="getData">一键复原</button>
-    </div>
+        <button @click="getData">一键复原</button>
+      </div>
+      <div class="chartCount">
+        <button>共{{chartDataCount}}个实体球</button>
+      </div>
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
@@ -365,11 +368,13 @@ const echartsOption = ref({
     links: chartLinks.value
   }]
 });
+// 计算一共有多少个实体球
+const chartDataCount = ref();
 
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    //const res = await getGraphData();
+    // const res = await getGraphData();
 
     const res = await getChartDataBy(props.eqid)
     console.log("res的结果",res)
@@ -386,6 +391,8 @@ const getData = async () => {
       nodeSet.add(item.target);
     });
     chartData.value = Array.from(nodeSet).map(name => ({name}));
+
+    chartDataCount.value = chartData.value.length + 1;
 
     // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
     const validValues = new Set(list.value.map(item => item.value));
@@ -1076,6 +1083,56 @@ onBeforeUnmount(() => {
         }
       }
     }
+
+    .chartCount{
+      button {
+        position: absolute;
+        top: 46px;
+        z-index: 1;
+        // 基础样式
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        padding: 5px 12px;
+        color: white;
+        cursor: pointer;
+        height: 30px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        user-select: none;
+
+        // 悬停时的流动边框
+        &:hover {
+          border-color: transparent; // 隐藏原始边框
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 6px;
+            padding: 1px; // 边框厚度
+            background: linear-gradient(90deg,
+            #0453fc,
+            #00f7ff,
+            #0453fc,);
+            background-size: 200% auto;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 1.5s linear infinite;
+            z-index: 0;
+          }
+        }
+      }
+    }
   }
 
   .chat-panel {
@@ -1256,7 +1313,7 @@ onBeforeUnmount(() => {
           margin-bottom: 0px;
           margin-right: 20px;
 
-          li{x
+          li{
             line-height: 40px;
             margin-left: 0px;
             white-space: nowrap;  /* 防止换行 */

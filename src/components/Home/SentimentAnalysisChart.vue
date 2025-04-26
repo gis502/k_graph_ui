@@ -175,13 +175,13 @@ const echartsOption = ref({
     layout: 'force',
     force: {
       repulsion: 600,
-      edgeLength: [100, 400],
+      edgeLength: [100, 300],
       layoutAnimation: true,
     },
     symbolSize: 70,
     nodeScaleRatio: 1,
     roam: true,
-    zoom: 1,
+    zoom: 0.6,
     draggable: true,
     focusNodeAdjacency: false,
     edgeSymbol: ['circle', 'arrow'],
@@ -248,6 +248,8 @@ const getData = async () => {
 
       lastEqid.value = lastEqData.value.eqid;
       lastEqqueueId.value = lastEqData.value.eqqueueId;
+
+      console.log(lastEqid.value,"最新地震的eqid")
 
     });
 
