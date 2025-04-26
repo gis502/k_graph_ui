@@ -397,9 +397,9 @@ const getData = async () => {
 
     });
 
-    const res = await getGraphData();
+    // const res = await getGraphData();
 
-    // const res = await getChartDataBy(lastEqid.value)
+    const res = await getChartDataBy(lastEqid.value)
 
     console.log("res的结果",res)
 
@@ -487,6 +487,7 @@ const initChart = () => {
         shadowBlur: 10,
         shadowColor: '#f20404',
         color:'rgba(242, 4, 4, 0.7)',
+
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
       item.itemStyle = {
