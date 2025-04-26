@@ -910,6 +910,8 @@ export function handleTownData(town) {
  * @param type
  */
 export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
+  console.log("eqId", eqId)
+  console.log("eqqueueId", eqqueueId)
   const DTO = {
     eqId: eqId,
     eqqueueId: eqId+"01",
@@ -928,16 +930,18 @@ export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
   return new Promise((resolve, reject) => {
     if (type === "thematicMap") {
       getEqOutputMap(DTO).then((res) => {
-        const data = res.data;
+        const data = res;
         console.log("1111111")
-        console.log(res)
+        console.log("11111",res)
+        console.log("专题图数据：", data)
         const themeName = eqFullName + "-" + "专题图";
         let thematicMapData = [];
         console.log("专题图")
-        for (let i = 0; i < res.data.length; i++) {
+        for (let i = 0; i < res.length; i++) {
           const thematicMapObject = {
-            imgUrl: data[i].sourceFile,
-            // imgUrl: `E:/GIS小组专题图产出/专题图模板/upload/专题图/T20250420145019511800/1/震中位置分布图（行政区划底图）.jpg`,
+            // imgUrl: data[i].sourceFile,
+            imgUrl: `http://sv25gsrnh.hb-bkt.clouddn.com/T2025042615594251180001_%E9%9C%87%E5%8C%BA%E4%BA%A4%E9%80%9A%E5%9B%BE?e=1745657988&token=mheaTe3xRCkChSjwfueGYzB32yi7yk2sj8pemjvF:QTkDE_QvYlYnQu5pWueGDCLWHN8=`,
+            // imgUrl: '@/src/assets/震区地震动峰值加速度区划图.jpg`,
             theme: data[i].fileName,
           };
           console.log("专题图",thematicMapObject)

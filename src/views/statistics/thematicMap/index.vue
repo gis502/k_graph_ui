@@ -383,26 +383,26 @@ export default {
       activeTab: 'thematicMap', // 当前选中的 tab
       // 灾情专题图存放信息
       thematicMapitems: [
-        {
-          theme: "震后道路损毁情况",
-          imgUrl: ""
-        },
-        {
-          theme: "震后建筑物倒塌分析",
-          imgUrl: ""
-        },
-        {
-          theme: "震后水灾影响图",
-          imgUrl: "C:/Users/Smile/Desktop/profile/震区地震动峰值加速度区划图.jpg"
-        },
-        {
-          theme: "震后疏散路线图",
-          imgUrl: "https://via.placeholder.com/300x200.png?text=Evacuation+Routes"
-        },
-        {
-          theme: "震后医疗资源分布",
-          imgUrl: "https://via.placeholder.com/300x200.png?text=Medical+Resources+Map"
-        }
+        // {
+        //   theme: "震后道路损毁情况",
+        //   imgUrl: "http://sv25gsrnh.hb-bkt.clouddn.com/T2025042615594251180001_%E9%9C%87%E5%8C%BA%E4%BA%A4%E9%80%9A%E5%9B%BE?e=1745657988&token=mheaTe3xRCkChSjwfueGYzB32yi7yk2sj8pemjvF:QTkDE_QvYlYnQu5pWueGDCLWHN8="
+        // },
+        // {
+        //   theme: "震后建筑物倒塌分析",
+        //   imgUrl: ""
+        // },
+        // {
+        //   theme: "震后水灾影响图",
+        //   imgUrl: "C:/Users/Smile/Desktop/profile/震区地震动峰值加速度区划图.jpg"
+        // },
+        // {
+        //   theme: "震后疏散路线图",
+        //   imgUrl: "https://via.placeholder.com/300x200.png?text=Evacuation+Routes"
+        // },
+        // {
+        //   theme: "震后医疗资源分布",
+        //   imgUrl: "https://via.placeholder.com/300x200.png?text=Medical+Resources+Map"
+        // }
       ],
       imgshowURL: '',
       imgurlFromDate: '',
@@ -683,7 +683,7 @@ export default {
     // 加载雅安边界线
     this.loadYaAnBoundary();
     // 获取灾情专题图的地图
-    this.outputData();
+    // this.outputData();
   },
   beforeDestroy() {
     // 在组件销毁时清除轮询
@@ -764,9 +764,9 @@ export default {
     handleEqListChange(value) {
       // 获取选择的 eqid
       this.eqid = value;
-      this.eqIdValue=value
       this.viewer.entities.removeAll();
       this.getEarthQuakeCenter(value)
+      this.outputData(value);
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(value)
         //获取震源中心的点数据
@@ -934,6 +934,7 @@ export default {
               // 默认选择地震列表中的第一个
               this.eqlistName = this.tableNameOptions[0].label;
               this.handleEqListChange(this.tableNameOptions[0].value)
+              this.eqIdValue=this.tableNameOptions[0].value
             } else {
               // this.handleEqListChange(this.eqlistName)
             }
@@ -2660,10 +2661,9 @@ export default {
     //--------------------------------------------------下面是灾情专题图代码部分------------------------------------------
 
     // 获取灾情专题图的接口
-    outputData() {
-      // 给 eqid 和 eqqueueId 赋固定值
-      this.eqid = '51333320250403112800';
-      this.eqqueueId = '5133332025040311280001';
+    outputData(value) {
+      this.eqid = value;
+      this.eqqueueId = this.eqid+'01';
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         console.log(res)
         this.thematicMapitems = res.themeData
