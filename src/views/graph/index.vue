@@ -389,10 +389,14 @@ const getData = async () => {
 
     lastEqData.value = tableData.value[0];
     lastEqid.value = lastEqData.value.eqid; // 确保这里已赋值
+    lastEqqueueId.value = lastEqData.value.eqqueueId;
 
     // const res = await getGraphData();
 
+    console.log(lastEqData.value,"哪里来的数据")
+
     const res = await getChartDataBy(lastEqid.value)
+
     console.log("res的结果",res)
 
     chartLinks.value = res.map(item => ({
@@ -407,6 +411,9 @@ const getData = async () => {
       nodeSet.add(item.target);
     });
     chartData.value = Array.from(nodeSet).map(name => ({name}));
+
+    StartData.value= chartData.value
+    StartLinks.value = chartLinks.value
 
     // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
     const validValues = new Set(list.value.map(item => item.value));
@@ -768,7 +775,7 @@ const showDescription = (item, value) => {
 //   };
 // };
 
-const sendMessage = () => {
+const sendMessage = async () => {
   const message = formData.value.content?.trim();
 
   if (!message) {
@@ -776,69 +783,81 @@ const sendMessage = () => {
     return;
   }
 
-  // 添加消息到消息列表
+  // 添加用户消息
   messageList.value.push({
-    type: 0,
+    type: 0,  // 用户消息
     content: message,
   });
 
-  // 添加加载中的消息项
-  messageList.value.push({
-    type: 1,
+  // 添加AI的"正在输入"占位消息
+  const loadingMessage = {
+    type: 1,  // AI消息
     content: [],
     loading: true,
-  });
+  };
+  messageList.value.push(loadingMessage);
 
+  formData.value.content = ''; // 清空输入框
   loading.value = true;
 
-  // 清空输入框
-  formData.value.content = '';
+  try {
+    const response = await fetch('http://localhost:5000/conversation_gpt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json', // 明确要求返回JSON
+      },
+      body: JSON.stringify({
+        content: message,
+        prompt: StartLinks.value,
+      }),
+    });
 
-  // 使用 fetch 发送 POST 请求
-  fetch('http://localhost:5000/conversation_gpt', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      content: message, // 传递动态的 message
-      prompt: StartLinks.value, // 固定的 prompt
-    }),
-  })
-      .then(response => response.json())
-      .then(data => {
-        // 假设数据是数组类型，获取并更新最后一条消息
-        const lastMsg = messageList.value[messageList.value.length - 1];
+    // 先检查HTTP状态码
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-        // 检查 lastMsg.content 是否是数组
-        if (data.content) {
-          // 如果 lastMsg.content 不是数组，先将其转换成数组
-          if (!Array.isArray(lastMsg.content)) {
-            lastMsg.content = [lastMsg.content];
-          }
+    // 尝试解析响应（兼容非JSON情况）
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      // 如果返回的是纯文本，包装成统一结构
+      data = { content: text };
+    }
 
-          // 将新的 content 添加到 content 数组中
-          lastMsg.content.push(data.content);
-        }
+    // 更新最后一条消息
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (data.content) {
+      lastMsg.content = Array.isArray(lastMsg.content)
+          ? [...lastMsg.content, data.content]
+          : [data.content];
+    }
 
-        // 滚动到消息列表底部
-        nextTick(() => {
-          const panel = document.getElementById('message-panel');
-          if (panel) panel.scrollTop = panel.scrollHeight;
-        });
-      })
-      .catch(error => {
-        console.error('请求失败:', error);
-        const lastMsg = messageList.value[messageList.value.length - 1];
-        if (lastMsg) lastMsg.loading = false;
-        loading.value = false;
-      })
-      .finally(() => {
-        // 关闭加载状态
-        const lastMsg = messageList.value[messageList.value.length - 1];
-        if (lastMsg) lastMsg.loading = false;
-        loading.value = false;
-      });
+    // 滚动到底部
+    nextTick(() => {
+      const panel = document.getElementById('message-panel');
+      if (panel) panel.scrollTop = panel.scrollHeight;
+    });
+  } catch (error) {
+    console.error('请求失败:', error);
+
+    // 显示错误提示
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (lastMsg) {
+      lastMsg.content = ["AI 响应失败，请稍后重试"];
+      lastMsg.loading = false;
+    }
+
+    ElMessage.error('请求失败: ' + error.message);
+  } finally {
+    loading.value = false;
+    const lastMsg = messageList.value[messageList.value.length - 1];
+    if (lastMsg) lastMsg.loading = false;
+  }
 };
 
 // 快捷键发送

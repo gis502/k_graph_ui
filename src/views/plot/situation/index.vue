@@ -1579,6 +1579,8 @@ export default {
       setTimeout(() => {
         this.exportCesiumScene()
       }, 3000);
+
+
     },
 
     ifShowDialog(val) {
@@ -1650,6 +1652,8 @@ export default {
         this.imgName = "标绘专题图";
         this.loading = false;
       }
+
+      this.showLegend = false;
     },
 
     // 将元素渲染为 Canvas
