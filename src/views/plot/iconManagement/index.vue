@@ -144,7 +144,7 @@
                     :src="
           file.url.startsWith('blob:')
         ? file.url
-        : '59.213.183.7/prod-api' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
+        : '\'http://localhost:8081\'' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
       "
                 >
                 <span class="el-upload-list__item-actions">

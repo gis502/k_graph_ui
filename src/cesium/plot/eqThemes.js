@@ -941,11 +941,11 @@ export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
                 console.log("专题图")
                 for (let i = 0; i < 10; i++) {
                     const thematicMapObject = {
-                        // imgUrl: data[i].sourceFile,
-                        imgUrl: `http://sv25gsrnh.hb-bkt.clouddn.com/T2025042615594251180001_%E9%9C%87%E5%8C%BA%E4%BA%A4%E9%80%9A%E5%9B%BE?e=1745657988&token=mheaTe3xRCkChSjwfueGYzB32yi7yk2sj8pemjvF:QTkDE_QvYlYnQu5pWueGDCLWHN8=`,
+                        imgUrl: data[i].sourceFile,
+                        // imgUrl: `http://sv25gsrnh.hb-bkt.clouddn.com/T2025042615594251180001_%E9%9C%87%E5%8C%BA%E4%BA%A4%E9%80%9A%E5%9B%BE?e=1745657988&token=mheaTe3xRCkChSjwfueGYzB32yi7yk2sj8pemjvF:QTkDE_QvYlYnQu5pWueGDCLWHN8=`,
                         // imgUrl: '@/src/assets/震区地震动峰值加速度区划图.jpg`,
-                        // theme: data[i].fileName,
-                        theme: 'sss',
+                        theme: data[i].fileName,
+                        // theme: 'sss',
                     };
                     console.log("959595959595", thematicMapObject)
                     thematicMapData.push(thematicMapObject);

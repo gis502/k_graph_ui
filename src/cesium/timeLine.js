@@ -438,7 +438,7 @@ let timeLine = {
         // console.log(item, "addMakerPoint timeline")
         //点的属性 震中点统用一一个方法
         let labeltext = null
-        let img = import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
+        let img = 'http://localhost:8081' + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime()
         let pointDataSource = this.addDataSourceLayer("pointData")
         if (pointDataSource) {
             if (window.pointDataSource.entities.getById(item.plotId)) {
@@ -499,7 +499,7 @@ let timeLine = {
         console.log(item, "addPolyline timeline")
         if (window.viewer && window.viewer.entities) {
 
-            let material = cesiumPlot.getMaterial(item.plotType, import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime())
+            let material = cesiumPlot.getMaterial(item.plotType, 'http://localhost:8081' + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime())
 
             let positionsArr = []
             item.geom.coordinates.forEach(e => {
@@ -590,7 +590,7 @@ let timeLine = {
                         semiMajorAxis: diameter / 2, // 对角线的一半作为半径
                         semiMinorAxis: diameter / 2, // 保证是一个正圆
                         material: new Cesium.ImageMaterialProperty({
-                            image: import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime(),
+                            image: 'http://localhost:8081' + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime(),
                             repeat: new Cesium.Cartesian2(1.02, 1.0684), // 控制图片的缩放
                             color: Cesium.Color.WHITE.withAlpha(1.0),
                             scale: 0.5 // 调整图片缩放比例
@@ -628,7 +628,7 @@ let timeLine = {
                     layer: type,
                     polygon: {
                         hierarchy: new Cesium.CallbackProperty(() => new Cesium.PolygonHierarchy(polygonPoints), false),
-                        material: import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime(),
+                        material: 'http://localhost:8081' + '/uploads/PlotsPic/' + item.icon + '.png?t=' + new Date().getTime(),
                         // stRotation: Cesium.Math.toRadians(polygon[0].angle),
                         clampToGround: true,
                     },
@@ -837,7 +837,7 @@ let timeLine = {
                 position: Cesium.Cartesian3.fromDegrees(Number(data.longitude), Number(data.latitude), Number(data.elevation || 0)),
                 labeltext: labeltext,
                 billboard: {
-                    image: import.meta.env.VITE_APP_BASE_API + '/uploads/PlotsPic/' + data.icon + '.png?t=' + new Date().getTime(),
+                    image: 'http://localhost:8081' + '/uploads/PlotsPic/' + data.icon + '.png?t=' + new Date().getTime(),
                     width: 50, // 图片宽度,单位px
                     height: 50, // 图片高度，单位px
                     eyeOffset: new Cesium.Cartesian3(0, 0, 0), // 与坐标位置的偏移距离
