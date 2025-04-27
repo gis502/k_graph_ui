@@ -392,6 +392,9 @@ const getData = async () => {
     });
     chartData.value = Array.from(nodeSet).map(name => ({name}));
 
+    StartData.value= chartData.value
+    StartLinks.value = chartLinks.value
+
     chartDataCount.value = chartData.value.length + 1;
 
     // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）

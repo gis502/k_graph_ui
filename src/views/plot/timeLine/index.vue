@@ -43,7 +43,6 @@
       <el-table-column prop="latitude" label="纬度(度分)" header-align="center" align="center"></el-table-column>
       <el-table-column prop="depth" label="深度(千米)" header-align="center" align="center"></el-table-column>
     </el-table>
-
     <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"

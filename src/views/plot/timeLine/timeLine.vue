@@ -663,7 +663,7 @@ export default {
 <style scoped>
 
 #cesiumContainer {
-  height: calc(100vh - 106px);
+  height: 100vh;
   width: 100%;
   margin: 0;
   padding: 0;

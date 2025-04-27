@@ -257,35 +257,33 @@
 
     <!--灾情专题图展示容器-->
 
-    <!--    <div class="grid-container">-->
-    <!--      -->
-    <!--    </div>-->
 
-    <!--    <div class="grid-containe">-->
-    <!--      <div-->
-    <!--          v-for="(item, index) in thematicMapitems"-->
-    <!--          :key="index"-->
-    <!--          class="grid-item"-->
-    <!--          @click="showThematicMapDialog(item)"-->
-    <!--      >-->
-    <!--        <el-card shadow="hover">-->
-    <!--          <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>-->
-    <!--          <div class="item-info">-->
-    <!--            <p class="item-title">{{ item.theme }}</p>-->
-    <!--          </div>-->
-    <!--        </el-card>-->
-    <!--      </div>-->
-    <!--    </div>-->
 
-    <!--    <thematicMapPreview-->
-    <!--        @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
-    <!--        :imgshowURL="imgshowURL"-->
-    <!--        :imgurlFromDate="imgurlFromDate"-->
-    <!--        :imgName="imgName"-->
-    <!--        :ifShowMapPreview="ifShowMapPreview"-->
-    <!--        :showTypes="showTypes"-->
-    <!--        style="width: 40%"-->
-    <!--    ></thematicMapPreview>-->
+<!--        <div class="gridContainer">-->
+<!--          <div-->
+<!--              v-for="(item, index) in thematicMapitems"-->
+<!--              :key="index"-->
+<!--              class="grid-item"-->
+<!--              @click="showThematicMapDialog(item)"-->
+<!--          >-->
+<!--            <el-card shadow="hover">-->
+<!--              <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>-->
+<!--              <div class="item-info">-->
+<!--                <p class="item-title">{{ item.theme }}</p>-->
+<!--              </div>-->
+<!--            </el-card>-->
+<!--          </div>-->
+<!--        </div>-->
+
+<!--        <thematicMapPreview-->
+<!--            @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
+<!--            :imgshowURL="imgshowURL"-->
+<!--            :imgurlFromDate="imgurlFromDate"-->
+<!--            :imgName="imgName"-->
+<!--            :ifShowMapPreview="ifShowMapPreview"-->
+<!--            :showTypes="showTypes"-->
+<!--            style="width: 40%"-->
+<!--        ></thematicMapPreview>-->
 
   </div>
 </template>
@@ -2637,7 +2635,7 @@ export default {
   bottom: 10px; /* 固定在底部 */
   right: 10px; /* 固定在右侧 */
   width: auto; /* 宽度自适应内容 */
-  z-index: 10;
+  z-index: 1;
   background-color: rgba(40, 40, 40, 0.7);
 }
 
@@ -2645,7 +2643,7 @@ export default {
   position: absolute;
   top: 20px;
   left: 10px;
-  z-index: 20; /* 确保按钮显示在最前面 */
+  z-index: 1; /* 确保按钮显示在最前面 */
   background-color: #3498db;
   color: white;
   border: none;
@@ -2667,7 +2665,7 @@ export default {
   color: white;
   padding: 20px;
   border-radius: 10px;
-  z-index: 1000;
+  z-index: 1;
 }
 
 .listContainer {
@@ -2733,7 +2731,7 @@ export default {
   height: 120px;
   width: 140px;
   background: url(@/assets/compass.png) no-repeat center / cover;
-  z-index: 20;
+  z-index: 1;
   transform-origin: center; /* 设置旋转中心 */
   transition: transform 0.5s; /* 动画效果 */
 }
@@ -2912,7 +2910,7 @@ img {
   position: absolute;
   top: 20px;
   left: 120px;
-  z-index: 20; /* 确保按钮显示在最前面 */
+  z-index: 1; /* 确保按钮显示在最前面 */
   background-color: #3498db;
   color: white;
   border: none;
@@ -2921,14 +2919,14 @@ img {
   cursor: pointer;
 }
 
-.grid-container {
-  pposition: absolute;
+.gridContainer {
+  position: absolute;
   top: 20px;
   left: 120px;
-  z-index: 20; /* 确保按钮显示在最前面 */
+  z-index: 20;
   height: 400px;
   width: 500px;
-
+  background-color: red;
   /*flex-wrap: wrap;*/
   /*height: 69vh;*/
   /*display: grid;*/
