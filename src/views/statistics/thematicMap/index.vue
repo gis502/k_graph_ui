@@ -197,7 +197,7 @@
                   v-for="(item, index) in thematicMapitems"
                   :key="index"
                   class="grid-item"
-                  @click="showThematicMapDialog(item)"
+                  @click="openPreview(item)"
               >
                 <el-card shadow="hover" class="grid-small">
                   <img :src="item.imgUrl" :alt="item.theme" class="preview-img" />
@@ -206,6 +206,20 @@
                   </div>
                 </el-card>
               </div>
+
+
+              <!-- 新增的大图预览弹窗 -->
+              <div v-if="showPreviewDialog" class="preview-overlay"  @click="closeSupermapPreview">
+                <div class="preview-content" @click.stop>
+                  <img :src="previewImageUrl" class="preview-big-img" />
+                  <div class="preview-supermap-buttons">
+                    <button @click="downloadSupermapImage" class="download-button">下载图片</button>
+                    <button @click="showPreviewDialog = false" class="cancel-button">取消</button>
+                  </div>
+                </div>
+              </div>
+
+
             </div>
           </div>
         </div>
@@ -405,6 +419,9 @@ export default {
         //   imgUrl: "https://via.placeholder.com/300x200.png?text=Medical+Resources+Map"
         // }
       ],
+      showPreviewDialog: false,
+      previewImageUrl: '',
+
       imgshowURL: '',
       imgurlFromDate: '',
       imgName: '',
@@ -2693,6 +2710,62 @@ export default {
         this.imgName = "";
         this.imgshowURL = "";
       }
+    },
+
+    openPreview(item) {
+      this.previewImageUrl = item.imgUrl;
+      this.showPreviewDialog = true;
+    },
+
+    closeSupermapPreview(){
+      this.showPreviewDialog = false;
+    },
+
+    downloadSupermapImage() {
+      if (!this.previewImageUrl) {
+        this.$message.error('暂无可下载的图片');
+        return;
+      }
+
+      // 通过 fetch 拉取图片内容
+      fetch(this.previewImageUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('图片下载失败');
+            }
+            return response.blob(); // 把图片数据转成Blob
+          })
+          .then(blob => {
+            // 创建本地URL
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            // 创建a标签进行下载
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = blobUrl;
+
+            // 处理文件名
+            const urlParts = this.previewImageUrl.split('/');
+            let filename = urlParts[urlParts.length - 1];
+            if (!filename || filename.includes('?')) {
+              filename = filename.split('?')[0]; // 去掉?后面的token
+            }
+            if (!filename || !filename.includes('.')) {
+              filename = '下载图片.jpg'; // 如果还是没有后缀，给默认名
+            }
+            link.download = decodeURIComponent(filename); // 避免中文乱码
+
+            document.body.appendChild(link);
+            link.click();
+
+            // 下载完后清理
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+          })
+          .catch(error => {
+            console.error(error);
+            this.$message.error('下载图片失败');
+          });
     }
   }
 };
@@ -3001,18 +3074,54 @@ img {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: transparent;
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  pointer-events: none; /*重点，让整个背景不拦鼠标事件 */
 }
 
-.grid-item {
-  width: calc(100% - 7px);
+.preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.preview-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-supermap-buttons{
+  position: absolute;
+  bottom: 5vh;
+
+}
+
+.preview-big-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  margin-bottom: 20px;
 }
 
 .dialog-close {
+  color: #ffffff; /* 白色字体 */
   cursor: pointer;
   font-size: 24px;
 }
@@ -3022,18 +3131,18 @@ img {
   grid-template-columns: repeat(4, 1fr); /* 4 items per row */
   gap: 16px; /* Adjust the gap between items */
   width: 100%; /* Ensure the container takes full width */
-  height: 100%; /* Ensure the container takes full height */
+  height: auto; /* Ensure the container takes full height */
 
 }
 
 .grid-item {
   position: relative;
   width: 100%;
-  padding-top: 100%; /* This ensures the items are square (aspect ratio 1:1) */
+  height: auto;
 }
 .grid-small{
   width: 100%;
-  height: 50%;
+  height: 90%;
   overflow: hidden;
   background-color: transparent; /* 去掉白底 */;
 }
@@ -3046,32 +3155,29 @@ img {
 }
 
 .item-info {
-  padding: 8px;
   text-align: center;
-  background-color: transparent; /* 去掉白底 */
-  border: none; /* 去掉边框 */
+  margin-top: 5px;
 }
 
 .item-title {
-  font-size: 14px;
-  font-weight: bold;
-  background-color: transparent; /* 去掉白底 */
-  margin-bottom: 30px;
-  margin-top: -10px;
-
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 9px;
+  margin-top: 3px;
 }
 .dialog-content {
-  background-color: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(81deg, rgb(51 145 229 / 30%) 25%, rgb(0 9 26 / 50%) 88%);
   width: 80%;
   max-width: 1000px;
-  height: 80%;
+  height: 84%;
   border-radius: 8px;
-  overflow: hidden; /* 关键：避免外部滚动条 */
+  overflow: hidden;
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* 适中阴影 */
+  backdrop-filter: blur(10px); /* 模糊效果 */
   display: flex;
   flex-direction: column;
+  pointer-events: auto;
 }
 
 .dialog-header {
@@ -3085,6 +3191,12 @@ img {
   font-weight: bold;
   /*background-color: rgba(255, 255, 255, 0.8); !* 可选：半透明背景 *!*/
   border-bottom: 2px solid #ccc;
+}
+
+.dialog-title {
+  color: #ffffff; /* 白色字体 */
+  font-size: 20px; /* 可以顺便加个字体大小，让标题更明显 */
+  font-weight: bold; /* 加粗一点，更有标题感 */
 }
 
 .dialog-scroll-body {
