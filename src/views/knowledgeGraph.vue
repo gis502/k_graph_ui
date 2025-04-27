@@ -148,6 +148,8 @@ import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
+// 该数据不准二次赋值，用于全局调用，保存初始数据 ！！！
+let allDataLinks = [];
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
 const props = defineProps({
@@ -866,7 +868,7 @@ const sendMessage = async () => {
       },
       body: JSON.stringify({
         content: message,
-        prompt: StartLinks.value,
+        prompt: allDataLinks,
       }),
     });
 

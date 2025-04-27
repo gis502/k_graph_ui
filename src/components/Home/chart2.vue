@@ -23,20 +23,20 @@
         <div class="cloud-container">
           <div class="text-b tit02 cloud-title">关键词 — 云</div>
           <div class="tagcloud" ref="tagcloud">
-<!--            <a v-for="(keyword, index) in keywords"-->
-<!--               :key="index"-->
-<!--               :class="keyword.class"-->
-<!--               href="#"-->
-<!--               @mouseenter="handleMouseEnter(index)"-->
-<!--               @mouseleave="handleMouseLeave"-->
-<!--               :style="{-->
-<!--           transform: `translate(${keyword.x}px, ${keyword.y}px) scale(${keyword.scale})`,-->
-<!--           opacity: keyword.opacity,-->
-<!--           zIndex: keyword.zIndex,-->
-<!--           transition: hoveredIndex === index ? 'transform 0.3s ease-out' : 'all 0.3s ease'-->
-<!--         }">-->
-<!--              {{ keyword.name }}-->
-<!--            </a>-->
+            <a v-for="(keyword, index) in keywords"
+               :key="index"
+               :class="keyword.class"
+               href="#"
+               @mouseenter="handleMouseEnter(index)"
+               @mouseleave="handleMouseLeave"
+               :style="{
+           transform: `translate(${keyword.x}px, ${keyword.y}px) scale(${keyword.scale})`,
+           opacity: keyword.opacity,
+           zIndex: keyword.zIndex,
+           transition: hoveredIndex === index ? 'transform 0.3s ease-out' : 'all 0.3s ease'
+         }">
+              {{ keyword.name }}
+            </a>
           </div>
         </div>
       </div>

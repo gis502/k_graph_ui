@@ -154,7 +154,8 @@ import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
 import {getEqList} from "@/api/system/damageassessment.js";
 import {useRouter} from "vue-router";
-
+// 该数据不准二次赋值，用于全局调用，保存初始数据 ！！！
+let allDataLinks = [];
 // 存放图例的信息
 const legend = [
   {
@@ -464,6 +465,8 @@ const getData = async () => {
       nodeSet.add(item.target);
     });
     chartData.value = Array.from(nodeSet).map(name => ({name}));
+
+    allDataLinks = chartLinks.value
 
     StartData.value= chartData.value
     StartLinks.value = chartLinks.value
@@ -889,7 +892,7 @@ const sendMessage = async () => {
       },
       body: JSON.stringify({
         content: message,
-        prompt: StartLinks.value,
+        prompt: allDataLinks,
       }),
     });
 
