@@ -163,6 +163,9 @@ const props = defineProps({
   eqid: {
     type: String,
   },
+  eqAddr:{
+    type: String,
+  }
 })
 // ECharts 配置
 const echartsOption = ref({
@@ -195,7 +198,7 @@ const echartsOption = ref({
     edgeSymbol: ['circle', 'arrow'],
     label: {
       show: true,
-      position: 'inside',
+      position: 'bottom',
       color: 'white'
     },
     edgeLabel: {
@@ -238,7 +241,6 @@ const echartsOption = ref({
   }]
 });
 
-
 const getData = async () => {
   try {
     // const res = await getGraphData();
@@ -261,7 +263,7 @@ const getData = async () => {
     chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
     chartStartLinks.value = chartStartData.value.map(item => (
             {
-              source: "震后生成",
+              source: props.eqAddr,
               target: item.name,
               value: "包含"
             }
@@ -272,7 +274,7 @@ const getData = async () => {
       target: "地震参数",
       value: "包含"
     })
-    chartStartData.value.push({ name: "震后生成" });
+    chartStartData.value.push({ name: props.eqAddr });
 
     initChart();
 
@@ -290,7 +292,8 @@ const initChart = () => {
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
-    if (item.name === '震后生成') {
+    if (item.name === props.eqAddr) {
+      item.symbol= `image:///images/地震灾害一级标题.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -299,6 +302,7 @@ const initChart = () => {
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害二级标题.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -307,6 +311,7 @@ const initChart = () => {
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害三级标题.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -315,6 +320,7 @@ const initChart = () => {
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
+      item.symbol= `image:///images/地震灾害四级标题.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,

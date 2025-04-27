@@ -52,12 +52,27 @@
       <div class="chartCount">
         <button>共{{chartDataCount}}个实体球</button>
       </div>
+      <div class="graphLagend">
+        <div class="legendHeader">
+          <span>图例详情</span>
+        </div>
+        <div class="legendContent">
+          <div class="legend-item" v-for="item in legend " :key="item.id">
+            <div class="legend-image">
+              <img :src="item.img" alt="图例说明">
+            </div>
+            <div class="legend-description">
+              <span>{{item.description}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
 
     <div class="chat-panel" v-if="showChat">
-      <div class="chat-title">小助手</div>
+      <div class="chat-title">智能问答助手</div>
       <div class="toggle-button close" @click="updateChartData">
         关闭助手
       </div>
@@ -102,14 +117,22 @@
                 placeholder="请输入你想问的问题"
                 v-model="formData.content"
                 @keyup="keySend"
+                class="elInput"
             ></el-input>
           </el-form-item>
           <!--input输入-->
           <el-form-item label="" prop="" class="send-btn">
-            <el-button type="primary" @click="sendMessage" :disabled="loading"
+            <el-button type="primary"
+                       @click="sendMessage"
+                       :disabled="loading"
+                       style="
+                          background-color: transparent;
+                          border: 1px solid rgba(255, 255, 255, 0.3);
+                          font-size: 14px;
+                          font-weight: 500;
+                          color: white;"
             >发送(ctrl+enter)
-            </el-button
-            >
+            </el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -136,8 +159,34 @@ const props = defineProps({
   },
   currentTime: {
     type: String,
+  },
+  eqAddr:{
+    type:String,
   }
 })
+// 存放图例的信息
+const legend = [
+  {
+    id:0,
+    img:"../../../public/images/地震灾害一级标题.png",
+    description:"一级实体"
+  },
+  {
+    id:1,
+    img:"../../../public/images/地震灾害二级标题.png",
+    description:"二级实体"
+  },
+  {
+    id:2,
+    img:"../../../public/images/地震灾害三级标题.png",
+    description:"三级实体"
+  },
+  {
+    id:3,
+    img:"../../../public/images/地震灾害四级标题.png",
+    description:"四级实体"
+  },
+]
 // 响应式数据
 const inputValue = ref('');
 const currentIndex = ref(null);
@@ -326,7 +375,7 @@ const echartsOption = ref({
     edgeSymbol: ['circle', 'arrow'],
     label: {
       show: true,
-      position: 'inside',
+      position: 'bottom',
       color: 'white'
     },
     edgeLabel: {
@@ -402,7 +451,7 @@ const getData = async () => {
     chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
     chartStartLinks.value = chartStartData.value.map(item => (
           {
-            source: "震后生成",
+            source: props.eqAddr,
             target: item.name,
             value: "包含"
         }
@@ -414,7 +463,7 @@ const getData = async () => {
       target: "地震参数",
       value: "包含"
     })
-    chartStartData.value.push({ name: "震后生成" });
+    chartStartData.value.push({ name: props.eqAddr });
 
     // 给每个子项计算 sonCount
     list.value.forEach(item => {
@@ -461,7 +510,8 @@ const initChart = () => {
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
-    if (item.name === '震后生成') {
+    if (item.name === props.eqAddr) {
+      item.symbol= `image:///images/地震灾害一级标题.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -470,6 +520,7 @@ const initChart = () => {
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害二级标题.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -478,6 +529,7 @@ const initChart = () => {
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害三级标题.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -486,6 +538,7 @@ const initChart = () => {
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
+      item.symbol= `image:///images/地震灾害四级标题.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -583,7 +636,8 @@ const updateEchart = (data,link) =>{
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
-    if (item.name === '震后生成') {
+    if (item.name === props.eqAddr) {
+      item.symbol= `image:///images/地震灾害一级标题.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -592,6 +646,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害二级标题.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -600,6 +655,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害三级标题.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -608,6 +664,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
+      item.symbol= `image:///images/地震灾害四级标题.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -1136,10 +1193,52 @@ onBeforeUnmount(() => {
         }
       }
     }
+
+    .graphLagend{
+      position: absolute;
+      bottom: 0px;
+      z-index:1;
+      left:0vw;
+      // 基础样式
+      background-color: rgba(59, 80, 149, .1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      padding: 5px 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+
+      .legendHeader{
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .legendContent{
+        flex:1;
+        display: flex;
+        flex-direction: column;
+
+        .legend-item{
+          display: flex;
+          flex-direction: row;
+          margin-bottom: 10px;
+          .legend-image{
+            img{
+              margin-top: 3px;
+              width: 15px;
+              margin-right: 10px;
+            }
+          }
+        }
+      }
+    }
   }
 
   .chat-panel {
-    //background: #eff0f6;
+    background-color: rgba(59, 80, 149, .1);
     height: 100%;
     border-top-right-radius: 20px; /* 右上角圆角 */
     border-bottom-right-radius: 20px; /* 左下角圆角 */
@@ -1191,10 +1290,11 @@ onBeforeUnmount(() => {
             align-items: center;
             display: flex;
             justify-content: flex-end;
+            color: #fff;
           }
 
           .content-inner {
-            background: #2d65f7;
+            background-color: rgba(59, 80, 149, .1);
             border-radius: 5px;
             padding: 10px;
             color: #fff;
@@ -1206,7 +1306,7 @@ onBeforeUnmount(() => {
 
           .message-content {
             display: block;
-            background: #fff;
+            background-color: rgba(59, 80, 149, .1);
             border-radius: 5px;
           }
 
@@ -1217,7 +1317,7 @@ onBeforeUnmount(() => {
 
           :deep(.md-editor-previewOnly) {
             border-radius: 5px;
-            background: #fff;
+            background-color: rgba(59, 80, 149, .1);
           }
 
           :deep(.md-editor-preview-wrapper) {
@@ -1235,9 +1335,14 @@ onBeforeUnmount(() => {
       position: relative;
       margin: 5px auto 0px;
       width: 450px;
-      background: #fff;
+      background-color: rgba(59, 80, 149, .1) ;
       border-radius: 20px;
       padding: 5px;
+
+      .elInput :deep(.el-textarea__inner){
+        color: white;
+      }
+
 
       .send-btn {
         text-align: right;
@@ -1253,12 +1358,13 @@ onBeforeUnmount(() => {
         border: 0 !important;
         resize: none !important;
         box-shadow: none;
+        background-color: transparent !important;
       }
     }
   }
 
   .catalog {
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(59, 80, 149, .1);
     height: 100%;
     display: flex;
     flex-direction: column;

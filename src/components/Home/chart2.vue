@@ -84,11 +84,34 @@ export default {
                 // 更新 topics 的值并排序
                 topics.value = parsedData.sort((a, b) => b.value - a.value);
                 // 只取前 5 个
-                topTopics.value = topics.value.slice(0, 5);
-                console.log('topics 更新后的值：', topics.value);
-                console.log('topTopics 更新后的值：', topTopics.value);
-                console.log('keywords 更新后的值：', keywords.value);
-                console.log('topics 更新后的值：', topics.value)
+                // topTopics.value = topics.value.slice(0, 5);
+                // console.log('topics 更新后的值：', topics.value);
+                // console.log('topTopics 更新后的值：', topTopics.value);
+                // console.log('keywords 更新后的值：', keywords.value);
+                // console.log('topics 更新后的值：', topics.value)
+
+                topTopics.value = [
+                  {
+                    name: "救援人员在哪",
+                    value: 98
+                  },
+                  {
+                    name: "没水没电怎么办？",
+                    value: 83
+                  },
+                  {
+                    name: "今晚敢回家睡觉吗？",
+                    value: 78
+                  },
+                  {
+                    name: "听说明天还有8级地震！",
+                    value: 54
+                  },
+                  {
+                    name: "谁家孩子找到了？",
+                    value: 48
+                  },
+                ]
                 // 重新初始化粒子位置和速度
                 initParticles();
 
@@ -502,21 +525,17 @@ export default {
 }
 
 .rank {
-  margin-right: 8px;
   color: #07e5ff;
   width: 20px;
 }
 
 .topic-name {
-  flex: 1;
+  width: 150px;
   color: #fff;
 }
 
 .change {
-  margin-left: 10px;
   font-size: 12px;
-  width: 50px;
-  text-align: right;
 }
 
 .change.up {

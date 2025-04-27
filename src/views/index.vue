@@ -12,7 +12,6 @@
     <div class="content">
       <div class="content-con">
 
-
         <div class="center-body">
           <e-map :eq-data="MapData"/>
         </div>
@@ -76,7 +75,6 @@
             </div>
           </div>
         </div>
-
 
         <div class="right">
           <div class="right-body">
@@ -148,6 +146,7 @@
         </div>
       </div>
     </div>
+
     <el-dialog title="新增地震" v-model="addPanel" width="30%">
       <el-form ref="panel" :model="addDTO">
         <el-row>

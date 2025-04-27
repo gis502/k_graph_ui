@@ -364,30 +364,30 @@ export default {
 
 
       // 绘制雅安的行政区划
-      const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
-      yaanUpd.enter()
-        .append('path')
-        .attr("class", "yaan")  // 设置类名
-        .attr('d', pathGenerator) // 设置路径
-        // .attr('stroke', '#05CEE5') // 边界线颜色
-        .attr('stroke', 'rgba(255,173,84,0.99)') // 边界线颜色
-        .attr('stroke-width', '2px')
-        // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
-        .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
-        .attr('fill-opacity', 0.3);  //透明度
-
-      // 添加雅安区域名称
-      const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
-      yaanTextUpd.enter()
-        .append('text')
-        .attr('class', 'yaan-label')
-        .attr('x', d => pathGenerator.centroid(d)[0])
-        .attr('y', d => pathGenerator.centroid(d)[1])
-        .attr('dy', '.35em')
-        .attr('font-size', '13px')
-        .attr('fill', '#cef1f6')  // 雅安区域名称颜色
-        .attr('text-anchor', 'middle')
-        .text(d => d.properties.name); // 显示区域名称
+      // const yaanUpd = sel.selectAll('path.yaan').data(yaan.features);
+      // yaanUpd.enter()
+      //   .append('path')
+      //   .attr("class", "yaan")  // 设置类名
+      //   .attr('d', pathGenerator) // 设置路径
+      //   // .attr('stroke', '#05CEE5') // 边界线颜色
+      //   .attr('stroke', 'rgba(255,173,84,0.99)') // 边界线颜色
+      //   .attr('stroke-width', '2px')
+      //   // .attr('fill', 'rgba(5, 206, 229, 0.3)') // 或者使用其他颜色
+      //   .attr('fill', 'rgba(89,26,12,0.5)') // 或者使用其他颜色
+      //   .attr('fill-opacity', 0.3);  //透明度
+      //
+      // // 添加雅安区域名称
+      // const yaanTextUpd = sel.selectAll('text.yaan-label').data(yaan.features);
+      // yaanTextUpd.enter()
+      //   .append('text')
+      //   .attr('class', 'yaan-label')
+      //   .attr('x', d => pathGenerator.centroid(d)[0])
+      //   .attr('y', d => pathGenerator.centroid(d)[1])
+      //   .attr('dy', '.35em')
+      //   .attr('font-size', '13px')
+      //   .attr('fill', '#cef1f6')  // 雅安区域名称颜色
+      //   .attr('text-anchor', 'middle')
+      //   .text(d => d.properties.name); // 显示区域名称
 
       // 更新文本位置
       updateTextPositions(sel, transform);

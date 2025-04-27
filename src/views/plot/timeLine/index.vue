@@ -13,7 +13,7 @@
       <!--      <el-button type="primary" plain icon="Plus" @click="handleOpen('新增')">新增</el-button>-->
     </el-form-item>
     <el-table :data="tableData"
-              height="600px"
+              height="700px"
               @row-click="go"
               :stripe="true"
               :header-cell-style="{  }"
