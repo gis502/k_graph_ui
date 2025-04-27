@@ -230,8 +230,6 @@ const echartsOption = ref({
   }]
 });
 
-
-
 const getData = async () => {
   try {
     // 1. 先获取地震列表

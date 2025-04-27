@@ -174,8 +174,60 @@
     </div>
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
-    <button  class="superMap">展示灾情专题图</button>
-    <!-- 加载中的提示 -->
+    <button  class="superMap" @click="activeComponent = true">展示灾情专题图</button>
+    <!-- 默认隐藏，点击按钮后展示 -->
+    <div v-if="activeComponent" class="dialog-overlay">
+      <div class="dialog-content">
+        <!-- 固定头部 -->
+        <div class="dialog-header">
+          <span class="dialog-title">图件产出</span>
+          <span class="dialog-close" @click="activeComponent = false">×</span>
+        </div>
+
+        <!-- 滚动区域（按钮 + 内容） -->
+        <div class="dialog-scroll-body">
+          <div class="toggle-buttons">
+            <!-- 按钮区域 -->
+          </div>
+
+
+          <div v-if="activeTab === 'thematicMap'" class="section">
+            <div class="grid-container">
+              <div
+                  v-for="(item, index) in thematicMapitems"
+                  :key="index"
+                  class="grid-item"
+                  @click="openPreview(item)"
+              >
+                <el-card shadow="hover" class="grid-small">
+                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img" />
+                  <div class="item-info">
+                    <p class="item-title">{{ item.theme }}</p>
+                  </div>
+                </el-card>
+              </div>
+
+
+              <!-- 新增的大图预览弹窗 -->
+              <div v-if="showPreviewDialog" class="preview-overlay"  @click="closeSupermapPreview">
+                <div class="preview-content" @click.stop>
+                  <img :src="previewImageUrl" class="preview-big-img" />
+                  <div class="preview-supermap-buttons">
+                    <button @click="downloadSupermapImage" class="download-button">下载图片</button>
+                    <button @click="showPreviewDialog = false" class="cancel-button">取消</button>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+          <!-- 加载中的提示 -->
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
@@ -257,33 +309,35 @@
 
     <!--灾情专题图展示容器-->
 
+    <!--    <div class="grid-container">-->
+    <!--      -->
+    <!--    </div>-->
 
+    <!--    <div class="grid-containe">-->
+    <!--      <div-->
+    <!--          v-for="(item, index) in thematicMapitems"-->
+    <!--          :key="index"-->
+    <!--          class="grid-item"-->
+    <!--          @click="showThematicMapDialog(item)"-->
+    <!--      >-->
+    <!--        <el-card shadow="hover">-->
+    <!--          <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>-->
+    <!--          <div class="item-info">-->
+    <!--            <p class="item-title">{{ item.theme }}</p>-->
+    <!--          </div>-->
+    <!--        </el-card>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
-<!--        <div class="gridContainer">-->
-<!--          <div-->
-<!--              v-for="(item, index) in thematicMapitems"-->
-<!--              :key="index"-->
-<!--              class="grid-item"-->
-<!--              @click="showThematicMapDialog(item)"-->
-<!--          >-->
-<!--            <el-card shadow="hover">-->
-<!--              <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>-->
-<!--              <div class="item-info">-->
-<!--                <p class="item-title">{{ item.theme }}</p>-->
-<!--              </div>-->
-<!--            </el-card>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--        <thematicMapPreview-->
-<!--            @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
-<!--            :imgshowURL="imgshowURL"-->
-<!--            :imgurlFromDate="imgurlFromDate"-->
-<!--            :imgName="imgName"-->
-<!--            :ifShowMapPreview="ifShowMapPreview"-->
-<!--            :showTypes="showTypes"-->
-<!--            style="width: 40%"-->
-<!--        ></thematicMapPreview>-->
+    <!--    <thematicMapPreview-->
+    <!--        @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
+    <!--        :imgshowURL="imgshowURL"-->
+    <!--        :imgurlFromDate="imgurlFromDate"-->
+    <!--        :imgName="imgName"-->
+    <!--        :ifShowMapPreview="ifShowMapPreview"-->
+    <!--        :showTypes="showTypes"-->
+    <!--        style="width: 40%"-->
+    <!--    ></thematicMapPreview>-->
 
   </div>
 </template>
@@ -332,14 +386,42 @@ import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue"
 import {handleOutputData} from "@/cesium/plot/eqThemes.js";
 
 export default {
+
   components: {
     dataSourcePanel,
     thematicMapPreview
   },
   data() {
     return {
+      eqIdValue:'',
+      activeComponent:false, // 控制显示隐藏
+      activeTab: 'thematicMap', // 当前选中的 tab
       // 灾情专题图存放信息
-      thematicMapitems:[],
+      thematicMapitems: [
+        // {
+        //   theme: "震后道路损毁情况",
+        //   imgUrl: "http://sv25gsrnh.hb-bkt.clouddn.com/T2025042615594251180001_%E9%9C%87%E5%8C%BA%E4%BA%A4%E9%80%9A%E5%9B%BE?e=1745657988&token=mheaTe3xRCkChSjwfueGYzB32yi7yk2sj8pemjvF:QTkDE_QvYlYnQu5pWueGDCLWHN8="
+        // },
+        // {
+        //   theme: "震后建筑物倒塌分析",
+        //   imgUrl: ""
+        // },
+        // {
+        //   theme: "震后水灾影响图",
+        //   imgUrl: "C:/Users/Smile/Desktop/profile/震区地震动峰值加速度区划图.jpg"
+        // },
+        // {
+        //   theme: "震后疏散路线图",
+        //   imgUrl: "https://via.placeholder.com/300x200.png?text=Evacuation+Routes"
+        // },
+        // {
+        //   theme: "震后医疗资源分布",
+        //   imgUrl: "https://via.placeholder.com/300x200.png?text=Medical+Resources+Map"
+        // }
+      ],
+      showPreviewDialog: false,
+      previewImageUrl: '',
+
       imgshowURL: '',
       imgurlFromDate: '',
       imgName: '',
@@ -490,6 +572,7 @@ export default {
       eqlists: [],
       eqlistName: '',
       eqid: '',
+      eqqueueId:'',
       tableNameOptions: [],
       selectedComponentKey: 'EarthquakeCasualties',
       options: [
@@ -701,6 +784,7 @@ export default {
       this.eqid = value;
       this.viewer.entities.removeAll();
       this.getEarthQuakeCenter(value)
+      this.outputData(value);
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(value)
         //获取震源中心的点数据
@@ -868,6 +952,7 @@ export default {
               // 默认选择地震列表中的第一个
               this.eqlistName = this.tableNameOptions[0].label;
               this.handleEqListChange(this.tableNameOptions[0].value)
+              this.eqIdValue=this.tableNameOptions[0].value
             } else {
               // this.handleEqListChange(this.eqlistName)
             }
@@ -2594,10 +2679,14 @@ export default {
     //--------------------------------------------------下面是灾情专题图代码部分------------------------------------------
 
     // 获取灾情专题图的接口
-    outputData() {
+    outputData(value) {
+      this.eqid = value;
+      this.eqqueueId = this.eqid+'01';
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
+        console.log(res)
         this.thematicMapitems = res.themeData
-        console.log("专题图：", this.thematicMapitems, "diowjdwiodjiwjdijwiodjiwdiojdiwjiojdiojwo")
+        console.log("专题图：")
+        console.log(this.thematicMapitems)
       })
       // handleOutputData(this.eqid, this.eqqueueId, null, 'report').then((res) => {
       //   this.reportItems = res.themeData
@@ -2621,6 +2710,62 @@ export default {
         this.imgName = "";
         this.imgshowURL = "";
       }
+    },
+
+    openPreview(item) {
+      this.previewImageUrl = item.imgUrl;
+      this.showPreviewDialog = true;
+    },
+
+    closeSupermapPreview(){
+      this.showPreviewDialog = false;
+    },
+
+    downloadSupermapImage() {
+      if (!this.previewImageUrl) {
+        this.$message.error('暂无可下载的图片');
+        return;
+      }
+
+      // 通过 fetch 拉取图片内容
+      fetch(this.previewImageUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('图片下载失败');
+            }
+            return response.blob(); // 把图片数据转成Blob
+          })
+          .then(blob => {
+            // 创建本地URL
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            // 创建a标签进行下载
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = blobUrl;
+
+            // 处理文件名
+            const urlParts = this.previewImageUrl.split('/');
+            let filename = urlParts[urlParts.length - 1];
+            if (!filename || filename.includes('?')) {
+              filename = filename.split('?')[0]; // 去掉?后面的token
+            }
+            if (!filename || !filename.includes('.')) {
+              filename = '下载图片.jpg'; // 如果还是没有后缀，给默认名
+            }
+            link.download = decodeURIComponent(filename); // 避免中文乱码
+
+            document.body.appendChild(link);
+            link.click();
+
+            // 下载完后清理
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+          })
+          .catch(error => {
+            console.error(error);
+            this.$message.error('下载图片失败');
+          });
     }
   }
 };
@@ -2635,7 +2780,7 @@ export default {
   bottom: 10px; /* 固定在底部 */
   right: 10px; /* 固定在右侧 */
   width: auto; /* 宽度自适应内容 */
-  z-index: 1;
+  z-index: 10;
   background-color: rgba(40, 40, 40, 0.7);
 }
 
@@ -2643,7 +2788,7 @@ export default {
   position: absolute;
   top: 20px;
   left: 10px;
-  z-index: 1; /* 确保按钮显示在最前面 */
+  z-index: 20; /* 确保按钮显示在最前面 */
   background-color: #3498db;
   color: white;
   border: none;
@@ -2654,6 +2799,7 @@ export default {
 
 .export-button:hover {
   background-color: #2980b9;
+
 }
 
 .loading-container {
@@ -2665,7 +2811,7 @@ export default {
   color: white;
   padding: 20px;
   border-radius: 10px;
-  z-index: 1;
+  z-index: 1000;
 }
 
 .listContainer {
@@ -2731,7 +2877,7 @@ export default {
   height: 120px;
   width: 140px;
   background: url(@/assets/compass.png) no-repeat center / cover;
-  z-index: 1;
+  z-index: 20;
   transform-origin: center; /* 设置旋转中心 */
   transition: transform 0.5s; /* 动画效果 */
 }
@@ -2910,7 +3056,7 @@ img {
   position: absolute;
   top: 20px;
   left: 120px;
-  z-index: 1; /* 确保按钮显示在最前面 */
+  z-index: 20; /* 确保按钮显示在最前面 */
   background-color: #3498db;
   color: white;
   border: none;
@@ -2919,23 +3065,146 @@ img {
   cursor: pointer;
 }
 
-.gridContainer {
-  position: absolute;
-  top: 20px;
-  left: 120px;
-  z-index: 20;
-  height: 400px;
-  width: 500px;
-  background-color: red;
-  /*flex-wrap: wrap;*/
-  /*height: 69vh;*/
-  /*display: grid;*/
-  /*grid-template-columns: repeat(2, 1fr); !* 创建2列，等宽 *!*/
-  /*gap: 8px; !* 列间距 *!*/
-  /*padding: 5px;*/
-}
-
 .superMap:hover {
   background-color: #2980b9;
 }
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none; /*重点，让整个背景不拦鼠标事件 */
+}
+
+.preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
+.preview-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preview-supermap-buttons{
+  position: absolute;
+  bottom: 5vh;
+
+}
+
+.preview-big-img {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.dialog-close {
+  color: #ffffff; /* 白色字体 */
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+  gap: 16px; /* Adjust the gap between items */
+  width: 100%; /* Ensure the container takes full width */
+  height: auto; /* Ensure the container takes full height */
+
+}
+
+.grid-item {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.grid-small{
+  width: 100%;
+  height: 90%;
+  overflow: hidden;
+  background-color: transparent; /* 去掉白底 */;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 确保图片显示完整 */
+  border-radius: 5px;
+}
+
+.item-info {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.item-title {
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 9px;
+  margin-top: 3px;
+}
+.dialog-content {
+  background: linear-gradient(81deg, rgb(51 145 229 / 30%) 25%, rgb(0 9 26 / 50%) 88%);
+  width: 80%;
+  max-width: 1000px;
+  height: 84%;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* 适中阴影 */
+  backdrop-filter: blur(10px); /* 模糊效果 */
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+.dialog-header {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0 20px;
+  font-size: 18px;
+  font-weight: bold;
+  /*background-color: rgba(255, 255, 255, 0.8); !* 可选：半透明背景 *!*/
+  border-bottom: 2px solid #ccc;
+}
+
+.dialog-title {
+  color: #ffffff; /* 白色字体 */
+  font-size: 20px; /* 可以顺便加个字体大小，让标题更明显 */
+  font-weight: bold; /* 加粗一点，更有标题感 */
+}
+
+.dialog-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+
+
 </style>
