@@ -156,15 +156,15 @@
                 style="height:15px;width: 45px;margin-left: 5px"></span>{{ item.name }}
         </div>
         <div class="legend_item" v-for="(item, index) in this.publicSentimentLegendData" :key="index">
-  <span class="block"
-        :style="{
-          backgroundImage: 'url(' + item.img + ')',
-          backgroundSize: 'cover',
-          height: '30px',
-          width: '30px',
-          marginLeft: '5px',
-        }">
-  </span>
+          <span class="block"
+                :style="{
+                  backgroundImage: 'url(' + item.img + ')',
+                  backgroundSize: 'cover',
+                  height: '30px',
+                  width: '30px',
+                  marginLeft: '5px',
+                }">
+          </span>
           {{ item.name }}
         </div>
       </el-form>
@@ -306,38 +306,6 @@
         <button @click="closePreview" class="cancel-button">取消</button>
       </div>
     </div>
-
-    <!--灾情专题图展示容器-->
-
-    <!--    <div class="grid-container">-->
-    <!--      -->
-    <!--    </div>-->
-
-    <!--    <div class="grid-containe">-->
-    <!--      <div-->
-    <!--          v-for="(item, index) in thematicMapitems"-->
-    <!--          :key="index"-->
-    <!--          class="grid-item"-->
-    <!--          @click="showThematicMapDialog(item)"-->
-    <!--      >-->
-    <!--        <el-card shadow="hover">-->
-    <!--          <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>-->
-    <!--          <div class="item-info">-->
-    <!--            <p class="item-title">{{ item.theme }}</p>-->
-    <!--          </div>-->
-    <!--        </el-card>-->
-    <!--      </div>-->
-    <!--    </div>-->
-
-    <!--    <thematicMapPreview-->
-    <!--        @ifShowThematicMapDialog="ifShowThematicMapDialog"-->
-    <!--        :imgshowURL="imgshowURL"-->
-    <!--        :imgurlFromDate="imgurlFromDate"-->
-    <!--        :imgName="imgName"-->
-    <!--        :ifShowMapPreview="ifShowMapPreview"-->
-    <!--        :showTypes="showTypes"-->
-    <!--        style="width: 40%"-->
-    <!--    ></thematicMapPreview>-->
 
   </div>
 </template>
@@ -947,6 +915,16 @@ export default {
               value: eqid      // 选择值为 ID
             };
           });
+
+          this.tableNameOptions = this.tableNameOptions.filter((item) => {
+            const magnitude = parseFloat(item.label.match(/震级：(\d+(\.\d+)?)/)[1]);
+            return magnitude > 6;
+          });
+
+          console.log(this.tableNameOptions,"数据是什么")
+
+          // this.tableNameOptions = this.tableNameOptions.filter(item => item.magnitude >= 6);
+
           if (this.tableNameOptions.length > 0) {
             if (!this.eqlistName) {
               // 默认选择地震列表中的第一个

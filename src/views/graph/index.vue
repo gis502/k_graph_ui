@@ -49,15 +49,33 @@
       <div class="restart">
         <button @click="getData">一键复原</button>
       </div>
+      <div class="chartCount">
+        <button>共{{chartDataCount}}个实体球</button>
+      </div>
       <div class="go">
         <button @click="go">跳转指挥大屏</button>
+      </div>
+      <div class="graphLagend">
+        <div class="legendHeader">
+          <span>图例详情</span>
+        </div>
+        <div class="legendContent">
+          <div class="legend-item" v-for="item in legend " :key="item.id">
+            <div class="legend-image">
+              <img :src="item.img" alt="图例说明">
+            </div>
+            <div class="legend-description">
+              <span>{{item.description}}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>
 
     <div class="chat-panel" v-if="showChat">
-      <div class="chat-title">小助手</div>
+      <div class="chat-title">智能问答助手</div>
       <div class="toggle-button close" @click="updateChartData">
         关闭助手
       </div>
@@ -102,11 +120,20 @@
                 placeholder="请输入你想问的问题"
                 v-model="formData.content"
                 @keyup="keySend"
+                class="elInput"
             ></el-input>
           </el-form-item>
           <!--input输入-->
           <el-form-item label="" prop="" class="send-btn">
-            <el-button type="primary" @click="sendMessage" :disabled="loading"
+            <el-button type="primary"
+                       @click="sendMessage"
+                       :disabled="loading"
+                       style="
+                          background-color: transparent;
+                          border: 1px solid rgba(255, 255, 255, 0.3);
+                          font-size: 14px;
+                          font-weight: 500;
+                          color: white;"
             >发送(ctrl+enter)
             </el-button
             >
@@ -119,7 +146,7 @@
 </template>
 
 <script setup>
-import {Search} from "@element-plus/icons-vue";
+import {Position, Search} from "@element-plus/icons-vue";
 import * as echarts from 'echarts';
 import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
@@ -127,6 +154,30 @@ import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
 import {getEqList} from "@/api/system/damageassessment.js";
 import {useRouter} from "vue-router";
+
+// 存放图例的信息
+const legend = [
+  {
+    id:0,
+    img:"../../../public/images/地震灾害一级标题.png",
+    description:"一级实体"
+  },
+  {
+    id:1,
+    img:"../../../public/images/地震灾害二级标题.png",
+    description:"二级实体"
+  },
+  {
+    id:2,
+    img:"../../../public/images/地震灾害三级标题.png",
+    description:"三级实体"
+  },
+  {
+    id:3,
+    img:"../../../public/images/地震灾害四级标题.png",
+    description:"四级实体"
+  },
+]
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
 // 响应式数据
@@ -317,7 +368,7 @@ const echartsOption = ref({
     edgeSymbol: ['circle', 'arrow'],
     label: {
       show: true,
-      position: 'inside',
+      position: 'bottom',
       color: 'white'
     },
     edgeLabel: {
@@ -368,6 +419,8 @@ const lastEqid = ref()
 const lastEqqueueId = ref()
 
 const router = useRouter();
+// 计算一共有多少个实体球
+const chartDataCount = ref();
 
 // 跳转至指挥大屏函数
 const go = () => {
@@ -415,23 +468,43 @@ const getData = async () => {
     StartData.value= chartData.value
     StartLinks.value = chartLinks.value
 
+    chartDataCount.value = chartData.value.length + 1;
+
     // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
     const validValues = new Set(list.value.map(item => item.value));
     chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
     chartStartLinks.value = chartStartData.value.map(item => (
             {
-              source: "震后生成",
+              source: lastEqData.value.eqAddr,
               target: item.name,
               value: "包含"
             }
         )
     )
+
     chartStartLinks.value.push({
       source: "地震震情信息",
       target: "地震参数",
       value: "包含"
     })
-    chartStartData.value.push({ name: "震后生成" });
+    chartStartData.value.push({ name: lastEqData.value.eqAddr });
+
+    // 给每个子项计算 sonCount
+    list.value.forEach(item => {
+      item.children.forEach(child => {
+        const sonCount = chartLinks.value.filter(link => link.source === child.value).length;
+        child.sonCount = sonCount;
+      });
+    });
+    console.log(list.value,"跟新后的数据")
+
+    StartData.value = chartStartData.value;
+    StartLinks.value =  chartStartLinks.value;
+
+    console.log(StartData.value,"开始数据")
+    console.log("newList",newList.value)
+    console.log("chartData",chartStartData.value)
+    console.log("chartLinks",chartStartLinks.value)
 
     initChart();
   } catch (error) {
@@ -460,16 +533,17 @@ const initChart = () => {
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
-    if (item.name === '震后生成') {
+    if (item.name === lastEqData.value.eqAddr) {
+      item.symbol= `image:///images/地震灾害一级标题.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
         color:'rgba(242, 4, 4, 0.7)',
-
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害二级标题.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -478,6 +552,7 @@ const initChart = () => {
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害三级标题.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -486,6 +561,7 @@ const initChart = () => {
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
+      item.symbol= `image:///images/地震灾害四级标题.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -583,7 +659,8 @@ const updateEchart = (data,link) =>{
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
-    if (item.name === '震后生成') {
+    if (item.name === lastEqData.value.eqAddr) {
+      item.symbol= `image:///images/地震灾害一级标题.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -592,6 +669,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害二级标题.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -600,6 +678,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol= `image:///images/地震灾害三级标题.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -608,6 +687,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
+      item.symbol= `image:///images/地震灾害四级标题.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -972,8 +1052,9 @@ onBeforeUnmount(() => {
   flex-direction: row; /* 使元素横向排列 */
   // 确保 flex 容器允许子元素增长和收缩
   z-index: 2;
-  background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.9) 88%, rgba(47, 82, 117, 0.9) 95%, rgba(44, 69, 94, 0.9) 100%);
-
+  //background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.9) 88%, rgba(47, 82, 117, 0.9) 95%, rgba(44, 69, 94, 0.9) 100%);
+  background-image: url("../../assets/蓝色银河星空带鱼屏.jpeg");
+  background-size: cover;
   .closeAll {
     button {
       position: absolute;
@@ -1040,6 +1121,56 @@ onBeforeUnmount(() => {
       button {
         position: absolute;
         top: 8px;
+        z-index: 1;
+        // 基础样式
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-size: 14px;
+        font-weight: 500;
+        color: white;
+        border-radius: 5px;
+        padding: 5px 12px;
+        cursor: pointer;
+        height: 30px;
+        transition: all 0.3s ease;
+        user-select: none;
+
+        // 悬停时的流动边框
+        &:hover {
+          border-color: transparent; // 隐藏原始边框
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 6px;
+            padding: 1px; // 边框厚度
+            background: linear-gradient(90deg,
+            #0453fc,
+            #00f7ff,
+            #0453fc,);
+            background-size: 200% auto;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 1.5s linear infinite;
+            z-index: 0;
+          }
+        }
+      }
+    }
+
+    .chartCount{
+      button {
+        position: absolute;
+        top: 46px;
         z-index: 1;
         // 基础样式
         display: inline-flex;
@@ -1136,10 +1267,52 @@ onBeforeUnmount(() => {
         }
       }
     }
+
+    .graphLagend{
+      position: absolute;
+      bottom: 0px;
+      z-index:1;
+      left:0vw;
+      // 基础样式
+      background-color: rgba(59, 80, 149, .1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      padding: 5px 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+
+      .legendHeader{
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .legendContent{
+        flex:1;
+        display: flex;
+        flex-direction: column;
+
+        .legend-item{
+          display: flex;
+          flex-direction: row;
+          margin-bottom: 10px;
+          .legend-image{
+            img{
+              margin-top: 3px;
+              width: 15px;
+              margin-right: 10px;
+            }
+          }
+        }
+      }
+    }
   }
 
   .chat-panel {
-    //background: #eff0f6;
+    background-color: rgba(59, 80, 149, .1);
     height: 100%;
     border-top-right-radius: 20px; /* 右上角圆角 */
     border-bottom-right-radius: 20px; /* 左下角圆角 */
@@ -1191,10 +1364,11 @@ onBeforeUnmount(() => {
             align-items: center;
             display: flex;
             justify-content: flex-end;
+            color: #fff;
           }
 
           .content-inner {
-            background: #2d65f7;
+            background-color: rgba(59, 80, 149, .1);
             border-radius: 5px;
             padding: 10px;
             color: #fff;
@@ -1206,7 +1380,7 @@ onBeforeUnmount(() => {
 
           .message-content {
             display: block;
-            background: #fff;
+            background-color: rgba(59, 80, 149, .1);
             border-radius: 5px;
           }
 
@@ -1217,7 +1391,7 @@ onBeforeUnmount(() => {
 
           :deep(.md-editor-previewOnly) {
             border-radius: 5px;
-            background: #fff;
+            background-color: rgba(59, 80, 149, .1);
           }
 
           :deep(.md-editor-preview-wrapper) {
@@ -1235,14 +1409,19 @@ onBeforeUnmount(() => {
       position: relative;
       margin: 5px auto 0px;
       width: 450px;
-      background: #fff;
+      background-color: rgba(59, 80, 149, .2);
       border-radius: 20px;
       padding: 5px;
+
+      .elInput :deep(.el-textarea__inner){
+          color: white;
+      }
 
       .send-btn {
         text-align: right;
         margin-bottom: 0px;
         padding: 5px;
+
 
         :deep(.el-form-item__content) {
           justify-content: flex-end;
@@ -1253,12 +1432,13 @@ onBeforeUnmount(() => {
         border: 0 !important;
         resize: none !important;
         box-shadow: none;
+        background-color: transparent !important;
       }
     }
   }
 
   .catalog {
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(59, 80, 149, .1);
     height: 100%;
     display: flex;
     flex-direction: column;

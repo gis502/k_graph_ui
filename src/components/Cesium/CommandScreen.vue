@@ -679,6 +679,7 @@
         <SmallGraph
             @samllGraphShow="handleToggleShow"
             :eqid="eqid"
+            :eqAddr="eqAddr"
         />
         <timeLineMiniMap
             :viewer="viewer"
@@ -702,6 +703,7 @@
             :eqMagnitude="eqMagnitude"
             :currentTime="currentTimeString"
             :eqid="eqid"
+            :eqAddr="eqAddr"
         />
       </div>
     </div>
@@ -1230,6 +1232,7 @@ export default {
       centerPoint: {},
       viewer: '',
       //地震时间年月日-title
+      eqAddr:'',
       eqyear: '',
       eqmonth: '',
       eqday: '',
@@ -1774,6 +1777,8 @@ export default {
       getEqListById({id: this.eqid}).then(res => {
         console.log(res)
 
+        console.log(res,"最新数据")
+
         this.eqMagnitude = res.magnitude
 
         //震中标绘点
@@ -1789,6 +1794,7 @@ export default {
         this.eqyear = this.centerPoint.startTime.getFullYear()
         this.eqmonth = this.centerPoint.startTime.getMonth() + 1
         this.eqday = this.centerPoint.startTime.getDate()
+        this.eqAddr = this.centerPoint.eqAddr
 
         // console.log(this.currentTime,"this.currentTime thd")
         clock = new Cesium.Clock({
