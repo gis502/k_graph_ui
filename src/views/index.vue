@@ -85,7 +85,9 @@
                 <div
                   style="position: absolute; top: 70px; left: 40px; display: flex; align-items: center; z-index: 1;"
                 >
-                    <input type="text"
+                    <input
+                        stylt="border: 10px;"
+                        type="text"
                            placeholder="搜索"
                            style="width: 11vw;
                                   font-size: 16px;
@@ -111,13 +113,13 @@
                     @click="openQueryFrom()"
                   >筛选</el-button>
                   <!-- 正式和测试按钮，固定不切换 -->
-                  <el-button
-                    size="small"
-                    style="font-size: 14px;"
-                    @click="addEq"
-                  >
-                    新增
-                  </el-button>
+<!--                  <el-button-->
+<!--                    size="small"-->
+<!--                    style="font-size: 14px;"-->
+<!--                    @click="addEq"-->
+<!--                  >-->
+<!--                    新增-->
+<!--                  </el-button>-->
                 </div>
               </div>
               <div style="flex:1">

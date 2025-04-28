@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <h3 class="title">灾链智控--基于大语言模型与知识图谱的地震应急信息平台</h3>
+    <h3 class="title">智链穹眸——基于智能语义引擎的震后灾害链研判与应急决策系统</h3>
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <el-form-item prop="username">
         <el-input
@@ -25,21 +25,21 @@
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
-      <el-form-item prop="code" v-if="captchaEnabled">
-        <el-input
-            v-model="loginForm.code"
-            size="large"
-            auto-complete="off"
-            placeholder="验证码"
-            style="width: 63%"
-            @keyup.enter="handleLogin"
-        >
-          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
-        </el-input>
-        <div class="login-code">
-          <img :src="codeUrl" @click="getCode" class="login-code-img"/>
-        </div>
-      </el-form-item>
+<!--      <el-form-item prop="code" v-if="captchaEnabled">-->
+<!--        <el-input-->
+<!--            v-model="loginForm.code"-->
+<!--            size="large"-->
+<!--            auto-complete="off"-->
+<!--            placeholder="验证码"-->
+<!--            style="width: 63%"-->
+<!--            @keyup.enter="handleLogin"-->
+<!--        >-->
+<!--          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>-->
+<!--        </el-input>-->
+<!--        <div class="login-code">-->
+<!--          <img :src="codeUrl" @click="getCode" class="login-code-img"/>-->
+<!--        </div>-->
+<!--      </el-form-item>-->
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
       <el-form-item style="width:100%;">
         <el-button
@@ -59,7 +59,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2024-2025 灾链智控--基于大语言模型与知识图谱的地震应急信息平台</span>
+      <span>Copyright © 2024-2025 智链穹眸——基于智能语义引擎的震后灾害链研判与应急决策系统</span>
     </div>
   </div>
 </template>
@@ -92,7 +92,7 @@ const loginRules = {
 const codeUrl = ref("");
 const loading = ref(false);
 // 验证码开关
-const captchaEnabled = ref(true);
+const captchaEnabled = ref(false);
 // 注册开关
 const register = ref(false);
 const redirect = ref(undefined);

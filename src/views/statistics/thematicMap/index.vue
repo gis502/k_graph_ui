@@ -77,7 +77,6 @@
       <el-form class="noteContainer" v-if="this.selectedComponentKey === 'SecondaryDisaster'">
 
 
-
         <p style="color: white; text-align: center; margin: 5px 0; font-size: 18px;">图例</p>
         <div class="legend_item" v-for="(item, index) in getEchartsLegendData()" :key="index">
           <span class="block" :style="{ backgroundColor: item.color }"
@@ -174,7 +173,8 @@
     </div>
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
-    <button  class="superMap" @click="activeComponent = true">展示灾情专题图</button>
+    <button class="superMap" @click="activeComponent = true">展示灾情专题图</button>
+    <button class="justice" @click="exportReport = true">产出辅助决策报告</button>
     <!-- 默认隐藏，点击按钮后展示 -->
     <div v-if="activeComponent" class="dialog-overlay">
       <div class="dialog-content">
@@ -200,7 +200,7 @@
                   @click="openPreview(item)"
               >
                 <el-card shadow="hover" class="grid-small">
-                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img" />
+                  <img :src="item.imgUrl" :alt="item.theme" class="preview-img"/>
                   <div class="item-info">
                     <p class="item-title">{{ item.theme }}</p>
                   </div>
@@ -209,9 +209,9 @@
 
 
               <!-- 新增的大图预览弹窗 -->
-              <div v-if="showPreviewDialog" class="preview-overlay"  @click="closeSupermapPreview">
+              <div v-if="showPreviewDialog" class="preview-overlay" @click="closeSupermapPreview">
                 <div class="preview-content" @click.stop>
-                  <img :src="previewImageUrl" class="preview-big-img" />
+                  <img :src="previewImageUrl" class="preview-big-img"/>
                   <div class="preview-supermap-buttons">
                     <button @click="downloadSupermapImage" class="download-button">下载图片</button>
                     <button @click="showPreviewDialog = false" class="cancel-button">取消</button>
@@ -226,8 +226,7 @@
       </div>
     </div>
 
-
-          <!-- 加载中的提示 -->
+    <!-- 加载中的提示 -->
     <div v-if="loading" class="loading-container">
       <p>正在导出，请稍候...</p>
     </div>
@@ -315,7 +314,13 @@ import * as Cesium from 'cesium';
 import CesiumNavigation from 'cesium-navigation-es6';
 import * as echarts from 'echarts';
 import {initCesium} from '@/cesium/tool/initCesium.js';
-import {getExcelUploadEarthquake, getExcelUploadEqList, getGeomByEqListId, getGeomById} from "@/api/system/eqlist.js";
+import {
+  exportReport,
+  getExcelUploadEarthquake,
+  getExcelUploadEqList,
+  getGeomByEqListId,
+  getGeomById
+} from "@/api/system/eqlist.js";
 import html2canvas from "html2canvas";
 import yaan from '@/assets/geoJson/yaan1.json'
 import cumulativeTransferredImg from '@/assets/images/cumulativeTransferred.png'
@@ -361,8 +366,8 @@ export default {
   },
   data() {
     return {
-      eqIdValue:'',
-      activeComponent:false, // 控制显示隐藏
+      eqIdValue: '',
+      activeComponent: false, // 控制显示隐藏
       activeTab: 'thematicMap', // 当前选中的 tab
       // 灾情专题图存放信息
       thematicMapitems: [
@@ -389,7 +394,17 @@ export default {
       ],
       showPreviewDialog: false,
       previewImageUrl: '',
-
+      eqEventDto: {
+        eqid: '',
+        eqName: '',
+        eqTime: '',
+        eqAddr: '',
+        longitude: 0,
+        latitude: 0,
+        eqMagnitude: 0,
+        eqDepth: 0,
+        eqType: 'T',
+      },
       imgshowURL: '',
       imgurlFromDate: '',
       imgName: '',
@@ -500,9 +515,9 @@ export default {
         },
         TransportationElectricity: {
           locationKey: 'areaName',
-          dataKeys: ['totalOutOfServiceSubstations', 'restoredSubstations', 'restoredBaseStations','totalDisabledBaseStations'],
+          dataKeys: ['totalOutOfServiceSubstations', 'restoredSubstations', 'restoredBaseStations', 'totalDisabledBaseStations'],
           legendName: 'TransportationElectricity',
-          labels: ['累计停运变电站(座)', '已恢复变电站(座)', '抢通恢复基站(个)','累计退服基站(个)']
+          labels: ['累计停运变电站(座)', '已恢复变电站(座)', '抢通恢复基站(个)', '累计退服基站(个)']
         },
         BuildingDamageInformation: {
           locationKey: 'affectedAreaName',
@@ -540,7 +555,7 @@ export default {
       eqlists: [],
       eqlistName: '',
       eqid: '',
-      eqqueueId:'',
+      eqqueueId: '',
       tableNameOptions: [],
       selectedComponentKey: 'EarthquakeCasualties',
       options: [
@@ -632,17 +647,17 @@ export default {
         {
           name: '受威胁群众(户或人)',
           data: [
-            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity],marginLeft: 0},
-            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200],marginLeft: 5},
-            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50],marginLeft: 7.5},
+            {name: '>200人', img: damagedWaterSupply, width: 40, height: 40, range: [201, Infinity], marginLeft: 0},
+            {name: '50-200人', img: damagedWaterSupply, width: 30, height: 30, range: [51, 200], marginLeft: 5},
+            {name: '0-50人', img: damagedWaterSupply, width: 25, height: 25, range: [0, 50], marginLeft: 7.5},
           ]
         },
         {
           name: '避险转移(户或人)',
           data: [
-            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity],marginLeft: 0},
-            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200],marginLeft: 5},
-            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50],marginLeft: 7.5},
+            {name: '>200人', img: guaranteeWaterSupply, width: 40, height: 40, range: [201, Infinity], marginLeft: 0},
+            {name: '50-200人', img: guaranteeWaterSupply, width: 30, height: 30, range: [51, 200], marginLeft: 5},
+            {name: '0-50人', img: guaranteeWaterSupply, width: 25, height: 25, range: [0, 50], marginLeft: 7.5},
           ]
         },
       ],
@@ -676,6 +691,15 @@ export default {
     this.stopPolling();
   },
   methods: {
+
+    // 导出辅助决策报告
+    exportReport(data) {
+
+      exportReport({eqEventDto: data}).then(res => {
+        console.log(res);
+      })
+    },
+
     // 初始化控件等
     init() {
       this.viewer = initCesium(Cesium);
@@ -748,6 +772,7 @@ export default {
 
     // 地震列表变化
     handleEqListChange(value) {
+      console.log("选择的地震",value)
       // 获取选择的 eqid
       this.eqid = value;
       this.viewer.entities.removeAll();
@@ -868,7 +893,7 @@ export default {
       const camera = this.viewer.camera;
       const currentHeight = camera.positionCartographic.height;
       const newHeight = currentHeight * 0.63; // 放大
-      if (newHeight > 5000){
+      if (newHeight > 5000) {
         // 获取当前屏幕中心的经纬度
         const center = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
         const longitude = Cesium.Math.toDegrees(center.longitude);
@@ -885,7 +910,7 @@ export default {
       const camera = this.viewer.camera;
       const currentHeight = camera.positionCartographic.height;
       const newHeight = currentHeight * 1.37; // 放大
-      if (newHeight < 500000){
+      if (newHeight < 500000) {
         // 获取当前屏幕中心的经纬度
         const center = Cesium.Ellipsoid.WGS84.cartesianToCartographic(camera.position);
         const longitude = Cesium.Math.toDegrees(center.longitude);
@@ -921,7 +946,7 @@ export default {
             return magnitude > 6;
           });
 
-          console.log(this.tableNameOptions,"数据是什么")
+          console.log(this.tableNameOptions, "数据是什么")
 
           // this.tableNameOptions = this.tableNameOptions.filter(item => item.magnitude >= 6);
 
@@ -930,7 +955,7 @@ export default {
               // 默认选择地震列表中的第一个
               this.eqlistName = this.tableNameOptions[0].label;
               this.handleEqListChange(this.tableNameOptions[0].value)
-              this.eqIdValue=this.tableNameOptions[0].value
+              this.eqIdValue = this.tableNameOptions[0].value
             } else {
               // this.handleEqListChange(this.eqlistName)
             }
@@ -945,6 +970,9 @@ export default {
       getGeomByEqListId(eqid).then(res => {
         console.log(res)
         this.updateEarthQuakeCenter(res[0])
+        this.exportReport()
+
+
       })
     },
 
@@ -962,7 +990,7 @@ export default {
         function findOrCreateEntry(data, areaName) {
           let entry = data.find(item => item.areaName === areaName);
           if (!entry) {
-            entry = { areaName: areaName }; // 统一使用 areaName 作为字段名
+            entry = {areaName: areaName}; // 统一使用 areaName 作为字段名
             data.push(entry);
           }
           return entry;
@@ -988,7 +1016,7 @@ export default {
 
         // 获取数据并处理
         Promise.all([
-          getPowerSupply(eqid).then(res =>{
+          getPowerSupply(eqid).then(res => {
             processPowerSupply(res)
             this.getPoints(res)
           }),
@@ -1223,7 +1251,7 @@ export default {
         let trafficLayer = viewer.imageryLayers.addImageryProvider(
             new Cesium.WebMapTileServiceImageryProvider({
               // 天地图交通图层的URL模板
-              url:`${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
+              url: `${tianditu}/cva_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cva&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&tk=${token}`,
               layer: "tdtAnnoLayer",
               style: "default",
               format: "image/jpeg",
@@ -1559,7 +1587,7 @@ export default {
           });
         });
       }
-      if (this.selectedComponentKey === 'TransportationElectricity'){
+      if (this.selectedComponentKey === 'TransportationElectricity') {
         const locations = [
           {name: '雨城区', longitude: 103.11, latitude: 29.97},  // 稍微向东北偏移
           {name: '名山区', longitude: 103.31, latitude: 30.22},  // 向西南偏移
@@ -1574,7 +1602,7 @@ export default {
           let img = null;
           if (item.emergencyPowerUsers) {
             let location = locations.find(location => location.name === item.affectedArea);
-            if (location){
+            if (location) {
               img = this.transportationElectricityLegendData[0].img
               addLocationEntity(location, item.emergencyPowerUsers, img, 35, 35)
             }
@@ -1858,8 +1886,8 @@ export default {
         position: Cesium.Cartesian3.fromDegrees(data.geom.coordinates[0], data.geom.coordinates[1]),
         billboard: {
           image: earthQuakeCenterImg, // 图标
-          width:40,
-          height:40,
+          width: 40,
+          height: 40,
           eyeOffset: new Cesium.Cartesian3(0.0, 0.0, -10000.0) // 设置图标偏移，让其显示在最上层
         }
       });
@@ -2659,7 +2687,7 @@ export default {
     // 获取灾情专题图的接口
     outputData(value) {
       this.eqid = value;
-      this.eqqueueId = this.eqid+'01';
+      this.eqqueueId = this.eqid + '01';
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {
         console.log(res)
         this.thematicMapitems = res.themeData
@@ -2695,7 +2723,7 @@ export default {
       this.showPreviewDialog = true;
     },
 
-    closeSupermapPreview(){
+    closeSupermapPreview() {
       this.showPreviewDialog = false;
     },
 
@@ -2795,7 +2823,7 @@ export default {
 .listContainer {
   position: absolute;
   top: 20px;
-  left: 230px;
+  left: 355px;
 }
 
 .legend_item {
@@ -2810,12 +2838,7 @@ export default {
 
 .legend_item1 {
   width: 100%;
-//height: 26px;
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-//margin-bottom: 5px;
-  color: white;
+//height: 26px; display: flex; align-items: center; font-size: 16px; //margin-bottom: 5px; color: white;
 }
 
 .echarts-container {
@@ -2841,7 +2864,7 @@ export default {
 
 
 .situation_cesiumContainer {
-  height: 100vh  !important;
+  height: 100vh !important;
   width: 100%;
   margin: 0;
   padding: 0;
@@ -3027,7 +3050,7 @@ img {
 .zoomIn i, .zoomOut i {
   font-size: 20px; /* 字体稍微加大 */
   font-width: bold;
-  color: #ffffff;  /* 灰色文字 */
+  color: #ffffff; /* 灰色文字 */
 }
 
 .superMap {
@@ -3043,9 +3066,23 @@ img {
   cursor: pointer;
 }
 
+.justice {
+  position: absolute;
+  top: 20px;
+  left: 230px;
+  z-index: 20; /* 确保按钮显示在最前面 */
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .superMap:hover {
   background-color: #2980b9;
 }
+
 .dialog-overlay {
   position: fixed;
   top: 0;
@@ -3085,7 +3122,7 @@ img {
   align-items: center;
 }
 
-.preview-supermap-buttons{
+.preview-supermap-buttons {
   position: absolute;
   bottom: 5vh;
 
@@ -3118,7 +3155,8 @@ img {
   width: 100%;
   height: auto;
 }
-.grid-small{
+
+.grid-small {
   width: 100%;
   height: 90%;
   overflow: hidden;
@@ -3143,6 +3181,7 @@ img {
   margin-bottom: 9px;
   margin-top: 3px;
 }
+
 .dialog-content {
   background: linear-gradient(81deg, rgb(51 145 229 / 30%) 25%, rgb(0 9 26 / 50%) 88%);
   width: 80%;
@@ -3182,7 +3221,6 @@ img {
   overflow-y: auto;
   padding: 20px;
 }
-
 
 
 </style>

@@ -933,19 +933,13 @@ export function handleOutputData(eqId, eqqueueId, eqFullName, type) {
         if (type === "thematicMap") {
             getEqOutputMap(DTO).then((res) => {
                 const data = res;
-                console.log("1111111")
-                console.log("11111", res)
                 console.log("专题图数据：", data)
                 const themeName = eqFullName + "-" + "专题图";
                 let thematicMapData = [];
-                console.log("专题图")
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < data.data.length; i++) {
                     const thematicMapObject = {
-                        imgUrl: data[i].sourceFile,
-                        // imgUrl: `http://sv25gsrnh.hb-bkt.clouddn.com/T2025042615594251180001_%E9%9C%87%E5%8C%BA%E4%BA%A4%E9%80%9A%E5%9B%BE?e=1745657988&token=mheaTe3xRCkChSjwfueGYzB32yi7yk2sj8pemjvF:QTkDE_QvYlYnQu5pWueGDCLWHN8=`,
-                        // imgUrl: '@/src/assets/震区地震动峰值加速度区划图.jpg`,
-                        theme: data[i].fileName,
-                        // theme: 'sss',
+                        imgUrl: data.data[i].sourceFile,
+                        theme: data.data[i].fileName,
                     };
                     console.log("959595959595", thematicMapObject)
                     thematicMapData.push(thematicMapObject);

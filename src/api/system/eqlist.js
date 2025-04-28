@@ -9,6 +9,14 @@ export function addEq(data) {
     })
 }
 
+export function exportReport(eqEventDto) {
+    return request({
+        url:'/system/getReport',
+        method: 'get',
+        data: eqEventDto
+    })
+}
+
 // 删
 export function deleteeq(query) {
     return request({
