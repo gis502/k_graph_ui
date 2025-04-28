@@ -174,7 +174,60 @@
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
     <button class="superMap" @click="activeComponent = true">展示灾情专题图</button>
-    <button class="justice" @click="exportReportVba = true">产出辅助决策报告</button>
+    <button class="justice" @click="handlePanel(); isPreviewShow = false;">产出辅助决策报告</button>
+
+    <div class="eqPanel" v-if="isPanelShow.AssistantDecision">
+      <h2>{{ this.outputData.themeName }}</h2>
+      <div style="width: 100%;height: calc(100% - 120px);text-align: center;color: #fff;font-size: 16px" v-if="isNoData">
+        该地震暂无评估图件产出
+      </div>
+      <div class="mapItem" v-if="this.outputData.type === `thematicMap`">
+        <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
+             @mouseenter="handleOpen(index)" @mouseleave="handleClose()">
+          <div class="panelButtons" v-if="showPanelButtonsIndex === index">
+            <div class="panelButton download" @click="handleDownloadMap(item.imgUrl)">下载</div>
+            <div class="panelButton preview" @click="handleOpenPreview(item.theme, item.imgUrl)">预览</div>
+          </div>
+          <img :src="item.imgUrl" style="width: 95%; height: 80%;"/>
+          <p style="margin: 10px; ">{{ item.theme }}</p>
+        </div>
+      </div>
+
+      <div class="reportItem" v-if="this.outputData.type === `report`">
+        <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleDownloadReport(item.docxUrl)">
+          <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 50px">
+          {{ item.theme }}
+        </div>
+      </div>
+      <div class="reportItem" v-if="this.outputData.type === `AssistantDecision`">
+        <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleJueCeReport(item.docxUrl)">
+          <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 20px">
+          {{ item.theme }}
+        </div>
+      </div>
+
+      <div class="mapItem" v-if="this.outputData.type === `instrument`">
+        <div v-for="(item, index) in outputData.themeData" :key="index" class="map-item"
+             @mouseenter="handleOpen(index)" @mouseleave="handleClose()">
+          <div class="panelButtons" v-if="showPanelButtonsIndex === index">
+            <div class="panelButton download" @click="handleDownloadMap(item.imgUrl)">下载</div>
+            <div class="panelButton preview" @click="handleOpenPreview(item.theme, item.imgUrl)">预览</div>
+          </div>
+          <img :src="item.imgUrl" style="width: 95%; height: 80%;"/>
+          <p style="margin: 10px; ">{{ item.theme }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="thematicMapPreview" v-if="isPreviewShow">
+      <h2>{{ this.imgName }}</h2>
+      <img :src="this.imgUrl" style="width: 95%; height: 80%;">
+      <div style="display: flex; justify-content: center; align-items: center; margin-top: 5px">
+        <el-button type="primary" @click="handleDownloadMap()">下载</el-button>
+        <el-button plain type="primary" @click="handleClosePreview()" style="margin-left: 200px;">关闭</el-button>
+      </div>
+    </div>
+
     <!-- 默认隐藏，点击按钮后展示 -->
     <div v-if="activeComponent" class="dialog-overlay">
       <div class="dialog-content">
@@ -183,7 +236,6 @@
           <span class="dialog-title">图件产出</span>
           <span class="dialog-close" @click="activeComponent = false">×</span>
         </div>
-
         <!-- 滚动区域（按钮 + 内容） -->
         <div class="dialog-scroll-body">
           <div class="toggle-buttons">
@@ -225,6 +277,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- 加载中的提示 -->
     <div v-if="loading" class="loading-container">
@@ -357,6 +410,7 @@ import {getFacility} from "@/api/system/CommunicationFacilityDamageRepairStatus.
 import {AmapApiLocal, tianditu} from "@/utils/server.js";
 import thematicMapPreview from "@/components/ThematicMap/thematicMapPreview.vue";
 import {handleOutputData} from "@/cesium/plot/eqThemes.js";
+import {getEqOutputMaps, getEqOutputReports} from "@/api/system/damageassessment.js";
 
 export default {
 
@@ -366,6 +420,8 @@ export default {
   },
   data() {
     return {
+      isPreviewShow: false,
+      exportReportVbaOpen:'',
       eqIdValue: '',
       activeComponent: false, // 控制显示隐藏
       activeTab: 'thematicMap', // 当前选中的 tab
@@ -551,6 +607,20 @@ export default {
         }
       },
 
+      // 地震专题
+      isPanelShow: {
+        thematicMap: false,
+        report: false,
+        instrument: false,
+        AssistantDecision:false
+      },
+      // 产出数据
+      outputData: {},
+      imgUrl: '',
+
+      isNoData: false,
+      // 记录当前显示的 panelButtons 索引，默认为 null
+      showPanelButtonsIndex: null,
       //----------地震选择列表------------
       eqlists: [],
       eqlistName: '',
@@ -691,20 +761,115 @@ export default {
     this.stopPolling();
   },
   methods: {
+    handlePanel() {
+      const type = 'AssistantDecision';
+
+      if (!this.isPanelShow) {
+        this.isPanelShow = {};  // 如果 isPanelShow还没定义，先初始化一个对象
+      }
+
+      // 确保有 AssistantDecision 这个键
+      if (!('AssistantDecision' in this.isPanelShow)) {
+        this.isPanelShow.AssistantDecision = false;
+      }
+
+      for (const key in this.isPanelShow) {
+        if (this.isPanelShow.hasOwnProperty(key)) {
+          if (key !== type && this.isPanelShow[key] === true) {
+            this.isPanelShow[key] = false;
+          }
+        }
+      }
+
+      this.isPanelShow[type] = !this.isPanelShow[type];
+
+      if (this.isPanelShow.AssistantDecision) {
+
+
+          handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
+
+            console.log("评估结果", res)
+
+            this.outputData.themeName = res.themeName;
+
+            this.outputData.themeData = res.themeData;
+            this.outputData.type = type;
+            this.isNoData = res.themeData.length === 0;
+          });
+
+      }
+    },
+    handleOpen(index) {
+      this.showPanelButtonsIndex = index;
+    },
+
+    handleClose() {
+      this.showPanelButtonsIndex = null; // 当鼠标移出时隐藏所有的 panelButtons
+    },
+    handleOpenPreview(imgName, imgUrl) {
+      this.isPreviewShow = true;
+      this.imgName = imgName;
+      this.imgUrl = imgUrl;
+    },
+
+    handleClosePreview() {
+      this.isPreviewShow = false;
+    },
+    handleJueCeReport(docxUrl) {
+      this.$notify({
+        title: '辅助决策报告下载',
+        message: '数据正在解析中...',
+        duration: 7000,
+        zIndex: 9999
+      });
+
+      // 使用 fetch 获取文件数据
+      fetch(docxUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`, // 如果有 Token，携带身份认证
+        }
+      })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`下载失败: ${response.status}`);
+            }
+            return response.blob(); // 转换为 Blob
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = docxUrl.split('/').pop(); // 设置文件名
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url); // 释放 URL 对象
+          })
+          .catch(error => {
+            this.$notify({
+              title: '下载失败',
+              message: error.message,
+              type: 'error',
+              duration: 5000
+            });
+          });
+    },
 
     // 导出辅助决策报告
     exportReportVba(data) {
       this.eqEventDto.event=data[0].eqid
       this.eqEventDto.eqName = data[0].earthquakeName
-      this.eqEventDto.eqTime=data[0].occurrenceTime
+      this.eqEventDto.eqTime=data[0].occurrenceTime.replace('T', ' ')
       this.eqEventDto.eqAddr = data[0].eqAddr
       this.eqEventDto.longitude = Number(data[0].geom.coordinates[0])
       this.eqEventDto.latitude = Number(data[0].geom.coordinates[1])
-      this.eqEventDto.eqDepth = data[0].eqDepth
+      this.eqEventDto.eqDepth = data[0].depth
       this.eqEventDto.eqType = data[0].eqType
+      this.eqEventDto.eqMagnitude = data[0].magnitude
       console.log("1213121109")
       console.log(this.eqEventDto)
-      exportReport({eqEventDto: data}).then(res => {
+      exportReport(this.eqEventDto).then(res => {
         console.log(res);
       })
     },
@@ -786,7 +951,7 @@ export default {
       this.eqid = value;
       this.viewer.entities.removeAll();
       this.getEarthQuakeCenter(value)
-      this.outputData(value);
+      this.outputDataMethod(value);
       if (this.selectedComponentKey === 'EarthquakeCasualties') {
         this.getPoints(value)
         //获取震源中心的点数据
@@ -2693,7 +2858,7 @@ export default {
     //--------------------------------------------------下面是灾情专题图代码部分------------------------------------------
 
     // 获取灾情专题图的接口
-    outputData(value) {
+    outputDataMethod(value) {
       this.eqid = value;
       this.eqqueueId = this.eqid + '01';
       handleOutputData(this.eqid, this.eqqueueId, null, 'thematicMap').then((res) => {

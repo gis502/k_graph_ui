@@ -12,8 +12,8 @@ export function addEq(data) {
 export function exportReport(eqEventDto) {
     return request({
         url:'/system/getReport',
-        method: 'get',
-        data: eqEventDto
+        method: 'post',
+        data:eqEventDto
     })
 }
 
