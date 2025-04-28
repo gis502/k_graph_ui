@@ -174,7 +174,7 @@
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
     <button class="superMap" @click="activeComponent = true">展示灾情专题图</button>
-    <button class="justice" @click="exportReport = true">产出辅助决策报告</button>
+    <button class="justice" @click="exportReportVba = true">产出辅助决策报告</button>
     <!-- 默认隐藏，点击按钮后展示 -->
     <div v-if="activeComponent" class="dialog-overlay">
       <div class="dialog-content">
@@ -395,7 +395,7 @@ export default {
       showPreviewDialog: false,
       previewImageUrl: '',
       eqEventDto: {
-        eqid: '',
+        event: '',
         eqName: '',
         eqTime: '',
         eqAddr: '',
@@ -693,8 +693,17 @@ export default {
   methods: {
 
     // 导出辅助决策报告
-    exportReport(data) {
-
+    exportReportVba(data) {
+      this.eqEventDto.event=data[0].eqid
+      this.eqEventDto.eqName = data[0].earthquakeName
+      this.eqEventDto.eqTime=data[0].occurrenceTime
+      this.eqEventDto.eqAddr = data[0].eqAddr
+      this.eqEventDto.longitude = Number(data[0].geom.coordinates[0])
+      this.eqEventDto.latitude = Number(data[0].geom.coordinates[1])
+      this.eqEventDto.eqDepth = data[0].eqDepth
+      this.eqEventDto.eqType = data[0].eqType
+      console.log("1213121109")
+      console.log(this.eqEventDto)
       exportReport({eqEventDto: data}).then(res => {
         console.log(res);
       })
@@ -968,11 +977,10 @@ export default {
     getEarthQuakeCenter(eqid) {
       // getGeomById(eqid).then(res => {
       getGeomByEqListId(eqid).then(res => {
+        console.log("111")
         console.log(res)
+        this.exportReportVba(res)
         this.updateEarthQuakeCenter(res[0])
-        this.exportReport()
-
-
       })
     },
 
