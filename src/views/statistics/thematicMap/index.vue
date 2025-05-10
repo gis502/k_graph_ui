@@ -174,7 +174,7 @@
     <!-- 添加一个按钮用于导出 -->
     <button @click="exportCesiumScene" class="export-button">导出地形专题图</button>
     <button class="superMap" @click="activeComponent = true">展示灾情专题图</button>
-    <button class="justice" @click="handlePanel(); isPreviewShow = false;">产出辅助决策报告</button>
+    <button class="justice" @click="handlePanel">产出辅助决策报告</button>
 
     <div class="eqPanel" v-if="isPanelShow.AssistantDecision">
       <h2>{{ this.outputData.themeName }}</h2>
@@ -277,6 +277,9 @@
         </div>
       </div>
     </div>
+
+
+
 
 
     <!-- 加载中的提示 -->
@@ -763,39 +766,43 @@ export default {
   methods: {
     handlePanel() {
       const type = 'AssistantDecision';
+      this.isPanelShow.AssistantDecision = true
 
-      if (!this.isPanelShow) {
-        this.isPanelShow = {};  // 如果 isPanelShow还没定义，先初始化一个对象
-      }
-
-      // 确保有 AssistantDecision 这个键
-      if (!('AssistantDecision' in this.isPanelShow)) {
-        this.isPanelShow.AssistantDecision = false;
-      }
-
-      for (const key in this.isPanelShow) {
-        if (this.isPanelShow.hasOwnProperty(key)) {
-          if (key !== type && this.isPanelShow[key] === true) {
-            this.isPanelShow[key] = false;
-          }
-        }
-      }
-
-      this.isPanelShow[type] = !this.isPanelShow[type];
+      // if (!this.isPanelShow) {
+      //   this.isPanelShow = {};  // 如果 isPanelShow还没定义，先初始化一个对象
+      // }
+      //
+      // // 确保有 AssistantDecision 这个键
+      // if (!('AssistantDecision' in this.isPanelShow)) {
+      //   this.isPanelShow.AssistantDecision = false;
+      // }
+      //
+      // for (const key in this.isPanelShow) {
+      //   if (this.isPanelShow.hasOwnProperty(key)) {
+      //     if (key !== type && this.isPanelShow[key] === true) {
+      //       this.isPanelShow[key] = false;
+      //     }
+      //   }
+      // }
+      //
+      // this.isPanelShow[type] = !this.isPanelShow[type];
 
       if (this.isPanelShow.AssistantDecision) {
-
-
-          handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
-
-            console.log("评估结果", res)
-
-            this.outputData.themeName = res.themeName;
-
-            this.outputData.themeData = res.themeData;
-            this.outputData.type = type;
-            this.isNoData = res.themeData.length === 0;
-          });
+          // handleOutputData(this.eqid, this.eqqueueId, this.earthquakeFullName, type).then((res) => {
+          //
+          //   console.log("评估结果", res)
+          //
+          //   this.outputData.themeName = res.themeName;
+          //
+          //   this.outputData.themeData = res.themeData;
+          //   this.outputData.type = type;
+          //   this.isNoData = res.themeData.length === 0;
+          // });
+        getGeomByEqListId(this.eqid).then(res => {
+          console.log("存在吗",res)
+          this.exportReportVba(res)
+          // this.updateEarthQuakeCenter(res[0])
+        })
 
       }
     },
@@ -857,20 +864,30 @@ export default {
     },
 
     // 导出辅助决策报告
-    exportReportVba(data) {
-      this.eqEventDto.event=data[0].eqid
-      this.eqEventDto.eqName = data[0].earthquakeName
-      this.eqEventDto.eqTime=data[0].occurrenceTime.replace('T', ' ')
-      this.eqEventDto.eqAddr = data[0].eqAddr
-      this.eqEventDto.longitude = Number(data[0].geom.coordinates[0])
-      this.eqEventDto.latitude = Number(data[0].geom.coordinates[1])
-      this.eqEventDto.eqDepth = data[0].depth
-      this.eqEventDto.eqType = data[0].eqType
-      this.eqEventDto.eqMagnitude = data[0].magnitude
-      console.log("1213121109")
-      console.log(this.eqEventDto)
+    exportReportVba(res) {
+      console.log("这个的res",res)
+
+      this.eqEventDto = {
+        event: res[0].eqid,
+        eqName: res[0].earthquakeName,
+        eqTime: res[0].occurrenceTime.replace('T', ' '),
+        eqAddr: res[0].eqAddr,
+        longitude: res[0].geom.coordinates[0],
+        latitude: res[0].geom.coordinates[1],
+        eqMagnitude: res[0].magnitude,
+        eqDepth: res[0].depth,
+        eqType: 'T',
+      };
+
+      console.log("这是什么",this.eqEventDto)
       exportReport(this.eqEventDto).then(res => {
-        console.log(res);
+        this.$notify({
+          title: '辅助决策报告下载完成',
+          // message: '数据正在解析中...',
+          duration: 7000, // 设置持续时间
+          zIndex: 9999  // 设置 zIndex 来确保通知在最上层
+        });
+        console.log(res,"导出成功");
       })
     },
 
@@ -1144,7 +1161,7 @@ export default {
       getGeomByEqListId(eqid).then(res => {
         console.log("111")
         console.log(res)
-        this.exportReportVba(res)
+        // this.exportReportVba(res)
         this.updateEarthQuakeCenter(res[0])
       })
     },
