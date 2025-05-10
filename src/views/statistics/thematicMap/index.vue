@@ -195,13 +195,13 @@
 
       <div class="reportItem" v-if="this.outputData.type === `report`">
         <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleDownloadReport(item.docxUrl)">
-          <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 50px">
+          <img src="@/assets/images/DamageAssessment/wordIcon.png" style="margin-right: 50px">
           {{ item.theme }}
         </div>
       </div>
       <div class="reportItem" v-if="this.outputData.type === `AssistantDecision`">
         <div v-for="(item, index) in outputData.themeData" :key="index" class="report-item" @click="handleJueCeReport(item.docxUrl)">
-          <img src="../../assets/images/DamageAssessment/wordIcon.png" style="margin-right: 20px">
+          <img src="@/assets/images/DamageAssessment/wordIcon.png" style="margin-right: 20px">
           {{ item.theme }}
         </div>
       </div>

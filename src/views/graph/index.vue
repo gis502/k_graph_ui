@@ -102,7 +102,7 @@
                     :modelValue="item.content.join('')"
                 />
                 <div class="loading" v-if="item.loading">
-                  <img src="../assets/loading.gif"/>
+                  <img src="../../assets/loading.gif"/>
                 </div>
               </div>
             </template>
