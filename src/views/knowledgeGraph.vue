@@ -1,6 +1,8 @@
 <template>
   <div class="content-body">
-
+    <div class="timeLabel">
+      {{lastRecordTimeLocal}}
+    </div>
     <div class="closeAll">
       <button @click="handleClick">×</button>
     </div>
@@ -148,6 +150,7 @@ import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 // 该数据不准二次赋值，用于全局调用，保存初始数据 ！！！
 let allDataLinks = [];
 // 定义要触发的事件
@@ -424,6 +427,11 @@ const chartDataCount = ref();
 
 const filteredNodes = ref([])
 const filteredLinks = ref([])
+let lastRecordTimeLocal=''
+// let lastRecordTimeLocal= timestampToTimeChina(new Date(props.currentTime))
+const timestampToTimeChina=(time)  =>{
+  return timeTransfer.timestampToTimeChina(time)
+}
 // 获取数据并初始化图表
 const getData = async () => {
   try {
@@ -534,7 +542,10 @@ const initChart = (nodes, links) => {
     console.log('数据未变化，跳过渲染');
     return; // 直接返回，不执行后续渲染逻辑
   }
-
+  let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
+  if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+    lastRecordTimeLocal = lastRecordTimeLocaltmp
+  }
   echartsOption.value.series[0].data = nodes.value;
   echartsOption.value.series[0].links = links.value;
 
@@ -1095,7 +1106,7 @@ onBeforeUnmount(() => {
   flex-direction: row; /* 使元素横向排列 */
   // 确保 flex 容器允许子元素增长和收缩
   border-radius: 20px;
-  z-index: 2;
+  z-index: 3;
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 
   .closeAll {
@@ -1625,6 +1636,21 @@ onBeforeUnmount(() => {
   position: absolute;
   right: 10px;
   bottom: 10px;
+}
+.timeLabel {
+  background-color: rgba(32, 99, 150, 0.8);
+  border-radius: 20px;
+  height: 6%;
+  width: 12%;
+  top: 0%;
+  position: absolute;
+  z-index: 9;
+  color: #FFFFFF;
+  font-size: 16px;
+  left: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 </style>

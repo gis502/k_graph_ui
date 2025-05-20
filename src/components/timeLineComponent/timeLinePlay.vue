@@ -3,10 +3,6 @@
     <div class="topLastRecordTimeLabel">
       {{ this.lastRecordTimeLocal }}
     </div>
-<!--    <div class="topLastRecordContentLabel">-->
-<!--      <span class="marquee">{{ this.lastRecordContent }}</span>-->
-<!--    </div>-->
-
     <div class="start-time-info">
       <span class="timelabel">开始时间：{{ this.timestampToTimeChina(this.centerPoint.startTime) }}</span>
     </div>
@@ -525,7 +521,7 @@ export default {
   width: 12%;
   top: 12%;
   position: absolute;
-  z-index: 512;
+  z-index: 12;
   color: #FFFFFF;
   font-size: 16px;
   left: 45%;
