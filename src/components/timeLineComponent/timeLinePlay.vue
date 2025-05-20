@@ -164,7 +164,7 @@ export default {
     getPlotwithStartandEndTime(eqid) {
       // 调用接口获取特定设备的绘图信息
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
-        console.log(res, "res")
+        console.log(res, "getPlotwithStartandEndTime res")
         this.plots = res
         this.plots.forEach(item => {
           if (!item.endTime || new Date(item.endTime) < new Date(this.centerPoint.startTime) || new Date(item.endTime) <= new Date(item.startTime)) {
