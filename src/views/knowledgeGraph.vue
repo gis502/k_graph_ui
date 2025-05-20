@@ -28,8 +28,8 @@
             :key="item.id"
             :class="{'clicked': currentIndex === item.id}"
             @click="showDescription(item,item.value)"
-        >{{ item.value }}({{item.fatherCount}})
-<!--          如果有子项展开子项-->
+        >{{ item.value }}({{ item.fatherCount }})
+          <!--          如果有子项展开子项-->
           <ul v-if="item.isOpen">
             <li
                 v-for="child in item.children"
@@ -37,7 +37,7 @@
                 :class="{'clicked': currentIndex === child.id}"
                 @click.stop="handleChildClick(child)"
             >
-              {{ child.value}}({{child.sonCount}})
+              {{ child.value }}({{ child.sonCount }})
             </li>
           </ul>
         </li>
@@ -50,7 +50,7 @@
         <button @click="getData">一键复原</button>
       </div>
       <div class="chartCount">
-        <button>共{{chartDataCount}}个实体球</button>
+        <button>共{{ chartDataCount }}个实体球</button>
       </div>
       <div class="graphLagend">
         <div class="legendHeader">
@@ -62,7 +62,7 @@
               <img :src="item.img" alt="图例说明">
             </div>
             <div class="legend-description">
-              <span>{{item.description}}</span>
+              <span>{{ item.description }}</span>
             </div>
           </div>
         </div>
@@ -162,31 +162,31 @@ const props = defineProps({
   currentTime: {
     type: String,
   },
-  eqAddr:{
-    type:String,
+  eqAddr: {
+    type: String,
   }
 })
 // 存放图例的信息
 const legend = [
   {
-    id:0,
-    img:"../../../public/images/eqentity1.png",
-    description:"一级实体"
+    id: 0,
+    img: "../../../public/images/eqentity1.png",
+    description: "一级实体"
   },
   {
-    id:1,
-    img:"../../../public/images/eqentity2.png",
-    description:"二级实体"
+    id: 1,
+    img: "../../../public/images/eqentity2.png",
+    description: "二级实体"
   },
   {
-    id:2,
-    img:"../../../public/images/eqentity3.png",
-    description:"三级实体"
+    id: 2,
+    img: "../../../public/images/eqentity3.png",
+    description: "三级实体"
   },
   {
-    id:3,
-    img:"../../../public/images/eqentity4.png",
-    description:"四级实体"
+    id: 3,
+    img: "../../../public/images/eqentity4.png",
+    description: "四级实体"
   },
 ]
 // 响应式数据
@@ -201,50 +201,50 @@ const chart = ref(null);
 const StartData = ref([]);
 const StartLinks = ref([]);
 const firstData = [
-    {
-      name:"地震震情信息"
-    },
-    {
-      name:"地震灾情信息"
-    },
-    {
-      name:"应急指挥协调信息"
-    },
-    {
-      name:"应急决策信息"
-    },
-    {
-      name:"态势标绘信息"
-    },
-    {
-      name:"社会反应动态信息"
-    },
-    {
-      name:"灾害现场动态信息"
-    },
-    {
-      name:"应急处置信息"
-    }
- ]
+  {
+    name: "地震震情信息"
+  },
+  {
+    name: "地震灾情信息"
+  },
+  {
+    name: "应急指挥协调信息"
+  },
+  {
+    name: "应急决策信息"
+  },
+  {
+    name: "态势标绘信息"
+  },
+  {
+    name: "社会反应动态信息"
+  },
+  {
+    name: "灾害现场动态信息"
+  },
+  {
+    name: "应急处置信息"
+  }
+]
 const secondData = [
-  { "name": "地震参数" },
-  { "name": "强震监测信息" },
-  { "name": "测震监测信息" },
-  { "name": "预报信息" },
-  { "name": "余震情况" },
-  { "name": "人员伤亡" },
-  { "name": "房屋破坏" },
-  { "name": "生命线震害信息" },
-  { "name": "次生灾害信息" },
-  { "name": "人员伤亡" },
-  { "name": "灾区灾情简报" },
-  { "name": "用户上传会议信息" },
-  { "name": "应急响应信息" },
-  { "name": "应急决策基础信息" },
-  { "name": "应急处置基础信息" },
-  { "name": "态势标绘基础信息" },
-  { "name": "灾害现场动态基础信息" },
-  { "name": "社会反应动态基础信息" }
+  {"name": "地震参数"},
+  {"name": "强震监测信息"},
+  {"name": "测震监测信息"},
+  {"name": "预报信息"},
+  {"name": "余震情况"},
+  {"name": "人员伤亡"},
+  {"name": "房屋破坏"},
+  {"name": "生命线震害信息"},
+  {"name": "次生灾害信息"},
+  {"name": "人员伤亡"},
+  {"name": "灾区灾情简报"},
+  {"name": "用户上传会议信息"},
+  {"name": "应急响应信息"},
+  {"name": "应急决策基础信息"},
+  {"name": "应急处置基础信息"},
+  {"name": "态势标绘基础信息"},
+  {"name": "灾害现场动态基础信息"},
+  {"name": "社会反应动态基础信息"}
 ]
 // 一开始展示的信息（后续处理过程发生了改变）
 const chartStartData = ref([]);
@@ -267,82 +267,82 @@ const list = ref([
     value: '地震震情信息',
     isOpen: false,
     children: [
-      { id: 11, value: '地震参数' },
-      { id: 12, value: '强震检测信息'},
-      { id: 13, value: '测震监测信息' },
-      { id: 14, value: '预报信息'},
-      { id: 15, value: '余震情况' },
+      {id: 11, value: '地震参数'},
+      {id: 12, value: '强震检测信息'},
+      {id: 13, value: '测震监测信息'},
+      {id: 14, value: '预报信息'},
+      {id: 15, value: '余震情况'},
     ],
-    fatherCount:5,
+    fatherCount: 5,
   },
   {
     id: 2,
     value: '地震灾情信息',
     isOpen: false,
     children: [
-      { id: 21, value: '人员伤亡'},
-      { id: 22, value: '房屋破坏'},
-      { id: 23, value: '生命线震害信息'},
-      { id: 24, value: '次生灾害信息'},
-      { id: 25, value: '人员伤亡'},
-      { id: 26, value: '灾区灾情简报'},
+      {id: 21, value: '人员伤亡'},
+      {id: 22, value: '房屋破坏'},
+      {id: 23, value: '生命线震害信息'},
+      {id: 24, value: '次生灾害信息'},
+      {id: 25, value: '人员伤亡'},
+      {id: 26, value: '灾区灾情简报'},
     ],
-    fatherCount:6,
+    fatherCount: 6,
   },
   {
     id: 3,
     value: '应急指挥协调信息',
     isOpen: false,
     children: [
-      { id: 31, value: '用户上传会议信息' },
-      { id: 32, value: '应急响应信息' },
+      {id: 31, value: '用户上传会议信息'},
+      {id: 32, value: '应急响应信息'},
     ],
-    fatherCount:2,
+    fatherCount: 2,
   },
   {
     id: 4,
     value: '应急决策信息',
     isOpen: false,
     children: [
-      { id: 41, value: '应急决策基础信息' },
+      {id: 41, value: '应急决策基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 5,
     value: '应急处置信息',
     isOpen: false,
     children: [
-      { id: 51, value: '应急处置基础信息' },
+      {id: 51, value: '应急处置基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 6,
     value: '态势标绘信息',
     isOpen: false,
     children: [
-      { id: 61, value: '态势标绘基础信息' },
+      {id: 61, value: '态势标绘基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 7,
     value: '灾害现场动态信息',
     isOpen: false,
     children: [
-      { id: 71, value: '灾害现场动态基础信息' },
+      {id: 71, value: '灾害现场动态基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 8,
     value: '社会反应动态信息',
     isOpen: false,
     children: [
-      { id: 81, value: '社会反应动态基础信息' },
+      {id: 81, value: '社会反应动态基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
 ]);
 const newList = ref([]);
@@ -421,14 +421,14 @@ const echartsOption = ref({
 });
 // 计算一共有多少个实体球
 const chartDataCount = ref();
-const allnodes=ref([])
-const filteredNodes=ref([])
-const filteredLinks=ref([])
+const allnodes = ref([])
+const filteredNodes = ref([])
+const filteredLinks = ref([])
 // 获取数据并初始化图表
 const getData = async () => {
   try {
     const res = await getChartDataBy(props.eqid)
-    console.log("res的结果",res)
+    console.log("res的结果", res)
     // 生成随机时间的函数
     const generateRandomTime = () => {
       const start = new Date('2022-06-01T17:30:00Z');
@@ -441,8 +441,8 @@ const getData = async () => {
 
 // 遍历 res 数组，为符合条件的节点添加 time 属性并添加到 Map 中
     res.forEach(item => {
-      const sourceNode = { ...item.source };
-      const targetNode = { ...item.target };
+      const sourceNode = {...item.source};
+      const targetNode = {...item.target};
 
       // 检查 sourceNode 是否满足条件
       if (
@@ -471,7 +471,7 @@ const getData = async () => {
       }
     });
     allnodes.value = Array.from(nodesMap.values())
-    console.log("allnodes with time",allnodes.value)
+    console.log("allnodes with time", allnodes.value)
 
     // source（起始节点）、target（目标节点）和关系类型 value
     //线
@@ -480,9 +480,9 @@ const getData = async () => {
       target: item.target.name,
       value: item.value.type
     }));
-    console.log("chartLinks",chartLinks.value)
-    chartData.value =allnodes.value
-    StartData.value= chartData.value
+    console.log("chartLinks", chartLinks.value)
+    chartData.value = allnodes.value
+    StartData.value = chartData.value
     StartLinks.value = chartLinks.value
     chartDataCount.value = allnodes.value.length;
 
@@ -496,17 +496,17 @@ const getData = async () => {
         child.sonCount = sonCount;
       });
     });
-    console.log(list.value,"跟新后的数据")
+    console.log(list.value, "跟新后的数据")
 
     StartData.value = chartStartData.value;
-    StartLinks.value =  chartStartLinks.value;
+    StartLinks.value = chartStartLinks.value;
 
-    console.log(StartData.value,"开始数据")
-    console.log("newList",newList.value)
-    console.log("chartStartData",chartStartData.value)
-    console.log("chartStartLinks",chartStartLinks.value)
+    console.log(StartData.value, "开始数据")
+    console.log("newList", newList.value)
+    console.log("chartStartData", chartStartData.value)
+    console.log("chartStartLinks", chartStartLinks.value)
 
-    initChart(chartStartData,chartStartLinks);
+    initChart(chartStartData, chartStartLinks);
 
   } catch (error) {
     console.error('获取图表数据失败:', error);
@@ -514,11 +514,11 @@ const getData = async () => {
 };
 // 初始化图表
 // chartStartData chartStartLinks
-const initChart = (nodes,links) => {
+const initChart = (nodes, links) => {
 
   if (!chart.value) return;
-
-  // 检查数据是否发生变化
+  //
+  // // 检查数据是否发生变化
   const isDataChanged =
       JSON.stringify(nodes.value) !== JSON.stringify(echartsOption.value.series[0].data) ||
       JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
@@ -528,79 +528,78 @@ const initChart = (nodes,links) => {
     return; // 直接返回，不执行后续渲染逻辑
   }
 
-  if (echartsInstance.value !== null) {
-    echartsInstance.value.dispose();
-  }
-  // console.log(props.eqAddr,"props.eqAddr")
+  echartsOption.value.series[0].data = nodes.value;
+  echartsOption.value.series[0].links = links.value;
+
   // 特殊节点样式
   echartsOption.value.series[0].data = nodes.value.map(item => {
 
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/eqentity1.png`
+      item.symbol = `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color:'rgba(242, 4, 4, 0.7)',
+        color: 'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/eqentity2.png`
+      item.symbol = `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color:'rgba(226, 242, 4, 0.6)',
+        color: 'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/eqentity3.png`
+      item.symbol = `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f2c6',
-        color:'rgba(4, 242, 198, 0.7)'
+        color: 'rgba(4, 242, 198, 0.7)'
       };
-    }else{
-      item.symbol= `image:///images/eqentity4.png`
+    } else {
+      item.symbol = `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f218',
-        color:'rgba(4, 242, 24, 0.7)'
+        color: 'rgba(4, 242, 24, 0.7)'
       };
     }
 
     return item;
   });
+  if (!echartsInstance.value) {
+    //
+    echartsInstance.value = echarts.init(chart.value);
+    echartsInstance.value.setOption(echartsOption.value);
+    // 强制调整大小，确保初始渲染时的大小正确
+    echartsInstance.value.resize();
 
-  echartsOption.value.series[0].links = links.value;
-
-  echartsInstance.value = echarts.init(chart.value);
-
-  echartsInstance.value.setOption(echartsOption.value);
-
-  // 强制调整大小，确保初始渲染时的大小正确
-  echartsInstance.value.resize();
-
-  // 监听 click 事件
-  echartsInstance.value.on('click', function (params) {
-    // 判断点击的是节点还是边
-    if (params.componentType === 'series' && params.seriesType === 'graph') {
-      if (params.dataType === 'node') {
-        // 处理节点点击
-        handleNodeClick(params.data);
-      } else if (params.dataType === 'edge') {
-        // 处理边点击
+    // 监听 click 事件
+    echartsInstance.value.on('click', function (params) {
+      // 判断点击的是节点还是边
+      if (params.componentType === 'series' && params.seriesType === 'graph') {
+        if (params.dataType === 'node') {
+          // 处理节点点击
+          handleNodeClick(params.data);
+        } else if (params.dataType === 'edge') {
+          // 处理边点击
+        }
       }
-    }
-  });
+    });
 
-  // 添加窗口大小变化监听
-  window.addEventListener('resize', handleResize);
-
+    // 添加窗口大小变化监听
+    window.addEventListener('resize', handleResize);
+  } else {
+    // 如果实例已存在，直接更新数据
+    echartsInstance.value.setOption(echartsOption.value);
+  }
 };
 
 // 点击节点触发函数
@@ -637,7 +636,7 @@ const handleNodeClick = (value) => {
   newTargets.forEach(target => {
     // 如果 chartStartData 中没有这个 target 名称的节点，则添加
     if (!chartStartData.value.some(item => item.name === target)) {
-      chartStartData.value.push({ name: target });
+      chartStartData.value.push({name: target});
     }
   });
 
@@ -647,55 +646,55 @@ const handleNodeClick = (value) => {
   // 打印更新后的 chartChangeData
   console.log("更新后的 chartChangeData:", chartChangeData.value);
 
-  updateEchart(chartChangeData.value,chartChangeLinks.value)
+  updateEchart(chartChangeData.value, chartChangeLinks.value)
 };
 
-const updateEchart = (data,link) =>{
+const updateEchart = (data, link) => {
   if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
 
-  console.log("data数据",data)
-  console.log("link数据",link)
+  console.log("data数据", data)
+  console.log("link数据", link)
 
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/eqentity1.png`
+      item.symbol = `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color:'rgba(242, 4, 4, 0.7)',
+        color: 'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/eqentity2.png`
+      item.symbol = `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color:'rgba(226, 242, 4, 0.6)',
+        color: 'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/eqentity3.png`
+      item.symbol = `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f2c6',
-        color:'rgba(4, 242, 198, 0.7)'
+        color: 'rgba(4, 242, 198, 0.7)'
       };
-    }else{
-      item.symbol= `image:///images/eqentity4.png`
+    } else {
+      item.symbol = `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f218',
-        color:'rgba(4, 242, 24, 0.7)'
+        color: 'rgba(4, 242, 24, 0.7)'
       };
     }
 
@@ -791,7 +790,7 @@ const showDescription = (item, value) => {
     }
   }
 
-  const nodeName = {name:item.value}
+  const nodeName = {name: item.value}
   handleNodeClick(nodeName);
 
   focusNode(value);
@@ -908,7 +907,7 @@ const sendMessage = async () => {
     } else {
       const text = await response.text();
       // 如果返回的是纯文本，包装成统一结构
-      data = { content: text };
+      data = {content: text};
     }
 
     // 更新最后一条消息
@@ -944,7 +943,7 @@ const sendMessage = async () => {
 
 // 快捷键发送
 const keySend = (event) => {
-  if (event.ctrlKey && event.key === 'Enter')   {
+  if (event.ctrlKey && event.key === 'Enter') {
     sendMessage();
   }
 };
@@ -957,125 +956,11 @@ const handleClick = () => {
 
 const handleChildClick = (child) => {
   // child:{id: 12, value: '强震检测信息'}
-  console.log(child,"我看看怎么个事")
-  const newChild = { name: child.value }; // 转换成 {name: "强震检测信息"}
+  console.log(child, "我看看怎么个事")
+  const newChild = {name: child.value}; // 转换成 {name: "强震检测信息"}
   handleNodeClick(newChild);
   focusNode(newChild.name);
 };
-// const findRelatedNodesAndLinks=(forthFilteredData)=>{
-//   /*
-//   //向上找
-//   没有时间属性的，找到地震结束；
-//   有时间属性的，它的时间不在这个范围内，结束
-//   //向下找
-//   应该都有时间属性,时间不在这个范围，结束查找
-//   */
-//    // ①向上，没有时间的
-//   relatedLinks=[]
-//   secondNode=[]
-//   forthFilteredData.forEach(node=>{
-//     //根据chatlink，从target==node,找属于secondData的node，加入secondNode
-//     // 符合的chatlink加入relatedLinks
-//   })
-//   firstNoe=[]
-//   secondNode.forEach(node=>{
-//     //根据chatlink，从target==node,找属于firstData的node，加入firstNoe
-//     // 符合的chatlink加入relatedLinks
-//   })
-//
-//   // node.name !== props.eqAddr 这个点和secondNode、firstNoe、forthFilteredData，组成数组，一起返回relatedNodes
-//   //firstNoe到props.eqAddr的link加入relatedLinks
-//   //返回relatedLinks
-// }
-// const findRelatedNodesAndLinks = (forthFilteredData) => {
-//   /*
-//   // 向上找
-//   没有时间属性的，找到地震结束；
-//   有时间属性的，它的时间不在这个范围内，结束
-//   // 向下找
-//   应该都有时间属性，时间不在这个范围，结束查找
-//   */
-//
-//   // 初始化相关变量
-//   const relatedLinks = [];
-//   const secondNode = [];
-//   const firstNode = [];
-//
-//   // ① 向上查找：从 forthFilteredData 中的每个节点向上追溯
-//   forthFilteredData.forEach((node) => {
-//     // 遍历 chartLinks，找到所有 target 等于当前节点的链接
-//     const links = chartLinks.value.filter((link) => link.target === node.name);
-//
-//     // 遍历这些链接，找到属于 secondData 的节点
-//     links.forEach((link) => {
-//       const sourceNode = chartData.value.find((item) => item.name === link.source);
-//
-//       // 如果 sourceNode 属于 secondData，加入 secondNode
-//       if (secondData.some((dataItem) => dataItem.name === sourceNode.name)) {
-//         secondNode.push(sourceNode);
-//         relatedLinks.push(link); // 将符合的链接加入 relatedLinks
-//       }
-//     });
-//   });
-//
-//   // ② 继续向上查找：从 secondNode 中的每个节点向上追溯
-//   secondNode.forEach((node) => {
-//     // 遍历 chartLinks，找到所有 target 等于当前节点的链接
-//     const links = chartLinks.value.filter((link) => link.target === node.name);
-//
-//     // 遍历这些链接，找到属于 firstData 的节点
-//     links.forEach((link) => {
-//       const sourceNode = chartData.value.find((item) => item.name === link.source);
-//
-//       // 如果 sourceNode 属于 firstData，加入 firstNode
-//       if (firstData.filter((dataItem) => dataItem.name === sourceNode.name)) {
-//         firstNode.push(sourceNode);
-//         relatedLinks.push(link); // 将符合的链接加入 relatedLinks
-//       }
-//     });
-//   });
-//   let centerPoint= allnodes.value.filter(node =>node.name== props.eqAddr )
-//   // ③ 构建最终的 relatedNodes
-//   const relatedNodes = [
-//     ...forthFilteredData, // forthFilteredData 中的节点
-//     ...secondNode,       // secondNode 中的节点
-//     ...firstNode,        // firstNode 中的节点
-//     ...centerPoint// 地震主节点
-//   ];
-//
-//   // ④ 添加从 firstNode 到地震主节点的链接
-//   firstNode.forEach((node) => {
-//     const link = chartLinks.value.find((link) => link.source === node.name && link.target === props.eqAddr);
-//     if (link) {
-//       relatedLinks.push(link);
-//     }
-//   });
-//   // 去重逻辑
-//   const uniqueNodes = [];
-//   const nodeNames = new Set();
-//
-//   relatedNodes.forEach(node => {
-//     if (!nodeNames.has(node.name)) {
-//       uniqueNodes.push(node);
-//       nodeNames.add(node.name);
-//     }
-//   });
-//
-//   const uniqueLinks = [];
-//   const linkStrings = new Set();
-//
-//   relatedLinks.forEach(link => {
-//     const linkString = `${link.source}-${link.target}`;
-//     if (!linkStrings.has(linkString)) {
-//       uniqueLinks.push(link);
-//       linkStrings.add(linkString);
-//     }
-//   });
-//
-//   // 返回结果
-//   return { uniqueNodes, uniqueLinks };
-//
-// };
 const findRelatedNodesAndLinks = (forthFilteredData) => {
   // 初始化相关变量
   const relatedLinks = [];
@@ -1094,14 +979,14 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
     // 将当前节点加入相关节点集合
     // 查找所有从当前节点出发的连接
     const links = chartLinks.value.filter(link => link.target === currentNode.name);
-    console.log(links,"links chartLinks.value.filter(link => link.target === currentNode.name);")
+    console.log(links, "links chartLinks.value.filter(link => link.target === currentNode.name);")
     // 遍历这些连接，找到对应的源节点
     links.forEach(link => {
       const sourceNode = chartData.value.find(node => node.name === link.source);
       // 如果源节点存在且未被处理过
-        relatedLinks.push(link); // 将连接加入相关连接列表
-        relatedNodes.add(sourceNode);
-        traceUp(sourceNode); // 递归向上追溯
+      relatedLinks.push(link); // 将连接加入相关连接列表
+      relatedNodes.add(sourceNode);
+      traceUp(sourceNode); // 递归向上追溯
 
     });
   };
@@ -1109,8 +994,8 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
   // 从每个 forthFilteredData 节点开始递归向上追溯
   forthFilteredData.forEach(node => {
     // if (!relatedNodes.has(node)) {
-      relatedNodes.add(node);
-      traceUp(node);
+    relatedNodes.add(node);
+    traceUp(node);
     // }
   });
 
@@ -1138,14 +1023,14 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
   });
 
   // 返回结果
-  return { uniqueNodes, uniqueLinks };
+  return {uniqueNodes, uniqueLinks};
 };
 watch(() => props.currentTime, (newTime) => {
   // console.log("test 地震灾情信息",chartLinks.value.filter(link => link.target === "地震灾情信息"&& link.source==="2022-06-01四川省雅安市芦山县6.1级地震"))
   // console.log("new Date(newTime)",new Date(newTime))
   const currentTime = new Date(newTime);
-  const forthFilteredData = allnodes.value.filter(node =>new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
-  const { uniqueNodes, uniqueLinks } =findRelatedNodesAndLinks(forthFilteredData)
+  const forthFilteredData = allnodes.value.filter(node => new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
+  const {uniqueNodes, uniqueLinks} = findRelatedNodesAndLinks(forthFilteredData)
 
   // const { relatedNodes, relatedLinks } = findRelatedNodesAndLinks(forthFilteredData, chartLinks.value, props.eqAddr ? [props.eqAddr] : []);
 
@@ -1154,12 +1039,12 @@ watch(() => props.currentTime, (newTime) => {
 
   console.log(filteredNodes.value, "filteredNodes");
   console.log(filteredLinks.value, "filteredLinks");
-  initChart(filteredNodes,filteredLinks)
+  initChart(filteredNodes, filteredLinks)
 })
 
 // 生命周期钩子
 onMounted(() => {
-    getData()
+  getData()
 });
 
 onBeforeUnmount(() => {
@@ -1238,15 +1123,15 @@ onBeforeUnmount(() => {
   .knowledgeGraph {
     flex: 1;
     height: 100%;
-    width:100%;
-    position:relative;
+    width: 100%;
+    position: relative;
 
     .chartContainer {
       width: 100%;
       height: 100%;
     }
 
-    .restart{
+    .restart {
       button {
         position: absolute;
         top: 8px;
@@ -1296,7 +1181,7 @@ onBeforeUnmount(() => {
       }
     }
 
-    .chartCount{
+    .chartCount {
       button {
         position: absolute;
         top: 46px;
@@ -1346,11 +1231,11 @@ onBeforeUnmount(() => {
       }
     }
 
-    .graphLagend{
+    .graphLagend {
       position: absolute;
       bottom: 0px;
-      z-index:1;
-      left:0vw;
+      z-index: 1;
+      left: 0vw;
       // 基础样式
       background-color: rgba(59, 80, 149, .1);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1363,22 +1248,23 @@ onBeforeUnmount(() => {
       display: flex;
       flex-direction: column;
 
-      .legendHeader{
+      .legendHeader {
         text-align: center;
         margin-bottom: 10px;
       }
 
-      .legendContent{
-        flex:1;
+      .legendContent {
+        flex: 1;
         display: flex;
         flex-direction: column;
 
-        .legend-item{
+        .legend-item {
           display: flex;
           flex-direction: row;
           margin-bottom: 10px;
-          .legend-image{
-            img{
+
+          .legend-image {
+            img {
               margin-top: 3px;
               width: 15px;
               margin-right: 10px;
@@ -1487,11 +1373,11 @@ onBeforeUnmount(() => {
       position: relative;
       margin: 5px auto 0px;
       width: 450px;
-      background-color: rgba(59, 80, 149, .1) ;
+      background-color: rgba(59, 80, 149, .1);
       border-radius: 20px;
       padding: 5px;
 
-      .elInput :deep(.el-textarea__inner){
+      .elInput :deep(.el-textarea__inner) {
         color: white;
       }
 
@@ -1569,15 +1455,15 @@ onBeforeUnmount(() => {
         color: #fff;
         user-select: none; /* 禁用文本选择 */
 
-        ul{
+        ul {
           margin-top: 0px;
           margin-bottom: 0px;
           margin-right: 20px;
 
-          li{
+          li {
             line-height: 40px;
             margin-left: 0px;
-            white-space: nowrap;  /* 防止换行 */
+            white-space: nowrap; /* 防止换行 */
             text-overflow: ellipsis; /* 使用省略号显示超出部分 */
           }
 
