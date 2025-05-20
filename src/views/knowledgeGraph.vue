@@ -365,13 +365,13 @@ const echartsOption = ref({
     layout: 'force',
     force: {
       repulsion: 1000,
-      edgeLength: [100, 200],
+      edgeLength: [120, 200],
       layoutAnimation: true,
     },
     symbolSize: 70,
     nodeScaleRatio: 1,
     roam: true,
-    zoom: 1,
+    zoom: 0.35,
     draggable: true,
     focusNodeAdjacency: false,
     edgeSymbol: ['circle', 'arrow'],
@@ -421,52 +421,74 @@ const echartsOption = ref({
 });
 // 计算一共有多少个实体球
 const chartDataCount = ref();
-
+const allnodes=ref([])
+const filteredNodes=ref([])
+const filteredLinks=ref([])
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    // const res = await getGraphData();
-
     const res = await getChartDataBy(props.eqid)
     console.log("res的结果",res)
+    // 生成随机时间的函数
+    const generateRandomTime = () => {
+      const start = new Date('2022-06-01T17:30:00Z');
+      const end = new Date('2022-06-03T12:00:00Z');
+      const randomTime = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+      return randomTime.toISOString(); // 返回 ISO 字符串格式的时间
+    };
 
+    const nodesMap = new Map();
+
+// 遍历 res 数组，为符合条件的节点添加 time 属性并添加到 Map 中
+    res.forEach(item => {
+      const sourceNode = { ...item.source };
+      const targetNode = { ...item.target };
+
+      // 检查 sourceNode 是否满足条件
+      if (
+          sourceNode.name !== props.eqAddr &&
+          !firstData.some(dataItem => dataItem.name === sourceNode.name) &&
+          !secondData.some(dataItem => dataItem.name === sourceNode.name)
+      ) {
+        sourceNode.time = generateRandomTime(); // 添加时间属性
+      }
+
+      // 检查 targetNode 是否满足条件
+      if (
+          targetNode.name !== props.eqAddr &&
+          !firstData.some(dataItem => dataItem.name === targetNode.name) &&
+          !secondData.some(dataItem => dataItem.name === targetNode.name)
+      ) {
+        targetNode.time = generateRandomTime(); // 添加时间属性
+      }
+
+      // 添加到 Map 中
+      if (!nodesMap.has(sourceNode.name)) {
+        nodesMap.set(sourceNode.name, sourceNode);
+      }
+      if (!nodesMap.has(targetNode.name)) {
+        nodesMap.set(targetNode.name, targetNode);
+      }
+    });
+    allnodes.value = Array.from(nodesMap.values())
+    console.log("allnodes with time",allnodes.value)
+
+    // source（起始节点）、target（目标节点）和关系类型 value
+    //线
     chartLinks.value = res.map(item => ({
       source: item.source.name,
       target: item.target.name,
       value: item.value.type
     }));
-
-    const nodeSet = new Set();
-    chartLinks.value.forEach(item => {
-      nodeSet.add(item.source);
-      nodeSet.add(item.target);
-    });
-    chartData.value = Array.from(nodeSet).map(name => ({name}));
-
+    console.log("chartLinks",chartLinks.value)
+    chartData.value =allnodes.value
     StartData.value= chartData.value
     StartLinks.value = chartLinks.value
+    chartDataCount.value = allnodes.value.length;
 
-    chartDataCount.value = chartData.value.length + 1;
-
-    // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
-    const validValues = new Set(list.value.map(item => item.value));
-    chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
-    chartStartLinks.value = chartStartData.value.map(item => (
-          {
-            source: props.eqAddr,
-            target: item.name,
-            value: "包含"
-        }
-      )
-    )
-
-    chartStartLinks.value.push({
-      source: "地震震情信息",
-      target: "地震参数",
-      value: "包含"
-    })
-    chartStartData.value.push({ name: props.eqAddr });
-
+    // 直接使用所有数据
+    chartStartData.value = chartData.value;
+    chartStartLinks.value = chartLinks.value;
     // 给每个子项计算 sonCount
     list.value.forEach(item => {
       item.children.forEach(child => {
@@ -481,37 +503,38 @@ const getData = async () => {
 
     console.log(StartData.value,"开始数据")
     console.log("newList",newList.value)
-    console.log("chartData",chartStartData.value)
-    console.log("chartLinks",chartStartLinks.value)
+    console.log("chartStartData",chartStartData.value)
+    console.log("chartStartLinks",chartStartLinks.value)
 
-    initChart();
+    initChart(chartStartData,chartStartLinks);
 
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
 };
 // 初始化图表
-const initChart = () => {
+// chartStartData chartStartLinks
+const initChart = (nodes,links) => {
 
   if (!chart.value) return;
 
-  // // 检查 chartData 是否发生变化
-  // const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
-  //
-  // if (!isDataChanged) {
-  //   console.log('数据未变化，跳过渲染');
-  //   return; // 直接返回，不执行后续渲染逻辑
-  // }
-  //
-  // // 更新 lastChartData
-  // lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
+  // 检查数据是否发生变化
+  const isDataChanged =
+      JSON.stringify(nodes.value) !== JSON.stringify(echartsOption.value.series[0].data) ||
+      JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
+
+  if (!isDataChanged) {
+    console.log('数据未变化，跳过渲染');
+    return; // 直接返回，不执行后续渲染逻辑
+  }
 
   if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
-
+  // console.log(props.eqAddr,"props.eqAddr")
   // 特殊节点样式
-  echartsOption.value.series[0].data = chartStartData.value.map(item => {
+  echartsOption.value.series[0].data = nodes.value.map(item => {
+
     if (item.name === props.eqAddr) {
       item.symbol= `image:///images/eqentity1.png`
       item.itemStyle = {
@@ -553,7 +576,7 @@ const initChart = () => {
     return item;
   });
 
-  echartsOption.value.series[0].links = chartStartLinks.value;
+  echartsOption.value.series[0].links = links.value;
 
   echartsInstance.value = echarts.init(chart.value);
 
@@ -939,73 +962,200 @@ const handleChildClick = (child) => {
   handleNodeClick(newChild);
   focusNode(newChild.name);
 };
-
-// watch(() => props.currentTime, (newTime) => {
-//       console.log('currentTime changed:', new Date(newTime));
-//       const time1 = new Date("2022-06-02 00:00:00");
-//       const time2 = new Date("2022-06-05 00:00:00");
-//       const time3 = new Date("2022-06-08 00:00:00");
-//       const time4 = new Date("2022-06-10 00:00:00")
-//       switch (true) {
-//         case new Date(newTime) < time1:
-//           console.log("时间早于 2022-06-02");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//           ]
-//           initChart();
-//           break;
-//         case new Date(newTime) >= time1 && new Date(newTime) < time2:
-//           console.log("时间在 2022-06-01 到 2022-06-05 之间");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//             {name: '江立珂', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//             {source: '项目', target: '江立珂', value: '项目成员'},
-//           ]
-//           initChart();
-//           break;
-//         case new Date(newTime) >= time2 && new Date(newTime) < time3:
-//           console.log("时间在 2022-06-05 到 2022-06-08 之间");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//             {name: '江立珂', symbolSize: 60},
-//             {name: '白颜诺', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//             {source: '项目', target: '江立珂', value: '项目成员'},
-//             {source: '项目', target: '白颜诺', value: '项目成员'},
-//           ]
-//           initChart();
-//           break;
-//         case new Date(newTime) >= time3 && new Date(newTime) < time4:
-//           console.log("时间在 2022-06-08 到 2022-06-10 之间");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//             {name: '江立珂', symbolSize: 60},
-//             {name: '白颜诺', symbolSize: 60},
-//             {name: '李涌鑫', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//             {source: '项目', target: '江立珂', value: '项目成员'},
-//             {source: '项目', target: '白颜诺', value: '项目成员'},
-//             {source: '项目', target: '李涌鑫', value: '项目牛马'},
-//           ]
-//           initChart();
-//         default:
-//           console.log("时间晚于或等于 2022-06-08");
+// const findRelatedNodesAndLinks=(forthFilteredData)=>{
+//   /*
+//   //向上找
+//   没有时间属性的，找到地震结束；
+//   有时间属性的，它的时间不在这个范围内，结束
+//   //向下找
+//   应该都有时间属性,时间不在这个范围，结束查找
+//   */
+//    // ①向上，没有时间的
+//   relatedLinks=[]
+//   secondNode=[]
+//   forthFilteredData.forEach(node=>{
+//     //根据chatlink，从target==node,找属于secondData的node，加入secondNode
+//     // 符合的chatlink加入relatedLinks
+//   })
+//   firstNoe=[]
+//   secondNode.forEach(node=>{
+//     //根据chatlink，从target==node,找属于firstData的node，加入firstNoe
+//     // 符合的chatlink加入relatedLinks
+//   })
+//
+//   // node.name !== props.eqAddr 这个点和secondNode、firstNoe、forthFilteredData，组成数组，一起返回relatedNodes
+//   //firstNoe到props.eqAddr的link加入relatedLinks
+//   //返回relatedLinks
+// }
+// const findRelatedNodesAndLinks = (forthFilteredData) => {
+//   /*
+//   // 向上找
+//   没有时间属性的，找到地震结束；
+//   有时间属性的，它的时间不在这个范围内，结束
+//   // 向下找
+//   应该都有时间属性，时间不在这个范围，结束查找
+//   */
+//
+//   // 初始化相关变量
+//   const relatedLinks = [];
+//   const secondNode = [];
+//   const firstNode = [];
+//
+//   // ① 向上查找：从 forthFilteredData 中的每个节点向上追溯
+//   forthFilteredData.forEach((node) => {
+//     // 遍历 chartLinks，找到所有 target 等于当前节点的链接
+//     const links = chartLinks.value.filter((link) => link.target === node.name);
+//
+//     // 遍历这些链接，找到属于 secondData 的节点
+//     links.forEach((link) => {
+//       const sourceNode = chartData.value.find((item) => item.name === link.source);
+//
+//       // 如果 sourceNode 属于 secondData，加入 secondNode
+//       if (secondData.some((dataItem) => dataItem.name === sourceNode.name)) {
+//         secondNode.push(sourceNode);
+//         relatedLinks.push(link); // 将符合的链接加入 relatedLinks
 //       }
 //     });
+//   });
+//
+//   // ② 继续向上查找：从 secondNode 中的每个节点向上追溯
+//   secondNode.forEach((node) => {
+//     // 遍历 chartLinks，找到所有 target 等于当前节点的链接
+//     const links = chartLinks.value.filter((link) => link.target === node.name);
+//
+//     // 遍历这些链接，找到属于 firstData 的节点
+//     links.forEach((link) => {
+//       const sourceNode = chartData.value.find((item) => item.name === link.source);
+//
+//       // 如果 sourceNode 属于 firstData，加入 firstNode
+//       if (firstData.filter((dataItem) => dataItem.name === sourceNode.name)) {
+//         firstNode.push(sourceNode);
+//         relatedLinks.push(link); // 将符合的链接加入 relatedLinks
+//       }
+//     });
+//   });
+//   let centerPoint= allnodes.value.filter(node =>node.name== props.eqAddr )
+//   // ③ 构建最终的 relatedNodes
+//   const relatedNodes = [
+//     ...forthFilteredData, // forthFilteredData 中的节点
+//     ...secondNode,       // secondNode 中的节点
+//     ...firstNode,        // firstNode 中的节点
+//     ...centerPoint// 地震主节点
+//   ];
+//
+//   // ④ 添加从 firstNode 到地震主节点的链接
+//   firstNode.forEach((node) => {
+//     const link = chartLinks.value.find((link) => link.source === node.name && link.target === props.eqAddr);
+//     if (link) {
+//       relatedLinks.push(link);
+//     }
+//   });
+//   // 去重逻辑
+//   const uniqueNodes = [];
+//   const nodeNames = new Set();
+//
+//   relatedNodes.forEach(node => {
+//     if (!nodeNames.has(node.name)) {
+//       uniqueNodes.push(node);
+//       nodeNames.add(node.name);
+//     }
+//   });
+//
+//   const uniqueLinks = [];
+//   const linkStrings = new Set();
+//
+//   relatedLinks.forEach(link => {
+//     const linkString = `${link.source}-${link.target}`;
+//     if (!linkStrings.has(linkString)) {
+//       uniqueLinks.push(link);
+//       linkStrings.add(linkString);
+//     }
+//   });
+//
+//   // 返回结果
+//   return { uniqueNodes, uniqueLinks };
+//
+// };
+const findRelatedNodesAndLinks = (forthFilteredData) => {
+  // 初始化相关变量
+  const relatedLinks = [];
+  const relatedNodes = new Set(); // 使用 Set 确保节点唯一
+  const centerPoint = allnodes.value.find(node => node.name === props.eqAddr); // 地震主节点
+
+  // 递归函数：从当前节点向上追溯，直到找到地震主节点
+  const traceUp = (currentNode) => {
+    // 如果当前节点是地震主节点，停止递归
+    if (currentNode.name === props.eqAddr) {
+      relatedNodes.add(centerPoint);
+      // relatedLinks.push(chartLinks.value.filter(link => link.target === currentNode.name && link.source===props.eqAddr));
+      return;
+    }
+
+    // 将当前节点加入相关节点集合
+    // 查找所有从当前节点出发的连接
+    const links = chartLinks.value.filter(link => link.target === currentNode.name);
+    console.log(links,"links chartLinks.value.filter(link => link.target === currentNode.name);")
+    // 遍历这些连接，找到对应的源节点
+    links.forEach(link => {
+      const sourceNode = chartData.value.find(node => node.name === link.source);
+      // 如果源节点存在且未被处理过
+        relatedLinks.push(link); // 将连接加入相关连接列表
+        relatedNodes.add(sourceNode);
+        traceUp(sourceNode); // 递归向上追溯
+
+    });
+  };
+
+  // 从每个 forthFilteredData 节点开始递归向上追溯
+  forthFilteredData.forEach(node => {
+    // if (!relatedNodes.has(node)) {
+      relatedNodes.add(node);
+      traceUp(node);
+    // }
+  });
+
+
+  const uniqueNodes = [];
+  const nodeNames = new Set();
+
+  relatedNodes.forEach(node => {
+    if (!nodeNames.has(node.name)) {
+      uniqueNodes.push(node);
+      nodeNames.add(node.name);
+    }
+  });
+
+  // 去重连接
+  const uniqueLinks = [];
+  const linkStrings = new Set();
+
+  relatedLinks.forEach(link => {
+    const linkString = `${link.source}-${link.target}`;
+    if (!linkStrings.has(linkString)) {
+      uniqueLinks.push(link);
+      linkStrings.add(linkString);
+    }
+  });
+
+  // 返回结果
+  return { uniqueNodes, uniqueLinks };
+};
+watch(() => props.currentTime, (newTime) => {
+  // console.log("test 地震灾情信息",chartLinks.value.filter(link => link.target === "地震灾情信息"&& link.source==="2022-06-01四川省雅安市芦山县6.1级地震"))
+  // console.log("new Date(newTime)",new Date(newTime))
+  const currentTime = new Date(newTime);
+  const forthFilteredData = allnodes.value.filter(node =>new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
+  const { uniqueNodes, uniqueLinks } =findRelatedNodesAndLinks(forthFilteredData)
+
+  // const { relatedNodes, relatedLinks } = findRelatedNodesAndLinks(forthFilteredData, chartLinks.value, props.eqAddr ? [props.eqAddr] : []);
+
+  filteredNodes.value = Array.from(uniqueNodes);  // 将 Set 转换为数组
+  filteredLinks.value = uniqueLinks;
+
+  console.log(filteredNodes.value, "filteredNodes");
+  console.log(filteredLinks.value, "filteredLinks");
+  initChart(filteredNodes,filteredLinks)
+})
 
 // 生命周期钩子
 onMounted(() => {
