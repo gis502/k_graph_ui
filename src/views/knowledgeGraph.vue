@@ -432,11 +432,12 @@ let lastRecordTimeLocal=''
 const timestampToTimeChina=(time)  =>{
   return timeTransfer.timestampToTimeChina(time)
 }
+
 // 获取数据并初始化图表
 const getData = async () => {
   try {
     const res = await getChartDataBy(props.eqid)
-    console.log("res的结果", res)
+    console.log("res的结果 getData ", res)
     // 生成随机时间的函数
     const generateRandomTime = () => {
       const start = new Date('2022-06-01T17:30:00Z');
@@ -546,52 +547,62 @@ const initChart = (nodes, links) => {
   if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
     lastRecordTimeLocal = lastRecordTimeLocaltmp
   }
+
+  // 获取已存在的节点
+  const existingNodes = echartsOption.value.series[0].data || [];
+  const existingNodeNames = new Set(existingNodes.map(node => node.name));
+
   echartsOption.value.series[0].data = nodes.value;
   echartsOption.value.series[0].links = links.value;
 
   // 特殊节点样式
   echartsOption.value.series[0].data = nodes.value.map(item => {
 
-    if (item.name === props.eqAddr) {
-      item.symbol = `image:///images/eqentity1.png`
-      item.itemStyle = {
-        borderColor: '#f20404',
-        borderWidth: 2,
-        shadowBlur: 10,
-        shadowColor: '#f20404',
-        color: 'rgba(242, 4, 4, 0.7)',
-      };
-    } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol = `image:///images/eqentity2.png`
-      item.itemStyle = {
-        borderColor: '#e2f204',
-        borderWidth: 2,
-        shadowBlur: 10,
-        shadowColor: '#e2f204',
-        color: 'rgba(226, 242, 4, 0.6)',
-      };
-    } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol = `image:///images/eqentity3.png`
-      item.itemStyle = {
-        borderColor: '#04f2c6',
-        borderWidth: 2,
-        shadowBlur: 10,
-        shadowColor: '#04f2c6',
-        color: 'rgba(4, 242, 198, 0.7)'
-      };
-    } else {
-      item.symbol = `image:///images/eqentity4.png`
-      item.itemStyle = {
-        borderColor: '#04f218',
-        borderWidth: 2,
-        shadowBlur: 10,
-        shadowColor: '#04f218',
-        color: 'rgba(4, 242, 24, 0.7)'
-      };
-    }
+      if (item.name === props.eqAddr) {
+        item.symbol = `image:///images/eqentity1.png`
+        item.itemStyle = {
+          borderColor: '#f20404',
+          borderWidth: 2,
+          shadowBlur: 10,
+          shadowColor: '#f20404',
+          color: 'rgba(242, 4, 4, 0.7)',
+        };
+      }
+      else if (firstData.some(dataItem => dataItem.name === item.name)) {
+        item.symbol = `image:///images/eqentity2.png`
+        item.itemStyle = {
+          borderColor: '#e2f204',
+          borderWidth: 2,
+          shadowBlur: 10,
+          shadowColor: '#e2f204',
+          color: 'rgba(226, 242, 4, 0.6)',
+        };
+      }
+      else if (secondData.some(dataItem => dataItem.name === item.name)) {
+        item.symbol = `image:///images/eqentity3.png`
+        item.itemStyle = {
+          borderColor: '#04f2c6',
+          borderWidth: 2,
+          shadowBlur: 10,
+          shadowColor: '#04f2c6',
+          color: 'rgba(4, 242, 198, 0.7)'
+        };
+      }
+      else {
+        item.symbol = `image:///images/eqentity4.png`
+        item.itemStyle = {
+          borderColor: '#04f218',
+          borderWidth: 2,
+          shadowBlur: 10,
+          shadowColor: '#04f218',
+          color: 'rgba(4, 242, 24, 0.7)'
+        };
+      }
+
 
     return item;
   });
+
   if (!echartsInstance.value) {
     //
     echartsInstance.value = echarts.init(chart.value);
@@ -618,6 +629,26 @@ const initChart = (nodes, links) => {
     // 如果实例已存在，直接更新数据
     echartsInstance.value.setOption(echartsOption.value);
   }
+  // 将新节点突出显示
+  nodes.value.forEach(newNode => {
+    if (!existingNodeNames.has(newNode.name)) {
+      // 将旧节点变暗
+
+        echartsInstance.value.dispatchAction({
+          type: 'highlight',
+          name: newNode.name
+        });
+
+        echartsInstance.value.dispatchAction({
+          type: 'focusNodeAdjacency',
+          seriesIndex: 0,
+          dataIndex: 1
+        });
+
+    }
+  });
+
+
 };
 
 // 点击节点触发函数
