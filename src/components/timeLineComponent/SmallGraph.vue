@@ -293,7 +293,7 @@ const initChart = () => {
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/地震灾害一级标题.png`
+      item.symbol= `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -302,7 +302,7 @@ const initChart = () => {
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害二级标题.png`
+      item.symbol= `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -311,7 +311,7 @@ const initChart = () => {
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害三级标题.png`
+      item.symbol= `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -320,7 +320,7 @@ const initChart = () => {
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
-      item.symbol= `image:///images/地震灾害四级标题.png`
+      item.symbol= `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,

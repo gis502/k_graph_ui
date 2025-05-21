@@ -170,22 +170,22 @@ const props = defineProps({
 const legend = [
   {
     id:0,
-    img:"../../../public/images/地震灾害一级标题.png",
+    img:"../../../public/images/eqentity1.png",
     description:"一级实体"
   },
   {
     id:1,
-    img:"../../../public/images/地震灾害二级标题.png",
+    img:"../../../public/images/eqentity2.png",
     description:"二级实体"
   },
   {
     id:2,
-    img:"../../../public/images/地震灾害三级标题.png",
+    img:"../../../public/images/eqentity3.png",
     description:"三级实体"
   },
   {
     id:3,
-    img:"../../../public/images/地震灾害四级标题.png",
+    img:"../../../public/images/eqentity4.png",
     description:"四级实体"
   },
 ]
@@ -513,7 +513,7 @@ const initChart = () => {
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/地震灾害一级标题.png`
+      item.symbol= `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -522,7 +522,7 @@ const initChart = () => {
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害二级标题.png`
+      item.symbol= `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -531,7 +531,7 @@ const initChart = () => {
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害三级标题.png`
+      item.symbol= `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -540,7 +540,7 @@ const initChart = () => {
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
-      item.symbol= `image:///images/地震灾害四级标题.png`
+      item.symbol= `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -639,7 +639,7 @@ const updateEchart = (data,link) =>{
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/地震灾害一级标题.png`
+      item.symbol= `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -648,7 +648,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害二级标题.png`
+      item.symbol= `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -657,7 +657,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害三级标题.png`
+      item.symbol= `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -666,7 +666,7 @@ const updateEchart = (data,link) =>{
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
-      item.symbol= `image:///images/地震灾害四级标题.png`
+      item.symbol= `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -860,7 +860,7 @@ const sendMessage = async () => {
   loading.value = true;
 
   try {
-    const response = await fetch('http://localhost:5000/conversation_gpt', {
+    const response = await fetch('http://39.106.228.188:5000/conversation_gpt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
