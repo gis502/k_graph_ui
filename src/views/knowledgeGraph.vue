@@ -522,7 +522,7 @@ const getData = async () => {
     console.log("chartStartLinks", chartStartLinks.value)
 
     initChart(chartStartData, chartStartLinks);
-    updateByTime()
+
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -1081,9 +1081,11 @@ const updateByTime=()=>{
   initChart(uniqueNodes, uniqueLinks)
 }
 // 生命周期钩子
-onMounted(() => {
-  getData()
+onMounted(async () => {
+  await getData(); // 初始化数据
+  updateByTime()
 });
+
 
 onBeforeUnmount(() => {
   if (echartsInstance.value) {
