@@ -243,41 +243,30 @@ const echartsOption = ref({
 
 const getData = async () => {
   try {
-    // const res = await getGraphData();
-    const res = await getChartDataBy(props.eqid)
-    chartLinks.value = res.map(item => ({
-      source: item.source.name,
-      target: item.target.name,
-      value: item.value.type
-    }));
+    // 确保 props.eqAddr 是一个有效的字符串
+    if (!props.eqAddr) {
+      console.error('props.eqAddr 是 undefined 或无效值');
+      return;
+    }
 
-    const nodeSet = new Set();
-    chartLinks.value.forEach(item => {
-      nodeSet.add(item.source);
-      nodeSet.add(item.target);
-    });
-    chartData.value = Array.from(nodeSet).map(name => ({name}));
-
-    // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
-    const validValues = new Set(list.value.map(item => item.value));
-    chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
-    chartStartLinks.value = chartStartData.value.map(item => (
-            {
-              source: props.eqAddr,
-              target: item.name,
-              value: "包含"
-            }
-        )
-    )
-    chartStartLinks.value.push({
-      source: "地震震情信息",
-      target: "地震参数",
-      value: "包含"
-    })
+    chartStartData.value=[]
+    chartStartLinks.value=[]
+    chartStartData.value = firstData
     chartStartData.value.push({ name: props.eqAddr });
 
-    initChart();
+    chartStartData.value.forEach(item =>{
+      console.log(item,"hartStartData.value")
+      chartStartLinks.value.push(
+          {
+            source: props.eqAddr,
+            target: item.name,
+            value: "包含"
+          }
+      )
+    })
 
+    console.log(chartStartData.value,chartStartLinks.value,"chartStartData,chartStartLinks")
+    initChart();
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -358,7 +347,10 @@ const handleClick = () => {
 onMounted(() => {
   getData();
 });
-
+watch(() => props.eqAddr, (newTime) => {
+  console.log(props.eqAddr,"small Graph props.eqAddr")
+  getData();
+})
 onBeforeUnmount(() => {
   if (echartsInstance.value) {
     echartsInstance.value.dispose();

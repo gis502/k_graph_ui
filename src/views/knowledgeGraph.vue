@@ -522,7 +522,7 @@ const getData = async () => {
     console.log("chartStartLinks", chartStartLinks.value)
 
     initChart(chartStartData, chartStartLinks);
-
+    updateByTime()
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -1016,14 +1016,14 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
     }
   });
 
-
-  // 返回结果
-  // return {uniqueNodes, uniqueLinks};
   return {relatedNodes, relatedLinks};
 };
 watch(() => props.currentTime, (newTime) => {
-
-  const currentTime = new Date(newTime);
+  updateByTime()
+})
+const updateByTime=()=>{
+  console.log("props.currentTime",props.currentTime)
+  const currentTime = new Date(props.currentTime);
 
   let centerPoint = chartData.value.find(node => node.name === props.eqAddr); // 地震主节点
   centerPoint = centerPoint ? [centerPoint] : [];
@@ -1031,7 +1031,7 @@ watch(() => props.currentTime, (newTime) => {
   let center_firstlink=chartLinks.value.filter(link => firstPoints.some(dataItem => link.target=== dataItem.name))
   let SecondPoints = chartData.value.filter(node => secondData.some(dataItem => dataItem.name === node.name));
   let first_secondlink=chartLinks.value.filter(link => SecondPoints.some(dataItem => link.target=== dataItem.name))
-
+  console.log(currentTime,"updateByTime currentTime")
   const forthFilteredData = chartData.value.filter(node => new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
   console.log(forthFilteredData,"forthFilteredData")
   const {relatedNodes, relatedLinks} = findRelatedNodesAndLinks(forthFilteredData)
@@ -1042,8 +1042,7 @@ watch(() => props.currentTime, (newTime) => {
     ...centerPoint,
     ...firstPoints,
     ...SecondPoints,
-      ...relatedNodes
-    // Array.from(relatedNodes)
+    ...relatedNodes
   ]
 
   filteredLinks.value =[
@@ -1080,8 +1079,7 @@ watch(() => props.currentTime, (newTime) => {
   console.log(uniqueNodes.value, "uniqueNodes");
   console.log(uniqueLinks.value, "uniqueLinks");
   initChart(uniqueNodes, uniqueLinks)
-})
-
+}
 // 生命周期钩子
 onMounted(() => {
   getData()
