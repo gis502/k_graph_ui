@@ -679,7 +679,7 @@
         <SmallGraph
             @samllGraphShow="handleToggleShow"
             :eqid="eqid"
-            :eqAddr="eqAddr"
+            :eqAddr="centerPoint.earthquakeFullName"
         />
         <timeLineMiniMap
             :viewer="viewer"
@@ -703,7 +703,7 @@
             :eqMagnitude="eqMagnitude"
             :currentTime="currentTimeString"
             :eqid="eqid"
-            :eqAddr="eqAddr"
+            :eqAddr="centerPoint.earthquakeFullName"
         />
       </div>
     </div>
@@ -1232,7 +1232,7 @@ export default {
       centerPoint: {},
       viewer: '',
       //地震时间年月日-title
-      eqAddr:'',
+      // eqAddr:'',
       eqyear: '',
       eqmonth: '',
       eqday: '',
@@ -1775,9 +1775,8 @@ export default {
       let clock;
       let that = this
       getEqListById({id: this.eqid}).then(res => {
-        console.log(res)
 
-        console.log(res,"最新数据")
+        console.log(res,"最新地震数据")
 
         this.eqMagnitude = res.magnitude
 
@@ -1794,9 +1793,9 @@ export default {
         this.eqyear = this.centerPoint.startTime.getFullYear()
         this.eqmonth = this.centerPoint.startTime.getMonth() + 1
         this.eqday = this.centerPoint.startTime.getDate()
-        this.eqAddr = this.centerPoint.eqAddr
 
-        // console.log(this.currentTime,"this.currentTime thd")
+        // this.eqAddr = this.centerPoint.eqAddr
+        // this.eqAddr = this.eqyear +"年"+ this.eqmonth+"月"+this.eqday+"日"+  this.centerPoint.earthquakeName+Number(this.centerPoint.magnitude).toFixed(1) +"级地震"
         clock = new Cesium.Clock({
           startTime: Cesium.JulianDate.fromDate(this.centerPoint.startTime),
           stopTime: Cesium.JulianDate.fromDate(this.centerPoint.endTime),

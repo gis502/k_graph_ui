@@ -3,10 +3,6 @@
     <div class="topLastRecordTimeLabel">
       {{ this.lastRecordTimeLocal }}
     </div>
-<!--    <div class="topLastRecordContentLabel">-->
-<!--      <span class="marquee">{{ this.lastRecordContent }}</span>-->
-<!--    </div>-->
-
     <div class="start-time-info">
       <span class="timelabel">开始时间：{{ this.timestampToTimeChina(this.centerPoint.startTime) }}</span>
     </div>
@@ -164,7 +160,7 @@ export default {
     getPlotwithStartandEndTime(eqid) {
       // 调用接口获取特定设备的绘图信息
       getPlotwithStartandEndTime({eqid: eqid}).then(res => {
-        console.log(res, "res")
+        console.log(res, "getPlotwithStartandEndTime res")
         this.plots = res
         this.plots.forEach(item => {
           if (!item.endTime || new Date(item.endTime) < new Date(this.centerPoint.startTime) || new Date(item.endTime) <= new Date(item.startTime)) {
@@ -525,7 +521,7 @@ export default {
   width: 12%;
   top: 12%;
   position: absolute;
-  z-index: 512;
+  z-index: 12;
   color: #FFFFFF;
   font-size: 16px;
   left: 45%;

@@ -1,6 +1,8 @@
 <template>
   <div class="content-body">
-
+    <div class="timeLabel">
+      {{lastRecordTimeLocal}}
+    </div>
     <div class="closeAll">
       <button @click="handleClick">×</button>
     </div>
@@ -28,8 +30,8 @@
             :key="item.id"
             :class="{'clicked': currentIndex === item.id}"
             @click="showDescription(item,item.value)"
-        >{{ item.value }}({{item.fatherCount}})
-<!--          如果有子项展开子项-->
+        >{{ item.value }}({{ item.fatherCount }})
+          <!--          如果有子项展开子项-->
           <ul v-if="item.isOpen">
             <li
                 v-for="child in item.children"
@@ -37,7 +39,7 @@
                 :class="{'clicked': currentIndex === child.id}"
                 @click.stop="handleChildClick(child)"
             >
-              {{ child.value}}({{child.sonCount}})
+              {{ child.value }}({{ child.sonCount }})
             </li>
           </ul>
         </li>
@@ -50,7 +52,7 @@
         <button @click="getData">一键复原</button>
       </div>
       <div class="chartCount">
-        <button>共{{chartDataCount}}个实体球</button>
+        <button>共{{ chartDataCount }}个实体球</button>
       </div>
       <div class="graphLagend">
         <div class="legendHeader">
@@ -62,7 +64,7 @@
               <img :src="item.img" alt="图例说明">
             </div>
             <div class="legend-description">
-              <span>{{item.description}}</span>
+              <span>{{ item.description }}</span>
             </div>
           </div>
         </div>
@@ -148,6 +150,7 @@ import {ref, onMounted, onBeforeUnmount, nextTick} from 'vue';
 import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
+import timeTransfer from "@/cesium/tool/timeTransfer.js";
 // 该数据不准二次赋值，用于全局调用，保存初始数据 ！！！
 let allDataLinks = [];
 // 定义要触发的事件
@@ -162,31 +165,31 @@ const props = defineProps({
   currentTime: {
     type: String,
   },
-  eqAddr:{
-    type:String,
+  eqAddr: {
+    type: String,
   }
 })
 // 存放图例的信息
 const legend = [
   {
-    id:0,
-    img:"../../../public/images/地震灾害一级标题.png",
-    description:"一级实体"
+    id: 0,
+    img: "../../../public/images/eqentity1.png",
+    description: "一级实体"
   },
   {
-    id:1,
-    img:"../../../public/images/地震灾害二级标题.png",
-    description:"二级实体"
+    id: 1,
+    img: "../../../public/images/eqentity2.png",
+    description: "二级实体"
   },
   {
-    id:2,
-    img:"../../../public/images/地震灾害三级标题.png",
-    description:"三级实体"
+    id: 2,
+    img: "../../../public/images/eqentity3.png",
+    description: "三级实体"
   },
   {
-    id:3,
-    img:"../../../public/images/地震灾害四级标题.png",
-    description:"四级实体"
+    id: 3,
+    img: "../../../public/images/eqentity4.png",
+    description: "四级实体"
   },
 ]
 // 响应式数据
@@ -201,50 +204,50 @@ const chart = ref(null);
 const StartData = ref([]);
 const StartLinks = ref([]);
 const firstData = [
-    {
-      name:"地震震情信息"
-    },
-    {
-      name:"地震灾情信息"
-    },
-    {
-      name:"应急指挥协调信息"
-    },
-    {
-      name:"应急决策信息"
-    },
-    {
-      name:"态势标绘信息"
-    },
-    {
-      name:"社会反应动态信息"
-    },
-    {
-      name:"灾害现场动态信息"
-    },
-    {
-      name:"应急处置信息"
-    }
- ]
+  {
+    name: "地震震情信息"
+  },
+  {
+    name: "地震灾情信息"
+  },
+  {
+    name: "应急指挥协调信息"
+  },
+  {
+    name: "应急决策信息"
+  },
+  {
+    name: "态势标绘信息"
+  },
+  {
+    name: "社会反应动态信息"
+  },
+  {
+    name: "灾害现场动态信息"
+  },
+  {
+    name: "应急处置信息"
+  }
+]
 const secondData = [
-  { "name": "地震参数" },
-  { "name": "强震监测信息" },
-  { "name": "测震监测信息" },
-  { "name": "预报信息" },
-  { "name": "余震情况" },
-  { "name": "人员伤亡" },
-  { "name": "房屋破坏" },
-  { "name": "生命线震害信息" },
-  { "name": "次生灾害信息" },
-  { "name": "人员伤亡" },
-  { "name": "灾区灾情简报" },
-  { "name": "用户上传会议信息" },
-  { "name": "应急响应信息" },
-  { "name": "应急决策基础信息" },
-  { "name": "应急处置基础信息" },
-  { "name": "态势标绘基础信息" },
-  { "name": "灾害现场动态基础信息" },
-  { "name": "社会反应动态基础信息" }
+  {"name": "地震参数"},
+  {"name": "强震监测信息"},
+  {"name": "测震监测信息"},
+  {"name": "预报信息"},
+  {"name": "余震情况"},
+  {"name": "人员伤亡"},
+  {"name": "房屋破坏"},
+  {"name": "生命线震害信息"},
+  {"name": "次生灾害信息"},
+  {"name": "人员伤亡"},
+  {"name": "灾区灾情简报"},
+  {"name": "用户上传会议信息"},
+  {"name": "应急响应信息"},
+  {"name": "应急决策基础信息"},
+  {"name": "应急处置基础信息"},
+  {"name": "态势标绘基础信息"},
+  {"name": "灾害现场动态基础信息"},
+  {"name": "社会反应动态基础信息"}
 ]
 // 一开始展示的信息（后续处理过程发生了改变）
 const chartStartData = ref([]);
@@ -267,85 +270,85 @@ const list = ref([
     value: '地震震情信息',
     isOpen: false,
     children: [
-      { id: 11, value: '地震参数' },
-      { id: 12, value: '强震检测信息'},
-      { id: 13, value: '测震监测信息' },
-      { id: 14, value: '预报信息'},
-      { id: 15, value: '余震情况' },
+      {id: 11, value: '地震参数'},
+      {id: 12, value: '强震检测信息'},
+      {id: 13, value: '测震监测信息'},
+      {id: 14, value: '预报信息'},
+      {id: 15, value: '余震情况'},
     ],
-    fatherCount:5,
+    fatherCount: 5,
   },
   {
     id: 2,
     value: '地震灾情信息',
     isOpen: false,
     children: [
-      { id: 21, value: '人员伤亡'},
-      { id: 22, value: '房屋破坏'},
-      { id: 23, value: '生命线震害信息'},
-      { id: 24, value: '次生灾害信息'},
-      { id: 25, value: '人员伤亡'},
-      { id: 26, value: '灾区灾情简报'},
+      {id: 21, value: '人员伤亡'},
+      {id: 22, value: '房屋破坏'},
+      {id: 23, value: '生命线震害信息'},
+      {id: 24, value: '次生灾害信息'},
+      {id: 25, value: '人员伤亡'},
+      {id: 26, value: '灾区灾情简报'},
     ],
-    fatherCount:6,
+    fatherCount: 6,
   },
   {
     id: 3,
     value: '应急指挥协调信息',
     isOpen: false,
     children: [
-      { id: 31, value: '用户上传会议信息' },
-      { id: 32, value: '应急响应信息' },
+      {id: 31, value: '用户上传会议信息'},
+      {id: 32, value: '应急响应信息'},
     ],
-    fatherCount:2,
+    fatherCount: 2,
   },
   {
     id: 4,
     value: '应急决策信息',
     isOpen: false,
     children: [
-      { id: 41, value: '应急决策基础信息' },
+      {id: 41, value: '应急决策基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 5,
     value: '应急处置信息',
     isOpen: false,
     children: [
-      { id: 51, value: '应急处置基础信息' },
+      {id: 51, value: '应急处置基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 6,
     value: '态势标绘信息',
     isOpen: false,
     children: [
-      { id: 61, value: '态势标绘基础信息' },
+      {id: 61, value: '态势标绘基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 7,
     value: '灾害现场动态信息',
     isOpen: false,
     children: [
-      { id: 71, value: '灾害现场动态基础信息' },
+      {id: 71, value: '灾害现场动态基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
   {
     id: 8,
     value: '社会反应动态信息',
     isOpen: false,
     children: [
-      { id: 81, value: '社会反应动态基础信息' },
+      {id: 81, value: '社会反应动态基础信息'},
     ],
-    fatherCount:1,
+    fatherCount: 1,
   },
 ]);
-const newList = ref([]);
+// const newList = ref([]);
 // ECharts 配置
 const echartsOption = ref({
   backgroundColor: 'rgba(0,0,0,0)',
@@ -365,13 +368,13 @@ const echartsOption = ref({
     layout: 'force',
     force: {
       repulsion: 1000,
-      edgeLength: [100, 200],
+      edgeLength: [120, 200],
       layoutAnimation: true,
     },
     symbolSize: 70,
     nodeScaleRatio: 1,
     roam: true,
-    zoom: 1,
+    zoom: 0.35,
     draggable: true,
     focusNodeAdjacency: false,
     edgeSymbol: ['circle', 'arrow'],
@@ -422,50 +425,73 @@ const echartsOption = ref({
 // 计算一共有多少个实体球
 const chartDataCount = ref();
 
+const filteredNodes = ref([])
+const filteredLinks = ref([])
+let lastRecordTimeLocal=''
+// let lastRecordTimeLocal= timestampToTimeChina(new Date(props.currentTime))
+const timestampToTimeChina=(time)  =>{
+  return timeTransfer.timestampToTimeChina(time)
+}
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    // const res = await getGraphData();
-
     const res = await getChartDataBy(props.eqid)
-    console.log("res的结果",res)
+    console.log("res的结果", res)
+    // 生成随机时间的函数
+    const generateRandomTime = () => {
+      const start = new Date('2022-06-01T17:30:00Z');
+      const end = new Date('2022-06-03T12:00:00Z');
+      const randomTime = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+      return randomTime.toISOString(); // 返回 ISO 字符串格式的时间
+    };
 
+    const nodesMap = new Map();
+
+// 遍历 res 数组，为符合条件的节点添加 time 属性并添加到 Map 中
+    res.forEach(item => {
+      const sourceNode = {...item.source};
+      const targetNode = {...item.target};
+
+      // 检查 sourceNode 是否满足条件
+      if (
+          sourceNode.name !== props.eqAddr &&
+          !firstData.some(dataItem => dataItem.name === sourceNode.name) &&
+          !secondData.some(dataItem => dataItem.name === sourceNode.name)
+      ) {
+        sourceNode.time = generateRandomTime(); // 添加时间属性
+      }
+
+      // 检查 targetNode 是否满足条件
+      if (
+          targetNode.name !== props.eqAddr &&
+          !firstData.some(dataItem => dataItem.name === targetNode.name) &&
+          !secondData.some(dataItem => dataItem.name === targetNode.name)
+      ) {
+        targetNode.time = generateRandomTime(); // 添加时间属性
+      }
+
+      // 添加到 Map 中
+      if (!nodesMap.has(sourceNode.name)) {
+        nodesMap.set(sourceNode.name, sourceNode);
+      }
+      if (!nodesMap.has(targetNode.name)) {
+        nodesMap.set(targetNode.name, targetNode);
+      }
+    });
+    chartData.value = Array.from(nodesMap.values())
+    console.log("chartData with time", chartData.value)
+
+    // source（起始节点）、target（目标节点）和关系类型 value
+    //线
     chartLinks.value = res.map(item => ({
       source: item.source.name,
       target: item.target.name,
       value: item.value.type
     }));
 
-    const nodeSet = new Set();
-    chartLinks.value.forEach(item => {
-      nodeSet.add(item.source);
-      nodeSet.add(item.target);
-    });
-    chartData.value = Array.from(nodeSet).map(name => ({name}));
+    console.log("chartLinks", chartLinks.value)
 
-    StartData.value= chartData.value
-    StartLinks.value = chartLinks.value
-
-    chartDataCount.value = chartData.value.length + 1;
-
-    // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
-    const validValues = new Set(list.value.map(item => item.value));
-    chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
-    chartStartLinks.value = chartStartData.value.map(item => (
-          {
-            source: props.eqAddr,
-            target: item.name,
-            value: "包含"
-        }
-      )
-    )
-
-    chartStartLinks.value.push({
-      source: "地震震情信息",
-      target: "地震参数",
-      value: "包含"
-    })
-    chartStartData.value.push({ name: props.eqAddr });
+    chartDataCount.value = chartData.value.length;
 
     // 给每个子项计算 sonCount
     list.value.forEach(item => {
@@ -474,110 +500,124 @@ const getData = async () => {
         child.sonCount = sonCount;
       });
     });
-    console.log(list.value,"跟新后的数据")
+    console.log(list.value, "跟新后的数据")
+    let centerPoint = chartData.value.find(node => node.name === props.eqAddr); // 地震主节点
+    centerPoint = centerPoint ? [centerPoint] : [];
+    let firstPoints = chartData.value.filter(node => firstData.some(dataItem => dataItem.name === node.name));
+    let center_firstlink=chartLinks.value.filter(link => firstPoints.some(dataItem => link.target=== dataItem.name))
+    let SecondPoints = chartData.value.filter(node => secondData.some(dataItem => dataItem.name === node.name));
+    let first_secondlink=chartLinks.value.filter(link => SecondPoints.some(dataItem => link.target=== dataItem.name))
+    chartStartData.value =[
+        ...centerPoint,
+        ...firstPoints,
+        ...SecondPoints
+    ]
 
-    StartData.value = chartStartData.value;
-    StartLinks.value =  chartStartLinks.value;
+    chartStartLinks.value =[
+        ...center_firstlink,
+        ...first_secondlink
+    ]
 
-    console.log(StartData.value,"开始数据")
-    console.log("newList",newList.value)
-    console.log("chartData",chartStartData.value)
-    console.log("chartLinks",chartStartLinks.value)
+    console.log("chartStartData", chartStartData.value)
+    console.log("chartStartLinks", chartStartLinks.value)
 
-    initChart();
-
+    initChart(chartStartData, chartStartLinks);
+    updateByTime()
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
 };
 // 初始化图表
-const initChart = () => {
+// chartStartData chartStartLinks
+const initChart = (nodes, links) => {
 
   if (!chart.value) return;
-
-  // // 检查 chartData 是否发生变化
-  // const isDataChanged = JSON.stringify(chartData.value) !== JSON.stringify(lastChartData.value);
   //
-  // if (!isDataChanged) {
-  //   console.log('数据未变化，跳过渲染');
-  //   return; // 直接返回，不执行后续渲染逻辑
-  // }
-  //
-  // // 更新 lastChartData
-  // lastChartData.value = JSON.parse(JSON.stringify(chartData.value));
+  // // 检查数据是否发生变化
+  const isDataChanged =
+      JSON.stringify(nodes.value) !== JSON.stringify(echartsOption.value.series[0].data) ||
+      JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
 
-  if (echartsInstance.value !== null) {
-    echartsInstance.value.dispose();
+  if (!isDataChanged) {
+    console.log('数据未变化，跳过渲染');
+    return; // 直接返回，不执行后续渲染逻辑
   }
+  let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
+  if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+    lastRecordTimeLocal = lastRecordTimeLocaltmp
+  }
+  echartsOption.value.series[0].data = nodes.value;
+  echartsOption.value.series[0].links = links.value;
 
   // 特殊节点样式
-  echartsOption.value.series[0].data = chartStartData.value.map(item => {
+  echartsOption.value.series[0].data = nodes.value.map(item => {
+
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/地震灾害一级标题.png`
+      item.symbol = `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color:'rgba(242, 4, 4, 0.7)',
+        color: 'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害二级标题.png`
+      item.symbol = `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color:'rgba(226, 242, 4, 0.6)',
+        color: 'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害三级标题.png`
+      item.symbol = `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f2c6',
-        color:'rgba(4, 242, 198, 0.7)'
+        color: 'rgba(4, 242, 198, 0.7)'
       };
-    }else{
-      item.symbol= `image:///images/地震灾害四级标题.png`
+    } else {
+      item.symbol = `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f218',
-        color:'rgba(4, 242, 24, 0.7)'
+        color: 'rgba(4, 242, 24, 0.7)'
       };
     }
 
     return item;
   });
+  if (!echartsInstance.value) {
+    //
+    echartsInstance.value = echarts.init(chart.value);
+    echartsInstance.value.setOption(echartsOption.value);
+    // 强制调整大小，确保初始渲染时的大小正确
+    echartsInstance.value.resize();
 
-  echartsOption.value.series[0].links = chartStartLinks.value;
-
-  echartsInstance.value = echarts.init(chart.value);
-
-  echartsInstance.value.setOption(echartsOption.value);
-
-  // 强制调整大小，确保初始渲染时的大小正确
-  echartsInstance.value.resize();
-
-  // 监听 click 事件
-  echartsInstance.value.on('click', function (params) {
-    // 判断点击的是节点还是边
-    if (params.componentType === 'series' && params.seriesType === 'graph') {
-      if (params.dataType === 'node') {
-        // 处理节点点击
-        handleNodeClick(params.data);
-      } else if (params.dataType === 'edge') {
-        // 处理边点击
+    // 监听 click 事件
+    echartsInstance.value.on('click', function (params) {
+      // 判断点击的是节点还是边
+      if (params.componentType === 'series' && params.seriesType === 'graph') {
+        if (params.dataType === 'node') {
+          // 处理节点点击
+          handleNodeClick(params.data);
+        } else if (params.dataType === 'edge') {
+          // 处理边点击
+        }
       }
-    }
-  });
+    });
 
-  // 添加窗口大小变化监听
-  window.addEventListener('resize', handleResize);
-
+    // 添加窗口大小变化监听
+    window.addEventListener('resize', handleResize);
+  } else {
+    // 如果实例已存在，直接更新数据
+    echartsInstance.value.setOption(echartsOption.value);
+  }
 };
 
 // 点击节点触发函数
@@ -614,7 +654,7 @@ const handleNodeClick = (value) => {
   newTargets.forEach(target => {
     // 如果 chartStartData 中没有这个 target 名称的节点，则添加
     if (!chartStartData.value.some(item => item.name === target)) {
-      chartStartData.value.push({ name: target });
+      chartStartData.value.push({name: target});
     }
   });
 
@@ -624,55 +664,55 @@ const handleNodeClick = (value) => {
   // 打印更新后的 chartChangeData
   console.log("更新后的 chartChangeData:", chartChangeData.value);
 
-  updateEchart(chartChangeData.value,chartChangeLinks.value)
+  updateEchart(chartChangeData.value, chartChangeLinks.value)
 };
 
-const updateEchart = (data,link) =>{
+const updateEchart = (data, link) => {
   if (echartsInstance.value !== null) {
     echartsInstance.value.dispose();
   }
 
-  console.log("data数据",data)
-  console.log("link数据",link)
+  console.log("data数据", data)
+  console.log("link数据", link)
 
 
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/地震灾害一级标题.png`
+      item.symbol = `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#f20404',
-        color:'rgba(242, 4, 4, 0.7)',
+        color: 'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害二级标题.png`
+      item.symbol = `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#e2f204',
-        color:'rgba(226, 242, 4, 0.6)',
+        color: 'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害三级标题.png`
+      item.symbol = `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f2c6',
-        color:'rgba(4, 242, 198, 0.7)'
+        color: 'rgba(4, 242, 198, 0.7)'
       };
-    }else{
-      item.symbol= `image:///images/地震灾害四级标题.png`
+    } else {
+      item.symbol = `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
         shadowBlur: 10,
         shadowColor: '#04f218',
-        color:'rgba(4, 242, 24, 0.7)'
+        color: 'rgba(4, 242, 24, 0.7)'
       };
     }
 
@@ -768,7 +808,7 @@ const showDescription = (item, value) => {
     }
   }
 
-  const nodeName = {name:item.value}
+  const nodeName = {name: item.value}
   handleNodeClick(nodeName);
 
   focusNode(value);
@@ -860,7 +900,7 @@ const sendMessage = async () => {
   loading.value = true;
 
   try {
-    const response = await fetch('http://localhost:5000/conversation_gpt', {
+    const response = await fetch('http://39.106.228.188:5000/conversation_gpt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -885,7 +925,7 @@ const sendMessage = async () => {
     } else {
       const text = await response.text();
       // 如果返回的是纯文本，包装成统一结构
-      data = { content: text };
+      data = {content: text};
     }
 
     // 更新最后一条消息
@@ -921,7 +961,7 @@ const sendMessage = async () => {
 
 // 快捷键发送
 const keySend = (event) => {
-  if (event.ctrlKey && event.key === 'Enter')   {
+  if (event.ctrlKey && event.key === 'Enter') {
     sendMessage();
   }
 };
@@ -934,82 +974,115 @@ const handleClick = () => {
 
 const handleChildClick = (child) => {
   // child:{id: 12, value: '强震检测信息'}
-  console.log(child,"我看看怎么个事")
-  const newChild = { name: child.value }; // 转换成 {name: "强震检测信息"}
+  console.log(child, "我看看怎么个事")
+  const newChild = {name: child.value}; // 转换成 {name: "强震检测信息"}
   handleNodeClick(newChild);
   focusNode(newChild.name);
 };
+const findRelatedNodesAndLinks = (forthFilteredData) => {
+  // 初始化相关变量
+  const relatedLinks = [];
+  const relatedNodes = new Set(); // 使用 Set 确保节点唯一
+  const centerPoint = chartData.value.find(node => node.name === props.eqAddr); // 地震主节点
 
-// watch(() => props.currentTime, (newTime) => {
-//       console.log('currentTime changed:', new Date(newTime));
-//       const time1 = new Date("2022-06-02 00:00:00");
-//       const time2 = new Date("2022-06-05 00:00:00");
-//       const time3 = new Date("2022-06-08 00:00:00");
-//       const time4 = new Date("2022-06-10 00:00:00")
-//       switch (true) {
-//         case new Date(newTime) < time1:
-//           console.log("时间早于 2022-06-02");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//           ]
-//           initChart();
-//           break;
-//         case new Date(newTime) >= time1 && new Date(newTime) < time2:
-//           console.log("时间在 2022-06-01 到 2022-06-05 之间");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//             {name: '江立珂', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//             {source: '项目', target: '江立珂', value: '项目成员'},
-//           ]
-//           initChart();
-//           break;
-//         case new Date(newTime) >= time2 && new Date(newTime) < time3:
-//           console.log("时间在 2022-06-05 到 2022-06-08 之间");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//             {name: '江立珂', symbolSize: 60},
-//             {name: '白颜诺', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//             {source: '项目', target: '江立珂', value: '项目成员'},
-//             {source: '项目', target: '白颜诺', value: '项目成员'},
-//           ]
-//           initChart();
-//           break;
-//         case new Date(newTime) >= time3 && new Date(newTime) < time4:
-//           console.log("时间在 2022-06-08 到 2022-06-10 之间");
-//           chartData.value = [
-//             {name: '项目', symbolSize: 80},
-//             {name: '聂天宇', symbolSize: 60},
-//             {name: '江立珂', symbolSize: 60},
-//             {name: '白颜诺', symbolSize: 60},
-//             {name: '李涌鑫', symbolSize: 60},
-//           ]
-//           chartLinks.value = [
-//             {source: '项目', target: '聂天宇', value: '项目负责人'},
-//             {source: '项目', target: '江立珂', value: '项目成员'},
-//             {source: '项目', target: '白颜诺', value: '项目成员'},
-//             {source: '项目', target: '李涌鑫', value: '项目牛马'},
-//           ]
-//           initChart();
-//         default:
-//           console.log("时间晚于或等于 2022-06-08");
-//       }
-//     });
+  // 递归函数：从当前节点向上追溯，直到找到地震主节点
+  const traceUp = (currentNode) => {
+    // 如果当前节点是地震主节点，停止递归
+    if (currentNode.name === props.eqAddr) {
+      relatedNodes.add(centerPoint);
+      return;
+    }
 
+    // 将当前节点加入相关节点集合
+    // 查找所有从当前节点出发的连接
+    const links = chartLinks.value.filter(link => link.target === currentNode.name);
+    // console.log(links, "links chartLinks.value.filter(link => link.target === currentNode.name);")
+    // 遍历这些连接，找到对应的源节点
+    links.forEach(link => {
+      const sourceNode = chartData.value.find(node => node.name === link.source);
+      // 如果源节点存在且未被处理过
+      relatedLinks.push(link); // 将连接加入相关连接列表
+      relatedNodes.add(sourceNode);
+      traceUp(sourceNode); // 递归向上追溯
+
+    });
+  };
+
+  // 从每个 forthFilteredData 节点开始递归向上追溯
+  forthFilteredData.forEach(node => {
+    if (!relatedNodes.has(node)) {
+    relatedNodes.add(node);
+    traceUp(node);
+    }
+  });
+
+  return {relatedNodes, relatedLinks};
+};
+watch(() => props.currentTime, (newTime) => {
+  updateByTime()
+})
+const updateByTime=()=>{
+  console.log("props.currentTime",props.currentTime)
+  const currentTime = new Date(props.currentTime);
+
+  let centerPoint = chartData.value.find(node => node.name === props.eqAddr); // 地震主节点
+  centerPoint = centerPoint ? [centerPoint] : [];
+  let firstPoints = chartData.value.filter(node => firstData.some(dataItem => dataItem.name === node.name));
+  let center_firstlink=chartLinks.value.filter(link => firstPoints.some(dataItem => link.target=== dataItem.name))
+  let SecondPoints = chartData.value.filter(node => secondData.some(dataItem => dataItem.name === node.name));
+  let first_secondlink=chartLinks.value.filter(link => SecondPoints.some(dataItem => link.target=== dataItem.name))
+  console.log(currentTime,"updateByTime currentTime")
+  const forthFilteredData = chartData.value.filter(node => new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
+  console.log(forthFilteredData,"forthFilteredData")
+  const {relatedNodes, relatedLinks} = findRelatedNodesAndLinks(forthFilteredData)
+  console.log(relatedNodes,"relatedNodes")
+  console.log(relatedLinks,"relatedLinks")
+
+  filteredNodes.value =[
+    ...centerPoint,
+    ...firstPoints,
+    ...SecondPoints,
+    ...relatedNodes
+  ]
+
+  filteredLinks.value =[
+    ...center_firstlink,
+    ...first_secondlink,
+    ...relatedLinks
+  ]
+  console.log(filteredNodes.value, "filteredNodes");
+  console.log(filteredLinks.value, "filteredLinks");
+
+  const uniqueNodes = ref([]);
+  const nodeNames = new Set();
+
+  filteredNodes.value.forEach(node => {
+    if (!nodeNames.has(node.name)) {
+      uniqueNodes.value.push(node);
+      nodeNames.add(node.name);
+    }
+  });
+
+  // 去重连接
+  const uniqueLinks = ref([]);
+  const linkStrings = new Set();
+
+  filteredLinks.value.forEach(link => {
+    const linkString = `${link.source}-${link.target}`;
+    if (!linkStrings.has(linkString)) {
+      uniqueLinks.value.push(link);
+      linkStrings.add(linkString);
+    }
+  });
+
+
+  console.log(uniqueNodes.value, "uniqueNodes");
+  console.log(uniqueLinks.value, "uniqueLinks");
+  initChart(uniqueNodes, uniqueLinks)
+}
 // 生命周期钩子
 onMounted(() => {
-    getData()
+  getData()
 });
 
 onBeforeUnmount(() => {
@@ -1031,7 +1104,7 @@ onBeforeUnmount(() => {
   flex-direction: row; /* 使元素横向排列 */
   // 确保 flex 容器允许子元素增长和收缩
   border-radius: 20px;
-  z-index: 2;
+  z-index: 3;
   background: linear-gradient(270deg, rgba(4, 20, 34, 1) 0%, rgba(14, 37, 61, 0.9) 41%, rgba(26, 54, 77, 0.75) 66%, rgba(42, 89, 135, 0.45) 88%, rgba(47, 82, 117, 0.3) 95%, rgba(44, 69, 94, 0) 100%);
 
   .closeAll {
@@ -1088,15 +1161,15 @@ onBeforeUnmount(() => {
   .knowledgeGraph {
     flex: 1;
     height: 100%;
-    width:100%;
-    position:relative;
+    width: 100%;
+    position: relative;
 
     .chartContainer {
       width: 100%;
       height: 100%;
     }
 
-    .restart{
+    .restart {
       button {
         position: absolute;
         top: 8px;
@@ -1146,7 +1219,7 @@ onBeforeUnmount(() => {
       }
     }
 
-    .chartCount{
+    .chartCount {
       button {
         position: absolute;
         top: 46px;
@@ -1196,11 +1269,11 @@ onBeforeUnmount(() => {
       }
     }
 
-    .graphLagend{
+    .graphLagend {
       position: absolute;
       bottom: 0px;
-      z-index:1;
-      left:0vw;
+      z-index: 1;
+      left: 0vw;
       // 基础样式
       background-color: rgba(59, 80, 149, .1);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1213,22 +1286,23 @@ onBeforeUnmount(() => {
       display: flex;
       flex-direction: column;
 
-      .legendHeader{
+      .legendHeader {
         text-align: center;
         margin-bottom: 10px;
       }
 
-      .legendContent{
-        flex:1;
+      .legendContent {
+        flex: 1;
         display: flex;
         flex-direction: column;
 
-        .legend-item{
+        .legend-item {
           display: flex;
           flex-direction: row;
           margin-bottom: 10px;
-          .legend-image{
-            img{
+
+          .legend-image {
+            img {
               margin-top: 3px;
               width: 15px;
               margin-right: 10px;
@@ -1337,11 +1411,11 @@ onBeforeUnmount(() => {
       position: relative;
       margin: 5px auto 0px;
       width: 450px;
-      background-color: rgba(59, 80, 149, .1) ;
+      background-color: rgba(59, 80, 149, .1);
       border-radius: 20px;
       padding: 5px;
 
-      .elInput :deep(.el-textarea__inner){
+      .elInput :deep(.el-textarea__inner) {
         color: white;
       }
 
@@ -1419,15 +1493,15 @@ onBeforeUnmount(() => {
         color: #fff;
         user-select: none; /* 禁用文本选择 */
 
-        ul{
+        ul {
           margin-top: 0px;
           margin-bottom: 0px;
           margin-right: 20px;
 
-          li{
+          li {
             line-height: 40px;
             margin-left: 0px;
-            white-space: nowrap;  /* 防止换行 */
+            white-space: nowrap; /* 防止换行 */
             text-overflow: ellipsis; /* 使用省略号显示超出部分 */
           }
 
@@ -1560,6 +1634,21 @@ onBeforeUnmount(() => {
   position: absolute;
   right: 10px;
   bottom: 10px;
+}
+.timeLabel {
+  background-color: rgba(32, 99, 150, 0.8);
+  border-radius: 20px;
+  height: 6%;
+  width: 12%;
+  top: 0%;
+  position: absolute;
+  z-index: 9;
+  color: #FFFFFF;
+  font-size: 16px;
+  left: 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 </style>

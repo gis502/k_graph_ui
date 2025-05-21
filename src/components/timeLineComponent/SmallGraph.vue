@@ -243,41 +243,30 @@ const echartsOption = ref({
 
 const getData = async () => {
   try {
-    // const res = await getGraphData();
-    const res = await getChartDataBy(props.eqid)
-    chartLinks.value = res.map(item => ({
-      source: item.source.name,
-      target: item.target.name,
-      value: item.value.type
-    }));
+    // 确保 props.eqAddr 是一个有效的字符串
+    if (!props.eqAddr) {
+      console.error('props.eqAddr 是 undefined 或无效值');
+      return;
+    }
 
-    const nodeSet = new Set();
-    chartLinks.value.forEach(item => {
-      nodeSet.add(item.source);
-      nodeSet.add(item.target);
-    });
-    chartData.value = Array.from(nodeSet).map(name => ({name}));
-
-    // 处理 一开始展示 数据（这里的顺序不要更换否则会出问题）
-    const validValues = new Set(list.value.map(item => item.value));
-    chartStartData.value = chartData.value.filter(item => validValues.has(item.name))
-    chartStartLinks.value = chartStartData.value.map(item => (
-            {
-              source: props.eqAddr,
-              target: item.name,
-              value: "包含"
-            }
-        )
-    )
-    chartStartLinks.value.push({
-      source: "地震震情信息",
-      target: "地震参数",
-      value: "包含"
-    })
+    chartStartData.value=[]
+    chartStartLinks.value=[]
+    chartStartData.value = firstData
     chartStartData.value.push({ name: props.eqAddr });
 
-    initChart();
+    chartStartData.value.forEach(item =>{
+      console.log(item,"hartStartData.value")
+      chartStartLinks.value.push(
+          {
+            source: props.eqAddr,
+            target: item.name,
+            value: "包含"
+          }
+      )
+    })
 
+    console.log(chartStartData.value,chartStartLinks.value,"chartStartData,chartStartLinks")
+    initChart();
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
@@ -293,7 +282,7 @@ const initChart = () => {
   // 特殊节点样式
   echartsOption.value.series[0].data = chartStartData.value.map(item => {
     if (item.name === props.eqAddr) {
-      item.symbol= `image:///images/地震灾害一级标题.png`
+      item.symbol= `image:///images/eqentity1.png`
       item.itemStyle = {
         borderColor: '#f20404',
         borderWidth: 2,
@@ -302,7 +291,7 @@ const initChart = () => {
         color:'rgba(242, 4, 4, 0.7)',
       };
     } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害二级标题.png`
+      item.symbol= `image:///images/eqentity2.png`
       item.itemStyle = {
         borderColor: '#e2f204',
         borderWidth: 2,
@@ -311,7 +300,7 @@ const initChart = () => {
         color:'rgba(226, 242, 4, 0.6)',
       };
     } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-      item.symbol= `image:///images/地震灾害三级标题.png`
+      item.symbol= `image:///images/eqentity3.png`
       item.itemStyle = {
         borderColor: '#04f2c6',
         borderWidth: 2,
@@ -320,7 +309,7 @@ const initChart = () => {
         color:'rgba(4, 242, 198, 0.7)'
       };
     }else{
-      item.symbol= `image:///images/地震灾害四级标题.png`
+      item.symbol= `image:///images/eqentity4.png`
       item.itemStyle = {
         borderColor: '#04f218',
         borderWidth: 2,
@@ -358,7 +347,10 @@ const handleClick = () => {
 onMounted(() => {
   getData();
 });
-
+watch(() => props.eqAddr, (newTime) => {
+  console.log(props.eqAddr,"small Graph props.eqAddr")
+  getData();
+})
 onBeforeUnmount(() => {
   if (echartsInstance.value) {
     echartsInstance.value.dispose();
