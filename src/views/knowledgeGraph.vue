@@ -442,7 +442,7 @@ const timestampToTimeChina=(time)  =>{
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    brightenOldNodesAndLinks()
+
     const res = await getChartDataBy(props.eqid)
     console.log("res的结果 getData ", res)
     const nodesMap = new Map();
@@ -501,200 +501,12 @@ const getData = async () => {
     console.log("chartStartLinks", chartStartLinks.value)
 
     initChart(chartStartData, chartStartLinks);
-
+    brightenOldNodesAndLinks()
   } catch (error) {
     console.error('获取图表数据失败:', error);
   }
 };
-// 初始化图表
-// chartStartData chartStartLinks
-// const initChart = async(nodes, links)  => {
-//
-//   if (!chart.value) return;
-//   //
-//   // // 检查数据是否发生变化
-//   const isDataChanged =
-//       JSON.stringify(nodes.value) !== JSON.stringify(echartsOption.value.series[0].data) ||
-//       JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
-//
-//   if (!isDataChanged) {
-//     console.log('数据未变化,跳过渲染');
-//     return; // 直接返回,不执行后续渲染逻辑
-//   }
-//
-//   let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
-//   if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
-//     lastRecordTimeLocal = lastRecordTimeLocaltmp
-//   }
-//
-//   // 获取已存在的节点
-//   let existingNodes=null
-//   existingNodes = echartsOption.value.series[0].data;
-//   const existingNodeNames = new Set(existingNodes.map(node => node.name));
-//
-//   echartsOption.value.series[0].data = nodes.value;
-//   echartsOption.value.series[0].links = links.value;
-//
-//   // 特殊节点样式
-//   echartsOption.value.series[0].data = nodes.value.map(item => {
-//     let itemStyle;
-//     if (!existingNodeNames.has(item.name)) {
-//       if (item.name === props.eqAddr) {
-//         item.symbol = `image:///images/eqentity1.png`
-//         item.itemStyle = {
-//           borderColor: '#f20404',
-//           borderWidth: 2,
-//           shadowBlur: 10,
-//           shadowColor: '#f20404',
-//           color: 'rgba(242, 4, 4, 0.7)',
-//         };
-//       } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-//         item.symbol = `image:///images/eqentity2.png`
-//         item.itemStyle = {
-//           borderColor: '#e2f204',
-//           borderWidth: 2,
-//           shadowBlur: 10,
-//           shadowColor: '#e2f204',
-//           color: 'rgba(226, 242, 4, 0.6)',
-//         };
-//       } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-//         item.symbol = `image:///images/eqentity3.png`
-//         item.itemStyle = {
-//           borderColor: '#04f2c6',
-//           borderWidth: 2,
-//           shadowBlur: 10,
-//           shadowColor: '#04f2c6',
-//           color: 'rgba(4, 242, 198, 0.7)'
-//         };
-//       } else {
-//         item.symbol = `image:///images/eqentity4.png`
-//         item.itemStyle = {
-//           borderColor: '#04f218',
-//           borderWidth: 2,
-//           shadowBlur: 10,
-//           shadowColor: '#04f218',
-//           color: 'rgba(4, 242, 24, 0.7)'
-//         };
-//       }
-//       return item;
-//     }
-//     else{
-//       if (item.name === props.eqAddr) {
-//         item.symbol = `image:///images/eqentity1-1.png`
-//         item.itemStyle = {
-//           borderColor: '#f20404',
-//           borderWidth: 2,
-//           shadowBlur: 0,
-//           shadowColor: '#f20404',
-//           color: 'rgba(242, 4, 4, 0.5)',
-//         };
-//       } else if (firstData.some(dataItem => dataItem.name === item.name)) {
-//         item.symbol = `image:///images/eqentity2-1.png`
-//         item.itemStyle = {
-//           borderColor: '#e2f204',
-//           borderWidth: 2,
-//           shadowBlur: 0,
-//           shadowColor: '#e2f204',
-//           color: 'rgba(226, 242, 4, 0.5)',
-//         };
-//       } else if (secondData.some(dataItem => dataItem.name === item.name)) {
-//         item.symbol = `image:///images/eqentity2-1.png`
-//         item.itemStyle = {
-//           borderColor: '#04f2c6',
-//           borderWidth: 2,
-//           shadowBlur: 0,
-//           shadowColor: '#04f2c6',
-//           color: 'rgba(4, 242, 198, 0.5)'
-//         };
-//       } else {
-//         item.symbol = `image:///images/eqentity4-1.png`
-//         item.itemStyle = {
-//           borderColor: '#04f218',
-//           borderWidth: 2,
-//           shadowBlur: 0,
-//           shadowColor: '#04f218',
-//           color: 'rgba(4, 242, 24, 0.5)'
-//         };
-//       }
-//       return item;
-//     }
-//   });
-//   // 动态设置每条线的样式
-//   echartsOption.value.series[0].links = links.value.map(link => {
-//     let lineStyle;
-//     if (existingNodeNames.has(link.source) && existingNodeNames.has(link.target)) {
-//       // 旧连接线样式
-//       lineStyle = {
-//         opacity: 0.5,
-//         width: 2,
-//         curveness: 0,
-//         color: {
-//           type: 'linear',
-//           x: 0,
-//           y: 0,
-//           x2: 0,
-//           y2: 1,
-//           colorStops: [
-//             {offset: 0, color: '#e0f55a'},
-//             {offset: 1, color: '#639564'}
-//           ],
-//           globalCoord: false
-//         }
-//       }
-//     } else {
-//       // 新连接线样式
-//       lineStyle = {
-//         opacity: 0.9,
-//         width: 2,
-//         curveness: 0,
-//         color: {
-//           type: 'linear',
-//           x: 0,
-//           y: 0,
-//           x2: 0,
-//           y2: 1,
-//           colorStops: [
-//             {offset: 0, color: '#e0f55a'},
-//             {offset: 1, color: '#639564'}
-//           ],
-//           globalCoord: false
-//         }
-//       }
-//     }
-//     return {
-//       ...link,
-//       lineStyle: lineStyle
-//     };
-//   });
-//
-//   if (!echartsInstance.value) {
-//     //
-//     echartsInstance.value = echarts.init(chart.value);
-//     echartsInstance.value.setOption(echartsOption.value);
-//     // 强制调整大小,确保初始渲染时的大小正确
-//     echartsInstance.value.resize();
-//
-//     // 监听 click 事件
-//     echartsInstance.value.on('click', function (params) {
-//       // 判断点击的是节点还是边
-//       if (params.componentType === 'series' && params.seriesType === 'graph') {
-//         if (params.dataType === 'node') {
-//           // 处理节点点击
-//           handleNodeClick(params.data);
-//         } else if (params.dataType === 'edge') {
-//           // 处理边点击
-//         }
-//       }
-//     });
-//
-//     // 添加窗口大小变化监听
-//     window.addEventListener('resize', handleResize);
-//   } else {
-//     await echartsInstance.value.setOption(echartsOption.value);
-//     // 动态调整缩放比例
-//     adjustZoom();
-//   }
-// };
+
 
 const initChart = async (nodes, links) => {
   if (!chart.value) return;
@@ -721,8 +533,14 @@ const initChart = async (nodes, links) => {
 
   // 特殊节点样式
   const updatedNodes = nodes.value.map(item => {
-    let itemStyle;
+    // let itemStyle;
+    // let labelStyle; // 新增 labelStyle 变量
     if (!existingNodeNames.has(item.name)) {
+      item.label={
+        show: true,
+            position: 'bottom',
+            color: 'white'
+      }
       // 新节点样式
       if (item.name === props.eqAddr) {
         item.symbol = `image:///images/eqentity1.png`;
@@ -761,8 +579,14 @@ const initChart = async (nodes, links) => {
           color: 'rgba(4, 242, 24, 0.7)',
         };
       }
-    } else {
-      // 旧节点样式
+    }
+    // 旧节点样式
+    else {
+      item.label={
+        show: true,
+        position: 'bottom',
+        color: 'rgba(176,170,170,0.84)'
+      }
       if (item.name === props.eqAddr) {
         item.symbol = `image:///images/eqentity1-1.png`;
         item.itemStyle = {
@@ -867,16 +691,6 @@ const initChart = async (nodes, links) => {
         }
       }
     });
-    // echartsInstance.value.on('mouseover', function (params) {
-    //   if (params.dataType === 'node') {
-    //     // 手动设置当前节点的高亮样式
-    //     echartsInstance.value.dispatchAction({
-    //       type: 'highlight',
-    //       name: params.data.name
-    //     });
-    //   }
-    // });
-
 
 
     window.addEventListener('resize', handleResize);
@@ -930,6 +744,11 @@ const brightenOldNodesAndLinks = () => {
 
   // 更新每个节点的样式
   echartsOption.value.series[0].data = existingNodes.map(item => {
+    item.label={
+      show: true,
+      position: 'bottom',
+      color: 'white'
+    }
     // 新节点样式
     if (item.name === props.eqAddr) {
       item.symbol = `image:///images/eqentity1.png`;
