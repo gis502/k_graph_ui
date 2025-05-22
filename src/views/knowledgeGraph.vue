@@ -151,7 +151,7 @@ import {getChartDataBy, getGraphData} from "@/api/system/knowledgeGraph.js";
 import {MdPreview} from "md-editor-v3";
 import {ElMessage} from "element-plus";
 import timeTransfer from "@/cesium/tool/timeTransfer.js";
-// 该数据不准二次赋值，用于全局调用，保存初始数据 ！！！
+// 该数据不准二次赋值,用于全局调用,保存初始数据 ！！！
 let allDataLinks = [];
 // 定义要触发的事件
 const emit = defineEmits(['bigGraphShow'])
@@ -200,7 +200,7 @@ const formData = ref({});
 const messageList = ref([]);
 const loading = ref(false);
 const chart = ref(null);
-// 永远不会改变的初始值（这里有BUG，不知道为什么变化了）
+// 永远不会改变的初始值(这里有BUG,不知道为什么变化了)
 const StartData = ref([]);
 const StartLinks = ref([]);
 const firstData = [
@@ -249,7 +249,7 @@ const secondData = [
   {"name": "灾害现场动态基础信息"},
   {"name": "社会反应动态基础信息"}
 ]
-// 一开始展示的信息（后续处理过程发生了改变）
+// 一开始展示的信息(后续处理过程发生了改变)
 const chartStartData = ref([]);
 const chartStartLinks = ref([]);
 // 不断变化的信息
@@ -432,63 +432,105 @@ let lastRecordTimeLocal=''
 const timestampToTimeChina=(time)  =>{
   return timeTransfer.timestampToTimeChina(time)
 }
+// const chartLinks=ref([])
+ chartLinks.value=[
+  {source:"2022-06-01四川省雅安市芦山县6.1级地震",value:"包含",target:"地震震情信息"},
+  {source:"地震震情信息",value:"包含",target:"地震参数"},
+  {source:"地震参数",value:"震发位置",target:"四川雅安市芦山县"},
+  {source:"地震参数",value:"发震时间",target:"2022年6月1日 17时0分0秒"},
+  {source:"地震参数",value:"震级",target:"6.1级"},
+  {source:"地震参数",value:"震源深度",target:"17km"},
+  {source:"地震参数",value:"经度",target:"102.94度'"},
+  {source:"地震参数",value:"纬度",target:"30.37度"},
+  {source:"地震震情信息",value:"包含",target:"强震监测信息"},
+  {source:"地震震情信息",value:"包含",target:"测震监测信息"},
+  {source:"测震监测信息",value:"类型",target:"逆冲型地震"},
+  {source:"测震监测信息",value:"位于",target:"双石-大川断裂带"},
+  {source:"测震监测信息",value:"距离震中",target:"9公里"},
+  {source:"测震监测信息",value:"受灾范围",target:"约10000平方千米"},
+  {source:"地震震情信息",value:"包含",target:"预报信息"},
+  {source:"预报信息",value:"包含",target:"部门"},
+  {source:"部门",value:"包含",target:"国务院抗震救灾指挥部办公室"},
+  {source:"国务院抗震救灾指挥部办公室",value:"发布",target:"国家地震应急三级响应"},
+  {source:"部门",value:"包含",target:"应急管理部"},
+  {source:"应急管理部",value:"发布",target:"国家地震应急三级响应"},
+  {source:"地震震情信息",value:"包含",target:"余震情况"},
+  {source:"余震情况",value:"发生",target:"四川雅安市芦山县"},
+  {source:"四川雅安市芦山县",value:"截止",target:"2022年6月1日 19时00分00秒"},
+  {source:"2022年6月1日 19时00分00秒",value:"震级",target:"4.5级"},
+  {source:"2022年6月1日 19时00分00秒",value:"震源深度",target:"未知"},
+  {source:"余震情况",value:"发生",target:"四川雅安市芦山县"},
+  {source:"四川雅安市芦山县",value:"截止",target:"2022年6月2日 7时48分00秒"},
+  {source:"2022年6月2日 7时48分00秒",value:"震级",target:"3.2级"},
+  {source:"2022年6月2日 7时48分00秒",value:"震源深度",target:"18km"},
+]
+// const chartData=ref([])
 
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    const res = await getChartDataBy(props.eqid)
-    console.log("res的结果 getData ", res)
-    // 生成随机时间的函数
-    const generateRandomTime = () => {
-      const start = new Date('2022-06-01T17:30:00Z');
-      const end = new Date('2022-06-03T12:00:00Z');
-      const randomTime = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-      return randomTime.toISOString(); // 返回 ISO 字符串格式的时间
-    };
-
+    // const res = await getChartDataBy(props.eqid)
+    // console.log("res的结果 getData ", res)
+    // // 生成随机时间的函数
+    // const generateRandomTime = () => {
+    //   const start = new Date('2022-06-01T17:30:00Z');
+    //   const end = new Date('2022-06-03T12:00:00Z');
+    //   const randomTime = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    //   return randomTime.toISOString(); // 返回 ISO 字符串格式的时间
+    // };
+    //
+    // const nodesMap = new Map();
+    //
+    // // 遍历 res 数组,为符合条件的节点添加 time 属性并添加到 Map 中
+    // res.forEach(item => {
+    //   const sourceNode = {...item.source};
+    //   const targetNode = {...item.target};
+    //
+    //   // 检查 sourceNode 是否满足条件
+    //   if (
+    //       sourceNode.name !== props.eqAddr &&
+    //       !firstData.some(dataItem => dataItem.name === sourceNode.name) &&
+    //       !secondData.some(dataItem => dataItem.name === sourceNode.name)
+    //   ) {
+    //     sourceNode.time = generateRandomTime(); // 添加时间属性
+    //   }
+    //
+    //   // 检查 targetNode 是否满足条件
+    //   if (
+    //       targetNode.name !== props.eqAddr &&
+    //       !firstData.some(dataItem => dataItem.name === targetNode.name) &&
+    //       !secondData.some(dataItem => dataItem.name === targetNode.name)
+    //   ) {
+    //     targetNode.time = generateRandomTime(); // 添加时间属性
+    //   }
+    //
+    //   // 添加到 Map 中
+    //   if (!nodesMap.has(sourceNode.name)) {
+    //     nodesMap.set(sourceNode.name, sourceNode);
+    //   }
+    //   if (!nodesMap.has(targetNode.name)) {
+    //     nodesMap.set(targetNode.name, targetNode);
+    //   }
+    // });
     const nodesMap = new Map();
-
-// 遍历 res 数组，为符合条件的节点添加 time 属性并添加到 Map 中
-    res.forEach(item => {
-      const sourceNode = {...item.source};
-      const targetNode = {...item.target};
-
-      // 检查 sourceNode 是否满足条件
-      if (
-          sourceNode.name !== props.eqAddr &&
-          !firstData.some(dataItem => dataItem.name === sourceNode.name) &&
-          !secondData.some(dataItem => dataItem.name === sourceNode.name)
-      ) {
-        sourceNode.time = generateRandomTime(); // 添加时间属性
+    chartLinks.value.forEach(item=>{
+      if (!nodesMap.has(item.source)) {
+        nodesMap.set(item.source, {name:item.source});
       }
-
-      // 检查 targetNode 是否满足条件
-      if (
-          targetNode.name !== props.eqAddr &&
-          !firstData.some(dataItem => dataItem.name === targetNode.name) &&
-          !secondData.some(dataItem => dataItem.name === targetNode.name)
-      ) {
-        targetNode.time = generateRandomTime(); // 添加时间属性
+      if (!nodesMap.has(item.target)) {
+        nodesMap.set(item.target, {name:item.target});
       }
-
-      // 添加到 Map 中
-      if (!nodesMap.has(sourceNode.name)) {
-        nodesMap.set(sourceNode.name, sourceNode);
-      }
-      if (!nodesMap.has(targetNode.name)) {
-        nodesMap.set(targetNode.name, targetNode);
-      }
-    });
+    })
     chartData.value = Array.from(nodesMap.values())
     console.log("chartData with time", chartData.value)
 
-    // source（起始节点）、target（目标节点）和关系类型 value
+    // source(起始节点)、target(目标节点)和关系类型 value
     //线
-    chartLinks.value = res.map(item => ({
-      source: item.source.name,
-      target: item.target.name,
-      value: item.value.type
-    }));
+    // chartLinks.value = res.map(item => ({
+    //   source: item.source.name,
+    //   target: item.target.name,
+    //   value: item.value.type
+    // }));
 
     console.log("chartLinks", chartLinks.value)
 
@@ -540,8 +582,8 @@ const initChart = (nodes, links) => {
       JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
 
   if (!isDataChanged) {
-    console.log('数据未变化，跳过渲染');
-    return; // 直接返回，不执行后续渲染逻辑
+    console.log('数据未变化,跳过渲染');
+    return; // 直接返回,不执行后续渲染逻辑
   }
   let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
   if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
@@ -549,7 +591,8 @@ const initChart = (nodes, links) => {
   }
 
   // 获取已存在的节点
-  const existingNodes = echartsOption.value.series[0].data || [];
+  let existingNodes=null
+  existingNodes = echartsOption.value.series[0].data;
   const existingNodeNames = new Set(existingNodes.map(node => node.name));
 
   echartsOption.value.series[0].data = nodes.value;
@@ -607,7 +650,7 @@ const initChart = (nodes, links) => {
     //
     echartsInstance.value = echarts.init(chart.value);
     echartsInstance.value.setOption(echartsOption.value);
-    // 强制调整大小，确保初始渲染时的大小正确
+    // 强制调整大小,确保初始渲染时的大小正确
     echartsInstance.value.resize();
 
     // 监听 click 事件
@@ -626,29 +669,43 @@ const initChart = (nodes, links) => {
     // 添加窗口大小变化监听
     window.addEventListener('resize', handleResize);
   } else {
-    // 如果实例已存在，直接更新数据
+    // 如果实例已存在,直接更新数据
     echartsInstance.value.setOption(echartsOption.value);
   }
   // 将新节点突出显示
-  nodes.value.forEach(newNode => {
+  // 将新节点及其邻接节点突出显示
+  // const newNodes = nodes.value.filter(node => !existingNodeNames.has(node.name));
+  // const highlightedNodes = new Set(newNodes.map(node => node.name));
+  //
+  // // 收集所有邻接节点
+  // links.value.forEach(link => {
+  //   if (highlightedNodes.has(link.source) || highlightedNodes.has(link.target)) {
+  //     highlightedNodes.add(link.source);
+  //     highlightedNodes.add(link.target);
+  //   }
+  // });
+  //
+  // // 高亮所有新节点及其邻接节点
+  // highlightedNodes.forEach(nodeName => {
+  //   echartsInstance.value.dispatchAction({
+  //     type: 'highlight',
+  //     name: nodeName,
+  //   });
+  // });
+
+  // 确保所有高亮操作完成后再更新图表
+  // echartsInstance.value.setOption(echartsOption.value);
+  nodes.value.forEach((newNode, index) => {
     if (!existingNodeNames.has(newNode.name)) {
-      // 将旧节点变暗
-
-        echartsInstance.value.dispatchAction({
-          type: 'highlight',
-          name: newNode.name
-        });
-
-        echartsInstance.value.dispatchAction({
-          type: 'focusNodeAdjacency',
-          seriesIndex: 0,
-          dataIndex: 1
-        });
-
+      console.log(newNode.name, "highlight");
+      // 新节点高亮
+      echartsInstance.value.dispatchAction({
+        type: 'highlight',
+        name: newNode.name,
+      });
     }
   });
-
-
+  echartsInstance.value.setOption(echartsOption.value);
 };
 
 // 点击节点触发函数
@@ -666,7 +723,7 @@ const handleNodeClick = (value) => {
 
   // 将相关的链接对象添加到 chartStartLinks 中
   relatedLinks.forEach(link => {
-    // 如果 chartStartLinks 中没有该链接对象，则添加
+    // 如果 chartStartLinks 中没有该链接对象,则添加
     if (!chartStartLinks.value.some(item => item.source === link.source && item.target === link.target)) {
       chartStartLinks.value.push(link);
     }
@@ -683,7 +740,7 @@ const handleNodeClick = (value) => {
 
   // 把这些 target 值添加到 chartStartData 中
   newTargets.forEach(target => {
-    // 如果 chartStartData 中没有这个 target 名称的节点，则添加
+    // 如果 chartStartData 中没有这个 target 名称的节点,则添加
     if (!chartStartData.value.some(item => item.name === target)) {
       chartStartData.value.push({name: target});
     }
@@ -829,11 +886,11 @@ const findNodeIndex = (name) => {
 const showDescription = (item, value) => {
   item.isOpen = !item.isOpen;
 
-  // 如果展开了，更新 currentIndex，表示当前项被选中
+  // 如果展开了,更新 currentIndex,表示当前项被选中
   if (item.isOpen) {
     currentIndex.value = item.id;
   } else {
-    // 如果收起了，清除 currentIndex
+    // 如果收起了,清除 currentIndex
     if (currentIndex.value === item.id) {
       currentIndex.value = null;
     }
@@ -948,14 +1005,14 @@ const sendMessage = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // 尝试解析响应（兼容非JSON情况）
+    // 尝试解析响应(兼容非JSON情况)
     let data;
     const contentType = response.headers.get('content-type');
     if (contentType?.includes('application/json')) {
       data = await response.json();
     } else {
       const text = await response.text();
-      // 如果返回的是纯文本，包装成统一结构
+      // 如果返回的是纯文本,包装成统一结构
       data = {content: text};
     }
 
@@ -978,7 +1035,7 @@ const sendMessage = async () => {
     // 显示错误提示
     const lastMsg = messageList.value[messageList.value.length - 1];
     if (lastMsg) {
-      lastMsg.content = ["AI 响应失败，请稍后重试"];
+      lastMsg.content = ["AI 响应失败,请稍后重试"];
       lastMsg.loading = false;
     }
 
@@ -1016,9 +1073,9 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
   const relatedNodes = new Set(); // 使用 Set 确保节点唯一
   const centerPoint = chartData.value.find(node => node.name === props.eqAddr); // 地震主节点
 
-  // 递归函数：从当前节点向上追溯，直到找到地震主节点
+  // 递归函数：从当前节点向上追溯souce,直到找到地震主节点
   const traceUp = (currentNode) => {
-    // 如果当前节点是地震主节点，停止递归
+    // 如果当前节点是地震主节点,停止递归
     if (currentNode.name === props.eqAddr) {
       relatedNodes.add(centerPoint);
       return;
@@ -1028,7 +1085,7 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
     // 查找所有从当前节点出发的连接
     const links = chartLinks.value.filter(link => link.target === currentNode.name);
     // console.log(links, "links chartLinks.value.filter(link => link.target === currentNode.name);")
-    // 遍历这些连接，找到对应的源节点
+    // 遍历这些连接,找到对应的源节点
     links.forEach(link => {
       const sourceNode = chartData.value.find(node => node.name === link.source);
       // 如果源节点存在且未被处理过
@@ -1038,20 +1095,31 @@ const findRelatedNodesAndLinks = (forthFilteredData) => {
 
     });
   };
+  //时间节点的target节点,下一个
+  const traceDown = (currentNode) => {
+    // 查找所有从当前节点出发的连接
+    const links = chartLinks.value.filter(link => link.source === currentNode.name);
+    // 遍历这些连接,找到对应的源节点
+    links.forEach(link => {
+      const sourceNode = chartData.value.find(node => node.name === link.target);
+      // 如果源节点存在且未被处理过
+      relatedLinks.push(link); // 将连接加入相关连接列表
+      relatedNodes.add(sourceNode);
+    });
+  }
 
   // 从每个 forthFilteredData 节点开始递归向上追溯
   forthFilteredData.forEach(node => {
     if (!relatedNodes.has(node)) {
     relatedNodes.add(node);
     traceUp(node);
+    traceDown(node)
     }
   });
 
   return {relatedNodes, relatedLinks};
 };
-watch(() => props.currentTime, (newTime) => {
-  updateByTime()
-})
+
 const updateByTime=()=>{
   console.log("props.currentTime",props.currentTime)
   const currentTime = new Date(props.currentTime);
@@ -1063,7 +1131,30 @@ const updateByTime=()=>{
   let SecondPoints = chartData.value.filter(node => secondData.some(dataItem => dataItem.name === node.name));
   let first_secondlink=chartLinks.value.filter(link => SecondPoints.some(dataItem => link.target=== dataItem.name))
   console.log(currentTime,"updateByTime currentTime")
-  const forthFilteredData = chartData.value.filter(node => new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
+  // const forthFilteredData = chartData.value.filter(node => new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
+
+  const forthFilteredData = chartData.value.filter(node => {
+    // 定义目标格式的正则表达式
+    const targetFormatRegex = /^\d{4}年\d{1,2}月\d{1,2}日 \d{1,2}时\d{2}分\d{2}秒$/;
+
+    // 检查 node.name 是否符合目标格式
+    if (!targetFormatRegex.test(node.name)) {
+      return false; // 如果格式不匹配，直接返回 false
+    }
+
+    // 将 node.name 转换为 Date 对象
+    const nodeDate = new Date(node.name.replace(/年|月|日|时|分|秒/g, (match) => {
+      return match === '年' || match === '月' || match === '日' ? '-' : ':';
+    }));
+
+    // 获取当前时间
+    const currentTime = new Date(props.currentTime);
+
+    // 判断 nodeDate 是否早于 currentTime
+    return nodeDate < currentTime;
+  });
+
+
   console.log(forthFilteredData,"forthFilteredData")
   const {relatedNodes, relatedLinks} = findRelatedNodesAndLinks(forthFilteredData)
   console.log(relatedNodes,"relatedNodes")
@@ -1124,7 +1215,16 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', handleResize);
   }
 });
-
+watch(() => props.currentTime, (newTime) => {
+  updateByTime()
+})
+watch(() => props.eqAddr, async (newEqAddr) => {
+  console.log(props.eqAddr,"props.eqAddr")
+  // 调用 getData 获取数据
+  await getData(); // 确保 getData 是一个返回 Promise 的函数
+  // 调用 updateByTime 更新数据
+  updateByTime();
+});
 </script>
 
 <style scoped lang="less">
@@ -1541,7 +1641,7 @@ onBeforeUnmount(() => {
           li::before {
             content: ''; /* 空内容 */
             position: absolute; /* 定位 */
-            right: 10px; /* 左偏移，调整圆点位置 */
+            right: 10px; /* 左偏移,调整圆点位置 */
             top: 20px; /* 垂直居中 */
             transform: translateY(-50%); /* 垂直居中 */
             width: 8px; /* 圆点的宽度 */
@@ -1554,7 +1654,7 @@ onBeforeUnmount(() => {
           //li.clicked {
           //  color: #9ed5ff;
           //  font-weight: 500;
-          //  border-right: 2px solid transparent; /* 透明的边框，使border-image起作用 */
+          //  border-right: 2px solid transparent; /* 透明的边框,使border-image起作用 */
           //  border-image: linear-gradient(to top, #192a63, #7196ff, #192a63); /* 渐变从 #192a63 到更亮的颜色 #4f6abf */
           //  border-image-slice: 1; /* 使渐变充满整个边框 */
           //}
@@ -1569,7 +1669,7 @@ onBeforeUnmount(() => {
       li::before {
         content: ''; /* 空内容 */
         position: absolute; /* 定位 */
-        left: -20px; /* 左偏移，调整圆点位置 */
+        left: -20px; /* 左偏移,调整圆点位置 */
         top: 30px; /* 垂直居中 */
         transform: translateY(-50%); /* 垂直居中 */
         width: 8px; /* 圆点的宽度 */
@@ -1582,7 +1682,7 @@ onBeforeUnmount(() => {
       //li.clicked {
       //  color: #9ed5ff;
       //  font-weight: 500;
-      //  border-right: 2px solid transparent; /* 透明的边框，使border-image起作用 */
+      //  border-right: 2px solid transparent; /* 透明的边框,使border-image起作用 */
       //  border-image: linear-gradient(to top, #192a63, #7196ff, #192a63); /* 渐变从 #192a63 到更亮的颜色 #4f6abf */
       //  border-image-slice: 1; /* 使渐变充满整个边框 */
       //}
