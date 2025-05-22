@@ -201,7 +201,7 @@ const messageList = ref([]);
 const loading = ref(false);
 const chart = ref(null);
 // 永远不会改变的初始值(这里有BUG,不知道为什么变化了)
-const StartData = ref([]);
+// const StartData = ref([]);
 const StartLinks = ref([]);
 const firstData = [
   {
@@ -419,7 +419,7 @@ const echartsOption = ref({
     },
     symbolKeepAspect: false,
     data: chartData.value,
-    links: chartLinks.value
+    links: chartLinks.value,
   }]
 });
 // 计算一共有多少个实体球
@@ -432,93 +432,21 @@ let lastRecordTimeLocal=''
 const timestampToTimeChina=(time)  =>{
   return timeTransfer.timestampToTimeChina(time)
 }
-// const chartLinks=ref([])
- chartLinks.value=[
-  {source:"2022-06-01四川省雅安市芦山县6.1级地震",value:"包含",target:"地震震情信息"},
-  {source:"地震震情信息",value:"包含",target:"地震参数"},
-  {source:"地震参数",value:"震发位置",target:"四川雅安市芦山县"},
-  {source:"地震参数",value:"发震时间",target:"2022年6月1日 17时0分0秒"},
-  {source:"地震参数",value:"震级",target:"6.1级"},
-  {source:"地震参数",value:"震源深度",target:"17km"},
-  {source:"地震参数",value:"经度",target:"102.94度'"},
-  {source:"地震参数",value:"纬度",target:"30.37度"},
-  {source:"地震震情信息",value:"包含",target:"强震监测信息"},
-  {source:"地震震情信息",value:"包含",target:"测震监测信息"},
-  {source:"测震监测信息",value:"类型",target:"逆冲型地震"},
-  {source:"测震监测信息",value:"位于",target:"双石-大川断裂带"},
-  {source:"测震监测信息",value:"距离震中",target:"9公里"},
-  {source:"测震监测信息",value:"受灾范围",target:"约10000平方千米"},
-  {source:"地震震情信息",value:"包含",target:"预报信息"},
-  {source:"预报信息",value:"包含",target:"部门"},
-  {source:"部门",value:"包含",target:"国务院抗震救灾指挥部办公室"},
-  {source:"国务院抗震救灾指挥部办公室",value:"发布",target:"国家地震应急三级响应"},
-  {source:"部门",value:"包含",target:"应急管理部"},
-  {source:"应急管理部",value:"发布",target:"国家地震应急三级响应"},
-  {source:"地震震情信息",value:"包含",target:"余震情况"},
-  {source:"余震情况",value:"发生",target:"四川雅安市芦山县"},
-  {source:"四川雅安市芦山县",value:"截止",target:"2022年6月1日 19时00分00秒"},
-  {source:"2022年6月1日 19时00分00秒",value:"震级",target:"4.5级"},
-  {source:"2022年6月1日 19时00分00秒",value:"震源深度",target:"未知"},
-  {source:"余震情况",value:"发生",target:"四川雅安市芦山县"},
-  {source:"四川雅安市芦山县",value:"截止",target:"2022年6月2日 7时48分00秒"},
-  {source:"2022年6月2日 7时48分00秒",value:"震级",target:"3.2级"},
-  {source:"2022年6月2日 7时48分00秒",value:"震源深度",target:"18km"},
-]
-// const chartData=ref([])
 
 // 获取数据并初始化图表
 const getData = async () => {
   try {
-    // const res = await getChartDataBy(props.eqid)
-    // console.log("res的结果 getData ", res)
-    // // 生成随机时间的函数
-    // const generateRandomTime = () => {
-    //   const start = new Date('2022-06-01T17:30:00Z');
-    //   const end = new Date('2022-06-03T12:00:00Z');
-    //   const randomTime = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-    //   return randomTime.toISOString(); // 返回 ISO 字符串格式的时间
-    // };
-    //
-    // const nodesMap = new Map();
-    //
-    // // 遍历 res 数组,为符合条件的节点添加 time 属性并添加到 Map 中
-    // res.forEach(item => {
-    //   const sourceNode = {...item.source};
-    //   const targetNode = {...item.target};
-    //
-    //   // 检查 sourceNode 是否满足条件
-    //   if (
-    //       sourceNode.name !== props.eqAddr &&
-    //       !firstData.some(dataItem => dataItem.name === sourceNode.name) &&
-    //       !secondData.some(dataItem => dataItem.name === sourceNode.name)
-    //   ) {
-    //     sourceNode.time = generateRandomTime(); // 添加时间属性
-    //   }
-    //
-    //   // 检查 targetNode 是否满足条件
-    //   if (
-    //       targetNode.name !== props.eqAddr &&
-    //       !firstData.some(dataItem => dataItem.name === targetNode.name) &&
-    //       !secondData.some(dataItem => dataItem.name === targetNode.name)
-    //   ) {
-    //     targetNode.time = generateRandomTime(); // 添加时间属性
-    //   }
-    //
-    //   // 添加到 Map 中
-    //   if (!nodesMap.has(sourceNode.name)) {
-    //     nodesMap.set(sourceNode.name, sourceNode);
-    //   }
-    //   if (!nodesMap.has(targetNode.name)) {
-    //     nodesMap.set(targetNode.name, targetNode);
-    //   }
-    // });
+    const res = await getChartDataBy(props.eqid)
+    console.log("res的结果 getData ", res)
     const nodesMap = new Map();
-    chartLinks.value.forEach(item=>{
-      if (!nodesMap.has(item.source)) {
-        nodesMap.set(item.source, {name:item.source});
+    res.forEach(item=>{
+        const sourceNode = {...item.source};
+        const targetNode = {...item.target};
+      if (!nodesMap.has(item.source.name)) {
+        nodesMap.set(sourceNode.name, sourceNode);
       }
-      if (!nodesMap.has(item.target)) {
-        nodesMap.set(item.target, {name:item.target});
+      if (!nodesMap.has(item.target.name)) {
+        nodesMap.set(targetNode.name, targetNode);
       }
     })
     chartData.value = Array.from(nodesMap.values())
@@ -526,11 +454,11 @@ const getData = async () => {
 
     // source(起始节点)、target(目标节点)和关系类型 value
     //线
-    // chartLinks.value = res.map(item => ({
-    //   source: item.source.name,
-    //   target: item.target.name,
-    //   value: item.value.type
-    // }));
+    chartLinks.value = res.map(item => ({
+      source: item.source.name,
+      target: item.target.name,
+      value: item.value.type
+    }));
 
     console.log("chartLinks", chartLinks.value)
 
@@ -543,13 +471,14 @@ const getData = async () => {
         child.sonCount = sonCount;
       });
     });
-    console.log(list.value, "跟新后的数据")
+    // console.log(list.value, "跟新后的数据")
     let centerPoint = chartData.value.find(node => node.name === props.eqAddr); // 地震主节点
     centerPoint = centerPoint ? [centerPoint] : [];
     let firstPoints = chartData.value.filter(node => firstData.some(dataItem => dataItem.name === node.name));
     let center_firstlink=chartLinks.value.filter(link => firstPoints.some(dataItem => link.target=== dataItem.name))
     let SecondPoints = chartData.value.filter(node => secondData.some(dataItem => dataItem.name === node.name));
     let first_secondlink=chartLinks.value.filter(link => SecondPoints.some(dataItem => link.target=== dataItem.name))
+
     chartStartData.value =[
         ...centerPoint,
         ...firstPoints,
@@ -601,7 +530,6 @@ const initChart = (nodes, links) => {
 
   // 特殊节点样式
   echartsOption.value.series[0].data = nodes.value.map(item => {
-
       if (item.name === props.eqAddr) {
         item.symbol = `image:///images/eqentity1.png`
         item.itemStyle = {
@@ -642,8 +570,6 @@ const initChart = (nodes, links) => {
           color: 'rgba(4, 242, 24, 0.7)'
         };
       }
-
-
     return item;
   });
 
@@ -676,19 +602,18 @@ const initChart = (nodes, links) => {
     // 确保所有高亮操作完成后再更新图表
     const newNodes = nodes.value.filter(node => !existingNodeNames.has(node.name));
     newNodes.forEach((newNode, index) => {
-      setTimeout(() => {
+      const targetFormatRegex = /^\d{4}年\d{2}月\d{2}日\d{2}时\d{2}分\d{2}秒$/;
+      // 检查 node.name 是否符合目标格式
+      if (targetFormatRegex.test(newNode.name)) {
         console.log(newNode.name, "highlight");
         echartsInstance.value.dispatchAction({
           type: 'highlight',
           name: newNode.name,
         });
-      }, index * 500); // 每次高亮之间延迟500毫秒
+      }
     });
     echartsInstance.value.setOption(echartsOption.value);
-
   }
-
-
 };
 
 // 点击节点触发函数
@@ -885,65 +810,6 @@ const showDescription = (item, value) => {
   focusNode(value);
 };
 
-// 发送消息
-// const sendMessage = () => {
-//
-//   const message = formData.value.content?.trim();
-//
-//   if (!message) {
-//     ElMessage.warning('请输入内容');
-//     return;
-//   }
-//
-//   messageList.value.push({
-//     type: 0,
-//     content: message,
-//   });
-//
-//   messageList.value.push({
-//     type: 1,
-//     content: [],
-//     loading: true,
-//   });
-//
-//   loading.value = true;
-//
-//   formData.value.content = '';
-//
-//   // 模拟 SSE 连接
-//   const eventSource = new EventSource(`http://localhost:8080/seek/stream?message=${encodeURIComponent(message)}`);
-//
-//   eventSource.onmessage = (event) => {
-//     if (event.data === 'end') {
-//       closeEventSource();
-//       return;
-//     }
-//
-//     try {
-//       const response = JSON.parse(event.data).content;
-//       const lastMsg = messageList.value[messageList.value.length - 1];
-//       lastMsg.content.push(response);
-//
-//       nextTick(() => {
-//         const panel = document.getElementById('message-panel');
-//         if (panel) panel.scrollTop = panel.scrollHeight;
-//       });
-//     } catch (e) {
-//       console.error('解析消息失败:', e);
-//     }
-//   };
-//
-//   eventSource.onerror = (error) => {
-//     console.error('SSE 错误:', error);
-//     closeEventSource();
-//   };
-//   const closeEventSource = () => {
-//     eventSource.close();
-//     const lastMsg = messageList.value[messageList.value.length - 1];
-//     if (lastMsg) lastMsg.loading = false;
-//     loading.value = false;
-//   };
-// };
 
 const sendMessage = async () => {
   const message = formData.value.content?.trim();
@@ -1114,30 +980,39 @@ const updateByTime=()=>{
   let SecondPoints = chartData.value.filter(node => secondData.some(dataItem => dataItem.name === node.name));
   let first_secondlink=chartLinks.value.filter(link => SecondPoints.some(dataItem => link.target=== dataItem.name))
   console.log(currentTime,"updateByTime currentTime")
-  // const forthFilteredData = chartData.value.filter(node => new Date(node.time) && new Date(node.time) <= currentTime && node.name !== props.eqAddr && !firstData.some(dataItem => dataItem.name === node.name) && !secondData.some(dataItem => dataItem.name === node.name));
 
   const forthFilteredData = chartData.value.filter(node => {
     // 定义目标格式的正则表达式
-    const targetFormatRegex = /^\d{4}年\d{1,2}月\d{1,2}日 \d{1,2}时\d{2}分\d{2}秒$/;
+    const targetFormatRegex = /^\d{4}年\d{2}月\d{2}日\d{2}时\d{2}分\d{2}秒$/;
 
     // 检查 node.name 是否符合目标格式
     if (!targetFormatRegex.test(node.name)) {
       return false; // 如果格式不匹配，直接返回 false
     }
 
-    // 将 node.name 转换为 Date 对象
-    const nodeDate = new Date(node.name.replace(/年|月|日|时|分|秒/g, (match) => {
-      return match === '年' || match === '月' || match === '日' ? '-' : ':';
-    }));
+    // 手动解析日期字符串
+    const parts = node.name.match(/(\d{4})年(\d{2})月(\d{2})日(\d{2})时(\d{2})分(\d{2})秒/);
+    if (!parts) {
+      return false; // 如果无法解析，返回 false
+    }
+
+    const year = parseInt(parts[1], 10);
+    const month = parseInt(parts[2], 10) - 1; // 月份从 0 开始
+    const day = parseInt(parts[3], 10);
+    const hour = parseInt(parts[4], 10);
+    const minute = parseInt(parts[5], 10);
+    const second = parseInt(parts[6], 10);
+
+    // 创建 Date 对象
+    const nodeDate = new Date(year, month, day, hour, minute, second);
 
     // 获取当前时间
     const currentTime = new Date(props.currentTime);
+    console.log(node.name, nodeDate, "nodeDate");
 
     // 判断 nodeDate 是否早于 currentTime
     return nodeDate < currentTime;
   });
-
-
   console.log(forthFilteredData,"forthFilteredData")
   const {relatedNodes, relatedLinks} = findRelatedNodesAndLinks(forthFilteredData)
   console.log(relatedNodes,"relatedNodes")
