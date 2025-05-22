@@ -51,6 +51,9 @@
       <div class="restart">
         <button @click="getData">一键复原</button>
       </div>
+      <div class="restart1">
+        <button @click="brightenOldNodesAndLinks">点亮全部</button>
+      </div>
       <div class="chartCount">
         <button>共{{ chartDataCount }}个实体球</button>
       </div>
@@ -427,6 +430,9 @@ const chartDataCount = ref();
 
 const filteredNodes = ref([])
 const filteredLinks = ref([])
+let timeuniqueNodes = ref([]);
+let timeuniqueLinks = ref([]);
+
 let lastRecordTimeLocal=''
 // let lastRecordTimeLocal= timestampToTimeChina(new Date(props.currentTime))
 const timestampToTimeChina=(time)  =>{
@@ -436,6 +442,7 @@ const timestampToTimeChina=(time)  =>{
 // 获取数据并初始化图表
 const getData = async () => {
   try {
+    brightenOldNodesAndLinks()
     const res = await getChartDataBy(props.eqid)
     console.log("res的结果 getData ", res)
     const nodesMap = new Map();
@@ -501,37 +508,224 @@ const getData = async () => {
 };
 // 初始化图表
 // chartStartData chartStartLinks
-const initChart = async(nodes, links)  => {
+// const initChart = async(nodes, links)  => {
+//
+//   if (!chart.value) return;
+//   //
+//   // // 检查数据是否发生变化
+//   const isDataChanged =
+//       JSON.stringify(nodes.value) !== JSON.stringify(echartsOption.value.series[0].data) ||
+//       JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
+//
+//   if (!isDataChanged) {
+//     console.log('数据未变化,跳过渲染');
+//     return; // 直接返回,不执行后续渲染逻辑
+//   }
+//
+//   let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
+//   if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
+//     lastRecordTimeLocal = lastRecordTimeLocaltmp
+//   }
+//
+//   // 获取已存在的节点
+//   let existingNodes=null
+//   existingNodes = echartsOption.value.series[0].data;
+//   const existingNodeNames = new Set(existingNodes.map(node => node.name));
+//
+//   echartsOption.value.series[0].data = nodes.value;
+//   echartsOption.value.series[0].links = links.value;
+//
+//   // 特殊节点样式
+//   echartsOption.value.series[0].data = nodes.value.map(item => {
+//     let itemStyle;
+//     if (!existingNodeNames.has(item.name)) {
+//       if (item.name === props.eqAddr) {
+//         item.symbol = `image:///images/eqentity1.png`
+//         item.itemStyle = {
+//           borderColor: '#f20404',
+//           borderWidth: 2,
+//           shadowBlur: 10,
+//           shadowColor: '#f20404',
+//           color: 'rgba(242, 4, 4, 0.7)',
+//         };
+//       } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+//         item.symbol = `image:///images/eqentity2.png`
+//         item.itemStyle = {
+//           borderColor: '#e2f204',
+//           borderWidth: 2,
+//           shadowBlur: 10,
+//           shadowColor: '#e2f204',
+//           color: 'rgba(226, 242, 4, 0.6)',
+//         };
+//       } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+//         item.symbol = `image:///images/eqentity3.png`
+//         item.itemStyle = {
+//           borderColor: '#04f2c6',
+//           borderWidth: 2,
+//           shadowBlur: 10,
+//           shadowColor: '#04f2c6',
+//           color: 'rgba(4, 242, 198, 0.7)'
+//         };
+//       } else {
+//         item.symbol = `image:///images/eqentity4.png`
+//         item.itemStyle = {
+//           borderColor: '#04f218',
+//           borderWidth: 2,
+//           shadowBlur: 10,
+//           shadowColor: '#04f218',
+//           color: 'rgba(4, 242, 24, 0.7)'
+//         };
+//       }
+//       return item;
+//     }
+//     else{
+//       if (item.name === props.eqAddr) {
+//         item.symbol = `image:///images/eqentity1-1.png`
+//         item.itemStyle = {
+//           borderColor: '#f20404',
+//           borderWidth: 2,
+//           shadowBlur: 0,
+//           shadowColor: '#f20404',
+//           color: 'rgba(242, 4, 4, 0.5)',
+//         };
+//       } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+//         item.symbol = `image:///images/eqentity2-1.png`
+//         item.itemStyle = {
+//           borderColor: '#e2f204',
+//           borderWidth: 2,
+//           shadowBlur: 0,
+//           shadowColor: '#e2f204',
+//           color: 'rgba(226, 242, 4, 0.5)',
+//         };
+//       } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+//         item.symbol = `image:///images/eqentity2-1.png`
+//         item.itemStyle = {
+//           borderColor: '#04f2c6',
+//           borderWidth: 2,
+//           shadowBlur: 0,
+//           shadowColor: '#04f2c6',
+//           color: 'rgba(4, 242, 198, 0.5)'
+//         };
+//       } else {
+//         item.symbol = `image:///images/eqentity4-1.png`
+//         item.itemStyle = {
+//           borderColor: '#04f218',
+//           borderWidth: 2,
+//           shadowBlur: 0,
+//           shadowColor: '#04f218',
+//           color: 'rgba(4, 242, 24, 0.5)'
+//         };
+//       }
+//       return item;
+//     }
+//   });
+//   // 动态设置每条线的样式
+//   echartsOption.value.series[0].links = links.value.map(link => {
+//     let lineStyle;
+//     if (existingNodeNames.has(link.source) && existingNodeNames.has(link.target)) {
+//       // 旧连接线样式
+//       lineStyle = {
+//         opacity: 0.5,
+//         width: 2,
+//         curveness: 0,
+//         color: {
+//           type: 'linear',
+//           x: 0,
+//           y: 0,
+//           x2: 0,
+//           y2: 1,
+//           colorStops: [
+//             {offset: 0, color: '#e0f55a'},
+//             {offset: 1, color: '#639564'}
+//           ],
+//           globalCoord: false
+//         }
+//       }
+//     } else {
+//       // 新连接线样式
+//       lineStyle = {
+//         opacity: 0.9,
+//         width: 2,
+//         curveness: 0,
+//         color: {
+//           type: 'linear',
+//           x: 0,
+//           y: 0,
+//           x2: 0,
+//           y2: 1,
+//           colorStops: [
+//             {offset: 0, color: '#e0f55a'},
+//             {offset: 1, color: '#639564'}
+//           ],
+//           globalCoord: false
+//         }
+//       }
+//     }
+//     return {
+//       ...link,
+//       lineStyle: lineStyle
+//     };
+//   });
+//
+//   if (!echartsInstance.value) {
+//     //
+//     echartsInstance.value = echarts.init(chart.value);
+//     echartsInstance.value.setOption(echartsOption.value);
+//     // 强制调整大小,确保初始渲染时的大小正确
+//     echartsInstance.value.resize();
+//
+//     // 监听 click 事件
+//     echartsInstance.value.on('click', function (params) {
+//       // 判断点击的是节点还是边
+//       if (params.componentType === 'series' && params.seriesType === 'graph') {
+//         if (params.dataType === 'node') {
+//           // 处理节点点击
+//           handleNodeClick(params.data);
+//         } else if (params.dataType === 'edge') {
+//           // 处理边点击
+//         }
+//       }
+//     });
+//
+//     // 添加窗口大小变化监听
+//     window.addEventListener('resize', handleResize);
+//   } else {
+//     await echartsInstance.value.setOption(echartsOption.value);
+//     // 动态调整缩放比例
+//     adjustZoom();
+//   }
+// };
 
+const initChart = async (nodes, links) => {
   if (!chart.value) return;
-  //
-  // // 检查数据是否发生变化
+
+  // 检查数据是否发生变化
   const isDataChanged =
-      JSON.stringify(nodes.value) !== JSON.stringify(echartsOption.value.series[0].data) ||
-      JSON.stringify(links.value) !== JSON.stringify(echartsOption.value.series[0].links);
+      nodes.value.length !== echartsOption.value.series[0].data.length ||
+      links.value.length !== echartsOption.value.series[0].links.length;
 
   if (!isDataChanged) {
     console.log('数据未变化,跳过渲染');
     return; // 直接返回,不执行后续渲染逻辑
   }
 
-  let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
+  let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime);
   if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
-    lastRecordTimeLocal = lastRecordTimeLocaltmp
+    lastRecordTimeLocal = lastRecordTimeLocaltmp;
   }
 
   // 获取已存在的节点
-  let existingNodes=null
+  let existingNodes = null;
   existingNodes = echartsOption.value.series[0].data;
   const existingNodeNames = new Set(existingNodes.map(node => node.name));
 
-  echartsOption.value.series[0].data = nodes.value;
-  echartsOption.value.series[0].links = links.value;
-
   // 特殊节点样式
-  echartsOption.value.series[0].data = nodes.value.map(item => {
+  const updatedNodes = nodes.value.map(item => {
+    let itemStyle;
+    if (!existingNodeNames.has(item.name)) {
+      // 新节点样式
       if (item.name === props.eqAddr) {
-        item.symbol = `image:///images/eqentity1.png`
+        item.symbol = `image:///images/eqentity1.png`;
         item.itemStyle = {
           borderColor: '#f20404',
           borderWidth: 2,
@@ -539,9 +733,8 @@ const initChart = async(nodes, links)  => {
           shadowColor: '#f20404',
           color: 'rgba(242, 4, 4, 0.7)',
         };
-      }
-      else if (firstData.some(dataItem => dataItem.name === item.name)) {
-        item.symbol = `image:///images/eqentity2.png`
+      } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+        item.symbol = `image:///images/eqentity2.png`;
         item.itemStyle = {
           borderColor: '#e2f204',
           borderWidth: 2,
@@ -549,71 +742,148 @@ const initChart = async(nodes, links)  => {
           shadowColor: '#e2f204',
           color: 'rgba(226, 242, 4, 0.6)',
         };
-      }
-      else if (secondData.some(dataItem => dataItem.name === item.name)) {
-        item.symbol = `image:///images/eqentity3.png`
+      } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+        item.symbol = `image:///images/eqentity3.png`;
         item.itemStyle = {
           borderColor: '#04f2c6',
           borderWidth: 2,
           shadowBlur: 10,
           shadowColor: '#04f2c6',
-          color: 'rgba(4, 242, 198, 0.7)'
+          color: 'rgba(4, 242, 198, 0.7)',
         };
-      }
-      else {
-        item.symbol = `image:///images/eqentity4.png`
+      } else {
+        item.symbol = `image:///images/eqentity4.png`;
         item.itemStyle = {
           borderColor: '#04f218',
           borderWidth: 2,
           shadowBlur: 10,
           shadowColor: '#04f218',
-          color: 'rgba(4, 242, 24, 0.7)'
+          color: 'rgba(4, 242, 24, 0.7)',
         };
       }
+    } else {
+      // 旧节点样式
+      if (item.name === props.eqAddr) {
+        item.symbol = `image:///images/eqentity1-1.png`;
+        item.itemStyle = {
+          borderColor: '#f20404',
+          borderWidth: 2,
+          shadowBlur: 0,
+          shadowColor: '#f20404',
+          color: 'rgba(242, 4, 4, 0.5)',
+        };
+      } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+        item.symbol = `image:///images/eqentity2-1.png`;
+        item.itemStyle = {
+          borderColor: '#e2f204',
+          borderWidth: 2,
+          shadowBlur: 0,
+          shadowColor: '#e2f204',
+          color: 'rgba(226, 242, 4, 0.5)',
+        };
+      } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+        item.symbol = `image:///images/eqentity3-1.png`;
+        item.itemStyle = {
+          borderColor: '#04f2c6',
+          borderWidth: 2,
+          shadowBlur: 0,
+          shadowColor: '#04f2c6',
+          color: 'rgba(4, 242, 198, 0.5)',
+        };
+      } else {
+        item.symbol = `image:///images/eqentity4-1.png`;
+        item.itemStyle = {
+          borderColor: '#04f218',
+          borderWidth: 2,
+          shadowBlur: 0,
+          shadowColor: '#04f218',
+          color: 'rgba(4, 242, 24, 0.5)',
+        };
+      }
+    }
     return item;
+  });
+  // 动态设置每条线的样式
+  const updatedLinks = links.value.map(link => {
+    let lineStyle;
+    if (existingNodeNames.has(link.source) && existingNodeNames.has(link.target)) {
+      // 旧连接线样式
+      lineStyle = {
+        opacity: 0.5,
+        width: 2,
+        curveness: 0,
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: '#e0f55a' },
+            { offset: 1, color: '#639564' }
+          ],
+          globalCoord: false
+        }
+      };
+    } else {
+      // 新连接线样式
+      lineStyle = {
+        opacity: 0.9,
+        width: 2,
+        curveness: 0,
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: '#e0f55a' },
+            { offset: 1, color: '#639564' }
+          ],
+          globalCoord: false
+        }
+      };
+    }
+    return {
+      ...link,
+      lineStyle: lineStyle
+    };
   });
 
   if (!echartsInstance.value) {
-    //
     echartsInstance.value = echarts.init(chart.value);
+    echartsOption.value.series[0].data = updatedNodes;
+    echartsOption.value.series[0].links = updatedLinks;
     echartsInstance.value.setOption(echartsOption.value);
-    // 强制调整大小,确保初始渲染时的大小正确
     echartsInstance.value.resize();
 
-    // 监听 click 事件
     echartsInstance.value.on('click', function (params) {
-      // 判断点击的是节点还是边
       if (params.componentType === 'series' && params.seriesType === 'graph') {
         if (params.dataType === 'node') {
-          // 处理节点点击
           handleNodeClick(params.data);
         } else if (params.dataType === 'edge') {
           // 处理边点击
         }
       }
     });
+    // echartsInstance.value.on('mouseover', function (params) {
+    //   if (params.dataType === 'node') {
+    //     // 手动设置当前节点的高亮样式
+    //     echartsInstance.value.dispatchAction({
+    //       type: 'highlight',
+    //       name: params.data.name
+    //     });
+    //   }
+    // });
 
-    // 添加窗口大小变化监听
+
+
     window.addEventListener('resize', handleResize);
   } else {
-    // 如果实例已存在,直接更新数据
+    echartsOption.value.series[0].data = updatedNodes;
+    echartsOption.value.series[0].links = updatedLinks;
     echartsInstance.value.setOption(echartsOption.value);
-    //全部一起亮会冲突，只亮一部分，设置为一个一个亮
-    // 确保所有高亮操作完成后再更新图表
-    const newNodes = nodes.value.filter(node => !existingNodeNames.has(node.name));
-    newNodes.forEach((newNode, index) => {
-      const targetFormatRegex = /^\d{4}年\d{2}月\d{2}日\d{2}时\d{2}分\d{2}秒$/;
-      // 检查 node.name 是否符合目标格式
-      if (targetFormatRegex.test(newNode.name)) {
-        console.log(newNode.name, "highlight");
-        echartsInstance.value.dispatchAction({
-          type: 'highlight',
-          name: newNode.name,
-        });
-      }
-    });
-    await echartsInstance.value.setOption(echartsOption.value);
-    // 动态调整缩放比例
     adjustZoom();
   }
 };
@@ -651,51 +921,129 @@ const adjustZoom = () => {
     }]
   });
 };
+const brightenOldNodesAndLinks = () => {
+  if (!echartsInstance.value) return;
 
+  // 获取已存在的节点和连接线
+  const existingNodes = echartsOption.value.series[0].data;
+  const existingLinks = echartsOption.value.series[0].links;
+
+  // 更新每个节点的样式
+  echartsOption.value.series[0].data = existingNodes.map(item => {
+    // 新节点样式
+    if (item.name === props.eqAddr) {
+      item.symbol = `image:///images/eqentity1.png`;
+      item.itemStyle = {
+        borderColor: '#f20404',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#f20404',
+        color: 'rgba(242, 4, 4, 0.7)',
+      };
+    } else if (firstData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol = `image:///images/eqentity2.png`;
+      item.itemStyle = {
+        borderColor: '#e2f204',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#e2f204',
+        color: 'rgba(226, 242, 4, 0.6)',
+      };
+    } else if (secondData.some(dataItem => dataItem.name === item.name)) {
+      item.symbol = `image:///images/eqentity3.png`;
+      item.itemStyle = {
+        borderColor: '#04f2c6',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f2c6',
+        color: 'rgba(4, 242, 198, 0.7)',
+      };
+    } else {
+      item.symbol = `image:///images/eqentity4.png`;
+      item.itemStyle = {
+        borderColor: '#04f218',
+        borderWidth: 2,
+        shadowBlur: 10,
+        shadowColor: '#04f218',
+        color: 'rgba(4, 242, 24, 0.7)',
+      };
+    }
+    return item;
+  });
+
+  // 更新每条连接线的样式
+  echartsOption.value.series[0].links = existingLinks.map(link => {
+    // 新连接线样式
+    link.lineStyle = {
+      opacity: 0.9,
+      width: 2,
+      curveness: 0,
+      color: {
+        type: 'linear',
+        x: 0,
+        y: 0,
+        x2: 0,
+        y2: 1,
+        colorStops: [
+          { offset: 0, color: '#e0f55a' },
+          { offset: 1, color: '#639564' }
+        ],
+        globalCoord: false
+      }
+    };
+    return link;
+  });
+
+  // 更新图表
+  echartsInstance.value.setOption(echartsOption.value);
+};
 // 点击节点触发函数
-const handleNodeClick = (value) => {
+const handleNodeClick = async (value) => {
   // value:{name:"地震灾情信息",symbolSize:60}
 
   // 打印被点击的节点信息
   console.log(value, "这个节点被点击了");
-
+  brightenOldNodesAndLinks();
   // 获取节点的名称 (name)
   const nodeName = value.name;
 
   // 从 chartLinks 中查找所有 source 等于 nodeName 的对象
   const relatedLinks = chartLinks.value.filter(link => link.source === nodeName);
-
+  // 将更新后的 chartStartLinks 存入 chartChangeLinks
+  chartChangeLinks.value = timeuniqueLinks.value;
   // 将相关的链接对象添加到 chartStartLinks 中
   relatedLinks.forEach(link => {
     // 如果 chartStartLinks 中没有该链接对象,则添加
-    if (!chartStartLinks.value.some(item => item.source === link.source && item.target === link.target)) {
-      chartStartLinks.value.push(link);
+    if (!timeuniqueLinks.value.some(item => item.source === link.source && item.target === link.target)) {
+      chartChangeLinks.value.push(link);
     }
   });
-  // 将更新后的 chartStartLinks 存入 chartChangeLinks
-  chartChangeLinks.value = [...chartStartLinks.value];
+
 
   // 打印更新后的 chartChangeLinks
   console.log("更新后的 chartChangeLinks:", chartChangeLinks.value);
 
   // 提取所有 target 值
   const newTargets = relatedLinks.map(link => link.target);
+  chartChangeData.value =timeuniqueNodes.value
 
   // 把这些 target 值添加到 chartStartData 中
+  console.log(newTargets,chartChangeData.value,"newTargets,chartChangeData.value")
   newTargets.forEach(target => {
     // 如果 chartStartData 中没有这个 target 名称的节点,则添加
-    if (!chartStartData.value.some(item => item.name === target)) {
-      chartStartData.value.push({name: target});
+    if (!timeuniqueNodes.value.some(item => item.name === target)) {
+      chartChangeData.value.push({name: target});
     }
   });
 
   // 将 chartStartData 存入 chartChangeData
-  chartChangeData.value = [...chartStartData.value];
+
 
   // 打印更新后的 chartChangeData
   console.log("更新后的 chartChangeData:", chartChangeData.value);
 
-  updateEchart(chartChangeData.value, chartChangeLinks.value)
+  await updateEchart(chartChangeData.value, chartChangeLinks.value)
+  focusNode (value.name)
 };
 
 const updateEchart = (data, link) => {
@@ -708,7 +1056,7 @@ const updateEchart = (data, link) => {
 
 
   // 特殊节点样式
-  echartsOption.value.series[0].data = chartStartData.value.map(item => {
+  echartsOption.value.series[0].data = data.map(item => {
     if (item.name === props.eqAddr) {
       item.symbol = `image:///images/eqentity1.png`
       item.itemStyle = {
@@ -766,6 +1114,7 @@ const updateEchart = (data, link) => {
       }
     }
   });
+
 }
 
 // 处理窗口大小变化
@@ -1068,32 +1417,35 @@ const updateByTime=()=>{
   console.log(filteredNodes.value, "filteredNodes");
   console.log(filteredLinks.value, "filteredLinks");
 
-  const uniqueNodes = ref([]);
+
+  timeuniqueNodes.value  = []
   const nodeNames = new Set();
 
   filteredNodes.value.forEach(node => {
+    console.log(node,filteredNodes,timeuniqueNodes,"timeuniqueNodes")
     if (!nodeNames.has(node.name)) {
-      uniqueNodes.value.push(node);
+      timeuniqueNodes.value.push(node);
       nodeNames.add(node.name);
     }
   });
 
   // 去重连接
-  const uniqueLinks = ref([]);
+
+  timeuniqueLinks.value  =[]
   const linkStrings = new Set();
 
   filteredLinks.value.forEach(link => {
     const linkString = `${link.source}-${link.target}`;
     if (!linkStrings.has(linkString)) {
-      uniqueLinks.value.push(link);
+      timeuniqueLinks.value.push(link);
       linkStrings.add(linkString);
     }
   });
 
 
-  console.log(uniqueNodes.value, "uniqueNodes");
-  console.log(uniqueLinks.value, "uniqueLinks");
-  initChart(uniqueNodes, uniqueLinks)
+  console.log(timeuniqueNodes.value, "uniqueNodes");
+  console.log(timeuniqueLinks.value, "uniqueLinks");
+  initChart(timeuniqueNodes, timeuniqueLinks)
 }
 // 生命周期钩子
 onMounted(async () => {
@@ -1244,11 +1596,59 @@ watch(() => props.eqAddr, async (newEqAddr) => {
         }
       }
     }
+    .restart1 {
+      button {
+        position: absolute;
+        top: 48px;
+        z-index: 1;
+        // 基础样式
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        padding: 5px 12px;
+        color: white;
+        cursor: pointer;
+        height: 30px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        user-select: none;
 
+        // 悬停时的流动边框
+        &:hover {
+          border-color: transparent; // 隐藏原始边框
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 6px;
+            padding: 1px; // 边框厚度
+            background: linear-gradient(90deg,
+            #0453fc,
+            #00f7ff,
+            #0453fc,);
+            background-size: 200% auto;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 1.5s linear infinite;
+            z-index: 0;
+          }
+        }
+      }
+    }
     .chartCount {
       button {
         position: absolute;
-        top: 46px;
+        top: 86px;
         z-index: 1;
         // 基础样式
         display: inline-flex;
