@@ -585,6 +585,7 @@ const initChart = (nodes, links) => {
     console.log('数据未变化,跳过渲染');
     return; // 直接返回,不执行后续渲染逻辑
   }
+
   let lastRecordTimeLocaltmp = timestampToTimeChina(props.currentTime)
   if (lastRecordTimeLocaltmp != "NaN年0NaN月0NaN日 0NaN:0NaN:0NaN") {
     lastRecordTimeLocal = lastRecordTimeLocaltmp
@@ -671,41 +672,23 @@ const initChart = (nodes, links) => {
   } else {
     // 如果实例已存在,直接更新数据
     echartsInstance.value.setOption(echartsOption.value);
-  }
-  // 将新节点突出显示
-  // 将新节点及其邻接节点突出显示
-  // const newNodes = nodes.value.filter(node => !existingNodeNames.has(node.name));
-  // const highlightedNodes = new Set(newNodes.map(node => node.name));
-  //
-  // // 收集所有邻接节点
-  // links.value.forEach(link => {
-  //   if (highlightedNodes.has(link.source) || highlightedNodes.has(link.target)) {
-  //     highlightedNodes.add(link.source);
-  //     highlightedNodes.add(link.target);
-  //   }
-  // });
-  //
-  // // 高亮所有新节点及其邻接节点
-  // highlightedNodes.forEach(nodeName => {
-  //   echartsInstance.value.dispatchAction({
-  //     type: 'highlight',
-  //     name: nodeName,
-  //   });
-  // });
+    //全部一起亮会冲突，只亮一部分，设置为一个一个亮
+    // 确保所有高亮操作完成后再更新图表
+    const newNodes = nodes.value.filter(node => !existingNodeNames.has(node.name));
+    newNodes.forEach((newNode, index) => {
+      setTimeout(() => {
+        console.log(newNode.name, "highlight");
+        echartsInstance.value.dispatchAction({
+          type: 'highlight',
+          name: newNode.name,
+        });
+      }, index * 500); // 每次高亮之间延迟500毫秒
+    });
+    echartsInstance.value.setOption(echartsOption.value);
 
-  // 确保所有高亮操作完成后再更新图表
-  // echartsInstance.value.setOption(echartsOption.value);
-  nodes.value.forEach((newNode, index) => {
-    if (!existingNodeNames.has(newNode.name)) {
-      console.log(newNode.name, "highlight");
-      // 新节点高亮
-      echartsInstance.value.dispatchAction({
-        type: 'highlight',
-        name: newNode.name,
-      });
-    }
-  });
-  echartsInstance.value.setOption(echartsOption.value);
+  }
+
+
 };
 
 // 点击节点触发函数
