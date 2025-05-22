@@ -374,7 +374,7 @@ const echartsOption = ref({
     symbolSize: 70,
     nodeScaleRatio: 1,
     roam: true,
-    zoom: 0.35,
+    zoom: 0.8,
     draggable: true,
     focusNodeAdjacency: false,
     edgeSymbol: ['circle', 'arrow'],
@@ -501,7 +501,7 @@ const getData = async () => {
 };
 // 初始化图表
 // chartStartData chartStartLinks
-const initChart = (nodes, links) => {
+const initChart = async(nodes, links)  => {
 
   if (!chart.value) return;
   //
@@ -612,8 +612,44 @@ const initChart = (nodes, links) => {
         });
       }
     });
-    echartsInstance.value.setOption(echartsOption.value);
+    await echartsInstance.value.setOption(echartsOption.value);
+    // 动态调整缩放比例
+    adjustZoom();
   }
+};
+const adjustZoom = () => {
+  if (!echartsInstance.value) return;
+
+  // 获取图表容器的宽度和高度
+  const containerWidth = chart.value.clientWidth;
+  const containerHeight = chart.value.clientHeight;
+
+  // 获取图表的边界框
+  const bbox = echartsInstance.value.getZr().storage.getDisplayList().reduce((acc, el) => {
+    const rect = el.getBoundingRect();
+    return {
+      x: Math.min(acc.x, rect.x),
+      y: Math.min(acc.y, rect.y),
+      width: Math.max(acc.width, rect.width),
+      height: Math.max(acc.height, rect.height)
+    };
+  }, { x: Infinity, y: Infinity, width: 0, height: 0 });
+
+  // 计算边界框的宽度和高度
+  const bboxWidth = bbox.width;
+  const bboxHeight = bbox.height;
+
+  // 计算缩放比例
+  const scaleX = containerWidth / bboxWidth;
+  const scaleY = containerHeight / bboxHeight;
+  const zoom = Math.min(scaleX, scaleY)/5;
+  console.log(zoom/10,"zoomzoom")
+  // 设置缩放比例
+  echartsInstance.value.setOption({
+    series: [{
+      zoom: zoom
+    }]
+  });
 };
 
 // 点击节点触发函数
@@ -636,7 +672,6 @@ const handleNodeClick = (value) => {
       chartStartLinks.value.push(link);
     }
   });
-
   // 将更新后的 chartStartLinks 存入 chartChangeLinks
   chartChangeLinks.value = [...chartStartLinks.value];
 
