@@ -11,19 +11,20 @@
 // export const AmapApiLocal="http://59.213.183.7/restapi/v3"
  export const AmapApiLocal="https://restapi.amap.com/v3"
 
- export const webSocketLocal ="39.106.228.188:8081"
+ export const webSocketLocal ="81.70.200.28:8081"
 // export const webSocketLocal ="59.213.183.7/websocket"
 
 export const zaisunipLocal = "http://10.16.7.69/zaisun"
 // export const zaisunimageipLocal = "http://59.213.183.7/jcpt"
 //
 // export const zaisunimageipLocal = "http://10.16.7.69/zaisunimage"
-export const zaisunimageipLocal = "http://39.106.228.188:8080/"
+// 原本是灾损系统的8080的端口
+export const zaisunimageipLocal = "http://assessment.free.idcfengye.com/"
 
 // export const SystemIP = "http://59.213.183.7/prod-api"
 // export const SystemIPLocal = "http://localhost:8080"
 // export const zaiSunFuZhuJueCe = "http://59.213.183.7/image"
-export const zaiSunFuZhuJueCe = "http://39.106.228.188:8080/juece"
+export const zaiSunFuZhuJueCe = "http://http://assessment.free.idcfengye.com/juece"
 
 
 

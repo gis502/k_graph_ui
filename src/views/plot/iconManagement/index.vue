@@ -28,7 +28,7 @@
       <el-table-column prop="img" label="符号" width="60" align="center">
         <template #default="scope">
           <div v-if="scope.row.img && scope.row.img !== ''">
-            <img width="30px" height="30px" :src="'http://localhost:8081'+'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
+            <img width="30px" height="30px" :src="'http://81.70.200.28'+'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">
 <!--            <img width="30px" height="30px" :src="'http://59.213.183.7/prod-api/'+'/uploads/PlotsPic/' +scope.row.img+ '.png?t=' + new Date().getTime()" alt="暂无符号">-->
           </div>
           <div v-else>
@@ -144,7 +144,7 @@
                     :src="
           file.url.startsWith('blob:')
         ? file.url
-        : '\'http://localhost:8081\'' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
+        : '\'http://81.70.200.28\'' +'/uploads/PlotsPic/' + file.url + '.png?t=' + new Date().getTime()
       "
                 >
                 <span class="el-upload-list__item-actions">

@@ -257,7 +257,7 @@
     </div>
 
     <div class="logo-left-weather">
-      <div class="company-name">智链穹眸——基于智能语义引擎的震后灾害链研判与应急决策系统</div>
+      <div class="company-name">“应急智控”——基于AI+GIS的时空多维地震态势感知与智能决策系统</div>
       <!-- 以下是实时获取时间的代码 -->
       <div class="logo-left-time">
         <div class="logo-time-hour">

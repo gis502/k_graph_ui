@@ -1040,7 +1040,7 @@ const sendMessage = async () => {
   loading.value = true;
 
   try {
-    const response = await fetch('http://39.106.228.188:5000/conversation_gpt', {
+    const response = await fetch('http://81.70.200.28:5000/conversation_gpt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
