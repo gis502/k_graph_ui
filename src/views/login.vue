@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <h3 class="title">“应急智控”——基于AI+GIS的时空多维地震态势感知与智能决策系统</h3>
+    <h3 class="title">智链穹眸——基于智能语义引擎的震后灾害链研判与应急决策系统</h3>
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <el-form-item prop="username">
         <el-input
@@ -59,7 +59,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2024-2025 “应急智控”——基于AI+GIS的时空多维地震态势感知与智能决策系统</span>
+      <span>Copyright © 2024-2025 智链穹眸——基于智能语义引擎的震后灾害链研判与应急决策系统</span>
     </div>
   </div>
 </template>

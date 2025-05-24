@@ -57,21 +57,21 @@
       <div class="chartCount">
         <button>共{{ chartDataCount }}个实体球</button>
       </div>
-      <div class="graphLagend">
-        <div class="legendHeader">
-          <span>图例详情</span>
-        </div>
-        <div class="legendContent">
-          <div class="legend-item" v-for="item in legend " :key="item.id">
-            <div class="legend-image">
-              <img :src="item.img" alt="图例说明">
-            </div>
-            <div class="legend-description">
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+<!--      <div class="graphLagend">-->
+<!--        <div class="legendHeader">-->
+<!--          <span>图例详情</span>-->
+<!--        </div>-->
+<!--        <div class="legendContent">-->
+<!--          <div class="legend-item" v-for="item in legend " :key="item.id">-->
+<!--            <div class="legend-image">-->
+<!--              <img :src="item.img" alt="图例说明">-->
+<!--            </div>-->
+<!--            <div class="legend-description">-->
+<!--              <span>{{ item.description }}</span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
 
     <div class="toggle-button open" @click="updateChartData" v-show="ifShowCatalog">问答助手</div>

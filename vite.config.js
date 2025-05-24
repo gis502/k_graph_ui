@@ -39,7 +39,7 @@ export default defineConfig(({ mode, command }) => {
         '/prod-api': {
           target: 'http://81.70.200.28:8081',
           changeOrigin: true,
-          rewrite: (p) => p.replace(/^\/dev-api/, '')
+          rewrite: (p) => p.replace(/^\/prod-api/, '')
         },
         '/tdtproxy':{
           target: 'http://t0.tianditu.com/',
