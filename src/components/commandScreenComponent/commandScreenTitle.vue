@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="logo-left-weather">
-      <div class="company-name">灾链智控--基于大语言模型与知识图谱的地震应急信息平台</div>
+      <div class="company-name">“应急智控”——基于AI+GIS的时空多维地震态势感知与智能决策系统</div>
       <!-- 以下是实时获取时间的代码 -->
       <div class="logo-left-time">
         <div class="logo-time-hour">
