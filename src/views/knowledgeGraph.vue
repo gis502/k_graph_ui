@@ -469,6 +469,8 @@ const getData = async () => {
 
     console.log("chartLinks", chartLinks.value)
 
+    allDataLinks = chartLinks.value
+
     chartDataCount.value = chartData.value.length;
 
     // 给每个子项计算 sonCount
