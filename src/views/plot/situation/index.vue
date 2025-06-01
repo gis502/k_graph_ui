@@ -238,7 +238,7 @@
     <div class="legend-container" style="position: absolute;bottom: 0;right: 0;" v-if="showLegend">
       <el-table stripe :row-style="{ height: '30px' }" :cell-style="{ padding: '0px' }" :data="legendPlotData"
                 style="width: 100%">
-        <el-table-column label="图标" width="50">
+        <el-table-column label="S" width="50">
           <template v-slot="scope">
 <!--        <img :src="'http://59.213.183.7/prod-api/' +'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()">-->
             <img :src="'http://47.92.216.173:81'+'/uploads/PlotsPic/' +scope.row.icon+ '.png?t=' + new Date().getTime()"
